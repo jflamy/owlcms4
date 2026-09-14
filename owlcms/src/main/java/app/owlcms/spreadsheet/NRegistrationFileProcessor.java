@@ -8,6 +8,7 @@ package app.owlcms.spreadsheet;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -21,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -192,8 +194,11 @@ public class NRegistrationFileProcessor {
 	 * 
 	 */
 	Map<String, Athlete> priorAthletes = new HashMap<>();
+	Map<String, List<Athlete>> priorAthletesByFoldedName = new HashMap<>();
 
 	private void updateAthletes(Consumer<String> errorConsumer, RCompetition c, List<RAthlete> sbdeAthletes) {
+		priorAthletes.clear();
+		priorAthletesByFoldedName.clear();
 		// logger.debug(") step 1 - copy away participations");
 		JPAService.runInTransaction(em -> {
 			// retrieve existing ids
@@ -201,6 +206,8 @@ public class NRegistrationFileProcessor {
 			        .forEach(a -> {
 				        String athleteKey = athleteKey(a);
 				        priorAthletes.put(athleteKey, a);
+				        String foldedName = accentInsensitiveNameKey(a.getLastName(), a.getRawFirstName());
+				        priorAthletesByFoldedName.computeIfAbsent(foldedName, ignored -> new ArrayList<>()).add(a);
 
 				        if (!isOnlyAddAthletes()) {
 					        // copy the participation categories away
@@ -239,7 +246,7 @@ public class NRegistrationFileProcessor {
 			LinkedHashSet<Category> sbdeTeams = RCompetition.getTeams(sbdeAthlete.getId());
 			LinkedHashSet<Category> sbdeMixedTeams = RCompetition.getMixedTeams(sbdeAthlete.getId());
 
-			Athlete existingAthlete = priorAthletes.get(athleteKey(sbdeAthlete));
+			Athlete existingAthlete = findPriorAthlete(sbdeAthlete);
 			if (existingAthlete != null) {
 				if (isUpdateExistingAthletes() || isDeleteAthletes()) {
 					existingAthlete.getParticipations().clear();
@@ -336,7 +343,29 @@ public class NRegistrationFileProcessor {
 	}
 
 	private boolean isPriorAthlete(Athlete a2) {
-		return priorAthletes.get(athleteKey(a2)) != null;
+		return findPriorAthlete(a2) != null;
+	}
+
+	private Athlete findPriorAthlete(Athlete athlete) {
+		Athlete exactMatch = priorAthletes.get(athleteKey(athlete));
+		if (exactMatch != null) {
+			return exactMatch;
+		}
+
+		String foldedName = accentInsensitiveNameKey(athlete.getLastName(), athlete.getRawFirstName());
+		List<Athlete> nameMatches = priorAthletesByFoldedName.getOrDefault(foldedName, List.of());
+		if (nameMatches.size() == 1) {
+			return nameMatches.get(0);
+		}
+		if (nameMatches.size() > 1) {
+			List<Athlete> lotMatches = nameMatches.stream()
+			        .filter(candidate -> Objects.equals(candidate.getLotNumber(), athlete.getLotNumber()))
+			        .toList();
+			if (lotMatches.size() == 1) {
+				return lotMatches.get(0);
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -372,6 +401,15 @@ public class NRegistrationFileProcessor {
 		return normalizeAthleteKeyPart(lastName) + "_"
 		        + normalizeAthleteKeyPart(firstName) + "_"
 		        + normalizeAthleteKeyPart(lotNumber);
+	}
+
+	static String accentInsensitiveNameKey(String lastName, String firstName) {
+		return removeDiacritics(lastName) + "_" + removeDiacritics(firstName);
+	}
+
+	private static String removeDiacritics(String value) {
+		String normalized = Normalizer.normalize(normalizeAthleteKeyPart(value), Normalizer.Form.NFD);
+		return normalized.replaceAll("\\p{M}+", "");
 	}
 
 	private static String normalizeAthleteKeyPart(Object value) {

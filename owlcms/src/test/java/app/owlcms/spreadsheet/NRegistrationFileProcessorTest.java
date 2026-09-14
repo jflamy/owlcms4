@@ -15,4 +15,11 @@ public class NRegistrationFileProcessorTest {
             NRegistrationFileProcessor.athleteKey("IRMA", "SCOTT", 13),
             NRegistrationFileProcessor.athleteKey("irma", "scott", 13));
     }
-}
+
+    @Test
+    public void accentInsensitiveNameKeyIgnoresMissingDiacritics() {
+        assertEquals(
+                NRegistrationFileProcessor.accentInsensitiveNameKey("GONZÁLEZ", "JOSÉ"),
+                NRegistrationFileProcessor.accentInsensitiveNameKey("gonzalez", "jose"));
+    }
+    }
