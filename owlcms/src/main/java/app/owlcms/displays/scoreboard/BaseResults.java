@@ -103,7 +103,7 @@ public class BaseResults extends LitTemplate
 	private HashMap<Athlete, String> athleteToFlag = new HashMap<>();
 	private ArrayNode cattempts;
 	private boolean darkMode = true;
-	private boolean downSilenced;
+	private boolean downSilenced = true;
 	private Double emFontSize;
 	private FieldOfPlay fop;
 	private Group group;
@@ -117,7 +117,7 @@ public class BaseResults extends LitTemplate
 	private boolean decisionSectionDecisionActive;
 	private String routeParameter;
 	private ArrayNode sattempts;
-	private boolean silenced;
+	private boolean silenced = true;
 	private boolean teamFlags;
 	private Double teamWidth;
 	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());

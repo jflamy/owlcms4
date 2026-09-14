@@ -120,18 +120,12 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 
 	@Override
 	public final void setEmFontSize(Double emFontSize) {
-		Double medalFontSize;
-		// subjective visual kludging.
 		if (emFontSize == null) {
 			emFontSize = 1.0;
-			medalFontSize = 1.5;
-		} else {
-			//medalFontSize = emFontSize * 1.5;
-			medalFontSize = emFontSize;
 		}
 		super.setEmFontSize(emFontSize);
 		pushEmSize(this.getBoard().getElement(), emFontSize);
-		pushEmSize(this.getMedalsBoard().getElement(),medalFontSize);
+		pushEmSize(this.getMedalsBoard().getElement(), emFontSize);
 		pushEmSize(this.getStartListBoard().getElement(), emFontSize);
 	}
 	
@@ -147,9 +141,6 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		uiEventBusRegister(this, getFop());
-		
-		// overrides common to all enclosed boards
-		this.getElement().getStyle().set("--medalOverride", "2em");
 		
 		DisplayParameters board = (DisplayParameters) this.getBoard();
 		board.setFop(getFop());
