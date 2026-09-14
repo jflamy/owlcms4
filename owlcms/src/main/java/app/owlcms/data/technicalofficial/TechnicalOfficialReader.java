@@ -53,7 +53,7 @@ public class TechnicalOfficialReader {
                             break;
                         }
                         try {
-                            TechnicalOfficial official = readRow(row, colIndices);
+                            TechnicalOfficial official = readRow(row, colIndices, errors);
                             if (official != null) {
                                 TechnicalOfficial mergedOff = em.merge(official);
                                 officials.add(mergedOff);
@@ -209,7 +209,7 @@ public class TechnicalOfficialReader {
         return indices;
     }
 
-    private TechnicalOfficial readRow(Row row, int[] colIndices) {
+    private TechnicalOfficial readRow(Row row, int[] colIndices, StringBuilder errors) {
         Cell currentCell = colIndices[0] >= 0 ? row.getCell(colIndices[0]) : null;
         try {
             if (isEmptyCell(currentCell)) {
@@ -248,8 +248,12 @@ public class TechnicalOfficialReader {
                 if (teamRoleStr != null && !teamRoleStr.isEmpty()) {
                     teamRole = findEnumValueForTranslatedTeamRole(teamRoleStr);
                     if (teamRole == null) {
-                        logger.error("Invalid TeamRole value '{}' for {} {} (row {}) - skipping TeamRole assignment", 
-                            teamRoleStr, firstName, lastName, row.getRowNum() + 1);
+                        String error = "Invalid TeamRole value '" + teamRoleStr + "' for " + firstName + " "
+                            + lastName + " (row " + (row.getRowNum() + 1) + ") - skipping TeamRole assignment";
+                        logger.error(error);
+                        if (errors != null) {
+                            errors.append(error).append("\n");
+                        }
                     }
                 }
             }
