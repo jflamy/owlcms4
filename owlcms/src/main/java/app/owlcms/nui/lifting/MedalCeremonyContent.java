@@ -96,10 +96,6 @@ public class MedalCeremonyContent extends BaseNavigationContent implements Navig
 	private TreeGrid<AwardNode> awardTree;
 	private Button endMedalCeremony;
 	private Group medalGroup;
-	private Category medalCategory;
-	private AgeGroup medalAgeGroup;
-	private Championship medalChampionship;
-	private Button startMedalCeremony;
 
 	@Override
 	public String getMenuTitle() {
@@ -149,23 +145,18 @@ public class MedalCeremonyContent extends BaseNavigationContent implements Navig
 		CeremonyScope scope = currentFop.getActiveCeremony();
 		if (scope != null && scope.isMedals()) {
 			this.medalGroup = scope.session();
-			this.medalCategory = scope.category();
-			this.medalAgeGroup = scope.ageGroup();
-			this.medalChampionship = scope.championship();
 		}
 		setSizeFull();
 
-		this.startMedalCeremony = new Button(Translator.translate("BreakMgmt.startMedals"),
-		        new Icon(VaadinIcon.PLAY), event -> startMedalCeremony());
 		this.endMedalCeremony = new Button(Translator.translate("BreakMgmt.endMedals"),
 		        new Icon(VaadinIcon.STOP), event -> endMedalCeremony());
-		HorizontalLayout controls = new HorizontalLayout(this.startMedalCeremony, this.endMedalCeremony);
-		controls.setAlignItems(Alignment.CENTER);
+		this.endMedalCeremony.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
 
 		VerticalLayout controlsColumn = new VerticalLayout();
 		controlsColumn.setPadding(true);
 		controlsColumn.setSpacing(true);
-		controlsColumn.add(new NativeLabel(Translator.translate("Session")), createSessionSelector(currentFop), controls);
+		controlsColumn.add(new NativeLabel(Translator.translate("Session")), createSessionSelector(currentFop),
+		        this.endMedalCeremony);
 		controlsColumn.setWidth("35%");
 		controlsColumn.setHeightFull();
 
@@ -189,23 +180,17 @@ public class MedalCeremonyContent extends BaseNavigationContent implements Navig
 
 	private TreeGrid<AwardNode> createAwardTree() {
 		TreeGrid<AwardNode> tree = new TreeGrid<>();
-		tree.setSelectionMode(SelectionMode.SINGLE);
+		tree.setSelectionMode(SelectionMode.NONE);
 		tree.addHierarchyColumn(node -> node.label).setHeader(Translator.translate("Championship.Medals"))
 		        .setWidth("20rem").setFlexGrow(0);
 		tree.addComponentColumn(this::createShowScopeButton).setAutoWidth(true).setFlexGrow(0);
 		tree.setSizeFull();
-		tree.asSingleSelect().addValueChangeListener(event -> {
-			AwardNode selected = event.getValue();
-			this.medalCategory = selected != null ? selected.category : null;
-			this.medalAgeGroup = selected != null ? selected.ageGroup : null;
-			this.medalChampionship = selected != null ? selected.championship : null;
-			updateButtonState();
-		});
 		return tree;
 	}
 
 	private Button createShowScopeButton(AwardNode node) {
-		Button button = new Button(Translator.translate("Results.Start"), event -> showAwardScope(node));
+		Button button = new Button(Translator.translate("Results.Start"), new Icon(VaadinIcon.PLAY),
+		        event -> showAwardScope(node));
 		button.setAriaLabel(Translator.translate("DisplayParameters.PublicDisplay"));
 		button.addThemeVariants(ButtonVariant.LUMO_SMALL);
 		if (fitsMedalDisplay(node)) {
@@ -265,9 +250,6 @@ public class MedalCeremonyContent extends BaseNavigationContent implements Navig
 				selectedItem[0] = null;
 			}
 			this.medalGroup = null;
-			this.medalCategory = null;
-			this.medalAgeGroup = null;
-			this.medalChampionship = null;
 			root.setText(sessionLabel(null));
 			refreshAwardTree();
 			updateButtonState();
@@ -292,9 +274,6 @@ public class MedalCeremonyContent extends BaseNavigationContent implements Navig
 			selectedItem[0] = event.getSource();
 			root.setText(sessionLabel(group));
 			this.medalGroup = group;
-			this.medalCategory = null;
-			this.medalAgeGroup = null;
-			this.medalChampionship = null;
 			refreshAwardTree();
 			updateButtonState();
 		});
@@ -443,21 +422,6 @@ public class MedalCeremonyContent extends BaseNavigationContent implements Navig
 		startBreakIfNeeded(currentFop);
 		currentFop.fopEventPost(new FOPEvent.CeremonyStarted(CeremonyType.MEDALS, this.medalGroup, node.championship,
 		        node.ageGroup, node.category, this));
-		this.medalCategory = node.category;
-		this.medalAgeGroup = node.ageGroup;
-		this.medalChampionship = node.championship;
-		updateButtonState();
-	}
-
-	private void startMedalCeremony() {
-		FieldOfPlay currentFop = getFop();
-		if (currentFop == null) {
-			return;
-		}
-		startBreakIfNeeded(currentFop);
-		currentFop.fopEventPost(new FOPEvent.CeremonyStarted(
-		        CeremonyType.MEDALS, this.medalGroup, this.medalChampionship,
-		        this.medalAgeGroup, this.medalCategory, this));
 		updateButtonState();
 	}
 
@@ -480,20 +444,12 @@ public class MedalCeremonyContent extends BaseNavigationContent implements Navig
 	}
 
 	private void updateButtonState() {
-		if (this.startMedalCeremony == null || this.endMedalCeremony == null) {
+		if (this.endMedalCeremony == null) {
 			return;
 		}
 		FieldOfPlay currentFop = getFop();
 		boolean ceremonyActive = currentFop != null && currentFop.getCeremonyType() == CeremonyType.MEDALS;
-		this.startMedalCeremony.setEnabled(currentFop != null);
 		this.endMedalCeremony.setEnabled(ceremonyActive);
-		this.startMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		this.endMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		if (ceremonyActive) {
-			this.endMedalCeremony.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		} else if (this.medalGroup != null) {
-			this.startMedalCeremony.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		}
 	}
 
 	@Subscribe
