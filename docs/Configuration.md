@@ -49,9 +49,10 @@ The athlete timer milestones can be changed by copying `timing/timing.properties
 
 | System Property Name (-D) | Environment Variable Name | Description                                                  |
 | ------------------------- | ------------------------- | ------------------------------------------------------------ |
-| remote                    | OWLCMS_REMOTE             | URL to reach the publicresults site.<br />ex: https://results.fly.io (remote cloud) or http://192.168.1.101:8082 (local network without https) |
+| enableEventForwarding     | OWLCMS_ENABLEEVENTFORWARDING | default=true<br />If explicitly set to false, disables all event forwarding, including connections configured in the application UI and destinations supplied through environment variables. Setting OWLCMS_REMOTE or OWLCMS_VIDEODATA to an empty value only omits that environment destination; it does not disable connections configured in the UI. |
+| remote                    | OWLCMS_REMOTE             | Adds a public-results destination to the connections configured in the application database.<br />Example: https://results.fly.io (remote cloud) or http://192.168.1.101:8082 (local network without HTTPS). |
 | updateKey                 | OWLCMS_UPDATEKEY          | Secret shared between owlcms and publicresults. An arbitrary sequence of characters. |
-| videodata                 | OWLCMS_VIDEODATA          | Same as OWLCMS_REMOTE.  A second identical set of data is sent to the videodata URL to be processed by software that updates video screens (such as https://github.com/nemikor-solutions/wise-eyes)<br />Beware of the spelling. |
+| videodata                 | OWLCMS_VIDEODATA          | Adds a video-data destination to the connections configured in the application database. The Control Panel uses this variable to communicate its event-forwarding destination to owlcms. The same competition events are sent to this URL for software that updates video screens, such as https://github.com/nemikor-solutions/wise-eyes.<br />Beware of the spelling. |
 | videoDataKey              | OWLCMS_VIDEODATAKEY       | Same as OWLCMS_UPDATEKEY but to communicate with OWLMCS_VIDEODATA |
 
 ### JDBC Parameters
