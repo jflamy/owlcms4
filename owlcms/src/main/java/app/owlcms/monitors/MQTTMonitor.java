@@ -1007,7 +1007,16 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		if (OwlcmsFactory.isImportInProgress()) {
 			return;
 		}
-		this.client.publish(topic, message);
+		boolean connectedBeforePublish = isConnected();
+		try {
+			this.client.publish(topic, message);
+		} catch (MqttException e) {
+			if (connectedBeforePublish) {
+				throw e;
+			}
+			logger.debug("{}MQTT publish failed while disconnected topic={}: {}",
+			        FieldOfPlay.getLoggingName(getFop()), topic, e.getMessage());
+		}
 	}
 
 	private void publishSimulator(String topic, MqttMessage message) throws MqttException, MqttPersistenceException {
@@ -1068,9 +1077,9 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 						new MqttMessage("{}".getBytes(StandardCharsets.UTF_8)));
 			}
 		} catch (MqttPersistenceException e1) {
-			logger.error("cannot publish start athlete timer", e1);
+			logger.error("cannot publish start athlete timer: {}", LoggerUtils.exceptionMessage(e1));
 		} catch (MqttException e1) {
-			logger.error("cannot publish start athlete timer", e1);
+			logger.error("cannot publish start athlete timer: {}", LoggerUtils.exceptionMessage(e1));
 		}
 	}
 
@@ -1203,9 +1212,9 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			publish("owlcms/fop/stop/" + this.getFop().getName(),
 					new MqttMessage(("" + timeRemaining).getBytes(StandardCharsets.UTF_8)));
 		} catch (MqttPersistenceException e1) {
-			logger.error("cannot publish stop athlete timer", e1);
+			logger.error("cannot publish stop athlete timer: {}", LoggerUtils.exceptionMessage(e1));
 		} catch (MqttException e1) {
-			logger.error("cannot publish stop athlete timer", e1);
+			logger.error("cannot publish stop athlete timer: {}", LoggerUtils.exceptionMessage(e1));
 		}
 	}
 
