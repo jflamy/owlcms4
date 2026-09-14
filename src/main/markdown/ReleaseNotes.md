@@ -10,6 +10,16 @@
 
 **New in Release 68.0**
 
+- 68.0.0-beta17: Technical official spreadsheet imports now report invalid team-role values in the upload dialog.
+
+- 68.0.0-beta17: SBDE imports match existing athletes case-insensitive, diacritic-insensitive.
+
+- 68.0.0-beta17: Fixed normalization of names to Olympic Data Format guidelines, unless `dontFixNames` feature toggle is on.
+
+- 68.0.0-beta17: Optional projected ranks on scoreboards remain visible until the athlete clock is stopped for the first time.
+
+- 68.0.0-beta17: Removed spurious errors when MQTT is known to be unreachable.
+
 - 68.0.0-beta17: Collar threshold was not being exported/imported in JSON files.
 
 - 68.0.0-beta17: Changed the wording for the CJ break duration override rules to be inclusve (6 or less, 12 or more)
