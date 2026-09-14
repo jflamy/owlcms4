@@ -919,7 +919,7 @@ public class BaseResults extends LitTemplate
 	}
 
 	private void computeProjectedRankText(FieldOfPlay fop) {
-		if (!Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_PROJECTED_RANKS)) {
+		if (!Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_PROJECTED_RANKS)) {
 			clearProjectedRankText();
 			return;
 		}

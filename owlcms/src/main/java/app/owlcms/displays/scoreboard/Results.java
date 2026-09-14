@@ -96,7 +96,7 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		this.getElement().setProperty("showDecisionSection",
 		        Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION));
 		this.getElement().setProperty("showProjectedRanks",
-		        Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_PROJECTED_RANKS));
+		        Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_PROJECTED_RANKS));
 		this.getElement().setProperty("showScoreboardTimers",
 		        Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_SCOREBOARD_TIMERS));
 		overrideColors(this.getElement());
@@ -206,11 +206,20 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		super.onAttach(attachEvent);
 		FieldOfPlay fop = getFop();
 		if (fop != null) {
-			this.getElement().setProperty("projectedRankClockStarted",
-			        fop.getState() == FOPState.TIME_RUNNING || fop.getState() == FOPState.TIME_STOPPED);
+			this.getElement().setProperty("projectedRankClockStopped", fop.getState() == FOPState.TIME_STOPPED);
 		}
 		if (Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION)) {
 			syncStateFromFop(fop);
+		}
+	}
+
+	/** A not-running clock shown for an athlete re-enables the projected rank until the next stop. */
+	@Override
+	protected void doUpdate(Athlete a, UIEvent e) {
+		super.doUpdate(a, e);
+		FieldOfPlay fop = e != null ? e.getFop() : null;
+		if (fop != null && fop.getState() == FOPState.CURRENT_ATHLETE_DISPLAYED) {
+			this.getElement().setProperty("projectedRankClockStopped", false);
 		}
 	}
 
@@ -497,11 +506,10 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		});
 	}
 
-	/** Reset jury circles on the same new-clock event used by the jury panel. */
+	/** Reset jury circles without changing the attempt-scoped projected-rank state. */
 	@Subscribe
 	public void slaveJuryResetOnNewClock(UIEvent.ResetOnNewClock e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			this.getElement().setProperty("projectedRankClockStarted", false);
 			if (isDecisionSectionEnabled()) {
 				this.decisionBlock.onResetOnNewClock();
 			}
@@ -556,11 +564,17 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 	@Subscribe
 	public void slaveJuryStartTime(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			this.getElement().setProperty("projectedRankClockStarted", true);
 			if (isDecisionSectionEnabled()) {
 				this.decisionBlock.onStartTime();
 			}
 		});
+	}
+
+	/** The projected rank stays visible until the athlete clock is stopped for the first time. */
+	@Subscribe
+	public void slaveProjectedRankStopTime(UIEvent.StopTime e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e,
+		        () -> this.getElement().setProperty("projectedRankClockStopped", true));
 	}
 
 }

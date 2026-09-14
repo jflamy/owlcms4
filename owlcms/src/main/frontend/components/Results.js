@@ -286,7 +286,7 @@ class Results extends LitElement {
       decisionSectionAgeGroups: {},
       decisionSectionBreakText: {},
       projectedRankText: {},
-      projectedRankClockStarted: {type: Boolean},
+      projectedRankClockStopped: {type: Boolean},
       juryDecisions: {type: Array},
       decisionSectionHideJuryLights: {type: Boolean},
       decisionSectionHideRefereeLights: {type: Boolean},
@@ -455,13 +455,13 @@ class Results extends LitElement {
 
   dsProjectedRanksStyles() {
     if (!this.showProjectedRanks || !this.projectedRankText) return "display:none";
-    if (this.mode !== "CURRENT_ATHLETE" || this.decisionSectionDecisionActive || this.projectedRankClockStarted) return "display:none";
+    if (this.mode !== "CURRENT_ATHLETE" || this.decisionSectionDecisionActive || this.projectedRankClockStopped) return "display:none";
     return "";  // CSS class (pjOverlay or pjInline) handles layout
   }
 
   dsProjectedRanksMode() {
     if (!this.showProjectedRanks || !this.projectedRankText) return "";
-    if (this.mode !== "CURRENT_ATHLETE" || this.decisionSectionDecisionActive || this.projectedRankClockStarted) return "";
+    if (this.mode !== "CURRENT_ATHLETE" || this.decisionSectionDecisionActive || this.projectedRankClockStopped) return "";
     // pjOverlay: absolute, fills full decisionSection (clock floats above)
     // pjInline:  flex item, fills remaining space to right of lights
     return this.showDecisionSection ? "pjInline" : "pjOverlay";
@@ -611,7 +611,7 @@ class Results extends LitElement {
     this.decisionSectionAgeGroups = "";
     this.decisionSectionBreakText = "";
     this.projectedRankText = "";
-    this.projectedRankClockStarted = false;
+    this.projectedRankClockStopped = false;
     this.juryDecisions = [];
     this.decisionSectionHideJuryLights = false;
     this.decisionSectionHideRefereeLights = false;

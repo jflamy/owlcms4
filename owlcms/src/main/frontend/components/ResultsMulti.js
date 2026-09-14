@@ -423,7 +423,7 @@ class ResultsFull extends LitElement {
       decisionSectionAgeGroups: {},
       decisionSectionBreakText: {},
       projectedRankText: {},
-      projectedRankClockStarted: { type: Boolean },
+      projectedRankClockStopped: { type: Boolean },
       juryDecisions: { type: Array },
       decisionSectionHideJuryLights: { type: Boolean },
       decisionSectionHideRefereeLights: { type: Boolean },
@@ -562,13 +562,13 @@ class ResultsFull extends LitElement {
 
   dsProjectedRanksStyles() {
     if (!this.showProjectedRanks || !this.projectedRankText) return "display:none";
-    if (this.mode !== "CURRENT_ATHLETE" || this.decisionSectionDecisionActive || this.projectedRankClockStarted) return "display:none";
+    if (this.mode !== "CURRENT_ATHLETE" || this.decisionSectionDecisionActive || this.projectedRankClockStopped) return "display:none";
     return "";
   }
 
   dsProjectedRanksMode() {
     if (!this.showProjectedRanks || !this.projectedRankText) return "";
-    if (this.mode !== "CURRENT_ATHLETE" || this.decisionSectionDecisionActive || this.projectedRankClockStarted) return "";
+    if (this.mode !== "CURRENT_ATHLETE" || this.decisionSectionDecisionActive || this.projectedRankClockStopped) return "";
     return this.showDecisionSection ? "pjInline" : "pjOverlay";
   }
 
@@ -687,7 +687,7 @@ class ResultsFull extends LitElement {
     this.decisionSectionAgeGroups = "";
     this.decisionSectionBreakText = "";
     this.projectedRankText = "";
-    this.projectedRankClockStarted = false;
+    this.projectedRankClockStopped = false;
     this.juryDecisions = [];
     this.decisionSectionHideJuryLights = false;
     this.decisionSectionHideRefereeLights = false;
