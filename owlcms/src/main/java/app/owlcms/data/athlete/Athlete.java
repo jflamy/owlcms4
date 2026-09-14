@@ -1168,50 +1168,30 @@ public class Athlete {
 		if (Config.getCurrent().featureSwitch(FeatureSwitch.DONT_FIX_NAMES)) {
 			return firstName2;
 		}
-		// Check if first name is all caps (or all caps with hyphens and spaces)
-		// Only fix names that are all uppercase
-		boolean needsFixing = firstName2.equals(firstName2.toUpperCase(loc));
-
-		var language = loc.getLanguage();
-		if (needsFixing && (language.equals("ar") || language.equals("he") || language.equals("ja"))) {
-			// This would attempt to fix Arabic, Hebrew, Japanese, but the fix would do
-			// nothing.
-			return firstName2;
-		} else if (needsFixing && (language.equals("el"))) {
-			// Greek has special rules for the lowercase sigma at the end of words.
-			// We cannot just lowercase everything and uppercase first letters.
-			// So we skip fixing Greek names for now.
-			return firstName2;
-		} else if (needsFixing && language.equals("ru")) {
-			// Russian has special rules for upper/lower case letters (e.g., Ё vs ё).
-			// We cannot just lowercase everything and uppercase first letters.
-			// So we skip fixing Russian names for now.
-			return firstName2;
+		String[] spaceParts = firstName2.split("\\s+");
+		for (int spacePartIndex = 0; spacePartIndex < spaceParts.length; spacePartIndex++) {
+			String spacePart = spaceParts[spacePartIndex];
+			if (spacePartIndex > 0 && spacePart.matches("(?i)II|III|IV")) {
+				spaceParts[spacePartIndex] = spacePart.toUpperCase(Locale.ROOT);
+				continue;
+			}
+			String[] hyphenatedParts = spacePart.split("-");
+			spaceParts[spacePartIndex] = Arrays.stream(hyphenatedParts)
+					.map(part -> {
+						if (part.isEmpty()) {
+							return part;
+						}
+						int firstCodePointEnd = part.offsetByCodePoints(0, 1);
+						String firstLetter = part.substring(0, firstCodePointEnd).toUpperCase(loc);
+						String remainder = part.substring(firstCodePointEnd);
+						if (part.equals(part.toUpperCase(loc))) {
+							remainder = remainder.toLowerCase(loc);
+						}
+						return firstLetter + remainder;
+					})
+					.collect(Collectors.joining("-"));
 		}
-
-		String formattedFirstName;
-		if (needsFixing) {
-			// Split first name by spaces, then split each component by hyphens
-			// Capitalize first letter and lowercase the rest for each component
-			String[] spaceParts = firstName2.split("\\s+");
-			formattedFirstName = Arrays.stream(spaceParts).map(spacePart -> {
-				String[] hyphenatedParts = spacePart.split("-");
-				return Arrays.stream(hyphenatedParts)
-						.map(hpart -> {
-							if (hpart.isEmpty()) {
-								return hpart;
-							}
-							// Capitalize first letter according to locale rules, lowercase the rest
-							return hpart.substring(0, 1).toUpperCase(loc) +
-									hpart.substring(1).toLowerCase(loc);
-						})
-						.collect(Collectors.joining("-"));
-			}).collect(Collectors.joining(" "));
-		} else {
-			// Keep the original first name if it doesn't need fixing
-			formattedFirstName = firstName2;
-		}
-		return formattedFirstName;
+		return String.join(" ", spaceParts);
 	}
 
 	@JsonIgnore
@@ -2286,6 +2266,11 @@ public class Athlete {
 				? (this.fixNames ? this.computeFixedFirstName(OwlcmsSession.getLocale(), firstName)
 						: this.firstName.trim())
 				: null;
+	}
+
+	@JsonIgnore
+	public String getRawFirstName() {
+		return this.firstName != null ? this.firstName.trim() : null;
 	}
 
 	@JsonIgnore

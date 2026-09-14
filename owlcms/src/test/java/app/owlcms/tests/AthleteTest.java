@@ -83,6 +83,21 @@ public class AthleteTest {
     }
 
     @Test
+    public void testFixedFirstNameCasing() {
+        assertEquals("Carlos", athlete.computeFixedFirstName(Locale.ENGLISH, "carlos"));
+        assertEquals("Carlos", athlete.computeFixedFirstName(Locale.ENGLISH, "CARLOS"));
+        assertEquals("MaryAnne", athlete.computeFixedFirstName(Locale.ENGLISH, "maryAnne"));
+        assertEquals("Anne-Marie", athlete.computeFixedFirstName(Locale.ENGLISH, "ANNE-MARIE"));
+        assertEquals("Paul II", athlete.computeFixedFirstName(Locale.ENGLISH, "PAUL II"));
+        assertEquals("Paul III", athlete.computeFixedFirstName(Locale.ENGLISH, "PAUL III"));
+        assertEquals("Paul IV", athlete.computeFixedFirstName(Locale.ENGLISH, "PAUL IV"));
+        assertEquals("Paul Vi", athlete.computeFixedFirstName(Locale.ENGLISH, "PAUL VI"));
+        assertEquals("Liv", athlete.computeFixedFirstName(Locale.ENGLISH, "LIV"));
+        assertEquals("Александр", athlete.computeFixedFirstName(Locale.forLanguageTag("ru"), "АЛЕКСАНДР"));
+        assertEquals("דוד", athlete.computeFixedFirstName(Locale.forLanguageTag("he"), "דוד"));
+    }
+
+    @Test
     public void testCategoryComputation() {
         // Test the category computation logic
         assertEquals("Category", "M 73", athlete.getCategory().toString());

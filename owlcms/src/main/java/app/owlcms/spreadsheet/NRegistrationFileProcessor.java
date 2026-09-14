@@ -365,7 +365,17 @@ public class NRegistrationFileProcessor {
 	}
 
 	private String athleteKey(Athlete a) {
-		return a.getLastName() + "_" + a.getFirstName() + "_" + a.getLotNumber();
+		return athleteKey(a.getLastName(), a.getRawFirstName(), a.getLotNumber());
+	}
+
+	static String athleteKey(String lastName, String firstName, Object lotNumber) {
+		return normalizeAthleteKeyPart(lastName) + "_"
+		        + normalizeAthleteKeyPart(firstName) + "_"
+		        + normalizeAthleteKeyPart(lotNumber);
+	}
+
+	private static String normalizeAthleteKeyPart(Object value) {
+		return value != null ? value.toString().trim().toLowerCase(Locale.ROOT) : "";
 	}
 
 	@SuppressWarnings("unused")
