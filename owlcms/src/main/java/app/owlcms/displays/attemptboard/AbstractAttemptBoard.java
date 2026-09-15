@@ -125,6 +125,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	private long boardStateSequence;
 	private boolean decisionLightsVisible;
 	private AttemptBoardState lastBoardState;
+	private Long pendingOrderEventSequence;
 	private final AttemptBoardRenderCheck renderCheck = new AttemptBoardRenderCheck();
 	private Timer renderCheckTimer;
 	// guarded by ui.access; see UIEventSequenceGuard
@@ -466,8 +467,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		if (Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
-			logger.warn("{}attemptBoard order received seq={} athlete={} startNumber={} weight={} requested={} changedWeight={} attached={}",
-					FieldOfPlay.getLoggingName(getFop()), e.getSequence(), e.getAthlete(),
+			logger.warn("{}attemptBoard order received board={} seq={} athlete={} startNumber={} weight={} requested={} changedWeight={} attached={}",
+					FieldOfPlay.getLoggingName(getFop()), traceBoardId(), e.getSequence(), e.getAthlete(),
 					e.getAthlete() != null ? e.getAthlete().getStartNumber() : null,
 					e.getAthlete() != null ? e.getAthlete().getNextAttemptRequestedWeight() : null,
 					e.getAthlete() != null ? e.getAthlete().getNextAttemptRequestedWeight() : null,
@@ -486,6 +487,12 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			}
 			boolean attemptTraces = Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES);
 			if (attemptTraces) {
+				if (this.pendingOrderEventSequence != null) {
+					logger.warn("{}attemptBoard order superseded board={} eventSeq={} byEventSeq={}",
+					        FieldOfPlay.getLoggingName(fop), traceBoardId(), this.pendingOrderEventSequence,
+					        e.getSequence());
+				}
+				this.pendingOrderEventSequence = e.getSequence();
 				logger.debug("{}attemptBoard order applying seq={} state={} athlete={} requested={}",
 						FieldOfPlay.getLoggingName(fop), e.getSequence(), state, fop.getCurAthlete(),
 						fop.getCurAthlete() != null ? fop.getCurAthlete().getNextAttemptRequestedWeight() : null);
@@ -493,7 +500,10 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			uiEventLogger.debug("### {} {} isDisplayToggle={}", state, this.getClass().getSimpleName(),
 			        e.isDisplayToggle());
 			if (state == FOPState.DOWN_SIGNAL_VISIBLE || state == FOPState.DECISION_VISIBLE) {
-				// ignore -- decision reset will resync.
+				if (attemptTraces) {
+					logger.warn("{}attemptBoard order deferred board={} eventSeq={} state={}",
+					        FieldOfPlay.getLoggingName(fop), traceBoardId(), e.getSequence(), state);
+				}
 			} else if (state == FOPState.BREAK) {
 				if (e.isDisplayToggle()) {
 					setDecisionLightsVisible(false, e);
@@ -524,9 +534,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		}
 		String clientTime = clientEpochMillis == null ? "" : CLIENT_TIME_FORMATTER
 				.format(Instant.ofEpochMilli(clientEpochMillis.longValue()));
-		logger.warn("{}attemptBoard weight rendered seq={} startNumber={} weight={} rendered={} mode={} weightVisible={} clientTime={}",
-				FieldOfPlay.getLoggingName(getFop()), sequence, renderedStartNumber, weightUsedForRendering, renderedWeight,
-				mode, weightVisible, clientTime);
+		logger.warn("{}attemptBoard weight rendered board={} seq={} startNumber={} weight={} rendered={} mode={} weightVisible={} clientTime={}",
+				FieldOfPlay.getLoggingName(getFop()), traceBoardId(), sequence, renderedStartNumber,
+				weightUsedForRendering, renderedWeight, mode, weightVisible, clientTime);
 		if (CompetitionSimulator.isRunning()) {
 			String failure = this.renderCheck.rendered(sequence, weightUsedForRendering, renderedStartNumber,
 			        renderedWeight, mode, weightVisible, System.nanoTime() / 1_000_000);
@@ -819,6 +829,10 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		return ++this.boardStateSequence;
 	}
 
+	private String traceBoardId() {
+		return getClass().getSimpleName() + "@" + Integer.toHexString(System.identityHashCode(this));
+	}
+
 	private void setDecisionLightsVisible(boolean visible, UIEvent trigger) {
 		if (Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
 			logger.warn("{}attemptBoard decisionVisible={} trigger={} {}", FieldOfPlay.getLoggingName(getFop()),
@@ -831,8 +845,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		long lastApplied = this.orderGuard.getLastApplied();
 		boolean stale = this.orderGuard.isStale(e.getSequence());
 		if (stale && Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
-			logger.warn("{}attemptBoard dropping out-of-order LiftingOrderUpdated seq={} lastApplied={}",
-			        FieldOfPlay.getLoggingName(getFop()), e.getSequence(), lastApplied);
+			logger.warn("{}attemptBoard dropping out-of-order LiftingOrderUpdated board={} seq={} lastApplied={}",
+			        FieldOfPlay.getLoggingName(getFop()), traceBoardId(), e.getSequence(), lastApplied);
 		}
 		return stale;
 	}
@@ -864,7 +878,17 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			stopRenderCheck();
 		}
 		if (Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
-			logger.warn("{}attemptBoard state published seq={}", FieldOfPlay.getLoggingName(getFop()), state.getSequence());
+			logger.warn("{}attemptBoard state published board={} seq={}", FieldOfPlay.getLoggingName(getFop()),
+			        traceBoardId(), state.getSequence());
+			// a decision-time record snapshot keeps the athlete frozen; it does not resolve a deferred order event
+			if (this.pendingOrderEventSequence != null && !this.decisionLightsVisible) {
+				logger.warn("{}attemptBoard order published board={} eventSeq={} snapshotSeq={}",
+				        FieldOfPlay.getLoggingName(getFop()), traceBoardId(), this.pendingOrderEventSequence,
+				        state.getSequence());
+			}
+		}
+		if (!this.decisionLightsVisible) {
+			this.pendingOrderEventSequence = null;
 		}
 		this.getUI().ifPresent(UI::push);
 	}

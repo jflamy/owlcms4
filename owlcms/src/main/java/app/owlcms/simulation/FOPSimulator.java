@@ -50,6 +50,7 @@ public class FOPSimulator implements SafeEventBusRegistration {
 	}
 
 	private static final boolean USE_MQTT_TIMER = true;
+	private static final long MIN_ACTION_INTERVAL_MILLIS = 50;
 	static private Random r = new Random(0);
 	private FieldOfPlay fop;
 	private boolean groupDone;
@@ -435,6 +436,9 @@ public class FOPSimulator implements SafeEventBusRegistration {
 					int autoAsInt = Integer.parseInt(automatic);
 					doDeclaration(athlete, Integer.toString(autoAsInt + declarationIncrement()));
 					this.fop.fopEventPost(new FOPEvent.WeightChange(this, athlete, false));
+					if (!sleepQuietly(MIN_ACTION_INTERVAL_MILLIS)) {
+						return;
+					}
 				} catch (NumberFormatException e1) {
 					// ignore
 				}
@@ -532,6 +536,7 @@ public class FOPSimulator implements SafeEventBusRegistration {
 			this.logger.warn("{}simulated marshal change {} -> {} ({} {})", FieldOfPlay.getLoggingName(this.fop),
 			        target.getShortName(), newWeight, phase, changeCurrentAthlete ? "current athlete" : "other athlete");
 			this.fop.fopEventPost(new FOPEvent.WeightChange(this, target, false));
+			sleepQuietly(MIN_ACTION_INTERVAL_MILLIS);
 		} catch (RuntimeException e1) {
 			this.logger.warn("{}simulated marshal change rejected: {}", FieldOfPlay.getLoggingName(this.fop),
 			        e1.getMessage());
@@ -611,6 +616,9 @@ public class FOPSimulator implements SafeEventBusRegistration {
 			}
 			this.logger.info("{}switching to group {} of {}", FieldOfPlay.getLoggingName(this.fop), g, curGs);
 			this.fop.fopEventPost(new FOPEvent.SwitchGroup(g, this));
+			if (!sleepQuietly(MIN_ACTION_INTERVAL_MILLIS)) {
+				return false;
+			}
 			
 			// Assign start numbers to athletes in the group for simulation
 			List<Athlete> athletes = g.getAthletes();
