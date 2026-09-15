@@ -119,7 +119,9 @@
 }
 
 .decisionSection .dsRefereeSlot {
-    flex: 0 0 calc(var(--ds-light-width) / 0.273);
+    /* explicit width: Firefox ignores flex-basis in the parent's intrinsic size */
+    width: calc(var(--ds-light-width) / 0.273);
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
     justify-content: center;
