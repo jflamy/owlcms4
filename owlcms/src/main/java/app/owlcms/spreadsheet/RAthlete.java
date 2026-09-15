@@ -53,10 +53,10 @@ public class RAthlete {
 	Athlete a;
 	final Logger logger = (Logger) LoggerFactory.getLogger(RAthlete.class);
 
-	private static class ParticipationSpec {
-		private final String categoryName;
-		private final boolean teamMember;
-		private final boolean mixedTeamMember;
+	static class ParticipationSpec {
+		final String categoryName;
+		final boolean teamMember;
+		final boolean mixedTeamMember;
 
 		private ParticipationSpec(String categoryName, boolean teamMember, boolean mixedTeamMember) {
 			this.categoryName = categoryName;
@@ -560,9 +560,74 @@ public class RAthlete {
 		}
 
 		//logger.debug("{} this.a.getCategory {} {}",this.a.getId(), this.a.getCategory(), eligibleCategories);
+		validateExplicitCategoryConsistency(eligibleCategories);
 		RCompetition.putEligibles(this.a.getId(), eligibleCategories);
 		RCompetition.putTeams(this.a.getId(), teams);
 		RCompetition.putMixedTeams(this.a.getId(), mixedTeams);
+	}
+
+	// When a cell lists several categories explicitly, a single athlete must fit all of them at once:
+	// there must be at least one body weight and at least one age that belongs to every listed category.
+	// Weight and age are independent, so a cell can be disjoint on both dimensions and produce two errors.
+	private void validateExplicitCategoryConsistency(Set<Category> categories) throws Exception {
+		// a single category is trivially self-consistent
+		if (categories == null || categories.size() < 2) {
+			return;
+		}
+		List<String> errors = new ArrayList<>();
+		if (hasDisjointWeightCategories(categories)) {
+			errors.add(Translator.translate("Upload.DisjointWeightCategories"));
+		}
+		if (hasDisjointAgeCategories(categories)) {
+			errors.add(Translator.translate("Upload.DisjointAgeCategories"));
+		}
+		if (!errors.isEmpty()) {
+			throw new Exception(String.join("; ", errors));
+		}
+	}
+
+	// A weight class is the interval (minimumWeight, maximumWeight]: lower bound exclusive, upper inclusive
+	// (a body weight belongs to a category when minimumWeight < bw <= maximumWeight).
+	// The categories share a valid weight only inside (max of lower bounds, min of upper bounds]; that interval
+	// is empty when max(lower) >= min(upper). The bound is strict because the lower bound is exclusive:
+	// e.g. (70,75] and (65,70] meet only at 70, which neither actually includes, so they are disjoint.
+	public static boolean hasDisjointWeightCategories(Set<Category> categories) {
+		double maxLower = Double.NEGATIVE_INFINITY;
+		double minUpper = Double.POSITIVE_INFINITY;
+		for (Category c : categories) {
+			Double lower = c.getMinimumWeight();
+			Double upper = c.getMaximumWeight();
+			if (lower != null) {
+				maxLower = Math.max(maxLower, lower);
+			}
+			if (upper != null) {
+				minUpper = Math.min(minUpper, upper);
+			}
+		}
+		return maxLower >= minUpper;
+	}
+
+	// An age group is the inclusive range [minAge, maxAge] on both ends.
+	// The categories share a valid age only inside [max of minAges, min of maxAges]; that range is empty
+	// when max(minAge) > min(maxAge). The comparison allows equality because the bounds are inclusive:
+	// e.g. [13,17] and [17,20] overlap at 17, but [13,17] and [18,20] do not.
+	public static boolean hasDisjointAgeCategories(Set<Category> categories) {
+		int maxMinAge = Integer.MIN_VALUE;
+		int minMaxAge = Integer.MAX_VALUE;
+		for (Category c : categories) {
+			if (c.getAgeGroup() == null) {
+				continue;
+			}
+			Integer minAge = c.getAgeGroup().getMinAge();
+			Integer maxAge = c.getAgeGroup().getMaxAge();
+			if (minAge != null) {
+				maxMinAge = Math.max(maxMinAge, minAge);
+			}
+			if (maxAge != null) {
+				minMaxAge = Math.min(minMaxAge, maxAge);
+			}
+		}
+		return maxMinAge > minMaxAge;
 	}
 
 	private List<String> mergeMarkerTokens(List<String> rawParts) {
@@ -578,7 +643,7 @@ public class RAthlete {
 		return merged;
 	}
 
-	private ParticipationSpec parseParticipationSpec(String entry) throws Exception {
+	static ParticipationSpec parseParticipationSpec(String entry) throws Exception {
 		String trimmed = entry != null ? entry.trim() : "";
 		boolean teamMember = true;
 		boolean mixedTeamMember = false;
@@ -623,7 +688,7 @@ public class RAthlete {
 		return new ParticipationSpec(categoryName, teamMember, mixedTeamMember);
 	}
 
-	private String normalizeMembershipMarker(String marker) {
+	private static String normalizeMembershipMarker(String marker) {
 		String trimmed = marker != null ? marker.trim() : "";
 		if (matchesMarker(trimmed, YesTeamMarker, YesTeamValue)) {
 			return YesTeamMarker;
@@ -640,7 +705,7 @@ public class RAthlete {
 		return trimmed;
 	}
 
-	private boolean matchesMarker(String value, String... acceptedValues) {
+	private static boolean matchesMarker(String value, String... acceptedValues) {
 		for (String acceptedValue : acceptedValues) {
 			if (acceptedValue.equalsIgnoreCase(value)) {
 				return true;
