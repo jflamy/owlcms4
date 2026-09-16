@@ -5831,6 +5831,10 @@ public class Athlete {
 		if (curLift != attemptsDone) {
 			return;
 		}
+		if (getFop() == null) {
+			// no platform context (e.g. card opened from registration list); no clock to check against
+			return;
+		}
 
 		// logger.debug(" checkChangeVsTimer {} {}", curLift, LoggerUtils.whereFrom());
 
@@ -5860,7 +5864,7 @@ public class Athlete {
 
 	private void checkDeclarationWasMade(int curLift, String declaration) {
 		long start = System.currentTimeMillis();
-		if (curLift != this.getAttemptsDone()) {
+		if (curLift != this.getAttemptsDone() || getFop() == null) {
 			return;
 		}
 		int clock = getFop().getAthleteTimer().liveTimeRemaining();
