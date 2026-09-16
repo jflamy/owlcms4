@@ -10,7 +10,7 @@
 
 **Maintenance Log**
 
-- 68.0.0-rc02: Registration files will report impossible sets of eligibility categories (categories with incompatible ages or bodyweight ranges)
+- 68.0.0-rc02: Registration files will report incompatible eligibility categories (categories with no overlap in age or body weight)
 
 - 68.0.0-rc02: Fix: Resetting and starting a timer when one was running and not stopped did not stop the original timer.
 
