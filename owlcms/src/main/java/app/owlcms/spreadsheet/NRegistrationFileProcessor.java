@@ -45,6 +45,8 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
+import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -356,11 +358,16 @@ public class NRegistrationFileProcessor {
 		if (sbdeEligibles != null) {
 			RCompetition.putEligibles(existingAthlete.getId(), sbdeEligibles);
 		}
+		boolean explicitTeams = Config.getCurrent().featureSwitch(FeatureSwitch.EXPLICIT_TEAMS);
 		if (sbdeTeams != null) {
 			RCompetition.putTeams(existingAthlete.getId(), sbdeTeams);
+		} else if (explicitTeams) {
+			RCompetition.putTeams(existingAthlete.getId(), new LinkedHashSet<>());
 		}
 		if (sbdeMixedTeams != null) {
 			RCompetition.putMixedTeams(existingAthlete.getId(), sbdeMixedTeams);
+		} else if (explicitTeams) {
+			RCompetition.putMixedTeams(existingAthlete.getId(), new LinkedHashSet<>());
 		}
 	}
 
@@ -1113,7 +1120,7 @@ public class NRegistrationFileProcessor {
 				boolean bodyWeightMissing = isBlankValue(delayedSetterValues[DelayedSetter.BODYWEIGHT.ordinal()]);
 				boolean canAutoAssignBlankCategory = !genderMissing && !birthDateMissing && !bodyWeightMissing;
 
-				if (categoryBlank) {
+				if (categoryBlank && !canAutoAssignBlankCategory) {
 					reportCellError(delayedSetterCells[DelayedSetter.CATEGORY.ordinal()],
 					        Translator.translate("Upload.CannotDetermineRegistrationCategory"), errorConsumer);
 				}

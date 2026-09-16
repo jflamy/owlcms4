@@ -13,35 +13,59 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
 import app.owlcms.Main;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.ProdData;
 import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor;
 import app.owlcms.spreadsheet.RCompetition;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.spi.ThrowableProxyUtil;
+import ch.qos.logback.core.read.ListAppender;
 
 public class NRegistrationFileProcessorCategoryAssignmentTest {
 
 	private static final String REGISTRATION_FILE = "/testData/missingCellsRegistration.xlsx";
+	private final ListAppender<ILoggingEvent> importLog = new ListAppender<>();
+
+	@After
+	public void stopImportLog() {
+		((Logger) LoggerFactory.getLogger(NRegistrationFileProcessor.class)).detachAppender(importLog);
+		importLog.stop();
+	}
 
 	@BeforeClass
 	public static void setupTests() {
@@ -61,6 +85,8 @@ public class NRegistrationFileProcessorCategoryAssignmentTest {
 
 	@Before
 	public void resetDatabase() {
+		importLog.start();
+		((Logger) LoggerFactory.getLogger(NRegistrationFileProcessor.class)).addAppender(importLog);
 		JPAService.close();
 		JPAService.init(true, true);
 		Config.initConfig();
@@ -101,7 +127,7 @@ public class NRegistrationFileProcessorCategoryAssignmentTest {
 				() -> {
 				});
 
-			assertTrue("The registration fixture should import the targeted athletes", athletesProcessed >= 7);
+			assertTrue("The registration fixture should import the targeted athletes: " + importMessages + importDiagnostics(), athletesProcessed >= 7);
 
 			Athlete caplan = findAthlete("Caplan", "Joey");
 			assertNotNull("Joey Caplan should be imported", caplan);
@@ -151,20 +177,111 @@ public class NRegistrationFileProcessorCategoryAssignmentTest {
 			String missingGenderMessage = Translator.translate("Upload.MissingGender");
 			String missingBirthDateMessage = Translator.translate("Upload.MissingBirthDate");
 			String missingBodyWeightMessage = Translator.translate("Upload.MissingBodyWeight");
-			assertTrue("The blank category row with complete data should still report the category-cell error", errors.contains("G5 " + blankCategoryMessage));
+			assertFalse("The blank category row with complete data should not report a category-cell error", errors.contains("G5 " + blankCategoryMessage));
 			assertTrue("The blank category row with missing gender should report the category-cell error", errors.contains("G12 " + blankCategoryMessage));
 			assertTrue("The blank category row with missing body weight should report the category-cell error", errors.contains("G13 " + blankCategoryMessage));
 			assertTrue("The missing-gender row should report the gender-cell error", errors.contains("F12 " + missingGenderMessage));
 			assertTrue("The numeric-only missing-birth-date row should report the birth-date-cell error", errors.contains("E3 " + missingBirthDateMessage));
 			assertTrue("The blank-category missing-body-weight row should report the body-weight-cell error", errors.contains("K13 " + missingBodyWeightMessage));
 			assertTrue("The invalid explicit U15 category should still be reported", errors.contains("U15 M 79+"));
-			assertEquals("Every blank category row should report the category-cell error", 3,
+			assertEquals("Only incomplete blank category rows should report the category-cell error", 2,
 				countOccurrences(errors, blankCategoryMessage));
 			assertEquals("The missing-gender rule should fire once", 1, countOccurrences(errors, missingGenderMessage));
 			assertEquals("Only the numeric-category row should report a missing birth date", 1, countOccurrences(errors, missingBirthDateMessage));
 			assertEquals("Only the blank-category row missing body weight should report missing body weight", 1,
 				countOccurrences(errors, missingBodyWeightMessage));
 		}
+	}
+
+	@Test
+	public void testTeamMembershipRecalculatedAndRoundTripsInBothModes() throws Exception {
+		configureMaleAgeGroups("Open");
+		configureSessionGroups("2", "3", "4");
+		Category expectedCategory = findActiveCategoryInDatabase("M 95");
+		assertNotNull(expectedCategory);
+		Championship championship = expectedCategory.getAgeGroup().getChampionship();
+		championship.setExplicitMixedTeamMembers(true);
+		ChampionshipRepository.save(championship);
+		Config config = Config.getCurrent();
+		boolean previousExplicitTeams = config.featureSwitch(FeatureSwitch.EXPLICIT_TEAMS);
+		try {
+			for (boolean explicitTeams : new boolean[] { false, true }) {
+				config.setFeatureSwitchValue(FeatureSwitch.EXPLICIT_TEAMS, explicitTeams);
+				Config.setCurrent(config);
+				for (String categorySpec : new String[] { "", "95", "M 95", "95/+T,+MT", "M 95/-T,+MT", "95/-T,-MT", "95/" }) {
+					boolean expectedTeam = categorySpec.contains("+T")
+						|| (!explicitTeams && !categorySpec.contains("-T") && !categorySpec.endsWith("/"));
+					boolean expectedMixed = categorySpec.contains("+MT");
+					NRegistrationFileProcessor reset = new NRegistrationFileProcessor(false, Locale.ENGLISH);
+					reset.resetAthletes();
+					Athlete imported = importMembershipRow(categorySpec);
+					assertMembership(imported, expectedCategory, expectedTeam, expectedMixed);
+
+					String exported = imported.getEligibleCategoriesAsString();
+					Category priorCategory = CategoryRepository.findActive().stream()
+						.filter(category -> category.getGender() == Gender.M && !category.getCode().equals(expectedCategory.getCode()))
+						.findFirst().orElseThrow();
+					imported.setEligibleCategories(Set.of(priorCategory));
+					imported.computeCategory(priorCategory);
+					imported.getParticipations().forEach(participation -> {
+						participation.setTeamMember(!expectedTeam);
+						participation.setMixedTeamMember(!expectedMixed);
+					});
+					AthleteRepository.save(imported);
+
+					Athlete updated = importMembershipRow(categorySpec);
+					assertEquals("Update should retain the athlete ID", imported.getId(), updated.getId());
+					assertMembership(updated, expectedCategory, expectedTeam, expectedMixed);
+					assertMembership(importMembershipRow(exported), expectedCategory, expectedTeam, expectedMixed);
+				}
+			}
+		} finally {
+			config.setFeatureSwitchValue(FeatureSwitch.EXPLICIT_TEAMS, previousExplicitTeams);
+			Config.setCurrent(config);
+		}
+	}
+
+	private Athlete importMembershipRow(String categorySpec) throws Exception {
+		try (InputStream input = getClass().getResourceAsStream(REGISTRATION_FILE);
+			Workbook source = WorkbookFactory.create(input);
+			Workbook workbook = new XSSFWorkbook();
+			ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+			Sheet sheet = workbook.createSheet();
+			DataFormatter formatter = new DataFormatter(Locale.ENGLISH);
+			for (int rowIndex = 0; rowIndex < 2; rowIndex++) {
+				Row sourceRow = source.getSheetAt(0).getRow(rowIndex == 0 ? 0 : 4);
+				Row destination = sheet.createRow(rowIndex);
+				sourceRow.forEach(cell -> destination.createCell(cell.getColumnIndex()).setCellValue(formatter.formatCellValue(cell)));
+			}
+			sheet.getRow(1).createCell(6).setCellValue(categorySpec);
+			workbook.write(output);
+			NRegistrationFileProcessor processor = new NRegistrationFileProcessor(false, Locale.ENGLISH);
+			processor.setSessionOptions(NRegistrationFileProcessor.SessionOptions.IGNORE_SESSIONS);
+			processor.setAthleteOptions(NRegistrationFileProcessor.AthleteOptions.UPDATE_ADD_ATHLETES);
+			StringBuilder messages = new StringBuilder();
+			int processed = processor.doProcessAthletes(
+				new ByteArrayInputStream(output.toByteArray()), false,
+				message -> messages.append(message).append('\n'), () -> { });
+			assertEquals("Expected one imported row: " + categorySpec + "\n" + messages + importDiagnostics(), 1, processed);
+			assertFalse(messages.toString(), messages.toString().contains(Translator.translate("Upload.CannotDetermineRegistrationCategory")));
+			return findAthlete("Schreiber", "Erik");
+		}
+	}
+
+	private void assertMembership(Athlete athlete, Category category, boolean teamMember, boolean mixedTeamMember) {
+		Set<String> expectedCodes = Set.of(category.getCode());
+		assertEquals(expectedCodes, athlete.getEligibleCategories().stream().map(Category::getCode).collect(Collectors.toSet()));
+		assertEquals(category.getCode(), athlete.getCategory().getCode());
+		assertEquals(teamMember ? expectedCodes : Set.of(), athlete.computeTeams().stream().map(Category::getCode).collect(Collectors.toSet()));
+		assertEquals(mixedTeamMember ? expectedCodes : Set.of(), athlete.computeMixedTeams().stream().map(Category::getCode).collect(Collectors.toSet()));
+	}
+
+	private String importDiagnostics() {
+		return importLog.list.stream()
+			.filter(event -> event.getLevel().isGreaterOrEqual(Level.ERROR))
+			.map(event -> event.getFormattedMessage() + (event.getThrowableProxy() != null
+				? "\n" + ThrowableProxyUtil.asString(event.getThrowableProxy()) : ""))
+			.collect(Collectors.joining("\n"));
 	}
 
 	private void configureMaleAgeGroups(String... activeCodes) {

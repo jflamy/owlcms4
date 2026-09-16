@@ -13,11 +13,35 @@ import static org.junit.Assert.assertTrue;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import app.owlcms.Main;
+import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.data.jpa.JPAService;
 import app.owlcms.spreadsheet.RAthlete;
 
 public class RAthleteTest {
+
+	@BeforeClass
+	public static void setupTests() {
+		Main.injectSuppliers();
+		JPAService.init(true, true);
+		Config.initConfig();
+	}
+
+	@AfterClass
+	public static void tearDownTests() {
+		JPAService.close();
+	}
+
+	@After
+	public void resetExplicitTeams() {
+		setExplicitTeams(false);
+	}
 
 	@Test
 	public void testAppendMembershipMarkersUsesShortTokens() {
@@ -43,6 +67,52 @@ public class RAthleteTest {
 		assertEquals("M 73", readField(spec, "categoryName"));
 		assertTrue((Boolean) readField(spec, "teamMember"));
 		assertFalse((Boolean) readField(spec, "mixedTeamMember"));
+	}
+
+	@Test
+	public void testParseParticipationSpecDefaultsToTeamMemberWhenImplicit() throws Exception {
+		assertTrue((Boolean) readField(parseParticipationSpec("M 73"), "teamMember"));
+		assertTrue((Boolean) readField(parseParticipationSpec("M 73/+MT"), "teamMember"));
+	}
+
+	@Test
+	public void testParseParticipationSpecDefaultsToNoTeamWhenExplicitTeams() throws Exception {
+		setExplicitTeams(true);
+
+		assertFalse((Boolean) readField(parseParticipationSpec("M 73"), "teamMember"));
+		assertFalse((Boolean) readField(parseParticipationSpec("M 73/+MT"), "teamMember"));
+		assertTrue((Boolean) readField(parseParticipationSpec("M 73/+T"), "teamMember"));
+		assertTrue((Boolean) readField(parseParticipationSpec("M 73/YesTeam,+MT"), "teamMember"));
+		assertFalse((Boolean) readField(parseParticipationSpec("M 73/-T"), "teamMember"));
+	}
+
+	@Test
+	public void testMembershipMarkersRoundTripWithEitherSwitchSetting() throws Exception {
+		for (boolean explicitTeams : new boolean[] { false, true }) {
+			setExplicitTeams(explicitTeams);
+			for (boolean teamMember : new boolean[] { false, true }) {
+				for (boolean mixedTeamMember : new boolean[] { false, true }) {
+					String exported = RAthlete.appendMembershipMarkers("M 73", teamMember, mixedTeamMember);
+					Object imported = parseParticipationSpec(exported);
+					assertEquals(exported, "M 73", readField(imported, "categoryName"));
+					assertEquals(exported, teamMember, readField(imported, "teamMember"));
+					assertEquals(exported, mixedTeamMember, readField(imported, "mixedTeamMember"));
+				}
+			}
+		}
+	}
+
+	@Test
+	public void testExplicitExportIncludesTeamOptIn() {
+		setExplicitTeams(true);
+		assertEquals("M 73/+T", RAthlete.appendMembershipMarkers("M 73", true, false));
+		assertEquals("M 73/+T,+MT", RAthlete.appendMembershipMarkers("M 73", true, true));
+	}
+
+	private static void setExplicitTeams(boolean enabled) {
+		Config config = Config.getCurrent();
+		config.setFeatureSwitchValue(FeatureSwitch.EXPLICIT_TEAMS, enabled);
+		Config.setCurrent(config);
 	}
 
 	private Object parseParticipationSpec(String entry) throws Exception {

@@ -26,7 +26,9 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -103,6 +105,50 @@ public class NRegistrationFileProcessorTest {
                 RCompetition.getTeams(existingAthlete.getId()));
         assertSame("The updated athlete should keep the captured mixed-team set", mixedTeams,
                 RCompetition.getMixedTeams(existingAthlete.getId()));
+    }
+
+    @Test
+    public void testImportTeamSetsAreAuthoritativeWhenExplicit() throws Exception {
+        List<Category> categories = CategoryRepository.findActive();
+        Category priorCategory = categories.get(0);
+        Category incomingCategory = categories.get(1);
+        Athlete existingAthlete = new Athlete();
+        Athlete incomingAthlete = new Athlete();
+        NRegistrationFileProcessor processor = new NRegistrationFileProcessor(false, Locale.ENGLISH);
+        Method updateMethod = NRegistrationFileProcessor.class.getDeclaredMethod(
+                "updateExistingAthlete", Athlete.class, Athlete.class,
+                LinkedHashSet.class, LinkedHashSet.class, LinkedHashSet.class);
+        updateMethod.setAccessible(true);
+        Config config = Config.getCurrent();
+        boolean previousExplicitTeams = config.featureSwitch(FeatureSwitch.EXPLICIT_TEAMS);
+        try {
+            for (boolean explicitTeams : new boolean[] { false, true }) {
+                config.setFeatureSwitchValue(FeatureSwitch.EXPLICIT_TEAMS, explicitTeams);
+                Config.setCurrent(config);
+                for (int incomingCase = 0; incomingCase < 3; incomingCase++) {
+                    LinkedHashSet<Category> priorTeams = new LinkedHashSet<>(List.of(priorCategory));
+                    RCompetition.putTeams(existingAthlete.getId(), new LinkedHashSet<>(priorTeams));
+                    RCompetition.putMixedTeams(existingAthlete.getId(), new LinkedHashSet<>(priorTeams));
+                    LinkedHashSet<Category> incomingTeams = incomingCase == 0 ? null
+                            : incomingCase == 1 ? new LinkedHashSet<>()
+                            : new LinkedHashSet<>(List.of(incomingCategory));
+
+                    updateMethod.invoke(processor, existingAthlete, incomingAthlete,
+                            null, incomingTeams, incomingTeams);
+
+                    LinkedHashSet<Category> expected = incomingTeams != null ? incomingTeams
+                            : explicitTeams ? new LinkedHashSet<>() : priorTeams;
+                    String scenario = "explicitTeams=" + explicitTeams + " incomingCase=" + incomingCase;
+                    assertEquals(scenario, expected, RCompetition.getTeams(existingAthlete.getId()));
+                    assertEquals(scenario, expected, RCompetition.getMixedTeams(existingAthlete.getId()));
+                }
+            }
+        } finally {
+            config.setFeatureSwitchValue(FeatureSwitch.EXPLICIT_TEAMS, previousExplicitTeams);
+            Config.setCurrent(config);
+            RCompetition.getAthleteToTeams().remove(existingAthlete.getId());
+            RCompetition.getAthleteToMixedTeams().remove(existingAthlete.getId());
+        }
     }
 
     @Test
