@@ -50,7 +50,11 @@ public class ProxyAthleteTimer implements IProxyTimer {
 
 	@Override
 	public void finalWarning(Object origin) {
-		getFop().emitFinalWarning();
+		synchronized (getFop()) {
+			if (isCurrentCallback(origin)) {
+				getFop().emitFinalWarning();
+			}
+		}
 	}
 
 	/**
@@ -81,7 +85,11 @@ public class ProxyAthleteTimer implements IProxyTimer {
 	 */
 	@Override
 	public void initialWarning(Object origin) {
-		getFop().emitInitialWarning();
+		synchronized (getFop()) {
+			if (isCurrentCallback(origin)) {
+				getFop().emitInitialWarning();
+			}
+		}
 	}
 
 	@Override
@@ -130,26 +138,30 @@ public class ProxyAthleteTimer implements IProxyTimer {
 	 */
 	@Override
 	public void setTimeRemaining(int timeRemaining, boolean indefinite) {
-		if (this.running) {
-			computeTimeRemaining();
+		synchronized (getFop()) {
+			cancelServerTimer();
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("{}setting Time -- timeRemaining = {} ({})", FieldOfPlay.getLoggingName(getFop()),
+			        timeRemaining,
+			        LoggerUtils.whereFrom());
+			}
+			this.timeRemaining = timeRemaining;
+			this.running = false;
+			if (timeRemaining < 1) {
+				this.logger./**/warn("setting with no time {}", LoggerUtils.whereFrom());
+			}
+			getFop().pushOutUIEvent(new UIEvent.SetTime(timeRemaining, null, LoggerUtils.stackTrace(), getFop()));
 		}
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("{}setting Time -- timeRemaining = {} ({})", FieldOfPlay.getLoggingName(getFop()),
-		        timeRemaining,
-		        LoggerUtils.whereFrom());
-		}
-		this.timeRemaining = timeRemaining;
-		if (timeRemaining < 1) {
-			this.logger./**/warn("setting with no time {}", LoggerUtils.whereFrom());
-		}
-		getFop().pushOutUIEvent(new UIEvent.SetTime(timeRemaining, null, LoggerUtils.stackTrace(), getFop()));
-		this.running = false;
-	}	/**
+	}
+
+	/**
 	 * @see app.owlcms.fieldofplay.IProxyTimer#start()
 	 */
 	@Override
 	public void start() {
-		startInternal(this.timeRemaining);
+		synchronized (getFop()) {
+			startInternal(this.timeRemaining);
+		}
 	}
 
 	/**
@@ -157,9 +169,10 @@ public class ProxyAthleteTimer implements IProxyTimer {
 	 */
 	@Override
 	public void start(int timeRemaining) {
-		// Set time internally without pushing SetTime event
-		this.timeRemaining = timeRemaining;
-		startInternal(timeRemaining);
+		synchronized (getFop()) {
+			this.timeRemaining = timeRemaining;
+			startInternal(timeRemaining);
+		}
 	}
 
 	/**
@@ -175,6 +188,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 			}
 			this.timeRemainingAtLastStop = time;
 		}
+		cancelServerTimer();
 		if (time < 1) {
 			this.logger./**/warn("starting with no time {}", LoggerUtils.whereFrom());
 		}
@@ -183,7 +197,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		                LoggerUtils.stackTrace(), getFop()));
 		this.running = true;
 		this.serverTimer = new Timer();
-		scheduleTask(nextMilestoneTime(time), initialDelay(time));
+		scheduleTask(this.serverTimer, nextMilestoneTime(time), initialDelay(time));
 	}
 
 	private int initialDelay(int timeRemaining) {
@@ -205,11 +219,36 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		}
 	}
 
-	private void scheduleTask(int timeRemaining, int delayMillis) {
-		try {
-			this.serverTimer.schedule(computeTask(timeRemaining), Math.max(delayMillis, 0));
-		} catch (IllegalArgumentException e) {
-			this.logger.debug("Timer schedule issue: {}", e.getMessage());
+	private void scheduleTask(Timer owner, int timeRemaining, int delayMillis) {
+		synchronized (getFop()) {
+			if (owner == null || owner != this.serverTimer || !this.running) {
+				return;
+			}
+			try {
+				owner.schedule(computeTask(owner, timeRemaining), Math.max(delayMillis, 0));
+			} catch (IllegalArgumentException e) {
+				this.logger.debug("Timer schedule issue: {}", e.getMessage());
+			}
+		}
+	}
+
+	private void cancelServerTimer() {
+		if (this.serverTimer != null) {
+			this.serverTimer.cancel();
+			this.serverTimer = null;
+		}
+	}
+
+	private boolean isCurrentCallback(Object origin) {
+		return !(origin instanceof CountdownTask task)
+		        || (task.owner == this.serverTimer && this.running);
+	}
+
+	private abstract static class CountdownTask extends TimerTask {
+		private final Timer owner;
+
+		CountdownTask(Timer owner) {
+			this.owner = owner;
 		}
 	}
 
@@ -218,47 +257,57 @@ public class ProxyAthleteTimer implements IProxyTimer {
 	 */
 	@Override
 	public void stop() {
-		if (this.running) {
-			computeTimeRemaining();
-		}
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("{}stopping Time -- timeRemaining = {} ({})", FieldOfPlay.getLoggingName(getFop()),
+		synchronized (getFop()) {
+			if (this.running) {
+				computeTimeRemaining();
+			}
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("{}stopping Time -- timeRemaining = {} ({})", FieldOfPlay.getLoggingName(getFop()),
 			        this.timeRemaining,
 			        LoggerUtils.whereFrom());
+			}
+			this.timeRemainingAtLastStop = this.timeRemaining;
+			if (this.serverTimer != null) {
+				this.logger.debug("{}stopping serverTimer", FieldOfPlay.getLoggingName(this.fop));
+			}
+			cancelServerTimer();
+			this.running = false;
+			getFop().pushOutUIEvent(new UIEvent.StopTime(this.timeRemaining, null, getFop()));
 		}
-		this.timeRemainingAtLastStop = this.timeRemaining;
-		if (this.serverTimer != null) {
-			this.logger.debug("{}stopping serverTimer", FieldOfPlay.getLoggingName(this.fop));
-			this.serverTimer.cancel();
-		}
-		getFop().pushOutUIEvent(new UIEvent.StopTime(this.timeRemaining, null, getFop()));
-		this.running = false;
 	}
 
 	@Override
 	public void timeOver(Object origin) {
-		// avoid sending multiple events to FOP
-		boolean needToSendEvent = !getFop().isAthleteTimeoutEmitted();
-		if (needToSendEvent) {
-			getFop().emitTimeOver();
-			getFop().fopEventPost(new FOPEvent.TimeOver(origin));
+		Timer owner;
+		synchronized (getFop()) {
+			if (!isCurrentCallback(origin) || !this.running) {
+				return;
+			}
+			owner = this.serverTimer;
+			if (!getFop().isAthleteTimeoutEmitted()) {
+				getFop().emitTimeOver();
+				getFop().fopEventPost(new FOPEvent.TimeOver(origin));
+			}
 		}
-		// leave enough time for buzzer event to propagate allowing for some clock drift
-		if (this.running) {
-			try {
-				// timers that are more than 1 sec. late will now stop silently.
-				Thread.sleep(1000);
-				this.stop();
-			} catch (InterruptedException e) {
+		// Allow the buzzer to propagate without blocking FieldOfPlay commands.
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
+		}
+		synchronized (getFop()) {
+			if (owner == this.serverTimer && this.running) {
+				stop();
 			}
 		}
 	}
 
-	private TimerTask computeTask(int timeRemaining2) {
+	private TimerTask computeTask(Timer owner, int timeRemaining2) {
 		final int timeRemaining = timeRemaining2;
 		if (timeRemaining == 0) {
 				this.logger.debug("{}scheduling serverTimer timeOver {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
-				return new TimerTask() {
+				return new CountdownTask(owner) {
 					@Override
 					public void run() {
 						ProxyAthleteTimer.this.logger.debug("{}running time over", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
@@ -267,46 +316,46 @@ public class ProxyAthleteTimer implements IProxyTimer {
 				};
 		} else if (timeRemaining == Competition.athleteTimerFinalWarning) {
 				this.logger.debug("{}scheduling serverTimer finalWarning {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
-				return new TimerTask() {
+				return new CountdownTask(owner) {
 					@Override
 					public void run() {
 						ProxyAthleteTimer.this.logger.debug("{}running final warning", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
 						finalWarning(this);
 						// next task is time over after the configured final-warning interval.
-						scheduleTask(0, Competition.athleteTimerFinalWarning);
+						scheduleTask(owner, 0, Competition.athleteTimerFinalWarning);
 					}
 				};
 		} else if (timeRemaining == Competition.athleteTimerOneMinute) {
 				this.logger.debug("{}scheduling serverTimer 1:00 {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
-				return new TimerTask() {
+				return new CountdownTask(owner) {
 					@Override
 					public void run() {
 						ProxyAthleteTimer.this.logger.debug("{}running 1:00", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
 						// nothing to do, next task is final warning.
-						scheduleTask(Competition.athleteTimerFinalWarning,
+						scheduleTask(owner, Competition.athleteTimerFinalWarning,
 						        Competition.athleteTimerOneMinute - Competition.athleteTimerFinalWarning);
 					}
 				};
 		} else if (timeRemaining == Competition.athleteTimerInitialWarning) {
 				this.logger.debug("{}scheduling server serverTimer initialWarning {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
-				return new TimerTask() {
+				return new CountdownTask(owner) {
 					@Override
 					public void run() {
 						ProxyAthleteTimer.this.logger.debug("{}running initial warning", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
 						initialWarning(this);
 						// next task is final warning.
-						scheduleTask(Competition.athleteTimerFinalWarning,
+						scheduleTask(owner, Competition.athleteTimerFinalWarning,
 						        Competition.athleteTimerInitialWarning - Competition.athleteTimerFinalWarning);
 					}
 				};
 		} else if (timeRemaining == Competition.athleteTimerTwoMinutes) {
 				this.logger.debug("{}scheduling server serverTimer 2:00 {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
-				return new TimerTask() {
+				return new CountdownTask(owner) {
 					@Override
 					public void run() {
 						ProxyAthleteTimer.this.logger.debug("{}running 2:00", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
 						// next task is initial warning.
-						scheduleTask(Competition.athleteTimerInitialWarning,
+						scheduleTask(owner, Competition.athleteTimerInitialWarning,
 						        Competition.athleteTimerTwoMinutes - Competition.athleteTimerInitialWarning);
 					}
 				};

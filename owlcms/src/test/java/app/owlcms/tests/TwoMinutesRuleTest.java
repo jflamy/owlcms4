@@ -8,10 +8,15 @@ package app.owlcms.tests;
 
 import static app.owlcms.tests.AllTests.assertEqualsToReferenceFile;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -36,6 +41,7 @@ import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.MockFieldOfPlay;
+import app.owlcms.fieldofplay.ProxyAthleteTimer;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -120,6 +126,104 @@ public class TwoMinutesRuleTest {
             fail("late declaration was accepted after resetting the two-minute clock");
         } catch (RuleViolationException.LateDeclaration expected) {
             // expected
+        }
+    }
+
+    @Test
+    public void mqttTwoMinuteResetWhileRunningDirectsRealTimer() throws InterruptedException {
+        FieldOfPlay fopState = OwlcmsSession.getFop();
+        EventBus fopBus = fopState.getFopEventBus();
+        testPrepState4(fopState, fopBus, logger);
+        fopState.fopEventPost(new FOPEvent.SwitchGroup(fopState.getGroup(), this));
+        fopState.fopEventPost(new FOPEvent.StartLifting(this));
+        successfulLift(fopBus, fopState.getCurAthlete(), fopState);
+
+        int twoMinutes = Competition.athleteTimerTwoMinutes;
+        int oneMinute = Competition.athleteTimerOneMinute;
+        int initialWarning = Competition.athleteTimerInitialWarning;
+        int finalWarning = Competition.athleteTimerFinalWarning;
+        CountDownLatch expired = new CountDownLatch(1);
+        CountDownLatch stopped = new CountDownLatch(1);
+        List<String> directives = new ArrayList<>();
+        ProxyAthleteTimer realTimer = new ProxyAthleteTimer(fopState) {
+            @Override
+            public void setTimeRemaining(int duration, boolean indefinite) {
+                directives.add("set:" + duration + ":" + indefinite);
+                super.setTimeRemaining(duration, indefinite);
+            }
+
+            @Override
+            public void start(int duration) {
+                directives.add("start:" + duration);
+                super.start(duration);
+            }
+
+            @Override
+            public void timeOver(Object origin) {
+                expired.countDown();
+                super.timeOver(origin);
+            }
+
+            @Override
+            public void stop() {
+                super.stop();
+                stopped.countDown();
+            }
+        };
+
+        try {
+            Competition.athleteTimerTwoMinutes = twoMinutes / 20;
+            Competition.athleteTimerOneMinute = oneMinute / 20;
+            Competition.athleteTimerInitialWarning = initialWarning / 20;
+            Competition.athleteTimerFinalWarning = finalWarning / 20;
+            fopState.setAthleteTimer(realTimer);
+
+            fopState.fopEventPost(new FOPEvent.ForceTime(Competition.athleteTimerTwoMinutes, this));
+            fopState.fopEventPost(new FOPEvent.TimeStarted(this));
+            assertEquals(FOPState.TIME_RUNNING, fopState.getState());
+            assertFalse(expired.await(
+                    Competition.athleteTimerTwoMinutes - Competition.athleteTimerOneMinute,
+                    TimeUnit.MILLISECONDS));
+            int remaining = realTimer.liveTimeRemaining();
+            assertTrue("clock did not reach the reset point",
+                    Math.abs(remaining - Competition.athleteTimerOneMinute)
+                            < Competition.athleteTimerFinalWarning / 2);
+
+            fopState.fopEventPost(new FOPEvent.ForceTime(Competition.athleteTimerTwoMinutes, this));
+            assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, fopState.getState());
+            assertFalse(realTimer.isRunning());
+            assertEquals(Competition.athleteTimerTwoMinutes, realTimer.getTimeRemaining());
+            assertEquals(Competition.athleteTimerTwoMinutes, fopState.getClockOwnerInitialTimeAllowed());
+
+            fopState.fopEventPost(new FOPEvent.TimeStarted(this));
+            assertEquals(FOPState.TIME_RUNNING, fopState.getState());
+            assertTrue(realTimer.isRunning());
+            assertEquals(fopState.getCurAthlete(), fopState.getClockOwner());
+
+            assertEquals(List.of(
+                    "set:" + Competition.athleteTimerTwoMinutes + ":false",
+                    "start:" + Competition.athleteTimerTwoMinutes,
+                    "set:" + Competition.athleteTimerTwoMinutes + ":false",
+                    "start:" + Competition.athleteTimerTwoMinutes), directives);
+
+            assertFalse("original deadline expired the replacement clock",
+                    expired.await(Competition.athleteTimerOneMinute + Competition.athleteTimerFinalWarning / 2,
+                            TimeUnit.MILLISECONDS));
+            assertEquals(FOPState.TIME_RUNNING, fopState.getState());
+            assertTrue(realTimer.isRunning());
+            assertTrue(realTimer.liveTimeRemaining() > 0);
+            assertFalse("replacement clock stopped early", stopped.await(0, TimeUnit.MILLISECONDS));
+            assertTrue("replacement clock did not expire",
+                    expired.await(Competition.athleteTimerTwoMinutes, TimeUnit.MILLISECONDS));
+            assertTrue("expired clock did not stop", stopped.await(3, TimeUnit.SECONDS));
+            assertEquals(FOPState.TIME_STOPPED, fopState.getState());
+            assertFalse(realTimer.isRunning());
+        } finally {
+            realTimer.stop();
+            Competition.athleteTimerTwoMinutes = twoMinutes;
+            Competition.athleteTimerOneMinute = oneMinute;
+            Competition.athleteTimerInitialWarning = initialWarning;
+            Competition.athleteTimerFinalWarning = finalWarning;
         }
     }
 
