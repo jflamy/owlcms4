@@ -8,6 +8,12 @@
 
 <br>
 
+**Maintenance Log**
+
+- 68.0.0-rc02: Registration files will report impossible sets of eligibility categories (categories with incompatible ages or bodyweight ranges)
+
+- 68.0.0-rc02: Fix: Resetting and starting a timer when one was running and not stopped did not stop the original timer.
+
 **New in Release 68.0**
 
 - 68.0.0: Migration to Vaadin 25 user interface toolkit
