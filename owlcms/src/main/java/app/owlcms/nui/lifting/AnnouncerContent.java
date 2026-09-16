@@ -979,10 +979,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        e -> {
 			        switchSoundMode(!this.isSilenced(), true);
 			        e.getSource().setChecked(!this.isSilenced());
-			        if (this.timer != null) {
-				        this.timer.setSilenced(this.isSilenced());
-			        }
-			        updatePassiveTimerSoundMode();
 		        });
 		subItemSoundOn.setCheckable(true);
 		subItemSoundOn.setChecked(!this.isSilenced());
