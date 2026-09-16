@@ -10,6 +10,10 @@
 
 **Maintenance Log**
 
+- 68.0.0-rc04: Fix import behavior under explicitTeams feature toggle to actually clear empty team sets
+
+- 68.0.0-rc04: Fix Exception when opening athlete card from the registration page.
+
 - 68.0.0-rc03: Sync with 67.5.2; Announcer page emits Down and Timer warnings agein if selected in cogwheel menu options.
 
 - 68.0.0-rc02: Registration files will report incompatible eligibility categories (categories with no overlap in age or body weight)
