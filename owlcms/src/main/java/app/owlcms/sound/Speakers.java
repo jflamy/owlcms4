@@ -62,9 +62,10 @@ public class Speakers {
 			if (mixer == null) {
 				return;
 			}
-			// both sounds should be heard simultaneously
+			// The warning and tone overlap, followed by the down signal.
 			new Sound(mixer, "initialWarning.wav").emit();
 			new Tone(mixer, 1100, 1200, 1.0).emit();
+			new Sound(mixer, "down.wav").emit();
 		} catch (Exception e) {
 			logger.error("failed sound test\n {}", LoggerUtils./**/stackTrace(e));
 		}

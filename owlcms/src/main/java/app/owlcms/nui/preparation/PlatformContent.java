@@ -258,8 +258,8 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 		soundMixerField.setItems(outputNames);
 		soundMixerField.setValue(platform.getSoundMixerName());
 		soundMixerField.setWidthFull();
-		soundMixerField.addBlurListener(event -> {
-			String soundMixerName = soundMixerField.getValue();
+		soundMixerField.addValueChangeListener(event -> {
+			String soundMixerName = event.getValue();
 			if (!Objects.equals(platform.getSoundMixerName(), soundMixerName)) {
 				String previousMixerName = platform.getSoundMixerName();
 				platform.setSoundMixerName(soundMixerName);
