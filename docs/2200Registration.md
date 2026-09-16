@@ -88,6 +88,32 @@ Say that we also have Masters taking place at the same time.  National Masters u
 
 In such a case, an athlete eligible to all 4 would be noted `W40 55;STW40 55;W 55;ST W 55`.  We put `W40 55` first so that this is shown on the scoreboard.
 
+### Team Membership in the Registration File
+
+Each category in the Category column can be annotated with a team marker after a `/`.  The markers are `+T` (or `YesTeam`), `-T` (or `NoTeam`), `+MT` (or `YesMixed`) and `-MT` (or `NoMixed`).  Several markers are separated by a comma, for example `W 55/-T,+MT`.  How an *unmarked* category is interpreted depends on the `explicitTeams` feature switch (see [Feature Switches](FeatureToggles)).
+
+In both modes, the imported row determines category eligibility and team membership, including when using "Update Athletes". Previous selections on the athlete card or Team Membership page are replaced for the athletes being imported. Full category names specify the categories to use; a short form such as `55` infers eligible categories from the category limit and athlete information. A blank Category cell infers categories from gender, birth date, bodyweight, and qualifying total, so the necessary athlete information must be supplied.
+
+Mixed-team membership always requires `+MT`, regardless of the switch. A short form such as `55/+T,+MT` applies the team markers to the inferred categories, with mixed membership limited to championships configured for explicit mixed-team members. Without `+MT`, including a blank Category cell, mixed membership is cleared.
+
+#### Implicit membership (default, `explicitTeams` feature toggle is off)
+
+- Every athlete is automatically a member of the team in every category they are eligible for.  Leave the Category column as `W 55`, `55`, or blank.
+- Use `-T` only to exclude an athlete from a team: `W 55/-T`.  A trailing `/` with nothing after it means the same thing.
+- When re-importing with "Update Athletes", memberships are recalculated from the row: unmarked categories include the athlete in the gendered team, even if the athlete was previously excluded. A blank category also recalculates eligibility and applies this default.
+- The export is compact: only `-T` and `+MT` are written.
+
+#### Explicit membership (`explicitTeams` feature toggle is on)
+
+Use this when only a subset of the registered athletes count for their club or country and you want the registration file to say exactly who they are.
+
+1. Turn on the `explicitTeams` feature switch **before** importing or exporting.
+2. Mark the team members in the file: `W 55/+T`.  Anything without `+T` (`W 55`, `55`, blank category) makes the athlete eligible for the category but **not** a member of the team.  Add `+MT` for mixed teams as usual.
+3. Import.  The file is authoritative: athletes with no team marker on their row are removed from any team they were previously on, and athletes marked `+T` are added.
+4. The export writes `+T` for every member, so an exported file re-imports identically.  You can still change memberships afterwards on the athlete card or on the Team Membership page, but re-importing the same file will reset them to what the file says.
+
+> **Switching modes:** an export done with `explicitTeams` off contains no `+T` markers. If you turn the switch on and re-import that file, the imported athletes lose their gendered-team memberships; mixed-team memberships marked with `+MT` remain. Turn the switch on first, export, then edit and re-import.
+
 ## Editing Competition Sessions
 
 From the `Prepare Competition` page, clicking `Define Sessions` allows you to create or edit competition sessions.  You can use the `+ Add` button at the top of the list of sessions to create additional sessions.

@@ -78,10 +78,17 @@ public class RAthlete {
 		return this.a;
 	}
 
+	/** With explicitTeams on, athletes only join a team when the sheet says so (+T / YesTeam). */
+	private static boolean implicitTeamMembership() {
+		return !Config.getCurrent().featureSwitch(FeatureSwitch.EXPLICIT_TEAMS);
+	}
+
 	public static String appendMembershipMarkers(String categoryName, boolean teamMember, boolean mixedTeamMember) {
 		List<String> markers = new ArrayList<>();
 		if (!teamMember) {
 			markers.add(NoTeamMarker);
+		} else if (!implicitTeamMembership()) {
+			markers.add(YesTeamMarker);
 		}
 		if (mixedTeamMember) {
 			markers.add(YesMixedMarker);
@@ -111,7 +118,11 @@ public class RAthlete {
 		if (s == null || s.isBlank()) {
 			// no category, infer from age and body weight
 			this.a.computeMainAndEligibleCategories();
-			this.a.getParticipations().stream().forEach(p -> p.setTeamMember(true));
+			boolean teamMember = implicitTeamMembership();
+			this.a.getParticipations().forEach(p -> {
+				p.setTeamMember(teamMember);
+				p.setMixedTeamMember(false);
+			});
 			if (this.a.getCategory() == null) {
 				Integer athleteAge = null;
 				try {
@@ -123,6 +134,11 @@ public class RAthlete {
 					this.a.getGender() != null ? this.a.getGender().toString() : "?",
 					this.a.getBodyWeight() != null ? this.a.getBodyWeight().toString() : "?"));
 			}
+			RCompetition.putEligibles(this.a.getId(), new LinkedHashSet<>(this.a.getEligibleCategories()));
+			RCompetition.putTeams(this.a.getId(), this.a.computeTeams());
+			RCompetition.putMixedTeams(this.a.getId(), new LinkedHashSet<>());
+			this.a.setEligibleCategories(Set.of());
+			this.a.computeMainRankings();
 			return;
 		}
 		s = CharMatcher.javaIsoControl().removeFrom(s);
@@ -395,14 +411,7 @@ public class RAthlete {
 			} else {
 				if (parts.length == 1 && !parts[0].contains(" ")) {
 					// we have a short form category. infer from age and category limit
-					setCategoryHeuristics(catName);
-					final var tm = mainParticipation.teamMember;
-					final var mtm = mainParticipation.mixedTeamMember;
-					this.a.getParticipations().stream().forEach(p -> {
-						p.setTeamMember(tm);
-						p.setMixedTeamMember(mtm && p.getCategory() != null && p.getCategory().getAgeGroup() != null
-						        && p.getCategory().getAgeGroup().isMixedTeams());
-					});
+					setCategoryHeuristics(catName, mainParticipation.teamMember, mainParticipation.mixedTeamMember);
 				} else {
 					throw new Exception(
 					        Translator.translate("Upload.CategoryNotFoundByName", catName.trim()));
@@ -412,13 +421,19 @@ public class RAthlete {
 		}
 	}
 
-	private Category findByAgeBW(Matcher legacyResult, double searchBodyWeight, int age, int qualifyingTotal)
+	private Category findByAgeBW(Matcher legacyResult, double searchBodyWeight, int age, int qualifyingTotal,
+	        boolean teamMember, boolean mixedTeamMember)
 	        throws Exception {
 		List<Category> eligibles = CategoryRepository.doFindEligibleCategories(this.a, this.a.getGender(), age,
 		        searchBodyWeight, qualifyingTotal);
 		
 		RCompetition.putEligibles(this.a.getId(), new LinkedHashSet<>(eligibles));
-		RCompetition.putTeams(this.a.getId(), new LinkedHashSet<>(eligibles));
+		RCompetition.putTeams(this.a.getId(), teamMember ? new LinkedHashSet<>(eligibles) : new LinkedHashSet<>());
+		LinkedHashSet<Category> mixedTeams = new LinkedHashSet<>();
+		if (mixedTeamMember) {
+			eligibles.stream().filter(category -> category.getAgeGroup().isMixedTeams()).forEach(mixedTeams::add);
+		}
+		RCompetition.putMixedTeams(this.a.getId(), mixedTeams);
 
 		Category category = eligibles.size() > 0 ? eligibles.get(0) : null;
 		if (category == null) {
@@ -645,7 +660,7 @@ public class RAthlete {
 
 	static ParticipationSpec parseParticipationSpec(String entry) throws Exception {
 		String trimmed = entry != null ? entry.trim() : "";
-		boolean teamMember = true;
+		boolean teamMember = implicitTeamMembership();
 		boolean mixedTeamMember = false;
 
 		if (trimmed.endsWith("/")) {
@@ -654,7 +669,7 @@ public class RAthlete {
 
 		int slashIndex = trimmed.indexOf('/');
 		if (slashIndex < 0) {
-			return new ParticipationSpec(trimmed, true, false);
+			return new ParticipationSpec(trimmed, teamMember, false);
 		}
 
 		String categoryName = trimmed.substring(0, slashIndex).trim();
@@ -736,7 +751,7 @@ public class RAthlete {
 		return !value.matches("(?i).*\\/(" + markerPattern + ")(,.*)?$");
 	}
 
-	private void setCategoryHeuristics(String categoryName) throws Exception {
+	private void setCategoryHeuristics(String categoryName, boolean teamMember, boolean mixedTeamMember) throws Exception {
 		Matcher legacyResult = getLegacyPattern().matcher(categoryName);
 		double searchBodyWeight;
 		if (!legacyResult.matches()) {
@@ -771,7 +786,7 @@ public class RAthlete {
 
 		Integer qualifyingTotal = this.getAthlete().getQualifyingTotal();
 		Category category = findByAgeBW(legacyResult, searchBodyWeight, age,
-		        qualifyingTotal != null ? qualifyingTotal : 999);
+		        qualifyingTotal != null ? qualifyingTotal : 999, teamMember, mixedTeamMember);
 
 		this.a.computeCategory(category);
 		// logger.debug("setting category to {} athlete {}",category.longDump(),
