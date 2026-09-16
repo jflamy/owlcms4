@@ -1612,7 +1612,11 @@ public abstract class AthleteGridContent extends BaseContent
 			return;
 		}
 		FieldOfPlay fop = getFop();
-		this.passiveTimer.setSilent(this.isSilenced() || (fop != null && fop.isEmitSoundsOnServer()));
+		this.passiveTimer.setSilent(isPassiveTimerSoundSilenced(fop != null && fop.isEmitSoundsOnServer()));
+	}
+
+	protected boolean isPassiveTimerSoundSilenced(boolean serverSound) {
+		return this.isSilenced() || serverSound;
 	}
 
 	private void passiveTimerApplyState(boolean running, Integer milliseconds) {
@@ -1639,7 +1643,7 @@ public abstract class AthleteGridContent extends BaseContent
 		if (this.passiveTimer == null) {
 			return;
 		}
-		this.passiveTimer.setSilent(this.isSilenced() || serverSound);
+		this.passiveTimer.setSilent(isPassiveTimerSoundSilenced(serverSound));
 		this.passiveTimer.start(milliseconds, issuedAtMillis);
 	}
 

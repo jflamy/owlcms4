@@ -43,6 +43,7 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.QueryParameters;
@@ -52,6 +53,7 @@ import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.elements.PassiveTimerElement;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
@@ -107,8 +109,13 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	private TimerTask waitingForDecisionNotificationTask;
 	private long waitingForDecisionNotificationGeneration;
 	private Notification decisionNotification;
+	private final Element downSound = createAudioElement("down");
+	private final Element initialWarningSound = createAudioElement(Competition.athleteTimerInitialWarningSound);
+	private final Element finalWarningSound = createAudioElement(Competition.athleteTimerFinalWarningSound);
+	private final Element timeOverSound = createAudioElement(Competition.athleteTimerTimeOverSound);
 
 	public AnnouncerContent() {
+		getElement().appendChild(this.downSound, this.initialWarningSound, this.finalWarningSound, this.timeOverSound);
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
 		setDefaultParameters(QueryParameters.simple(Map.of(
@@ -120,6 +127,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        SoundParameters.SHOW_DECLARATIONS, "false",
 		        SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch(FeatureSwitch.CENTER_ANNOUNCER_NOTIFICATIONS)),
 		        SoundParameters.START_ORDER, "false")));
+	}
+
+	@Override
+	protected boolean isPassiveTimerSoundSilenced(boolean serverSound) {
+		return true;
 	}
 
 	/**
@@ -583,6 +595,40 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	public void slaveDownSignal(UIEvent.DownSignal e) {
 		// Down alone is not enough to identify the missing referee. Announcer reminders
 		// follow the same trigger as the referee wake-up logic: two votes received and one missing.
+		FieldOfPlay fop = getFop();
+		if (isDownSilenced() || (fop != null && fop.isEmitSoundsOnServer())) {
+			return;
+		}
+		playBrowserSound(e, this.downSound);
+	}
+
+	@Subscribe
+	public void slaveTimeRemainingSeconds(UIEvent.TimeRemainingSeconds e) {
+		FieldOfPlay fop = getFop();
+		if (isSilenced() || (fop != null && fop.isEmitSoundsOnServer())) {
+			return;
+		}
+		int secondsRemaining = e.getSecondsRemaining();
+		if (secondsRemaining == Competition.athleteTimerInitialWarning / 1000) {
+			playBrowserSound(e, this.initialWarningSound);
+		} else if (secondsRemaining == Competition.athleteTimerFinalWarning / 1000) {
+			playBrowserSound(e, this.finalWarningSound);
+		} else if (secondsRemaining == 0) {
+			playBrowserSound(e, this.timeOverSound);
+		}
+	}
+
+	private static Element createAudioElement(String soundName) {
+		Element sound = new Element("audio");
+		sound.setAttribute("preload", "auto");
+		sound.setAttribute("src", "../local/sounds/" + soundName + ".mp3");
+		sound.setAttribute("hidden", true);
+		return sound;
+	}
+
+	private void playBrowserSound(UIEvent event, Element sound) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, event, () -> sound.executeJs(
+		        "this.currentTime = 0; const result = this.play(); if (result) result.catch(() => {});"));
 	}
 
 	@Subscribe
