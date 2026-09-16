@@ -107,6 +107,7 @@ public abstract class AbstractDecisionElement extends LitTemplate
 		}
 		this.fop = fop;
 		this.decisionState.setFop(fop);
+		updateClientSilentProperty();
 		logger.debug("DecisionElement.setFop: fop={} isSingleRef={} isJuryMode={} {}",
 				(fop != null ? fop.getName() : "null"), this.isSingleRef(), this.isJuryMode(),
 				LoggerUtils.whereFrom());
@@ -267,9 +268,13 @@ public abstract class AbstractDecisionElement extends LitTemplate
 	}
 
 	public void setSilenced(boolean b) {
-		getElement().setProperty("silent", b);
 		this.silenced = b;
 		this.decisionState.setSilenced(b);
+		updateClientSilentProperty();
+	}
+
+	private void updateClientSilentProperty() {
+		getElement().setProperty("silent", this.silenced || (this.fop != null && this.fop.isEmitSoundsOnServer()));
 	}
 
 	@Subscribe
@@ -380,6 +385,7 @@ public abstract class AbstractDecisionElement extends LitTemplate
 	}
 
 	protected void setEnabled(boolean enabled) {
+		updateClientSilentProperty();
 		getElement().setProperty("enabled", enabled);
 	}
 
