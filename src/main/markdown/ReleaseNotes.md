@@ -10,6 +10,8 @@
 
 **Maintenance Log**
 
+- 68.0.0-rc03: Sync with 67.5.2; Announcer page emits Down and Timer warnings agein if selected in cogwheel menu options.
+
 - 68.0.0-rc02: Registration files will report incompatible eligibility categories (categories with no overlap in age or body weight)
 
 - 68.0.0-rc02: Fix: Resetting and starting a timer when one was running and not stopped did not stop the original timer.
