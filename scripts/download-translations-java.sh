@@ -32,3 +32,8 @@ MAVEN_ARGS=(
   "-Dexec.args=${DESTINATION}"
 )
 mvn "${MAVEN_ARGS[@]}"
+
+git add -- "${DESTINATION}"
+if ! git diff --cached --quiet -- "${DESTINATION}"; then
+  git commit --only -m "sync translations" -- "${DESTINATION}"
+fi
