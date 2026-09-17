@@ -81,8 +81,8 @@ cells in that first-column area.
   column as two distinct, unmerged cells, matching the detail rows below.
 - Move the detail fields below the name left by the same offset as the original
   name field; do not move table content or unrelated rows.
-- Left-align labels moved into the first column so they visibly begin at the
-  left edge rather than retaining alignment intended for their old position.
+- Right-align labels moved into the first column so they remain visually paired
+  with their values.
 - Remove decorative header underlines instead of extending them across the new
   full-width layout.
 - Preserve the existing relative arrangement of site, city, date, and organizer
