@@ -75,7 +75,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 	public void addDialogContent(Component target, VerticalLayout vl) {
 		DisplayOptions.addLightingEntries(vl, target, this);
 		ComboBox<Championship> championshipComboBox = new ComboBox<>();
-		List<Championship> championships = Championship.findAllUsed(true);
+		List<Championship> championships = Championship.findAllVisible(true);
 		championshipComboBox.setItemLabelGenerator(c -> c.getName());
 		championshipComboBox.setItems(championships);
 		championshipComboBox.setPlaceholder(Translator.translate("Championship"));

@@ -99,7 +99,7 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		DisplayOptions.addLightingEntries(vl, target, this);
 
 		com.vaadin.flow.component.combobox.ComboBox<app.owlcms.data.agegroup.Championship> championshipComboBox = new com.vaadin.flow.component.combobox.ComboBox<>();
-		java.util.List<app.owlcms.data.agegroup.Championship> championships = app.owlcms.data.agegroup.Championship.findAllUsed(true);
+		java.util.List<app.owlcms.data.agegroup.Championship> championships = app.owlcms.data.agegroup.Championship.findAllVisible(true);
 		championshipComboBox.setItems(championships);
 		championshipComboBox.setItemLabelGenerator(c -> c.getName());
 		championshipComboBox.setPlaceholder(app.owlcms.i18n.Translator.translate("Championship"));

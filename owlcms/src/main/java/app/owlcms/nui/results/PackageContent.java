@@ -405,7 +405,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	private boolean hasMultipleChampionships() {
 		List<Championship> items = getChampionshipItems();
 		if (items == null) {
-			items = Championship.findAllUsed(true);
+			items = Championship.findAllVisible(true);
 		}
 		return items != null && items.size() > 1;
 	}

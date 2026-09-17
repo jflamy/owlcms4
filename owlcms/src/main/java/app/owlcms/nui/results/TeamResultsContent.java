@@ -401,7 +401,7 @@ public class TeamResultsContent extends BaseContent
 
 		this.topBarChampionshipSelect = new ComboBox<>();
 		this.topBarChampionshipSelect.setPlaceholder(Translator.translate("Championship"));
-		this.adItems = Championship.findAllUsed(true);
+		this.adItems = Championship.findAllVisible(true);
 		this.topBarChampionshipSelect.setItems(this.adItems);
 		this.topBarChampionshipSelect.setItemLabelGenerator((ad) -> ad.getName());
 		this.topBarChampionshipSelect.setClearButtonVisible(true);

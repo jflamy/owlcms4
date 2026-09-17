@@ -34,6 +34,7 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.server.streams.UploadHandler;
 
 import app.owlcms.components.ConfirmationDialog;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -300,6 +301,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			// process athletes now that groups have been adjusted
 			int nbAthletesProcessed = this.processor.doProcessAthletes(inputStream, false, errorCollector, noopUpdater);
 			this.processor.adjustParticipations();
+			Championship.recomputeParticipantCounts();
 			// Processor may have added a processed summary to the collector; remove it so we can display counts separately
 			try {
 				String processedTpl = Translator.translate("Upload.DataProcessed.Athletes");

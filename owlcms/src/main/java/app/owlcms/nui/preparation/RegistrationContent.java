@@ -1145,7 +1145,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 	private void resetCategories() {
 		AthleteRepository.resetParticipations(false, true);
-		this.setChampionshipItems(Championship.findAllUsed(true));
+		this.setChampionshipItems(Championship.findAllVisible(true));
 		this.getChampionshipFilter().setItems(this.getChampionshipItems());
 		refreshCrudGrid();
 	}

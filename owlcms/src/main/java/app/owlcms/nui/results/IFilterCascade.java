@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Objects;
 
 import org.slf4j.LoggerFactory;
@@ -49,12 +48,12 @@ public interface IFilterCascade {
 		}
 		this.getChampionshipFilter().setPlaceholder(Translator.translate("Championship"));
 		this.getChampionshipFilter().setWidth("25ch");
-		this.setChampionshipItems(Championship.findAllUsed(true));
-		// Defensive: filter out any null entries and sort by name handling null names safely
+		this.getChampionshipFilter().getStyle().set("--vaadin-combo-box-overlay-width", "35ch");
+		this.setChampionshipItems(Championship.findAllVisible(true));
+		// Preserve the configured championship order from findAllVisible.
 		List<Championship> championshipItemsSafe = Optional.ofNullable(this.getChampionshipItems()).orElse(Collections.emptyList())
 			.stream()
 			.filter(Objects::nonNull)
-			.sorted(Comparator.comparing((Championship c) -> c.getName(), Comparator.nullsLast(Comparator.naturalOrder())))
 			.toList();
 		this.getChampionshipFilter().setItems(championshipItemsSafe);
 		this.getChampionshipFilter().setItemLabelGenerator((ad) -> ad.translate());

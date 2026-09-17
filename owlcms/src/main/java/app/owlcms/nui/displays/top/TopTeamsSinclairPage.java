@@ -82,7 +82,7 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		DisplayOptions.addLightingEntries(vl, target, this);
 		
 		ComboBox<Championship> championshipComboBox = new ComboBox<>();
-		List<Championship> championships = Championship.findAllUsed(true);
+		List<Championship> championships = Championship.findAllVisible(true);
 
 		championshipComboBox.setItems(championships);
 		championshipComboBox.setItemLabelGenerator(c -> c.getName());

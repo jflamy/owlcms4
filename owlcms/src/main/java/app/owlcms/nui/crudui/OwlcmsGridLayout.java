@@ -67,6 +67,7 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 		this.filterLayout.setSpacing(true);
 		hideSearchIcon();
 		this.headerLayout.add(this.filterLayout);
+		this.mainLayout.add(this.headerLayout);
 
 		this.mainComponentLayout.setWidth("100%");
 		this.mainComponentLayout.setHeight("100%");

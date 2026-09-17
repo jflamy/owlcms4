@@ -37,6 +37,8 @@ import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.agegroup.ChampionshipType;
+import app.owlcms.data.competition.Competition;
+import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.monitors.WebSocketEventForwarder;
@@ -48,14 +50,14 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class EditChampionshipsPanel extends VerticalLayout {
 	static final String DIALOG_TABLE_WIDTH = "76em";
-	private static final String NAME_COLUMN_WIDTH = "12em";
+	private static final String NAME_COLUMN_WIDTH = "20em";
 	private static final String TYPE_COLUMN_WIDTH = "34em";
 	private static final String ACTIONS_COLUMN_WIDTH = "26em";
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(EditChampionshipsPanel.class);
 
 	private final boolean fullWidth;
 	private Grid<ChampionshipRow> championshipsTable = new Grid<>(ChampionshipRow.class, false);
-	private Checkbox showActiveChampionshipsOnly;
+	private Checkbox hideEmptyChampionships;
 	private Checkbox hideCompetitionDefaults;
 	private ChampionshipRow draggedChampionship;
 	private List<ChampionshipRow> displayedRows = new ArrayList<>();
@@ -78,9 +80,14 @@ public class EditChampionshipsPanel extends VerticalLayout {
 
 		ChampionshipRepository.normalizeDefaultTypes();
 		ChampionshipRepository.normalizeCompetitionDefaultFlags();
-		this.showActiveChampionshipsOnly = new Checkbox(Translator.translate("EditChampionships.HideInactive"));
-		this.showActiveChampionshipsOnly.setValue(false);
-		this.showActiveChampionshipsOnly.addValueChangeListener(e -> updateChampionshipsTable());
+		this.hideEmptyChampionships = new Checkbox(Translator.translate("Championship.HideEmpty"));
+		this.hideEmptyChampionships.setValue(Competition.getCurrent().isHideEmptyChampionships());
+		this.hideEmptyChampionships.addValueChangeListener(e -> {
+			Competition competition = Competition.getCurrent();
+			competition.setHideEmptyChampionships(Boolean.TRUE.equals(e.getValue()));
+			CompetitionRepository.save(competition);
+			updateChampionshipsTable();
+		});
 		this.hideCompetitionDefaults = new Checkbox(Translator.translate("EditChampionships.HideCompetitionDefaults"));
 		this.hideCompetitionDefaults.setValue(false);
 		this.hideCompetitionDefaults
@@ -95,8 +102,11 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		gridLayout.setMainComponent(this.championshipsTable);
 		gridLayout.addToolbarComponent(createRefreshButton());
 		gridLayout.addToolbarComponent(createAddButton());
-		gridLayout.addFilterComponent(this.showActiveChampionshipsOnly);
+		gridLayout.addFilterComponent(this.hideEmptyChampionships);
 		gridLayout.addFilterComponent(this.hideCompetitionDefaults);
+		gridLayout.getHeaderLayout().setVisible(true);
+		gridLayout.getToolbarLayout().setVisible(true);
+		gridLayout.getFilterLayout().setVisible(true);
 		return gridLayout;
 	}
 
@@ -174,17 +184,21 @@ public class EditChampionshipsPanel extends VerticalLayout {
 	}
 
 	private void updateChampionshipsTable(boolean traceDifferentChampionships) {
-		boolean activeOnly = this.showActiveChampionshipsOnly == null
-		        || Boolean.TRUE.equals(this.showActiveChampionshipsOnly.getValue());
 		boolean hideDefaultRows = this.hideCompetitionDefaults == null
 		        || Boolean.TRUE.equals(this.hideCompetitionDefaults.getValue());
-		Map<String, ChampionshipCandidate> candidates = championshipCandidates(activeOnly);
+		boolean hideEmptyRows = this.hideEmptyChampionships == null
+		        || Boolean.TRUE.equals(this.hideEmptyChampionships.getValue());
+		Map<String, ChampionshipCandidate> candidates = championshipCandidates(false);
 		Map<String, ChampionshipCandidate> activeCandidates = championshipCandidates(true);
 		Map<String, Championship> explicitChampionships = explicitChampionships();
 		List<ChampionshipRow> rows = new ArrayList<>();
 
 		for (ChampionshipCandidate candidate : candidates.values()) {
 			Championship existing = explicitChampionships.remove(candidate.name);
+			if (hideEmptyRows && candidate.type != ChampionshipType.DEFAULT
+			        && Championship.getParticipantCount(candidate.name) == 0) {
+				continue;
+			}
 			boolean usesDefaults = existing == null || existing.computeUsesCompetitionDefaults();
 			if (traceDifferentChampionships && hideDefaultRows && existing != null && !usesDefaults) {
 				warnCompetitionDefaultDifferences(existing);
@@ -196,8 +210,10 @@ public class EditChampionshipsPanel extends VerticalLayout {
 			rows.add(new ChampionshipRow(candidate.name, candidate.type, existing, canDelete));
 		}
 
-		if (!activeOnly) {
-			explicitChampionships.values().stream().sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName())).forEach(c -> {
+		explicitChampionships.values().stream().sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName())).forEach(c -> {
+				if (hideEmptyRows && !c.isDefault() && Championship.getParticipantCount(c.getName()) == 0) {
+					return;
+				}
 				boolean usesDefaults = c.computeUsesCompetitionDefaults();
 				if (traceDifferentChampionships && hideDefaultRows && !usesDefaults) {
 					warnCompetitionDefaultDifferences(c);
@@ -207,8 +223,7 @@ public class EditChampionshipsPanel extends VerticalLayout {
 				}
 				boolean canDelete = !activeCandidates.containsKey(c.getName());
 				rows.add(new ChampionshipRow(c.getName(), c.getType(), c, canDelete));
-			});
-		}
+		});
 		rows.sort((first, second) -> {
 			Integer firstOrder = first.championship != null ? first.championship.getOrder() : null;
 			Integer secondOrder = second.championship != null ? second.championship.getOrder() : null;
@@ -218,9 +233,7 @@ public class EditChampionshipsPanel extends VerticalLayout {
 			return first.name.compareToIgnoreCase(second.name);
 		});
 		this.displayedRows = rows;
-		boolean filtered = Boolean.TRUE.equals(this.showActiveChampionshipsOnly.getValue())
-		        || Boolean.TRUE.equals(this.hideCompetitionDefaults.getValue());
-		this.championshipsTable.setRowsDraggable(!filtered);
+		this.championshipsTable.setRowsDraggable(true);
 		this.championshipsTable.setItems(this.displayedRows);
 	}
 
