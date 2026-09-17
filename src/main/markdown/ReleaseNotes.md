@@ -26,6 +26,8 @@
   - Change to use new CSS theming mechanism
   - Systematic cleanup of CSS files to use import+overrides instead of copies
   - **If you have customized your CSS files, you will need to review and potentially adjust them**.
+
+- 68.0.0: Empty championships are hidden from championship selectors by default
 - 68.0.0: Decision reversal from the announcer/marshal screen, accessed by clicking on the cell for the attempt
 - 68.8.0: Dedicated page for medal ceremonies on the "run lifting" page; this causes public scoreboards to display the medals
   - The page estimates what categories fit on the page to make it easier to go through the presentations
