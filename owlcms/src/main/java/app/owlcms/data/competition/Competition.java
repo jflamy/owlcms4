@@ -518,6 +518,8 @@ public class Competition {
 	private Boolean deduct250g = false;
 	@Column(columnDefinition = "boolean default false")
 	private boolean manualStartNumbers = false;
+	@Column(columnDefinition = "boolean default true")
+	private boolean hideEmptyChampionships = true;
 
 	public Competition() {
 		this.medalsByGroup = new HashMap<>();
@@ -1812,6 +1814,10 @@ public class Competition {
 		return this.mastersGenderEquality;
 	}
 
+	public boolean isHideEmptyChampionships() {
+		return this.hideEmptyChampionships;
+	}
+
 	synchronized public boolean isRankingsInvalid() {
 		return this.rankingsInvalid;
 	}
@@ -2128,6 +2134,10 @@ public class Competition {
 
 	public void setMastersGenderEquality(boolean mastersGenderEquality) {
 		this.mastersGenderEquality = mastersGenderEquality;
+	}
+
+	public void setHideEmptyChampionships(boolean hideEmptyChampionships) {
+		this.hideEmptyChampionships = hideEmptyChampionships;
 	}
 
 	public void setMaxPerCategory(Integer maxPerCategory) {

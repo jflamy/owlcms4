@@ -678,6 +678,7 @@ public class AgeGroupDefinitionReader {
 			CategoryRepository.clearCodeMap();
 			createAgeGroups(workbook, forcedInsertion, localizedName);
 			Championship.reset();
+			Championship.recomputeParticipantCounts();
 			CategoryRepository.resetCodeMap();
 		} catch (Exception e) {
 			logger.error("could not process ageGroup configuration: {}", e.getMessage());

@@ -62,6 +62,13 @@ public class ChampionshipRepository {
 		});
 	}
 
+	public static List<Object[]> findActiveChampionshipAthleteIds() {
+		return JPAService.runInTransaction(em -> em.createQuery(
+		        "select ag.championshipName, ag.code, p.athlete.id "
+		                + "from Participation p join p.category c join c.ageGroup ag where ag.active = true",
+		        Object[].class).getResultList());
+	}
+
 	/**
 	 * Find a championship by its canonical name (exact match).
 	 */

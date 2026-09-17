@@ -26,6 +26,7 @@ import app.owlcms.utils.BrowserUtils;
 import app.owlcms.apputils.LogbackConfigReloader;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -196,6 +197,7 @@ public class Main {
         // before injectData as it may create/migrate categories
         Gender.initPublicGenderCodeMapString(l != null ? l : Locale.ENGLISH);
         injectData(initialData, l);
+		Championship.recomputeParticipantCounts();
 
         StartupUtils.getStartupLogger().info("Initializing scoring.");
         Competition.recomputeAllAthleteRanks();

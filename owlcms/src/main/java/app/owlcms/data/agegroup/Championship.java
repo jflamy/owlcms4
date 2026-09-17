@@ -8,7 +8,9 @@ package app.owlcms.data.agegroup;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -57,6 +59,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(Championship.class);
 	private static Map<String, Championship> allChampionshipsMap;
+	private static volatile Map<String, Integer> participantCounts = Collections.emptyMap();
 	static Comparator<Championship> ct = (a, b) -> {
 		int compare = 0;
 		if (a == null || b == null) {
@@ -226,6 +229,48 @@ public class Championship implements Comparable<Championship>, Serializable {
 		var sortedResults = new ArrayList<>(results.values());
 		sortedResults.sort(Championship::compareTo);
 		return sortedResults;
+	}
+
+	public static List<Championship> findAllVisible(boolean activeOnly) {
+		List<Championship> usedChampionships = new ArrayList<>(findAllUsed(activeOnly));
+		Championship defaultChampionship = ofType(ChampionshipType.DEFAULT);
+		if (defaultChampionship != null && usedChampionships.stream().noneMatch(Championship::isDefault)) {
+			usedChampionships.add(defaultChampionship);
+			usedChampionships.sort(Championship::compareTo);
+		}
+		Competition competition = Competition.getCurrent();
+		if (competition != null && !competition.isHideEmptyChampionships()) {
+			return usedChampionships;
+		}
+		return usedChampionships.stream()
+		        .filter(championship -> championship.isDefault() || getParticipantCount(championship.getName()) > 0)
+		        .toList();
+	}
+
+	public static int getParticipantCount(String championshipName) {
+		if (championshipName == null) {
+			return 0;
+		}
+		return participantCounts.getOrDefault(canonicalizeChampionshipName(championshipName), 0);
+	}
+
+	public static synchronized void recomputeParticipantCounts() {
+		Map<String, Set<Long>> athleteIds = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		for (Object[] row : ChampionshipRepository.findActiveChampionshipAthleteIds()) {
+			String name = (String) row[0];
+			String ageGroupCode = (String) row[1];
+			if (name == null || name.isBlank() || name.trim().equalsIgnoreCase(COMPETITION_TEMPLATE_NAME)) {
+				name = ageGroupCode;
+			}
+			name = canonicalizeChampionshipName(name != null ? name.trim() : null);
+			if (name != null && !name.isBlank()) {
+				athleteIds.computeIfAbsent(name, ignored -> new HashSet<>()).add((Long) row[2]);
+			}
+		}
+
+		Map<String, Integer> counts = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		athleteIds.forEach((name, ids) -> counts.put(name, ids.size()));
+		participantCounts = Collections.unmodifiableMap(counts);
 	}
 
 	public static Championship findDefaultDisplayChampionship(boolean activeOnly) {

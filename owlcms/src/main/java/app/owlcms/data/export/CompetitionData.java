@@ -363,6 +363,7 @@ public class CompetitionData {
 		ChampionshipRepository.reconcileImportedAgeGroups();
 		Competition.setCurrent(CompetitionRepository.findAll().stream().findFirst().orElse(null));
 		Championship.reset();
+		Championship.recomputeParticipantCounts();
 //		CategoryRepository.resetCodeMap();
 //		// register the new FOPs for events and MQTT
 //		OwlcmsFactory.initDefaultFOP();
