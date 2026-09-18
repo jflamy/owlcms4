@@ -243,7 +243,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 			return usedChampionships;
 		}
 		return usedChampionships.stream()
-		        .filter(championship -> championship.isDefault() || getParticipantCount(championship.getName()) > 0)
+		        .filter(championship -> getParticipantCount(championship.getName()) > 0)
 		        .toList();
 	}
 

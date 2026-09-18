@@ -344,24 +344,24 @@ public class ChampionshipTest {
                                 return null;
                         });
                         Championship.recomputeParticipantCounts();
-                            competition.setHideEmptyChampionships(true);
+                        competition.setHideEmptyChampionships(true);
 
                         assertEquals("inactive age groups should not contribute participants", 0,
                                         Championship.getParticipantCount(targetName));
-                            assertFalse("empty non-default championship should be hidden",
-                                    Championship.findAllVisible(false).stream().anyMatch(c -> targetName.equalsIgnoreCase(c.getName())));
-                            assertTrue("default championship should remain visible when empty",
-                                    Championship.findAllVisible(false).stream().anyMatch(c -> defaultName.equalsIgnoreCase(c.getName())));
+                        assertFalse("empty non-default championship should be hidden",
+                                Championship.findAllVisible(false).stream().anyMatch(c -> targetName.equalsIgnoreCase(c.getName())));
+                        assertFalse("empty default championship should be hidden",
+                                Championship.findAllVisible(false).stream().anyMatch(c -> defaultName.equalsIgnoreCase(c.getName())));
 
-                            competition.setHideEmptyChampionships(false);
-                            assertTrue("disabling hide-empty should restore empty championships",
-                                    Championship.findAllVisible(false).stream().anyMatch(c -> targetName.equalsIgnoreCase(c.getName())));
+                        competition.setHideEmptyChampionships(false);
+                        assertTrue("disabling hide-empty should restore empty championships",
+                                Championship.findAllVisible(false).stream().anyMatch(c -> targetName.equalsIgnoreCase(c.getName())));
                 } finally {
                         JPAService.runInTransaction(em -> {
                                 originalActive.forEach((id, active) -> em.find(AgeGroup.class, id).setActive(active));
                                 return null;
                         });
-                            competition.setHideEmptyChampionships(originalHideEmpty);
+                        competition.setHideEmptyChampionships(originalHideEmpty);
                         Championship.recomputeParticipantCounts();
                 }
         }

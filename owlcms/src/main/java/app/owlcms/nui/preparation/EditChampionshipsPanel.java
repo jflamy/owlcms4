@@ -184,6 +184,7 @@ public class EditChampionshipsPanel extends VerticalLayout {
 	}
 
 	private void updateChampionshipsTable(boolean traceDifferentChampionships) {
+		Championship.recomputeParticipantCounts();
 		boolean hideDefaultRows = this.hideCompetitionDefaults == null
 		        || Boolean.TRUE.equals(this.hideCompetitionDefaults.getValue());
 		boolean hideEmptyRows = this.hideEmptyChampionships == null
@@ -195,8 +196,7 @@ public class EditChampionshipsPanel extends VerticalLayout {
 
 		for (ChampionshipCandidate candidate : candidates.values()) {
 			Championship existing = explicitChampionships.remove(candidate.name);
-			if (hideEmptyRows && candidate.type != ChampionshipType.DEFAULT
-			        && Championship.getParticipantCount(candidate.name) == 0) {
+			if (hideEmptyRows && Championship.getParticipantCount(candidate.name) == 0) {
 				continue;
 			}
 			boolean usesDefaults = existing == null || existing.computeUsesCompetitionDefaults();
@@ -211,7 +211,7 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		}
 
 		explicitChampionships.values().stream().sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName())).forEach(c -> {
-				if (hideEmptyRows && !c.isDefault() && Championship.getParticipantCount(c.getName()) == 0) {
+				if (hideEmptyRows && Championship.getParticipantCount(c.getName()) == 0) {
 					return;
 				}
 				boolean usesDefaults = c.computeUsesCompetitionDefaults();

@@ -466,6 +466,7 @@ public class AthleteRepository {
 				return null;
 			});
 		}
+		Championship.recomputeParticipantCounts();
 	}
 
 	/**
