@@ -1,6 +1,12 @@
 :host {
   display: flex;
   height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+:host(passive-decision-element) {
+  --decision-border-color: var(--lumo-contrast);
 }
 
 :host([size="large"]) {
@@ -32,14 +38,14 @@
 
 .decision {
   border-radius: 5%;
-  border: var(--decision-border-width, 2px) solid var(--lumo-contrast);
+  border: var(--decision-border-width, 2px) solid var(--decision-border-color, white);
   margin: 3%;
   width: 30%;
 }
 
 .soloDecision {
   border-radius: 50%;
-  border: var(--decision-border-width, 2px) solid var(--lumo-contrast);
+  border: var(--decision-border-width, 2px) solid var(--decision-border-color, white);
   margin: 0;
   padding: 0;
   width: var(--solo-decision-size, var(--attempt-font-size, 20vh));
@@ -63,7 +69,7 @@
 
 .none {
   background-color: var(--lumo-contrast-20pct);
-  border: var(--decision-border-width, 2px) dashed var(--lumo-contrast);
+  border: var(--decision-border-width, 2px) dashed var(--decision-border-color, white);
 }
 
 .invisible {
@@ -77,4 +83,69 @@
   font-weight: normal;
   color: lime;
   font-family: 'Arial Black', Arial, Helvetica, sans-serif;
+}
+
+.decisionWrapper.withJury {
+  grid-template-rows: minmax(0, 3fr) minmax(0, 1fr);
+  row-gap: 0.5vh;
+  min-width: 0;
+  min-height: 0;
+}
+
+.withJury > .decisions,
+.withJury > .down {
+  grid-row: 1;
+  grid-column: 1;
+  min-height: 0;
+}
+
+.withJury .soloDecision {
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 1;
+  width: auto;
+  height: 100%;
+}
+
+.juryDecisions {
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4%;
+  width: 100%;
+  min-height: 0;
+}
+
+.juryLightSlot {
+  flex: 0 0 16.8%;
+  height: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.juryDecisions .juryLight {
+  width: auto;
+  height: 100%;
+  max-height: 100%;
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  border: 1px solid var(--decision-border-color, white);
+  border-radius: 50%;
+  color: gray;
+  background: none;
+}
+
+.juryDecisions .juryLight.empty {
+  border-color: transparent;
+}
+
+.juryDecisions .juryLight.white {
+  color: white;
+}
+
+.juryDecisions .juryLight.red {
+  color: red;
 }

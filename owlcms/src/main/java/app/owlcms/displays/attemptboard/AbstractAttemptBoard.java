@@ -773,7 +773,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		AttemptBoardState.Builder builder = AttemptBoardState
 				.builder(nextBoardStateSequence(), boardMode.name())
 				.decisionVisible(this.decisionLightsVisible)
-				.breakType(breakType != null ? breakType.name() : "");
+				.breakType(breakType != null ? breakType.name() : "")
+				.breakTimerHasTime(fop.getBreakTimer().liveTimeRemaining() > 0)
+				.breakTimerRunning(fop.getBreakTimer().isRunning());
 
 		if (breakType == BreakType.GROUP_DONE) {
 			if (athlete != null && athlete.getAttemptsDone() < 6) {

@@ -17,13 +17,22 @@ class DecisionElement extends LitElement {
     return html` 
       <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "decision-lights")}" />
       <audio preload="auto" id="down" src="../local/sounds/down.mp3"></audio>
-      <div class="decisionWrapper" style="${this.decisionWrapperStyle()}" >
+      <div class="decisionWrapper ${this.showJuryRow() ? 'withJury' : ''}" style="${this.decisionWrapperStyle()}" >
         <div class="down" style="font-weight: 900; ${this.downStyles()}"><vaadin-icon icon="vaadin:arrow-circle-down"></vaadin-icon></div>
         <div class="decisions" style="${this.decisionsStyles()}">
           <span class="${this.decisionClasses(1)}">&nbsp;</span>
           <span class="${this.decisionClasses(2)}" style="${((this.singleRef && this.ref2 !== null) ? "border: 2px solid var(--lumo-contrast); font-weight: bold" : "")}">${((this.singleRef && this.ref2 === true) ? "✓" : (this.singleRef && this.ref2 === false) ? "✕" : "")}</span>
           <span class="${this.decisionClasses(3)}">&nbsp;</span>
         </div>
+        ${this.showJuryRow() ? html`
+          <div class="juryDecisions">
+            ${this.juryDecisions.map(decision => html`
+              <span class="juryLightSlot">
+                <vaadin-icon class="juryLight ${decision}"
+                  icon="${this.juryIcon(decision)}"></vaadin-icon>
+              </span>
+            `)}
+          </div>` : ''}
       </div>`;
   }
 
@@ -86,7 +95,9 @@ class DecisionElement extends LitElement {
       },
       decisionPayload: {
         type: Object,
-      }
+      },
+      showJuryDecisions: { type: Boolean },
+      juryDecisions: { type: Array },
     };
   }
 
@@ -108,6 +119,8 @@ class DecisionElement extends LitElement {
     this.size = "small";
     this.stylesDir = "css";
     this.decisionPayload = null;
+    this.showJuryDecisions = false;
+    this.juryDecisions = [];
     // sequence of the last decisionPayload applied; drops stale/out-of-order payloads.
     this._lastDecisionSequence = 0;
     this._localDownSoundPlayed = false;
@@ -350,6 +363,23 @@ class DecisionElement extends LitElement {
 
   decisionWrapperStyle() {
     return "display: grid";
+  }
+
+  showJuryRow() {
+    return this.showJuryDecisions && this.juryDecisions.length > 0 && this._showDecision;
+  }
+
+  juryIcon(decision) {
+    switch (decision) {
+      case "voted":
+        return "vaadin:circle";
+      case "white":
+        return "vaadin:check-circle";
+      case "red":
+        return "vaadin:close-circle";
+      default:
+        return "vaadin:circle-thin";
+    }
   }
 
   playDownSound() {

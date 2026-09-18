@@ -382,9 +382,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			setFop(e.getValue());
 			OwlcmsSession.setFop(e.getValue());
 			this.uiEventBus = uiEventBusRegister(this, e.getValue());
-			syncReviewTimer(e.getValue());
-			attachLiveDecisions(e.getValue());
-			syncWithFopState(e.getValue());
+			rebuild();
 			if (this.location != null && this.locationUI != null) {
 				Location location2 = new Location(this.location.getPath(), new QueryParameters(this.urlParams));
 				URLUtils.replaceState(this.locationUI.getPage().getHistory(), null, location2, this.location);

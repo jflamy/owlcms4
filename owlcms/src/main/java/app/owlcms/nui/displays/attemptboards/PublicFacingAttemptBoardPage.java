@@ -70,6 +70,7 @@ public class PublicFacingAttemptBoardPage extends AbstractAttemptBoardPage {
 		Map<String, String> fullMap = new TreeMap<>();
 		fullMap.putAll(initialMap);
 		fullMap.putAll(additionalMap);
+		fullMap.put(SHOW_JURY_DECISIONS, "false");
 		setDefaultParameters(QueryParameters.simple(fullMap));
 
 		AbstractAttemptBoard board = (AbstractAttemptBoard) getBoard();

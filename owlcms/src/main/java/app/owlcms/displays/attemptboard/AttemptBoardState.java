@@ -16,6 +16,8 @@ final class AttemptBoardState {
 	private final String athleteImg;
 	private final String attempt;
 	private final String breakType;
+	private final boolean breakTimerHasTime;
+	private final boolean breakTimerRunning;
 	private final String category;
 	private final String competitionName;
 	private final boolean decisionVisible;
@@ -39,6 +41,8 @@ final class AttemptBoardState {
 		this.athleteImg = builder.athleteImg;
 		this.attempt = builder.attempt;
 		this.breakType = builder.breakType;
+		this.breakTimerHasTime = builder.breakTimerHasTime;
+		this.breakTimerRunning = builder.breakTimerRunning;
 		this.category = builder.category;
 		this.competitionName = builder.competitionName;
 		this.decisionVisible = builder.decisionVisible;
@@ -69,6 +73,8 @@ final class AttemptBoardState {
 				.athleteImg(this.athleteImg)
 				.attempt(this.attempt)
 				.breakType(this.breakType)
+				.breakTimerHasTime(this.breakTimerHasTime)
+				.breakTimerRunning(this.breakTimerRunning)
 				.category(this.category)
 				.competitionName(this.competitionName)
 				.decisionVisible(this.decisionVisible)
@@ -96,6 +102,8 @@ final class AttemptBoardState {
 		state.put("athleteImg", this.athleteImg);
 		state.put("attempt", this.attempt);
 		state.put("breakType", this.breakType);
+		state.put("breakTimerHasTime", this.breakTimerHasTime);
+		state.put("breakTimerRunning", this.breakTimerRunning);
 		state.put("category", this.category);
 		state.put("competitionName", this.competitionName);
 		state.put("decisionVisible", this.decisionVisible);
@@ -122,6 +130,8 @@ final class AttemptBoardState {
 		private String athleteImg = "";
 		private String attempt = "";
 		private String breakType = "";
+		private boolean breakTimerHasTime;
+		private boolean breakTimerRunning;
 		private String category = "";
 		private String competitionName = "";
 		private boolean decisionVisible;
@@ -158,6 +168,16 @@ final class AttemptBoardState {
 
 		Builder breakType(String breakType) {
 			this.breakType = valueOrEmpty(breakType);
+			return this;
+		}
+
+		Builder breakTimerHasTime(boolean breakTimerHasTime) {
+			this.breakTimerHasTime = breakTimerHasTime;
+			return this;
+		}
+
+		Builder breakTimerRunning(boolean breakTimerRunning) {
+			this.breakTimerRunning = breakTimerRunning;
 			return this;
 		}
 

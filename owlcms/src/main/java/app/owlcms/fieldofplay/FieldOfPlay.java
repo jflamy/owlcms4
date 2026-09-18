@@ -136,6 +136,8 @@ import ch.qos.logback.classic.Logger;
 public class FieldOfPlay implements IUnregister {
 
 	public static final long DECISION_VISIBLE_DURATION = 3500;
+	public static final long JURY_DECISION_VISIBLE_MAX_MS = 10000;
+	public static final long JURY_DECISION_HOLD_MS = 3500;
 	public static final long DECISION_INPUT_IGNORE_WINDOW_MS = 15000;
 	public static final long MINIMUM_DOWN_SIGNAL_VISIBLE_MS = 1500L;
 	public static final int REVERSAL_DELAY = 3000;
@@ -189,6 +191,14 @@ public class FieldOfPlay implements IUnregister {
 	private int curWeight;
 	private long decisionInputIgnoreWindowMs = DECISION_INPUT_IGNORE_WINDOW_MS;
 	private long decisionVisibleDuration = DECISION_VISIBLE_DURATION;
+	private long juryDecisionVisibleMaxMs = JURY_DECISION_VISIBLE_MAX_MS;
+	private long juryDecisionHoldMs = JURY_DECISION_HOLD_MS;
+	private TimerTask decisionResetTimer;
+	private long decisionResetGeneration;
+	private long decisionVisibleSince;
+	private long decisionResetDeadline;
+	private int decisionJurySize;
+	private boolean awaitingJuryCompletion;
 	private boolean decisionCommitScheduled;
 	private boolean decisionDisplayScheduled = false;
 	private FOPEvent deferredBreak;
@@ -812,6 +822,7 @@ public class FieldOfPlay implements IUnregister {
 			}
 			// do not return; error message will be shown if state does not allow summon.
 		} else if (e instanceof StartLifting) {
+			cancelDecisionReset();
 			endMedalCeremony(e.getOrigin());
 			this.setCeremonyType(null);
 			// Clear pending jury decision when forcefully exiting via StartLifting
@@ -856,6 +867,7 @@ public class FieldOfPlay implements IUnregister {
 			uiShowPlates((BarbellOrPlatesChanged) e);
 			return;
 		} else if (e instanceof SwitchGroup) {
+			cancelDecisionReset();
 			Group oldGroup = this.getGroup();
 			SwitchGroup switchGroup = (SwitchGroup) e;
 			Group newGroup = switchGroup.getGroup();
@@ -1356,7 +1368,7 @@ public class FieldOfPlay implements IUnregister {
 		String thisGroupName = this.getGroup() != null ? this.getGroup().getName() : null;
 		String loadGroupName = group != null ? group.getName() : null;
 
-		setCompetitionDefaultJurySizeIfUnset();
+		refreshJurySizeFromCompetition();
 		boolean alreadyLoaded = thisGroupName == loadGroupName;
 		this.setPrevWeight(0);
 		if (loadGroupName != null && alreadyLoaded && !forceLoad) {
@@ -1423,10 +1435,8 @@ public class FieldOfPlay implements IUnregister {
 		}
 	}
 
-	private void setCompetitionDefaultJurySizeIfUnset() {
-		if (this.jurySize == null) {
-			this.jurySize = Competition.getCurrent().getJurySize();
-		}
+	private void refreshJurySizeFromCompetition() {
+		this.jurySize = Competition.getCurrent().getJurySize();
 	}
 
 	private final AtomicLong uiEventSequence = new AtomicLong(0);
@@ -1738,6 +1748,11 @@ public class FieldOfPlay implements IUnregister {
 		this.videoAgeGroup = videoAgeGroup;
 	}
 
+	public void setJuryDecisionTimingForTests(long maximumVisibleMs, long holdMs) {
+		this.juryDecisionVisibleMaxMs = maximumVisibleMs;
+		this.juryDecisionHoldMs = holdMs;
+	}
+
 	public void setVideoChampionship(Championship videoChampionship) {
 		this.videoChampionship = videoChampionship;
 	}
@@ -1782,6 +1797,7 @@ public class FieldOfPlay implements IUnregister {
 
 	@Override
 	public void unregister() {
+		cancelDecisionReset();
 		MQTTMonitor mqttMonitor2 = this.getMqttMonitor();
 		this.logger.debug("{}unregistering event forwarders and mqtt monitor {}", getLoggingName(this),
 				System.identityHashCode(mqttMonitor2));
@@ -2052,6 +2068,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void doDecisionReset(FOPEvent e) {
+		cancelDecisionReset();
 		this.logger.info("{}clearing decision lights", FieldOfPlay.getLoggingName(this));
 		// the state will be rewritten in displayOrBreakIfDone
 		// this is so the decision reset knows that the decision is no longer displayed.
@@ -2110,6 +2127,7 @@ public class FieldOfPlay implements IUnregister {
 		Athlete a = e.getAthlete();
 		Integer actualLift = a.getActualLift(a.getAttemptsDone());
 		if (actualLift != null) {
+			cancelDecisionReset();
 			Integer curValue = Math.abs(actualLift);
 
 			boolean reversalToGood = e.success && actualLift <= 0;
@@ -2192,6 +2210,7 @@ public class FieldOfPlay implements IUnregister {
 		getJuryMemberDecision()[e.refIndex] = e.decision;
 		this.juryMemberTime[e.refIndex] = 0;
 		processJuryMemberDecisions(e.origin, e.refIndex);
+		rescheduleDecisionResetForJury();
 	}
 
 	private void doPossiblySoloRefereeUpdate(FOPEvent e) {
@@ -2229,6 +2248,9 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void doSetState(FOPState state) {
+		if (state != DECISION_VISIBLE) {
+			cancelDecisionReset();
+		}
 		if (state == CURRENT_ATHLETE_DISPLAYED) {
 			Athlete a = getCurAthlete();
 			if (getGroup() != null) {
@@ -3960,18 +3982,15 @@ public class FieldOfPlay implements IUnregister {
 		new DelayTimer(isTestingMode()).schedule(() -> commitDecisionNow(origin2), reversalDelay);
 	}
 
-	private void showDecisionVisibleNow(Object origin) {
+	private synchronized void showDecisionVisibleNow(Object origin) {
 		setGoodLift(computeCurrentGoodLift());
 		setState(DECISION_VISIBLE);
 		this.ignoreDecisionInputsUntil = System.currentTimeMillis() + this.decisionInputIgnoreWindowMs;
 		uiShowCurrentRefereeDecision(origin);
-		new DelayTimer(isTestingMode()).schedule(
-				() -> {
-					fopEventPost(new DecisionReset(this));
-				}, this.decisionVisibleDuration);
+		scheduleDecisionReset();
 	}
 
-	private void commitDecisionNow(Object origin) {
+	private synchronized void commitDecisionNow(Object origin) {
 		this.decisionCommitScheduled = false;
 		commitCurrentDecision();
 		// The decision is already visible (immediate mode). Only re-broadcast if the
@@ -3990,18 +4009,76 @@ public class FieldOfPlay implements IUnregister {
 	 * change
 	 * and announce.
 	 */
-	private void showDecisionNow(Object origin) {
+	private synchronized void showDecisionNow(Object origin) {
 		commitCurrentDecision();
 		setState(DECISION_VISIBLE);
 		this.ignoreDecisionInputsUntil = System.currentTimeMillis() + this.decisionInputIgnoreWindowMs;
 		uiShowCurrentRefereeDecision(this);
 		recomputeLiftingOrder(true, true);
-		// tell ourself to reset after 3 secs.
-		// Decision reset will handle end of group.
-		new DelayTimer(isTestingMode()).schedule(
-				() -> {
+		scheduleDecisionReset();
+	}
+
+	private void scheduleDecisionReset() {
+		cancelDecisionReset();
+		this.decisionVisibleSince = System.nanoTime() / 1_000_000;
+		this.decisionJurySize = getJurySize();
+		this.awaitingJuryCompletion = this.decisionJurySize > 0 && !allDecisionJurorsVoted();
+		long duration = this.awaitingJuryCompletion
+				? Math.max(this.decisionVisibleDuration, this.juryDecisionVisibleMaxMs)
+				: this.decisionVisibleDuration;
+		this.decisionResetDeadline = this.decisionVisibleSince + duration;
+		armDecisionReset();
+	}
+
+	private boolean allDecisionJurorsVoted() {
+		Boolean[] votes = getJuryMemberDecision();
+		if (this.decisionJurySize <= 0 || votes == null || votes.length < this.decisionJurySize) {
+			return false;
+		}
+		for (int index = 0; index < this.decisionJurySize; index++) {
+			if (votes[index] == null) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private void rescheduleDecisionResetForJury() {
+		if (this.state != DECISION_VISIBLE || !this.awaitingJuryCompletion || !allDecisionJurorsVoted()) {
+			return;
+		}
+		long now = System.nanoTime() / 1_000_000;
+		if (now >= this.decisionResetDeadline) {
+			return;
+		}
+		this.awaitingJuryCompletion = false;
+		this.decisionResetDeadline = Math.max(this.decisionVisibleSince + this.decisionVisibleDuration,
+				now + this.juryDecisionHoldMs);
+		armDecisionReset();
+	}
+
+	private void armDecisionReset() {
+		if (this.decisionResetTimer != null) {
+			this.decisionResetTimer.cancel();
+		}
+		long generation = ++this.decisionResetGeneration;
+		long delay = Math.max(0, this.decisionResetDeadline - System.nanoTime() / 1_000_000);
+		this.decisionResetTimer = new DelayTimer(isTestingMode()).schedule(() -> {
+			synchronized (FieldOfPlay.this) {
+				if (generation == this.decisionResetGeneration && this.state == DECISION_VISIBLE) {
 					fopEventPost(new DecisionReset(this));
-				}, this.decisionVisibleDuration);
+				}
+			}
+		}, delay);
+	}
+
+	private synchronized void cancelDecisionReset() {
+		this.decisionResetGeneration++;
+		this.awaitingJuryCompletion = false;
+		if (this.decisionResetTimer != null) {
+			this.decisionResetTimer.cancel();
+			this.decisionResetTimer = null;
+		}
 	}
 
 	private void commitCurrentDecision() {

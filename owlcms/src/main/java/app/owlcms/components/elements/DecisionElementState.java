@@ -1,5 +1,7 @@
 package app.owlcms.components.elements;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.eventbus.Subscribe;
@@ -25,6 +27,9 @@ public class DecisionElementState {
 				boolean singleLight, boolean announcerForced);
 
 		void showDownSignal(UIEvent.DownSignal event, boolean silent);
+
+		default void showJuryLights(UIEvent event, List<String> lights, long generation) {
+		}
 	}
 
 	public record Snapshot(
@@ -45,6 +50,8 @@ public class DecisionElementState {
 	public static final long MINIMUM_DOWN_SIGNAL_VISIBLE_MS = 1500L;
 
 	private final AtomicLong decisionDisplayGeneration = new AtomicLong();
+	private final AtomicLong juryDisplayGeneration = new AtomicLong();
+	private boolean showJuryDecisions;
 	private final IDecisionRenderer renderer;
 	private boolean dontReset;
 	private boolean showsDownSignal = true;
@@ -69,6 +76,58 @@ public class DecisionElementState {
 
 	public void setFop(FieldOfPlay fop) {
 		this.fop = fop;
+		syncJuryDecisions();
+	}
+
+	public void setShowJuryDecisions(boolean show) {
+		if (this.showJuryDecisions == show) {
+			return;
+		}
+		this.showJuryDecisions = show;
+		if (show) {
+			syncJuryDecisions();
+		} else {
+			publishJuryLights(null, List.of());
+		}
+	}
+
+	public boolean isCurrentJuryGeneration(long generation) {
+		return generation == this.juryDisplayGeneration.get();
+	}
+
+	private void syncJuryDecisions() {
+		if (this.showJuryDecisions) {
+			publishJuryLights(null, this.fop == null ? List.of()
+					: juryLights(this.fop.getJuryMemberDecision(), this.fop.getJurySize()));
+		}
+	}
+
+	@Subscribe
+	public void slaveJuryUpdate(UIEvent.JuryUpdate e) {
+		if (this.showJuryDecisions) {
+			publishJuryLights(e, juryLights(e.getJuryMemberDecision(), e.getJurySize()));
+		}
+	}
+
+	private void publishJuryLights(UIEvent event, List<String> lights) {
+		this.renderer.showJuryLights(event, lights, this.juryDisplayGeneration.incrementAndGet());
+	}
+
+	private List<String> juryLights(Boolean[] votes, int size) {
+		if (size < 2 || size > 5) {
+			return List.of();
+		}
+		boolean complete = votes != null && votes.length >= size;
+		for (int index = 0; complete && index < size; index++) {
+			complete = votes[index] != null;
+		}
+		List<String> lights = new ArrayList<>(size);
+		for (int index = 0; index < size; index++) {
+			Boolean vote = votes != null && index < votes.length ? votes[index] : null;
+			lights.add(complete ? (Boolean.TRUE.equals(vote) ? "white" : "red")
+					: (vote == null ? "empty" : "voted"));
+		}
+		return List.copyOf(lights);
 	}
 
 	public void setLiveReferee(boolean liveReferee) {
@@ -150,6 +209,11 @@ public class DecisionElementState {
 
 	@Subscribe
 	public void slaveShowDecision(UIEvent.Decision e) {
+		// authoritative jury state for this display cycle; JuryUpdate events refine it
+		if (this.showJuryDecisions) {
+			publishJuryLights(e, this.fop == null ? List.of()
+					: juryLights(this.fop.getJuryMemberDecision(), this.fop.getJurySize()));
+		}
 		boolean announcerForced = e.getInputKind() == InputKind.ANNOUNCER_ENTRY;
 		setDecisionSnapshot(e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight(), announcerForced);
 		this.renderer.showDecisionLights(e, e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight(), announcerForced);

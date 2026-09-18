@@ -51,6 +51,7 @@ public class DecisionElementStateTest {
     private static Group groupA;
     private static final List<String> timelineSummaries = new CopyOnWriteArrayList<>();
     private List<Athlete> athletes;
+    private final Object[] juryOrigins = { new Object(), new Object(), new Object() };
 
     @BeforeClass
     public static void setupTests() {
@@ -369,6 +370,155 @@ public class DecisionElementStateTest {
         scenario.timeline.log("immediateClockNotStartedReversalWhileVisible");
     }
 
+    @Test
+    public void juryRenderingIsOptInAndSupportsTwoThroughFiveMembers() {
+        MockDecisionRenderer renderer = new MockDecisionRenderer(new EventTimeline());
+        DecisionElementState state = new DecisionElementState(renderer);
+        UIEvent.JuryUpdate update = new UIEvent.JuryUpdate(this, 0,
+                new Boolean[] { true, false, null, null, null }, 3, null);
+        state.slaveJuryUpdate(update);
+        assertEquals(0, renderer.juryRenderCount);
+
+        state.setShowJuryDecisions(true);
+        state.slaveJuryUpdate(update);
+        assertEquals(List.of("voted", "voted", "empty"), renderer.juryLights);
+        long previousGeneration = renderer.juryGeneration;
+        for (int size = 2; size <= 5; size++) {
+            Boolean[] votes = new Boolean[5];
+            for (int index = 0; index < size; index++) {
+                votes[index] = index % 2 == 0;
+            }
+            state.slaveJuryUpdate(new UIEvent.JuryUpdate(this, false, votes, size, null));
+            assertEquals(size, renderer.juryLights.size());
+            for (int index = 0; index < size; index++) {
+                assertEquals(index % 2 == 0 ? "white" : "red", renderer.juryLights.get(index));
+            }
+        }
+        assertFalse(state.isCurrentJuryGeneration(previousGeneration));
+        state.setShowJuryDecisions(false);
+        assertEquals(List.of(), renderer.juryLights);
+        int renderCount = renderer.juryRenderCount;
+        state.slaveJuryUpdate(update);
+        state.slaveResetOnNewClock(new UIEvent.ResetOnNewClock(null, this, null));
+        assertEquals(renderCount, renderer.juryRenderCount);
+    }
+
+    @Test
+    public void juryLightsPersistThroughResetUntilNextReveal() {
+        MockDecisionRenderer renderer = new MockDecisionRenderer(new EventTimeline());
+        DecisionElementState state = new DecisionElementState(renderer);
+        state.setShowJuryDecisions(true);
+        UIEvent.JuryUpdate update = new UIEvent.JuryUpdate(this, false,
+                new Boolean[] { true, false }, 2, null);
+        state.slaveJuryUpdate(update);
+        assertEquals(List.of("white", "red"), renderer.juryLights);
+        int renderCount = renderer.juryRenderCount;
+        state.slaveDecisionReset(new UIEvent.DecisionReset(null, this, null));
+        state.slaveResetOnNewClock(new UIEvent.ResetOnNewClock(null, this, null));
+        assertEquals(renderCount, renderer.juryRenderCount);
+        assertEquals(List.of("white", "red"), renderer.juryLights);
+        state.slaveJuryUpdate(update);
+        assertEquals(List.of("white", "red"), renderer.juryLights);
+        // reveal re-syncs from the FOP; with no FOP there is nothing to show
+        state.slaveShowDecision(new UIEvent.Decision(null, true, true, true, true, this, null, false));
+        assertEquals(List.of(), renderer.juryLights);
+    }
+
+    @Test
+    public void incompleteJuryWaitsForSafeDeadline() throws Exception {
+        DecisionScenario scenario = startScenario(false);
+        configureJuryTiming(scenario);
+        scenario.decisionState.setShowJuryDecisions(true);
+        enterInitialGoodDecision(scenario);
+        assertFinalDecision(scenario, true);
+        assertEquals(List.of("empty", "empty", "empty"), scenario.renderer.juryLights);
+        assertReset(scenario);
+        scenario.timeline.assertElapsedAtLeast("UI Decision", "UI DecisionReset", 2_000,
+                "unfinished jury must use the safe deadline");
+        scenario.timeline.assertElapsedAtMost("UI Decision", "UI DecisionReset", 2_000,
+                "unfinished jury must not block indefinitely");
+    }
+
+    @Test
+    public void juryAlreadyCompleteUsesNormalDuration() throws Exception {
+        DecisionScenario scenario = startScenario(false);
+        configureJuryTiming(scenario);
+        enterInitialGoodDecision(scenario);
+        completeJury(scenario);
+        assertFinalDecision(scenario, true);
+        assertReset(scenario);
+        scenario.timeline.assertElapsedAtMost("UI Decision", "UI DecisionReset", DECISION_VISIBLE_DURATION_MS,
+                "jury completed before referee publication needs no extension");
+    }
+
+    @Test
+    public void earlyJuryShortensDeadlineWithoutRestartingForRepeatedVotes() throws Exception {
+        DecisionScenario scenario = startScenario(false);
+        configureJuryTiming(scenario);
+        enterInitialGoodDecision(scenario);
+        assertFinalDecision(scenario, true);
+        completeJury(scenario);
+        Thread.sleep(400);
+        completeJury(scenario);
+        assertReset(scenario);
+        scenario.timeline.assertElapsedAtLeast("UI Decision", "UI DecisionReset", DECISION_VISIBLE_DURATION_MS,
+                "early jury must preserve the referee display minimum");
+        scenario.timeline.assertElapsedAtMost("UI Decision", "UI DecisionReset", DECISION_VISIBLE_DURATION_MS,
+                "repeated votes must not restart the hold");
+    }
+
+    @Test
+        public void lateJuryGetsFullHoldBeyondWaitingDeadline() throws Exception {
+        DecisionScenario scenario = startScenario(false);
+        configureJuryTiming(scenario);
+        enterInitialGoodDecision(scenario);
+        assertFinalDecision(scenario, true);
+        Thread.sleep(1_500);
+        completeJury(scenario);
+        assertReset(scenario);
+        scenario.timeline.assertElapsedAtLeast("UI Decision", "UI DecisionReset", 2_300,
+            "completion before the waiting deadline must receive the full jury hold");
+        scenario.timeline.assertElapsedAtMost("UI Decision", "UI DecisionReset", 2_300,
+            "reset must follow the jury hold without further extension");
+    }
+
+    @Test
+    public void immediateRefereeModeKeepsCommitTimingWithJury() throws Exception {
+        DecisionScenario scenario = startScenario(true);
+        configureJuryTiming(scenario);
+        enterInitialGoodDecision(scenario);
+        assertFinalDecisionVisibleButUncommitted(scenario, true);
+        completeJury(scenario);
+        assertCommitted(scenario, true);
+        assertReset(scenario);
+        assertImmediateTiming(scenario);
+    }
+
+    @Test
+    public void startLiftingInvalidatesPendingJuryReset() throws Exception {
+        DecisionScenario scenario = startScenario(false);
+        configureJuryTiming(scenario);
+        enterInitialGoodDecision(scenario);
+        assertFinalDecision(scenario, true);
+        scenario.fopState.fopEventPost(new FOPEvent.StartLifting(this));
+        assertFalse("old reset must not run after leaving its decision phase",
+                scenario.timeline.decisionReset.await(2_400, TimeUnit.MILLISECONDS));
+    }
+
+    private void configureJuryTiming(DecisionScenario scenario) {
+        scenario.fopState.setJurySize(3);
+        scenario.fopState.setJuryDecisionTimingForTests(2_000, 800);
+    }
+
+    private void completeJury(DecisionScenario scenario) {
+        for (int index = 0; index < 3; index++) {
+            scenario.fopState.fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(this.juryOrigins[index], index, true));
+        }
+        for (int index = 0; index < 3; index++) {
+            assertEquals("juror vote was not received", Boolean.TRUE, scenario.fopState.getJuryMemberDecision()[index]);
+        }
+    }
+
     private DecisionScenario startScenario(boolean showDecisionsImmediately) {
         setShowDecisionsImmediately(showDecisionsImmediately);
         FieldOfPlay fopState = MockFieldOfPlay.create(this.athletes, new MockCountdownTimer(),
@@ -377,6 +527,7 @@ public class DecisionElementStateTest {
                 DECISION_VISIBLE_DURATION_MS, DECISION_INPUT_IGNORE_WINDOW_MS, RECORD_NOTIFICATION_DELAY_MS);
         OwlcmsSession.setFop(fopState);
         prepLiftingState(fopState);
+        fopState.setJurySize(0);
         fopState.setTestingMode(false);
 
         EventTimeline timeline = new EventTimeline();
@@ -735,9 +886,19 @@ public class DecisionElementStateTest {
         private final List<DecisionSample> decisionValues = new CopyOnWriteArrayList<>();
         private final List<String> eventNames = new CopyOnWriteArrayList<>();
         private volatile boolean finalDecisionSeen;
+        private List<String> juryLights = List.of();
+        private int juryRenderCount;
+        private long juryGeneration;
 
         private MockDecisionRenderer(EventTimeline timeline) {
             this.timeline = timeline;
+        }
+
+        @Override
+        public void showJuryLights(UIEvent event, List<String> lights, long generation) {
+            this.juryLights = lights;
+            this.juryGeneration = generation;
+            this.juryRenderCount++;
         }
 
         @Override

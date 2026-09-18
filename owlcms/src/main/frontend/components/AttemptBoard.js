@@ -145,6 +145,8 @@ class CurrentAttempt extends LitElement {
     athleteImg: "",
     attempt: "",
     breakType: "",
+    breakTimerHasTime: false,
+    breakTimerRunning: false,
     category: "",
     competitionName: "",
     decisionVisible: false,
@@ -297,7 +299,10 @@ class CurrentAttempt extends LitElement {
   }
 
   breakTimerStyles() {
-  return "display:" + ((this.board.mode === "INTRO_COUNTDOWN" || this.board.mode === "LIFT_COUNTDOWN" || this.board.mode === "LIFT_COUNTDOWN_CEREMONY") ? "grid" : "none");
+  const ceremonyMode = this.board.mode === "CEREMONY" || this.board.mode === "LIFT_COUNTDOWN_CEREMONY";
+  const countdownMode = this.board.mode === "INTRO_COUNTDOWN" || this.board.mode === "LIFT_COUNTDOWN" || ceremonyMode;
+  const ceremonyTimerVisible = !ceremonyMode || this.board.breakTimerRunning;
+  return "display:" + (countdownMode && this.board.breakTimerHasTime && ceremonyTimerVisible ? "grid" : "none");
   }
 
   barbellStyles() {

@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.components.elements;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -21,6 +22,7 @@ import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 
+import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import app.owlcms.data.config.Config;
@@ -98,6 +100,28 @@ public abstract class AbstractDecisionElement extends LitTemplate
 
 	public DecisionElementState getDecisionState() {
 		return this.decisionState;
+	}
+
+	public void setShowJuryDecisions(boolean show) {
+		getElement().setProperty("showJuryDecisions", show);
+		this.decisionState.setShowJuryDecisions(show);
+	}
+
+	@Override
+	public void showJuryLights(UIEvent event, List<String> lights, long generation) {
+		Runnable render = () -> {
+			if (!this.decisionState.isCurrentJuryGeneration(generation)) {
+				return;
+			}
+			ArrayNode values = JsonUtils.array();
+			lights.forEach(values::add);
+			getElement().setPropertyJson("juryDecisions", values);
+		};
+		if (event == null) {
+			render.run();
+		} else {
+			UIEventProcessor.uiAccess(this, this.uiEventBus, event, render::run);
+		}
 	}
 
 	public void setFop(FieldOfPlay fop) {

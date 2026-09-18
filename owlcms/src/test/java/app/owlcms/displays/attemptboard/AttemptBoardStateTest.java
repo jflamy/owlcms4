@@ -80,6 +80,8 @@ public class AttemptBoardStateTest {
 				.athleteImg("athlete")
 				.attempt("second attempt")
 				.breakType("TECHNICAL")
+				.breakTimerHasTime(true)
+				.breakTimerRunning(true)
 				.category("M89")
 				.competitionName("Competition")
 				.decisionVisible(true)
@@ -102,6 +104,8 @@ public class AttemptBoardStateTest {
 		assertEquals(42, json.path("sequence").asLong());
 		assertEquals("CURRENT_ATHLETE", json.path("mode").asString());
 		assertEquals("TECHNICAL", json.path("breakType").asString());
+		assertTrue(json.path("breakTimerHasTime").asBoolean());
+		assertTrue(json.path("breakTimerRunning").asBoolean());
 		assertEquals("Competition", json.path("competitionName").asString());
 		assertEquals("LAST", json.path("lastName").asString());
 		assertEquals("First", json.path("firstName").asString());
