@@ -10,7 +10,7 @@
 
 **Maintenance Log**
 
-- 68.0.0-rc05: Jury decisions are optionally shown on attempt board
+- 68.0.0-rc04: Jury decisions are optionally shown on attempt board
 
 - 68.0.0-rc04: Ability to hide championships with 0 athletes
 
