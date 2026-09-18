@@ -136,7 +136,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 				        clearEligibleCategories();
 			        }).open();
 		});
-		this.resetCats.getElement().setAttribute("title", Translator.translate("ResetCategories.ClearEligiblesMouseOver"));
+		this.clearEligibles.setTooltipText(Translator.translate("ResetCategories.Warning_ClearEligibles"));
 		HorizontalLayout clearEligiblesButton = new HorizontalLayout(this.clearEligibles);
 		clearEligiblesButton.setMargin(false);
 
