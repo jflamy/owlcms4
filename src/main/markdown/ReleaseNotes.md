@@ -10,21 +10,13 @@
 
 **Maintenance Log**
 
+- 68.0.0-rc05: Fix inconsistent application of 0-athlete champonship hiding.
+
 - 68.0.0-rc04: Jury decisions are optionally shown on attempt board
-
-- 68.0.0-rc04: Ability to hide championships with 0 athletes
-
-- 68.0.0-rc04: Medals template converted to jxls3 and correctly indicates when no athletes are medaling.
 
 - 68.0.0-rc04: Fix: registration file load clears the teams correctly when explicitTeams feature toggle is on
 
 - 68.0.0-rc04: Fix: Remove Exception when opening athlete card from the registration page.
-
-- 68.0.0-rc03: Sync with 67.5.2; Announcer page emits Down and Timer warnings agein if selected in cogwheel menu options.
-
-- 68.0.0-rc02: Registration files will report incompatible eligibility categories (categories with no overlap in age or body weight)
-
-- 68.0.0-rc02: Fix: Resetting and starting a timer when one was running and not stopped did not stop the original timer.
 
 **New in Release 68.0**
 
