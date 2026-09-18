@@ -10,6 +10,8 @@
 
 **Maintenance Log**
 
+- 67.5.3: Fix: Resetting the timer to 1:00 or 2:00 and starting without having stopped a previously running timer would create stray timing events (backport from 68.0)
+
 - 67.5.3: Fixed an error when editing declarations or changes on the Athlete Card opened from the Registration list (no platform context).
 
 - 67.5.2: Announcer menu entries for Down and Timer sounds are operational again; sound can be obtained from Announcer laptop.
