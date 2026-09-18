@@ -1165,7 +1165,8 @@ public class Athlete {
 	}
 
 	public String computeFixedFirstName(Locale loc, String firstName2) {
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.DONT_FIX_NAMES)) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.DONT_FIX_NAMES)
+		        || firstName2.matches("\\p{Lu}{2}")) {
 			return firstName2;
 		}
 		String[] spaceParts = firstName2.split("\\s+");

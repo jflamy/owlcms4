@@ -84,6 +84,10 @@ public class AthleteTest {
 
     @Test
     public void testFixedFirstNameCasing() {
+        assertEquals("JF", athlete.computeFixedFirstName(Locale.ENGLISH, "JF"));
+        assertEquals("CJ", athlete.computeFixedFirstName(Locale.ENGLISH, "CJ"));
+        assertEquals("Jf", athlete.computeFixedFirstName(Locale.ENGLISH, "jf"));
+        assertEquals("Jf", athlete.computeFixedFirstName(Locale.ENGLISH, "Jf"));
         assertEquals("Carlos", athlete.computeFixedFirstName(Locale.ENGLISH, "carlos"));
         assertEquals("Carlos", athlete.computeFixedFirstName(Locale.ENGLISH, "CARLOS"));
         assertEquals("MaryAnne", athlete.computeFixedFirstName(Locale.ENGLISH, "maryAnne"));
