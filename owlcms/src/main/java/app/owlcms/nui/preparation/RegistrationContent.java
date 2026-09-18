@@ -502,15 +502,16 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
 		        .collect(Collectors.toSet());
 
-		// we also need athletes with no participations
-		List<Athlete> noCat = AthleteRepository.findAthletesNoParticipations();
-		List<Athlete> found2 = filterAthletes(noCat);
-		regCatAthletes.addAll(found2);
+		if (getChampionship() == null) {
+			// Without a championship filter, include incomplete registrations so they can be corrected.
+			List<Athlete> noCat = AthleteRepository.findAthletesNoParticipations();
+			List<Athlete> found2 = filterAthletes(noCat);
+			regCatAthletes.addAll(found2);
 
-		// we also need athletes with no category
-		List<Athlete> noCat3 = AthleteRepository.findAthletesNoCategory();
-		List<Athlete> found3 = filterAthletes(noCat3);
-		regCatAthletes.addAll(found3);
+			List<Athlete> noCat3 = AthleteRepository.findAthletesNoCategory();
+			List<Athlete> found3 = filterAthletes(noCat3);
+			regCatAthletes.addAll(found3);
+		}
 
 		// sort
 		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
