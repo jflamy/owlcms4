@@ -1,3 +1,13 @@
+:host {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+    background: black;
+    overflow: hidden;
+}
+
 /* default for page */
 .wrapper {
     /* results table font size */
@@ -7,11 +17,16 @@
     --defaultLeaderFillerHeight: 1.75em;
     --bottomSpacerHeight: 0em;
 
+    box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
     color: var(--pageTextColor);
     background-color: var(--pageBackgroundColor);
 
-    min-height: 100vh;
+    /* --forcedScreenAspectRatio (colors.css) is unset by default; the fallbacks make the
+       calc() terms huge so min() picks 100vw/100vh, i.e. normal full-screen behavior. */
+    width: min(100vw, calc(100vh * var(--forcedScreenAspectRatio, 1000)));
+    height: min(100vh, calc(100vw / var(--forcedScreenAspectRatio, 0.001)));
+    min-height: 0;
     /* padding: 1vmin 2vmin 2vmin 2vmin; */
     padding-block-start: 1vmin;
     padding-inline: 2vmin; /* Assuming L/R are equal */
