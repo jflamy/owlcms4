@@ -57,10 +57,6 @@ public class InputStreamWrapper extends InputStream {
 
     @Override
     public void close() throws IOException {
-        try {
-            rethrowWriterIfFailed();
-        } finally {
-            delegate.close();
-        }
+        delegate.close();
     }
 }
