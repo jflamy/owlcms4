@@ -33,7 +33,7 @@ public class AdminView extends Composite<VerticalLayout> implements HasDynamicTi
 			return;
 		}
 		String clientIp = AccessUtils.getClientIp();
-		if (!AccessUtils.checkBackdoor(clientIp)) {
+		if (!AccessUtils.isLocalhost(clientIp) && !AccessUtils.checkBackdoor(clientIp)) {
 			throw new AccessDeniedException();
 		}
 	}

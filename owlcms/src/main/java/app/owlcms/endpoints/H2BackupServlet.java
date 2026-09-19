@@ -61,9 +61,9 @@ public class H2BackupServlet extends HttpServlet {
 	        throws ServletException, IOException {
 		// For HEAD, just check access and database type
 		String host = ProxyUtils.getClientIp(request);
-		boolean bd = AccessUtils.checkBackdoor(host);
-		if (!bd) {
-			logger./**/warn("Access denied from {} - not in backdoor list", LoggerUtils.whereFrom());
+		boolean allowed = AccessUtils.isLocalNetwork(host) || AccessUtils.checkBackdoor(host);
+		if (!allowed) {
+			logger./**/warn("Access denied from {} - not local or in backdoor list", LoggerUtils.whereFrom());
 			response.setStatus(403);
 			return;
 		}
@@ -91,9 +91,9 @@ public class H2BackupServlet extends HttpServlet {
 		
 		// Check access control
 		String host = ProxyUtils.getClientIp(request);
-		boolean bd = AccessUtils.checkBackdoor(host);
-		if (!bd) {
-			logger./**/warn("{} not in backdoor list, denied H2 backup access {}", host, LoggerUtils.whereFrom());
+		boolean allowed = AccessUtils.isLocalNetwork(host) || AccessUtils.checkBackdoor(host);
+		if (!allowed) {
+			logger./**/warn("{} not local or in backdoor list, denied H2 backup access {}", host, LoggerUtils.whereFrom());
 			response.setStatus(403);
 			response.flushBuffer();
 			return;

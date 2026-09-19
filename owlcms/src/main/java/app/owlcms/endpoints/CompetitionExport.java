@@ -140,9 +140,9 @@ public class CompetitionExport extends HttpServlet {
 		logger.info("processing competition export request {}", request.getServletPath());
 		// use proxyutils because this is a plain servlet, not a Vaadin servlet
 		String host = ProxyUtils.getClientIp(request);
-		boolean allowed = AccessUtils.isLocalhost(host) || AccessUtils.checkBackdoor(host);
+		boolean allowed = AccessUtils.isLocalNetwork(host) || AccessUtils.checkBackdoor(host);
 		if (!allowed) {
-			logger.error("{} not localhost and not in backdoor list, denied full state access", host);
+			logger.error("{} not local and not in backdoor list, denied full state access", host);
 			response.setStatus(403);
 			response.flushBuffer();
 			return;

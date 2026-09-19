@@ -193,6 +193,25 @@ public class AccessUtils {
 		}
 	}
 
+	/**
+	 * Check whether an IP address belongs to the local network.
+	 */
+	public static boolean isLocalNetwork(String ip) {
+		if (ip == null || ip.isBlank()) {
+			return false;
+		}
+		try {
+			java.net.InetAddress address = java.net.InetAddress.getByName(ip);
+			if (address.isLoopbackAddress() || address.isSiteLocalAddress() || address.isLinkLocalAddress()) {
+				return true;
+			}
+			byte[] bytes = address.getAddress();
+			return bytes.length == 16 && (bytes[0] & 0xfe) == 0xfc;
+		} catch (java.net.UnknownHostException e) {
+			return false;
+		}
+	}
+
 	private static boolean checkPassword(String password, String pinOverride, String dbPin, String loggingContext) {
 
 		logger.debug("{} override {} provided {} dbPin {}", loggingContext, pinOverride, password, dbPin);

@@ -14,15 +14,17 @@ Before a large meet, you may wish to test your configuration and equipment.  The
    4. Provide the registration information for the athletes (birth year, gender, body weight or registration category)
    5. Look at the Preparation / registration entries page to check that all is correct
 
-2. Add the permissions required to run the simulation
+2. Add permissions when running the simulation remotely
+
+   Simulation requests from localhost are always allowed. To run a simulation from another machine or a cloud deployment, configure Backdoor Access as follows.
 
    1. Go to the Preparation / Language and System Settings page
 
    2. Locate the "Backdoor Access" setting and enter a string like the following (replace `192.168.0.105` with the actual address of the main owlcms computer when running on a laptop, or your public IP address if running on Fly.io).
 
-      `192.168.0.105,127.0.0.1,[0:0:0:0:0:0:0:1]`
+      `192.168.0.105`
 
-      This setting is used to make sure that only these machines can start the simulation. The cryptic string  `127.0.0.1,[0:0:0:0:0:0:0:1]` is just two different ways of writing down "localhost", depending on whether the software sends IPV4 or IPV6 addresses.
+      This setting is used to make sure that only these machines can start the simulation. Localhost does not need to be added.
 
       If you are running on Fly.io, you can type "what is my ip" in Google to get your public IP address.
 

@@ -186,9 +186,9 @@ public class SimulationServlet extends HttpServlet {
 	private boolean authorize(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		// use proxyutils because this is a plain servlet, not a Vaadin servlet
 		String host = ProxyUtils.getClientIp(request);
-		boolean bd = AccessUtils.checkBackdoor(host);
-		if (!bd) {
-			logger.error("{} not in backdoor list, denied simulation", host);
+		boolean allowed = AccessUtils.isLocalhost(host) || AccessUtils.checkBackdoor(host);
+		if (!allowed) {
+			logger.error("{} not localhost or in backdoor list, denied simulation", host);
 			response.setStatus(403);
 			response.flushBuffer();
 			return false;
