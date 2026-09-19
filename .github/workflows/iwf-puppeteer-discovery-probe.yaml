@@ -18,11 +18,15 @@ jobs:
     timeout-minutes: 15
 
     steps:
+      - name: Checkout diagnostic workflow
+        uses: actions/checkout@v5
+
       - name: Checkout upstream scraper
         uses: actions/checkout@v5
         with:
           repository: PhillipBost/weightlifting-database
           ref: d93da8869f99d432daeabb7c801a923360a4e203
+          path: upstream
           persist-credentials: false
 
       - name: Set up Node.js 20
@@ -30,16 +34,23 @@ jobs:
         with:
           node-version: '20'
           cache: npm
+          cache-dependency-path: upstream/package-lock.json
 
       - name: Install upstream dependencies
-        run: npm install
+        run: npm install --prefix upstream
 
       - name: Create output directories
-        run: mkdir -p output logs errors
+        run: mkdir -p upstream/output upstream/logs upstream/errors iwf-puppeteer-diagnostic
+
+      - name: Capture browser diagnostics
+        run: >-
+          node scripts/iwf-puppeteer-diagnostic.cjs
+          upstream iwf-puppeteer-diagnostic
 
       - name: Discover IWF events
         run: |
           set -o pipefail
+          cd upstream
           node scripts/production/iwf-event-discovery.js \
             --year "${{ inputs.year }}" 2>&1 | tee logs/iwf-event-discovery.log
         env:
@@ -48,7 +59,7 @@ jobs:
 
       - name: Require discovered events
         run: |
-          FILE="output/iwf_events_${{ inputs.year }}.json"
+          FILE="upstream/output/iwf_events_${{ inputs.year }}.json"
           if [[ ! -f "$FILE" ]]; then
             echo "Missing discovery output: $FILE" >&2
             exit 1
@@ -72,8 +83,9 @@ jobs:
         with:
           name: iwf-puppeteer-discovery-${{ github.run_id }}
           path: |
-            output/iwf_events_*.json
-            logs/iwf-event-discovery.log
-            errors/
+            iwf-puppeteer-diagnostic/
+            upstream/output/iwf_events_*.json
+            upstream/logs/iwf-event-discovery.log
+            upstream/errors/
           if-no-files-found: warn
           retention-days: 14
