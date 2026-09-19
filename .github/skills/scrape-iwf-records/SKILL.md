@@ -27,7 +27,7 @@ python3 tools/records/receive_iwf_browser_records.py \
   --port 8765
 ```
 
-4. Read [scrape-approved-page.js](./scripts/scrape-approved-page.js) in full and pass its contents as the `code` argument to `run_playwright_code` for the approved page ID. Do not translate, reconstruct, or run it with Node.js. It relies on the browser page's authenticated `fetch`.
+4. Read [scrape-approved-page.js](./scripts/scrape-approved-page.js) once in full, then immediately pass that exact content as the `code` argument to `run_playwright_code` for the approved page ID. Do not transcribe, shorten, translate, reconstruct, wrap, encode, copy through the clipboard, syntax-check, or execute it through a shell or Node.js. Do not attempt to make the browser tool read the local file. The script is already the complete browser-tool code and relies on the page's authenticated `fetch`.
 5. Require the browser result to report a positive record count and counts for every age-group/gender combination shown by the page.
 6. Confirm the receiver reports that `tools/records/iwf_records_browser.json` was written. A browser `net::ERR_ABORTED` event can accompany the opaque `no-cors` response; receiver completion is authoritative.
 7. Convert the JSON:
@@ -38,7 +38,15 @@ python3 tools/records/scrape_iwf_records_playwright.py \
   --output-dir tools/records
 ```
 
-8. Validate the generated workbook with OpenPyXL. Require one sheet per scraped age-group/gender combination, three lifts per bodyweight category, and a total workbook row count equal to the browser result.
+8. Run the checked-in validator, passing the exact XLSX path printed by the converter:
+
+```bash
+python3 tools/records/validate_iwf_records_workbook.py \
+  tools/records/iwf_records_browser.json \
+  tools/records/IWF_scraped_<timestamp>.xlsx
+```
+
+Do not replace this with an ad hoc Python command. The validator requires one sheet per scraped age-group/gender combination, exactly three lifts per bodyweight category, matching per-combination counts, and a total workbook row count equal to the JSON record count.
 9. Report the exact XLSX path and record counts.
 
 ## Recovery
