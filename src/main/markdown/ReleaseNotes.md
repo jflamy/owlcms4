@@ -10,6 +10,10 @@
 
 **Maintenance Log**
 
+- 68.0.0-rc06: Loosened whitelisting requirements
+  - localhost/admin and localhost/simulation no longer require whitelisting so they can be run where the controlpanel runs.
+  - .../competition/export endpoints and .../competion/h2 endpoints are accepted from private network addresses (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 as well as link-local 169.254.0.0/16)
+
 - 68.0.0-rc05: Fix inconsistent application of 0-athlete champonship hiding.
 
 - 68.0.0-rc04: Jury decisions are optionally shown on attempt board
