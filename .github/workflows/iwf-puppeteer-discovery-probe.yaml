@@ -1,0 +1,79 @@
+name: IWF Upstream Puppeteer Discovery Probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: Year to discover
+        required: true
+        default: '2026'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout upstream scraper
+        uses: actions/checkout@v5
+        with:
+          repository: PhillipBost/weightlifting-database
+          ref: d93da8869f99d432daeabb7c801a923360a4e203
+          persist-credentials: false
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install upstream dependencies
+        run: npm install
+
+      - name: Create output directories
+        run: mkdir -p output logs errors
+
+      - name: Discover IWF events
+        run: |
+          set -o pipefail
+          node scripts/production/iwf-event-discovery.js \
+            --year "${{ inputs.year }}" 2>&1 | tee logs/iwf-event-discovery.log
+        env:
+          SUPABASE_URL: https://example.supabase.co
+          SUPABASE_SECRET_KEY: probe-only-no-database-access
+
+      - name: Require discovered events
+        run: |
+          FILE="output/iwf_events_${{ inputs.year }}.json"
+          if [[ ! -f "$FILE" ]]; then
+            echo "Missing discovery output: $FILE" >&2
+            exit 1
+          fi
+
+          EVENT_COUNT=$(node -e "const data=require('./$FILE'); process.stdout.write(String(data.metadata?.event_count ?? data.events?.length ?? 0))")
+          echo "Discovered events: $EVENT_COUNT"
+          echo "## IWF Puppeteer Discovery Probe" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Upstream commit: d93da8869f99d432daeabb7c801a923360a4e203" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Year: ${{ inputs.year }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Events discovered: $EVENT_COUNT" >> "$GITHUB_STEP_SUMMARY"
+
+          if [[ ! "$EVENT_COUNT" =~ ^[0-9]+$ ]] || (( EVENT_COUNT <= 0 )); then
+            echo "Puppeteer did not discover any IWF events." >&2
+            exit 2
+          fi
+
+      - name: Upload discovery diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: iwf-puppeteer-discovery-${{ github.run_id }}
+          path: |
+            output/iwf_events_*.json
+            logs/iwf-event-discovery.log
+            errors/
+          if-no-files-found: warn
+          retention-days: 14
