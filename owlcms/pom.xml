@@ -68,6 +68,12 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-dev</artifactId>
 			<optional>true</optional>
+			<exclusions>
+				<exclusion>
+					<groupId>com.vaadin</groupId>
+					<artifactId>copilot</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
