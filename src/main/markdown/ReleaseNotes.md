@@ -10,6 +10,10 @@
 
 **Maintenance Log**
 
+- 67.5.4: Usability: the CJ break duration thresholds are now worded inclusively ("X athletes or fewer" / "X athletes or more"); existing settings are shown accordingly and behave the same.
+
+- 67.5.4: The default threshold for the longer CJ break is now 6 athletes or fewer.
+
 - 67.5.3: Fix: Resetting the timer to 1:00 or 2:00 and starting without having stopped a previously running timer would create stray timing events (backport from 68.0)
 
 - 67.5.3: Fixed an error when editing declarations or changes on the Athlete Card opened from the Registration list (no platform context).
