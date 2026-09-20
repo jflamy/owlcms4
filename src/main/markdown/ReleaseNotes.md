@@ -10,7 +10,9 @@
 
 **Maintenance Log**
 
-- 68.0.0-rc06: Loosened whitelisting requirements
+- 68.0.0-rc06: The default threshold for the longer CJ break is now 6 athletes or fewer.
+
+- 68.0.0-rc05: Loosened whitelisting requirements
   - localhost/admin and localhost/simulation no longer require whitelisting so they can be run where the controlpanel runs.
   - .../competition/export endpoints and .../competion/h2 endpoints are accepted from private network addresses (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 as well as link-local 169.254.0.0/16)
 
@@ -48,7 +50,7 @@
 - 68.0.0: Added mobile navigation pages for phones and tablets
   - When on mobile, the home page redirects to a refereeing page
   - Links for jury and scoreboard pages are added as appropriate for mobile devices
-- 68.0.0: Usability: Changed the wording for the CJ break duration settings to be inclusive (6 or less, 12 or more)
+- 68.0.0: Usability: Changed the wording for the CJ break duration settings to be inclusive (6 or fewer, 10 or more)
 - 68.0.0: Cleanup and standardization of template headers for protocols, jury protocols, and competition results
 - 68.0.0: Technical official spreadsheet imports now report invalid team-role values in the upload dialogue.
 - 68.0.0: SBDE imports matching for existing athletes is now case-insensitive and diacritic-insensitive.

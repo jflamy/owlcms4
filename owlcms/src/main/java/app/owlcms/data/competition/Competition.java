@@ -440,8 +440,9 @@ public class Competition {
 	private boolean sinclairMeet;
 	@Column(columnDefinition = "integer default 3")
 	private Integer jurySize = 3;
-	@Column(columnDefinition = "integer default 6")
-	private Integer longerBreakMax = 6;
+	// exclusive bound: the form displays longerBreakMax - 1 ("X athletes or fewer")
+	@Column(columnDefinition = "integer default 7")
+	private Integer longerBreakMax = 7;
 	@Column(columnDefinition = "integer default 10")
 	private Integer longerBreakDuration = 10;
 	@Column(columnDefinition = "integer default 9")
