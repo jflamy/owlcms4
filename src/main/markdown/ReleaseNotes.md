@@ -18,7 +18,8 @@
 
 - 67.5.3: Fixed an error when editing declarations or changes on the Athlete Card opened from the Registration list (no platform context).
 
-- 67.5.2: Announcer menu entries for Down and Timer sounds are operational again; sound can be obtained from Announcer laptop.
+- 67.5.2: Announcer men
+u entries for Down and Timer sounds are operational again; sound can be obtained from Announcer laptop.
 
 - 67.5.1: Fixed the ENTER/Return shortcut on the Athlete Card to correctly close the dialog when there is no error
 
