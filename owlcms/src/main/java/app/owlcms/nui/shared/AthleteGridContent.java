@@ -1820,9 +1820,11 @@ public abstract class AthleteGridContent extends BaseContent
 			        "../local/sounds/" + Competition.athleteTimerInitialWarningSound + ".mp3",
 			        "../local/sounds/" + Competition.athleteTimerFinalWarningSound + ".mp3",
 			        "../local/sounds/" + Competition.athleteTimerTimeOverSound + ".mp3");
+			// Sync with the FOP only once attached, so timer commands are sent with the
+			// attach response and cannot be missed by the client (mirrors AthleteTimerElement).
+			this.passiveTimer.addAttachListener(e -> syncPassiveTimerWithFop());
 		}
 		updatePassiveTimerSoundMode();
-		syncPassiveTimerWithFop();
 		return this.passiveTimer;
 	}
 

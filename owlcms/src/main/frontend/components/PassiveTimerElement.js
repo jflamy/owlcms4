@@ -56,6 +56,11 @@ class PassiveTimerElement extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     document.addEventListener("initSounds", this.initSounds);
+    // Resume the countdown after a DOM move: disconnectedCallback cancelled the animation frame.
+    if (this.running && this._animationFrameId === null) {
+      this._elapsed = null;
+      this._scheduleTimerFrame();
+    }
   }
 
   disconnectedCallback() {
@@ -73,7 +78,8 @@ class PassiveTimerElement extends LitElement {
     `;
   }
 
-  updated(changedProperties) {
+  // Apply payloads before render so setting reactive props does not schedule an extra update.
+  willUpdate(changedProperties) {
     if (changedProperties.has("timerSettingsPayload")) {
       this._applySettings(this.timerSettingsPayload);
     }
