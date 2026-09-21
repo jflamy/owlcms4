@@ -1299,8 +1299,12 @@ public class Athlete {
 
 	@JsonIgnore
 	public boolean isMedalist() {
-		int overallRank = getComputedScoringSystem() == Ranking.TOTAL ? getTotalRank() : getCategoryScoreRank();
-		return getMedalPolicy().isMedalist(getSnatchRank(), getCleanJerkRank(), overallRank);
+		MedalPolicy medalPolicy = getMedalPolicy();
+		Ranking overallRanking = getComputedScoringSystem() == Ranking.TOTAL ? Ranking.TOTAL : Ranking.CATEGORY_SCORE;
+		return (medalPolicy.includesSnatchAndCleanJerk()
+		        && (AthleteSorter.isMedalist(this, Ranking.SNATCH)
+		                || AthleteSorter.isMedalist(this, Ranking.CLEANJERK)))
+		        || (medalPolicy.includesTotal() && AthleteSorter.isMedalist(this, overallRanking));
 	}
 
 	@JsonIgnore

@@ -398,10 +398,9 @@ public class AthleteSorter implements Serializable {
 	 * <em>out of competition for the total medal only</em>. This is reported as {@link
 	 * EligibleForIndividualRankingStatus#OOC_QUALIFICATION}.</li>
 	 * </ol>
-	 * The qualifying-total requirement is <b>not</b> tied to the IMWA (Masters) flag: it applies to every federation
-	 * whenever a qualifying total has been captured for the category. IMWA competitions also capture qualifying totals,
-	 * so IMWA athletes are simply subsumed by this same generic rule without any special-casing. The IMWA flag itself
-	 * governs other behaviours (points formula, Masters 20kg rule) and is a separate concept.
+	 * Under IMWA rules the qualifying total does <b>not</b> change eligibility: ranks and team points are kept, and only
+	 * the medal itself is withheld (see {@link #isMedalist(Athlete, Ranking)}). The {@code OOC_QUALIFICATION}
+	 * derivation below therefore applies only when IMWA is off.
 	 * <p>
 	 * Note that {@code OOC_QUALIFICATION} only suppresses the <em>total</em> (and total-derived score) ranking. The
 	 * individual snatch and clean&amp;jerk lift medals are still awarded; see {@link #isEligibleForLiftRanking(Athlete)}.
@@ -413,10 +412,49 @@ public class AthleteSorter implements Serializable {
 	public static EligibleForIndividualRankingStatus getEffectiveIndividualEligibilityStatus(Athlete athlete, Category category) {
 		EligibleForIndividualRankingStatus status = athlete.getEffectiveIndividualEligibilityStatus();
 		if (status == EligibleForIndividualRankingStatus.ELIGIBLE
+		        && !Competition.getCurrent().isImwa()
 		        && isOutOfCompetitionForCategoryQualifyingTotal(athlete, category)) {
 			return EligibleForIndividualRankingStatus.OOC_QUALIFICATION;
 		}
 		return status;
+	}
+
+	/**
+	 * Whether the athlete receives a medal (rank 1-3) for the given ranking. The only rule-specific exception is IMWA:
+	 * a total below the category qualifying total withholds the <b>Total</b> medal; ranking and team points are unaffected.
+	 *
+	 * @param athlete the athlete (for a {@code PAthlete}, ranks and category are those of the participation)
+	 * @param ranking the ranking for which the medal is considered
+	 * @return {@code true} if a medal is awarded
+	 */
+	public static boolean isMedalist(Athlete athlete, Ranking ranking) {
+		if (athlete == null || ranking == null) {
+			return false;
+		}
+		Integer rank = getRank(athlete, ranking);
+		if (rank == null || rank < 1 || rank > 3) {
+			return false;
+		}
+		if (ranking == Ranking.TOTAL && isMedalWithheldByImwaQualifyingTotal(athlete)) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * IMWA only: total below the category qualifying total withholds the Total medal. Non-IMWA meets are handled upstream
+	 * by {@code OOC_QUALIFICATION}, which clears the rank.
+	 */
+	private static boolean isMedalWithheldByImwaQualifyingTotal(Athlete athlete) {
+		if (!Competition.getCurrent().isImwa()) {
+			return false;
+		}
+		Category category = athlete.getCategory();
+		if (category == null || category.getQualifyingTotal() <= 0) {
+			return false;
+		}
+		Integer total = athlete.getTotal();
+		return total == null || total < category.getQualifyingTotal();
 	}
 
 	/**
@@ -449,11 +487,9 @@ public class AthleteSorter implements Serializable {
 	 * Whether the athlete is out of competition for the <b>total</b> medal because they did not reach the category
 	 * qualifying total.
 	 * <p>
-	 * This rule applies to <b>all federations</b> whenever a qualifying total has been captured for the category
-	 * ({@link Category#getQualifyingTotal()} &gt; 0); it is intentionally <em>not</em> gated on the IMWA (Masters) flag.
-	 * IMWA and "qualifying total required for the total medal" are two separate concepts, but IMWA competitions do
-	 * capture qualifying totals, so IMWA simply falls under this generic rule. The presence of a captured qualifying
-	 * total is what triggers the requirement.
+	 * This applies whenever a qualifying total has been captured for the category
+	 * ({@link Category#getQualifyingTotal()} &gt; 0) and IMWA is off; under IMWA the qualifying total only withholds the
+	 * medal, see {@link #isMedalist(Athlete, Ranking)}.
 	 * <p>
 	 * The check is only meaningful once the athlete has finished competing ({@link Athlete#isDone(Integer)}); before
 	 * that, a still-rising total below the qualifying total must not be treated as out of competition. A bomb-out
@@ -467,7 +503,6 @@ public class AthleteSorter implements Serializable {
 		if (athlete == null || category == null || category.getQualifyingTotal() <= 0) {
 			return false;
 		}
-		// Applies to every federation that captures a qualifying total; IMWA captures them too, so it falls under this rule.
 		if (!athlete.isDone(null)) {
 			return false;
 		}

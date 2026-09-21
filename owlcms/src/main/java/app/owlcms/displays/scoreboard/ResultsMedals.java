@@ -37,6 +37,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.MedalCategoryComparator;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
@@ -468,7 +469,8 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			int totalRank = mainRankings.getTotalRank();
 			if (a.getComputedScoringSystem() == Ranking.TOTAL) {
 				ja.put("totalRank", formatRank(totalRank));
-				ja.put("totalMedal", a.getMedalPolicy().includesTotal() && totalRank >= 1 && totalRank <= 3 ? "medal" + totalRank : "");
+				ja.put("totalMedal", a.getMedalPolicy().includesTotal() && AthleteSorter.isMedalist(a, Ranking.TOTAL)
+				        ? "medal" + totalRank : "");
 			} else {
 				ja.put("totalRank", "");
 				ja.put("totalMedal", "");
@@ -484,7 +486,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			if (mainRankings != null) {
 				int computedScoreRank = mainRankings.getCategoryScoreRank();
 				ja.put("sinclairRank", computedScoreRank);
-				ja.put("sinclairMedal", computedScoreRank <= 3 ? "medal" + computedScoreRank : "");
+				ja.put("sinclairMedal", AthleteSorter.isMedalist(a, Ranking.CATEGORY_SCORE) ? "medal" + computedScoreRank : "");
 			}
 		}
 
