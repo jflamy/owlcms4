@@ -31,6 +31,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
@@ -409,7 +410,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			int totalRank = mainRankings.getTotalRank();
 			if (a.getComputedScoringSystem() == Ranking.TOTAL) {
 				ja.put("totalRank", formatRank(totalRank));
-				ja.put("totalMedal", totalRank >= 1 && totalRank <= 3 ? "medal" + totalRank : "");
+				ja.put("totalMedal", AthleteSorter.isMedalist(a, Ranking.TOTAL) ? "medal" + totalRank : "");
 			} else {
 				ja.put("totalRank", "");
 				ja.put("totalMedal", "");
@@ -425,7 +426,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			if (mainRankings != null) {
 				int computedScoreRank = mainRankings.getCategoryScoreRank();
 				ja.put("sinclairRank", computedScoreRank);
-				ja.put("sinclairMedal", computedScoreRank <= 3 ? "medal" + computedScoreRank : "");
+				ja.put("sinclairMedal", AthleteSorter.isMedalist(a, Ranking.CATEGORY_SCORE) ? "medal" + computedScoreRank : "");
 			}
 		}
 
@@ -783,21 +784,11 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		if (a.getGroup() == null) {
 			return false;
 		}
-		if (awardsLiftMedals(a)) {
-			int snatchRank = a.getSnatchRank();
-			if (snatchRank <= 3 && snatchRank > 0) {
-				return true;
-			}
-			int cjRank = a.getCleanJerkRank();
-			if (cjRank <= 3 && cjRank > 0) {
-				return true;
-			}
-		}
-		int totalRank = a.getTotalRank();
-		if (totalRank <= 3 && totalRank > 0) {
+		if (awardsLiftMedals(a)
+		        && (AthleteSorter.isMedalist(a, Ranking.SNATCH) || AthleteSorter.isMedalist(a, Ranking.CLEANJERK))) {
 			return true;
 		}
-		return false;
+		return AthleteSorter.isMedalist(a, Ranking.TOTAL);
 	}
 
 	private boolean resolveLiftRankVisibility(FieldOfPlay fop) {

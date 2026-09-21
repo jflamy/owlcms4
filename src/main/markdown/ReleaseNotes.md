@@ -10,6 +10,10 @@
 
 **Maintenance Log**
 
+- 67.5.5: Introduction sheets now calculate the clean and jerk break duration using only athletes who have weighed in.
+
+- 67.5.5: IMWA: an athlete whose total is below the category qualifying total no longer receives a medal (medal ceremony board and Medals sheet), but keeps their rank and team points; the athlete is no longer marked out of competition.
+
 - 67.5.4: Usability: the CJ break duration thresholds are now worded inclusively ("X athletes or fewer" / "X athletes or more"); existing settings are shown accordingly and behave the same.
 
 - 67.5.4: The default threshold for the longer CJ break is now 6 athletes or fewer.
@@ -18,8 +22,7 @@
 
 - 67.5.3: Fixed an error when editing declarations or changes on the Athlete Card opened from the Registration list (no platform context).
 
-- 67.5.2: Announcer men
-u entries for Down and Timer sounds are operational again; sound can be obtained from Announcer laptop.
+- 67.5.2: Announcer menu entries for Down and Timer sounds are operational again; sound can be obtained from Announcer laptop.
 
 - 67.5.1: Fixed the ENTER/Return shortcut on the Athlete Card to correctly close the dialog when there is no error
 
