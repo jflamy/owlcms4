@@ -106,6 +106,37 @@ public class WeighInSheetOrderTest {
         assertEquals(List.of("junior70", "senior70", "senior85"), lastNames(sheet.computeSortedAthletes()));
     }
 
+    @Test
+    public void introductionBreakDurationUsesOnlyWeighedInAthletes() {
+        Competition competition = Competition.getCurrent();
+        competition.setLongerBreakMax(2);
+        competition.setLongerBreakDuration(15);
+        competition.setShorterBreakMin(2);
+        competition.setShorterBreakDuration(5);
+
+        try {
+            Athlete first = new Athlete();
+            first.setBodyWeight(70.0);
+            Athlete absent = new Athlete();
+            Athlete third = new Athlete();
+            third.setBodyWeight(85.0);
+            List<Athlete> orderedAthletes = List.of(first, absent, third);
+            Group group = new Group("break-test") {
+                @Override
+                public List<Athlete> getAthletes() {
+                    return orderedAthletes;
+                }
+            };
+
+            assertEquals(10, group.getCleanJerkBreakMinutes());
+        } finally {
+            competition.setLongerBreakMax(7);
+            competition.setLongerBreakDuration(10);
+            competition.setShorterBreakMin(9);
+            competition.setShorterBreakDuration(10);
+        }
+    }
+
     private static void persistAthlete(EntityManager em, Group group, String lastName,
             String categoryCode, int age, int lotNumber) {
         Athlete athlete = new Athlete();

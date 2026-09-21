@@ -10,6 +10,10 @@
 
 **Maintenance Log**
 
+- 68.0.0-rc06: Introduction sheets now calculate the clean and jerk break duration using only athletes who have weighed in.
+
+- 68.0.0-rc06: IMWA athletes below the category qualifying total keep their rank and team points but do not receive a Total medal.
+
 - 68.0.0-rc06: The default threshold for the longer CJ break is now 6 athletes or fewer.
 
 - 68.0.0-rc05: Loosened whitelisting requirements
