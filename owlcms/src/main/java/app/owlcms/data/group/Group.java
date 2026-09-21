@@ -596,7 +596,9 @@ public class Group implements Comparable<Group> {
 			minutesRemaining = cleanJerkBreakDuration;
 		} else {
 			minutesRemaining = 10;
-			List<Athlete> athletes = this.getAthletes();
+			List<Athlete> athletes = this.getAthletes().stream()
+			        .filter(a -> a.getBodyWeight() != null && a.getBodyWeight() > 0.1)
+			        .collect(Collectors.toList());
 			int size = athletes != null ? athletes.size() : 0;
 			if (cCur.getShorterBreakMin() != null && size > cCur.getShorterBreakMin()) {
 				minutesRemaining = (cCur.getShorterBreakDuration() != null ? cCur.getShorterBreakDuration() : 10);
