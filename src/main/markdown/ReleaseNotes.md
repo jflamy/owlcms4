@@ -10,6 +10,10 @@
 
 **Maintenance Log**
 
+- 68.0.0-rc06: Added completed athlete-card templates that print recorded declarations and changes, with large red start numbers for quickly replacing misplaced cards.
+
+- 68.0.0-rc06: Weigh-in forms now include a separate weight-on-scale column before body weight so both values can be recorded when calculating the adjustment by hand.
+
 - 68.0.0-rc06: Introduction sheets now calculate the clean and jerk break duration using only athletes who have weighed in.
 
 - 68.0.0-rc06: IMWA athletes below the category qualifying total keep their rank and team points but do not receive a Total medal.
