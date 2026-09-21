@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -66,21 +67,21 @@ public class JXLSMedalsSheet extends JXLSWorkbookStreamSource {
 					// {}",Competition.getCurrent().isSnatchCJTotalMedals());
 					Championship championship = p.getAgeGroup() != null ? p.getAgeGroup().getChampionship() : Championship.of(null);
 					if (championship.isSnatchCJTotalMedals()) {
-						if (p.getSnatchRank() <= 3) {
+						if (AthleteSorter.isMedalist(p, Ranking.SNATCH)) {
 							sa.add(new MAthlete((PAthlete) p, Ranking.SNATCH, p.getSnatchRank(),
 							                (double) p.getBestSnatch()));
 						}
-						if (p.getCleanJerkRank() <= 3) {
+						if (AthleteSorter.isMedalist(p, Ranking.CLEANJERK)) {
 							sa.add(new MAthlete((PAthlete) p, Ranking.CLEANJERK, p.getCleanJerkRank(),
 							        (double) p.getBestCleanJerk()));
 						}
 					}
 
-					if (p.getComputedScoringSystem() == Ranking.TOTAL && p.getTotalRank() <= 3) {
-						// logger.debug("adding total {}", p);
-						sa.add(new MAthlete((PAthlete) p, Ranking.TOTAL, p.getTotalRank(), (double) p.getTotal()));
-					} else if (p.getCategoryScoreRank() <= 3) {
-						// logger.debug("adding score {}", p);
+					if (p.getComputedScoringSystem() == Ranking.TOTAL) {
+						if (AthleteSorter.isMedalist(p, Ranking.TOTAL)) {
+							sa.add(new MAthlete((PAthlete) p, Ranking.TOTAL, p.getTotalRank(), (double) p.getTotal()));
+						}
+					} else if (AthleteSorter.isMedalist(p, Ranking.CATEGORY_SCORE)) {
 						sa.add(new MAthlete((PAthlete) p, Ranking.CATEGORY_SCORE, p.getCategoryScoreRank(), (p.getCategoryScore())));
 					}
 				}
