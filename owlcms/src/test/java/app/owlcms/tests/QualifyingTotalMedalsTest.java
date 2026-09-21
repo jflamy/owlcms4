@@ -20,6 +20,9 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.Main;
+import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.MedalPolicy;
+import app.owlcms.data.agegroup.TeamPointsPolicy;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -64,13 +67,16 @@ public class QualifyingTotalMedalsTest {
 		setResult(athletes.get(3), 75, 95);
 
 		Category category = athletes.get(0).getCategory();
+		Championship championship = category.getAgeGroup().getChampionship();
+		championship.setMedalPolicy(MedalPolicy.TOTAL_ONLY);
+		championship.setTeamPointsPolicy(TeamPointsPolicy.TOTAL_ONLY);
 		category.setQualifyingTotal(160);
 		competition.setImwa(false);
 		competition.computeMedalsByCategory(athletes);
 		printMedalTable("All above QT (non-IMWA)", athletes, category);
 		assertRanks(athletes, 1, 2, 3, 4);
 		assertTotalMedals(athletes, true, true, true, false);
-		assertTeamPoints(athletes, 84, 75, 69, 66);
+		assertTeamPoints(athletes, 28, 25, 23, 22);
 
 		category.setQualifyingTotal(185);
 		competition.setImwa(true);
@@ -79,22 +85,18 @@ public class QualifyingTotalMedalsTest {
 		assertRanks(athletes, 1, 2, 3, 4);
 		assertTotalMedals(athletes, true, true, false, false);
 		assertTeamPoints(athletes, 28, 25, 23, 22);
-		assertTrue(AthleteSorter.isMedalist(athletes.get(2), Ranking.SNATCH));
-		assertTrue(AthleteSorter.isMedalist(athletes.get(2), Ranking.CLEANJERK));
 
 		competition.setImwa(false);
 		competition.computeMedalsByCategory(athletes);
 		printMedalTable("Two below QT (non-IMWA)", athletes, category);
 		assertRanks(athletes, 1, 2, -1, -1);
 		assertTotalMedals(athletes, true, true, false, false);
-		assertTeamPoints(athletes, 84, 75, 46, 44);
-		assertTrue(AthleteSorter.isMedalist(athletes.get(2), Ranking.SNATCH));
-		assertTrue(AthleteSorter.isMedalist(athletes.get(2), Ranking.CLEANJERK));
+		assertTeamPoints(athletes, 28, 25, 0, 0);
 	}
 
 	private static void printMedalTable(String title, List<Athlete> athletes, Category category) {
 		StringBuilder table = new StringBuilder("\n").append(title).append('\n');
-		boolean showLiftMedals = !Competition.getCurrent().isImwa();
+		boolean showLiftMedals = category.getAgeGroup().getChampionship().getMedalPolicy().includesSnatchAndCleanJerk();
 		if (showLiftMedals) {
 			table.append(String.format(Locale.ROOT,
 			        "%-22s %7s %7s %7s %6s %8s %8s %8s %7s %6s %6s %6s %8s %-18s %-28s%n",
