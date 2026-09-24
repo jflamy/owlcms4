@@ -38,6 +38,7 @@
 * Scoreboards and Results
   * [Scoreboards](Displays)
   * [Result Documents](ResultDocuments)
+  * [Web Scoreboards](TrackerScoreboards)
 * [Getting Support](Support)
 * Video
   * [OBS Setup](OBS)
