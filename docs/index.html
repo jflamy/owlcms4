@@ -19,11 +19,33 @@
 </head>
 <body>
   <div id="app"></div>
+	<script src="route-map.js"></script>
   <script>
+		function redirectLegacyRoute() {
+			const match = window.location.hash.match(/^#\/([^?#]*)(.*)$/);
+			if (!match) return;
+			const destination = window.owlcmsDocRoutes[match[1].replace(/\.md$/, '')];
+			if (destination) window.location.replace('#/' + destination + match[2]);
+		}
+		redirectLegacyRoute();
+		window.addEventListener('hashchange', redirectLegacyRoute);
     window.$docsify = {
     	homepage: 'index.md',
     	loadNavbar: false,
     	loadSidebar: true,
+			relativePath: true,
+			alias: { '/.*/_sidebar.md': '/_sidebar.md' },
+			plugins: [function (hook, vm) {
+				hook.afterEach(function (html) {
+					const pageUrl = new URL(vm.route.path.replace(/^\//, ''), document.baseURI);
+					return html.replace(/<img\b[^>]*>/gi, function (tag) {
+						return tag.replace(/(\bsrc\s*=\s*)(["'])(.*?)\2/gi, function (whole, lead, quote, source) {
+							if (/^(?:[a-z][a-z\d+.-]*:|\/|#)/i.test(source)) return whole;
+							return lead + quote + new URL(source, pageUrl).href + quote;
+						});
+					});
+				});
+			}],
     	subMaxLevel: 2,
     	name: 'OWLCMS',
     	autoHeader: true,
