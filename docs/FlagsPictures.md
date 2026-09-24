@@ -6,7 +6,7 @@ Warning:  This feature is new and may evolve.  It has been implemented in the si
 
 ### Including a Flag
 
-![Flag](img/Displays/Flag.png)
+![Flag](img/FlagsPictures/Flag.png)
 
 The current implementation first looks for an exact team-name match and then falls back to a short-code mapping for IOC country names, selected non-IOC aliases, and common subdivision names.
 
@@ -41,7 +41,7 @@ Another source, where all the flags are in the same size (4:3 ratio) is [flag-ic
 
 ### Including a Picture of the Athlete
 
-![FlagAndPicture](img/Displays/FlagAndPicture.png)
+![FlagAndPicture](img/FlagsPictures/FlagAndPicture.png)
 
 The current implementation is very simple.
 

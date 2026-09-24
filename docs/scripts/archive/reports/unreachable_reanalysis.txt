@@ -1,1 +1,2 @@
-
+LocalMacSetupBrewUpdate.md
+proposals/ExtractRecordsFromJson.md

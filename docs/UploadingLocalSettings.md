@@ -22,7 +22,7 @@ If you cleanup the local directory, you can tell owlcms to hide the default file
 
 Note that the best idea is to create a zip after your cleanup and renaming,  and to upload it to the database as explained below.  In this way, the zip in the database takes precedence over the local folder, and if an update puts back files in the `local` folder, they won't mess things up.
 
-![120_localtemplates](img/Preparation/120_localtemplates.png)
+![120_localtemplates](img/UploadingLocalSettings/120_localtemplates.png)
 
 ### Creating a Federation-Oriented setup
 
@@ -54,4 +54,4 @@ In order to use your customized files in a cloud setup, proceed as follows
 
 4. > IMPORTANT: Make sure to use the Update button on the page -- otherwise the zip won't actually get stored.  Same thing if you use the "Clear" checkbox, it will only take effect when the Update button is used.
 
-![115_localoverride](img/Preparation/115_localoverride.png)
+![115_localoverride](img/UploadingLocalSettings/115_localoverride.png)

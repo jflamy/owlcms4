@@ -15,12 +15,12 @@ owlcms includes a special-purpose output that displays the competition status in
 
 For example, instead of starting a browser as your attempt board display, you will start OBS.  OBS will open the browser and your presentation, and decide which to show by looking at what the status monitor window title is.
 
-1. On the machine where you want to run OBS, start the status monitor![statusMonitorStart](img/OBS/statusMonitorStart.png)
+1. On the machine where you want to run OBS, start the status monitor![statusMonitorStart](img/OBSSceneSwitching/statusMonitorStart.png)
 
 2. The status monitor starts in its own tab.  Close the other tabs so it is alone in a window.  The window content is the same as what is actually in the title (even though the title is visually cut off.)  In the following example, the title indicates that the athlete information is visible on the various displays and scoreboards (CURRENT_ATHLETE_DISPLAYED). 
    
 
-![statusMonitorExample](img/OBS/statusMonitorExample.png)
+![statusMonitorExample](img/OBSSceneSwitching/statusMonitorExample.png)
 
    > The full set of possible state transitions is documented further down on this page.
 
@@ -41,7 +41,7 @@ General rules:
 1. Stop OBS if running
 2. Go to [[Advanced Scene Switcher | OBS Forums (obsproject.com)](https://obsproject.com/forum/resources/advanced-scene-switcher.395/)](https://obsproject.com/forum/resources/advanced-scene-switcher.395/) and scroll down to the "Installing the Plugin" section for your operating system.
 3. Restart OBS.
-4. Go to the Tools / Advanced Scene Switcher menu, and start the plugin if needed. ![AdvSceneSwitcher](img/OBS/AdvSceneSwitcher.png)
+4. Go to the Tools / Advanced Scene Switcher menu, and start the plugin if needed. ![AdvSceneSwitcher](img/OBSSceneSwitching/AdvSceneSwitcher.png)
 
 ## Example: Switching at the end of a group
 
@@ -59,7 +59,7 @@ We define a "Group is done" macro as follows:
    - We wait a little while (we remain on our current scene "Attempt Board") 
    - and then switch to the video.
 
-![example1](img/OBS/example1.png)
+![example1](img/OBSSceneSwitching/example1.png)
 
 ## Example: Switching on multiple conditions
 
@@ -71,7 +71,7 @@ We use an expression like `(state=.*$)|(break=INTRODUCTION.*$)|(break=BEFORE_.*$
 - The `|` separates the possible alternatives
 - As before, each condition ends with `.*$` to match anything up to the end of the line.
 
-![example2](img/OBS/example2.png)
+![example2](img/OBSSceneSwitching/example2.png)
 
 In actual life, you would probably consider BREAK_BEFORE as a separate conditions, and wait 8 minutes before switching, or do whatever you want.
 

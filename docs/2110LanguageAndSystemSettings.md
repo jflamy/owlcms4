@@ -1,6 +1,6 @@
 The second button in the group gives access to the technical settings for the application.
 
-![50](nimg/2100PreCompetitionSetup/50.png)
+![50](img/2110LanguageAndSystemSettings/50.png)
 
 ### Language and Time Zone
 

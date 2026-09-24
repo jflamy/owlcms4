@@ -28,7 +28,7 @@ This section is used if you wish to add protection to the OWLCMS server.  It is 
 
 This section controls who can access the system.
 
-![10](nimg/2120AdvancedSystemSettings/10.png)
+![10](img/2120AdvancedSystemSettings/10.png)
 
 The settings are as follows.  In actual practice only the first (Password for Officials) is in common use.
 

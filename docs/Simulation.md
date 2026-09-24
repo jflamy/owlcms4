@@ -75,5 +75,5 @@ The laptop used was a 2017-vintage core i5. The program was given a starting wor
 - Memory allocation is done in the installation directory, in the owlcms.l4j file.   Remove the last two lines if you have a laptop with 8GB or more.
 - On a more powerful computer (core i7) with 8GB, the default values for memory are a more generous 2GB.,  In such a configuration, CPU usage is negligible -- 2-4%.  Running the same competition, the memory is consumed until about 1,2GB, and then cleaned up to 100MB, and the cycle repeats forever and ever.
 
-![VisualVM](img/Testing/VisualVM.png)
+![VisualVM](img/Simulation/VisualVM.png)
 

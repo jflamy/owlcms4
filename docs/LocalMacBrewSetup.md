@@ -12,7 +12,7 @@ This step is not needed if you already have `brew` installed.
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   ```
 
-- Using the Application icon ![image-20260603094422742](img/LocalMacSetup/image-20260603094422742.png)  at the bottom of your screen in  the Dock, 
+- Using the Application icon ![image-20260603094422742](img/LocalMacBrewSetup/image-20260603094422742.png)  at the bottom of your screen in  the Dock, 
 
   1. Type `Terminal` to locate the Terminal application. You should see something like this.
 

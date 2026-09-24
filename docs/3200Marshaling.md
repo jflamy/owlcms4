@@ -6,7 +6,7 @@ In large competitions, the cards are placed on the table in Start Number order. 
 
 In smaller competitions, the cards may be shuffled around to reflect lifting order.  You can use the cogwheel next to the session name to change this option.  Clicking on the "Start Number" heading on the table will also change the sort order if you prefer.
 
-![10](nimg/3200Marshaling/10.png)
+![10](img/3200Marshaling/10.png)
 
 ## Entering Changes
 
@@ -16,7 +16,7 @@ Normally, the assistant marshal clicks on the athlete. The cursor is placed auto
 >
 > Do not keep athlete cards open, or open them in advance.   The system may have changed values (such as setting an automatic progression) while you had the card open.  Because the marshal is supposed to have the last word, if you hit Update, you will overwrite what changes have been made.
 
-![20](nimg/3200Marshaling/20.png)
+![20](img/3200Marshaling/20.png)
 
 ## Marshal Pause
 
@@ -26,7 +26,7 @@ When this happens, the first thing to do is to make sure the paper cards are fix
 
 To stop the competition, use the red button at the top right. You will be asked to confirm that you want to stop.
 
-![30](nimg/3200Marshaling/30.png)
+![30](img/3200Marshaling/30.png)
 
 ## Correcting Errors
 
@@ -34,7 +34,7 @@ To correct errors, you need to click on the wrong cell and fix it.  Work backwar
 
 You may also need to edit the lift results.  If you are acting as the marshall, by default the bottom line where the lift results are found is not editable.  You need to click on the "Edit Lift Results" to enable that.
 
-![40](nimg/3200Marshaling/40.png)
+![40](img/3200Marshaling/40.png)
 
 ## Forcing the current athlete
 
@@ -61,7 +61,7 @@ In summary, moving down is only allowed if the requested weight does not cause t
   - If an athlete previously lifted the requested weight and did so on the same attempt with the same previous weight, then the moving athlete must have  larger start number (for example, on a first attempt start 1 cannot lift after start 2 by moving up, then moving down after start 2 has lifted)
 - If an illegal move down is detected, the rule being broken is shown and it is not possible to update.
 
-![MovingDownError](img/Lifting/MovingDownError.png)
+![MovingDownError](img/3200Marshaling/MovingDownError.png)
 
 - Because sometimes there is confusion when entering weights -- similar names, fatigue, etc., the rules can be waived. There is a check box at the bottom that cancels validations and allows saving.  Use with care, this is only meant to fix major marshalling or announcing errors.
 - Note: The rules are not applied for mixed children groups with "all girls before all boys" (since the first boy will likely request less than the last girl)

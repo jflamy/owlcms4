@@ -11,7 +11,7 @@ The data used comes from the Athletes, Coaches, and Technical Officials Pages.
 
 The templates are located in local/templates/credentials.   The ideal setup is to use international A4 paper, and make the card be a full A4 page.  Then you can use a PDF printer such as PDF24 to create a 4-page-together view. On A4 paper, this makes each card be size A6.  You will very likely need to play with the margins of the template to make the cut lines be in the center.
 
-![](nimg/6000Excel/Credentials.png)
+![](img/Credentials/Credentials.png)
 
 ## Prepare the Photographs
 

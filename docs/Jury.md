@@ -2,7 +2,7 @@ The jury is operated from the Jury Console page.  In order to use a Jury  you ne
 
 The jury console is started from the "run a lifting group" page.
 
-![010_Ref](img/Refereeing/010_Ref.png) 
+![010_Ref](img/Jury/010_Ref.png) 
 
 ## Jury Console
 
@@ -11,7 +11,7 @@ The jury console operates according to IWF rules:
 - In the bottom part of the screen the referee decisions are shown <u>as soon as they are made</u>  
 - In the top part of the screen, the decisions circle for a jury member shows that he or she has made a decision, but the individual decisions are only shown in red or white <u>after they have all been given</u>.
 
-![070_Jury](img/Refereeing/070_Jury.png)
+![070_Jury](img/Jury/070_Jury.png)
 
 ## Jury Deliberation
 
@@ -20,14 +20,14 @@ The jury console now allows direct reversal/confirmation of lifts
   - The Jury Deliberation button opens a dialog whereby the lift can be confirmed or reversed,
   - During deliberation, it is possible to call the referees to the Jury table.  The referees get a notification on their device if the device is feedback-capable (such as a phone or a full-feedback keypad).
 
-![080_JuryDeliberation](img/Refereeing/080_JuryDeliberation.png)
+![080_JuryDeliberation](img/Jury/080_JuryDeliberation.png)
 
 ### Decision Announce
 
 By rule, the announcer must announce the decision of the jury and the reason for which a lift was overturned.
 
 When the jury presses the reverse or confirm button, the announcer receives a prompt.
-![095_AnnouncerPrompt](img/Refereeing/095_AnnouncerPrompt.png)
+![095_AnnouncerPrompt](img/Jury/095_AnnouncerPrompt.png)
 
 After the announcer has done the announce, he presses the blue button, so that
 
@@ -37,7 +37,7 @@ After the announcer has done the announce, he presses the blue button, so that
 
 This behavior (Announcer control of the display of jury decisions) is actually optional.  If it is disabled in the Competition Rules section, the display of the jury decisions will be immediate.  The announcer is still expected to announce the reason for reversal.
 
-![090_JuryReversal](img/Refereeing/090_JuryReversal.png)
+![090_JuryReversal](img/Jury/090_JuryReversal.png)
 
 ## Calling Referees
 
@@ -61,13 +61,13 @@ But you can in fact use the same approach to build your own devices. Arduino boa
 
 A simple button-only jury control box and the associated jury member buttons, using the owlcms display to look at decisions, is shown here.  This is the same hardware as required to build a jury keypad, except that you don't have anything to program since all the software is already provided.  You would only adjust the configuration file if you needed to use different pins in your build.
 
- ![refereeBox](img/MQTT/juryButtons.png)
+ ![refereeBox](img/Jury/juryButtons.png)
 
 ##### Full Jury Control Box with Indicator Lights
 
 A full 5-member jury device is shown below.  In actual practice, you might want to include only 3 jury members and if so you would only keep 3 sets of buttons on the left.   This design includes all the green/red/white indicator lights and uses an Arduino Mega to provide more pins.
 
- ![refereeBox](img/MQTT/juryBox.png)
+ ![refereeBox](img/Jury/juryBox.png)
 
 owlcms uses the MQTT protocol used in Internet-Of-Things automation and monitoring applications to talks to the devices.  See the [MQTT](MQTT) page for more details and for schematics that you can use for your own devices.  Commercially available pre-built devices using the same protocol are also being developed.
 

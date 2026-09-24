@@ -6,7 +6,7 @@ In the following example
 - the next lift would break the records highlighted in purple (assuming of course that the athlete meets citizenship and that other record requirements such as proper referee levels are met).
 - the athlete had, in fact, just set the records on the previous lift-- the system updates the display when a record is provisionally set during a meet.
 
-![records](img/Records/records.png)
+![records](img/2500RecordsManagement/records.png)
 
 *Official records* are provided in Excel files that are loaded in the system.  
 
@@ -101,7 +101,7 @@ In the following example, we state that the athlete is eligible to UMWF only, an
 
 Note that if in your national federation you have Masters-aged athletes that can beat Masters records and others that cannot, you will need to create a use a separate Masters federation acronym in your record definitions to make the eligibility criterion work.
 
-![60](nimg/2501_Records_New/60.png)
+![60](img/2500RecordsManagement/60.png)
 
 ### Eligibility Criteria
 
@@ -149,5 +149,5 @@ The following fields are expected in the file, in that specific order.  The firs
 
 The following figure shows the content of the 10_Canada file, organized with one age group per tab.
 
-![](img/Records/excel.png)
+![](img/2500RecordsManagement/excel.png)
 

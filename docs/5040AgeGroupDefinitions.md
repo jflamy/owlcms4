@@ -85,7 +85,7 @@ This step needs to be done on a local installation.  Once you are ready, you can
 
 Let's say we want to create age groups for our annual U15 U17 competition.  We go to the local/agegroups directory, and copy the `AgeGroups.xlsx` file to another name (for example `AgeGroupsU15U17.xlsx` or whatever suits you).
 
-![090_spreadsheet_qtot](img/Categories/090_spreadsheet_qtot.png)
+![090_spreadsheet_qtot](img/5040AgeGroupDefinitions/090_spreadsheet_qtot.png)
 
 In the example above, the cells outlined in red is interpreted to mean that in women's <u>category U17 F59, the qualifying total is 77</u>
 

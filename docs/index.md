@@ -16,16 +16,16 @@
 ### Gallery
 
 <table>
-<tr><td><a href="http://u.osmfr.org/m/1156248/" target="_bkank"><img src='img/Gallery/Map.png'></a></td><td>Current Usage (each pin is a city where the software has reported usage last 12 months)<br/><a href="http://u.osmfr.org/m/1156248/" target="_blank">Click on image for an interactive map</a>.<br/>The owlcms competition management system is currently in use in over 95 federations.  See here for <a href="./#/Countries">a list</a></td></tr>
-<tr><td><img src='img/Gallery/IMG_5050.jpg'></img></td><td>USA National Championships<br>1500 athletes, 9 days (U11, U13, U15, U17, U20, U23, U25, Open and Adaptive championships)</td></tr>
-<tr><td><img src='img/Gallery/ElSalvador.jpg'></img></td><td>National Competition, El Salvador.<br>A simple setup with everyday electronics.</td></tr>
-<tr><td><img src='img/Gallery/IMG_6536.jpg' size=250></img></td><td>Club meet, Montreal, Canada.<br>Supports mixed-gender kid groups.  Attempt board shows correct loading for 5kg/10kg bars and 2.5kg/5kg large plates.</td></tr>
-<tr><td><img src='img/Gallery/ISG2025a.jpg'></img></td><td>ISG 2025 Games, Riyadh. An IWF Event with 31 countries participating in weightlifting. owlcms provided the on-venue data that was fed to the Games central in Olympic Data Feed (ODF) format.</td></tr>
-<tr><td><img src='img/Gallery/tablet.png' size=250></img></td><td>Phones or tablets can be used for <a href="#/Refereeing.md">refereeing</a>, as well as simple USB or joystick devices.</td></tr>
-<tr><td><img src='img/Gallery/IMG_6565.jpg' size=250></img></td><td>For dedicated use, <a href="https://blue-owl.nemikor.com">rules-compliant refereeing and jury devices</a> are commercially available.  Fully documented <a href="https://github.com/jflamy/owlcms-firmata/blob/v24/README.md">build-your-own designs</a> using Arduino boards are available.</td></tr>
-<tr><td><img src='img/Gallery/AMW2025.png' size=250></img></td><td>Asian Masters Championship, Doha, Qatar. The program has full support of Masters rules and coefficients.</td></tr>
-<tr><td><img src='img/Gallery/Streaming.png' size=250></img></td><td>Multiple simultaneous age groups (South American Championships, Guayaquil, Ecuador)<br /><br /> Built-in customizable live streaming/TV-oriented displays.</td></tr>
-<tr><td><img src='img/Gallery/lima.jpg'></img></td><td>PanAm Junior and SouthAmerican  U20/U17/U15 Championships, Lima, Peru.<br>The program  supports simultaneous platforms and displays the multiple rankings for multiple concurrent age group competitions</td></tr>
+<tr><td><a href="http://u.osmfr.org/m/1156248/" target="_bkank"><img src='img/index/Map.png'></a></td><td>Current Usage (each pin is a city where the software has reported usage last 12 months)<br/><a href="http://u.osmfr.org/m/1156248/" target="_blank">Click on image for an interactive map</a>.<br/>The owlcms competition management system is currently in use in over 95 federations.  See here for <a href="./#/Countries">a list</a></td></tr>
+<tr><td><img src='img/index/IMG_5050.jpg'></img></td><td>USA National Championships<br>1500 athletes, 9 days (U11, U13, U15, U17, U20, U23, U25, Open and Adaptive championships)</td></tr>
+<tr><td><img src='img/index/ElSalvador.jpg'></img></td><td>National Competition, El Salvador.<br>A simple setup with everyday electronics.</td></tr>
+<tr><td><img src='img/index/IMG_6536.jpg' size=250></img></td><td>Club meet, Montreal, Canada.<br>Supports mixed-gender kid groups.  Attempt board shows correct loading for 5kg/10kg bars and 2.5kg/5kg large plates.</td></tr>
+<tr><td><img src='img/index/ISG2025a.jpg'></img></td><td>ISG 2025 Games, Riyadh. An IWF Event with 31 countries participating in weightlifting. owlcms provided the on-venue data that was fed to the Games central in Olympic Data Feed (ODF) format.</td></tr>
+<tr><td><img src='img/index/tablet.png' size=250></img></td><td>Phones or tablets can be used for <a href="#/Refereeing.md">refereeing</a>, as well as simple USB or joystick devices.</td></tr>
+<tr><td><img src='img/index/IMG_6565.jpg' size=250></img></td><td>For dedicated use, <a href="https://blue-owl.nemikor.com">rules-compliant refereeing and jury devices</a> are commercially available.  Fully documented <a href="https://github.com/jflamy/owlcms-firmata/blob/v24/README.md">build-your-own designs</a> using Arduino boards are available.</td></tr>
+<tr><td><img src='img/index/AMW2025.png' size=250></img></td><td>Asian Masters Championship, Doha, Qatar. The program has full support of Masters rules and coefficients.</td></tr>
+<tr><td><img src='img/index/Streaming.png' size=250></img></td><td>Multiple simultaneous age groups (South American Championships, Guayaquil, Ecuador)<br /><br /> Built-in customizable live streaming/TV-oriented displays.</td></tr>
+<tr><td><img src='img/index/lima.jpg'></img></td><td>PanAm Junior and SouthAmerican  U20/U17/U15 Championships, Lima, Peru.<br>The program  supports simultaneous platforms and displays the multiple rankings for multiple concurrent age group competitions</td></tr>
 </table>
 
 
@@ -51,96 +51,96 @@ The following list is a sampling of the many features available.  <u>*Click on t
 
      - The ranks for the lifts are shown when medals are awarded for each lift
 
-     ![020_Scoreboard](img/Records/records.png ':size=800')
+     ![020_Scoreboard](img/index/records.png ':size=800')
 
      - The top part of the scoreboard contains the same information as the attempt board, and shows the down signal and decisions.
 
-     ![022_Scoreboard_Decision](img/Displays/022_Scoreboard_Decision.png)
+     ![022_Scoreboard_Decision](img/index/022_Scoreboard_Decision.png)
 
 - **[Lifting order display](Displays#lifting-order)**. Useful for the marshal and for regional championships to help newer coaches.  All scoreboards can be displayed with black-on-white or white-on-black depending on the lighting conditions.
 
-    ![Lifting](img/Displays/025_LiftingOrder.png)
+    ![Lifting](img/index/025_LiftingOrder.png)
     
 - **Multiple age group display**: If athletes can win medals in several categories, a multi-rank scoreboard is available
 
-    ![hvmDyjbdr2](img/Displays/hvmDyjbdr2.png)
+    ![hvmDyjbdr2](img/index/hvmDyjbdr2.png)
 
 - [**Announcer and Marshal**](Announcing) screens 
 
     - The announcer gets all the necessary information clearly laid out.  Athletes are shown in lifting order, with highlights for the current athlete, the next athlete, and the athlete who lifted previously.  Indications are given for the weight required and when changes by the marshal on the current athlete.  All important events are notified (withrawals, record attempts, jury deliberations, etc.)
-      ![Announcer](img/Gallery/Announcer.png)
-    - For the Marshal, the information about lifts is laid out as on the official cards.  Messages are given for late changes, and the changes are checked for correctness relative to the lifting order. The Marshal also sees the decisions as they are given.  For small competitions, the announcer can also act as marshal.  ![090](img/Gallery/Marshal.png)
+      ![Announcer](img/index/Announcer.png)
+    - For the Marshal, the information about lifts is laid out as on the official cards.  Messages are given for late changes, and the changes are checked for correctness relative to the lifting order. The Marshal also sees the decisions as they are given.  For small competitions, the announcer can also act as marshal.  ![090](img/index/Marshal.png)
 
 - [**Timekeeping**](Announcing#starting-the-clock) Time can either be [managed by the announcer](Announcing#starting-the-clock)  (useful for smaller meets) or a dedicated [timekeeper screen](Announcing#Timekeeper) can be used. The timekeeper screen can be conveniently operated from a phone or tablet.
 
-    <img src="img/Lifting/050_Timekeeper.png" alt="050_Timekeeper.png" style="border-style:solid; border-width: thin" />
+    <img src="img/index/050_Timekeeper.png" alt="050_Timekeeper.png" style="border-style:solid; border-width: thin" />
 
 - **[Attempt Board](Displays#attempt-board)** showing current athlete information, remaining time, weight requested, down signal and decision.
 
-    ![032_Attempt_Running](img/Displays/032_Attempt_Running.png ':size=350' )  ![038_Attempt_Decision](img/Displays/038_Attempt_Decision.png ':size=350') 
+    ![032_Attempt_Running](img/index/032_Attempt_Running.png ':size=350' )  ![038_Attempt_Decision](img/index/038_Attempt_Decision.png ':size=350') 
 
 - **Support for refereeing devices**
 
   - [**Mobile phones or tablets**](Refereeing#mobile-device-refereeing) The easiest way to get started is to use phones or tablets. 
     
-      ![mobile_ref](img/Refereeing/mobile_ref.png ':size=350')
+      ![mobile_ref](img/index/mobile_ref.png ':size=350')
   
   - [**Button keypads**](Refereeing#button-keypads). Many people prefer using actual buttons. Any USB or Bluetooth keypad that can be programmed to generate the digits 0 to 9 can be used to enter decisions.
     
-      ![refereeingSetup](img/equipment/refereeingSetup.jpg ':size=350')  
+      ![refereeingSetup](img/index/refereeingSetup.jpg ':size=350')  
   
   - [**Fully compliant devices**](Refereeing#arduino-based-devices)  The IWF technical rules and regulations (TCRR) state requirements for refereeing and jury devices, notably regarding notifications to referees.  You can [buy commercial devices](https://nemikor.com) that are fully compliant or build your own. [Free do-it-yourself schematics
    and software](https://github.com/jflamy/owlcms-firmata/tree/v24?tab=readme-ov-file#owlcms-firmata) using low-cost Arduino boards are available.
 
-  ![FederationKit](img/Gallery/FederationKit.png ':size=450')![home-built](img/Gallery/home-built.jpg ':size=250')
+  ![FederationKit](img/index/FederationKit.png ':size=450')![home-built](img/index/home-built.jpg ':size=250')
 
 - **[Athlete-facing display](Displays#attempt-board)** (the decision display matches the referee positions as seen from platform). Refereeing keypads are typically connected to this laptop.
 
-    ![044_AF_Down](img/Displays/044_AF_Down.png ':size=350') ![048_AF_Decision](img/Displays/048_AF_Decision.png ':size=350')
+    ![044_AF_Down](img/index/044_AF_Down.png ':size=350') ![048_AF_Decision](img/index/048_AF_Decision.png ':size=350')
 
 - **[Records](2500RecordsManagement)**  Record information can be provided using Excel files. Records for multiple federations and events can be loaded.  Record is then shown on the scoreboards, and notifications are given to the officials when records are attempted or set.  If a record is improved, the record information is updated.
 
 - [**Integration with video streaming software**](OBS). Video-oriented layouts are included that can be customized using standard Web design techniques to achieve a competition-specific look.  Because the layouts are generated by the program itself, there is no delay and no risk of discrepency, and no additional work required at competition time.
-    ![Streaming](img/Gallery/Streaming.png)
+    ![Streaming](img/index/Streaming.png)
 
 - [**3 and 5-person jury**](Jury).  Jury members see referee decisions as they happen. Jury members see their vote outcome once all jurors have voted. 
 
-    ![070_Jury](img/Refereeing/070_Jury.png)
+    ![070_Jury](img/index/070_Jury.png)
 
 - **[Athlete Registration](2200Registration) and [Weigh-in](3000WeighIn) screens**, 
 
 - **[Athlete cards](2400PreCompetitionDocuments#athlete-cards)** and **[weigh-in sheets](2400PreCompetitionDocuments#weigh-in-form)** with starting weights
 
-    ![042_AthleteCards](img/WeighIn/043_AthleteCards.png)
+    ![042_AthleteCards](img/index/043_AthleteCards.png)
 
 - [**Upload of registration sheet**](2200Registration#registering-the-athletes) Upload a list of athletes with their team, group, entry totals etc. 
 
-    ![20a](nimg/2200Registration/20a.png)
+    ![20a](img/index/20a.png)
 
 - Multiple **[Simultaneous Championships](2140Championships)**: ability to award separate medals according to age division (e.g. youth vs junior vs senior) .  Simultaneous inclusion of Masters and non-masters groups athletes is possible.
 
-     ![020_ageGroupList](img/Categories/020_ageGroupList.png)
+     ![020_ageGroupList](img/index/020_ageGroupList.png)
 
 - [**Competition Parameters**](Preparation#competition-information) :  screens for defining a competition (general info, location, organizer, etc.) and special rules that apply (for example, enforcing or not the 20kg rule, etc.)
-    ![30](nimg/2100PreCompetitionSetup/30.png)
+    ![30](img/index/30.png)
     
 - **[Multiple fields of play](Preparation#defining-fields-of-play-platforms)** (platforms): simultaneous competition platforms within the same competition.
 
-  ![IMG_1610](img/ZoomVideo/IMG_1610.jpg)
+  ![IMG_1610](img/index/IMG_1610.jpg)
 
 - [**Team Competitions and Sinclair Competitions**](Displays#Top-Teams-Scoreboard).  Team Results are computed in either the IWF points system or as a sum of Sinclair scores. The competition secretary has access to the full details.
 
-  ![050_TeamScoreboard](img/Displays/050_TeamScoreboard.png ':size=350')
-  ![060_TopSinclair](img/Displays/060_TopSinclair.png ':size=350')
-    ![061_TopTeamSinclair](img/Displays/061_TopTeamSinclair.png ':size=350')
+  ![050_TeamScoreboard](img/index/050_TeamScoreboard.png ':size=350')
+  ![060_TopSinclair](img/index/060_TopSinclair.png ':size=350')
+    ![061_TopTeamSinclair](img/index/061_TopTeamSinclair.png ':size=350')
 
 - **[Countdown timer for breaks](Announcing#breaks)** (before introduction, before first snatch, break before clean and jerk, technical break)
 
-    ![070_IntroTimer](img/Displays/070_IntroTimer.png ':size=350')
+    ![070_IntroTimer](img/index/070_IntroTimer.png ':size=350')
 
 - Production of **[session results (protocol sheets)](ResultDocuments#session-results)**, of interim competition results during the course of the competition, and of the **[final result package](ResultDocuments#final-package)**
 
-    ![SessionResults](img/ResultDocuments/SessionResults.png  ':size=350')
+    ![SessionResults](img/index/SessionResults.png  ':size=350')
 
 - Option to treat the competition as a **[Masters competition](2100CompetitionInformationAndRules#competition-rules)** with proper processing of age groups (older age groups presented first)
 
@@ -150,6 +150,6 @@ The following list is a sampling of the many features available.  <u>*Click on t
 
 - **[Color and Visual Styling Customization](Styles)**  The colors of the displays are controlled by Web-standard CSS stylesheets, the format used by web designers world wide. A tutorial is given for the common case of adjusting the color scheme to local preferences.
 
-    ![colors](img/Displays/colors.png ':size=350')
+    ![colors](img/index/colors.png ':size=350')
 
 - Etc.  Refer to the side menu for the full list of topics.

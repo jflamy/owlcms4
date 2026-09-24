@@ -7,7 +7,7 @@ The Documents page is used
 
 It is reached from the `Prepare Competition` page, selecting the `Documents` button
 
-![15](nimg/2400PreCompetitionDocuments/15.png)
+![15](img/2400PreCompetitionDocuments/15.png)
 
 The page has two sections.  The top section includes buttons to print the various documents.  The bottom section is used to select sessions.
 
@@ -26,7 +26,7 @@ The start list (or starting list) shows all the athletes that will compete, in w
 
 Some federations have their own formats for the Start List.
 
-![30](nimg/2400PreCompetitionDocuments/30.png)
+![30](img/2400PreCompetitionDocuments/30.png)
 
 ### Schedule
 
@@ -47,19 +47,19 @@ You can produce the cards for one or more sessions.
 - You can also combine the athlete cards with the weigh-in form in a single zip by using the `Document Set` button.
 - A utility script is included in the zip for use on Windows. Right-click on the zip and use `Extract All`.  In the extracted folder, double-click on `print.bat`.  This will print all the files on your default printer.
 
-![043_AthleteCards](img/WeighIn/043_AthleteCards.png)
+![043_AthleteCards](img/2400PreCompetitionDocuments/043_AthleteCards.png)
 
 ## Weigh-in Form
 
 The weigh-in form is used during weigh-ins to capture information from the Athlete Card, in order to facilitate data entry.  In some federations, a signature is required to confirm that no mistakes were made in transcription
 
-![70](nimg/2400PreCompetitionDocuments/70.png)
+![70](img/2400PreCompetitionDocuments/70.png)
 
 ### Challenge Cards
 
 Challenge cards are printed from the same menu as Athlete Cards, by selecting the Challenge template instead.
 
-![16](nimg/2400PreCompetitionDocuments/16.png)
+![16](img/2400PreCompetitionDocuments/16.png)
 
 ## Registration Checks
 
@@ -67,20 +67,20 @@ Challenge cards are printed from the same menu as Athlete Cards, by selecting th
 
 The Categories List is a variation on the Start List that is useful before allocating groups.  It shows which athletes have registered in which category. An athlete can be shown several times if eligible in multiple categories.
 
-![40](nimg/2400PreCompetitionDocuments/40.png)
+![40](img/2400PreCompetitionDocuments/40.png)
 
 ### Bodyweight Categories Lists
 
 Some federations do multiple age group competitions but combine all age groups according to bodyweight, and then split sessions according to entry total.  To validate the registrations for such competitions, you can use the Body Weight list.
 
-![17](nimg/2400PreCompetitionDocuments/17.png)
+![17](img/2400PreCompetitionDocuments/17.png)
 
 ### Team Membership List and Verification of Final Entries
 
 The Teams list is used to check that all athletes are assigned correctly - IWF rules put limits on how many athletes there can be in a team and in a given category.
 The VFE template is also useful to record changes during VFE.   When the session is done in person, the team representative's signature can be obtained as confirmation. 
 
-![30](nimg/2400PreCompetitionDocuments/18.png)
+![30](img/2400PreCompetitionDocuments/18.png)
 
 ## Lifting Session Documents
 
@@ -94,10 +94,10 @@ In some federations, an easier to read introduction sheet is given to the speake
 
 The Jury Sheet is used by the jury to assess lifts, and to evaluate officials.  The jury sheet can also be used as a manual backup to record lifts.
 
-![50](nimg/2400PreCompetitionDocuments/50.png)
+![50](img/2400PreCompetitionDocuments/50.png)
 
 ### Empty Protocol
 
 The empty protocol sheet is used as a manual backup.  In some events, such sheets are printed for the coaches to count attempts (the starting requested weights are printed on the sheet)
 
-![60](nimg/2400PreCompetitionDocuments/60.png)
+![60](img/2400PreCompetitionDocuments/60.png)

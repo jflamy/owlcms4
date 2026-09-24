@@ -9,7 +9,7 @@ In a virtual competition, the officials and athletes are in multiple locations.
 
 Two cloud-based applications are used.  The officials use owlcms.  A second application called publicresults makes the scoreboard available.  Because they run on two different computers, they can be scaled up independently.
 
-![Slide5](img/PublicResults/CloudExplained/Slide5.SVG)
+![Slide5](img/4100VirtualOverview/Slide5.SVG)
 
 The following pages will guide you through setting up a virtual competition. First, install and configure the applications:
 

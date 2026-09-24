@@ -2,7 +2,7 @@
 
 The `Competition Information and Rules` button leads to a page where general rules and information about the competition are entered.
 
-![image-20260717202601557](img/2100CompetitionInformation/image-20260717202601557.png)
+![image-20260717202601557](img/2100CompetitionInformationAndRules/image-20260717202601557.png)
 
 ### Information
 

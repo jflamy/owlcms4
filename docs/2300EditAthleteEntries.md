@@ -7,17 +7,17 @@ The next step in preparing a competition is adjusting the registrations and fina
 - Producing a Start List
 - Producing Athlete cards
 
-These steps are performed from the `Prepare Competition` page![10](nimg/2300EditAthleteEntries/10a.png)
+These steps are performed from the `Prepare Competition` page![10](img/2300EditAthleteEntries/10a.png)
 
 ## Adding or Editing Athletes
 
 In order to add or edit athletes, use the `Edit Athlete Entries` button.
 
-- To add an athlete, use the `+` button at the top of the list.  If you have selected a session at the top, the athlete will be added to that session.![15](nimg/2300EditAthleteEntries/15.png)
+- To add an athlete, use the `+` button at the top of the list.  If you have selected a session at the top, the athlete will be added to that session.![15](img/2300EditAthleteEntries/15.png)
 - To edit an athlete click ONCE on the name of the athlete in the list.  You can select a group at the top and type values in the filters at the top of the list to narrow down the list.
 - You may then fill the form.  The eligible categories will be computed automatically, and if the athlete is eligible to several categories the most specific category will be used as the registration category.  In the following example, a 16 year-old is eligible for youth, junior and senior medals.  If the competition is organized by age groups, the athlete would lift along the other youths, prior to junior and senior athletes.
 
-![40](nimg/2300EditAthleteEntries/40a.png)
+![40](img/2300EditAthleteEntries/40a.png)
 
 Complementary information can be provided if needed, on the second tab.
 
@@ -25,7 +25,7 @@ Complementary information can be provided if needed, on the second tab.
 
 **Once all athletes have been entered, you should draw the lot numbers**.  If you are splitting a group and have several athletes with the same entry total, you would use the lot number to determine what athlete goes to which group.
 
-![50](nimg/2300EditAthleteEntries/50.png)
+![50](img/2300EditAthleteEntries/50.png)
 
 ## Team Membership
 
@@ -35,11 +35,11 @@ On initial load, the athlete is automatically made a team member for all the age
 
 You should filter the championship and age groups to make sure all teams follow the competition rules.  Warning flags are shown  when there is a risk of violating rules.
 
-![60](nimg/2300EditAthleteEntries/60.png)
+![60](img/2300EditAthleteEntries/60.png)
 
 In the following example, 3 female and 3 male athletes are kept on the WEST team
 
-![70](nimg/2300EditAthleteEntries/70.png)
+![70](img/2300EditAthleteEntries/70.png)
 
 ## Major Changes
 
@@ -47,12 +47,12 @@ If you need to make important changes, such as reorganizing the groups, and so o
 
 The SBDE format is available at the bottom of the preparation page. 
 
-![30](nimg/2300EditAthleteEntries/30.png)
+![30](img/2300EditAthleteEntries/30.png)
 
 ### SBDE Loading Options
 
 When loading an SBDE file, there are several options
-![30](nimg/2300EditAthleteEntries/31.png)
+![30](img/2300EditAthleteEntries/31.png)
 
 Athlete Options are as follows
 

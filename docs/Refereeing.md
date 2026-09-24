@@ -19,12 +19,12 @@ The referees give their decisions using flags/cards/hand signals. The announcer 
 
  In this setup, each referee uses a phone, tablet or laptop.  
 
-![mobile_ref](img\equipment\mobile_ref.png)
+![mobile_ref](img/Refereeing/mobile_ref.png)
 
 
 
 This uses the phone or tablet web browser, which connects to owlcms. It does not matter whether owlcms is running on a laptop or in the cloud.  This setup is therefore useful when running virtual competitions.
-![Slide9](img/PublicResults/CloudExplained/Slide9.SVG)
+![Slide9](img/Refereeing/Slide9.SVG)
 
 The refereeing screen is started from the "Run a lifting group" page, in the Referees and Jury section at the bottom.  The sequence would look like the following when done on a phone.
 
@@ -44,7 +44,7 @@ Many referees prefer having their finger rest on a button (which is not possible
 
 In this approach, keypads are connected to the laptop or mini PC running a display that shows the countdown timer.  Normally, this is the Athlete-facing display, but you can also use the Attempt Board, or even the Scoreboards.  The sound and down arrow are emitted directly by the browser, without any round-trip to the primary computer.  This reduces delays and increases reliability if the networking is fragile (which is sometimes the case in gyms)
 
-![Slide6](img/PublicResults/CloudExplained/Slide6.SVG)
+![Slide6](img/Refereeing/Slide6.SVG)
 
 There are three ways to create such a keypad
 
@@ -62,7 +62,7 @@ Industrial-strength USB Keypads can be bought from industrial device providers, 
 
 You can also build you own using an Arduino to emulate a USB keyboard:  [Keyboard - Arduino Reference](https://www.arduino.cc/reference/en/language/functions/usb/keyboard/)
 
-![refereeingSetup](img\equipment\refereeingSetup.jpg)
+![refereeingSetup](img/Refereeing/refereeingSetup.jpg)
 
 #### Example of Joystick buttons
 
@@ -96,7 +96,7 @@ See [this page](https://github.com/owlcms/owlcms-firmata/tree/main/README.md) fo
 
 For example, a fully IWF-compliant design for the referee box is shown below. You can simply omit any part you don't need. For example, in the refereeing diagram below, if you don't want an external down signal light and buzzer, you can ignore the two relays on the left-hand side.  And if you need to arrange the connections, there is no need to change the firmware or the interface program, a simple change to a configuration file will do.
 
-![refereeBox](img/MQTT/refereeBoxDown.png)
+![refereeBox](img/Refereeing/refereeBoxDown.png)
 
 owlcms uses the MQTT protocol used in Internet-Of-Things automation and monitoring applications to talks to the devices.  See the [MQTT](MQTT) page for more details and for schematics that you can use for your own devices.  
 

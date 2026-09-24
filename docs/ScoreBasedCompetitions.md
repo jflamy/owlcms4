@@ -6,9 +6,9 @@ In many local, regional of even national Masters competitions, there are only on
 
 For this example. Go to the Preparation / Define Age Groups and Categories page and load the predefined file `AgeGroups_ScoreMedals.xlsx`.  Once you master the example, you will be able to adjust your own age groups.
 
-![10menu](img/ScoreBased/10menu.png)
+![10menu](img/ScoreBasedCompetitions/10menu.png)
 
-#### ![11select](img/ScoreBased/11select.png)
+#### ![11select](img/ScoreBasedCompetitions/11select.png)
 
 
 
@@ -20,17 +20,17 @@ To facilitate the production of the competition results, each age group is assoc
 
 So we check that there is an appropriate championship to use, and create it if missing.  To do so, use the `Edit Championship` button
 
-![13editChampionship](img/ScoreBased/13editChampionship.png)
+![13editChampionship](img/ScoreBasedCompetitions/13editChampionship.png)
 
 A dialog opens.  You can either rename an existing championship, or add one if missing.  In our example the `Masters by Age` championship is already present.  If it was missing, you would use the `Add` button at the bottom to add it.
 
-![14championshipPopup](img/ScoreBased/14championshipPopup.png)
+![14championshipPopup](img/ScoreBasedCompetitions/14championshipPopup.png)
 
 #### Editing an Age Group
 
 Close the dialog and click on the AW45 age group.
 
-![15editAgeGroup](img/ScoreBased/15editAgeGroup.png)
+![15editAgeGroup](img/ScoreBasedCompetitions/15editAgeGroup.png)
 
 There are 4 things to mention about this age group
 
@@ -48,7 +48,7 @@ In a club competition, it is often the case that there are only one or two kids 
 
 The principle is exactly the same as for Example 1.  If you scroll and select the `AU12 W` age group, you will see
 
-![16ungenderedagegroup](img/ScoreBased/16ungenderedagegroup.png)
+![16ungenderedagegroup](img/ScoreBasedCompetitions/16ungenderedagegroup.png)
 
 Notice that
 
@@ -61,11 +61,11 @@ Notice that
 
 To keep your changes and reuse them in a later competition, you can export the definition file
 
-![11export](img/ScoreBased/20exportButton.png)
+![11export](img/ScoreBasedCompetitions/20exportButton.png)
 
 We recommend that you make your initial changes using the interface.  For example, add one of the Masters age groups for men and one for women using the interface.  Then export the definition and add additional lines that you need.
 
-![20Excel](img/ScoreBased/20Excel.png)
+![20Excel](img/ScoreBasedCompetitions/20Excel.png)
 
 In the exported file:
 
@@ -91,4 +91,4 @@ In the exported file:
 
   To import adjusted definitions, you can use the following.
 
-  ![22import](img/ScoreBased/22import.png)
+  ![22import](img/ScoreBasedCompetitions/22import.png)

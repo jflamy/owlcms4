@@ -9,7 +9,7 @@ There are two options for running Zoom that depend on the equipment available to
 
 Start Zoom and use the Home icon, and then click on the settings Icon at the top right.  Make sure that "Use Dual Monitors" is selected.
 
-![zoomsettings](img/OBS/zoomsettings.png)
+![zoomsettings](img/4200PrepareZoomBroadcasting/zoomsettings.png)
 
 #### Setup the host's Zoom Windows
 
@@ -20,7 +20,7 @@ In this example, we use one of our two monitors to have all the Zoom control win
   - one screen at the right with the gallery view and the chat,
   - one screen at the left which is the host's main Zoom window. This is used to do a screen share of the scoreboard
 
-#### ![zoomsplit](img/ZoomVideo/zoomsplit.png)
+#### ![zoomsplit](img/4200PrepareZoomBroadcasting/zoomsplit.png)
 
 #### Selection of the current athlete
 

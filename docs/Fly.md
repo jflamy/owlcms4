@@ -16,11 +16,11 @@ When running on fly.io, you get your own personal copy of OWLCMS and of all your
 
 The first step is to open the installation application at  https://owlcms-cloud.fly.dev . Use the login button to proceed.
 
-![10Home](nimg/1220FlyCloud/10Home.png)
+![10Home](img/Fly/10Home.png)
 
 You need a fly.io account to proceed.  If you don't have one, use the black button to create an account. You will need a credit card number, but as explained above, it will not be charged.  Once you have an account, enter your fly.io credentials and login.
 
-![20Login](nimg/1220FlyCloud/20Login.png)
+![20Login](img/Fly/20Login.png)
 
 The applications that will be created will belong to you.  The only thing the application does is type commands for you.  At any time, you can switch to using the fly commands directly and do what you want.
 

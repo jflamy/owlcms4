@@ -1,6 +1,6 @@
 Starting the displays is performed from the `Start Displays`  page.  Commonly used scoreboards are highlighted.
 
-![10](nimg/5100Displays/10.png)
+![10](img/Displays/10.png)
 
 Notes 
 
@@ -19,7 +19,7 @@ When a display is first started, a dialog comes up to control the the behavior.
 - There are warmup room displays that do not switch during medal ceremonies, and main room (public-oriented) displays that switch if the announcer uses the medal ceremony features.
 - Once the dialog is closed, it can be brought back by clicking anywhere in the window.
 
-![20](nimg/5100Displays/20.png)
+![20](img/Displays/20.png)
 
 ## Simple Scoreboard
 
@@ -27,7 +27,7 @@ A standard scoreboard showing the athletes in official order (per category, then
 
 Note that the top line shows the same information as the attempt board (including the down signal and decision lights). So in a smaller competition you may actually do away with a separate attempt board.
 
-![30](nimg/5100Displays/30.png)
+![30](img/Displays/30.png)
 
 ## Adjusting the font sizes and column widths
 
@@ -48,7 +48,7 @@ The leaderboard is for the currently lifting athlete's category at the bottom. T
 
 Rankings shown are those across all lifting groups, including those that have lifted earlier (in the image below, the athlete Williams has lifted 70, which currently puts him third, because the 70 from Scott in group M2 shown at the bottom was achieved earlier.)
 
-![40](nimg/5100Displays/40.png)
+![40](img/Displays/40.png)
 
 ## Lifting Order
 
@@ -56,7 +56,7 @@ In regional meets, some novice coaches may have difficulty tracking the the lift
 
 This shows the alternate "black letters on white background" setting.
 
-![50](nimg/5100Displays/50.png)
+![50](img/Displays/50.png)
 
 ## Attempt Board
 
@@ -70,25 +70,25 @@ When a lifter is announced, the attempt board shows all the information required
 - The loading chart for the requested weight
 - The time remaining
 
-![60](nimg/5100Displays/60.png)
+![60](img/Displays/60.png)
 
 When the clock is started, the time counts down.
 
-![61](nimg/5100Displays/61.png)
+![61](img/Displays/61.png)
 
 Refereeing devices can be connected directly to the attempt board (see [Refereeing](Refereeing)).  If that is the case, as soon as two referees have hit the same button, a down signal and a sound are emitted.  If the devices are not connected directly to the attempt board, the board will be informed by the server, and will emit the signal and sound as soon as it is told (usually, the delay is not perceptible at all).
 
-![62](nimg/5100Displays/62.png)
+![62](img/Displays/62.png)
 
 As soon as the down signal has been given, the system waits for the third decision to be given.  By rule, a 3-second delay is required before showing the decisions to the public (in case there is a decision reversal)
 
 After the 3 seconds, the decisions are shown.
 
-![63](nimg/5100Displays/63.png)
+![63](img/Displays/63.png)
 
 The display then automatically updates to the next lift in sequence.  If records have been loaded and the attempt is a record attempt, this is shown.
 
-![64](nimg/5100Displays/64.png)
+![64](img/Displays/64.png)
 
 ## Athlete-facing Decision Display
 
@@ -98,29 +98,29 @@ Refereeing devices are usually connected to the computer or laptop driving the a
 
 The exact same sequence takes place as for the Attempt Board: first there is the allowed time (1 or 2 minutes, or whatever time is left from a lifter change)
 
-![040_AF_Waiting](nimg/5100Displays/040_AF_Waiting.png)
+![040_AF_Waiting](img/Displays/040_AF_Waiting.png)
 
 Running time is shown:
 
-![042_AF_Running](nimg/5100Displays/042_AF_Running.png)
+![042_AF_Running](img/Displays/042_AF_Running.png)
 
 Down signal is shown, and sound is emitted.
 
-![044_AF_Down](nimg/5100Displays//044_AF_Down.png)
+![044_AF_Down](img/Displays/044_AF_Down.png)
 
 Three-second waiting period after all three decisions have been entered.
 
-![046_AF_LastRef](nimg/5100Displays//046_AF_LastRef.png)
+![046_AF_LastRef](img/Displays/046_AF_LastRef.png)
 
 Final decision.
 
-![048_AF_Decision](nimg/5100Displays//048_AF_Decision.png)
+![048_AF_Decision](img/Displays/048_AF_Decision.png)
 
 ## Top Teams Scoreboard
 
 Team competitions are supported by a Top Teams Scoreboard that show the teams in contention for a medal.  The full Teams results are available to the competition secretary (see [this page](ResultDocuments#team-results) for details).  Both pages consider points as computed when the athlete's group is done.  So in competitions where there are multiple groups for a single category the points shown are not definitive.
 
-![050_TeamScoreboard](nimg/5100Displays//050_TeamScoreboard.png)
+![050_TeamScoreboard](img/Displays/050_TeamScoreboard.png)
 
 ## Top Score and Top Team Score
 
@@ -128,8 +128,8 @@ Sinclair-based competitions are supported by two scoreboards.  The first one sho
 
 The score used is actually the Competition-wide best lifter score.
 
-![060_TopSinclair](nimg/5100Displays/060_TopSinclair.png)
+![060_TopSinclair](img/Displays/060_TopSinclair.png)
 
 The second display show the sum of the Sinclair scores for the team members.  The top 5 teams are shown.
 
-![061_TopTeamSinclair](nimg/5100Displays//061_TopTeamSinclair.png)
+![061_TopTeamSinclair](img/Displays/061_TopTeamSinclair.png)

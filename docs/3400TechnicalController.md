@@ -4,7 +4,7 @@ In school-age kids competitions, it is often the case that a non-standard bar is
 
 The Plates, Collar and Barbell screen is used to match what is on the platform.  Once `Apply` is clicked the attempt board(s) is updated with the proper graphics.
 
-![10](nimg/3400TechnicalController/10.png)
+![10](img/3400TechnicalController/10.png)
 
 ### Bumper Plates
 

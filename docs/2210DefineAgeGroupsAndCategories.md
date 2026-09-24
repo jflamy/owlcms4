@@ -21,7 +21,7 @@ IWF Competition Age Groups are predefined.  Just select the applicable age group
 
 If your championship has qualifying totals, you can edit the qualifying totals by going to the age group and clicking on the category. For example, lets define a qualifying total of 100 for Junior Men 55kg.  We click on the age group, then click on edit next to the category.
 
-![10](nimg/2210DefineAgeGroupsAndCategories/10.png)
+![10](img/2210DefineAgeGroupsAndCategories/10.png)
 
 We type the desired total and click "OK".  You can do the same with the other categories.
 
@@ -36,35 +36,35 @@ Let's assume that we want to change the default U13 group to be U12, and also mo
 
 We change the code, and the minumum and maximum age range.
 
-![20](nimg/2210DefineAgeGroupsAndCategories/20.png)
+![20](img/2210DefineAgeGroupsAndCategories/20.png)
 
-For the sake of our example, let's assume that the bottom category for U12 is 30kg, and so we add a category.![30](nimg/2210DefineAgeGroupsAndCategories/30.png)
+For the sake of our example, let's assume that the bottom category for U12 is 30kg, and so we add a category.![30](img/2210DefineAgeGroupsAndCategories/30.png)
 
 After pressing the green button, a 30kg category is added at the beginning.  
 
-![40](nimg/2210DefineAgeGroupsAndCategories/40.png)
+![40](img/2210DefineAgeGroupsAndCategories/40.png)
 
 Let's now assume we want the heaviest category to be >64kg.  We don't want a 71kg category anymore.  If we delete it, the system will automatically adjust the heaviest category.
 
-![50](nimg/2210DefineAgeGroupsAndCategories/50.png)
+![50](img/2210DefineAgeGroupsAndCategories/50.png)
 
-After Deletion, the categories are adjusted. The changes to the age group are only registered when you click on the blue "Update" button at the top of the form.![60](nimg/2210DefineAgeGroupsAndCategories/60.png)
+After Deletion, the categories are adjusted. The changes to the age group are only registered when you click on the blue "Update" button at the top of the form.![60](img/2210DefineAgeGroupsAndCategories/60.png)
 
 ### Reassigning the athletes
 
 After updating an age group with new categories, the program highlights the `Reassign Athletes` button at the top.  *Note that you will need to review team memberships after reassignment*.
 
-![70](nimg/2210DefineAgeGroupsAndCategories/70.png)
+![70](img/2210DefineAgeGroupsAndCategories/70.png)
 
 ## Adding an Age Group
 
 Let's assume we need U23 age groups (one for female, the other for male).  In order to add a group, we use the `+` icon at the top of the table.  Let's add the Female U23 group:
 
-![071_addAgegrou](nimg/2210DefineAgeGroupsAndCategories/071_addAgegrou.png)
+![071_addAgegrou](img/2210DefineAgeGroupsAndCategories/071_addAgegrou.png)
 
 We now fill in the information, and select Add.
 
-![072_addingU23](nimg/2210DefineAgeGroupsAndCategories/072_addingU23.png)
+![072_addingU23](img/2210DefineAgeGroupsAndCategories/072_addingU23.png)
 
 ## Notes for Masters Age Groups
 

@@ -18,7 +18,7 @@ The replays program will normally locate owlcms.  So the first thing to do is to
 
 The session has not been started yet, but owlcms is running.
 
-![owlcms](nimg/4100replays/owlcms.png)
+![owlcms](img/JuryReplays/owlcms.png)
 
 ***Jury Screen***
 
@@ -26,53 +26,53 @@ For simplicity, we assume that the `replays` program runs on the jury laptop.  B
 
 Once owlcms has started  we start the replays program.  If there is no address configured in the configuration file for owlcms, or if the address has changed, it will try to find owlcms -- it will show a "Scanning" message.  
 
-![scanning](nimg/4100replays/scanning.png)
+![scanning](img/JuryReplays/scanning.png)
 
 After scanning, it will show "Ready", and you can click on "Open replay list in the browser"
 
-![ready-open](nimg/4100replays/ready-open.png)
+![ready-open](img/JuryReplays/ready-open.png)
 
 Since we have not recorded anything at all, the web page that opens will be blank.  If you are running `replays` on a machine other than the jury because of your camera setup, you would use the URL shown at the top to open the page on the jury computer.
 
-![empty](nimg/4100replays/empty.png)
+![empty](img/JuryReplays/empty.png)
 
 ***Announcer Screen***
 
 The announcer or timekeeper will start the time normally.  They have nothing special to do.
 
-![timerunning](nimg/4100replays/timerunning.png)
+![timerunning](img/JuryReplays/timerunning.png)
 
 ***Jury Screen***
 
 The jury page will automatically switch to the current session and show that things are recording.  The recording page is just another tab in the browser.  You can pull it out to make a separate window if you wish. Or you can just leave the tab hidden until the jury needs to look at a replay.
 
-![recording](nimg/4100replays/recording.png)
+![recording](img/JuryReplays/recording.png)
 
 After the decision is made visible, the replay page will show that it is removing the dead time before the lift.
 
-![trimming](nimg/4100replays/trimming.png)
+![trimming](img/JuryReplays/trimming.png)
 
 And then the video is made available in the list.  Videos are grouped by session and shown in most recent order first.  The athlete, attempt and camera angle are clearly identified.
 
-![replaysList](nimg/4100replays/replaysList.png)
+![replaysList](img/JuryReplays/replaysList.png)
 
 To see a replay, one simply clicks on the video.  Whatever was in front of the camera during the time the clock ran is captured.  The video can be made full screen are looked again.  There is no slow-motion, but you can pause it.
 
-![watchreplay](nimg/4100replays/watchreplay.png)
+![watchreplay](img/JuryReplays/watchreplay.png)
 
 When the clock starts again, the recording/trimming/ready sequence starts again.
 
-![moreReplays](nimg/4100replays/moreReplays.png)
+![moreReplays](img/JuryReplays/moreReplays.png)
 
 ### Accessing the Videos
 
 You can access the video files by using the `File` menu.
 
-![openDirectory](nimg/4100replays/openDirectory.png)
+![openDirectory](img/JuryReplays/openDirectory.png)
 
 You will then see a folder called `videos` and inside, the videos for all the sessions are properly named.
 
-![videosFolder](nimg/4100replays/videosFolder.png)
+![videosFolder](img/JuryReplays/videosFolder.png)
 
 ### RaspberryPi: Configuration of the program
 
@@ -120,12 +120,12 @@ For our example, we will configure a camera called `Logitech Webcam C930e`
 
 - Find the `config.toml` file, that can be edited with Notepad
 
-- ![editToml](nimg/4100replays/editToml.png)
+- ![editToml](img/JuryReplays/editToml.png)
 
 - Then edit the cameras to have exactly the name as in the ffmpeg output.   Locate the `[windows]` section.
 
 
-![notepad](nimg/4100replays/notepad.png)
+![notepad](img/JuryReplays/notepad.png)
 
 If you have more than one camera,  add additional sections`[windows2]` `[windows3]`  etc.  Make sure that `enabled = true` for the cameras you use and `enabled = false` for those you don't.
 

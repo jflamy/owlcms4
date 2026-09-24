@@ -9,7 +9,7 @@ In a small club meet, the announcer will often do everything - announce, enter t
 More frequently, you have a meeting with multiple sessions, The following setup will allow you to comply with most requirements.  This adds a computer in the warmup area, and there is an attempt board on the platform.
 
 <table>
-<tr><td><img src='img/Gallery/ElSalvador.jpg'></img></td><td><img src='img/Gallery/ElSalvador_marshall.jpg'></img></td></tr></table>
+<tr><td><img src='img/EquipmentSetup/ElSalvador.jpg'></img></td><td><img src='img/EquipmentSetup/ElSalvador_marshall.jpg'></img></td></tr></table>
 The simplest setup does not use a marshal, and uses flags for decisions.  The announcer enters the changes and the decisions. 
 
 ![setup-local-club-minimal.drawio](img/EquipmentSetup/setup-local-club-minimal.drawio-4740776.svg)
@@ -30,7 +30,7 @@ The next level up is to have a Marshal. The warmup scoreboard is an "extended" d
 
 At the opposite end of the spectrum, a setup for a state competition using refereeing devices would provide all the requisite displays and technical official stations.  To keep costs down, TVs and projectors can be driven using less expensive devices such as Raspberry Pi, and you can also use HDMI splitters.
 
-![StateCompetition](img/equipment/StateCompetition.png)
+![StateCompetition](img/EquipmentSetup/StateCompetition.png)
 
 There are several building blocks to such a setup
 

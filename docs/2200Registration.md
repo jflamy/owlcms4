@@ -39,7 +39,7 @@ See below for explicit category assignments.
        BUT if there are overlapping age groups with different categories, it is better to enter the expected bodyweight. For example for a Youth expected to weigh 105, you can enter 105 in the bodyweight column and leave the category empty. The athlete will be correctly placed in the YTH >102 and JR 109 categories.
      - We recommend that you use the international `yyyy-MM-dd` format for dates (4-digit year, month, day) but the program should recognize correct Excel dates as well.
 
-   ![20](nimg/2200Registration/20a.png)
+   ![20](img/2200Registration/20a.png)
 
 2. The groups that you use on the "Athletes" tab **must** be defined on the second "Sessions" tab.  If you need new groups, go add them to the Sessions tab. An example of the Sessions tab is shown below.
 
@@ -48,7 +48,7 @@ See below for explicit category assignments.
 
    - You can leave the times alone and fix them later in the program.  But if you are entering them in the spreadsheet either use the format that Excel shows you (which may vary based on your Office and operating system settings) or (even better) use the international `yyyy-MM-dd hh:mm`  format (4-digit year, month, day, 24-hour hour, minutes).
 
-   ![30](nimg/2200Registration/30a.png)
+   ![30](img/2200Registration/30a.png)
 
 #### Initial Upload of the Completed Spreadsheet
 
@@ -118,14 +118,14 @@ Use this when only a subset of the registered athletes count for their club or c
 
 From the `Prepare Competition` page, clicking `Define Sessions` allows you to create or edit competition sessions.  You can use the `+ Add` button at the top of the list of sessions to create additional sessions.
 
-![15](nimg/2200Registration/15a.png)
+![15](img/2200Registration/15a.png)
 
 Clicking on a session or using the `Edit Details` button enables you to define the expected starting time. This will be used to order the sessions on the start list or schedule.
 
-![16](nimg/2200Registration/16a.png)
+![16](img/2200Registration/16a.png)
 
 The other tabs allow you to enter the officials and the jury.  These will be printed by default on the session protocol and jury sheets.
 
-![16](nimg/2200Registration/16b.png)
+![16](img/2200Registration/16b.png)
 
 ## 

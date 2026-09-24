@@ -1,12 +1,12 @@
 Weigh-ins take place for each group, so the buttons for the weigh-in officials is on the Lifting Group page.
 
-![010_Weighin](nimg/3000WeighIn/010_Weighin.png)
+![010_Weighin](img/3000WeighIn/010_Weighin.png)
 
 ## Selecting a Group and Athlete
 
 The first step is to select the group being weighed-in.  The athlete is selected by clicking ONCE in the list.
 
-![012_selectGroup](nimg/3000WeighIn/012_selectGroup.png)
+![012_selectGroup](img/3000WeighIn/012_selectGroup.png)
 
 ## Quick Mode
 
@@ -21,7 +21,7 @@ The normal sequence is
 3. Enter the Clean and Jerk declaration. Use the TAB key to get to the next field.  This will remove the warning if the values are valid
 4. Use ENTER or click on Update. If the values are still invalid you will remain on the page.
 
-![020_selectAthlete](nimg/3000WeighIn/020_selectAthlete.png)
+![020_selectAthlete](img/3000WeighIn/020_selectAthlete.png)
 
 Various validations are made by owlcms and errors are signaled. The most common situation is when the body weight is over the registration category.  The program will propose a correct category, if the qualifying total is met.  
 
@@ -31,13 +31,13 @@ Various validations are made by owlcms and errors are signaled. The most common 
 
 The Qualified Categories list is used to fine-tune where the athlete can get medals.  In some competitions, athletes may be eligible, but not have been registered in some categories (due to competition fees or other reasons#)
 
-![021_movingUp](nimg/3000WeighIn/021_movingUp.png)
+![021_movingUp](img/3000WeighIn/021_movingUp.png)
 
 
 
 ## Start Numbers
 
-Start numbers are used to ensure that lighter weight categories lift before heavier weight categories even if the same weight is requested.  Start numbers are normally assigned at the end of the weigh in.![030_StartNumbers](nimg/3000WeighIn/030_StartNumbers.png)
+Start numbers are used to ensure that lighter weight categories lift before heavier weight categories even if the same weight is requested.  Start numbers are normally assigned at the end of the weigh in.![030_StartNumbers](img/3000WeighIn/030_StartNumbers.png)
 
 ## Empty Protocol with Starting Weights
 
@@ -45,11 +45,11 @@ The starting weight sheet shows a printout with the start number and the request
 
 You should select the group prior to printing the starting weights sheet.
 
-![032_StartingWeights](nimg/3000WeighIn/032_StartingWeights.png)
+![032_StartingWeights](img/3000WeighIn/032_StartingWeights.png)
 
 Coaches can use this to count attempts.  In some federations, this is filled by a junior official to be used as a backup protocol sheet.
 
-![034_StartingWeights](nimg/3000WeighIn/034_StartingWeights.png)
+![034_StartingWeights](img/3000WeighIn/034_StartingWeights.png)
 
 ### Jury / Referee Examination Sheet
 

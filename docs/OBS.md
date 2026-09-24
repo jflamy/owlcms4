@@ -30,11 +30,11 @@ In order to show scoreboards. there are two options
 
 To select which mode you want, go to the system settings page, and then select "Customization"
 
-![010](nimg/4000OBS/010.png)
+![010](img/OBS/010.png)
 
 On the customization page, select `transparent` to get the "floating scoreboard" look, or "nogrid" to have the same black background as with the scoreboards used on-site.
 
-![020](nimg/4000OBS/020.png)
+![020](img/OBS/020.png)
 
 ## 3. Prepare the scoreboard view
 
@@ -42,70 +42,70 @@ On the customization page, select `transparent` to get the "floating scoreboard"
 
 2. Go to the Video Streaming section and start a simple scoreboard.
 
-   ![030](nimg/4000OBS/030.png)
+   ![030](img/OBS/030.png)
 
 3. When the scoreboard starts, open it full screen, or make the window as close as possible to 1920x1080 as possible (the easiest way is to temporarily set your screen resolution to 1920x1080 if you can).  Click on the window to bring up the menu and adjust the font size and team size to what you prefer
 
-   In the following example, the team width is set to 14 and the font size to 1.3![035](nimg/4000OBS/035a.png)
+   In the following example, the team width is set to 14 and the font size to 1.3![035](img/OBS/035a.png)
 
 4. Copy the URL
-   ![036](nimg/4000OBS/036.png)
+   ![036](img/OBS/036.png)
 
 ## 3. Define a Scene to Show the Scoreboard
 
 1. Let's create a scene that we will use when no athlete is lifting.  In the "Scenes" panel, use the +
 
-   ![040](nimg/4000OBS/040.png)
+   ![040](img/OBS/040.png)
 
 2. Add a browser source named "Scoreboard" -- OBS has a built-in version of the Chrome engine, so it just talks to owlcms like any other display device.
-   ![042](nimg/4000OBS/042.png)
+   ![042](img/OBS/042.png)
 
-   ![044](nimg/4000OBS/044.png)
+   ![044](img/OBS/044.png)
 
 3. Paste the URL, and set the resolution to 1920x1080.  You should then see the scoreboard.  The information displayed comes from the session description - if there is none, the session code is displayed.
 
-   ![046](nimg/4000OBS/046.png)
+   ![046](img/OBS/046.png)
 
-   ![048](nimg/4000OBS/048.png)
+   ![048](img/OBS/048.png)
 
-4. Now we go back to the Scene panel. We use the + button to define a new "Video Capture Device" for our camera.![50](nimg/4000OBS/50.png)
+4. Now we go back to the Scene panel. We use the + button to define a new "Video Capture Device" for our camera.![50](img/OBS/50.png)
 
-   We name our source "Camera"![52](nimg/4000OBS/52.png)
+   We name our source "Camera"![52](img/OBS/52.png)
 
    Normally the default parameters are ok
 
-   ![54](nimg/4000OBS/54.png)
+   ![54](img/OBS/54.png)
 
 5. We now extend the Camera source to the full size of the screen.  Use the corner handles, or use the Control-F shortcut on Windows.
-   ![56](nimg/4000OBS/56.png)
+   ![56](img/OBS/56.png)
 
 6. We reorder our sources by using the arrows at the bottom so the Camera is behind our floating scoreboard
-   ![56](nimg/4000OBS/58.png)
+   ![56](img/OBS/58.png)
 
 ## 4. Prepare a Current Athlete view
 
 The process used to create a scene for the athlete lifting with information at the bottom of the screen is similar.
 
 1. Back to the Video Streaming page, open the Current Athlete view
-   ![60](nimg/4000OBS/60.png)
+   ![60](img/OBS/60.png)
 
-2. Copy the URL.  The background of the display is transparent so we will be able to put the view anywhere we want and resize it![62](nimg/4000OBS/62.png)
+2. Copy the URL.  The background of the display is transparent so we will be able to put the view anywhere we want and resize it![62](img/OBS/62.png)
 
 3. Then we add, like earlier, our browser source with the URL we copied.  We define the resolution as 1920x1080
 
-   ![66](nimg/4000OBS/66.png)
+   ![66](img/OBS/66.png)
 
 4. The view appears and we drag it to the bottom.
-   ![68](nimg/4000OBS/68.png)
+   ![68](img/OBS/68.png)
 
 5. The we add the Camera source -- we reuse the same one that we already defined.
-   ![72](nimg/4000OBS/72.png)
+   ![72](img/OBS/72.png)
 
 6. And we move the camera behind, as before.
-   ![74](nimg/4000OBS/74.png)
+   ![74](img/OBS/74.png)
 
 7. Finally, we resize the bottom view to our liking
-   ![76](nimg/4000OBS/76.png)
+   ![76](img/OBS/76.png)
 
    
 
@@ -128,7 +128,7 @@ Select your new folder on the `Prepare Competition > Language and System Setting
 > Note that if you change the styles, the OBS cache may need to be emptied.  On Windows,the cache is located in `%appdata%\obs-studio\plugin_config\obs-browser\Cache` -- exit OBS and delete everything inside.
 >
 
-![09_transparent](img/OBSVideo/09_transparent.jpg)
+![09_transparent](img/OBS/09_transparent.jpg)
 
 
 

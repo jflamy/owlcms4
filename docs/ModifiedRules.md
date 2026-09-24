@@ -12,8 +12,8 @@ In order to activate these rules,
 
 1. Go to to the Competition Preparation page
 
-![100_prepareCompetition](img/Preparation/100_prepareCompetition.png)
+![100_prepareCompetition](img/ModifiedRules/100_prepareCompetition.png)
 
 2. Scroll to the bottom and select the checkmarks for the rules you want to activate.
 
-![110_alternateRules](img/Preparation/110_alternateRules.png)
+![110_alternateRules](img/ModifiedRules/110_alternateRules.png)

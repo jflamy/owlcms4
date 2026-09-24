@@ -4,17 +4,17 @@ In simple club meets, it is often the case that the speaker is also the timekeep
 
 The speaker is responsible for selecting the current session.  To get to the announcer screen, select "Run Lifting Session" in the menu, and click on "Announcer"
 
-![Slide_1](nimg/3100AnnouncingIntro/Slide_1.png)
+![Slide_1](img/3100AnnouncingIntro/Slide_1.png)
 
 At the top of the page, select the desired session.
 
-![Slide_2](nimg/3100AnnouncingIntro/Slide_2.png)
+![Slide_2](img/3100AnnouncingIntro/Slide_2.png)
 
 ### Start Lifting
 
 We will deal with the formal presentation and break timers in the [Breaks and Ceremonies](Breaks) section.  Let us assume that this is a simple club meet and that we want to start lifting after an informal presentation.
 
-![Slide_2a](nimg/3100AnnouncingIntro/Slide_2a.png)
+![Slide_2a](img/3100AnnouncingIntro/Slide_2a.png)
 
 ### Lifting Order
 
@@ -24,23 +24,23 @@ The screen shows the athletes in lifting order.  The color coding is as follows
 - The second line is the athlete that is preparing to lift, next in the lifting order.  Orange is used on scoreboards to show the athlete preparing.
 - You may also see a blue line.  This is the athlete that lifted just before.  If the top line is blue, it means that the athlete is lifting again in sequence.  If the second line is blue, it means that the preparing athlete lifted just before.  If another line is blue, that is the athlete that lifted last.  This is useful when an athlete finishes and you want to announce the total or a 6/6
 
-![Slide_3](nimg/3100AnnouncingIntro/Slide_3.png)
+![Slide_3](img/3100AnnouncingIntro/Slide_3.png)
 
 ### Declarations and Changes
 
 Clicking on the athlete brings up the athlete card.  
 
-![Slide_4](nimg/3100AnnouncingIntro/Slide_4.png)
+![Slide_4](img/3100AnnouncingIntro/Slide_4.png)
 
 The box where the current change needs to be entered is automatically selected.  You just need to type the number and hit ENTER.
 
-![Slide_6](nimg/3100AnnouncingIntro/Slide_6.png)
+![Slide_6](img/3100AnnouncingIntro/Slide_6.png)
 
 ### Notifications
 
 Notifications are shown to the speaker when the weight on the bar changes, and the lifting order is updated if needed.
 
-![Slide_7](nimg/3100AnnouncingIntro/Slide_7.png)
+![Slide_7](img/3100AnnouncingIntro/Slide_7.png)
 
 ### Announcing the Athlete
 
@@ -58,37 +58,37 @@ IMPORTANT: the clock should only be started after both the loaders have left and
 
 To start the clock, when working solo, you use the buttons at the top of the screen
 
-![Slide_8](nimg/3100AnnouncingIntro/Slide_8.png)
+![Slide_8](img/3100AnnouncingIntro/Slide_8.png)
 
 We assume that flags are being used, so we don't worry about the three squares on the left, these are the referee decisions when refereeing devices or phones are used.  The red button is used to stop the clock.   If the athlete puts down the bar before reaching the knees, you can restart it with the green button.
 
-![Slide_9](nimg/3100AnnouncingIntro/Slide_9.png)
+![Slide_9](img/3100AnnouncingIntro/Slide_9.png)
 
 > If the competition uses REFEREEING BUTTONS, you **DO NOT ENTER THE DECISIONS**.  They are processed automatically and you have nothing to do
 >
 > When flags are used, we have to tell the system if the lift was good or not.  This is done by clicking on the green checkmark if good, and on the red X if no lift.  Let us assume it was a good lift.
 
-![Slide_10](nimg/3100AnnouncingIntro/Slide_10.png)
+![Slide_10](img/3100AnnouncingIntro/Slide_10.png)
 
 The system confirms.  The speaker announces the good lift.
 
-![Slide_11](nimg/3100AnnouncingIntro/Slide_11.png)
+![Slide_11](img/3100AnnouncingIntro/Slide_11.png)
 
 ### Automatic Progression
 
 The system records the automatic progression and recomputes the lifting order.  In this example, the athlete is called again.  So the top line is blue, and the clock is set to two minutes.  All clock settings are done automatically.  Normally timekeeper only starts and stops the clock.  A reminder is visible because the bar needs to be loaded to a new weight.
 
-![Slide_12](nimg/3100AnnouncingIntro/Slide_12.png)
+![Slide_12](img/3100AnnouncingIntro/Slide_12.png)
 
 We now start the clock again, as before.
 
-![Slide_13](nimg/3100AnnouncingIntro/Slide_13.png)
+![Slide_13](img/3100AnnouncingIntro/Slide_13.png)
 
 ### Change of Athlete
 
 Assume we record a good lift for Brown. As before, automatic progression is applied and the lifting order is recalculated, and the clock is set to the correct value.  Jackson is shown at the top, in yellow.  Reminders are given for the change of weight and the change of athlete
 
-![Slide_14](nimg/3100AnnouncingIntro/Slide_14.png)
+![Slide_14](img/3100AnnouncingIntro/Slide_14.png)
 
 You would keep on doing this, starting and stopping the clock, entering changes, entering good and no lifts, until the end of the session.  The break after snatch is automatic.
 

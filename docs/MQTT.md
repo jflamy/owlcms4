@@ -35,7 +35,7 @@ If you have a wired network with no wifi you might be comfortable doing that, bu
 
 The simplest way of doing this is using the user interface.  The values you set in these fields are the values you will use from your MQTT device controllers.
 
-![](nimg/2120AdvancedSystemSettings/30.png)
+![](img/MQTT/30.png)
 
 > These fields were previously used to configure how owlcms connected to an external server such as Mosquitto or aedes.  *They no longer control the external server.*  If you need to connect to an external server, you will need to use the [Using an External MQTT Server](#using-an-external-mqtt-server) method described at the end of this page
 

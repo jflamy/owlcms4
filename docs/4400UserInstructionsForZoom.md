@@ -12,18 +12,18 @@ For users on a laptop, depending on the way the users interact with their Zoom a
 
 - Or, a small preview window.  The switch is done by using the icon at the top right of the preview window.
 
-  ![scoreboard+athlete](img/ZoomVideo/scoreboard+athlete.png)
+  ![scoreboard+athlete](img/4400UserInstructionsForZoom/scoreboard+athlete.png)
 
   In a real competition, the host would have selected an athlete and not a dummy background, obviously
 
-  ![athlete+scoreboard](img/ZoomVideo/athlete+scoreboard.png)
+  ![athlete+scoreboard](img/4400UserInstructionsForZoom/athlete+scoreboard.png)
 
 #### Phone/Tablet Users: switching between athlete view and scoreboard
 
 For users on a tablet or phone, the switch between the two views is simple: just touch the preview area.
 
-![score_zoom_ipad](img/ZoomVideo/score_zoom_ipad.PNG)
+![score_zoom_ipad](img/4400UserInstructionsForZoom/score_zoom_ipad.PNG)
 
 
 
-![ath_zoom_ipad](img/ZoomVideo/ath_zoom_ipad.PNG)
+![ath_zoom_ipad](img/4400UserInstructionsForZoom/ath_zoom_ipad.PNG)

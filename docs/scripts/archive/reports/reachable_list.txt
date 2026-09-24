@@ -20,6 +20,7 @@
 4300Zoom.md
 4400UserInstructionsForZoom.md
 5040AgeGroupDefinitions.md
+5100TechnicalOfficials.md
 Announcing.md
 Breaks.md
 Configuration.md
@@ -39,9 +40,8 @@ Keypads.md
 Licensing.md
 LocalControlPanel.md
 LocalDownloads.md
+LocalMacBrewSetup.md
 LocalMacSetup.md
-LocalMacSetupLegacy.md
-LocalManual.md
 LocalPiLinuxSetup.md
 LocalWindowsInstaller.md
 MQTT.md
@@ -60,6 +60,7 @@ Streaming.md
 Styles.md
 Support.md
 TemplateVariables.md
+TimerSounds.md
 Tracker.md
 Translation.md
 UploadingLocalSettings.md
