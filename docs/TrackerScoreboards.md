@@ -2,7 +2,7 @@
 
 It is possible to run an application in the cloud that will display the competition scoreboards live, such that anyone in the world can see them.  This includes people in the audience when it is not feasible to have a large main room scoreboard.
 
-The scoreboards are provided by the Tracker application, and the simplest way to get this done is to run tracker on the [fly.io](https://fly.io) cloud.  Running scoreboards for a meet will very likely be free, as it falls under the minimum amount for billing.
+The scoreboards are provided by the Tracker application, and the simplest way to get this done is to run tracker on the [fly.io](https://fly.io) cloud.  Running scoreboards for a meet will very likely be free, as it falls under the minimum amount for billing. Just remember to use **`Stop`** on the scoreboards after the competition is done.
 
 ### Cloud Setup
 
@@ -24,7 +24,7 @@ The application will then start and report it has started.  We then need to set 
 
 ### Connecting a local OWLMCS to the Scoreboards
 
-First, make sure you have the latest control panel installed (**version 3.8.0 or more recent**). You should get a warning if you are out of date. The warning includes a link to the download location for the current release. You can also check  https://github.com/owlcms/controlpanel/releases/latest directly.
+First, make sure you have the latest control panel installed (**version 3.8.0 or more recent**). You should get a warning if you are out of date. The warning includes a link to the download location for the current release. You can also check  https://github.com/owlcms/controlpanel/releases/latest directly.
 
 Start the control panel, and select the `Tracker Connection` option next to the release you are using to run the competition.
 
