@@ -91,13 +91,13 @@ function cleanup(mdFile, dryRun) {
   const mdName = path.basename(mdFile, ".md");
 
   const imgDir = path.join(mdDir, "img", mdName);
-  console.log(`Checking: ${path.relative(process.cwd(), imgDir) || imgDir}`);
+  const displayDir = path.relative(process.cwd(), imgDir) || imgDir;
   if (!fs.existsSync(imgDir)) {
     if (!dryRun) {
       fs.mkdirSync(imgDir, { recursive: true });
-      console.log("  Created managed image directory.");
+      console.log(`${displayDir}: created managed image directory.`);
     } else {
-      console.log("  No managed image directory.");
+      console.log(`${displayDir}: no managed image directory.`);
     }
     return;
   }
@@ -108,8 +108,8 @@ function cleanup(mdFile, dryRun) {
 
   const unused = allFiles.filter(f => !referenced.has(f));
 
-  if (unused.length === 0) {
-    console.log("  No unused managed images.");
+  if (unused.length > 0) {
+    console.log(`${displayDir}:`);
   }
 
   for (const f of unused) {
