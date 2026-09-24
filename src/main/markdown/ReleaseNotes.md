@@ -10,6 +10,8 @@
 
 **Maintenance Log**
 
+- 67.5.6: Ensure that version 68 imports can be read back
+
 - 67.5.5: Introduction sheets now calculate the clean and jerk break duration using only athletes who have weighed in.
 
 - 67.5.5: IMWA: an athlete whose total is below the category qualifying total no longer receives a medal (medal ceremony board and Medals sheet), but keeps their rank and team points; the athlete is no longer marked out of competition.
