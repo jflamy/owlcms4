@@ -23,6 +23,7 @@ import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.JuryDeliberationEventType;
+import app.owlcms.uievents.JuryRejectionReasons;
 import app.owlcms.uievents.UIEvent;
 
 /**
@@ -116,7 +117,15 @@ public class JuryDecisionDialog extends Dialog {
 	} else if (juryDecision == JuryDeliberationEventType.BAD_LIFT) {
 		juryDecisionDisplay = "<div style='color: red; font-size: xx-large; font-weight: bold; text-align: center; margin: 0.5em 0;'>" 
 			+ Translator.translate("JuryDialog.BadLiftLabel").toUpperCase() + " " + reversalText + "</div>";
-		explanationText = Translator.translate("Announcer.DisplayDecisionAndAnnounce");
+		String reason = JuryRejectionReasons.label(e.getReasonCode());
+		if (reason == null) {
+			reason = Translator.translate("Announcer.JuryDecisionExplanation");
+			explanationText = "";
+		} else {
+			explanationText = Translator.translate("Announcer.DisplayDecisionAndAnnounce");
+		}
+		juryDecisionDisplay += "<div style='color: red; font-size: xx-large; font-weight: bold; text-align: center; margin: 0.5em 0;'>"
+			+ reason + "</div>";
 	} else {
 		// Show waiting status when jury is deliberating
 		waitingStatus = "<div style='color: #666; font-size: x-large; font-style: italic; text-align: center; margin: 0.5em 0;'>" 

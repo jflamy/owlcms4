@@ -102,6 +102,7 @@ import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
+import app.owlcms.uievents.JuryRejectionReasons;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.DelayTimer;
 import app.owlcms.utils.IdUtils;
@@ -1023,6 +1024,10 @@ public abstract class AthleteGridContent extends BaseContent
 					previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
 					text = Translator.translate("JuryNotification.BadLift", reversalText, e.getAthlete().getFullName(),
 					        previousAttemptNo % 3 + 1);
+					String reason = JuryRejectionReasons.label(e.getReasonCode());
+					if (reason != null) {
+						text = text + " \u2014 " + reason;
+					}
 					style = "primary error";
 					break;
 				case CALL_TECHNICAL_CONTROLLER:

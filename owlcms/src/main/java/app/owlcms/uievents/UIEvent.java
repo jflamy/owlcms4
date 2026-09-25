@@ -664,6 +664,7 @@ public class UIEvent {
 		private Boolean reversal;
 		private boolean waitForAnnouncer = false;
 		private Integer actualLift;
+		private Integer reasonCode;
 
 		public JuryNotification(Athlete athleteUnderReview, Object origin,
 		        JuryDeliberationEventType deliberationEventType, Boolean reversal, Boolean newRecord,
@@ -697,6 +698,15 @@ public class UIEvent {
 
 		public Integer getActualLift() {
 			return this.actualLift;
+		}
+
+		/** @return the jury's No Lift reason code, null if none was given */
+		public Integer getReasonCode() {
+			return this.reasonCode;
+		}
+
+		public void setReasonCode(Integer reasonCode) {
+			this.reasonCode = reasonCode;
 		}
 
 		/**

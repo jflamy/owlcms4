@@ -26,8 +26,10 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.theme.lumo.Lumo;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
@@ -45,14 +47,15 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.apputils.queryparameters.FOPParametersReader;
-import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
+import app.owlcms.components.elements.PassiveTimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.fieldofplay.InputKind;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -62,6 +65,7 @@ import app.owlcms.nui.shared.AuthorizationDispatch;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
+import app.owlcms.uievents.JuryRejectionReasons;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -93,7 +97,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	private Div reviewHeader;
 	private Div reviewStartNumber;
 	private Div reviewName;
-	private AthleteTimerElement reviewTimer;
+	private PassiveTimerElement reviewTimer;
 	private Div reviewTimerFrozen;
 	private Button noLiftButton;
 	private Button goodLiftButton;
@@ -215,6 +219,39 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			updateJuryDecisionActions(getFop());
 			clearReviewHeader();
 			updateReviewHeader(e.getFop());
+			if (this.reviewTimer != null) {
+				this.reviewTimer.start(e.getTimeRemaining(), e.getStart());
+			}
+		});
+	}
+
+	@Subscribe
+	public void slaveStopTimer(UIEvent.StopTime e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			if (this.reviewTimer != null) {
+				this.reviewTimer.pause(e.getTimeRemaining());
+			}
+		});
+	}
+
+	@Subscribe
+	public void slaveSetTimer(UIEvent.SetTime e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			if (this.reviewTimer != null) {
+				this.reviewTimer.display(e.getTimeRemaining());
+			}
+		});
+	}
+
+	@Subscribe
+	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+		if (!e.isTimerStateValid()) {
+			return;
+		}
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			if (this.reviewTimer != null) {
+				this.reviewTimer.applyState(e.isTimerShouldRun(), e.getTimerMillisRemaining());
+			}
 		});
 	}
 
@@ -503,9 +540,9 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		}
 
 		// --- Row 8: Action buttons ---
-		this.noLiftButton = createKeypadButton(Translator.translate("JuryDialog.BadLiftLabel"), "error primary", () -> submitJuryDecision(false));
+		this.noLiftButton = createKeypadButton(Translator.translate("JuryDialog.BadLiftLabel"), "error primary", this::openNoLiftReasonDialog);
 		this.noLiftButton.getStyle().set("grid-column", "3").set("grid-row", "8");
-		this.goodLiftButton = createKeypadButton(Translator.translate("JuryDialog.GoodLiftLabel"), "success primary", () -> submitJuryDecision(true));
+		this.goodLiftButton = createKeypadButton(Translator.translate("JuryDialog.GoodLiftLabel"), "success primary", () -> submitJuryDecision(true, null));
 		this.goodLiftButton.getStyle().set("grid-column", "4").set("grid-row", "8");
 		Button deliberate = createKeypadButton(Translator.translate("BreakButton.JuryDeliberation"), "primary contrast", this::startDeliberation);
 		deliberate.getStyle().set("grid-column", "1").set("grid-row", "8")
@@ -791,8 +828,13 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		        .set("font-size", "1.9rem")
 		        .set("color", "aqua");
 
-		this.reviewTimer = new AthleteTimerElement(this);
-		this.reviewTimer.setSilenced(true);
+		this.reviewTimer = new PassiveTimerElement();
+		this.reviewTimer.setWarningThresholds(
+		        Competition.athleteTimerInitialWarning / 1000.0D,
+		        Competition.athleteTimerFinalWarning / 1000.0D);
+		this.reviewTimer.setSilent(true);
+		// timer commands sent before attach can be missed by the client
+		this.reviewTimer.addAttachListener(e -> syncReviewTimer(getFop()));
 		this.reviewTimer.getStyle()
 		        .set("min-width", "5rem")
 		        .set("font-size", "1.9rem")
@@ -854,9 +896,15 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		if (fop == null || this.reviewTimer == null) {
 			return;
 		}
-		this.reviewTimer.setFop(fop);
-		uiEventBusRegister(this.reviewTimer, fop);
-		this.reviewTimer.syncWithFop(fop);
+		IProxyTimer athleteTimer = fop.getAthleteTimer();
+		if (athleteTimer == null) {
+			return;
+		}
+		if (athleteTimer.isRunning()) {
+			this.reviewTimer.start(athleteTimer.liveTimeRemaining(), System.currentTimeMillis());
+		} else {
+			this.reviewTimer.display(athleteTimer.getTimeRemaining());
+		}
 	}
 
 	private void updateReviewHeader(FieldOfPlay fop) {
@@ -948,13 +996,70 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		        && fop.getAthleteUnderReview() != null;
 	}
 
-	private void submitJuryDecision(boolean success) {
+	private void submitJuryDecision(boolean success, Integer reasonCode) {
 		OwlcmsSession.withFop(fop -> {
 			if (!isJuryDecisionActive(fop)) {
 				return;
 			}
-			fop.fopEventPost(new FOPEvent.JuryDecision(fop.getAthleteUnderReview(), this, success, true));
+			fop.fopEventPost(new FOPEvent.JuryDecision(fop.getAthleteUnderReview(), this, success, true, reasonCode));
 		});
+	}
+
+	private void openNoLiftReasonDialog() {
+		if (!isJuryDecisionActive(getFop())) {
+			return;
+		}
+		Dialog dialog = new Dialog();
+		dialog.getElement().getThemeList().add(Lumo.DARK);
+		dialog.setHeaderTitle(Translator.translate("JuryDialog.BadLiftLabel"));
+		dialog.setWidth("95vw");
+
+		Div reasons = new Div();
+		// columns fill top to bottom; at most 3 of at least 17rem, so 3 columns from 1024px-wide tablets up
+		reasons.getStyle()
+		        .set("columns", "3 17rem")
+		        .set("column-gap", "var(--lumo-space-l)");
+		for (Integer reasonCode : JuryRejectionReasons.REASONS.keySet()) {
+			Button reasonButton = new Button();
+			reasonButton.addClickListener(e -> {
+				dialog.close();
+				submitJuryDecision(false, reasonCode);
+			});
+			// number in a fixed-width column so wrapped lines hang under the reason text
+			Span number = new Span(reasonCode + " -");
+			number.getStyle()
+			        .set("flex", "none")
+			        .set("min-width", "2.2em")
+			        .set("text-align", "right");
+			Span reasonText = new Span(Translator.translate(JuryRejectionReasons.REASONS.get(reasonCode)));
+			Div reasonLabel = new Div(number, reasonText);
+			reasonLabel.getStyle()
+			        .set("display", "flex")
+			        .set("gap", "0.4em")
+			        .set("align-items", "baseline");
+			reasonButton.getElement().appendChild(reasonLabel.getElement());
+			reasonButton.setAriaLabel(JuryRejectionReasons.label(reasonCode));
+			reasonButton.addClassName("jury-reason-button");
+			reasonButton.getStyle()
+			        .set("display", "flex")
+			        .set("width", "100%")
+			        .set("margin", "0 0 var(--lumo-space-m) 0")
+			        .set("break-inside", "avoid")
+			        .set("height", "auto")
+			        .set("min-height", "3.25rem")
+			        .set("white-space", "normal")
+			        .set("justify-content", "flex-start")
+			        .set("text-align", "left")
+			        .set("color", "white")
+			        .set("--vaadin-button-text-color", "white")
+			        .set("font-size", "var(--lumo-font-size-l)");
+			reasons.add(reasonButton);
+		}
+		dialog.add(reasons);
+
+		Button cancel = new Button(Translator.translate("Cancel"), e -> dialog.close());
+		dialog.getFooter().add(cancel);
+		dialog.open();
 	}
 
 	private void updateJuryDecisionActions(FieldOfPlay fop) {

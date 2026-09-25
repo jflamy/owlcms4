@@ -853,6 +853,13 @@ public class FieldOfPlay implements IUnregister {
 				// group was not under way when break started, full start.
 				transitionToLifting(e, getGroup(), true);
 				return;
+			} else if (this.state == CURRENT_ATHLETE_DISPLAYED && getGroup() != null) {
+				// already lifting: resend so displays that missed the end of the break resync
+				this.logger.info("{}StartLifting while already lifting, resyncing displays",
+						FieldOfPlay.getLoggingName(this));
+				pushOutStartLifting(getGroup(), e.getOrigin());
+				uiDisplayCurrentAthleteAndTime(true, e, false);
+				return;
 			} else if (getGroup() != null) {
 				transitionToLifting(e, getGroup(), true);
 				return;
@@ -2138,6 +2145,7 @@ public class FieldOfPlay implements IUnregister {
 					e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
 					reversalToGood || reversalToBad, newRecord,
 					waitForAnnouncer, this, (e.success ? 1 : -1) * Math.abs(actualLift));
+			juryNotificationEvent.setReasonCode(e.getReasonCode());
 
 			if (waitForAnnouncer) {
 				// we will get a second JuryDecision event, coming this time from the announcer
@@ -2156,6 +2164,8 @@ public class FieldOfPlay implements IUnregister {
 				// processed.
 				e = this.toBeAnnouncedJuryDecision;
 				this.toBeAnnouncedJuryDecision = null;
+				// the reason came with the jury's stored decision, not the announcer's confirmation
+				juryNotificationEvent.setReasonCode(e.getReasonCode());
 			} else {
 				// we are in immediate mode. e is the jury decision to be processed.
 				// nothing to do.

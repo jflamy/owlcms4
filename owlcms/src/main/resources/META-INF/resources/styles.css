@@ -180,6 +180,17 @@ vaadin-button.jury-keypad-button::part(label) {
     line-height: 1.1;
 }
 
+/* jury No Lift reasons: wrap long reasons instead of truncating them */
+vaadin-button.jury-reason-button::part(label) {
+    display: block;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+    text-align: left;
+    line-height: 1.2;
+}
+
 vaadin-dialog-overlay[theme~="jury-notification-dialog"] {
     width: 84vw;
     max-width: 70rem;
