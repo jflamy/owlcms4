@@ -88,6 +88,7 @@ public class CompetitionData {
 		// Restore the lenient behavior so null primitive fields (e.g. ranks) map to their default value.
 		return JsonMapper.builder()
 		        .configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false)
+		        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 		        .build();
 	}
 
