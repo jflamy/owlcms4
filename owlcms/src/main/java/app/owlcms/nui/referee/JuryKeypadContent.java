@@ -24,6 +24,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.theme.lumo.Lumo;
 import com.vaadin.flow.component.html.Div;
@@ -48,6 +49,7 @@ import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -225,18 +227,20 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		return fopSelect;
 	}
 
-	/** 0 / 3 / 5 jury member selection; rebuilds the keypad when changed. */
-	private ComboBox<Integer> createJurySizeSelect() {
-		ComboBox<Integer> jurySizeSelect = new ComboBox<>();
+	/** Default / 0 / 3 / 5 jury member selection; rebuilds the keypad when changed. */
+	private Select<Integer> createJurySizeSelect() {
+		Select<Integer> jurySizeSelect = new Select<>();
 		jurySizeSelect.setItems(0, 3, 5);
+		jurySizeSelect.setEmptySelectionAllowed(true);
+		jurySizeSelect.setEmptySelectionCaption(
+		        Translator.translate("Competition") + " (" + Competition.getCurrent().getJurySize() + ")");
 		jurySizeSelect.setAriaLabel(Translator.translate("Jury"));
-		jurySizeSelect.setWidth("5rem");
-		int nbJurors = getNbJurors();
-		if (nbJurors == 0 || nbJurors == 3 || nbJurors == 5) {
-			jurySizeSelect.setValue(nbJurors);
-		}
+		jurySizeSelect.setWidth("12rem");
+		FieldOfPlay currentFop = getFop();
+		Platform platform = currentFop != null ? currentFop.getPlatform() : null;
+		jurySizeSelect.setValue(platform != null ? platform.getJurySize() : null);
 		jurySizeSelect.addValueChangeListener((e) -> {
-			if (e.getValue() == null || !e.isFromClient()) {
+			if (!e.isFromClient()) {
 				return;
 			}
 			FieldOfPlay fop = getFop();

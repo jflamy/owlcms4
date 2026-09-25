@@ -88,7 +88,8 @@ public class JuryNavigationContent extends BaseNavigationContent implements HasD
 		FieldOfPlay fop = platformSelected ? getFop() : null;
 		ComboBox<FieldOfPlay> fopSelector = createFopSelector(fop);
 		Div juryMemberActions = new Div();
-		juryMemberActions.addClassNames("referee-jury-home-actions", "referee-jury-home-referees");
+		juryMemberActions.addClassNames("referee-jury-home-actions", "referee-jury-home-referees",
+		        "referee-jury-home-jury");
 		Div juryPresidentActions = new Div();
 		juryPresidentActions.addClassNames("referee-jury-home-actions", "referee-jury-home-single-action",
 		        "referee-jury-home-president");
@@ -101,7 +102,7 @@ public class JuryNavigationContent extends BaseNavigationContent implements HasD
 				juryMemberButton.setEnabled(platformSelected);
 				juryMemberActions.add(juryMemberButton);
 			}
-			Button juryPresidentButton = createActionButton("JuryPresident", VaadinIcon.KEYBOARD,
+			Button juryPresidentButton = createActionButton("Jury_Keypad", VaadinIcon.KEYBOARD,
 			        () -> navigateTo(JuryKeypadContent.class));
 			juryPresidentButton.setEnabled(platformSelected);
 			juryPresidentActions.add(juryPresidentButton);

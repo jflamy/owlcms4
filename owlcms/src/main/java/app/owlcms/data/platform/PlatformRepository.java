@@ -363,6 +363,16 @@ public class PlatformRepository {
 		return synchronizeFop(saved, false);
 	}
 
+	public static void saveJurySize(Platform platform) {
+		JPAService.runInTransaction(em -> {
+			Platform managed = em.find(Platform.class, platform.getId());
+			if (managed != null) {
+				managed.setJurySize(platform.getJurySize());
+			}
+			return null;
+		});
+	}
+
 	public static Platform saveName(Platform platform) {
 		return JPAService.runInTransaction(em -> {
 			Platform managed = em.find(Platform.class, platform.getId());

@@ -30,6 +30,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import com.vaadin.flow.server.VaadinSession;
 
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
@@ -172,6 +173,9 @@ public class Platform implements Serializable, Comparable<Platform> {
 	private Boolean useNonStandardBar = false;
 	@Column(columnDefinition = "integer default 30")
 	private Integer collarThreshold = 30;
+	/** null means use the competition default. */
+	@Column(nullable = true)
+	private Integer jurySize;
 
 	/**
 	 * UI settings for different roles (announcer, marshall, jury, etc.) stored as JSON.
@@ -313,6 +317,15 @@ public class Platform implements Serializable, Comparable<Platform> {
 
 	public Integer getCollarThreshold() {
 		return this.collarThreshold;
+	}
+
+	public Integer getJurySize() {
+		return this.jurySize;
+	}
+
+	@JsonIgnore
+	public int getEffectiveJurySize() {
+		return this.jurySize != null ? this.jurySize : Competition.getCurrent().getJurySize();
 	}
 
 	/**
@@ -665,6 +678,10 @@ public class Platform implements Serializable, Comparable<Platform> {
 
 	public void setCollarThreshold(Integer collarThreshold) {
 		this.collarThreshold = collarThreshold;
+	}
+
+	public void setJurySize(Integer jurySize) {
+		this.jurySize = jurySize != null && (jurySize == 0 || jurySize == 3 || jurySize == 5) ? jurySize : null;
 	}
 
 	/**

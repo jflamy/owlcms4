@@ -117,7 +117,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		super.setParameter(event, parameter);
-		setNbJurors(getFop().getJurySize());
+		rebuildJury();
 	}
 
 	/**
@@ -331,6 +331,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 				        this.timer.setSilenced(this.isSilenced());
 			        }
 		        });
+			subMenu2.addItem(Translator.translate("Competition") + " (" + Competition.getCurrent().getJurySize() + ")", (e) -> {
+				this.setNbJurors(null);
+			});
 			subMenu2.addItem("0", (e) -> {
 				this.setNbJurors(0);
 			});
@@ -363,18 +366,11 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 	@Override
 	protected void init() {
-		init(getNbJurors());
-	}
-
-	protected void init(int nbj) {
 		// logger.trace("init {}", LoggerUtils.whereFrom());
 		this.summonEnabled = true; // works with phones/tablets
 		this.registrations = new ArrayList<>();
 		this.setBoxSizing(BoxSizing.BORDER_BOX);
 		this.setSizeFull();
-		if (getFop() != null) {
-			getFop().setJurySize(nbj);
-		}
 		buildJuryBox(this);
 		buildRefereeBox(this);
 	}
@@ -783,12 +779,16 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		this.athleteUnderReview = athleteUnderReview;
 	}
 
-	private void setNbJurors(int nbJurors) {
-		this.removeAll();
+	private void setNbJurors(Integer nbJurors) {
 		if (getFop() != null) {
 			getFop().setJurySize(nbJurors);
 		}
-		init(nbJurors);
+		rebuildJury();
+	}
+
+	private void rebuildJury() {
+		this.removeAll();
+		init();
 	}
 
 	private void summonReferee(int i) {

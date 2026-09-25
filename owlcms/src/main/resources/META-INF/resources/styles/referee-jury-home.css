@@ -49,6 +49,11 @@
     grid-template-columns: minmax(10rem, 1fr);
 }
 
+/* narrower minimum so a five-member jury fits on one row within the 48rem page */
+.referee-jury-home-jury {
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+}
+
 .referee-jury-home-timekeeper {
     margin-top: 3rem;
 }

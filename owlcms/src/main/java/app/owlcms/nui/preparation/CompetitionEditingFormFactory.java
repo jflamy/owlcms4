@@ -55,7 +55,10 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
 import app.owlcms.utils.URLUtils;
@@ -89,6 +92,7 @@ public class CompetitionEditingFormFactory
 	private RadioButtonGroup<StartNumberOrder> startNumberOrderField;
 	private ChampionshipDetailsForm championshipDefaultsEditor;
 	private TabSheet tabSheet;
+	private boolean jurySizeChanged;
 
 	private enum StartNumberOrder {
 		BY_BODY_WEIGHT_CATEGORY,
@@ -270,6 +274,15 @@ public class CompetitionEditingFormFactory
 		applyStartNumberOrder(competition);
 		Competition saved = CompetitionRepository.save(competition);
 		saveStartNumberOrderConfiguration();
+		if (this.jurySizeChanged) {
+			for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
+				MQTTMonitor mqttMonitor = fop.getMqttMonitor();
+				if (fop.getPlatform() != null && fop.getPlatform().getJurySize() == null && mqttMonitor != null) {
+					mqttMonitor.publishMqttConfig();
+				}
+			}
+			this.jurySizeChanged = false;
+		}
 		// Capture the target tab now and defer the navigation to the very end of the
 		// round-trip so it runs AFTER the CRUD grid callback, restoring the selected tab.
 		UI ui = UI.getCurrent();
@@ -667,6 +680,11 @@ public class CompetitionEditingFormFactory
 		        Translator.translate("Competition.jurySize"));
 		this.binder.forField(jurySizeField)
 		        .bind(Competition::getJurySize, Competition::setJurySize);
+		jurySizeField.addValueChangeListener(e -> {
+			if (e.isFromClient()) {
+				this.jurySizeChanged = true;
+			}
+		});
 
 		Checkbox announcerControlledJuryField = new Checkbox();
 		layout.addFormItem(announcerControlledJuryField, Translator.translate("Competition.announcerControlledJury"));

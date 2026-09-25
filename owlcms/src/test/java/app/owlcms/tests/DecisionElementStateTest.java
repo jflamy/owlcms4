@@ -32,6 +32,7 @@ import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -527,6 +528,8 @@ public class DecisionElementStateTest {
                 DECISION_VISIBLE_DURATION_MS, DECISION_INPUT_IGNORE_WINDOW_MS, RECORD_NOTIFICATION_DELAY_MS);
         OwlcmsSession.setFop(fopState);
         prepLiftingState(fopState);
+        // jury size is stored on the platform; this one is never persisted
+        fopState.setPlatform(new Platform());
         fopState.setJurySize(0);
         fopState.setTestingMode(false);
 

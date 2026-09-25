@@ -72,6 +72,7 @@ import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.data.records.RecordConfig;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordFilter;
@@ -248,7 +249,6 @@ public class FieldOfPlay implements IUnregister {
 	private List<RecordEvent> lastNewRecords;
 	private Boolean[] juryMemberDecision;
 	private Integer[] juryMemberTime;
-	private Integer jurySize;
 	private Athlete athleteUnderReview;
 	Map<Athlete, List<RecordEvent>> displayableRecordsByAthlete = new HashMap<>();
 	Map<Athlete, List<RecordEvent>> eligibleRecordsByAthlete = new HashMap<>();
@@ -1341,16 +1341,18 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public int getJurySize() {
-		if (this.jurySize == null) {
-			return Competition.getCurrent().getJurySize();
-		}
-		return this.jurySize;
+		Platform p = getPlatform();
+		return p != null ? p.getEffectiveJurySize() : Competition.getCurrent().getJurySize();
 	}
 
+	/** @param jurySize 0, 3 or 5; null to use the competition default */
 	public void setJurySize(Integer jurySize) {
-		this.jurySize = jurySize != null && (jurySize == 0 || jurySize == 3 || jurySize == 5)
-		        ? jurySize
-		        : Competition.getCurrent().getJurySize();
+		Platform p = getPlatform();
+		if (p == null) {
+			return;
+		}
+		p.setJurySize(jurySize);
+		PlatformRepository.saveJurySize(p);
 		MQTTMonitor mqttMonitor = getMqttMonitor();
 		if (mqttMonitor != null) {
 			mqttMonitor.publishMqttConfig();
@@ -1368,7 +1370,6 @@ public class FieldOfPlay implements IUnregister {
 		String thisGroupName = this.getGroup() != null ? this.getGroup().getName() : null;
 		String loadGroupName = group != null ? group.getName() : null;
 
-		refreshJurySizeFromCompetition();
 		boolean alreadyLoaded = thisGroupName == loadGroupName;
 		this.setPrevWeight(0);
 		if (loadGroupName != null && alreadyLoaded && !forceLoad) {
@@ -1433,10 +1434,6 @@ public class FieldOfPlay implements IUnregister {
 			this.logger.info("{}null group", FieldOfPlay.getLoggingName(this));
 			init(new ArrayList<>(), this.athleteTimer, this.breakTimer, alreadyLoaded);
 		}
-	}
-
-	private void refreshJurySizeFromCompetition() {
-		this.jurySize = Competition.getCurrent().getJurySize();
 	}
 
 	private final AtomicLong uiEventSequence = new AtomicLong(0);
