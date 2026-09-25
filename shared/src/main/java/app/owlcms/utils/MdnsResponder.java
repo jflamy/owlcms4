@@ -35,14 +35,19 @@ public class MdnsResponder {
 	private static final String SERVICE_TYPE = "_owlcms._tcp.local.";
 	private static final String NATIVE_SERVICE_TYPE = "_owlcms._tcp";
 	private static final long VERIFICATION_DELAY_MILLIS = 3000;
+	private static final int MAX_NATIVE_NAME_COLLISIONS = 10;
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(MdnsResponder.class);
 	private static final List<JmDNS> instances = new ArrayList<>();
 	private static Process nativeResponder;
 	private static volatile String registeredHostName;
 
+	private enum NativeRegistration {
+		REGISTERED, CONFLICT, FAILED
+	}
+
 	/**
-	 * @return the name actually registered (e.g. "owlcms.local"), or null if not announcing. JmDNS renames on
-	 *         collision, so this is not necessarily derived from the requested name.
+	 * @return the name actually registered (e.g. "owlcms.local"), or null if not announcing. The name is renamed on
+	 *         collision (e.g. "owlcms-2.local"), so this is not necessarily the requested name.
 	 */
 	public static String getRegisteredHostName() {
 		return registeredHostName;
@@ -89,8 +94,7 @@ public class MdnsResponder {
 			}
 			InetAddress address = candidate.address();
 			if (IPInterfaceUtils.isMacOs()) {
-				announceWithNativeResponder(requestedName, port, candidate, announcedAddresses);
-				verifyAnnouncements(announcedAddresses);
+				announceWithNativeResponder(requestedName, port, candidate);
 				return;
 			}
 			try {
@@ -111,28 +115,77 @@ public class MdnsResponder {
 		}
 	}
 
-	private static void announceWithNativeResponder(String requestedName, int port, IfaceAddress candidate,
-	        Map<String, List<InetAddress>> announcedAddresses) throws IOException {
+	private static void announceWithNativeResponder(String requestedName, int port, IfaceAddress candidate)
+	        throws IOException {
 		InetAddress address = candidate.address();
-		String hostName = requestedName + ".local";
-		Process process = new ProcessBuilder("/usr/bin/dns-sd", "-P", requestedName, NATIVE_SERVICE_TYPE, "local.",
-		        Integer.toString(port), hostName + ".", address.getHostAddress())
-		        .redirectErrorStream(true)
-		        .start();
-		synchronized (instances) {
-			nativeResponder = process;
+		for (int attempt = 1; attempt <= MAX_NATIVE_NAME_COLLISIONS; attempt++) {
+			// same suffix scheme as JmDNS: owlcms, owlcms-2, owlcms-3...
+			String name = attempt == 1 ? requestedName : requestedName + "-" + attempt;
+			String hostName = name + ".local";
+			Process process = new ProcessBuilder("/usr/bin/dns-sd", "-P", name, NATIVE_SERVICE_TYPE, "local.",
+			        Integer.toString(port), hostName + ".", address.getHostAddress())
+			        .redirectErrorStream(true)
+			        .start();
+			synchronized (instances) {
+				nativeResponder = process;
+			}
+			BufferedReader reader = process.inputReader();
+			NativeRegistration result = awaitNativeRegistration(reader, hostName);
+			if (result == NativeRegistration.REGISTERED) {
+				// mDNSResponder also serves local lookups, and a single lookup can transiently miss
+				synchronized (instances) {
+					if (nativeResponder != process) {
+						return;
+					}
+					registeredHostName = hostName;
+				}
+				logger.info("announcing {} on {} ({}) using macOS mDNSResponder", hostName, address.getHostAddress(),
+				        candidate.iface().getName());
+				Thread outputReader = new Thread(() -> monitorNativeResponder(process, reader),
+				        "mdns-native-responder");
+				outputReader.setDaemon(true);
+				outputReader.start();
+				return;
+			}
+			synchronized (instances) {
+				if (nativeResponder != process) {
+					// stop() was called while probing
+					return;
+				}
+				nativeResponder = null;
+			}
+			process.destroy();
+			reader.close();
+			if (result != NativeRegistration.CONFLICT) {
+				logger./**/warn("could not announce {}: macOS mDNS responder exited", hostName);
+				return;
+			}
+			logger.info("{} is already in use on the network, trying another name", hostName);
 		}
-		announcedAddresses.computeIfAbsent(hostName, ignored -> new ArrayList<>()).add(address);
-		logger.info("announcing {} on {} ({}) using macOS mDNSResponder", hostName, address.getHostAddress(),
-		        candidate.iface().getName());
-
-		Thread outputReader = new Thread(() -> monitorNativeResponder(process), "mdns-native-responder");
-		outputReader.setDaemon(true);
-		outputReader.start();
+		logger./**/warn("could not announce {}: no free name after {} attempts", requestedName,
+		        MAX_NATIVE_NAME_COLLISIONS);
 	}
 
-	private static void monitorNativeResponder(Process process) {
-		try (BufferedReader reader = process.inputReader()) {
+	private static NativeRegistration awaitNativeRegistration(BufferedReader reader, String hostName)
+	        throws IOException {
+		String recordReply = "Got a reply for record " + hostName + ".";
+		String line;
+		while ((line = reader.readLine()) != null) {
+			logger.debug("dns-sd: {}", line);
+			if (line.contains(recordReply)) {
+				if (line.contains("Name now registered and active")) {
+					return NativeRegistration.REGISTERED;
+				}
+				if (line.contains("Name in use")) {
+					return NativeRegistration.CONFLICT;
+				}
+			}
+		}
+		return NativeRegistration.FAILED;
+	}
+
+	private static void monitorNativeResponder(Process process, BufferedReader processOutput) {
+		try (BufferedReader reader = processOutput) {
 			String line;
 			while ((line = reader.readLine()) != null) {
 				logger.debug("dns-sd: {}", line);
@@ -187,7 +240,7 @@ public class MdnsResponder {
 				        .anyMatch(announcement.getValue()::contains);
 				if (resolvesToAnnouncedAddress) {
 					synchronized (instances) {
-						if (instances.isEmpty() && (nativeResponder == null || !nativeResponder.isAlive())) {
+						if (instances.isEmpty()) {
 							return;
 						}
 						registeredHostName = hostName;

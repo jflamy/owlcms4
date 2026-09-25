@@ -23,6 +23,7 @@
         "OWLCMS_MEMORYMODE": "false",
         "OWLCMS_FEATURESWITCHES": "attemptTraces",
         "OWLCMS_ENABLEEVENTFORWARDING": "false",
+        "OWLCMS_PORT": "80",
         //"OWLCMS_VIDEODATA": "ws://owlcms.local:8096/ws",
         //"OWLCMS_REMOTE": "",
         //"OWLCMS_ENABLEEMBEDDEDMQTT": "false"
@@ -50,6 +51,7 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
+        "OWLCMS_PORT": "80",
         "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws", //"wss://fhq-tracker.fly.dev/ws",
         // "OWLCMS_VIDEODATAKEY": "amalauxpattes",
         "OWLCMS_REMOTE": "", //"http://127.0.0.1:8082",
@@ -76,7 +78,8 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
-        "OWLCMS_ENABLEEVENTFORWARDING": "false"
+        "OWLCMS_ENABLEEVENTFORWARDING": "false",
+        "OWLCMS_PORT": "80"
       }
     },
     {
@@ -101,7 +104,8 @@
         "OWLCMS_MEMORYMODE": "false",
         "OWLCMS_ENABLEEVENTFORWARDING": "false",
         "OWLCMS_INITIALDATA": "EMPTY_COMPETITION",
-        "OWLCMS_RESETMODE": "true"
+        "OWLCMS_RESETMODE": "true",
+        "OWLCMS_PORT": "80"
       }
     },
     {
@@ -126,7 +130,8 @@
         "OWLCMS_MEMORYMODE": "false",
         "OWLCMS_ENABLEEVENTFORWARDING": "false",
         "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
-        "OWLCMS_RESETMODE": "true"
+        "OWLCMS_RESETMODE": "true",
+        "OWLCMS_PORT": "80"
       }
     },
     {
@@ -204,7 +209,7 @@
         "OWLCMS_ENABLEEVENTFORWARDING": "false",
         "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
         "OWLCMS_FEATURESWITCHES": "attemptTraces",
-        "OWLCMS_PORT": "8083",
+        "OWLCMS_PORT": "8081",
         //"OWLCMS_REMOTE": "http://localhost:8082",
         //"OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws"
         //"OWLCMS_VIDEODATA": "wss://fhq.fly.dev/ws"

@@ -61,6 +61,8 @@
     <logger name="io.moquette.broker.MQTTConnection" level="ERROR" />
     <!-- JmDNS warns on every HTTPS-record (type 65) query sent by modern browsers -->
     <logger name="javax.jmdns" level="ERROR" />
+    <!-- port-in-use is reported by Main.startMQTT without a stack trace -->
+    <logger name="io.moquette.broker.NewNettyAcceptor" level="OFF" />
 
     <!-- log all info to file; warnings and above unless logger specifies another level -->
     <root level="WARN">

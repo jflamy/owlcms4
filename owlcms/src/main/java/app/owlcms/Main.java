@@ -8,6 +8,7 @@ package app.owlcms;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.BindException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
@@ -134,6 +135,7 @@ public class Main {
     private static InitialData initialData;
     public static String mqttStartup;
     private static volatile Server mqttBroker;
+    private static volatile boolean mqttPortInUse;
 
     public static EmbeddedJetty doRun() {
         startMdns();
@@ -341,8 +343,34 @@ public class Main {
                 logger.info("Broker stopped");
             }));
         } catch (Exception e) {
+            if (isBindFailure(e)) {
+                mqttPortInUse = true;
+                try {
+                    // 1883 stays bound if only the WebSocket port collided
+                    broker.stopServer();
+                } catch (Exception stopException) {
+                    logger.debug("could not stop partially started MQTT broker: {}", stopException.getMessage());
+                }
+                logger./**/warn("MQTT port {} or {} already in use (another server running?), MQTT disabled",
+                        Config.getCurrent().getParamMqttPort(), wsPort);
+                return;
+            }
             logger.error("could not start server", e.toString(), e.getCause());
         }
+    }
+
+    private static boolean isBindFailure(Throwable t) {
+        for (Throwable cur = t; cur != null; cur = cur.getCause()) {
+            if (cur instanceof BindException) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** @return true if the embedded MQTT broker could not start because its port was taken. */
+    public static boolean isMqttPortInUse() {
+        return mqttPortInUse;
     }
 
     public static Server getMqttBroker() {

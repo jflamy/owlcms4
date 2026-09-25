@@ -721,6 +721,9 @@ public class Config {
 
 	@JsonIgnore
 	public boolean getParamMqttInternal() {
+		if (Main.isMqttPortInUse()) {
+			return false;
+		}
 		Boolean enableInternal = StartupUtils.getBooleanParamOrElseNull("enableEmbeddedMqtt");
 		if (enableInternal != null) {
 			return enableInternal;

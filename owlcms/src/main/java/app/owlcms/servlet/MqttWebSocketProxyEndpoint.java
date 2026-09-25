@@ -9,6 +9,7 @@ import ch.qos.logback.classic.Logger;
 import org.slf4j.LoggerFactory;
 import jakarta.websocket.ClientEndpointConfig;
 
+import app.owlcms.Main;
 import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.utils.StartupUtils;
@@ -51,6 +52,11 @@ public class MqttWebSocketProxyEndpoint {
             // WebSocket proxy uses default timeout - MQTT keepalive is handled by Moquette broker
             String target = StartupUtils.getStringParam("mqttWsTarget");
             if (target == null || target.isBlank()) {
+                if (Main.isMqttPortInUse()) {
+                    // 9090 belongs to another server's broker
+                    session.close(new CloseReason(CloseReason.CloseCodes.CANNOT_ACCEPT, "MQTT disabled"));
+                    return;
+                }
                 target = "ws://127.0.0.1:" + Config.getCurrent().getParamMqttWsPort() + MqttWebSocketProxyEndpoint.MQTT;
             }
             // Connect outbound to MQTT broker
