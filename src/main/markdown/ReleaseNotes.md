@@ -10,7 +10,9 @@
 
 **Maintenance Log**
 
-- 68.0.0-rc06: Added completed athlete-card templates that print recorded declarations and changes, with large red start numbers for quickly replacing misplaced cards.
+- 68.0.0-rc07: The Jury Control page now allows the president to indicate which IWF rejection code was invoked.  When this is done, the speaker gets the reason immediately.
+
+- 68.0.0-rc06: Added "post weigh-in athlete-card" templates that print recorded declarations and changes, with large red start numbers for quickly replacing misplaced cards.
 
 - 68.0.0-rc06: Weigh-in forms 
   - now include a separate weight-on-scale column before body weight so both values can be recorded when calculating the adjustment by hand.
