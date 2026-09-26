@@ -6,21 +6,19 @@ This is a standard Maven project.  If you wish, you can build the binaries from 
 
 You can checkout this repository (or fork it if you intend to make changes.)
 
-- Typical Use: You can start vscode using the `owlcmsJDK.code-workspace` file to get correct defaults
+- Development uses the JetBrains Runtime (JBR), which includes DCEVM so code changes are hot-swapped without restarting.
+  1. Get a JBR 25 with JCEF from [JetBrains/JetBrainsRuntime](https://github.com/JetBrains/JetBrainsRuntime) and unzip or install it.
+  2. Get the agent jar from [HotswapAgent releases](https://github.com/HotswapProjects/HotswapAgent/releases), create a `lib/hotswap` directory in the JBR home, and copy the jar there *without the version number* -- the file must be `lib/hotswap/hotswap-agent.jar`
+  3. Copy the example workspace for your platform (`owlcms-windows.code-workspace`, `owlcms-mac.code-workspace` or `owlcms-linux.code-workspace`) to `owlcms.code-workspace` (ignored by git), set the path to your JBR home, and open it.
   - You will be prompted to install the typical Java extensions, accept them.
-- Advanced Use: 
-  - If you want to use HotSwap with DCEVM, you can copy and edit `owlcmsHotswap.code-workspace` from the .vscode directory
-    - Get a JDK 25 from JetBrains [JetBrains/JetBrainsRuntime: Runtime environment based on OpenJDK for running IntelliJ Platform-based products on Windows, macOS, and Linux](https://github.com/JetBrains/JetBrainsRuntime) and unzip it.
-    - Edit your copy of `owlcmsHotswap.code-workspace` to have the path where you unzipped the JDK 25
-    - Get the Hotswap agent from [HotswapAgent releases](https://github.com/HotswapProjects/HotswapAgent/releases)
-    - Create a `lib/hotswap` in the JDK installation directory. Copy the agent jar, *and remove the version number* -- the file should be `lib/hotswap/hotswap-agent.jar`
-  
-  - For local development the repository uses platform-specific `.env` files stored under the `.vscode/` folder to provide environment variables to the VS Code launch configurations. 
-    - Copy `.vscode/.env.example` to a platform-specific file for your system under and edit the values you want to override (for example `OWLCMS_UPDATEKEY`): 
-      - `.vscode/.env.windows` (Windows), 
-      - `.vscode/.env.linux` (Linux), or
-      - `.vscode/.env.mac` (macOS).
-    - These platform-specific files are ignored by git ; do not commit them.
+
+- For local development the repository uses platform-specific `.env` files stored under the `.vscode/` folder to provide environment variables to the VS Code launch configurations. 
+  - Copy `.vscode/.env.example` to a platform-specific file for your system and edit the values you want to override (for example `OWLCMS_UPDATEKEY`): 
+    - `.vscode/.env.windows` (Windows), 
+    - `.vscode/.env.linux` (Linux), or
+    - `.vscode/.env.mac` (macOS).
+  - These platform-specific files are ignored by git ; do not commit them.
+  - JVM options are set by `owlcms.vmArgs` in the workspace file, not in the `.env` files.
   
 
 #### Cloud development 

@@ -1,0 +1,40 @@
+// Example workspace for macOS. Copy it to owlcms.code-workspace (not tracked by git) and set the JBR path below.
+// Get a JetBrains Runtime 25 with JCEF from https://github.com/JetBrains/JetBrainsRuntime
+// and put HotswapAgent (https://github.com/HotswapProjects/HotswapAgent/releases) in <JBR>/Contents/Home/lib/hotswap/hotswap-agent.jar
+
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "window.title": "${dirty}${folderName}${separator}${activeRepositoryBranchName}${separator}${profileName}",
+    "owlcms.vmArgs": "-ea -DcssEdit=true -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar --add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED --add-opens=java.base/jdk.internal.misc=ALL-UNNAMED --enable-native-access=ALL-UNNAMED",
+    "owlcms.mainClass": "app.owlcms.MainWrapper",
+    "owlcms.console": "integratedTerminal",
+    "owlcms.noDebug": false,
+    "java.debug.settings.console": "integratedTerminal",
+    "java.compile.nullAnalysis.mode": "disabled",
+
+    "java.configuration.runtimes": [
+      {
+        "name": "JavaSE-25",
+        "path": "/Library/Java/JavaVirtualMachines/jbr_jcef-25.0.3-osx-aarch64-b496.62/Contents/Home",
+        "default": true
+      }
+    ],
+    "java.debug.settings.vmArgs": "${config:owlcms.vmArgs}",
+    "terminal.integrated.env.osx": {
+      "JAVA_HOME": "/Library/Java/JavaVirtualMachines/jbr_jcef-25.0.3-osx-aarch64-b496.62/Contents/Home"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "vscjava.vscode-java-debug",
+      "vscjava.vscode-java-pack",
+      "redhat.java",
+      "vscjava.vscode-maven"
+    ]
+  }
+}
