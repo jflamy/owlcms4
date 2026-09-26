@@ -3,13 +3,13 @@
 {
 	"name": "OWLCMS Java/Vaadin Development",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/java:21-bullseye",
+	"image": "mcr.microsoft.com/devcontainers/java:25-trixie",
 
 	"features": {
 		"ghcr.io/devcontainers/features/node:2": {
 			"version": "22",
 			"nodeGypDependencies": true,
-			"installYarnUsingApt": true
+			"installYarnUsingApt": false
 		}
 	},
 
@@ -17,16 +17,12 @@
 	"forwardPorts": [8080, 8081, 1883],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// Note: When opening in Codespaces, select 'owlcmsHotswap.code-workspace' from the workspace files
-	"postCreateCommand": "echo 'Skipping mvn compile (DCEVM + Java auto build). Run mvn manually if needed.'",
-
-	// Ensure the correct workspace is selected
-	"postStartCommand": "echo 'To use the correct workspace configuration, open: owlcmsHotswap.code-workspace'",
+	// launch.json requires .vscode/.env.linux, which is not tracked by git.
+	"postCreateCommand": "[ -f .vscode/.env.linux ] || cp .vscode/.env.example .vscode/.env.linux",
 
 	// Use 'onCreateCommand' for Codespaces pre-building
 	"onCreateCommand": "bash .devcontainer/setup-jdk.sh",
 
-	// Set container environment variables
 	// Set container environment variables
 	"containerEnv": {
 		"M2_HOME": "/opt/maven",
@@ -50,6 +46,13 @@
 				"ms-vscode.vscode-json"
 			],
 			"settings": {
+				// Same launch settings as owlcms-linux.code-workspace, since a Codespace opens the folder, not a workspace file.
+				"owlcms.vmArgs": "-ea -DcssEdit=true -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar --add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED --add-opens=java.base/jdk.internal.misc=ALL-UNNAMED --enable-native-access=ALL-UNNAMED",
+				"owlcms.mainClass": "app.owlcms.MainWrapper",
+				"owlcms.console": "integratedTerminal",
+				"owlcms.noDebug": false,
+				"java.debug.settings.console": "integratedTerminal",
+				"java.compile.nullAnalysis.mode": "disabled",
 				"java.configuration.runtimes": [
 					{
 						"name": "JavaSE-25",

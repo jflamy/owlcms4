@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # JetBrains Runtime JDK 25 with DCEVM setup script for devcontainer
-# Java 21 is already provided by the base devcontainer image for VS Code extension
+# Java 25 is already provided by the base devcontainer image for VS Code extension
 # but project runtime uses JDK 25 DCEVM for enhanced class redefinition.
 # Maven compilation also targets Java 25.
 
@@ -14,15 +14,12 @@ if [ -d /usr/local/jdk-25-dcevm/bin ]; then
   echo "JDK 25 DCEVM already installed. Skipping JDK download/extract."
 else
 
-# Update package lists
-sudo apt-get update -q
-
 # Create directory for JDK 25 DCEVM
 sudo mkdir -p /usr/local/jdk-25-dcevm
 cd /tmp
 
   # Allow override of JBR version via env var (exact filename fragment). Default pinned for reproducibility.
-  JBR_VERSION_FRAG=${JBR_VERSION_FRAG:-"jbr_jcef-25.0.1-linux-x64-b266.34"}
+  JBR_VERSION_FRAG=${JBR_VERSION_FRAG:-"jbr_jcef-25.0.3-linux-x64-b496.62"}
   JBR_ARCHIVE_URL="https://cache-redirector.jetbrains.com/intellij-jbr/${JBR_VERSION_FRAG}.tar.gz"
   echo "Downloading JetBrains Runtime JDK 25 with DCEVM from: $JBR_ARCHIVE_URL"
   wget -q --show-progress -O jbr-dcevm.tar.gz "$JBR_ARCHIVE_URL"
@@ -271,6 +268,8 @@ echo 'export PATH=$M2_HOME/bin:$PATH' >> ~/.bashrc
 # Create Maven toolchains.xml to specify JDK 25 for compilation
 echo "Configuring Maven to use JDK 25 for compilation..."
 mkdir -p ~/.m2
+# A freshly created owlcms_m2_cache volume is owned by root.
+sudo chown -R "$(id -u):$(id -g)" ~/.m2
 cat > ~/.m2/toolchains.xml << 'EOF'
 <?xml version="1.0" encoding="UTF8"?>
 <toolchains>
@@ -306,32 +305,6 @@ cat > ~/.m2/settings.xml << 'EOF'
     </profile>
   </profiles>
 </settings>
-EOF
-
-# Create VS Code settings to use JDK 25 DCEVM for the project
-echo "Setting up VS Code Java configuration..."
-mkdir -p .vscode
-cat > .vscode/settings.json << 'EOF'
-{
-  "java.configuration.runtimes": [
-    {
-      "name": "JavaSE-25",
-      "path": "/usr/local/jdk-25-dcevm",
-      "default": true
-    }
-  ],
-  "java.compile.nullAnalysis.mode": "automatic",
-  "java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
-  "maven.executable.path": "/opt/maven/bin/mvn",
-  "terminal.integrated.defaultProfile.linux": "bash",
-  "java.autobuild.enabled": true,
-  "java.import.gradle.enabled": false,
-  "java.configuration.updateBuildConfiguration": "interactive",
-  "java.annotation.processing.enabled": false,
-  "java.autobuild.annotation.processing.enabled": false,
-  "debug.allowBreakpointsEverywhere": true,
-  "debug.toolBarLocation": "docked"
-}
 EOF
 
 # Pre-create Vaadin working directory with proper permissions
@@ -383,6 +356,6 @@ rm -rf /tmp/jbr* 2>/dev/null || true
 
 echo ""
 echo "Setup complete!"
-echo "- Java 21: Provided by devcontainer base image (for VS Code Java Extension)"
+echo "- Java 25: Provided by devcontainer base image (for VS Code Java Extension)"
 echo "- JDK 25 DCEVM: /usr/local/jdk-25-dcevm (for compilation, project runtime, and hot-swap debugging)"
 echo "- Maven ${MAVEN_VERSION}: /opt/maven"
