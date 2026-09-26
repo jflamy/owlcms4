@@ -10,6 +10,19 @@
 
 **Maintenance Log**
 
+- 68.0.0-rc08: Record definition files with more than five distinct record names per federation are now rejected.
+  - Normally one federation code matches one displayed record name (IWF --> World).
+  - Two federations can share a displayed name (e.g. separate Masters and non-Masters federations for one country).
+  - Typical errror is when an AI agent generates the file from a database and puts a different record name on each row
+
+- 68.0.0-rc08: Database exports that previously failed to load can now be imported.
+  - Older exports without the competition template marker no longer cause a duplicate championship error.
+  - Exports with too many record names are recovered by using the federation codes as record names; these records can then be exported to Excel and corrected.
+
+- 68.0.0-rc08: macOS: mDNS now same as Windows and Linux - when the `owlcms.local` name is already in use on the network, owlcms now announces itself as `owlcms-2.local`, `owlcms-3.local`, etc.
+
+- 68.0.0-rc08: If the MQTT ports (1883/9090) are already in use, owlcms now starts normally with MQTT disabled and logs a warning (used during development when multiple instances can run concurrently)
+
 - 68.0.0-rc07: The Jury Control page now allows the president to indicate which IWF rejection code was invoked.  When this is done, the speaker gets the reason immediately.
 
 - 68.0.0-rc06: Added "post weigh-in athlete-card" templates that print recorded declarations and changes, with large red start numbers for quickly replacing misplaced cards.
