@@ -1,6 +1,7 @@
 // Example workspace for Windows. Copy it to owlcms.code-workspace (not tracked by git) and set the JBR path below.
 // Get a JetBrains Runtime 25 with JCEF from https://github.com/JetBrains/JetBrainsRuntime
 // and put HotswapAgent (https://github.com/HotswapProjects/HotswapAgent/releases) in <JBR>/lib/hotswap/hotswap-agent.jar
+// (rename the downloaded hotswap-agent-<version>.jar to hotswap-agent.jar -- -XX:HotswapAgent=fatjar only looks for that exact name)
 
 {
   "folders": [
