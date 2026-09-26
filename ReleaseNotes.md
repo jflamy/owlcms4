@@ -10,6 +10,10 @@
 
 **Maintenance Log**
 
+- 67.5.7: Loading a records definition files with an inordinate number of record names will now be rejected. 
+  - Normally one federation code matches one record name to be shown (IWF --> World)
+  - Two federations can match to the same name (e.g. different Masters and non-Masters federation for a single country)
+
 - 67.5.6: Ensure that version 68 imports can be read back
 
 - 67.5.5: Introduction sheets now calculate the clean and jerk break duration using only athletes who have weighed in.
