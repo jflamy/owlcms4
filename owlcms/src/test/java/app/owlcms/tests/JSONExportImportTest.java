@@ -39,7 +39,9 @@ import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 public class JSONExportImportTest {
 	
@@ -313,6 +315,31 @@ public class JSONExportImportTest {
                 assertEquals(MedalPolicy.LIFTS_ONLY, championship.getMedalPolicy());
                 assertEquals(TeamPointsPolicy.TOTAL_ONLY, championship.getTeamPointsPolicy());
             }
+        }
+    }
+
+    @Test
+    public void legacyCompetitionTemplateWithoutMarkerRestores() {
+        CompetitionData competitionData = new CompetitionData();
+        try {
+            ObjectMapper mapper = JsonMapper.builder().build();
+            JsonNode export = mapper.readTree(competitionData.exportDataAsString());
+            for (JsonNode championship : export.path("championships")) {
+                if (Championship.COMPETITION_TEMPLATE_NAME.equals(championship.path("name").asString())) {
+                    ((ObjectNode) championship).remove("competitionTemplate");
+                }
+            }
+
+            competitionData.restore(new ByteArrayInputStream(
+                    mapper.writeValueAsString(export).getBytes(StandardCharsets.UTF_8)));
+
+            List<Championship> templates = Championship.findAllIncludingTemplate().stream()
+                    .filter(Championship::isCompetitionTemplate)
+                    .toList();
+            assertEquals("legacy import should restore exactly one competition template", 1, templates.size());
+            assertEquals(Championship.COMPETITION_TEMPLATE_NAME, templates.get(0).getName());
+        } catch (Exception e) {
+            fail(e.getMessage());
         }
     }
 

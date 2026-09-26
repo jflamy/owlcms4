@@ -244,6 +244,8 @@ public class CompetitionData {
 		CompetitionData newData = mapper.readValue(serialized, CompetitionData.class);
 		Championship.assignMissingOrder(newData.getChampionships());
 		normalizeTeamPointsPolicies(newData.getChampionships());
+		newData.normalizeImportedCompetitionTemplate();
+		RecordConfig.normalizeImportedRecordNames(newData.getRecords(), newData.getRecordConfig());
 		newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), newData.getGroups()));
 		logger.debug("after unmarshall {}", newData.getPlatforms());
 		return newData;
@@ -255,6 +257,8 @@ public class CompetitionData {
 		CompetitionData newData = mapper.readValue(serialized, CompetitionData.class);
 		Championship.assignMissingOrder(newData.getChampionships());
 		normalizeTeamPointsPolicies(newData.getChampionships());
+		newData.normalizeImportedCompetitionTemplate();
+		RecordConfig.normalizeImportedRecordNames(newData.getRecords(), newData.getRecordConfig());
 		newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), newData.getGroups()));
 		// logger.debug("after unmarshall {}", newData.getPlatforms());
 		return newData;
@@ -263,6 +267,18 @@ public class CompetitionData {
 	private static void normalizeTeamPointsPolicies(List<Championship> championships) {
 		if (championships != null) {
 			championships.stream().filter(Objects::nonNull).forEach(Championship::normalizeTeamPointsPolicy);
+		}
+	}
+
+	private void normalizeImportedCompetitionTemplate() {
+		if (this.championships == null) {
+			return;
+		}
+		for (Championship championship : this.championships) {
+			if (championship.getName() != null
+			        && championship.getName().trim().equalsIgnoreCase(Championship.COMPETITION_TEMPLATE_NAME)) {
+				championship.setCompetitionTemplate(true);
+			}
 		}
 	}
 

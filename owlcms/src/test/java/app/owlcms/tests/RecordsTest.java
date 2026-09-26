@@ -7,7 +7,10 @@
 package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -33,6 +36,7 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.records.RecordConfig;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordDefinitionReader;
 import app.owlcms.data.records.RecordFilter;
@@ -66,6 +70,87 @@ public class RecordsTest {
     final Logger logger = (Logger) LoggerFactory.getLogger(RecordsTest.class);
 
     private List<Athlete> athletes;
+
+    @Test
+    public void excessiveImportedRecordNamesCollapseToFederations() {
+        List<RecordEvent> records = List.of(
+                createImportedRecord("Federation A", longRecordName(1)),
+                createImportedRecord("Federation A", longRecordName(2)),
+                createImportedRecord("Federation A", longRecordName(3)),
+                createImportedRecord("Federation A", longRecordName(4)),
+                createImportedRecord("Federation A", longRecordName(5)));
+        RecordConfig config = new RecordConfig();
+
+        assertTrue(RecordConfig.normalizeImportedRecordNames(records, config));
+        assertEquals(List.of("Federation A"), config.getRecordOrder());
+        assertTrue(records.stream().allMatch(record -> "Federation A".equals(record.getRecordName())));
+    }
+
+    @Test
+    public void fiveShortImportedRecordNamesRemainUnchanged() {
+        List<RecordEvent> records = List.of(
+                createImportedRecord("Federation A", "Record 1"),
+                createImportedRecord("Federation A", "Record 2"),
+                createImportedRecord("Federation A", "Record 3"),
+                createImportedRecord("Federation A", "Record 4"),
+                createImportedRecord("Federation A", "Record 5"));
+        RecordConfig config = new RecordConfig();
+
+        assertFalse(RecordConfig.normalizeImportedRecordNames(records, config));
+        assertTrue(config.getRecordOrder().isEmpty());
+        assertEquals("Record 1", records.get(0).getRecordName());
+    }
+
+    private RecordEvent createImportedRecord(String federation, String recordName) {
+        RecordEvent record = new RecordEvent();
+        record.setRecordFederation(federation);
+        record.setRecordName(recordName);
+        return record;
+    }
+
+    private String longRecordName(int index) {
+        return "Record name long enough to exceed the safe persisted order length " + "x".repeat(60) + index;
+    }
+
+    @Test
+    public void blankImportedRecordNameDefaultsToFederation() throws Exception {
+        RecordEvent record = createImportedRecord("IWF", " ");
+        record.setAgeGrp("SR");
+
+        record.fillDefaults();
+
+        assertEquals("IWF", record.getRecordName());
+    }
+
+    @Test
+    public void recordDefinitionRejectsMoreThanFiveNamesForOneFederation() {
+        List<RecordEvent> records = List.of(
+                createImportedRecord("Federation A", "Record 1"),
+                createImportedRecord("Federation A", "Record 2"),
+                createImportedRecord("Federation A", "Record 3"),
+                createImportedRecord("Federation A", "Record 4"),
+                createImportedRecord("Federation A", "Record 5"),
+                createImportedRecord("Federation A", "Record 6"));
+
+        assertEquals("Federation A", RecordDefinitionReader.findFederationWithTooManyRecordNames(records));
+    }
+
+    @Test
+    public void recordDefinitionAllowsFiveNamesPerFederation() {
+        List<RecordEvent> records = List.of(
+                createImportedRecord("Federation A", "Record 1"),
+                createImportedRecord("Federation A", "Record 2"),
+                createImportedRecord("Federation A", "Record 3"),
+                createImportedRecord("Federation A", "Record 4"),
+                createImportedRecord("Federation A", "Record 5"),
+                createImportedRecord("Federation B", "Record 1"),
+                createImportedRecord("Federation B", "Record 2"),
+                createImportedRecord("Federation B", "Record 3"),
+                createImportedRecord("Federation B", "Record 4"),
+                createImportedRecord("Federation B", "Record 5"));
+
+        assertNull(RecordDefinitionReader.findFederationWithTooManyRecordNames(records));
+    }
 
     public List<Athlete> getAthletes() {
         return athletes;

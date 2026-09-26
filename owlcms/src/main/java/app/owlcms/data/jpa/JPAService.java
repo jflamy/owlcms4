@@ -136,6 +136,7 @@ public class JPAService {
 				hibernateLogger.setLevel(prevHibernateLevel);
 			}
 			setFactory(factory2);
+			RecordConfig.widenRecordOrderColumn();
 		}
 	}
 

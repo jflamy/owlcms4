@@ -88,6 +88,7 @@ public class RecordDefinitionReader {
 
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(RecordDefinitionReader.class);
 	private final static Logger startupLogger = Main.getStartupLogger();
+	private static final int MAX_RECORD_NAMES_PER_FEDERATION = 5;
 
 	private Locale locale;
 
@@ -174,6 +175,7 @@ public class RecordDefinitionReader {
 	}
 
 	public List<String> createRecords(Workbook workbook, String name, String baseName) {
+		boolean[] rejected = { false };
 		List<String> errors = JPAService.runInTransaction(em -> {
 			int iRecord = 0;
 			List<String> errorList = new ArrayList<>();
@@ -233,6 +235,10 @@ public class RecordDefinitionReader {
 				}
 			}
 
+			if (!validateRecordNames(importedRecords, errorList)) {
+				rejected[0] = true;
+				return errorList;
+			}
 			Set<String> clearedOfficialKeys = new HashSet<>();
 			for (RecordEvent importedRecord : importedRecords) {
 				if (!RecordRepository.isProvisional(importedRecord) && clearedOfficialKeys.add(importedRecord.getKey())) {
@@ -274,8 +280,37 @@ public class RecordDefinitionReader {
 		// Make the newly loaded record names known to the display ordering, otherwise
 		// RecordFilter.buildRecordJson returns null and no records are shown until a
 		// database export/import is performed (issue #766).
-		RecordConfig.getCurrent().addMissing(RecordRepository.findAllRecordNames());
+		if (!rejected[0]) {
+			RecordConfig.getCurrent().addMissing(RecordRepository.findAllRecordNames());
+		}
 		return errors;
+	}
+
+	public static String findFederationWithTooManyRecordNames(List<RecordEvent> records) {
+		Map<String, Set<String>> namesByFederation = new java.util.LinkedHashMap<>();
+		for (RecordEvent record : records) {
+			String federation = record.getRecordFederation();
+			String recordName = record.getRecordName();
+			if (federation == null || federation.isBlank() || recordName == null || recordName.isBlank()) {
+				continue;
+			}
+			namesByFederation.computeIfAbsent(federation.trim(), ignored -> new HashSet<>()).add(recordName.trim());
+		}
+		return namesByFederation.entrySet().stream()
+		        .filter(e -> e.getValue().size() > MAX_RECORD_NAMES_PER_FEDERATION)
+		        .map(Map.Entry::getKey)
+		        .findFirst().orElse(null);
+	}
+
+	private static boolean validateRecordNames(List<RecordEvent> records, List<String> errors) {
+		String federation = findFederationWithTooManyRecordNames(records);
+		if (federation == null) {
+			return true;
+		}
+		logger./**/warn("Rejected record import: federation {} has more than {} distinct record names",
+		        federation, MAX_RECORD_NAMES_PER_FEDERATION);
+		errors.add(Translator.translate("Records.TooManyRecordNames", federation));
+		return false;
 	}
 
 	/**
@@ -337,6 +372,9 @@ public class RecordDefinitionReader {
 					importedRecords.add(rec);
 				}
 			}
+		}
+		if (!validateRecordNames(importedRecords, errors)) {
+			importedRecords.clear();
 		}
 		return importedRecords;
 	}
@@ -420,6 +458,10 @@ public class RecordDefinitionReader {
 	 * @return list of messages/errors from the import
 	 */
 	public List<String> importParsedRecords(List<RecordEvent> parsedRecords, String name, String baseName) {
+		List<String> validationErrors = new ArrayList<>();
+		if (!validateRecordNames(parsedRecords, validationErrors)) {
+			return validationErrors;
+		}
 		List<String> errors = JPAService.runInTransaction(em -> {
 			int iRecord = 0;
 			List<String> errorList = new ArrayList<>();
