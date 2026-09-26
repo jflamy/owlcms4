@@ -20,10 +20,10 @@
     "java.validate.allOpenBuffersOnChanges": false,
     "java.validate.enable": true,
     "java.sharedIndexes.enabled": "auto",
+    // "target" must NOT be filtered: the builder copies non-Java resources into target/classes
     "java.project.resourceFilters": [
         "node_modules",
         ".git",
-        "target",
         ".vscode",
         ".idea"
     ],
