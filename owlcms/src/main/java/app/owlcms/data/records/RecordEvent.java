@@ -186,6 +186,10 @@ public class RecordEvent implements Comparable<RecordEvent> {
 	}
 
 	public void fillDefaults() throws MissingAgeGroup, MissingGender, UnknownIWFBodyWeightCategory {
+		if ((this.recordName == null || this.recordName.isBlank())
+		        && this.recordFederation != null && !this.recordFederation.isBlank()) {
+			this.recordName = this.recordFederation;
+		}
 		if (this.ageGrp == null) {
 			throw new MissingAgeGroup();
 		}

@@ -223,6 +223,7 @@ public class CompetitionDataV2 {
 		CompetitionDataV2 newData;
 		try {
 			newData = mapper.readValue(serialized, CompetitionDataV2.class);
+			RecordConfig.normalizeImportedRecordNames(newData.getRecords(), newData.getRecordConfig());
 			newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), null));
 			logger.info("V2 import: {} ageGroups, {} teams, {} sessions, {} athletes, {} platforms", 
 				newData.getChampionships() != null ? newData.getChampionships().size() : 0,

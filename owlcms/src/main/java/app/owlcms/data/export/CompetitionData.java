@@ -226,6 +226,8 @@ public class CompetitionData {
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		mapper.registerModule(new JavaTimeModule());
 		CompetitionData newData = mapper.readValue(serialized, CompetitionData.class);
+		newData.normalizeImportedCompetitionTemplate();
+		RecordConfig.normalizeImportedRecordNames(newData.getRecords(), newData.getRecordConfig());
 		newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), newData.getGroups()));
 		logger.debug("after unmarshall {}", newData.getPlatforms());
 		return newData;
@@ -237,9 +239,23 @@ public class CompetitionData {
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		mapper.registerModule(new JavaTimeModule());
 		CompetitionData newData = mapper.readValue(serialized, CompetitionData.class);
+		newData.normalizeImportedCompetitionTemplate();
+		RecordConfig.normalizeImportedRecordNames(newData.getRecords(), newData.getRecordConfig());
 		newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), newData.getGroups()));
 		// logger.debug("after unmarshall {}", newData.getPlatforms());
 		return newData;
+	}
+
+	private void normalizeImportedCompetitionTemplate() {
+		if (this.championships == null) {
+			return;
+		}
+		for (Championship championship : this.championships) {
+			if (championship.getName() != null
+			        && championship.getName().trim().equalsIgnoreCase(Championship.COMPETITION_TEMPLATE_NAME)) {
+				championship.setCompetitionTemplate(true);
+			}
+		}
 	}
 
 	public void restore(InputStream inputStream) {

@@ -7,14 +7,21 @@
 package app.owlcms.tests;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import app.owlcms.Main;
 import app.owlcms.data.agegroup.Championship;
@@ -53,6 +60,31 @@ public class JSONExportImportTest {
 			fail(e.getMessage());
 		}
 	}
+
+    @Test
+    public void legacyCompetitionTemplateWithoutMarkerRestores() {
+        CompetitionData competitionData = new CompetitionData();
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode export = mapper.readTree(competitionData.exportDataAsString());
+            for (JsonNode championship : export.path("championships")) {
+                if (Championship.COMPETITION_TEMPLATE_NAME.equals(championship.path("name").asText())) {
+                    ((ObjectNode) championship).remove("competitionTemplate");
+                }
+            }
+
+            competitionData.restore(new ByteArrayInputStream(
+                    mapper.writeValueAsString(export).getBytes(StandardCharsets.UTF_8)));
+
+            List<Championship> templates = Championship.findAllIncludingTemplate().stream()
+                    .filter(Championship::isCompetitionTemplate)
+                    .toList();
+            assertEquals("legacy import should restore exactly one competition template", 1, templates.size());
+            assertEquals(Championship.COMPETITION_TEMPLATE_NAME, templates.get(0).getName());
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+    }
 
     @Test
     public void useCompetitionDefaultsRoundTripsThroughCompetitionDataJson() {

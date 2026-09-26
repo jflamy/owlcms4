@@ -7,8 +7,10 @@
 package app.owlcms.data.records;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
@@ -33,6 +35,8 @@ import ch.qos.logback.classic.Logger;
 public class RecordConfig {
 
 	static Logger logger = (Logger) LoggerFactory.getLogger(RecordConfig.class);
+	private static final int RECORD_ORDER_LENGTH = 512;
+	private static final int RECORD_ORDER_SAFE_LENGTH = RECORD_ORDER_LENGTH - 16;
 	private static RecordConfig current;
 
 	public static RecordConfig getCurrent() {
@@ -63,6 +67,32 @@ public class RecordConfig {
 		return current;
 	}
 
+	/**
+	 * Hibernate schema update never alters existing columns, so databases created with the
+	 * former 255 default must be widened explicitly. Idempotent; works on H2 2.x and PostgreSQL.
+	 */
+	public static void widenRecordOrderColumn() {
+		try {
+			JPAService.runInTransaction(em -> {
+				List<?> lengths = em.createNativeQuery(
+				        "SELECT CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS"
+				                + " WHERE LOWER(TABLE_NAME) = 'recordconfig' AND LOWER(COLUMN_NAME) = 'recordorder'")
+				        .getResultList();
+				boolean tooShort = lengths.stream()
+				        .anyMatch(l -> l instanceof Number n && n.longValue() < RECORD_ORDER_LENGTH);
+				if (tooShort) {
+					em.createNativeQuery("ALTER TABLE RecordConfig ALTER COLUMN recordOrder SET DATA TYPE VARCHAR("
+					        + RECORD_ORDER_LENGTH + ")").executeUpdate();
+					logger.info("Widened RecordConfig.recordOrder column to {} characters", RECORD_ORDER_LENGTH);
+				}
+				return null;
+			});
+		} catch (Exception e) {
+			logger.error("Could not widen RecordConfig.recordOrder column: {}", e.toString());
+		}
+	}
+
+	@Column(length = RECORD_ORDER_LENGTH)
 	@Convert(converter = JpaJsonConverter.class)
 	private ArrayList<String> recordOrder;
 	@Column(columnDefinition = "boolean default false")
@@ -92,6 +122,42 @@ public class RecordConfig {
 		// current sort order
 		this.recordOrder.addAll(findAllRecordNames);
 		setCurrent(this);
+	}
+
+	public static boolean normalizeImportedRecordNames(List<RecordEvent> records, RecordConfig recordConfig) {
+		if (records == null || records.isEmpty()) {
+			return false;
+		}
+
+		Set<String> recordNames = new LinkedHashSet<>();
+		Set<String> federations = new LinkedHashSet<>();
+		for (RecordEvent record : records) {
+			if (record.getRecordName() != null && !record.getRecordName().isBlank()) {
+				recordNames.add(record.getRecordName());
+			}
+			if (record.getRecordFederation() != null && !record.getRecordFederation().isBlank()) {
+				federations.add(record.getRecordFederation());
+			}
+		}
+
+		String serializedRecordNames = new JpaJsonConverter()
+		        .convertToDatabaseColumn(new ArrayList<>(recordNames));
+		if (federations.isEmpty() || serializedRecordNames == null
+		        || serializedRecordNames.length() <= RECORD_ORDER_SAFE_LENGTH) {
+			return false;
+		}
+
+		for (RecordEvent record : records) {
+			if (record.getRecordFederation() != null && !record.getRecordFederation().isBlank()) {
+				record.setRecordName(record.getRecordFederation());
+			}
+		}
+		if (recordConfig != null) {
+			recordConfig.setRecordOrder(new ArrayList<>(federations));
+		}
+		logger./**/warn("Normalized imported record order from {} characters and {} names to {} federation names",
+		        serializedRecordNames.length(), recordNames.size(), federations.size());
+		return true;
 	}
 
 	@Override
