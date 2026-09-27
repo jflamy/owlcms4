@@ -292,8 +292,8 @@ public class Main {
         mqttStartup = Long.toString(System.currentTimeMillis());
         final IConfig mqttConfig = new MemoryConfig(new Properties());
         Config.getCurrent().setMqttConfig(mqttConfig);
-        mqttConfig.setProperty(IConfig.ALLOW_ANONYMOUS_PROPERTY_NAME,
-                Boolean.toString(Config.getCurrent().getParamMqttUserName() == null));
+        // anonymous clients are rejected by MQTTInterceptHandlers.ConnectionListener, using current settings
+        mqttConfig.setProperty(IConfig.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.TRUE.toString());
         mqttConfig.setProperty(IConfig.AUTHENTICATOR_CLASS_NAME, "app.owlcms.init.MoquetteAuthenticator");
         mqttConfig.setProperty(IConfig.AUTHORIZATOR_CLASS_NAME, "app.owlcms.init.MoquetteAuthorizatorPolicy");
         mqttConfig.setProperty(IConfig.PORT_PROPERTY_NAME, Config.getCurrent().getParamMqttPort());

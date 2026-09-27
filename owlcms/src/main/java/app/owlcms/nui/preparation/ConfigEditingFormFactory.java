@@ -555,6 +555,7 @@ public class ConfigEditingFormFactory
 		layout.addFormItem(mqttUserName, Translator.translate("Config.MQTTUserName"));
 		this.binder.forField(mqttUserName)
 		        .withNullRepresentation("")
+		        .withValidator(new RegexpValidator(Translator.translate("Config.MQTTUserNameInvalid"), "[^\\s:/]*"))
 		        .bind(Config::getMqttUserName, Config::setMqttUserName);
 
 		PasswordField mqttPassword = new PasswordField();

@@ -1397,12 +1397,6 @@ public class Config {
 	}
 
 	public void setMqttUserName(String mqttUserName) {
-		// anonymous allowed iff mqttUserName is empty or null.
-		// we cannot override Moquette login to directly invoke our authenticator...
-		if (getMqttConfig() != null) {
-			getMqttConfig().setProperty(IConfig.ALLOW_ANONYMOUS_PROPERTY_NAME,
-			        Boolean.toString(mqttUserName == null || mqttUserName.isBlank()));
-		}
 		this.mqttUserName = mqttUserName;
 	}
 
