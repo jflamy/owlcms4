@@ -7,6 +7,7 @@
 package app.owlcms.data.group;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CacheRetrieveMode;
 import javax.persistence.CacheStoreMode;
@@ -159,6 +160,24 @@ public class GroupRepository {
 		Group saved = JPAService.runInTransaction(em -> em.merge(group));
 		OwlcmsFactory.refreshActiveFOPGroup(saved);
 		return saved;
+	}
+
+	/**
+	 * Persist only the fields owned by the field of play, on a fresh copy, so edits made elsewhere are not overwritten.
+	 */
+	public static void saveRuntimeState(Group fopGroup) {
+		JPAService.runInTransaction(em -> {
+			Group fresh = em.find(Group.class, fopGroup.getId(),
+			        Map.of("javax.persistence.cache.retrieveMode", CacheRetrieveMode.BYPASS));
+			if (fresh != null) {
+				fresh.setDone(fopGroup.isDone());
+				fresh.setFirstSnatchTime(fopGroup.getFirstSnatchTime(), null);
+				fresh.setFirstCJTime(fopGroup.getFirstCJTime(), null);
+				fresh.setLastSnatchDecisionTime(fopGroup.getLastSnatchDecisionTime(), fresh, null);
+				fresh.setLastCJDecisionTime(fopGroup.getLastCJDecisionTime(), fresh, null);
+			}
+			return null;
+		});
 	}
 
 	public List<Category> allCategories(Group g) {

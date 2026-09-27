@@ -154,7 +154,6 @@ public class OwlcmsFactory {
 	private static void refreshActiveFOPSafeSessionFields(Group activeGroup, Group refreshedGroup) {
 		activeGroup.setName(refreshedGroup.getName());
 		activeGroup.setDescription(refreshedGroup.getDescription());
-		activeGroup.setCleanJerkBreakDuration(refreshedGroup.getCleanJerkBreakDuration());
 		activeGroup.setAnnouncer(refreshedGroup.getAnnouncer());
 		activeGroup.setCompetitionDirector(refreshedGroup.getCompetitionDirector());
 		activeGroup.setCompetitionSecretary(refreshedGroup.getCompetitionSecretary());

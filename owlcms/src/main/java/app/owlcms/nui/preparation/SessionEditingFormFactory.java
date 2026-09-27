@@ -8,6 +8,7 @@ package app.owlcms.nui.preparation;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
@@ -56,7 +57,6 @@ public class SessionEditingFormFactory
         implements CustomFormFactory<Group> {
 
 	private static final String HEIGHT = "32rem";
-	@SuppressWarnings("unused")
 	private Logger logger = (Logger) LoggerFactory.getLogger(SessionEditingFormFactory.class);
 	private SessionContent origin;
 	ComboBox<Platform> platformField;
@@ -149,7 +149,14 @@ public class SessionEditingFormFactory
 	 */
 	@Override
 	public Group update(Group ageGroup) {
+		Integer previousCJBreak = ageGroup.getId() != null
+		        ? GroupRepository.getCleanJerkBreakDuration(ageGroup.getId())
+		        : null;
 		Group saved = GroupRepository.save(ageGroup);
+		if (!Objects.equals(previousCJBreak, saved.getCleanJerkBreakDuration())) {
+			logger.info("session {} CJ break duration changed from {} to {}", saved.getName(), previousCJBreak,
+			        saved.getCleanJerkBreakDuration());
+		}
 		// logger.trace("saved {}", saved.getCategories().get(0).longDump());
 		this.origin.closeDialog();
 		// origin.highlightResetButton();
