@@ -10,6 +10,10 @@
 
 **Maintenance Log**
 
+- 68.0.0-rc09: CJ Break overrides are not respected whether updated during snatch or before the session.
+
+- 68.0.0-rc09: MQTT login failures are now logged, such that anonymous accesses to an accidentally added login name are visible
+
 - 68.0.0-rc08: Record definition files with more than five distinct record names per federation are now rejected.
   - Normally one federation code matches one displayed record name (IWF --> World).
   - Two federations can share a displayed name (e.g. separate Masters and non-Masters federations for one country).
