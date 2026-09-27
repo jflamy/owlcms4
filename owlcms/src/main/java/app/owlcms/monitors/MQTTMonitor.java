@@ -184,8 +184,13 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 							FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic);
 					return;
 				}
-				logger.info("{}MQTT received {} : {}", FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic,
-						dispatchedMessageStr.trim());
+				if (topic.endsWith(this.configTopicName)) {
+					logger.trace("{}MQTT received {} : {}", FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()),
+							topic, dispatchedMessageStr.trim());
+				} else {
+					logger.info("{}MQTT received {} : {}", FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()),
+							topic, dispatchedMessageStr.trim());
+				}
 
 				if (topic.endsWith(this.decisionTopicName) || topic.endsWith(this.deprecatedDecisionTopicName)) {
 					postFopEventRefereeDecisionUpdate(topic, dispatchedMessageStr);
@@ -1118,7 +1123,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			// except when the topic represents the special 'owlcms/config' channel.
 			if (MQTTInterceptHandlers.isGenericClientId(publishingClientId)) {
 				if (topic == null || topic.isBlank()) {
-					logger.debug("Assigned descriptor='mqtt' to publishing clientId='{}' (no topic)",
+					logger.trace("Assigned descriptor='mqtt' to publishing clientId='{}' (no topic)",
 							publishingClientId);
 					return "mqtt";
 				}
@@ -1128,7 +1133,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 					// descriptor
 					if (genericParts.length == 2 && "owlcms".equals(genericParts[0])
 							&& "config".equals(genericParts[1])) {
-						logger.debug(
+						logger.trace(
 								"Assigned descriptor='mqtt' to publishing clientId='{}' (topic='{}' - config suppressed)",
 								publishingClientId, topic);
 						return "mqtt";
@@ -1170,7 +1175,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 				return null;
 			// If topic is just 'owlcms/config' produce a clearer descriptor 'config'
 			if (parts.length == 2 && "owlcms".equals(parts[0]) && "config".equals(parts[1])) {
-				logger.debug("Assigned descriptor='config' to publishing clientId='{}' from topic='{}'",
+				logger.trace("Assigned descriptor='config' to publishing clientId='{}' from topic='{}'",
 						publishingClientId, topic);
 				return "config";
 			}
@@ -1185,7 +1190,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			} else {
 				finalDesc = (platform != null ? platform + " " + device : device);
 			}
-			logger.debug("Assigned descriptor='{}' to publishing clientId='{}' from topic='{}'", finalDesc,
+			logger.trace("Assigned descriptor='{}' to publishing clientId='{}' from topic='{}'", finalDesc,
 					publishingClientId, topic);
 			return finalDesc;
 		} catch (Throwable t) {
@@ -1507,7 +1512,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			Config current4 = Config.getCurrent();
 			if (current4.getParamMqttInternal()) {
 				Config current5 = Config.getCurrent();
-				this.userName = current5.getMqttUserName();
+				this.userName = current5.getParamMqttUserName();
 				this.password = Main.mqttStartup;
 			}
 		}
@@ -1598,7 +1603,9 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		payload.put("jurySize", mqttJurySize());
 		try {
 			String json = new ObjectMapper().writeValueAsString(payload);
-			logger.info("{}{} MQTT Config: {}", FieldOfPlay.getLoggingName(this.getFop()),
+			logger.trace("{}MQTT device configuration sent: platforms {}, jury size {}",
+					FieldOfPlay.getLoggingName(this.getFop()), platforms, payload.get("jurySize"));
+			logger.trace("{}{} MQTT Config: {}", FieldOfPlay.getLoggingName(this.getFop()),
 					System.identityHashCode(this), json);
 			logger.trace("Publishing MQTT config to topic '{}' with payload: {}", topic, json);
 			publish(topic, new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));

@@ -2,10 +2,16 @@ package app.owlcms.monitors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.Main;
 import app.owlcms.data.config.Config;
 import ch.qos.logback.classic.Logger;
+import io.moquette.broker.Server;
 import io.moquette.interception.AbstractInterceptHandler;
 import io.moquette.interception.messages.InterceptConnectMessage;
 import io.moquette.interception.messages.InterceptDisconnectMessage;
@@ -21,6 +27,24 @@ public class MQTTInterceptHandlers {
 	public static class ConnectionListener extends AbstractInterceptHandler {
 
 		private static final Logger logger = (Logger) LoggerFactory.getLogger(MQTTInterceptHandlers.class);
+		private static final long REJECTION_WARNING_INTERVAL_MS = 60_000;
+		private static final Map<String, Long> lastRejectionWarning = new ConcurrentHashMap<>();
+		private static final Map<String, Integer> suppressedRejections = new ConcurrentHashMap<>();
+		// clients we disconnected ourselves; their disconnect events are not logged
+		private static final Set<String> rejectedClientIds = ConcurrentHashMap.newKeySet();
+
+		private static void warnAnonymousRejected(String clientId) {
+			long now = System.currentTimeMillis();
+			Long last = lastRejectionWarning.get(clientId);
+			if (last != null && now - last < REJECTION_WARNING_INTERVAL_MS) {
+				suppressedRejections.merge(clientId, 1, Integer::sum);
+				return;
+			}
+			lastRejectionWarning.put(clientId, now);
+			Integer suppressed = suppressedRejections.remove(clientId);
+			logger./**/warn("MQTT anonymous access rejected: client {} did not provide a user name, but an MQTT user name is configured{}",
+			        clientId, suppressed != null ? " (" + suppressed + " more attempts since previous warning)" : "");
+		}
 
 		@Override
 		public String getID() {
@@ -31,6 +55,24 @@ public class MQTTInterceptHandlers {
 		public void onConnect(InterceptConnectMessage msg) {
 			try {
 				String clientId = msg.getClientID();
+				String requiredUserName = Config.getCurrent().getParamMqttUserName();
+				String userName = msg.getUsername();
+				if (requiredUserName != null && (userName == null || userName.isBlank())) {
+					String key = clientId != null ? clientId : "";
+					warnAnonymousRejected(key);
+					Server broker = Main.getMqttBroker();
+					if (broker != null) {
+						rejectedClientIds.add(key);
+						broker.disconnectClient(clientId);
+					}
+					return;
+				}
+				if (clientId != null) {
+					rejectedClientIds.remove(clientId);
+				}
+				if (!isServerClientId(clientId)) {
+					logger.info("MQTT client {} connected", clientId);
+				}
 				try {
 					logger.debug("MQTT client connected: clientId={} username={} msg={}", clientId, msg.getUsername(),
 					        msg.toString());
@@ -94,6 +136,12 @@ public class MQTTInterceptHandlers {
 		public void onDisconnect(InterceptDisconnectMessage msg) {
 			try {
 				String clientId = msg.getClientID();
+				if (clientId != null && rejectedClientIds.remove(clientId)) {
+					return;
+				}
+				if (!isServerClientId(clientId)) {
+					logger.info("MQTT client {} disconnected", clientId);
+				}
 				try {
 					logger.debug("MQTT client disconnected: clientId={} msg={}", clientId, msg.toString());
 				} catch (Throwable t) {
@@ -106,7 +154,7 @@ public class MQTTInterceptHandlers {
 					String transport = clientId != null ? connectionTransport.getOrDefault(clientId, "unknown")
 					        : "server";
 					Long lastSeen = connectionLastSeen.get(clientId);
-					logger.info("MQTT disconnect diagnostic: clientId={} transport={} lastSeen={} now={} wsHint={}",
+					logger.debug("MQTT disconnect diagnostic: clientId={} transport={} lastSeen={} now={} wsHint={}",
 					        clientId, transport, lastSeen == null ? "<null>" : lastSeen, ts,
 					        "ws".equals(transport));
 				} catch (Throwable t) {
@@ -315,7 +363,7 @@ public class MQTTInterceptHandlers {
 		connectionDescriptors.remove(clientId);
 		connectionLastSeen.remove(clientId);
 		try {
-			LoggerFactory.getLogger(MQTTInterceptHandlers.class).info(
+			LoggerFactory.getLogger(MQTTInterceptHandlers.class).debug(
 			        "MQTT client disconnected: clientId={} globalActiveCount={}", clientId,
 			        globalActiveClientIds.size());
 		} catch (Throwable t) {

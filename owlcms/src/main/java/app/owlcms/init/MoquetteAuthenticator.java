@@ -25,7 +25,8 @@ public class MoquetteAuthenticator implements IAuthenticator {
 
 	@Override
 	public boolean checkValid(String clientId, String username, byte[] password) {
-		String clientPasswordString = new String(password, StandardCharsets.UTF_8);
+		// Moquette passes null when the client sends a user name without a password
+		String clientPasswordString = password != null ? new String(password, StandardCharsets.UTF_8) : "";
 
 		if (clientPasswordString.contentEquals(Main.mqttStartup)) {
 			// special case -- owlcms is calling it's own moquette locally
