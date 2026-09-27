@@ -10,6 +10,8 @@
 
 **Maintenance Log**
 
+- 67.5.8: An accidental MQTT configuration with a non-empty username was rejecting anonymous connections causing all MQTT devices to be inoperative, with no trace in the log..
+
 - 67.5.7: Loading a records definition files with an inordinate number of record names will now be rejected. 
   - Normally one federation code matches one record name to be shown (IWF --> World)
   - Two federations can match to the same name (e.g. different Masters and non-Masters federation for a single country)
