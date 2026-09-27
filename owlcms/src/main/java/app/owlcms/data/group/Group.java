@@ -351,25 +351,8 @@ public class Group implements Comparable<Group> {
 		this.setCompetitionTime(competition);
 	}
 
-	public int cjBreakDuration(FieldOfPlay fieldOfPlay) {
-		int millisRemaining;
-		Competition cCur = Competition.getCurrent();
-		Integer cleanJerkBreakDuration = GroupRepository
-		        .getCleanJerkBreakDuration(fieldOfPlay.getGroup().getId());
-		if (cleanJerkBreakDuration != null) {
-			millisRemaining = cleanJerkBreakDuration * 60 * 1000;
-		} else {
-			millisRemaining = 10 * 60 * 1000;
-			int size = fieldOfPlay.getLiftingOrder().size();
-			if (cCur.getShorterBreakMin() != null && size > cCur.getShorterBreakMin()) {
-				millisRemaining = (cCur.getShorterBreakDuration() != null ? cCur.getShorterBreakDuration() : 10) * 60
-				        * 1000;
-			} else if (cCur.getLongerBreakMax() != null && size < cCur.getLongerBreakMax()) {
-				millisRemaining = (cCur.getLongerBreakDuration() != null ? cCur.getLongerBreakDuration() : 10) * 60
-				        * 1000;
-			}
-		}
-		return millisRemaining;
+	public int cjBreakDuration() {
+		return getCleanJerkBreakMinutes() * 60 * 1000;
 	}
 
 	/*
@@ -480,7 +463,7 @@ public class Group implements Comparable<Group> {
 		// logger.debug("done? {} before={} after={} {}", getName(), this.done, groupDone, LoggerUtils.whereFrom());
 		this.setDone(groupDone);
 		if (this.isDone() != previousDone) {
-			GroupRepository.save(this);
+			GroupRepository.saveRuntimeState(this);
 		}
 	}
 
@@ -575,7 +558,7 @@ public class Group implements Comparable<Group> {
 	public int getCleanJerkBreakMinutes() {
 		int minutesRemaining = 0;
 		Competition cCur = Competition.getCurrent();
-		Integer cleanJerkBreakDuration = this.getCleanJerkBreakDuration();
+		Integer cleanJerkBreakDuration = GroupRepository.getCleanJerkBreakDuration(this.getId());
 		if (cleanJerkBreakDuration != null) {
 			minutesRemaining = cleanJerkBreakDuration;
 		} else {

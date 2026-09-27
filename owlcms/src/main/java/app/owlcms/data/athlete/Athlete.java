@@ -472,7 +472,7 @@ public class Athlete {
 	@Column(columnDefinition = "integer default 0", name = "gamxARank")
 	private Integer gamxARank;
 	private Gender gender = null; // $NON-NLS-1$
-	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
+	@ManyToOne(cascade = { CascadeType.PERSIST,
 			CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
 	@JoinColumn(name = "fk_group", nullable = true)
 	private Group group;

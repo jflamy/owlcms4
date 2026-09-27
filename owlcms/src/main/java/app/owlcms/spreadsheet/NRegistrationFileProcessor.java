@@ -1604,8 +1604,8 @@ public class NRegistrationFileProcessor {
 			// - IGNORE_SESSIONS: only DB groups are valid (spreadsheet groups ignored)
 			// - DELETE_SESSIONS: only spreadsheet groups are valid (DB was/will be cleared)
 			// - UPDATE_ADD_SESSIONS: DB groups + spreadsheet groups (spreadsheet overrides)
-			if (isIgnoreSessions()) {
-				// Only use groups from database
+			if (isIgnoreSessions() || !determineValidSessionsOnly) {
+				// Only use groups from database; after a real pass it holds the persisted spreadsheet sessions
 				RCompetition.resetActiveGroups();
 			} else if (isDeleteSessions()) {
 				// Only use groups from spreadsheet (DB was/will be cleared)

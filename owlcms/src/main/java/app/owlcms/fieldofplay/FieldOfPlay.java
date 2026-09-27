@@ -2998,7 +2998,7 @@ public class FieldOfPlay implements IUnregister {
 		if (CompetitionSimulator.isRunning()) {
 			millisRemaining = 10 * 1000;
 		} else {
-			millisRemaining = group.cjBreakDuration(this);
+			millisRemaining = group.cjBreakDuration();
 			if (millisRemaining <= 0) {
 				return;
 			}
