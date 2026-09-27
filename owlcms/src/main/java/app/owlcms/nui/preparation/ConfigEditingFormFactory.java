@@ -54,6 +54,7 @@ import com.vaadin.flow.server.streams.UploadHandler;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.router.Location;
 
 import app.owlcms.data.athlete.Gender;
