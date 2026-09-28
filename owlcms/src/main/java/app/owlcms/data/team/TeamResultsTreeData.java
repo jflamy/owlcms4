@@ -421,6 +421,8 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 		this.championship = ageDivision;
 		this.championshipCategoryIds = computeChampionshipCategoryIds(ageDivision);
 		// logger.debug("init tree {} {}", ageGroupPrefix, ageDivision);
+		// pooled request threads keep the IMWA category counts from earlier calls
+		AthleteRepository.resetMastersAthleteCountForCategory();
 		this.reportingBeans = Competition.getCurrent().computeReportingInfo(ageGroupPrefix, ageDivision);
 		buildTeamItemTree(this.reportingBeans, ageGroupPrefix, ageDivision, includeNotDone);
 		if (this.debug) {

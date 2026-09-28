@@ -390,10 +390,14 @@ public class AthleteRepository {
 		return map.getOrDefault(category.getCode(), 0);
 	}
 
+	public static void resetMastersAthleteCountForCategory() {
+		categoryAthleteCount.get().clear();
+	}
+
 	private static void populateCategoryMastersAthleteCountMap() {
 		JPAService.runInTransaction(em -> {
 			Query query = em.createQuery(
-			        "select p.category.code, count(a.id) from Athlete a join a.participations p join p.category c join c.ageGroup ag where ag.minAge >= 30 group by p.category.code");
+			        "select p.category.code, count(a.id) from Athlete a join a.participations p join p.category c join c.ageGroup ag where ag.minAge >= 30 and a.bodyWeight > 0.1 group by p.category.code");
 			@SuppressWarnings("unchecked")
 			List<Object[]> results = query.getResultList();
 			Map<String, Integer> map = categoryAthleteCount.get();
