@@ -10,6 +10,10 @@
 
 **Maintenance Log**
 
+- 68.0.0-rc10: The `alwaysUseLiftingOrderTieBreaks` feature switch lets concurrent A/B/C sessions use category-wide lifting-order tie breaks. For equal totals, session and lift times are ignored; lot number replaces start number as the final tie breaker.
+
+- 68.0.0-rc10: IMWA team results exclude athletes who did not weigh in from category athlete counts.
+
 - 68.0.0-rc09: CJ Break overrides are not respected whether updated during snatch or before the session.
 
 - 68.0.0-rc09: MQTT login failures are now logged, such that anonymous accesses to an accidentally added login name are visible
