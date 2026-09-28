@@ -26,6 +26,7 @@ import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.export.AthleteSessionDataReader;
 import app.owlcms.data.export.v2.AthleteDTO;
 import app.owlcms.data.group.Group;
@@ -251,6 +252,44 @@ public class AthleteLiftTimeTest {
 			earlier.setActualLift(attempt, "100");
 		}
 		assertTrue(comparator.compareSnatchResultOrder(earlier, later, true) < 0);
+	}
+
+	@Test
+	public void categoryWideLiftingOrderUsesLotAcrossSessions() {
+		Athlete earlier = recordedAthlete();
+		Athlete later = recordedAthlete();
+		var category = AthleteRepository.findAll().stream()
+				.map(Athlete::getCategory)
+				.filter(candidate -> candidate != null && candidate.getAgeGroup() != null)
+				.findFirst().orElseThrow();
+		earlier.setCategory(category);
+		later.setCategory(category);
+		earlier.setGroup(new Group("Earlier"));
+		later.setGroup(new Group("Later"));
+		earlier.setLotNumber(90);
+		later.setLotNumber(10);
+		earlier.setStartNumber(1);
+		later.setStartNumber(2);
+		for (int attempt = 1; attempt <= 6; attempt++) {
+			later.recordLift(attempt, "100", START.plusHours(1).plusMinutes(attempt));
+		}
+
+		Config config = Config.getCurrent();
+		boolean previous = config.getFeatureSwitchValue(FeatureSwitch.ALWAYS_USE_LIFTING_ORDER_TIE_BREAKS);
+		try {
+			for (Ranking ranking : List.of(Ranking.SNATCH, Ranking.CLEANJERK, Ranking.TOTAL)) {
+				config.setFeatureSwitchValue(FeatureSwitch.ALWAYS_USE_LIFTING_ORDER_TIE_BREAKS, false);
+				assertTrue(new WinningOrderComparator(ranking, true).compare(earlier, later) < 0);
+				config.setFeatureSwitchValue(FeatureSwitch.ALWAYS_USE_LIFTING_ORDER_TIE_BREAKS, true);
+				WinningOrderComparator comparator = new WinningOrderComparator(ranking, true);
+				assertTrue(comparator.compare(earlier, later) > 0);
+				assertTrue(comparator.compare(later, earlier) < 0);
+			}
+			later.setGroup(earlier.getGroup());
+			assertTrue(new WinningOrderComparator(Ranking.TOTAL, true).compare(earlier, later) > 0);
+		} finally {
+			config.setFeatureSwitchValue(FeatureSwitch.ALWAYS_USE_LIFTING_ORDER_TIE_BREAKS, previous);
+		}
 	}
 
 	private static Athlete recordedAthlete() {

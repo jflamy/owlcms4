@@ -36,6 +36,8 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.RankingConfig;
+import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
@@ -572,6 +574,10 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	public boolean isSnatchCJTotalMedals() {
 		return getMedalPolicy().includesSnatchAndCleanJerk();
+	}
+
+	public boolean isAlwaysUseLiftingOrderTieBreaks() {
+		return Config.getCurrent().featureSwitch(FeatureSwitch.ALWAYS_USE_LIFTING_ORDER_TIE_BREAKS);
 	}
 
 	public MedalPolicy getMedalPolicy() {

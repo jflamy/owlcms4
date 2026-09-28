@@ -13,6 +13,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.utils.LoggerUtils;
@@ -30,6 +31,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(WinningOrderComparator.class);
 	private boolean ignoreCategories;
 	private Ranking rankingType;
+	// read once per comparator instance; comparators are created for each ranking computation
+	private Boolean alwaysUseLiftingOrderTieBreaks;
 
 	/**
 	 * Instantiates a new winning order comparator.
@@ -558,24 +561,26 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 			return -compare; // smaller snatch is less good
 		}
 
-		if (lifter1 != null && lifter2 != null) {
-			if (lifter1.getGroup() != lifter2.getGroup()) {
+		if (lifter1 == null || lifter2 == null) {
+			return lifter1 == null ? 1 : 0;
+		}
+		boolean categoryWideLiftingOrder = useCategoryWideLiftingOrder(lifter1, lifter2);
+		if (!categoryWideLiftingOrder && lifter1.getGroup() != lifter2.getGroup()) {
 				compare = compareBestSnatchTime(lifter1, lifter2);
 				traceComparison("snatch best snatch time", lifter1, lifter1.getBestSnatchAttemptTime(), lifter2, lifter2.getBestSnatchAttemptTime(), compare);
 				if (compare != 0) {
 					// <0 means lifter1 earlier than lifter2
 					return compare; // earlier is better, rank 1 is better than rank 2
 				}
-			}
-		} else {
-			return lifter1 == null ? 1 : 0;
 		}
 
-		compare = compareCompetitionSessionTime(lifter1, lifter2);
-		traceComparison("compareCompetitionSessionTime", lifter1, lifter2, compare);
-		if (compare != 0) {
-			// <0 means lifter1 earlier than lifter2
-			return compare; // earlier is better, rank 1 is better than rank 2
+		if (!categoryWideLiftingOrder) {
+			compare = compareCompetitionSessionTime(lifter1, lifter2);
+			traceComparison("compareCompetitionSessionTime", lifter1, lifter2, compare);
+			if (compare != 0) {
+				// <0 means lifter1 earlier than lifter2
+				return compare; // earlier is better, rank 1 is better than rank 2
+			}
 		}
 
 		compare = compareBestSnatchAttemptNumber(lifter1, lifter2);
@@ -591,13 +596,15 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 			                // best attempt), smaller first
 		}
 
-		compare = compareStartNumber(lifter1, lifter2);
-		traceComparison("start number", lifter1, lifter2, compare);
+		compare = categoryWideLiftingOrder
+		        ? compareLotNumber(lifter1, lifter2) : compareStartNumber(lifter1, lifter2);
+		traceComparison(categoryWideLiftingOrder ? "lot number" : "start number", lifter1, lifter2, compare);
 		if (compare != 0) {
 			return compare; // if equality within a group, smallest lot number wins
 		}
 
-		return compare;
+		return categoryWideLiftingOrder
+		        ? ObjectUtils.compare(lifter1.getId(), lifter2.getId()) : compare;
 	}
 
 	/**
@@ -825,9 +832,10 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		if (lifter1 == null || lifter2 == null) {
 			return lifter1 == null ? 1 : 0;
 		}
+		boolean categoryWideLiftingOrder = useCategoryWideLiftingOrder(lifter1, lifter2);
 		
 		// if the athletes were not in the same session
-		if (lifter1 != null && lifter2 != null && !sameGroup(lifter1, lifter2)) {
+		if (!categoryWideLiftingOrder && !sameGroup(lifter1, lifter2)) {
 			compare = compareBestCleanJerkTime(lifter1, lifter2);
 			Group group1 = lifter1.getGroup();
 			Group group13 = lifter2.getGroup();
@@ -841,7 +849,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		}
 
 		// earlier session wins (redundant given previous test)
-		if (lifter1 != null && lifter2 != null && !sameGroup(lifter1, lifter2)) {
+		if (!categoryWideLiftingOrder && !sameGroup(lifter1, lifter2)) {
 			compare = compareCompetitionSessionTime(lifter1, lifter2);
 			Group group12 = lifter1.getGroup();
 			Group group13 = lifter2.getGroup();
@@ -881,8 +889,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
 		// if equality within a group, smallest lot number wins (same session, same
 		// category, same weight, same attempt) -- smaller lot lifted first.
-		compare = compareStartNumber(lifter1, lifter2);
-		traceComparison("tiebreak compareStartNumber", lifter1, lifter2, compare);
+		compare = categoryWideLiftingOrder ? compareLotNumber(lifter1, lifter2) : compareStartNumber(lifter1, lifter2);
+		traceComparison(categoryWideLiftingOrder ? "tiebreak compareLotNumber" : "tiebreak compareStartNumber", lifter1, lifter2, compare);
 		if (compare != 0) {
 			return compare; // compare attempted weights (prior to best attempt), smaller first
 		}
@@ -891,6 +899,18 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		compare = ObjectUtils.compare(lifter1.getId(), lifter2.getId());
 		return compare;
 
+	}
+
+	private boolean useCategoryWideLiftingOrder(Athlete lifter1, Athlete lifter2) {
+		Category category = lifter1.getCategory();
+		if (category == null || lifter2.getCategory() == null || !category.sameAs(lifter2.getCategory())
+		        || category.getAgeGroup() == null) {
+			return false;
+		}
+		if (this.alwaysUseLiftingOrderTieBreaks == null) {
+			this.alwaysUseLiftingOrderTieBreaks = category.getAgeGroup().getChampionship().isAlwaysUseLiftingOrderTieBreaks();
+		}
+		return this.alwaysUseLiftingOrderTieBreaks;
 	}
 
 	public boolean sameGroup(Athlete lifter1, Athlete lifter2) {

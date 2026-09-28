@@ -51,6 +51,7 @@ public enum FeatureSwitch {
     EXPLICIT_TEAMS("explicitTeams", FeatureSwitchSection.GENERAL_OPTIONS),
     BEST_MATCH_CATEGORIES("bestMatchCategories", FeatureSwitchSection.GENERAL_OPTIONS),
     NO_INTERIM_SCORES_IN_RESULTS("noInterimScoresInResults", FeatureSwitchSection.GENERAL_OPTIONS),
+    ALWAYS_USE_LIFTING_ORDER_TIE_BREAKS("alwaysUseLiftingOrderTieBreaks", FeatureSwitchSection.GENERAL_OPTIONS),
     TEAM_POINTS_TOTAL_ONLY("teamPointsTotalOnly", FeatureSwitchSection.GENERAL_OPTIONS),
     LIGHT_BAR_U13("lightBarU13", FeatureSwitchSection.GENERAL_OPTIONS),
     LIGHT_BAR_U15("lightBarU15", FeatureSwitchSection.GENERAL_OPTIONS),
