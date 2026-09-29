@@ -17,6 +17,8 @@ import javax.persistence.TypedQuery;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.audit.AuditFormat;
+import app.owlcms.audit.SettingsAudit;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.jpa.JPAService;
@@ -157,7 +159,11 @@ public class GroupRepository {
 	 * @return the group
 	 */
 	public static Group save(Group group) {
+		Integer oldCjBreak = group.getId() != null ? getCleanJerkBreakDuration(group.getId()) : null;
 		Group saved = JPAService.runInTransaction(em -> em.merge(group));
+		SettingsAudit.change(saved.getPlatform() != null ? saved.getPlatform().getName() : "competition",
+				"session.change", "cleanJerkBreakDuration", oldCjBreak, saved.getCleanJerkBreakDuration(),
+				AuditFormat.kv("session", saved.getName()));
 		OwlcmsFactory.refreshActiveFOPGroup(saved);
 		return saved;
 	}

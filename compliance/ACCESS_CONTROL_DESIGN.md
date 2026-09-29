@@ -1,6 +1,6 @@
 # Role-Based Access Control — Detailed Design
 
-Status: design approved for implementation, with open decisions listed in §17 (each has a default to use until confirmed).
+Status: design approved for implementation. All decisions in §17 are resolved.
 Audience: the implementing agent. Read §18 (repository constraints) before writing code.
 
 Line numbers are approximate (they drift); search by method name.
@@ -238,7 +238,7 @@ Additional gate: `@RequiresFeature(FeatureSwitch.X)` — when the switch is off,
 | `TCContent` | `lifting/tc` | TC | ✓ |
 | `JuryContent` | `lifting/jury` | JURY | ✓ |
 | `MedalCeremonyContent` | `lifting/medalCeremony` | ANNOUNCER, TIMEKEEPER | ✓ |
-| `WodkeeperContent` | `lifting/wodkeeper` | TIMEKEEPER (see D-WODKEEPER) | ✓ |
+| `WodkeeperContent` | `lifting/wodkeeper` | TIMEKEEPER | ✓ |
 | `TestingContent` | `lifting/testing` | ADMIN_PAGES | ✓ |
 | `nui.referee.RefContent` | `ref` | REFEREE | ✓ |
 | `nui.referee.JuryMobileContent` | `jury` | JURY | ✓ |
@@ -519,13 +519,9 @@ Follow the `add-test-case` skill: **no Vaadin UI objects in tests**; keep logic 
 
 ## 17. Decisions
 
-Resolved (already reflected above): ADMIN always all platforms and never locked (live selectors kept); DISPLAYS not lockable; MARSHAL keeps the Pause button; TIMEKEEPER opens medal ceremonies; display IP list ignored in accounts mode; `OWLCMS_PIN` inactive in accounts mode, `OWLCMS_BACKDOOR` is the emergency access; built-in `admin` account needs a password before switching; ADMIN resets passwords; OBS monitors behind a feature switch, open when enabled; password length ≥ 8, any characters; session import ADMIN only; typed PINs and passwords never logged (reveal button kept); logout in the side menu in accounts mode only, PIN mode unchanged.
+Resolved (already reflected above): ADMIN always all platforms and never locked (live selectors kept); DISPLAYS not lockable; MARSHAL keeps the Pause button; TIMEKEEPER opens medal ceremonies; display IP list ignored in accounts mode; `OWLCMS_PIN` inactive in accounts mode, `OWLCMS_BACKDOOR` is the emergency access; built-in `admin` account needs a password before switching; ADMIN resets passwords; OBS monitors behind a feature switch, open when enabled; password length ≥ 8, any characters; session import ADMIN only; typed PINs and passwords never logged (reveal button kept); logout in the side menu in accounts mode only, PIN mode unchanged; `WodkeeperContent` (timer control) is TIMEKEEPER, platform-bound, while `WodPage` stays DISPLAYS.
 
-Still open (implement the default; keep each change local):
-
-| Id | Question | Default until confirmed |
-|---|---|---|
-| D-WODKEEPER | `WodkeeperContent` (`lifting/wodkeeper`) is not a display: it is a timer-control page (near-copy of `TimekeeperContent`, start/stop and a 30:00 preset). The display is `WodPage` (`displays/wod`). Which role for `WodkeeperContent`? | TIMEKEEPER, platform-bound. `WodPage` stays DISPLAYS. |
+No decisions remain open.
 
 ---
 

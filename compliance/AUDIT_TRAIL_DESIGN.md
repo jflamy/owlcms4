@@ -1,6 +1,6 @@
 # Per-Platform Audit Trail — Detailed Design
 
-Status: design for implementation. Open decisions in §12 have defaults to use until confirmed.
+Status: design for implementation. All decisions in §12 are resolved.
 Audience: the implementing agent. Read §13 (repository constraints) first.
 Related: [ACCESS_CONTROL_DESIGN.md](ACCESS_CONTROL_DESIGN.md) (accounts mode supplies the user identity).
 
@@ -12,13 +12,16 @@ Line numbers are approximate; search by method name.
 
 - A clean, **separate audit file per platform**, plus one file for actions not tied to a platform.
 - **Every interactive action** by an official is recorded: clock starts/stops, time resets, breaks, ceremonies, session switches, referee and jury votes, jury decisions, declarations, changes, withdrawals, lift corrections, weigh-in and registration edits.
+- **Records challenged and records improved** are recorded, as computed by the field of play (§6.5).
 - **Individual changes only**: one line per changed value. If the marshal changes two values and then the announcer changes one, the file shows exactly 3 lines.
 - Each line says **which station did it**:
   - accounts mode: the user name **and** the station;
   - PIN mode: the station, **inferred** from the page (or device) that produced the action — the core of this design (§4).
-- Imports, simulations and other bulk loads are **not** recorded (for now).
+- Imports and other bulk loads are **not** recorded. The competition simulator is recorded with synthetic station actors so its run validates the audit trail (§8).
 
-Non-goals (this iteration): other entities (sessions, platforms, categories, config) — see §12 A4; tamper-proof hashing; viewing the audit in the UI.
+- Other entities (sessions, platforms, categories, officials, config) are not audited edit by edit. Instead, a **session summary** snapshot is written when a session starts lifting (§6.4).
+
+Non-goals (this iteration): per-edit audit of other entities; tamper-proof hashing; viewing the audit in the UI.
 
 ---
 
@@ -105,7 +108,7 @@ The actor must be captured **on the thread and in the context where the action h
 | **unwrap** other form factories / dialogs holding an origin page | resolve the origin | |
 | `MQTTMonitor` or its inner handler classes | set explicitly by the handler (§4.4) | |
 | `ProxyAthleteTimer`, `ProxyBreakTimer`, `FieldOfPlay` (internal), `null` | SYSTEM | |
-| `FOPSimulator`, `CompetitionSimulator` | not audited (suppressed, §8) | |
+| `FOPSimulator`, `CompetitionSimulator` | synthetic actor supplied by `FOPSimulator` (§8) | |
 | anything else | UNKNOWN (+ one `logger.warn` per class, naming the class so the table can be extended) | |
 
 Rules:
@@ -151,8 +154,9 @@ Some saves are consequences of an event. For example, when the third referee vot
 ### 6.1 FOP event lines (one per accepted event)
 Written by `FieldOfPlay.handleFOPEvent`:
 - only for events that pass duplicate detection (`prevHash`, ~750);
-- only when the event was **accepted**, i.e. `unexpectedEventInState` (~4543) was not called for it. Track this with a per-event outcome flag that `unexpectedEventInState` sets.
-- Refused and ignored events stay in `owlcms.log` only (A3).
+- Track the outcome with a per-event flag that `unexpectedEventInState` (~4543) sets.
+- **Accepted** events are written with the action from the table below.
+- **Refused** events (`unexpectedEventInState` was called) are also written, with the action suffixed `.refused` (for example `jury.decision.refused`) and the FOP state at refusal in `detail` (`state=<FOPState>`). Events with no audit action (table: "none") are not written, refused or not (A3).
 
 | Event | Audit `action` | Detail recorded |
 |---|---|---|
@@ -194,23 +198,67 @@ Written by `FieldOfPlay.handleFOPEvent`:
 - **Known risk:** `AthleteCardFormFactory` copies the whole form (`Athlete.conditionalCopy`, snapshot taken at dialog open ~396–407) back onto the athlete. If another station changed a field while the card was open, the save may silently revert it. The DB-level diff will show that revert as a change by the saving station. That is truthful, and it makes the lost update visible. Fixing the lost update itself is out of scope; record it as a follow-up.
 
 ### 6.3 Line format
-One line per record, fields in fixed order, separated by ` | `. Values are escaped: `\` → `\\`, `|` → `\|`, newline → `\n`. Timestamp is ISO-8601 with milliseconds and offset.
+Each record is written to two files per platform, with the same sequence number:
+- `<platform>.log` — the readable log, positional columns only;
+- `<platform>_full.log` — the same columns followed by identification fields as `key=value`.
+
+Fields are separated by ` | `. Values are escaped: `\` → `\\`, `|` → `\|`, newline → `\n`. Sequence, station, action, athlete and attempt are padded so the columns line up. The `inferred` flag is not written.
 
 ```
-<timestamp> | seq=<n> | platform=<name|-> | mode=<PIN|ACCOUNTS> | user=<name|-> | station=<STATION[#index]> | inferred=<true|false> | client=<ip#hash|-> | device=<kind|-> | action=<action> | athlete=<id> "<LASTNAME, Firstname>" | attempt=<SN1..CJ3|-> | field=<name|-> | old=<value|-> | new=<value|-> | cause=<text|-> | detail=<text|->
+<seq> | <HH:mm:ss.SSS> | <STATION[#index]> | <action> | <LASTNAME, Firstname>|- | <SN1..CJ3>|- | <field> <old> -> <new>|- | <detail|->
+```
+The full file appends:
+```
+ | cause=<text|-> | athleteId=<id|-> | platform=<name|-> | timestamp=<ISO-8601 with offset> | mode=<PIN|ACCOUNTS> | user=<name|-> | client=<ip#hash|-> | device=<kind|->
 ```
 
-Examples:
+The change column shows the field (without the attempt prefix) and `old -> new` for changes; for other records it shows only the new value when there is one. The date is carried by the daily file name and by `timestamp=` in the full file.
+
+Examples (`A.log`):
 ```
-2026-10-04T14:03:12.345-04:00 | seq=412 | platform=A | mode=PIN | user=- | station=MARSHAL | inferred=true | client=192.168.1.23#4f2a | device=- | action=athlete.change | athlete=123 "DOE, John" | attempt=SN2 | field=change1 | old=- | new=87 | cause=- | detail=-
-2026-10-04T14:03:12.346-04:00 | seq=413 | platform=A | mode=PIN | user=- | station=MARSHAL | inferred=true | client=192.168.1.23#4f2a | device=- | action=athlete.change | athlete=123 "DOE, John" | attempt=SN3 | field=declaration | old=- | new=90 | cause=- | detail=-
-2026-10-04T14:03:40.001-04:00 | seq=414 | platform=A | mode=PIN | user=- | station=ANNOUNCER | inferred=true | client=192.168.1.10#9b1c | device=- | action=athlete.change | athlete=145 "ROE, Ann" | attempt=CJ1 | field=declaration | old=- | new=110 | cause=- | detail=-
-2026-10-04T14:04:05.200-04:00 | seq=415 | platform=A | mode=PIN | user=- | station=TIMEKEEPER | inferred=true | client=192.168.1.31#77e0 | device=- | action=clock.start | athlete=123 "DOE, John" | attempt=SN2 | field=- | old=- | new=- | cause=- | detail=remaining=60000
-2026-10-04T14:04:31.870-04:00 | seq=416 | platform=A | mode=PIN | user=- | station=REFEREE#2 | inferred=false | client=- | device=refbox | action=referee.vote | athlete=123 "DOE, John" | attempt=SN2 | field=- | old=- | new=GOOD | cause=- | detail=-
-2026-10-04T14:04:33.012-04:00 | seq=419 | platform=A | mode=PIN | user=- | station=REFEREES | inferred=false | client=- | device=- | action=athlete.change | athlete=123 "DOE, John" | attempt=SN2 | field=actualLift | old=- | new=87 | cause=decision G G B | detail=-
+  412 | 14:03:12.345 | MARSHAL      | athlete.change     | DOE, John                        | SN2 | change1 - -> 87 | -
+  414 | 14:03:40.001 | ANNOUNCER    | athlete.change     | ROE, Ann                         | CJ1 | declaration - -> 110 | -
+  415 | 14:04:05.200 | TIMEKEEPER   | clock.start        | DOE, John                        | SN2 | - | clock=1:00.0
+  416 | 14:04:31.870 | REFEREE#2    | referee.vote       | DOE, John                        | SN2 | - | referee=2,decision=GOOD
+  419 | 14:04:33.012 | REFEREES     | athlete.change     | DOE, John                        | SN2 | actualLift - -> 87 | -
 ```
 
-`seq` is a per-platform counter, monotonic for the life of the server process. At startup, each audit file gets a header line with `action=audit.open`, the server version, the start time and a random run id, so a gap in `seq` or a restart is visible.
+`seq` is a per-platform counter, monotonic for the life of the server process. At startup, each audit file gets a header line with `action=audit.open`, the server version and a random run id, so a gap in `seq` or a restart is visible.
+
+### 6.4 Session summary (A4)
+Written once per session load, when lifting starts: on the accepted `StartLifting` event, or, if lifting begins without it, on the first accepted `TimeStarted` for the loaded session. The block is written just before that event's own line. Loading the session again re-arms it.
+- Goes to the platform's file, attributed to the actor of the triggering event. Each line has a `summary.*` action, so `grep summary.` extracts the block.
+- **Content = the protocol sheet as it stands when lifting starts, including the technical officials.** Reference: `templates/protocol/PanAmProtocol-A4.xlsx` (the IWF/PanAm layout). Results are not known yet, so the lift and rank columns are replaced by the starting declarations.
+- One line per item, written consecutively (no other line interleaved), using the normal columns.
+  - **`summary.session`** (one line): session name and description in the change column; competition name, date, site, city, organizer, weigh-in time and competition time in the detail column.
+  - **`summary.official`** (one line per filled position; empty positions skipped): the change column shows `<position> LASTNAME, Firstname (FEDERATION)` from the `...AsTO` getter.
+    - **Every** technical official position of the session is listed, including all the multiples and the positions the protocol sheet does not show. This is the list in `Group.findAssignedTechnicalOfficials()`:
+      - announcer; competition director; competition secretaries 1–2;
+      - jury 1 (president) to jury 5, reserve jury;
+      - referees 1–3, reserve referee;
+      - marshals 1–2; technical controllers 1–3; timekeeper;
+      - doctors 1–3; weigh-in officials 1–2; TIS 1–2.
+    - `findAssignedTechnicalOfficials()` loses the position. Add to `Group` one ordered position-to-getter list, used both by that method and by `SessionSummary`, so a position added later appears in both. `JXLSExportTechnicalOfficials.sessionRoleGetterMap()` is incomplete (no director, secretaries, TC 3, doctors, TIS) and is not the source.
+  - **`summary.athlete`** (one line per athlete, in protocol order: grouped by category, then display order, one line per participation as in `JXLSResultSheet`): the athlete column identifies the athlete; the detail column holds start number, lot, birth, membership, team, category, body weight, first snatch and first clean & jerk requested weights.
+  - Records are not in the snapshot: the protocol's records block lists records set during the session, which is empty at the start; they appear as `record.new` lines (§6.5).
+- Built by a `SessionSummary` class from plain entities (`Competition`, `Group`, `Athlete`), so it is unit-testable without Vaadin. As on the protocol sheet, athletes without a category or body weight are left out (same filter as `JXLSResultSheet.computeSortedAthletes`).
+
+### 6.5 Records challenged, improved and cancelled
+`FieldOfPlay` already recomputes these; the audit captures them there, one line per record. Common fields:
+- `athlete=` the athlete; `attempt=` the attempt concerned (`SN1..CJ3`);
+- `field=record`; `old=` the record value before; `new=` the requested weight (challenge) or the new record value;
+- `detail=` identifies the record: federation, record name, age group, gender, body weight category, lift (`SNATCH`, `CLEANJERK`, `TOTAL`).
+
+| Action | Hook (search by name) | When | Actor |
+|---|---|---|---|
+| `record.challenge` | `recomputeRecords(Athlete)`, after `RecordFilter.computeChallengedRecords` (next to the existing `"challenged record"` info log) | a record enters the challenged set for the current athlete | the `AuditContext` actor (for example the MARSHAL whose change raised the weight above the record); SYSTEM if none |
+| `record.new` | `updateRecords(...)`, success branch, for each `RecordEvent` persisted (next to the `"new record"` log) | good lift, or jury reversal to good | the `AuditContext` actor: REFEREES with the decision as cause, or JURY_CONSOLE for a reversal |
+| `record.cancelled` | `updateRecords(...)`, failure branch, for each voidable record removed (next to the `"cancelled record"` log) | jury reversal to bad | JURY_CONSOLE |
+
+- **De-duplication of challenges.** `recomputeRecords` runs on every lifting-order recomputation, so it would repeat the same challenge many times. A small `RecordChallengeTracker` held by `FieldOfPlay` keeps the last audited key set: athlete id + attempt number + requested weight + record identity (`RecordEvent.sameAs`). A line is written only for keys not in the previous set. The set is reset when the current athlete, the attempt or the requested weight changes, so a new weight that still beats the record gives a new line.
+- A challenge that disappears (the weight was lowered below the record) is not written: the athlete change line shows the new weight.
+- The `record.new` lines are what fills the protocol's records block at the end of the session.
+- Record imports and the records management page (accepting provisional records, clearing) are not audited (§8).
 
 ---
 
@@ -234,17 +282,18 @@ Which file a line goes to:
 
 ---
 
-## 8. Exclusions (imports, simulations, bulk loads)
+## 8. Exclusions, simulation and bulk loads
 
 `AuditContext.suppressed(Runnable)` sets a suppression flag on the thread. `AthleteRepository.save` and `AuditLog` skip everything while it is set. Wrap:
 - registration upload processing (`NRegistrationFileProcessor` and its upload dialog);
 - competition JSON import (`CompetitionData`, `CompetitionDataV2`, `FormatDetector` import paths);
 - SBDE import and records imports (`RecordImportDialog` and the records loaders);
 - session import (`SessionImportContent` processing);
-- simulation (`CompetitionSimulator`, `FOPSimulator`);
 - demo/initial data creation (`InitialData`) and database migrations (for example `UtcNormalizationMigration`).
 
-Interactive **bulk** operations started by a user, such as "clear all lifts", start number assignment or "delete all athletes": see A2. Default: a single summary line (`action=bulk.<name>`, count in `detail`), with per-field lines suppressed.
+The simulator is deliberately audited. `FOPSimulator` assigns the same actor that would produce each action in a live meet: ANNOUNCER for session switch/start and explicit combined decisions, MARSHAL for declarations and changes, TIMEKEEPER for clock actions, and REFEREE #1–3 for individual decisions. Repeated or changed votes from one referee remain independent `referee.vote` events. Synthetic actors have `device=simulator`.
+
+Interactive **bulk** operations started by a user, such as "clear all lifts", start number assignment or "delete all athletes" (A2): a single summary line (`action=bulk.<name>`, count in `detail`), with per-field lines suppressed.
 
 ---
 
@@ -269,11 +318,13 @@ Follow the `add-test-case` skill: **no Vaadin UI objects**.
   - unknown class → UNKNOWN.
 - `AthleteDiffTest`: plain `Athlete` instances.
   - one change → one line; three changes → three lines; no change → none;
-  - null ↔ value;
+    - null ↔ value;
   - failed lift sign;
   - non-audited fields ignored.
 - `AuditFormatTest`: escaping of `|`, `\`, newlines and quotes in athlete names; field order; timestamp format.
 - `AuditContextTest`: nesting, suppression, cleanup after exceptions.
+- `SessionSummaryTest`: a plain competition, session and athletes → one header line, one line per filled official position (empty ones skipped), one athlete line per participation in protocol order; empty session.
+- `RecordChallengeTrackerTest`: plain `RecordEvent` instances. The same challenge recomputed several times → one line; weight raised above the record again → a new line; a different athlete → a new line; two records challenged by one attempt → two lines.
 - Coverage test: every class that implements `IAthleteEditing`, and every `@Route` class under `nui.lifting` and `nui.referee`, resolves to a station other than UNKNOWN.
 - Running tests needs human consent (repo rule). Use the `run-java-test` or `run-maven-test` skill once authorized.
 
@@ -288,14 +339,16 @@ Follow the `add-test-case` skill: **no Vaadin UI objects**.
   - on a 2-platform competition, each platform has its own audit file;
   - every clock start/stop, break, ceremony, session load, referee vote, panel decision, jury vote/decision and summon appears once, with the right station;
   - device actions show `device=`;
-  - refused and duplicate events don't appear;
+  - refused events appear once with the `.refused` suffix and the state; duplicate events don't appear;
+  - starting lifting writes one `summary.*` block; loading the session again and restarting writes a new one;
   - audit lines are absent from `owlcms.log`.
 
 **Phase 2 — Athlete field changes**
-- Add the `AthleteDiff` hook in `AthleteRepository.save`, the `AuditContext` wrapping in `handleFOPEvent`, the decision/jury attribution, and the import/simulation suppression.
+- Add the `AthleteDiff` hook in `AthleteRepository.save`, the `AuditContext` wrapping in `handleFOPEvent`, the decision/jury attribution, import suppression, and synthetic simulator attribution.
 - Accept:
   - marshal changes two values then the announcer changes one → exactly 3 `athlete.change` lines with the right stations;
   - a referee decision produces one `actualLift` line attributed to REFEREES;
+  - a declaration above a record gives one `record.challenge` line per record, however many times the order is recomputed; the good lift gives one `record.new` line per record broken (REFEREES); a jury reversal to bad gives the matching `record.cancelled` lines (JURY_CONSOLE);
   - a registration upload and a JSON import produce no audit lines;
   - weigh-in body weight edits appear in the file of the athlete's session platform.
 
@@ -307,18 +360,16 @@ Follow the `add-test-case` skill: **no Vaadin UI objects**.
 
 ## 12. Decisions
 
-Resolved: the audit appender is configured in code with the Logback API (§7), not in `logback.xml`.
+All resolved. The audit appender is configured in code with the Logback API (§7), not in `logback.xml`.
 
-Still open (implement the default; keep each change local):
-
-| Id | Question | Default until confirmed |
+| Id | Question | Decision |
 |---|---|---|
-| A1 | Line format: readable ` \| `-separated key=value (as above) or JSON Lines. | Readable key=value. |
-| A2 | Interactive bulk operations: one summary line, or every field. | One summary line. |
-| A3 | Record refused/ignored events (for example a jury decision refused in the current state) in the audit? | No (kept in `owlcms.log`). |
-| A4 | Also audit other entities (sessions/groups, categories, platforms, technical officials, config) through `OwlcmsCrudFormFactory.performOperationAndCallback` (~484)? | Not in this iteration. |
-| A5 | Pre-competition registration edits: audited (to the session's platform, or `competition`)? | Yes, since they are interactive changes. |
-| A6 | Retention: never deleted automatically, under `logs/audit/`. | Yes. |
+| A1 | Line format | Readable ` \| `-separated key=value (§6.3). |
+| A2 | Interactive bulk operations | One summary line (§8). |
+| A3 | Refused events | Recorded, with the `.refused` action suffix and the state (§6.1). |
+| A4 | Other entities (sessions, categories, platforms, officials, config) | No per-edit audit; a session summary with the protocol sheet content, including technical officials, when lifting starts (§6.4). |
+| A5 | Pre-competition registration edits | Audited, to the session's platform or `competition`. |
+| A6 | Retention | Never deleted automatically, under `logs/audit/`. |
 
 ---
 

@@ -8,11 +8,13 @@ package app.owlcms.data.competition;
 
 import java.util.List;
 
+import javax.persistence.CacheRetrieveMode;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.audit.SettingsAudit;
 import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.jpa.JPAService;
 import ch.qos.logback.classic.Level;
@@ -108,6 +110,15 @@ public class CompetitionRepository {
 	 * @return the competition
 	 */
 	public static Competition save(Competition competition) {
+		Integer[] oldBreaks = competition.getId() == null ? new Integer[2] : JPAService.runInTransaction(em -> {
+			List<?> rows = em.createQuery(
+			        "select c.shorterBreakDuration, c.longerBreakDuration from Competition c where c.id=:id")
+			        .setParameter("id", competition.getId())
+			        .setHint("javax.persistence.cache.retrieveMode", CacheRetrieveMode.BYPASS)
+			        .getResultList();
+			Object[] row = rows.isEmpty() ? new Object[2] : (Object[]) rows.get(0);
+			return new Integer[] { (Integer) row[0], (Integer) row[1] };
+		});
 		JPAService.runInTransaction(em -> {
 			Competition nc = em.merge(competition);
 			// needed because some classes get competition parameters from getCurrent()
@@ -116,6 +127,10 @@ public class CompetitionRepository {
 		});
 
 		Competition current = Competition.getCurrent();
+		SettingsAudit.change("competition", "competition.change", "shorterBreakDuration", oldBreaks[0],
+				current.getShorterBreakDuration(), null);
+		SettingsAudit.change("competition", "competition.change", "longerBreakDuration", oldBreaks[1],
+				current.getLongerBreakDuration(), null);
 		// Recompute mustCompute rankings based on updated Competition and age groups
 		RankingConfig.updateMustCompute();
 		return current;

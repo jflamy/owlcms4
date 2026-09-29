@@ -24,6 +24,7 @@ import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.audit.AuditActor;
 
 /**
  * The subclasses of FOPEvent are all the events that can take place on the field of play.
@@ -755,12 +756,14 @@ public class FOPEvent {
 	 */
 	protected Object origin;
 	final static Logger logger = (Logger) LoggerFactory.getLogger(FOPEvent.class);
+	private AuditActor auditActor;
 	private FieldOfPlay fop;
 	private String stackTrace;
 	private long timestamp;
 
 	public FOPEvent(Athlete athlete, Object origin) {
 		this.fop = OwlcmsSession.getFop();
+		this.auditActor = AuditActor.capture(origin);
 		// if (this.fop == null) {
 		// logger.error("no fop {}",LoggerUtils.stackTrace());
 		// }
@@ -790,6 +793,10 @@ public class FOPEvent {
 		return this.athlete;
 	}
 
+	public AuditActor getAuditActor() {
+		return this.auditActor;
+	}
+
 	/**
 	 * @return the fop
 	 */
@@ -813,6 +820,10 @@ public class FOPEvent {
 
 	public void setAthlete(Athlete athlete) {
 		this.athlete = athlete;
+	}
+
+	public void setAuditActor(AuditActor auditActor) {
+		this.auditActor = auditActor;
 	}
 
 	void setFop(FieldOfPlay fieldOfPlay) {

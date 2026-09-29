@@ -10,6 +10,7 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.Main;
+import app.owlcms.audit.ApplicationAudit;
 import ch.qos.logback.classic.Logger;
 
 public final class RestartUtils {
@@ -37,6 +38,7 @@ public final class RestartUtils {
 	}
 
 	public static void triggerRestart(String reason) {
+		ApplicationAudit.restartRequested(reason);
 		if (reason == null || reason.isBlank()) {
 			logger.info("Triggering restart via System.exit(1)");
 			System.err.println("OWLCMS: Triggering restart via System.exit(1)");
@@ -44,7 +46,7 @@ public final class RestartUtils {
 			logger.info("Triggering restart via System.exit(1): {}", reason);
 			System.err.println("OWLCMS: Triggering restart via System.exit(1) - " + reason);
 		}
-		Main.prepareForExit();
+		Main.prepareForExit(reason == null || reason.isBlank() ? "restart" : reason);
 		try {
 			Thread.sleep(EXIT_FLUSH_DELAY_MS);
 		} catch (InterruptedException e) {

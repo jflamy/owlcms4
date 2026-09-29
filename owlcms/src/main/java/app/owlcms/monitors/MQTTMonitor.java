@@ -52,6 +52,9 @@ import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
+import app.owlcms.audit.AuditActor;
+import app.owlcms.audit.AuditFormat;
+import app.owlcms.audit.SettingsAudit;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.uievents.BreakType;
@@ -182,6 +185,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 				if (OwlcmsFactory.isImportInProgress()) {
 					logger.debug("{}MQTT executor task dropped, import in progress: {}",
 							FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic);
+					auditRejected(topic, dispatchedMessageStr, "import in progress");
 					return;
 				}
 				if (topic.endsWith(this.configTopicName)) {
@@ -223,6 +227,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 				} else {
 					logger.error("{}Malformed MQTT unrecognized topic message topic='{}' message='{}'",
 							FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, dispatchedMessageStr);
+					auditRejected(topic, dispatchedMessageStr, "unrecognized topic");
 				}
 			});
 			// Some broker runtime intercepts may expose the publisher client id or remote
@@ -418,18 +423,18 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		 */
 		private void postFopEventDownEmitted(String topic, String messageStr) {
 			messageStr = messageStr.trim();
-			MQTTMonitor.this.getFop().fopEventPost(new FOPEvent.DownSignal(this));
+			postDeviceEvent(new FOPEvent.DownSignal(this), "REFEREE", null, "refbox");
 		}
 
 		private void postFopEventJuryDecision(String topic, String messageStr) {
 			messageStr = messageStr.trim();
 			try {
-				MQTTMonitor.this.getFop().fopEventPost(
-						new FOPEvent.JuryDecision(this.athleteUnderReview, this, messageStr.contentEquals("good"),
-								true));
+				postDeviceEvent(new FOPEvent.JuryDecision(this.athleteUnderReview, this,
+						messageStr.contentEquals("good"), true), "JURY_CONSOLE", null, "jurybox");
 			} catch (NumberFormatException e) {
 				logger.error("{}Malformed MQTT jury decision message topic='{}' message='{}'",
 						FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);
+				auditRejected(topic, messageStr, "malformed");
 			}
 		}
 
@@ -439,11 +444,12 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 				String[] parts = messageStr.split(" ");
 				int refIndex = Integer.parseInt(parts[0]) - 1;
 				logger.debug("JuryMemberDecisionUpdate {} {}", parts, refIndex);
-				MQTTMonitor.this.getFop().fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(MQTTMonitor.this, refIndex,
-						parts[parts.length - 1].contentEquals("good")));
+				postDeviceEvent(new FOPEvent.JuryMemberDecisionUpdate(MQTTMonitor.this, refIndex,
+						parts[parts.length - 1].contentEquals("good")), "JURY_MEMBER", refIndex + 1, "jurybox");
 			} catch (NumberFormatException e) {
 				logger.error("{}Malformed MQTT jury member decision message topic='{}' message='{}'",
 						FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);
+				auditRejected(topic, messageStr, "malformed");
 			}
 		}
 
@@ -452,12 +458,13 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			try {
 				String[] parts = messageStr.split(" ");
 				int refIndex = Integer.parseInt(parts[0]) - 1;
-				MQTTMonitor.this.getFop().fopEventPost(new FOPEvent.DecisionUpdate(this, refIndex,
-						parts[parts.length - 1].contentEquals("good")));
+				postDeviceEvent(new FOPEvent.DecisionUpdate(this, refIndex,
+						parts[parts.length - 1].contentEquals("good")), "REFEREE", refIndex + 1, "refbox");
 
 			} catch (NumberFormatException e) {
 				logger.error("{}Malformed MQTT referee decision message topic='{}' message='{}'",
 						FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);
+				auditRejected(topic, messageStr, "malformed");
 			}
 		}
 
@@ -476,29 +483,29 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 				// do the actual summoning
 				if (MQTTMonitor.this.getFop() != null) {
 					if (MQTTMonitor.this.getFop().getState() != FOPState.BREAK && refIndex != 4) {
-						MQTTMonitor.this.getFop().fopEventPost(
-								new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true,
-										this));
+						postDeviceEvent(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0,
+								null, true, this), "JURY_CONSOLE", null, "jurybox");
 					}
-					MQTTMonitor.this.getFop().fopEventPost(new FOPEvent.SummonReferee(this, refIndex));
+					postDeviceEvent(new FOPEvent.SummonReferee(this, refIndex), "JURY_CONSOLE", null, "jurybox");
 				}
 			} catch (NumberFormatException e) {
 				logger.error("{}Malformed MQTT referee summon message topic='{}' message='{}'",
 						FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);
+				auditRejected(topic, messageStr, "malformed");
 			}
 		}
 
 		private void postFopJuryBreakEvents(String topic, String messageStr) {
 			messageStr = messageStr.trim();
 			if (messageStr.equalsIgnoreCase("technical")) {
-				MQTTMonitor.this.getFop().fopEventPost(
-						new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null, true, this));
+				postDeviceEvent(new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null,
+						true, this), "JURY_CONSOLE", null, "jurybox");
 			} else if (messageStr.equalsIgnoreCase("deliberation")) {
-				MQTTMonitor.this.getFop().fopEventPost(
-						new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
+				postDeviceEvent(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true,
+						this), "JURY_CONSOLE", null, "jurybox");
 			} else if (messageStr.equalsIgnoreCase("challenge")) {
-				MQTTMonitor.this.getFop().fopEventPost(
-						new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null, true, this));
+				postDeviceEvent(new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null,
+						true, this), "JURY_CONSOLE", null, "jurybox");
 			} else if (messageStr.equalsIgnoreCase("stop")) {
 				var state = MQTTMonitor.this.getFop().getState();
 				// green resume button used to clear the decision lights.
@@ -507,15 +514,18 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 						|| (state == FOPState.BREAK && !MQTTMonitor.this.getFop().getBreakType().isInterruption())) {
 					logger.info("{}MQTT jury resume received in state {}, sending ResetOnNewClock",
 							FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), state);
+					SettingsAudit.event(MQTTMonitor.this.getFop().getName(), "jury.resume",
+							AuditActor.device("JURY_CONSOLE", null, "jurybox"), MQTTMonitor.this.getFop().getCurAthlete(),
+							null, null, null, AuditFormat.kv("state", state));
 					MQTTMonitor.this.getFop().getUiEventBus().post(new UIEvent.ResetOnNewClock(
 							MQTTMonitor.this.getFop().getCurAthlete(), null, MQTTMonitor.this.getFop()));
 				} else {
-					MQTTMonitor.this.getFop().fopEventPost(
-							new FOPEvent.StartLifting(this));
+					postDeviceEvent(new FOPEvent.StartLifting(this), "JURY_CONSOLE", null, "jurybox");
 				}
 			} else {
 				logger.error("{}Malformed MQTT jury break message topic='{}' message='{}'",
 						FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);
+				auditRejected(topic, messageStr, "malformed");
 			}
 		}
 
@@ -528,23 +538,41 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			messageStr = messageStr.trim();
 			FieldOfPlay fop2 = MQTTMonitor.this.getFop();
 			if (messageStr.equalsIgnoreCase("start")) {
-				fop2.fopEventPost(new FOPEvent.TimeStarted(this));
+				postDeviceEvent(new FOPEvent.TimeStarted(this), "TIMEKEEPER", null, "clock");
 			} else if (messageStr.equalsIgnoreCase("stop")) {
-				fop2.fopEventPost(new FOPEvent.TimeStopped(this));
+				postDeviceEvent(new FOPEvent.TimeStopped(this), "TIMEKEEPER", null, "clock");
 			} else if (messageStr.equalsIgnoreCase("toggle")) {
 				if (fop2.getAthleteTimer().isRunning()) {
-					fop2.fopEventPost(new FOPEvent.TimeStopped(this));
+					postDeviceEvent(new FOPEvent.TimeStopped(this), "TIMEKEEPER", null, "clock");
 				} else {
-					fop2.fopEventPost(new FOPEvent.TimeStarted(this));
+					postDeviceEvent(new FOPEvent.TimeStarted(this), "TIMEKEEPER", null, "clock");
 				}
 			} else if (messageStr.equalsIgnoreCase("60")) {
-				fop2.fopEventPost(new FOPEvent.ForceTime(Competition.athleteTimerOneMinute, this));
+				postDeviceEvent(new FOPEvent.ForceTime(Competition.athleteTimerOneMinute, this), "TIMEKEEPER", null,
+						"clock");
 			} else if (messageStr.equalsIgnoreCase("120")) {
-				fop2.fopEventPost(new FOPEvent.ForceTime(Competition.athleteTimerTwoMinutes, this));
+				postDeviceEvent(new FOPEvent.ForceTime(Competition.athleteTimerTwoMinutes, this), "TIMEKEEPER", null,
+						"clock");
 			} else {
 				logger.error("{}Malformed MQTT clock message topic='{}' message='{}'",
 						FieldOfPlay.getLoggingName(fop2), topic, messageStr);
+				auditRejected(topic, messageStr, "malformed");
 			}
+		}
+
+		private void auditRejected(String topic, String messageStr, String reason) {
+			FieldOfPlay fop = MQTTMonitor.this.getFop();
+			String[] parts = topic.split("/");
+			String device = parts.length > 1 && "owlcms".equals(parts[0]) ? parts[1] : "mqtt";
+			SettingsAudit.event(fop != null ? fop.getName() : "competition", "mqtt.rejected",
+					AuditActor.device("MQTT", null, device), null, null, null, null,
+					AuditFormat.kvs("reason", reason, "topic", topic, "payload",
+							messageStr != null ? messageStr.trim() : null));
+		}
+
+		private void postDeviceEvent(FOPEvent event, String station, Integer index, String device) {
+			event.setAuditActor(AuditActor.device(station, index, device));
+			MQTTMonitor.this.getFop().fopEventPost(event);
 		}
 	}
 

@@ -40,6 +40,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.audit.AuditContext;
 import app.owlcms.components.GroupCategorySelectionMenu.TriConsumer;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -102,6 +103,11 @@ public class NRegistrationFileProcessor {
 
 	@SuppressWarnings("unchecked")
 	public int doProcessAthletes(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
+	        Runnable displayUpdater) {
+		return AuditContext.suppressed(() -> processAthletes(inputStream, dryRun, errorConsumer, displayUpdater));
+	}
+
+	private int processAthletes(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
 	        Runnable displayUpdater) {
 		try (InputStream xlsInputStream = inputStream) {
 			inputStream.reset();
@@ -1449,6 +1455,12 @@ public class NRegistrationFileProcessor {
 	 *        if false, also save sessions to database
 	 */
 	public int doProcessGroups(InputStream inputStream, boolean determineValidSessionsOnly, Consumer<String> errorConsumer,
+	        Runnable displayUpdater) {
+		return AuditContext.suppressed(
+				() -> processGroups(inputStream, determineValidSessionsOnly, errorConsumer, displayUpdater));
+	}
+
+	private int processGroups(InputStream inputStream, boolean determineValidSessionsOnly, Consumer<String> errorConsumer,
 	        Runnable displayUpdater) {
 		try (InputStream xlsInputStream = inputStream) {
 			inputStream.reset();

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+import app.owlcms.audit.AuditContext;
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.config.Config;
@@ -40,6 +41,10 @@ public class FormatDetector {
 	 * @throws Exception if import fails
 	 */
 	public static void importData(InputStream inputStream) throws Exception {
+		AuditContext.suppressedChecked(() -> doImportData(inputStream));
+	}
+
+	private static void doImportData(InputStream inputStream) throws Exception {
 		OwlcmsFactory.setImportInProgress(true);
 		try {
 			// Ensure stream supports mark/reset

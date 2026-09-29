@@ -15,6 +15,8 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.Main;
 import app.owlcms.apputils.AccessUtils;
+import app.owlcms.audit.AuditActor;
+import app.owlcms.audit.AuditContext;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.websocket.WebSocketEventSender;
@@ -45,10 +47,15 @@ public class AdminView extends Composite<VerticalLayout> implements HasDynamicTi
 
 		H2 title = new H2("Admin");
 		Button stop = new Button("Stop", event -> {
-			Main.prepareForExit();
+			AuditActor actor = AuditActor.capture(this).atStation("ADMIN", null, false);
+			AuditContext.run(actor, "Admin stop requested", () -> Main.prepareForExit("Admin stop requested"));
 			System.exit(0);
 		});
-		Button restart = new Button("Restart", event -> RestartUtils.triggerRestart("Admin restart requested"));
+		Button restart = new Button("Restart", event -> {
+			AuditActor actor = AuditActor.capture(this).atStation("ADMIN", null, false);
+			AuditContext.run(actor, "Admin restart requested",
+					() -> RestartUtils.triggerRestart("Admin restart requested"));
+		});
 		Button reloadTranslations = new Button("Reload Translation Strings", event -> {
 			Translator.resetFromLocal();
 			WebSocketEventSender.sendTranslationsToAll();

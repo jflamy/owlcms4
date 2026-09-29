@@ -23,6 +23,8 @@ import java.util.TimeZone;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import app.owlcms.audit.ApplicationAudit;
+import app.owlcms.audit.AuditContext;
 import app.owlcms.utils.BrowserUtils;
 import app.owlcms.apputils.LogbackConfigReloader;
 import app.owlcms.data.agegroup.AgeGroup;
@@ -83,6 +85,11 @@ public class Main {
     private static final String WRAPPER_PID_ENV = "OWLCMS_WRAPPER_PID";
 
     public static void prepareForExit() {
+		prepareForExit("shutdown");
+	}
+
+        public static void prepareForExit(String reason) {
+		ApplicationAudit.stopping(reason);
         MQTTMonitor.disableReconnectForAll();
         MdnsResponder.stop();
     }
@@ -214,6 +221,7 @@ public class Main {
         StartupUtils.getStartupLogger().info("Initializing Event Broadcasting.");
         sendStartupDatabaseToWebSocketTrackers();
         StartupUtils.getStartupLogger().info("OWLCMS Ready.");
+		ApplicationAudit.started();
 
         signalDatabaseReady();
     }
@@ -449,6 +457,12 @@ public class Main {
     }
 
     private static void injectData(InitialData data,
+            Locale locale) {
+        InitialData selectedData = data;
+        AuditContext.suppressed(() -> doInjectData(selectedData, locale));
+    }
+
+    private static void doInjectData(InitialData data,
             Locale locale) {
         Locale l = (locale == null ? Locale.ENGLISH : locale);
         EnumSet<ChampionshipType> ageDivisions = masters ? EnumSet.of(

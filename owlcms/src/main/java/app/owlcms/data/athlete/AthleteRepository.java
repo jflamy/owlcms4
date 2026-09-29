@@ -33,6 +33,9 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.spreadsheet.PAthlete;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.audit.AthleteAudit;
+import app.owlcms.audit.AthleteDiff;
+import app.owlcms.audit.AthleteDiff.Change;
 
 /**
  * The Class AthleteRepository.
@@ -165,6 +168,7 @@ public class AthleteRepository {
 			Competition.getCurrent().setRankingsInvalid(true);
 			return null;
 		});
+		AthleteAudit.deleted(Athlete);
 	}
 
 	public static Integer doCountFiltered(String lastName, Group group, Category category, AgeGroup ageGroup,
@@ -483,11 +487,20 @@ public class AthleteRepository {
 		if (athlete == null) {
 			return athlete;
 		}
-		return JPAService.runInTransaction((em) -> {
+		SaveResult result = JPAService.runInTransaction((em) -> {
+			Athlete persisted = getById(athlete.getId(), em);
+			AthleteDiff.Snapshot before = AthleteDiff.snapshot(persisted);
 			Competition.getCurrent().setRankingsInvalid(true);
 			Athlete merged = em.merge(athlete);
-			return merged;
+			em.flush();
+			List<Change> changes = AthleteDiff.diff(before, AthleteDiff.snapshot(merged));
+			return new SaveResult(merged, changes);
 		});
+		AthleteAudit.write(result.athlete(), result.changes());
+		return result.athlete();
+	}
+
+	private record SaveResult(Athlete athlete, List<Change> changes) {
 	}
 
 	public static void setAllUnfinishedCategories(UnfinishedCategories allUnfinishedCategories) {

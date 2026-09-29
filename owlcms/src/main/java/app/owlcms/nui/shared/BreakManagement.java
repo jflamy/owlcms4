@@ -48,6 +48,9 @@ import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
+import app.owlcms.audit.AuditFormat;
+import app.owlcms.audit.FopAudit;
+import app.owlcms.audit.SettingsAudit;
 import app.owlcms.components.fields.DurationField;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.CountdownType;
@@ -426,6 +429,10 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		        		setBreakTimerFromFields(false);
 		        		FieldOfPlay fopForSnatch = this.fop;
 		        		if (fopForSnatch != null && fopForSnatch.getState() == FOPState.BREAK) {
+					SettingsAudit.event(fopForSnatch.getName(), "break.set", null, fopForSnatch.getCurAthlete(),
+							"breakType", fopForSnatch.getBreakType(), BreakType.FIRST_SNATCH,
+							AuditFormat.kv("remaining", FopAudit.formatClock(
+									this.timeRemaining != null ? (Integer) this.timeRemaining.intValue() : null)));
 		        			fopForSnatch.setBreakType(BreakType.FIRST_SNATCH);
 		        			fopForSnatch.setCountdownType(CountdownType.DURATION);
 		        			if (this.timeRemaining != null) {

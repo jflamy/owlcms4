@@ -57,6 +57,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.audit.AuditLog;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.components.GroupSelectionMenu;
@@ -963,46 +964,53 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	}
 
 	private void clearLifts() {
-		JPAService.runInTransaction(em -> {
+		int count = JPAService.runInTransaction(em -> {
 			List<Athlete> athletes = athletesFindAll(false);
 			for (Athlete a : athletes) {
 				a.clearLifts();
 				em.merge(a);
 			}
 			em.flush();
-			return null;
+			return athletes.size();
 		});
+		AuditLog.bulk(auditPlatform(), "clearLifts", count);
 		// when doing on-site tests, the clock may have been started, need to clear
 		// otherwise marshal gets confusing message.
 		OwlcmsFactory.getFOPs().forEach(f -> f.setWeightAtLastStart(0));
 	}
 	
 	private void clearWeighIn() {
-		JPAService.runInTransaction(em -> {
+		int count = JPAService.runInTransaction(em -> {
 			List<Athlete> athletes = athletesFindAll(false);
 			for (Athlete a : athletes) {
 				a.clearWeighIn();
 				em.merge(a);
 			}
 			em.flush();
-			return null;
+			return athletes.size();
 		});
+		AuditLog.bulk(auditPlatform(), "clearWeighIn", count);
 		// when doing on-site tests, the clock may have been started, need to clear
 		// otherwise marshal gets confusing message.
 		OwlcmsFactory.getFOPs().forEach(f -> f.setWeightAtLastStart(0));
 	}
 
 	private void deleteAthletes() {
-		JPAService.runInTransaction(em -> {
+		int count = JPAService.runInTransaction(em -> {
 			List<Athlete> athletes = athletesFindAll(false);
 			for (Athlete a : athletes) {
 				Athlete ath = em.find(Athlete.class, a.getId());
 				em.remove(ath);
 			}
 			em.flush();
-			return null;
+			return athletes.size();
 		});
+		AuditLog.bulk(auditPlatform(), "deleteAthletes", count);
 		refreshCrudGrid();
+	}
+
+	private String auditPlatform() {
+		return getGroup() != null && getGroup().getPlatform() != null ? getGroup().getPlatform().getName() : "competition";
 	}
 	//
 	// private Collection<Athlete> doFindAll(EntityManager em) {

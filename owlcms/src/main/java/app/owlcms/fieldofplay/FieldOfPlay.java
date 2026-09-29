@@ -54,6 +54,14 @@ import com.google.common.eventbus.Subscribe;
 
 import tools.jackson.databind.node.BaseJsonNode;
 
+import app.owlcms.audit.AuditActor;
+import app.owlcms.audit.AuditContext;
+import app.owlcms.audit.AuditFormat;
+import app.owlcms.audit.FopAudit;
+import app.owlcms.audit.RecordAudit;
+import app.owlcms.audit.RecordChallengeTracker;
+import app.owlcms.audit.SessionSummary;
+import app.owlcms.audit.SettingsAudit;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
@@ -228,6 +236,11 @@ public class FieldOfPlay implements IUnregister {
 	private Platform platform = null;
 	private EventBus eventForwardingBus = null;
 	private Integer prevHash;
+	private boolean auditEventRefused;
+	private boolean auditEventSkipped;
+	private FOPState auditRefusedState;
+	private final RecordChallengeTracker recordChallengeTracker = new RecordChallengeTracker();
+	private boolean sessionSummaryArmed = true;
 	private Athlete previousAthlete;
 	private Boolean[] refereeDecision;
 	private Boolean[] lastShownRefereeDecision;
@@ -737,14 +750,38 @@ public class FieldOfPlay implements IUnregister {
 	 */
 	@Subscribe
 	public synchronized void handleFOPEvent(FOPEvent e) {
+		this.auditEventRefused = false;
+		this.auditEventSkipped = false;
+		this.auditRefusedState = null;
+		AuditContext.run(e.getAuditActor(), e.getClass().getSimpleName(), () -> {
+			String clockBefore = e instanceof FOPEvent.ForceTime ? FopAudit.clock(this) : null;
+			doHandleFOPEvent(e);
+			if (!this.auditEventSkipped) {
+				if (!this.auditEventRefused && this.sessionSummaryArmed
+						&& (e instanceof FOPEvent.StartLifting || e instanceof FOPEvent.TimeStarted)) {
+					SessionSummary.write(this, e.getAuditActor());
+					this.sessionSummaryArmed = false;
+				}
+				FopAudit.write(this, e, this.auditEventRefused,
+						stateName(this.auditRefusedState != null ? this.auditRefusedState : getState()), clockBefore);
+				if (!this.auditEventRefused && e instanceof FOPEvent.SwitchGroup) {
+					this.sessionSummaryArmed = true;
+				}
+			}
+		});
+	}
+
+	private void doHandleFOPEvent(FOPEvent e) {
 		String stackTrace = e.getStackTrace();
 		if (e.getFop() != this) {
+			this.auditEventSkipped = true;
 			this.logger./**/error("wrong event subscription {} {}\n{}", e, e.getFop(), this, stackTrace);
 			return;
 			// throw new RuntimeException("wrong event subscription");
 		}
 		int newHash = e.hashCode();
 		if (this.prevHash != null && newHash == this.prevHash) {
+			this.auditEventSkipped = true;
 			this.logger.debug("{}state {}, DUPLICATE event received {} {} {}", FieldOfPlay.getLoggingName(this),
 					stateName(this.getState()),
 					e, getWhereFrom(stackTrace));
@@ -783,6 +820,8 @@ public class FieldOfPlay implements IUnregister {
 				transitionToBreak((FOPEvent.BreakStarted) e);
 				return;
 			} else if (getState() == BREAK && getBreakType() != null && getBreakType().isCountdown() && !allAllowed) {
+				this.auditEventRefused = true;
+				this.auditRefusedState = getState();
 				this.logger.debug("Break start rejected: origin={} breakType={} state={}",
 						origin != null ? origin.getClass().getSimpleName() : "null",
 						requestedBreak,
@@ -1536,6 +1575,7 @@ public class FieldOfPlay implements IUnregister {
 
 	public void recomputeRecords(Athlete curAthlete) {
 		if (curAthlete == null) {
+			this.recordChallengeTracker.clear();
 			setRecordsJson(JsonUtils.nullNode());
 			setChallengedRecords(List.of());
 			setNewRecords(List.of());
@@ -1592,6 +1632,9 @@ public class FieldOfPlay implements IUnregister {
 		} else {
 			setRecordsJson(recordsJson);
 			setChallengedRecords(challengedRecords.stream().sorted(RecordEvent.sequentialOrderComparator()).toList());
+			this.recordChallengeTracker
+					.newlyChallenged(curAthlete, attemptsDone + 1, request, getChallengedRecords())
+					.forEach(record -> RecordAudit.challenge(getName(), curAthlete, attemptsDone + 1, request, record));
 			for (RecordEvent re : challengedRecords) {
 				this.logger.info("challenged record: {}", re);
 			}
@@ -3013,6 +3056,9 @@ public class FieldOfPlay implements IUnregister {
 				millisRemaining / 1000);
 
 		int timeRemaining = millisRemaining;
+		SettingsAudit.event(getName(), "break.start", AuditActor.system(), null, null, null, null,
+				AuditFormat.kvs("type", BreakType.FIRST_CJ, "countdown", CountdownType.DURATION,
+						"remaining", FopAudit.formatClock(timeRemaining)) + ",automatic");
 		this.setBreakType(BreakType.FIRST_CJ);
 		this.getBreakTimer().setTimeRemaining(timeRemaining, false);
 		this.getBreakTimer().setBreakDuration(timeRemaining);
@@ -3821,13 +3867,6 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void setCurAthlete(Athlete athlete) {
-		if (athlete == null && CompetitionSimulator.isRunning() && getState() != INACTIVE) {
-			this.logger.warn("{}SIMULATION curAthlete cleared state={} group={} liftingOrderSize={} displayOrderSize={}\n{}",
-			        FieldOfPlay.getLoggingName(this), getState(), getGroup(),
-			        this.liftingOrder != null ? this.liftingOrder.size() : null,
-			        this.displayOrder != null ? this.displayOrder.size() : null,
-			        LoggerUtils.stackTrace());
-		}
 		this.curAthlete = athlete;
 		this.missingKgWarnedAthleteId = null;
 	}
@@ -3973,8 +4012,10 @@ public class FieldOfPlay implements IUnregister {
 		// reversalDelay);
 		assert !isDecisionDisplayScheduled(); // caller checks.
 		setDecisionDisplayScheduled(true); // so there are never two scheduled...
-		this.decisionDisplayTimer = new DelayTimer(isTestingMode()).schedule(() -> showDecisionNow(origin2),
-				reversalDelay);
+		AuditActor actor = AuditContext.actor();
+		String cause = AuditContext.cause();
+		this.decisionDisplayTimer = new DelayTimer(isTestingMode()).schedule(
+				() -> AuditContext.run(actor, cause, () -> showDecisionNow(origin2)), reversalDelay);
 	}
 
 	private synchronized void showDecisionVisibleAfterDelay(Object origin2, int displayDelay) {
@@ -3986,7 +4027,10 @@ public class FieldOfPlay implements IUnregister {
 
 	private synchronized void commitDecisionAfterDelay(Object origin2, int reversalDelay) {
 		this.decisionCommitScheduled = true;
-		new DelayTimer(isTestingMode()).schedule(() -> commitDecisionNow(origin2), reversalDelay);
+		AuditActor actor = AuditContext.actor();
+		String cause = AuditContext.cause();
+		new DelayTimer(isTestingMode()).schedule(
+				() -> AuditContext.run(actor, cause, () -> commitDecisionNow(origin2)), reversalDelay);
 	}
 
 	private synchronized void showDecisionVisibleNow(Object origin) {
@@ -4114,8 +4158,14 @@ public class FieldOfPlay implements IUnregister {
 			getCurAthlete().resetForcedAsCurrent();
 		}
 		setForcedTime(false);
-		AthleteRepository.save(getCurAthlete());
-		List<RecordEvent> newRecords = updateRecords(getCurAthlete(), getGoodLift(), getChallengedRecords(), List.of());
+		String decisionCause = "decision " + Arrays.toString(getRefereeDecision());
+		String decisionStation = this.currentInputKind == InputKind.ANNOUNCER_ENTRY ? "ANNOUNCER" : "REFEREES";
+		AuditActor decisionActor = AuditContext.actor() != null ? AuditContext.actor() : AuditActor.system();
+		List<RecordEvent> newRecords = AuditContext.call(
+				decisionActor.atStation(decisionStation, null, false), decisionCause, () -> {
+					AthleteRepository.save(getCurAthlete());
+					return updateRecords(getCurAthlete(), getGoodLift(), getChallengedRecords(), List.of());
+				});
 		setNewRecords(newRecords);
 		setLastNewRecords(newRecords);
 		new DelayTimer(isTestingMode()).schedule(
@@ -4541,6 +4591,8 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void unexpectedEventInState(FOPEvent e, FOPState state) {
+		this.auditEventRefused = true;
+		this.auditRefusedState = state;
 
 		// events not worth signaling
 		if (e instanceof DecisionReset || e instanceof DecisionFullUpdate) {
@@ -4618,6 +4670,10 @@ public class FieldOfPlay implements IUnregister {
 				}
 				return null;
 			});
+			for (RecordEvent newRecord : newRecords) {
+				challengedRecords.stream().filter(newRecord::sameAs).findFirst()
+						.ifPresent(previous -> RecordAudit.improved(getName(), a, a.getAttemptsDone(), previous, newRecord));
+			}
 			recomputeRecordsMap(this.displayOrder);
 			return newRecords;
 		} else {
@@ -4630,6 +4686,7 @@ public class FieldOfPlay implements IUnregister {
 					}
 					return null;
 				});
+				voidableRecords.forEach(record -> RecordAudit.cancelled(getName(), a, a.getAttemptsDone(), record));
 				recomputeRecordsMap(this.displayOrder);
 			}
 			return new ArrayList<>();

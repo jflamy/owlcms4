@@ -25,6 +25,7 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.StreamReadFeature;
 
+import app.owlcms.audit.AuditContext;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.group.Group;
@@ -45,6 +46,10 @@ public class AthleteSessionDataReader {
 	static Logger logger = (Logger) LoggerFactory.getLogger(AthleteSessionDataReader.class);
 
 	public static void importAthletes(InputStream is, List<Group> sessions) throws IOException {
+		AuditContext.suppressedChecked(() -> doImportSessions(is, sessions));
+	}
+
+	private static void doImportSessions(InputStream is, List<Group> sessions) throws IOException {
 		List<Long> sessionIds = sessions.stream().map(g -> g.getId()).toList();
 		logger.info("importing sessions {}", sessions);
 		doImportAthletes(is, sessionIds);

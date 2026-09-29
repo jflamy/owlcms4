@@ -56,6 +56,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.audit.AuditContext;
 import app.owlcms.Main;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
@@ -458,6 +459,10 @@ public class RecordDefinitionReader {
 	 * @return list of messages/errors from the import
 	 */
 	public List<String> importParsedRecords(List<RecordEvent> parsedRecords, String name, String baseName) {
+		return AuditContext.suppressed(() -> doImportParsedRecords(parsedRecords, name, baseName));
+	}
+
+	private List<String> doImportParsedRecords(List<RecordEvent> parsedRecords, String name, String baseName) {
 		List<String> validationErrors = new ArrayList<>();
 		if (!validateRecordNames(parsedRecords, validationErrors)) {
 			return validationErrors;

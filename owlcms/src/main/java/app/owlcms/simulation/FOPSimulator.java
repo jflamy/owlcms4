@@ -19,6 +19,8 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.audit.AuditActor;
+import app.owlcms.audit.AuditContext;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
@@ -294,7 +296,7 @@ public class FOPSimulator implements SafeEventBusRegistration {
 				return;
 			}
 		} else {
-			this.fop.fopEventPost(new FOPEvent.TimeStopped(this));
+			postSimulatedEvent(new FOPEvent.TimeStopped(this), "TIMEKEEPER", null);
 		}
 
 		// wait for clock to run down a bit
@@ -320,9 +322,9 @@ public class FOPSimulator implements SafeEventBusRegistration {
 				LoggerUtils.logError(this.logger, e);
 			}
 		} else {
-			this.fop.fopEventPost(new FOPEvent.DecisionUpdate(this, 0, goodLift(r)));
-			this.fop.fopEventPost(new FOPEvent.DecisionUpdate(this, 1, goodLift(r)));
-			this.fop.fopEventPost(new FOPEvent.DecisionUpdate(this, 2, goodLift(r)));
+			postSimulatedEvent(new FOPEvent.DecisionUpdate(this, 0, goodLift(r)), "REFEREE", 1);
+			postSimulatedEvent(new FOPEvent.DecisionUpdate(this, 1, goodLift(r)), "REFEREE", 2);
+			postSimulatedEvent(new FOPEvent.DecisionUpdate(this, 2, goodLift(r)), "REFEREE", 3);
 		}
 
 	}
@@ -345,7 +347,7 @@ public class FOPSimulator implements SafeEventBusRegistration {
 				return false;
 			}
 		} else {
-			this.fop.fopEventPost(new FOPEvent.TimeStarted(this));
+			postSimulatedEvent(new FOPEvent.TimeStarted(this), "TIMEKEEPER", null);
 		}
 		return waitForClockState(FOPState.TIME_RUNNING);
 	}
@@ -435,7 +437,10 @@ public class FOPSimulator implements SafeEventBusRegistration {
 				try {
 					int autoAsInt = Integer.parseInt(automatic);
 					doDeclaration(athlete, Integer.toString(autoAsInt + declarationIncrement()));
-					this.fop.fopEventPost(new FOPEvent.WeightChange(this, athlete, false));
+					Athlete declaredAthlete = athlete;
+					AuditActor marshal = simulatedActor("MARSHAL", null);
+					AuditContext.run(marshal, "simulated declaration", () -> AthleteRepository.save(declaredAthlete));
+					postSimulatedEvent(new FOPEvent.WeightChange(this, declaredAthlete, false), marshal);
 					if (!sleepQuietly(MIN_ACTION_INTERVAL_MILLIS)) {
 						return;
 					}
@@ -532,10 +537,12 @@ public class FOPSimulator implements SafeEventBusRegistration {
 			if (!doChange(target, newWeight)) {
 				return;
 			}
-			AthleteRepository.save(target);
+			Athlete changedAthlete = target;
+			AuditActor marshal = simulatedActor("MARSHAL", null);
+			AuditContext.run(marshal, "simulated weight change", () -> AthleteRepository.save(changedAthlete));
 			this.logger.warn("{}simulated marshal change {} -> {} ({} {})", FieldOfPlay.getLoggingName(this.fop),
 			        target.getShortName(), newWeight, phase, changeCurrentAthlete ? "current athlete" : "other athlete");
-			this.fop.fopEventPost(new FOPEvent.WeightChange(this, target, false));
+			postSimulatedEvent(new FOPEvent.WeightChange(this, changedAthlete, false), marshal);
 			sleepQuietly(MIN_ACTION_INTERVAL_MILLIS);
 		} catch (RuntimeException e1) {
 			this.logger.warn("{}simulated marshal change rejected: {}", FieldOfPlay.getLoggingName(this.fop),
@@ -615,7 +622,7 @@ public class FOPSimulator implements SafeEventBusRegistration {
 				return false;
 			}
 			this.logger.info("{}switching to group {} of {}", FieldOfPlay.getLoggingName(this.fop), g, curGs);
-			this.fop.fopEventPost(new FOPEvent.SwitchGroup(g, this));
+			postSimulatedEvent(new FOPEvent.SwitchGroup(g, this), "ANNOUNCER", null);
 			if (!sleepQuietly(MIN_ACTION_INTERVAL_MILLIS)) {
 				return false;
 			}
@@ -641,7 +648,7 @@ public class FOPSimulator implements SafeEventBusRegistration {
 			
 			this.logger.info("{}starting group {}", FieldOfPlay.getLoggingName(this.fop), g);
 			this.groupDone = false;
-			this.fop.fopEventPost(new FOPEvent.StartLifting(this));
+			postSimulatedEvent(new FOPEvent.StartLifting(this), "ANNOUNCER", null);
 
 			return true;
 		} else {
@@ -651,6 +658,19 @@ public class FOPSimulator implements SafeEventBusRegistration {
 
 	private boolean isActive() {
 		return !this.stopped && CompetitionSimulator.isRunning();
+	}
+
+	private AuditActor simulatedActor(String station, Integer index) {
+		return AuditActor.device(station, index, "simulator");
+	}
+
+	private void postSimulatedEvent(FOPEvent event, String station, Integer index) {
+		postSimulatedEvent(event, simulatedActor(station, index));
+	}
+
+	private void postSimulatedEvent(FOPEvent event, AuditActor actor) {
+		event.setAuditActor(actor);
+		this.fop.fopEventPost(event);
 	}
 
 	private boolean isInBreak() {
