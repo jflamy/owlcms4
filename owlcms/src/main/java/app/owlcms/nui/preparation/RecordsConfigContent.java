@@ -23,6 +23,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.config.Config;
@@ -40,6 +42,7 @@ import ch.qos.logback.classic.Logger;
  * Class PreparationNavigationContent.
  */
 @SuppressWarnings("serial")
+@RequiresRole(Role.PREPARATION)
 @Route(value = "preparation/recordsConfig", layout = OwlcmsLayout.class)
 public class RecordsConfigContent extends Composite<VerticalLayout>
         implements CrudLayout, OwlcmsContent, CrudListener<RecordConfig> {

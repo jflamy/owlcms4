@@ -55,6 +55,8 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.audit.AuditLog;
@@ -105,6 +107,7 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
+@RequiresRole(Role.REGISTRATION)
 @Route(value = "preparation/athletes", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/shared-styles.css")
 public class RegistrationContent extends BaseContent implements CrudListener<Athlete>, OwlcmsContent, IFilterCascade {

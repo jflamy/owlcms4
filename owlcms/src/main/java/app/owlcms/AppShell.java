@@ -25,6 +25,7 @@ import com.vaadin.flow.server.communication.IndexHtmlRequestListener;
 import com.vaadin.flow.server.communication.IndexHtmlResponse;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import app.owlcms.access.AccessControlListener;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.servlet.StopProcessingException;
@@ -92,6 +93,9 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
 
 			/* Delay for setting the 'third' class name */
 			conf.setThirdDelay(5000); // 5000ms is the default
+
+			// deny-by-default check, runs before any page-level observer
+			uiInitEvent.getUI().addBeforeEnterListener(new AccessControlListener());
 		});
 		serviceInitEvent.addIndexHtmlRequestListener(this);
 

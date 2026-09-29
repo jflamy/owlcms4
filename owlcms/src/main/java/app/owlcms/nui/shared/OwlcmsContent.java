@@ -7,10 +7,17 @@
 package app.owlcms.nui.shared;
 
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
 
 public interface OwlcmsContent
-        extends ContentWrapping, OwlcmsLayoutAware, HasDynamicTitle, SafeEventBusRegistration, AuthorizationDispatch {
+        extends ContentWrapping, OwlcmsLayoutAware, HasDynamicTitle, SafeEventBusRegistration, BeforeEnterObserver {
+
+	/** Access control is done by the global listener; pages override this only for their own needs. */
+	@Override
+	public default void beforeEnter(BeforeEnterEvent event) {
+	}
 
 	@Override
 	public FlexLayout createMenuArea();

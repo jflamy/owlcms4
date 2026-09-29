@@ -38,6 +38,8 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.SoundParameters;
@@ -61,6 +63,7 @@ import ch.qos.logback.classic.Logger;
  * Technical Controller / Plates loading information.
  */
 @SuppressWarnings("serial")
+@RequiresRole(value = Role.TC, platformBound = true)
 @Route(value = "lifting/tc", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/plates.css")
 public class TCContent extends AthleteGridContent implements HasDynamicTitle {

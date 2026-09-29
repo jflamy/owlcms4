@@ -22,6 +22,8 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.competition.Competition;
@@ -36,6 +38,7 @@ import ch.qos.logback.classic.Logger;
  * Class PreparationNavigationContent.
  */
 @SuppressWarnings("serial")
+@RequiresRole(Role.PREPARATION)
 @Route(value = "preparation/competition/:tab?", layout = OwlcmsLayout.class)
 public class CompetitionContent extends Composite<VerticalLayout>
         implements CrudLayout, OwlcmsContent, CrudListener<Competition>, BeforeEnterObserver {

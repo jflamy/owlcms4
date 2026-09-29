@@ -29,6 +29,8 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.SoundParameters;
@@ -58,6 +60,7 @@ import java.util.TimerTask;
  * Technical Controller / Plates loading information.
  */
 @SuppressWarnings("serial")
+@RequiresRole(value = Role.ADMIN_PAGES, platformBound = true)
 @Route(value = "lifting/testing", layout = OwlcmsLayout.class)
 public class TestingContent extends AthleteGridContent implements HasDynamicTitle {
 

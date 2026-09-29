@@ -21,6 +21,8 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
@@ -34,6 +36,7 @@ import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
+@RequiresRole(value = Role.DISPLAYS, platformBound = true)
 @Route("displays/ncurrentathlete")
 public class NCurrentAthletePage extends AbstractResultsDisplayPage implements BeforeEnterObserver {
 

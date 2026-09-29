@@ -23,6 +23,9 @@ import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.PublicPage;
+import app.owlcms.access.RequiresFeature;
+import app.owlcms.data.config.FeatureSwitch;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.FOPParametersReader;
@@ -51,6 +54,8 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("monitor-template")
 @JsModule("./components/OBSMonitor.js")
+@PublicPage
+@RequiresFeature(FeatureSwitch.OBS_MONITORS)
 @Route("displays/monitor")
 
 public class OBSMonitor extends LitTemplate implements FOPParametersReader,

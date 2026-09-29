@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -41,6 +42,9 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.SoundUtils;
@@ -53,7 +57,6 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
-import app.owlcms.nui.shared.AuthorizationDispatch;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.simulation.CompetitionSimulator;
 import app.owlcms.uievents.UIEvent;
@@ -66,11 +69,12 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings({ "serial", "deprecation" })
+@RequiresRole(value = Role.REFEREE, platformBound = true)
 @Route(value = "ref")
 @CssImport(value = "./styles/shared-styles.css")
 
 public class RefContent extends BaseContent implements FOPParametersReader, SafeEventBusRegistration,
-        UIEventProcessor, HasDynamicTitle, AuthorizationDispatch, BeforeEnterListener {
+        UIEventProcessor, HasDynamicTitle, BeforeEnterListener {
 
 	private class DelayTimer {
 		private final Timer t = new Timer();
@@ -122,7 +126,6 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		AuthorizationDispatch.super.beforeEnter(event);
 		UI.getCurrent().getPage().setTitle(getPageTitle());
 	}
 
@@ -293,10 +296,12 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 
 	protected ComboBox<FieldOfPlay> createFopSelect() {
 		ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
+		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Role.REFEREE));
 		fopSelect.setPlaceholder(Translator.translate("SelectPlatform"));
-		fopSelect.setItems(OwlcmsFactory.getFOPs());
+		fopSelect.setItems(fops);
 		fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
 		fopSelect.setWidth("10rem");
+		fopSelect.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Role.REFEREE), fops));
 		return fopSelect;
 	}
 

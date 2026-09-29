@@ -24,8 +24,11 @@ import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinSession;
 
+import app.owlcms.access.AccessPolicy;
+import app.owlcms.access.Principal;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
  
@@ -43,6 +46,7 @@ public class OwlcmsSession {
 	private static final String QUERY_PARAMETERS = "queryParameters";
 	private static final String DISPLAY_AUTHENTICATED = "displayAuthenticated";
 	private static final String AUTHENTICATED = "authenticated";
+	private static final String PRINCIPAL = "principal";
 	private static final String FOP = "fop";
 	public static final String LOCALE = "locale";
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsSession.class);
@@ -292,6 +296,14 @@ public class OwlcmsSession {
 		return computeLocale();
 	}
 
+	public static Principal getPrincipal() {
+		return (Principal) getAttribute(PRINCIPAL);
+	}
+
+	public static void setPrincipal(Principal principal) {
+		setAttribute(PRINCIPAL, principal);
+	}
+
 	public static QueryParameters getRequestedQueryParameters() {
 		return (QueryParameters) getAttribute(QUERY_PARAMETERS);
 	}
@@ -356,7 +368,15 @@ public class OwlcmsSession {
 	}
 
 	public static void setFop(FieldOfPlay fop) {
-		// logger.debug("setFop {} from {}", (fop != null ? fop.getName() : null), LoggerUtils.whereFrom());
+		Principal principal = VaadinSession.getCurrent() != null ? getPrincipal() : null;
+		if (principal != null && fop != null) {
+			List<String> platforms = OwlcmsFactory.getFOPs().stream().map(FieldOfPlay::getName).toList();
+			if (!AccessPolicy.allowedSessionPlatforms(principal, platforms).contains(fop.getName())) {
+				logger./**/warn("{}session FOP selection refused user={} requested={} {}",
+				        FieldOfPlay.getLoggingName(fop), principal.username(), fop.getName(), LoggerUtils.whereFrom());
+				return;
+			}
+		}
 		setAttribute(FOP, fop);
 	}
 

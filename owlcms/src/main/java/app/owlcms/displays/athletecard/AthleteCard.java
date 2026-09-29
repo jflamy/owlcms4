@@ -26,6 +26,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import tools.jackson.databind.node.ObjectNode;
@@ -38,7 +40,6 @@ import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.nui.shared.AuthorizationDispatch;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.utils.JsonUtils;
 import ch.qos.logback.classic.Level;
@@ -51,10 +52,11 @@ import ch.qos.logback.classic.Logger;
 @Tag("athlete-card-template")
 @JsModule("./components/AthleteCard.js")
 @CssImport(value = "./styles/shared-styles.css")
+@RequiresRole({ Role.REGISTRATION, Role.WEIGHIN })
 @Route("weighin/AthleteCard")
 
 public class AthleteCard extends LitTemplate
-        implements FOPParametersReader, SafeEventBusRegistration, HasDynamicTitle, AuthorizationDispatch {
+        implements FOPParametersReader, SafeEventBusRegistration, HasDynamicTitle {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteCard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());

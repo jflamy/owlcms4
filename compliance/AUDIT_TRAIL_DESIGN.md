@@ -304,7 +304,8 @@ Interactive **bulk** operations started by a user, such as "clear all lifts", st
   - `user=<username>`;
   - a backdoor principal gives `user=backdoor`.
 - Station inference is unchanged. The audit then shows both **who** (the account) and **where** (the station).
-- A login platform is not needed for routing audit lines: the platform always comes from the event or the athlete.
+- A login platform is not needed for routing station audit lines: the platform always comes from the event or the athlete.
+- Login and logout are the exception: `auth.login` and `auth.logout` are written to the `competition` log and, when the session has a login platform, to that platform's log as well. `auth.login-failed` goes to the `competition` log only, because no platform is chosen yet.
 
 ---
 

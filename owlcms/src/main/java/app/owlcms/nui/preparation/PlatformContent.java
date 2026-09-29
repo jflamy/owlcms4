@@ -33,10 +33,13 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.HasUrlParameter;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.ConfirmationDialog;
+import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
@@ -59,6 +62,7 @@ import ch.qos.logback.classic.Logger;
  * Defines the toolbar and the table for editing data on categories.
  */
 @SuppressWarnings("serial")
+@RequiresRole(Role.PREPARATION)
 @Route(value = "preparation/platforms", layout = OwlcmsLayout.class)
 public class PlatformContent extends BaseContent implements CrudListener<Platform>, OwlcmsContent {
 
@@ -217,8 +221,10 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 
 			nameField.setInvalid(false);
 			if (!Objects.equals(platform.getName(), normalizedName)) {
+				String oldName = platform.getName();
 				platform.setName(normalizedName);
 				PlatformRepository.saveName(platform);
+				UserAccountRepository.renamePlatform(oldName, normalizedName);
 				crud.refreshGrid();
 				showRenameRestartDialog();
 			}

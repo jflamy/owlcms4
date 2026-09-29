@@ -27,6 +27,8 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.PageRule;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -184,10 +186,12 @@ public abstract class BaseNavigationContent extends BaseContent
 
 	protected ComboBox<FieldOfPlay> createFopSelect(String placeHolder) {
 		ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
+		List<FieldOfPlay> fops = AccessUi.selectableFops(PageRule.of(getClass()).roles());
 		fopSelect.setPlaceholder(placeHolder);
-		fopSelect.setItems(OwlcmsFactory.getFOPs());
+		fopSelect.setItems(fops);
 		fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
 		fopSelect.setWidth("10rem");
+		fopSelect.setReadOnly(AccessUi.fopSelectorReadOnly(PageRule.of(getClass()).roles(), fops));
 		return fopSelect;
 	}
 

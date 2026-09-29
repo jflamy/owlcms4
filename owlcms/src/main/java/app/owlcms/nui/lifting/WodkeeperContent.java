@@ -28,6 +28,8 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.GroupSelectionMenu;
@@ -54,6 +56,7 @@ import app.owlcms.utils.LoggerUtils;
  * WodkeeperContent is a near-copy of TimekeeperContent but adjusted to control the break timer with a 30:00 preset.
  */
 @SuppressWarnings("serial")
+@RequiresRole(value = Role.TIMEKEEPER, platformBound = true)
 @Route(value = "lifting/wodkeeper", layout = OwlcmsLayout.class)
 public class WodkeeperContent extends AthleteGridContent implements HasDynamicTitle {
 

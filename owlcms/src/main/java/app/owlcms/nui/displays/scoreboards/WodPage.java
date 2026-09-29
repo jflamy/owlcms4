@@ -3,6 +3,8 @@ package app.owlcms.nui.displays.scoreboards;
 import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.displays.scoreboard.WodBoard;
@@ -11,6 +13,7 @@ import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
+@RequiresRole(value = Role.DISPLAYS, platformBound = true)
 @Route("displays/wod")
 public class WodPage extends WarmupScoreboardPage {
     Logger logger = (Logger) LoggerFactory.getLogger(WodPage.class);

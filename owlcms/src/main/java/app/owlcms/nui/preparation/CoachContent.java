@@ -25,6 +25,8 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
@@ -48,6 +50,7 @@ import org.vaadin.crudui.crud.CrudOperation;
  * Defines the toolbar and the table for editing data on coaches.
  */
 @SuppressWarnings("serial")
+@RequiresRole(Role.REGISTRATION)
 @Route(value = "preparation/coaches", layout = OwlcmsLayout.class)
 public class CoachContent extends BaseContent implements CrudListener<Coach>, OwlcmsContent {
 

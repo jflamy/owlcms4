@@ -16,6 +16,8 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
@@ -35,6 +37,7 @@ import ch.qos.logback.classic.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("serial")
+@RequiresRole(Role.PREPARATION)
 @Route(value = "preparation/team-schedule", layout = OwlcmsLayout.class)
 public class TeamScheduleContent extends BaseContent implements OwlcmsContent {
 

@@ -32,6 +32,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.HasDynamicTitle;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.GroupSelectionMenu;
@@ -59,6 +61,7 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
+@RequiresRole(value = Role.TIMEKEEPER, platformBound = true)
 @Route(value = "lifting/timekeeper", layout = OwlcmsLayout.class)
 public class TimekeeperContent extends AthleteGridContent implements HasDynamicTitle {
 

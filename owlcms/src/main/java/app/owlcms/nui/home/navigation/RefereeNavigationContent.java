@@ -7,9 +7,9 @@
 package app.owlcms.nui.home.navigation;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
@@ -24,6 +24,9 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.FOPParameters;
@@ -40,6 +43,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
  * Mobile-first launcher for referee, timekeeper, and jury devices.
  */
 @SuppressWarnings("serial")
+@RequiresRole(value = { Role.REFEREE, Role.JURY }, platformBound = true)
 @Route(value = "mobile/refjury", layout = OwlcmsLayout.class)
 public class RefereeNavigationContent extends BaseNavigationContent implements HasDynamicTitle {
 
@@ -154,12 +158,13 @@ public class RefereeNavigationContent extends BaseNavigationContent implements H
 	 */
 	private ComboBox<FieldOfPlay> createFopSelector() {
 		ComboBox<FieldOfPlay> fopSelector = new ComboBox<>(Translator.translate("CompetitionPlatform"));
-		Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
+		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Role.REFEREE, Role.JURY));
 		fopSelector.setItems(fops);
 		fopSelector.setItemLabelGenerator(FieldOfPlay::getName);
 		fopSelector.setPlaceholder(Translator.translate("SelectPlatform"));
 		fopSelector.setRequiredIndicatorVisible(fops.size() > 1);
 		fopSelector.setWidthFull();
+		fopSelector.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Role.REFEREE, Role.JURY), fops));
 		fopSelector.addClassName("referee-jury-home-platform-selector");
 		return fopSelector;
 	}

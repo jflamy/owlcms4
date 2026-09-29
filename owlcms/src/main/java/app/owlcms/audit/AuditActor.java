@@ -7,7 +7,9 @@ import java.security.NoSuchAlgorithmException;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.component.UI;
 
+import app.owlcms.access.Principal;
 import app.owlcms.apputils.AccessUtils;
+import app.owlcms.init.OwlcmsSession;
 
 public record AuditActor(String mode, String user, String station, Integer index, boolean inferred, String client,
 		String device) {
@@ -16,7 +18,14 @@ public record AuditActor(String mode, String user, String station, Integer index
 	}
 
 	public static AuditActor capture(Object origin) {
-		return new AuditActor("PIN", "-", StationResolver.resolve(origin), null, true, captureClient(), "-");
+		Principal principal = currentPrincipal();
+		return new AuditActor(modeOf(principal), userOf(principal), StationResolver.resolve(origin), null, true,
+				captureClient(), "-");
+	}
+
+	/** The person logging in or out, as opposed to a station acting on the competition. */
+	public static AuditActor login(String mode, String user) {
+		return new AuditActor(mode, user, "LOGIN", null, false, captureClient(), "-");
 	}
 
 	public static AuditActor fromCurrentUi() {
@@ -38,6 +47,22 @@ public record AuditActor(String mode, String user, String station, Integer index
 
 	public AuditActor atStation(String station, Integer index, boolean inferred) {
 		return new AuditActor(this.mode, this.user, station, index, inferred, this.client, this.device);
+	}
+
+	private static Principal currentPrincipal() {
+		try {
+			return OwlcmsSession.getPrincipal();
+		} catch (RuntimeException e) {
+			return null;
+		}
+	}
+
+	private static String modeOf(Principal principal) {
+		return principal != null && principal.source() == Principal.AuthSource.ACCOUNT ? "ACCOUNTS" : "PIN";
+	}
+
+	private static String userOf(Principal principal) {
+		return principal != null && principal.username() != null ? principal.username() : "-";
 	}
 
 	private static String captureClient() {

@@ -31,6 +31,8 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
+import app.owlcms.data.account.UserAccount;
+import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.RankingConfig;
@@ -72,6 +74,7 @@ import ch.qos.logback.classic.Logger;
 	"exportDate",
 	"competition",
 	"config",
+	"accounts",
 	"championships",
 	"ageGroups",
 	"teams",
@@ -92,6 +95,7 @@ public class CompetitionDataV2 {
 	private String exportDate;
 	private Competition competition;
 	private Config config;
+	private List<UserAccount> accounts;
 	private List<ChampionshipDTO> championships;
 	private List<AgeGroupDTO> ageGroups;
 	private List<TeamDTO> teams;
@@ -208,6 +212,7 @@ public class CompetitionDataV2 {
 			.collect(Collectors.toList()));
 		
 		setPlatforms(PlatformRepository.findAll());
+		setAccounts(UserAccountRepository.findAll());
 		Config config = Config.getCurrent();
 		config.setAppVersion(StartupUtils.getVersion());
 		setConfig(config);
@@ -354,6 +359,10 @@ public class CompetitionDataV2 {
 				em.flush();
 			}
 
+			if (updated.getAccounts() != null) {
+				UserAccountRepository.replaceAll(em, updated.getAccounts());
+			}
+
 		// Build team ID to name map for athlete import
 		Map<Integer, String> teamIdToNameMap = new HashMap<>();
 		if (updated.getTeams() != null) {
@@ -497,6 +506,14 @@ public class CompetitionDataV2 {
 	public void setConfig(Config config) {
 		this.config = config;
 		Config.setCurrent(this.config);
+	}
+
+	public List<UserAccount> getAccounts() {
+		return accounts;
+	}
+
+	public void setAccounts(List<UserAccount> accounts) {
+		this.accounts = accounts;
 	}
 
 	public List<SessionDTO> getSessions() {

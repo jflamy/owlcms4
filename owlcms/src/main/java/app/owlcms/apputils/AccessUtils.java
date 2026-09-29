@@ -18,7 +18,6 @@ import com.vaadin.flow.server.VaadinServletRequest;
 import app.owlcms.Main;
 import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -79,7 +78,6 @@ public class AccessUtils {
 	}
 
 	public static String encodePin(String pin, String storedPin, boolean checkingPassword) {
-		logger.debug("encodePin {} {} {}", pin, storedPin, checkingPassword);
 		if (pin == null) {
 			return null;
 		}
@@ -92,13 +90,7 @@ public class AccessUtils {
 			if (salt == null || salt.isBlank()) {
 				// use new technique - salt is after the encrypted password
 				if (storedPin.length() > 64) {
-					String storedSHA = storedPin.substring(0, 64);
 					salt = storedPin.substring(65);
-					logger.debug("[checking] given={} length={} encoded={} expected={} appendedSalt={} (from {})",
-					        pin,
-					        pin != null ? pin.length() : 0,
-					        storedSHA,
-					        doSHA, salt, LoggerUtils.whereFrom());
 					return doSHA + "_" + salt;
 				} else if (Config.FAKE_PIN.contentEquals(storedPin)) {
 					// workaround for old bug.
@@ -111,11 +103,6 @@ public class AccessUtils {
 				}
 			} else {
 				// old technique - salt is saved in the database
-				logger.debug("[checking] given={} length={} encoded={} expected={} storedSalt={} (from {})",
-				        pin,
-				        pin != null ? pin.length() : 0,
-				        storedPin,
-				        doSHA, salt, LoggerUtils.whereFrom());
 				return doSHA + "_" + salt;
 			}
 		} else {
@@ -123,8 +110,6 @@ public class AccessUtils {
 			if (salt == null || salt.isBlank()) {
 				salt = config.computeSalt();
 			}
-			logger.debug("[encoding] encoding:{} length={} encoded={} salt={} (from {})", pin,
-			        pin.length(), doSHA, salt, LoggerUtils.whereFrom());
 			return doSHA + "_" + salt;
 		}
 	}
@@ -214,13 +199,10 @@ public class AccessUtils {
 
 	private static boolean checkPassword(String password, String pinOverride, String dbPin, String loggingContext) {
 
-		logger.debug("{} override {} provided {} dbPin {}", loggingContext, pinOverride, password, dbPin);
 		String hashedPassword = "";
 		if (dbPin != null) {
 			hashedPassword = Config.getCurrent().encodeUserPassword(password, dbPin);
 		}
-		logger.debug("checking override={} password={} storedHashedPassword={} hashedUserPassword={}", pinOverride,
-		        password, dbPin, hashedPassword);
 
 		if (pinOverride != null && pinOverride.isBlank()) {
 			// no check

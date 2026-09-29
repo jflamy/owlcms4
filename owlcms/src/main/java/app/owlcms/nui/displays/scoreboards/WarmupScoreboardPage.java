@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
@@ -25,13 +27,13 @@ import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.nui.shared.RequireDisplayLogin;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
+@RequiresRole(value = Role.DISPLAYS, platformBound = true)
 @Route("displays/resultsLeaders")
 
-public class WarmupScoreboardPage extends AbstractResultsDisplayPage implements RequireDisplayLogin {
+public class WarmupScoreboardPage extends AbstractResultsDisplayPage {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(WarmupScoreboardPage.class);
 	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());

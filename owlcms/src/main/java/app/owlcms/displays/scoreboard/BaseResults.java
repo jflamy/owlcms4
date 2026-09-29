@@ -63,7 +63,6 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.HasBoardMode;
-import app.owlcms.nui.shared.RequireDisplayLogin;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
@@ -89,7 +88,7 @@ import ch.qos.logback.classic.Logger;
 
 public class BaseResults extends LitTemplate
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
-        RequireDisplayLogin, HasBoardMode, StylesDirSelection {
+        HasBoardMode, StylesDirSelection {
 
 	private static final int ABBREVIATED_NAME_MIN_LENGTH = 45;
 	private static final DateTimeFormatter CLIENT_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")

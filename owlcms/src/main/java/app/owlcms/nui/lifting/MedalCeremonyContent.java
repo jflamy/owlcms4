@@ -33,6 +33,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.router.HasDynamicTitle;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 
@@ -60,6 +62,7 @@ import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 
 @SuppressWarnings("serial")
+@RequiresRole(value = { Role.ANNOUNCER, Role.TIMEKEEPER }, platformBound = true)
 @Route(value = "lifting/medalCeremony", layout = OwlcmsLayout.class)
 public class MedalCeremonyContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 	private static final int MEDAL_DISPLAY_HEIGHT = 670;

@@ -26,9 +26,10 @@ import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
@@ -60,7 +61,6 @@ import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
-import app.owlcms.nui.shared.RequireDisplayLogin;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Level;
@@ -70,9 +70,10 @@ import ch.qos.logback.classic.Logger;
  * The Class DisplayNavigationContent.
  */
 @SuppressWarnings("serial")
+@RequiresRole(Role.DISPLAYS)
 @Route(value = "video=true", layout = OwlcmsLayout.class)
 public class VideoNavigationContent extends BaseNavigationContent
-        implements NavigationPage, HasDynamicTitle, RequireDisplayLogin {
+        implements NavigationPage, HasDynamicTitle {
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(VideoNavigationContent.class);
 	static {
@@ -106,6 +107,9 @@ public class VideoNavigationContent extends BaseNavigationContent
 	}
 
 	public void monitoring() {
+		if (!Config.getCurrent().featureSwitch(FeatureSwitch.OBS_MONITORS)) {
+			return;
+		}
 		Button obsMonitor = openInNewTab(OBSMonitor.class, Translator.translate("OBS.MonitoringButton"));
 		Button eventMonitor = openInNewTabWithFopQueryParameters(StreamingEventMonitor.class,
 		        Translator.translate("Video.EventMonitoringButton"),
@@ -261,11 +265,6 @@ public class VideoNavigationContent extends BaseNavigationContent
 
 		doGroup(Translator.translate("ColorSelection"), intro5, new FlexibleGridLayout(), this);
 
-	}
-
-	@Override
-	public void beforeEnter(BeforeEnterEvent event) {
-		RequireDisplayLogin.super.beforeEnter(event);
 	}
 
 	@Override

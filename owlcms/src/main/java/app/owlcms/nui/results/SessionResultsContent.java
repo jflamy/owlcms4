@@ -45,6 +45,8 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.JXLSDownloader;
@@ -82,6 +84,7 @@ import ch.qos.logback.classic.Logger;
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
+@RequiresRole(Role.RESULTS)
 @Route(value = "results/results", layout = OwlcmsLayout.class)
 public class SessionResultsContent extends AthleteGridContent implements HasDynamicTitle {
 

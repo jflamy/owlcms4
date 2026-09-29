@@ -23,6 +23,7 @@ import java.util.TimeZone;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import app.owlcms.access.AccessStartup;
 import app.owlcms.audit.ApplicationAudit;
 import app.owlcms.audit.AuditContext;
 import app.owlcms.utils.BrowserUtils;
@@ -170,6 +171,7 @@ public class Main {
         JPAService.init(memoryMode, resetMode);
         // check for database override of resource files
         Config.initConfig();
+        AccessStartup.run();
 
         // Run UTC normalization migration after JPAService and Config are initialized
         JPAService.runInTransaction(em -> {

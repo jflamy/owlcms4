@@ -23,6 +23,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import app.owlcms.Main;
+import app.owlcms.access.PasswordHasher;
+import app.owlcms.access.Role;
+import app.owlcms.data.account.RoleGrant;
+import app.owlcms.data.account.UserAccount;
+import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.agegroup.MedalPolicy;
@@ -83,6 +88,30 @@ public class JSONExportImportTest {
 			fail(e.getMessage());
 		}
 	}
+
+    @Test
+    public void accountsRoundTripThroughBothJsonFormats() throws Exception {
+        UserAccount account = new UserAccount();
+        account.setUsername("fixtureuser");
+        account.setPasswordHash(PasswordHasher.hash("fixtureuser"));
+        account.setGrants(new ArrayList<>(List.of(new RoleGrant(Role.ANNOUNCER, "A"))));
+        UserAccountRepository.save(account);
+
+        String legacyJson = new CompetitionData().exportDataAsString();
+        CompetitionData legacyImported = new CompetitionData().importDataFromString(legacyJson);
+        assertTrue(legacyJson.contains("\"passwordHash\""));
+        assertTrue(legacyImported.getAccounts().stream()
+                .anyMatch(imported -> imported.getUsername().equals("fixtureuser")
+                        && PasswordHasher.verify("fixtureuser", imported.getPasswordHash())));
+
+        CompetitionDataV2 exportedV2 = new CompetitionDataV2().fromDatabase();
+        String v2Json = new String(exportedV2.exportData().readAllBytes(), StandardCharsets.UTF_8);
+        CompetitionDataV2 importedV2 = new CompetitionDataV2().importData(
+                new ByteArrayInputStream(v2Json.getBytes(StandardCharsets.UTF_8)));
+        assertTrue(importedV2.getAccounts().stream()
+                .anyMatch(imported -> imported.getUsername().equals("fixtureuser")
+                        && PasswordHasher.verify("fixtureuser", imported.getPasswordHash())));
+    }
 
     @Test
     public void legacyJsonWithoutChampionshipOrderPreservesArrayOrder() {

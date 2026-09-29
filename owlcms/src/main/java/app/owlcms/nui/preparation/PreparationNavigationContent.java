@@ -34,6 +34,8 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
@@ -57,6 +59,7 @@ import ch.qos.logback.classic.Logger;
  * The Class PreparationNavigationContent.
  */
 @SuppressWarnings("serial")
+@RequiresRole({ Role.PREPARATION, Role.REGISTRATION, Role.WEIGHIN, Role.RESULTS })
 @Route(value = "preparation", layout = OwlcmsLayout.class)
 public class PreparationNavigationContent extends BaseNavigationContent
 		implements NavigationPage, HasDynamicTitle, BeforeEnterObserver {
@@ -83,6 +86,8 @@ public class PreparationNavigationContent extends BaseNavigationContent
 				Translator.translate("TechnicalOfficials"));
 		Button groups = openInNewTabNoParam(SessionContent.class, Translator.translate("DefineGroups"));
 		Button platforms = openInNewTabNoParam(PlatformContent.class, Translator.translate("DefineFOP"));
+		Button accounts = openInNewTabNoParam(AccountsContent.class, Translator.translate("Access.Accounts.Title"),
+				VaadinIcon.KEY.create());
 
 		var emptyRegistrationWriter = new JXLSRegistrationEmptyExport();
 		Notification notification = new Notification(Translator.translate("Processing"));
@@ -152,7 +157,7 @@ public class PreparationNavigationContent extends BaseNavigationContent
 
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, editChampionships,
 				ageGroups, officials, groups,
-				platforms);
+				platforms, accounts);
 		doGroup(Translator.translate("PreCompetitionSetup"), grid1, this, true);
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload, athletes, coaches, teams);
 		doGroup(Translator.translate("Registration"), grid2, this, true);

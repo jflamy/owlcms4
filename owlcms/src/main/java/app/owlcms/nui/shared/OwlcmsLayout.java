@@ -41,6 +41,10 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.AccountModeAuthenticator;
+import app.owlcms.access.Principal;
+import app.owlcms.access.SessionLogout;
 import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -78,6 +82,7 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 	private boolean margin;
 	private Tabs drawerTabs;
 	private Tab colorSchemeToggle;
+	private Tab logoutEntry;
 	private Icon colorSchemeIcon;
 	private Span colorSchemeLabel;
 	private boolean darkMode;
@@ -284,7 +289,45 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 		this.drawerTabs = getTabs();
 		this.colorSchemeToggle = createColorSchemeToggle();
 		this.drawerTabs.add(this.colorSchemeToggle);
+		this.logoutEntry = createLogoutEntry();
+		this.drawerTabs.add(this.logoutEntry);
 		addToDrawer(this.drawerTabs);
+	}
+
+	/** Only account sessions can log out; a PIN session has nothing to forget. */
+	private Tab createLogoutEntry() {
+		Icon icon = new Icon(VaadinIcon.SIGN_OUT);
+		icon.getStyle().set("box-sizing", "border-box")
+		        .set("margin-inline-end", "var(--lumo-space-m)")
+		        .set("padding", "var(--lumo-space-xs)");
+
+		Anchor entry = new Anchor();
+		entry.add(icon, new Span(Translator.translate("Access.Logout")));
+		entry.getElement().setAttribute("router-link", true);
+		entry.getStyle().set("cursor", "pointer");
+		entry.getElement().addEventListener("click", e -> logout());
+
+		Tab tab = new Tab(entry);
+		tab.setVisible(false);
+		return tab;
+	}
+
+	private void updateLogoutEntry() {
+		if (this.logoutEntry == null) {
+			return;
+		}
+		Principal principal = OwlcmsSession.getPrincipal();
+		this.logoutEntry.setVisible(Config.getCurrent().isAccountsMode() && principal != null
+		        && principal.source() == Principal.AuthSource.ACCOUNT);
+	}
+
+	private void logout() {
+		UI ui = UI.getCurrent();
+		Principal principal = OwlcmsSession.getPrincipal();
+		if (principal != null) {
+			AccountModeAuthenticator.logout(principal, "user logout");
+		}
+		SessionLogout.redirectAllAndInvalidate(ui.getSession());
 	}
 
 	/**
@@ -398,46 +441,35 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 		String docOpener = "https://jflamy.github.io/owlcms4/#/index";
 		boolean recordsOnly = Config.getCurrent().isRecordRepository();
 		if (recordsOnly) {
-			tabs.add(createTab(new Icon(VaadinIcon.TROPHY),
-			        Translator.translate("RecordEvent.PageTitle"),
-			        PublicRecordsContent.class));
-			tabs.add(createTab(new Icon(VaadinIcon.DATABASE),
-			        Translator.translate("Configuration"),
-			        RecordsPreparationNavigationContent.class));
+			addTabIfAllowed(tabs, new Icon(VaadinIcon.TROPHY), Translator.translate("RecordEvent.PageTitle"),
+			        PublicRecordsContent.class);
+			addTabIfAllowed(tabs, new Icon(VaadinIcon.DATABASE), Translator.translate("Configuration"),
+			        RecordsPreparationNavigationContent.class);
 			tabs.setOrientation(Tabs.Orientation.VERTICAL);
 			return tabs;
 		}
 		// boolean tv = new OwlcmsLicense().isFeatureAllowed("tv");
-		tabs.add(
-		        createTab(new Icon(VaadinIcon.HOME),
-		                Translator.translate("Home"),
-		                HomeNavigationContent.class),
-		        createTab(new Icon(VaadinIcon.GROUP),
-		                Translator.translate("PrepareCompetition"),
-		                PreparationNavigationContent.class),
-		        createTab(new Icon(VaadinIcon.MICROPHONE),
-		                Translator.translate("RunLiftingGroup"),
-		                LiftingNavigationContent.class),
-		        createTab(new Icon(VaadinIcon.DESKTOP),
-		                Translator.translate("StartDisplays"),
-		                DisplayNavigationContent.class));
-		tabs.add(
-		        createTab(new Icon(VaadinIcon.PRINT),
-		                Translator.translate("Results"),
-		                ResultsNavigationContent.class),
-		        createTab(new Icon(VaadinIcon.TROPHY),
-		                Translator.translate("RecordEvent.PageTitle"),
-		                RecordContent.class),
-		        createTab(new Icon(VaadinIcon.QUESTION_CIRCLE),
-		                Translator.translate("Documentation_Menu"),
-		                docOpener),
-		        createTab(new Icon(VaadinIcon.INFO_CIRCLE_O),
-		                Translator.translate("About"),
-		                InfoNavigationContent.class));
+		addTabIfAllowed(tabs, new Icon(VaadinIcon.HOME), Translator.translate("Home"), HomeNavigationContent.class);
+		addTabIfAllowed(tabs, new Icon(VaadinIcon.GROUP), Translator.translate("PrepareCompetition"),
+		        PreparationNavigationContent.class);
+		addTabIfAllowed(tabs, new Icon(VaadinIcon.MICROPHONE), Translator.translate("RunLiftingGroup"),
+		        LiftingNavigationContent.class);
+		addTabIfAllowed(tabs, new Icon(VaadinIcon.DESKTOP), Translator.translate("StartDisplays"),
+		        DisplayNavigationContent.class);
+		addTabIfAllowed(tabs, new Icon(VaadinIcon.PRINT), Translator.translate("Results"), ResultsNavigationContent.class);
+		addTabIfAllowed(tabs, new Icon(VaadinIcon.TROPHY), Translator.translate("RecordEvent.PageTitle"), RecordContent.class);
+		tabs.add(createTab(new Icon(VaadinIcon.QUESTION_CIRCLE), Translator.translate("Documentation_Menu"), docOpener));
+		addTabIfAllowed(tabs, new Icon(VaadinIcon.INFO_CIRCLE_O), Translator.translate("About"), InfoNavigationContent.class);
 
 		Translator.translate("RunLiftingGroup");
 		tabs.setOrientation(Tabs.Orientation.VERTICAL);
 		return tabs;
+	}
+
+	private void addTabIfAllowed(Tabs tabs, Icon icon, String label, Class<? extends Component> viewClass) {
+		if (AccessUi.canOpen(viewClass, OwlcmsSession.getFop())) {
+			tabs.add(createTab(icon, label, viewClass));
+		}
 	}
 
 	private void setDrawerToggle(DrawerToggle drawerToggle) {
@@ -474,9 +506,10 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 
 	private void refreshDrawerIfNeeded() {
 		Tabs newTabs = getTabs();
-		// the drawer also holds the color scheme entry, which getTabs() does not produce
+		// the drawer also holds the color scheme and logout entries, which getTabs() does not produce
+		int extraEntries = (this.colorSchemeToggle != null ? 1 : 0) + (this.logoutEntry != null ? 1 : 0);
 		if (this.drawerTabs != null
-		        && newTabs.getComponentCount() != this.drawerTabs.getComponentCount() - 1) {
+		        && newTabs.getComponentCount() != this.drawerTabs.getComponentCount() - extraEntries) {
 			this.drawerTabs.removeFromParent();
 			this.drawerTabs = newTabs;
 			// keep the color scheme entry at the bottom of the drawer. It is normally created
@@ -486,8 +519,13 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 				this.colorSchemeToggle = createColorSchemeToggle();
 			}
 			this.drawerTabs.add(this.colorSchemeToggle);
+			if (this.logoutEntry == null) {
+				this.logoutEntry = createLogoutEntry();
+			}
+			this.drawerTabs.add(this.logoutEntry);
 			addToDrawer(this.drawerTabs);
 		}
+		updateLogoutEntry();
 		// select the tab matching the current content's route
 		if (this.drawerTabs != null && getContent() != null) {
 			Route route = getContent().getClass().getAnnotation(Route.class);

@@ -21,8 +21,9 @@ import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
-import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.agegroup.Championship;
@@ -54,7 +55,6 @@ import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
-import app.owlcms.nui.shared.RequireDisplayLogin;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -63,9 +63,10 @@ import ch.qos.logback.classic.Logger;
  * The Class DisplayNavigationContent.
  */
 @SuppressWarnings("serial")
+@RequiresRole(Role.DISPLAYS)
 @Route(value = "displays", layout = OwlcmsLayout.class)
 public class DisplayNavigationContent extends BaseNavigationContent
-        implements NavigationPage, HasDynamicTitle, RequireDisplayLogin {
+        implements NavigationPage, HasDynamicTitle {
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(DisplayNavigationContent.class);
 	static {
@@ -235,11 +236,6 @@ public class DisplayNavigationContent extends BaseNavigationContent
 		} catch (Throwable x) {
 			LoggerUtils.logError(logger, x);
 		}
-	}
-
-	@Override
-	public void beforeEnter(BeforeEnterEvent event) {
-		RequireDisplayLogin.super.beforeEnter(event);
 	}
 
 	@Override

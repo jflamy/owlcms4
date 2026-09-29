@@ -47,6 +47,8 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.SoundParameters;
@@ -84,6 +86,7 @@ import ch.qos.logback.classic.Logger;
  */
 
 @SuppressWarnings("serial")
+@RequiresRole(value = Role.ANNOUNCER, platformBound = true)
 @Route(value = "lifting/announcer", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/shared-styles.css")
 public class AnnouncerContent extends AthleteGridContent implements HasDynamicTitle {

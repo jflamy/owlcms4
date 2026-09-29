@@ -20,6 +20,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.QueryParameters;
 
+import app.owlcms.access.AccessUi;
 import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
@@ -64,6 +65,9 @@ public interface NavigationPage extends ContentWrapping {
 	}
 
 	public default void doGroup(String label, FlexibleGridLayout grid1, VerticalLayout wrapper, Boolean... paired) {
+		if (!hasVisibleButton(grid1)) {
+			return;
+		}
 		VerticalLayout content1 = new VerticalLayout();
 		content1.setSpacing(false);
 		content1.setPadding(true);
@@ -84,6 +88,9 @@ public interface NavigationPage extends ContentWrapping {
 	}
 
 	public default void doGroup(String label, VerticalLayout intro, FlexibleGridLayout grid1, VerticalLayout wrapper) {
+		if (!hasVisibleButton(grid1)) {
+			return;
+		}
 		VerticalLayout content1 = new VerticalLayout();
 		content1.setSpacing(false);
 		content1.setPadding(true);
@@ -168,6 +175,7 @@ public interface NavigationPage extends ContentWrapping {
 	        String label, String parameter) {
 		Button button = new Button(label);
 		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
+		applyAccess(button, targetClass);
 		return button;
 	}
 
@@ -178,6 +186,7 @@ public interface NavigationPage extends ContentWrapping {
 			button.setIcon(icon[0]);
 		}
 		button.getElement().setAttribute("onClick", getWindowOpenerFromClassNoParam(targetClass));
+		applyAccess(button, targetClass);
 		return button;
 	}
 
@@ -187,6 +196,7 @@ public interface NavigationPage extends ContentWrapping {
 		Button button = new Button(label);
 		button.getElement().setAttribute("onClick",
 		        getWindowOpenerFromClass(targetClass, null, QueryParameters.fromString(queryParameters)));
+		applyAccess(button, targetClass);
 		return button;
 	}
 
@@ -277,6 +287,21 @@ public interface NavigationPage extends ContentWrapping {
 			return ((FOPParameters) this).getFop();
 		}
 		return OwlcmsSession.getFop();
+	}
+
+	private boolean hasVisibleButton(FlexibleGridLayout grid) {
+		return hasVisibleButton((Component) grid);
+	}
+
+	private boolean hasVisibleButton(Component component) {
+		if (component instanceof Button button && button.isVisible()) {
+			return true;
+		}
+		return component.getChildren().anyMatch(this::hasVisibleButton);
+	}
+
+	private void applyAccess(Button button, Class<?> targetClass) {
+		button.setVisible(AccessUi.canOpen(targetClass, resolveFop()));
 	}
 
 }

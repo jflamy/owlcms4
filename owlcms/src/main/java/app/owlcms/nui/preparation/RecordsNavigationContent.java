@@ -18,6 +18,8 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
@@ -31,6 +33,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
+@RequiresRole(Role.PREPARATION)
 @Route(value = "records", layout = OwlcmsLayout.class)
 public class RecordsNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 

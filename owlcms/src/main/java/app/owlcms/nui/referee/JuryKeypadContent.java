@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +43,9 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.NotificationUtils;
@@ -61,7 +65,6 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
-import app.owlcms.nui.shared.AuthorizationDispatch;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
@@ -72,10 +75,11 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings({ "serial", "deprecation" })
+@RequiresRole(value = Role.JURY, platformBound = true)
 @Route(value = "jurykeypad")
 @CssImport(value = "./styles/shared-styles.css")
 public class JuryKeypadContent extends BaseContent implements FOPParametersReader, SafeEventBusRegistration,
-        UIEventProcessor, HasDynamicTitle, AuthorizationDispatch, BeforeEnterListener {
+        UIEventProcessor, HasDynamicTitle, BeforeEnterListener {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(JuryKeypadContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -115,7 +119,6 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		AuthorizationDispatch.super.beforeEnter(event);
 		UI.getCurrent().getPage().setTitle(getPageTitle());
 	}
 
@@ -257,10 +260,12 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	protected ComboBox<FieldOfPlay> createFopSelect() {
 		ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
+		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Role.JURY));
 		fopSelect.setPlaceholder(Translator.translate("SelectPlatform"));
-		fopSelect.setItems(OwlcmsFactory.getFOPs());
+		fopSelect.setItems(fops);
 		fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
 		fopSelect.setWidth("12rem");
+		fopSelect.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Role.JURY), fops));
 		return fopSelect;
 	}
 

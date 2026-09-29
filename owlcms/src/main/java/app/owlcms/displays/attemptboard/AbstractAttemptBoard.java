@@ -57,7 +57,6 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.HasBoardMode;
-import app.owlcms.nui.shared.RequireDisplayLogin;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.simulation.CompetitionSimulator;
 import app.owlcms.uievents.BreakDisplay;
@@ -81,7 +80,6 @@ import ch.qos.logback.classic.Logger;
 
 public abstract class AbstractAttemptBoard extends LitTemplate implements
         DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
-        RequireDisplayLogin,
         StylesDirSelection, HasBoardMode {
 
 	protected final static Logger logger = (Logger) LoggerFactory.getLogger(AbstractAttemptBoard.class);

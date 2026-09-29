@@ -36,6 +36,8 @@ import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.NotificationUtils;
@@ -73,6 +75,7 @@ import ch.qos.logback.classic.Logger;
  * Defines the toolbar and the table for editing data on categories.
  */
 @SuppressWarnings("serial")
+@RequiresRole(Role.PREPARATION)
 @Route(value = "preparation/agegroup", layout = OwlcmsLayout.class)
 public class AgeGroupContent extends BaseContent implements CrudListener<AgeGroup>, OwlcmsContent {
 

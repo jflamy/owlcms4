@@ -13,6 +13,8 @@ import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.athlete.Athlete;
@@ -20,12 +22,12 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
-import app.owlcms.nui.shared.AuthorizationDispatch;
 
 @SuppressWarnings("serial")
+@RequiresRole(Role.ADMIN_PAGES)
 @Route("admin/record-federation-report")
 public class RecordFederationComparisonReport extends Composite<VerticalLayout>
-        implements HasDynamicTitle, AuthorizationDispatch {
+        implements HasDynamicTitle {
 
 	public RecordFederationComparisonReport() {
 		VerticalLayout content = getContent();

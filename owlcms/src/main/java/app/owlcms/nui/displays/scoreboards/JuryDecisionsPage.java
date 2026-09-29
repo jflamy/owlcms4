@@ -19,6 +19,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
@@ -32,6 +34,7 @@ import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
+@RequiresRole(value = { Role.DISPLAYS, Role.JURY }, platformBound = true)
 @Route("displays/juryDecisions")
 public class JuryDecisionsPage extends AbstractResultsDisplayPage implements BeforeEnterObserver {
 

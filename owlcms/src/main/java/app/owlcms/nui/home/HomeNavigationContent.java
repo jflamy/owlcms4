@@ -58,11 +58,13 @@ import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
+import app.owlcms.access.AuthenticatedPage;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinService;
 
 import app.owlcms.apputils.DebugUtils;
+import app.owlcms.access.AccessUi;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -89,6 +91,7 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
+@AuthenticatedPage
 @Route(value = "home", layout = OwlcmsLayout.class)
 public class HomeNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
@@ -155,6 +158,11 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		        buttonClickEvent -> UI.getCurrent().navigate(LiftingNavigationContent.class));
 		Button documents = new Button(this.RESULT_DOCUMENTS,
 		        buttonClickEvent -> UI.getCurrent().navigate(ResultsNavigationContent.class));
+		prepare.setVisible(AccessUi.canOpen(PreparationNavigationContent.class, OwlcmsSession.getFop()));
+		displays.setVisible(AccessUi.canOpen(DisplayNavigationContent.class, OwlcmsSession.getFop()));
+		video.setVisible(AccessUi.canOpen(VideoNavigationContent.class, OwlcmsSession.getFop()));
+		lifting.setVisible(AccessUi.canOpen(LiftingNavigationContent.class, OwlcmsSession.getFop()));
+		documents.setVisible(AccessUi.canOpen(ResultsNavigationContent.class, OwlcmsSession.getFop()));
 
 		FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(prepare, lifting, displays, video, documents);
 		fillH(intro, this);

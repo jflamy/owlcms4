@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
@@ -21,6 +23,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
+@RequiresRole(value = Role.DISPLAYS, platformBound = true)
 @Route("displays/publicMedals")
 
 public class PublicMedalsPage extends MedalsPage {

@@ -68,6 +68,8 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 // com.vaadin.flow.server.InputStreamFactory; not used directly here
 
@@ -117,6 +119,7 @@ import ch.qos.logback.classic.Logger;
  * Defines the toolbar and the table for editing data on sessions.
  */
 @SuppressWarnings("serial")
+@RequiresRole({ Role.REGISTRATION, Role.WEIGHIN, Role.RESULTS })
 @Route(value = "preparation/documents", layout = OwlcmsLayout.class)
 public class DocumentsContent extends BaseContent implements CrudListener<Group>, OwlcmsContent {
 

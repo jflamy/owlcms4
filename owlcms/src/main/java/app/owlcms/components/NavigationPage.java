@@ -17,6 +17,7 @@ import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasUrlParameter;
 
+import app.owlcms.access.AccessUi;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.utils.URLUtils;
@@ -111,6 +112,7 @@ public interface NavigationPage extends OwlcmsContent {
 	        String label, String parameter) {
 		Button button = new Button(label);
 		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
+		button.setVisible(AccessUi.canOpen(targetClass, getFop()));
 		return button;
 	}
 
@@ -118,6 +120,7 @@ public interface NavigationPage extends OwlcmsContent {
 	        String label) {
 		Button button = new Button(label);
 		button.getElement().setAttribute("onClick", getWindowOpenerFromClassNoParam(targetClass));
+		button.setVisible(AccessUi.canOpen(targetClass, getFop()));
 		return button;
 	}
 

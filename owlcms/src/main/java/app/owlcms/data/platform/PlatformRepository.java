@@ -21,6 +21,7 @@ import javax.persistence.Query;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.group.Group;
+import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
@@ -181,6 +182,7 @@ public class PlatformRepository {
 	 */
 	public static void delete(Platform platform) {
 		try {
+			String platformName = platform.getName();
 			if (OwlcmsFactory.getFopByName() == null) {
 				OwlcmsFactory.initFOPByName();
 			}
@@ -206,6 +208,7 @@ public class PlatformRepository {
 				mm.publishMqttConfig();
 			}
 			OwlcmsFactory.setFirstFOPAsDefault();
+			UserAccountRepository.removePlatform(platformName);
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}

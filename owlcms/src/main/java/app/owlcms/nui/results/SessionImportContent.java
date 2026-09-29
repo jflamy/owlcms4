@@ -26,6 +26,8 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
@@ -50,6 +52,7 @@ import ch.qos.logback.classic.Logger;
  * Defines the toolbar and the table for editing data on sessions.
  */
 @SuppressWarnings("serial")
+@RequiresRole(Role.ADMIN_PAGES)
 @Route(value = "results/sessionImport", layout = OwlcmsLayout.class)
 public class SessionImportContent extends BaseContent implements CrudListener<Group>, OwlcmsContent {
 

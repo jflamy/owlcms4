@@ -54,6 +54,7 @@ import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.coach.Coach;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
@@ -324,6 +325,7 @@ public class JPAService {
 				.add(TechnicalOfficial.class.getName())
 				.add(TechnicalOfficialsTimetable.class.getName())
 				.add(Coach.class.getName())
+		        .add(UserAccount.class.getName())
 		        .build();
 		return vals;
 	}

@@ -23,6 +23,8 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
@@ -44,6 +46,7 @@ import ch.qos.logback.classic.Logger;
  * The Class LiftingNavigationContent.
  */
 @SuppressWarnings("serial")
+@RequiresRole({ Role.ANNOUNCER, Role.MARSHAL, Role.TIMEKEEPER, Role.TC, Role.JURY, Role.REFEREE, Role.WEIGHIN })
 @Route(value = "lifting", layout = OwlcmsLayout.class)
 public class LiftingNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 

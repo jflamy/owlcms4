@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
@@ -28,6 +30,7 @@ import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
+@RequiresRole(value = { Role.DISPLAYS, Role.JURY }, platformBound = true)
 @Route("displays/juryScoreboard")
 
 public class JuryScoreboardPage extends WarmupNoLeadersPage {

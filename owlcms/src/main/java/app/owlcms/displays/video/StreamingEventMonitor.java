@@ -27,6 +27,9 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.PublicPage;
+import app.owlcms.access.RequiresFeature;
+import app.owlcms.data.config.FeatureSwitch;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.FOPParametersReader;
@@ -58,6 +61,8 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("eventmonitor-template")
 @JsModule("./components/EventMonitor.js")
+@PublicPage
+@RequiresFeature(FeatureSwitch.OBS_MONITORS)
 @Route("displays/notifications")
 
 public class StreamingEventMonitor extends LitTemplate implements FOPParametersReader,

@@ -31,6 +31,8 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
+import app.owlcms.data.account.UserAccount;
+import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.RankingConfig;
@@ -62,6 +64,7 @@ public class CompetitionData {
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(CompetitionData.class);
 	private List<AgeGroup> ageGroups;
+	private List<UserAccount> accounts;
 	private List<Athlete> athletes;
 	private List<Coach> coaches;
 	private List<Championship> championships;
@@ -165,6 +168,7 @@ public class CompetitionData {
 		// group is dropped from the export while its participations are still written out.
 		AthleteRepository.removeBrokenParticipationsAndCategories();
 		setAgeGroups(AgeGroupRepository.findAll());
+		setAccounts(UserAccountRepository.findAll());
 		List<Athlete> allAthletes = AthleteRepository
 		        .findAll()
 		        .stream()
@@ -192,6 +196,11 @@ public class CompetitionData {
 	@JsonProperty(index = 30)
 	public List<AgeGroup> getAgeGroups() {
 		return this.ageGroups;
+	}
+
+	@JsonProperty(index = 15)
+	public List<UserAccount> getAccounts() {
+		return this.accounts;
 	}
 
 	@JsonProperty(index = 40)
@@ -350,6 +359,10 @@ public class CompetitionData {
 					}
 				}
 
+				if (updated.getAccounts() != null) {
+					UserAccountRepository.replaceAll(em, updated.getAccounts());
+				}
+
 				if (updated.getRecordConfig() != null) {
 					em.merge(updated.getRecordConfig());
 				}
@@ -435,6 +448,10 @@ public class CompetitionData {
 
 	public void setGroups(List<Group> groups) {
 		this.groups = groups;
+	}
+
+	public void setAccounts(List<UserAccount> accounts) {
+		this.accounts = accounts;
 	}
 
 	public void setPlatforms(List<Platform> platforms) {

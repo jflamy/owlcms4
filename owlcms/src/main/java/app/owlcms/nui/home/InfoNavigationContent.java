@@ -30,6 +30,7 @@ import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
+import app.owlcms.access.AuthenticatedPage;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
@@ -50,6 +51,7 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
+@AuthenticatedPage
 @Route(value = "info", layout = OwlcmsLayout.class)
 public class InfoNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 

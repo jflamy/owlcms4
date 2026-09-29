@@ -804,6 +804,9 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	public void quietBreakButton(String caption) {
+		if (this.breakButton == null) {
+			return;
+		}
 		if (caption != null) {
 			this.breakButton.getElement().setAttribute("theme", "secondary error");
 			this.breakButton.setText(caption);

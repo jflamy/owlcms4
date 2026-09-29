@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,9 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
@@ -47,7 +51,6 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
-import app.owlcms.nui.shared.AuthorizationDispatch;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
@@ -57,10 +60,11 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings({ "serial", "deprecation" })
+@RequiresRole(value = Role.JURY, platformBound = true)
 @Route(value = "jury")
 @CssImport(value = "./styles/shared-styles.css")
 public class JuryMobileContent extends BaseContent implements FOPParametersReader, SafeEventBusRegistration,
-        UIEventProcessor, HasDynamicTitle, AuthorizationDispatch, BeforeEnterListener {
+        UIEventProcessor, HasDynamicTitle, BeforeEnterListener {
 
 	private static final int MAX_JURY_MEMBERS = 5;
 	private static final String JURY_INDEX = "num";
@@ -94,7 +98,6 @@ public class JuryMobileContent extends BaseContent implements FOPParametersReade
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		AuthorizationDispatch.super.beforeEnter(event);
 		UI.getCurrent().getPage().setTitle(getPageTitle());
 	}
 
@@ -177,10 +180,12 @@ public class JuryMobileContent extends BaseContent implements FOPParametersReade
 
 	protected ComboBox<FieldOfPlay> createFopSelect() {
 		ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
+		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Role.JURY));
 		fopSelect.setPlaceholder(Translator.translate("SelectPlatform"));
-		fopSelect.setItems(OwlcmsFactory.getFOPs());
+		fopSelect.setItems(fops);
 		fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
 		fopSelect.setWidth("10rem");
+		fopSelect.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Role.JURY), fops));
 		return fopSelect;
 	}
 

@@ -26,6 +26,8 @@ import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Transient;
@@ -44,6 +46,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 import app.owlcms.Main;
+import app.owlcms.access.AccessMode;
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
@@ -133,6 +136,10 @@ public class Config {
 	}
 
 	public static Config setCurrent(Config config) {
+		// an imported Config carries no access mode; the running value must survive the import
+		if (config.accessMode == null && current != null) {
+			config.accessMode = current.accessMode;
+		}
 		config.migrateFeatureSwitchesToJson();
 		config.prepareForwardingConnections();
 		Config saved = ConfigRepository.save(config);
@@ -152,6 +159,9 @@ public class Config {
 	private String ipAccessList;
 	private String ipDisplayList;
 	private String ipBackdoorList;
+	@Enumerated(EnumType.STRING)
+	@JsonIgnore
+	private AccessMode accessMode;
 	private String mqttPort;
 	private String mqttUserName;
 	private String mqttPassword;
@@ -556,6 +566,36 @@ public class Config {
 	 */
 	public Long getId() {
 		return this.id;
+	}
+
+	/** The mode stored in the database; not exported, so a competition import never changes it. */
+	@JsonIgnore
+	public AccessMode getAccessMode() {
+		return this.accessMode != null ? this.accessMode : AccessMode.PIN;
+	}
+
+	@JsonIgnore
+	public void setAccessMode(AccessMode accessMode) {
+		this.accessMode = accessMode;
+	}
+
+	/** The mode in force: OWLCMS_ACCESSMODE overrides the database value. */
+	@JsonIgnore
+	public AccessMode getParamAccessMode() {
+		String override = StartupUtils.getStringParam("accessMode");
+		if (override != null && !override.isBlank()) {
+			try {
+				return AccessMode.valueOf(override.trim().toUpperCase(Locale.ROOT));
+			} catch (IllegalArgumentException e) {
+				logger.warn("OWLCMS_ACCESSMODE '{}' ignored, expected PIN or ACCOUNTS", override);
+			}
+		}
+		return getAccessMode();
+	}
+
+	@JsonIgnore
+	public boolean isAccountsMode() {
+		return getParamAccessMode() == AccessMode.ACCOUNTS;
 	}
 
 	public String getIpAccessList() {

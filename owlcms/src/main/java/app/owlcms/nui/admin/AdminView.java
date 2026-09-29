@@ -10,7 +10,11 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AccessDeniedException;
 import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
+import app.owlcms.access.Principal;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.Main;
@@ -20,18 +24,19 @@ import app.owlcms.audit.AuditContext;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.websocket.WebSocketEventSender;
-import app.owlcms.nui.shared.AuthorizationDispatch;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.utils.RestartUtils;
 
 @SuppressWarnings("serial")
+@RequiresRole(Role.ADMIN_PAGES)
 @Route(value = "admin", layout = OwlcmsLayout.class)
-public class AdminView extends Composite<VerticalLayout> implements HasDynamicTitle, AuthorizationDispatch {
+public class AdminView extends Composite<VerticalLayout> implements HasDynamicTitle, BeforeEnterObserver {
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		AuthorizationDispatch.super.beforeEnter(event);
-		if (!OwlcmsSession.isAuthenticated()) {
+		Principal principal = OwlcmsSession.getPrincipal();
+		boolean accountSession = principal != null && principal.source() == Principal.AuthSource.ACCOUNT;
+		if (!OwlcmsSession.isAuthenticated() && !accountSession) {
 			return;
 		}
 		String clientIp = AccessUtils.getClientIp();

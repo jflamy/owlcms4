@@ -10,6 +10,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.page.WindowSize;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import app.owlcms.access.AuthenticatedPage;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.nui.home.navigation.RefereeNavigationContent;
@@ -18,6 +19,7 @@ import app.owlcms.nui.home.navigation.RefereeNavigationContent;
  * Chooses the initial home screen from the browser viewport.
  */
 @SuppressWarnings("serial")
+@AuthenticatedPage
 @Route("")
 public class AdaptiveHomeRedirect extends Div implements BeforeEnterObserver {
 

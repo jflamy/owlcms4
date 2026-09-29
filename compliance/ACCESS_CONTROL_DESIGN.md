@@ -160,8 +160,8 @@ Platform lifecycle hooks (in the platform repository/editing code):
 - Grants naming a platform that no longer exists are ignored at runtime and shown with a warning in the account editor.
 
 Import / reset:
-- Accounts are **not** part of the `CompetitionData` / `CompetitionDataV2` exports. Do not add them.
-- Verify every import / "clear data" path deletes entities explicitly and does not touch the `UserAccount` table (the existing code preserves `Config`; accounts must be preserved the same way).
+- Accounts are included in `CompetitionData` / `CompetitionDataV2` exports as password hashes, never clear-text passwords.
+- An import without an `accounts` property preserves the local account set. An import with that property replaces the account set with the imported accounts.
 - `Config.accessMode` must not be changed by a competition import (preserve the current value, or exclude it from JSON with `@JsonIgnore` — check which mechanism `Config` import uses and follow it).
 
 ### 5.1 Password hashing
@@ -486,6 +486,26 @@ Startup: if accounts mode is active (DB or env) and the built-in `admin` account
 - MQTT (`MoquetteAuthenticator`): unchanged.
 - Records-only mode: unchanged rules (§7.2 step 3).
 
+### 13.1 TODO — review the entry points that are not Vaadin routes
+
+Routes are covered by the annotation check (§6). The entry points below are not, and are reviewed separately after phase 1. Each is a plain servlet, filter or WebSocket endpoint, so none goes through `AccessControlListener`.
+
+| URL | Class | Protection today | To check |
+|---|---|---|---|
+| `/competition/export`, `/competition/export/json/1`, `/competition/export/json/2`, `/competition/export/sbde` | `CompetitionExport` | client IP on the local network, or in the backdoor list; no login | Known not covered by roles. Decide whether roles apply. |
+| `/competition/h2` | `H2BackupServlet` | same as the exports (full database backup) | Same decision as the exports. |
+| `/simulation/*` (GET and POST) | `SimulationServlet` | localhost or backdoor list | Starts and stops the simulator. Confirm the IP rule is enough. |
+| `/controlpanel/stop` (POST) | `ControlPanelServlet` (registered in `EmbeddedJetty`) | localhost socket address, or backdoor list | Confirm the IP rule is enough. |
+| `/local/*` | `FileServlet` (shared module) | none | Believed innocuous if it is correctly confined to the `./local` directory and classpath resources, read-only. Verify the confinement (`resolvePath`, URL-decoding, `..`, encoded separators, symlinks) and that nothing sensitive can be reached. |
+| `/mqtt` (WebSocket proxy) and the broker ports | `MqttWebSocketProxyEndpoint`, `MoquetteAuthenticator` | MQTT user name and password from `Config`; anonymous when none is configured | Unchanged, but see the logging item below. |
+| `/VAADIN/dynamic/...` downloads and upload handlers | Vaadin | bound to the Vaadin session | Confirm they are only created by pages the principal may open. |
+
+Cross-cutting items to review with the servlets:
+- **Client IP.** `AccessUtils.getClientIp()` and `ProxyUtils.getClientIp()` use the `X-Forwarded-For` header when it is present, whoever sent it. The backdoor list, the officials whitelist and every "localhost" or "local network" rule depend on it. Decide when the header may be trusted (behind a known proxy) and when only the socket address counts.
+- **CORS.** `CorsFilter` (`/*`) allows every origin with credentials and rewrites the session cookie to `SameSite=None`, but only for Vaadin UIDL and heartbeat requests and for `/VAADIN/build/` and `/web-component/`. The servlets above are not affected. Review whether a session cookie usable cross-site is acceptable once accounts exist.
+- **Password in logs.** `MoquetteAuthenticator` logs the client-supplied MQTT password at debug level. Remove it (§14: never log passwords).
+- **Audit.** Servlet actions are not audited (export, backup, simulation start and stop, control panel stop). A control panel stop is recorded only as `application.stopping`. Decide what to record (AUDIT_TRAIL_DESIGN).
+
 ---
 
 ## 14. Logging
@@ -545,7 +565,7 @@ No decisions remain open.
 
 **Phase 2 — Accounts**
 - `UserAccount`, `RoleGrant`, repository + cache, built-in `admin` seeding, `PasswordHasher`, `LoginThrottle`, `Config.accessMode` + UI guard, `AccountsContent` (usable in both modes, password reset), accounts-mode `LoginView` (step 1), session-id rotation, logout, platform rename/delete hooks.
-- Accept: accounts survive competition import; switching to accounts mode refused while `admin` has no password; `admin` cannot be deleted/disabled/demoted; `OWLCMS_PIN` has no effect in accounts mode; `OWLCMS_BACKDOOR` gives ADMIN access; disabled account is logged out at next navigation; throttling works; no password in logs.
+- Accept: account-bearing competition imports replace accounts while legacy imports preserve them; switching to accounts mode refused while `admin` has no password; `admin` cannot be deleted/disabled/demoted; `OWLCMS_PIN` has no effect in accounts mode; `OWLCMS_BACKDOOR` gives ADMIN access; disabled account is logged out at next navigation; throttling works; no password in logs.
 
 **Phase 3 — Platform lock**
 - Login step 2, `OwlcmsSession.setFop` safety net, URL platform check, restricted/read-only selectors (§9), landing page (§8.5).

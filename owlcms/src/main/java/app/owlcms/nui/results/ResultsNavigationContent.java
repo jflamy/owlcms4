@@ -21,6 +21,8 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
@@ -43,6 +45,7 @@ import ch.qos.logback.classic.Logger;
  * The Class ResultsNavigationContent.
  */
 @SuppressWarnings("serial")
+@RequiresRole(Role.RESULTS)
 @Route(value = "results", layout = OwlcmsLayout.class)
 public class ResultsNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 

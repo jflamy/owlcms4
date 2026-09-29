@@ -21,7 +21,6 @@ import app.owlcms.data.config.Config;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import app.owlcms.nui.lifting.UIEventProcessor;
-import app.owlcms.nui.shared.RequireDisplayLogin;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
@@ -33,8 +32,7 @@ import ch.qos.logback.classic.Logger;
 @Tag("wod-board")
 @JsModule("./components/WodBoard.js")
 
-public class WodBoard extends LitTemplate implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
-        RequireDisplayLogin {
+public class WodBoard extends LitTemplate implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay {
     private FieldOfPlay fop;
     private Group group;
     private String routeParameter;

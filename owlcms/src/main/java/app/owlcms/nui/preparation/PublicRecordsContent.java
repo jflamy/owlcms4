@@ -12,6 +12,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
+import app.owlcms.access.PublicPage;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.AccessUtils;
@@ -28,6 +29,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
  * Only the menu area (action buttons) and authorization differ.
  */
 @SuppressWarnings("serial")
+@PublicPage
 @Route(value = "publicRecords", layout = OwlcmsLayout.class)
 public class PublicRecordsContent extends RecordContent {
 

@@ -21,6 +21,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
@@ -40,6 +42,7 @@ import app.owlcms.nui.displays.scoreboards.AbstractResultsDisplayPage;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
+@RequiresRole(Role.DISPLAYS)
 @Route("displays/topteams")
 
 public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParametersReader {

@@ -41,6 +41,8 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.SoundParameters;
@@ -67,6 +69,7 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
+@RequiresRole(value = Role.JURY, platformBound = true)
 @Route(value = "lifting/jury", layout = OwlcmsLayout.class)
 public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
