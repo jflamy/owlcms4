@@ -24,7 +24,7 @@
 		function redirectLegacyRoute() {
 			const match = window.location.hash.match(/^#\/([^?#]*)(.*)$/);
 			if (!match) return;
-			const destination = window.owlcmsDocRoutes[match[1].replace(/\.md$/, '')];
+			const destination = (window.owlcmsDocRoutes || {})[match[1].replace(/\.md$/, '')];
 			if (destination) window.location.replace('#/' + destination + match[2]);
 		}
 		redirectLegacyRoute();
