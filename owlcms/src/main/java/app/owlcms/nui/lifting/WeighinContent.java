@@ -59,6 +59,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.GroupSelectionMenu;
+import app.owlcms.components.GroupSelectionMode;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
@@ -728,7 +729,7 @@ public class WeighinContent extends BaseContent
 			        (g1) -> doSwitchGroup(g1),
 			        (g1) -> doSwitchGroup(new Group("*")),
 			        null,
-			        Translator.translate("AllGroups"), false);
+			        Translator.translate("AllGroups"), GroupSelectionMode.NOT_DONE_FIRST);
 		});
 	}
 

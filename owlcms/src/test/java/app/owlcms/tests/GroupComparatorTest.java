@@ -14,12 +14,29 @@ import java.util.List;
 
 import org.junit.Test;
 
+import app.owlcms.components.GroupSelectionMode;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
 
 public class GroupComparatorTest {
+
+    @Test
+    public void groupSelectionModesFilterAndOrderByDoneState() {
+        Group notDone1 = new Group("Not done 1");
+        Group done1 = new Group("Done 1");
+        done1.setDone(true);
+        Group notDone2 = new Group("Not done 2");
+        Group done2 = new Group("Done 2");
+        done2.setDone(true);
+        List<Group> groups = Arrays.asList(notDone1, done1, notDone2, done2);
+
+        assertEquals(Arrays.asList(done1, done2), GroupSelectionMode.DONE_ONLY.apply(groups));
+        assertEquals(Arrays.asList(notDone1, notDone2), GroupSelectionMode.NOT_DONE_ONLY.apply(groups));
+        assertEquals(Arrays.asList(done1, done2, notDone1, notDone2), GroupSelectionMode.DONE_FIRST.apply(groups));
+        assertEquals(Arrays.asList(notDone1, notDone2, done1, done2), GroupSelectionMode.NOT_DONE_FIRST.apply(groups));
+    }
 
     @Test
     public void sessionBlocksSortLegacyPlatformsByDisplayOrder() {
