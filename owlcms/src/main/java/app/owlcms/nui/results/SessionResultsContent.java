@@ -409,7 +409,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 			// showing hundreds of athletes at the end of each of the groups
 			// (which has a noticeable impact on slower machines)
 			List<Group> groups = startedResultGroups();
-			SessionResultsGroupSelectionMenu.sortedGroups(groups, OwlcmsFactory.getFOPs());
+			groups = SessionResultsGroupSelectionMenu.sortedGroups(groups, OwlcmsFactory.getFOPs());
 			this.setCurrentGroup((groups.size() > 0 ? groups.get(0) : null));
 		}
 		if (this.getCurrentGroup() != null) {

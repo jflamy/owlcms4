@@ -930,6 +930,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		FormLayout layout = new FormLayout();
 		layout.setResponsiveSteps(new ResponsiveStep("0", 1, LabelsPosition.TOP),
 		        new ResponsiveStep("800px", NB_COLUMNS, LabelsPosition.ASIDE));
+		layout.setRowSpacing("var(--lumo-space-s)");
 		return layout;
 	}
 
@@ -1494,8 +1495,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		FormItem fi = layout.addFormItem(field, label);
 		fi.getStyle().set("align-items", "center");
 		fi.getStyle().set("align-self", "center");
-		fi.getStyle().set("margin-bottom", "-0.5em");
-		fi.getStyle().set("padding-bottom", "0");
 		return fi;
 	}
 

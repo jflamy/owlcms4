@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 import com.vaadin.flow.component.icon.Icon;
 
 import app.owlcms.components.GroupSelectionMenu;
+import app.owlcms.components.GroupSelectionMode;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.utils.NaturalOrderComparator;
@@ -27,7 +28,7 @@ public class SessionResultsGroupSelectionMenu extends GroupSelectionMenu {
 	public SessionResultsGroupSelectionMenu(List<Group> groups, Group currentGroup, Collection<FieldOfPlay> fops,
 	        Consumer<Group> whenChecked, Consumer<Group> whenUnselected, Icon unselectedIcon, String unselectedLabel) {
 		super(sortedGroups(groups, fops), currentGroup, null, whenChecked, whenUnselected, unselectedIcon, unselectedLabel,
-		        true);
+		        GroupSelectionMode.DONE_FIRST);
 	}
 
 	static List<Group> sortedGroups(List<Group> groups, Collection<FieldOfPlay> fops) {
@@ -40,7 +41,7 @@ public class SessionResultsGroupSelectionMenu extends GroupSelectionMenu {
 		}
 
 		groups.sort(resultsGroupComparator(currentGroupIds));
-		return groups;
+		return GroupSelectionMode.DONE_FIRST.apply(groups);
 	}
 
 	private static Comparator<Group> resultsGroupComparator(Set<Long> currentGroupIds) {

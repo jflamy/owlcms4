@@ -34,11 +34,19 @@ public class GroupSelectionMenu extends MenuBar {
 
 	public GroupSelectionMenu(List<Group> groups, Group curGroup, FieldOfPlay fop2,
 	        Consumer<Group> whenChecked, Consumer<Group> whenUnselected) {
-		this(groups, curGroup, fop2, whenChecked, whenUnselected, createUnselectedIcon(), Translator.translate("NoGroup"), true);
+		this(groups, curGroup, fop2, whenChecked, whenUnselected, createUnselectedIcon(), Translator.translate("NoGroup"),
+		        GroupSelectionMode.NOT_DONE_FIRST);
 	}
 
 	public GroupSelectionMenu(List<Group> groups, Group curGroup, FieldOfPlay fop2,
-	        Consumer<Group> whenChecked, Consumer<Group> whenUnselected, Icon unselectedIcon, String unselectedLabel, boolean doneSeparator) {
+	        Consumer<Group> whenChecked, Consumer<Group> whenUnselected, Icon unselectedIcon, String unselectedLabel) {
+		this(groups, curGroup, fop2, whenChecked, whenUnselected, unselectedIcon, unselectedLabel, null);
+	}
+
+	public GroupSelectionMenu(List<Group> groups, Group curGroup, FieldOfPlay fop2,
+	        Consumer<Group> whenChecked, Consumer<Group> whenUnselected, Icon unselectedIcon, String unselectedLabel,
+	        GroupSelectionMode mode) {
+		this.getStyle().set("flex-shrink", "0");
 		MenuItem item;
 		if (curGroup != null) {
 			// logger.debug(curGroup.toString());
@@ -52,8 +60,10 @@ public class GroupSelectionMenu extends MenuBar {
 		SubMenu subMenu = item.getSubMenu();
 		MenuItem currentlyChecked[] = { null };
 		Group prevGroup = null;
-		for (Group g : groups) {
-			if (doneSeparator && prevGroup != null && (prevGroup.isDone() != g.isDone())) {
+		List<Group> displayedGroups = mode != null ? mode.apply(groups) : groups;
+		for (Group g : displayedGroups) {
+			if (mode != null && mode.hasSeparator() && prevGroup != null
+			        && !Boolean.valueOf(prevGroup.isDone()).equals(g.isDone())) {
 				addSeparator(subMenu);
 			}
 			MenuItem subItem = subMenu.addItem(
