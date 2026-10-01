@@ -54,6 +54,7 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
+import com.vaadin.flow.component.textfield.Autocomplete;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Binder.Binding;
@@ -71,6 +72,7 @@ import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.components.fields.LocalizedIntegerField;
 import app.owlcms.components.fields.ValidationUtils;
+import app.owlcms.components.fields.WrappedTextField;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
@@ -1489,6 +1491,11 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	private FormItem layoutAddFormItem(FormLayout layout, Component field,
 	        String translate) {
+		if (field instanceof TextField textField) {
+			textField.setAutocomplete(Autocomplete.OFF);
+		} else if (field instanceof WrappedTextField<?> wrappedField) {
+			wrappedField.getWrappedTextField().setAutocomplete(Autocomplete.OFF);
+		}
 		Div label = new Div();
 		label.setText(translate);
 		label.getStyle().set("text-align", "right");
