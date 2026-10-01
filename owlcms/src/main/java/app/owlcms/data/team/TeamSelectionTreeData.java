@@ -9,7 +9,6 @@ package app.owlcms.data.team;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -249,31 +248,18 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 
 	private long checkCounts(TeamTreeItem teamItem, Championship championship) {
 		List<TeamTreeItem> teamMembers = teamItem.getTeamMembers();
-		HashMap<String, Integer> nbPerCat = new HashMap<>();
-		List<String> illegalCounts = new ArrayList<>();
-		int nbMembers = 0;
-		boolean mixedTeam = teamItem.getGender() == Gender.MF;
 		Championship effectiveChampionship = championship != null ? championship : Championship.of(null);
-		int maxPerCat = effectiveChampionship.getMaxPerCategory();
+		List<Participation> participations = teamMembers.stream()
+		        .map(item -> ((PAthlete) item.getAthlete())._getOriginalParticipation()).toList();
+		TeamRosterValidation.Result result = TeamRosterValidation.validate(participations, effectiveChampionship,
+		        teamItem.getGender());
 		for (TeamTreeItem t : teamMembers) {
-			boolean countedMember = mixedTeam ? effectiveMixedMembership(t, championship) : Boolean.TRUE.equals(t.isTeamMember());
-			if (!countedMember) {
-				continue;
-			}
-			Integer countPerCat = nbPerCat.get(t.getCategory());
-			countPerCat = countPerCat == null ? 1 : countPerCat + 1;
-			nbPerCat.put(t.getCategory(), countPerCat);
-			if (countPerCat > maxPerCat) {
-				illegalCounts.add(t.getCategory());
-			}
-			nbMembers++;
+			Participation participation = ((PAthlete) t.getAthlete())._getOriginalParticipation();
+			t.setWarning(TeamRosterValidation.isMember(participation, effectiveChampionship, teamItem.getGender())
+			        && result.isCategoryOverLimit(participation.getCategory()));
 		}
-		for (TeamTreeItem t : teamMembers) {
-			boolean countedMember = mixedTeam ? effectiveMixedMembership(t, championship) : Boolean.TRUE.equals(t.isTeamMember());
-			t.setWarning(countedMember && illegalCounts.contains(t.getCategory()));
-		}
-		teamItem.setWarning(!illegalCounts.isEmpty());
-		return nbMembers;
+		teamItem.setWarning(teamMembers.stream().anyMatch(TeamTreeItem::isWarning));
+		return result.memberCount();
 	}
 
 	private void dumpTeams() {
@@ -317,12 +303,6 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 	private boolean effectiveMixedMembership(Participation participation, Championship championship) {
 		boolean explicitMixed = championship != null && championship.isExplicitMixedTeamMembers();
 		return explicitMixed ? participation.getMixedTeamMember() : participation.getTeamMember();
-	}
-
-	private boolean effectiveMixedMembership(TeamTreeItem item, Championship championship) {
-		return item != null && item.getAthlete() instanceof PAthlete pAthlete
-		        ? effectiveMixedMembership(pAthlete._getOriginalParticipation(), championship)
-		        : false;
 	}
 
 	private void init(String ageGroupPrefix, Championship championship, Gender gender, boolean includeNotDone) {

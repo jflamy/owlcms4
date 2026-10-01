@@ -6,12 +6,17 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -38,6 +43,8 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 		tagLogger.setLevel(Level.ERROR);
 	}
 	private Consumer<Workbook> postProcessor;
+	private boolean teamReport;
+	private VFETeamReport.Data vfeReport;
 
 	public JXLSStartingListDocs() {
 		this.setExcludeNotWeighed(false);
@@ -118,7 +125,12 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 	}
 
 	public void createTeamColumns(int listColumn, int catColumn) {
+		this.teamReport = true;
 		setPostProcessor((w) -> {
+			if (getTemplateFileName() != null && getTemplateFileName().contains("VFE_Teams-")) {
+				formatVfeReport(w);
+				return;
+			}
 			String translatedVfe = Translator.translateOrElseNull("VFE");
 			String teamMembershipTitle = Translator.translateOrElseNull("TeamMembership.Title");
 
@@ -332,7 +344,8 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 		centerStyle.cloneStyleFrom(sourceCell.getCellStyle());
 		centerStyle.setAlignment(org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER);
 		for (int offset = 0; offset < columnCount; offset++) {
-			Cell targetCell = row.createCell(firstTargetCol + offset);
+			int targetColumn = firstTargetCol + offset;
+			Cell targetCell = targetColumn == sourceCol ? sourceCell : row.createCell(targetColumn);
 			targetCell.setCellStyle(centerStyle);
 		}
 		copyCellValueAndStyle(sourceCell, row.getCell(firstTargetCol));
@@ -410,6 +423,125 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 
 	public Consumer<Workbook> getPostProcessor() {
 		return this.postProcessor;
+	}
+
+	@Override
+	protected void setReportingInfo() {
+		super.setReportingInfo();
+		if (this.teamReport) {
+			this.vfeReport = VFETeamReport.build(getSortedAthletes());
+			getReportingBeans().put("vfeTeams", this.vfeReport.getTeams());
+			getReportingBeans().put("vfeReportMarker", "VFE_REPORT");
+			getReportingBeans().put("vfeNumberHeader", "#");
+		}
+	}
+
+	private void formatVfeReport(Workbook workbook) {
+		Map<Short, CellStyle> warningStyles = new HashMap<>();
+		Map<Short, CellStyle> unselectedStyles = new HashMap<>();
+		Map<Short, CellStyle> teamWarningStyles = new HashMap<>();
+		Font warningFont = workbook.createFont();
+		warningFont.setBold(true);
+		warningFont.setColor(IndexedColors.DARK_RED.getIndex());
+		Font summaryFont = workbook.createFont();
+		summaryFont.setBold(true);
+		summaryFont.setColor(IndexedColors.DARK_RED.getIndex());
+		summaryFont.setFontHeightInPoints((short) 14);
+		int firstMembershipColumn = 9;
+		int columnCount = Math.max(1, this.vfeReport.getScopes().size());
+		int lastColumn = firstMembershipColumn + columnCount - 1;
+		for (Sheet sheet : workbook) {
+			sheet.getRow(0).setZeroHeight(true);
+			Row scopeHeader = sheet.getRow(5);
+			if (scopeHeader == null) {
+				scopeHeader = sheet.createRow(5);
+			}
+			CellStyle headerStyle = sheet.getRow(7).getCell(firstMembershipColumn).getCellStyle();
+			for (int offset = 0; offset < columnCount; offset++) {
+				sheet.setColumnWidth(firstMembershipColumn + offset, 24 * 256);
+				Cell cell = scopeHeader.createCell(firstMembershipColumn + offset);
+				cell.setCellStyle(headerStyle);
+				if (offset < this.vfeReport.getScopes().size()) {
+					cell.setCellValue(this.vfeReport.getScopes().get(offset).label());
+				}
+			}
+			scopeHeader.setHeightInPoints(30);
+			Row teamRow = sheet.getRow(6);
+			CellStyle teamMiddleStyle = teamRow.getCell(firstMembershipColumn - 1).getCellStyle();
+			CellStyle teamEndStyle = teamRow.getCell(firstMembershipColumn).getCellStyle();
+			for (int offset = 0; offset < columnCount; offset++) {
+				Cell cell = teamRow.getCell(firstMembershipColumn + offset);
+				if (cell == null) {
+					cell = teamRow.createCell(firstMembershipColumn + offset);
+				}
+				cell.setCellStyle(offset == columnCount - 1 ? teamEndStyle : teamMiddleStyle);
+			}
+			copySourceCellAsMergedHeader(sheet, sheet.getRow(7), firstMembershipColumn,
+			        firstMembershipColumn, columnCount);
+			for (Row row : sheet) {
+				Cell source = row.getCell(firstMembershipColumn);
+				if (source != null && source.getCellType() == CellType.STRING) {
+					VFETeamReport.Member member = this.vfeReport.getRows().get(source.getStringCellValue());
+					if (member != null) {
+						CellStyle baseStyle = source.getCellStyle();
+						for (int offset = 0; offset < columnCount; offset++) {
+							Cell cell = row.createCell(firstMembershipColumn + offset);
+							cell.setCellStyle(baseStyle);
+							if (offset < member.getMemberships().size()) {
+								VFETeamReport.Membership membership = member.getMemberships().get(offset);
+								cell.setCellValue(membership.category());
+								if (membership.warning()) {
+									CellStyle warningStyle = warningStyles.computeIfAbsent(baseStyle.getIndex(), ignored -> {
+										CellStyle style = workbook.createCellStyle();
+										style.cloneStyleFrom(baseStyle);
+										style.setFillForegroundColor(IndexedColors.ROSE.getIndex());
+										style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+										style.setFont(warningFont);
+										return style;
+									});
+									cell.setCellStyle(warningStyle);
+								} else if (membership.teamWarning()) {
+									CellStyle teamWarningStyle = teamWarningStyles.computeIfAbsent(baseStyle.getIndex(), ignored -> {
+										CellStyle style = workbook.createCellStyle();
+										style.cloneStyleFrom(baseStyle);
+										style.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
+										style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+										return style;
+									});
+									cell.setCellStyle(teamWarningStyle);
+								} else if (!membership.selected() && !membership.category().isBlank()) {
+									CellStyle unselectedStyle = unselectedStyles.computeIfAbsent(baseStyle.getIndex(), ignored -> {
+										CellStyle style = workbook.createCellStyle();
+										style.cloneStyleFrom(baseStyle);
+										Font font = workbook.createFont();
+										font.setStrikeout(true);
+										style.setFont(font);
+										return style;
+									});
+									cell.setCellStyle(unselectedStyle);
+								}
+							}
+						}
+					}
+				}
+				Cell firstCell = row.getCell(0);
+				if (firstCell != null && firstCell.getCellType() == CellType.STRING
+				        && firstCell.getStringCellValue().startsWith("VFE_WARNING:")) {
+					firstCell.setCellValue(firstCell.getStringCellValue().substring("VFE_WARNING:".length()));
+					CellStyle style = workbook.createCellStyle();
+					style.cloneStyleFrom(firstCell.getCellStyle());
+					style.setWrapText(true);
+					style.setFont(summaryFont);
+					firstCell.setCellStyle(style);
+					sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), 0, lastColumn));
+					row.setHeightInPoints(30);
+				}
+			}
+			workbook.setPrintArea(workbook.getSheetIndex(sheet), 0, lastColumn, 0, sheet.getLastRowNum());
+			sheet.getPrintSetup().setFitWidth((short) 1);
+			sheet.getPrintSetup().setFitHeight((short) 0);
+			sheet.setFitToPage(true);
+		}
 	}
 
 	@Override

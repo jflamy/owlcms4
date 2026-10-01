@@ -39,6 +39,11 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -71,8 +76,11 @@ import app.owlcms.data.team.TeamSelectionDisplayRules;
 import app.owlcms.data.team.TeamSelectionTreeData;
 import app.owlcms.data.team.TeamResultsTreeData;
 import app.owlcms.data.team.TeamTreeItem;
+import app.owlcms.data.team.TeamRosterValidation;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.spreadsheet.JXLSTeamResultsSheet;
+import app.owlcms.spreadsheet.JXLSStartingListDocs;
+import app.owlcms.spreadsheet.VFETeamReport;
 import ch.qos.logback.classic.Logger;
 
 public class ChampionshipTest {
@@ -638,6 +646,166 @@ public class ChampionshipTest {
         assertTrue("senior team selection without gender filter should also expose mixed roots",
                 unfilteredRootNames.getOrDefault(Gender.MF, Set.of()).containsAll(mixedRootNames));
     }
+
+        @Test
+        public void testVfeRosterValidatorCountsSelectedMembersAndConfiguredLimits() {
+                Championship championship = new Championship("VFE validation", ChampionshipType.U);
+                championship.setMaxPerCategory(2);
+                championship.setMaxTeamSize(2);
+                Category category = vfeTestCategory();
+                List<Athlete> athletes = vfeTestAthletes(category);
+                List<Participation> participations = athletes.stream()
+                                .flatMap(athlete -> athlete.getParticipations().stream()).toList();
+                TeamRosterValidation.Result result = TeamRosterValidation.validate(participations, championship, Gender.M);
+                assertEquals(3, result.memberCount());
+                assertEquals(Integer.valueOf(3), result.categoryCounts().get(category));
+                assertTrue(result.isCategoryOverLimit(category));
+                assertTrue(result.isTeamOverLimit());
+                List<Participation> detachedParticipations = new ArrayList<>();
+                for (int index = 0; index < 3; index++) {
+                        Category detachedCategory = new Category(category);
+                        detachedCategory.setId(Long.parseLong(category.getId().toString()));
+                        Athlete detachedAthlete = new Athlete();
+                        detachedAthlete.addEligibleCategory(detachedCategory, true, false);
+                        detachedParticipations.add(detachedAthlete.getParticipations().get(0));
+                }
+                result = TeamRosterValidation.validate(detachedParticipations, championship, Gender.M);
+                assertEquals("equal category IDs share one count despite distinct entity instances", 1,
+                        result.categoryCounts().size());
+                assertEquals(Integer.valueOf(3), result.categoryCounts().values().iterator().next());
+                assertTrue(result.isCategoryOverLimit(category));
+                championship.setMaxPerCategory(3);
+                championship.setMaxTeamSize(3);
+                result = TeamRosterValidation.validate(participations, championship, Gender.M);
+                assertFalse(result.isCategoryOverLimit(category));
+                assertFalse(result.isTeamOverLimit());
+                championship.setExplicitMixedTeamMembers(true);
+                championship.setExplicitTeamSize(1);
+                participations.get(0).setMixedTeamMember(true);
+                participations.get(3).setMixedTeamMember(true);
+                result = TeamRosterValidation.validate(participations, championship, Gender.MF);
+                assertEquals("mixed selection is independent of ordinary membership", 2, result.memberCount());
+                assertTrue(result.isTeamOverLimit());
+                championship.setExplicitMixedTeamMembers(false);
+                result = TeamRosterValidation.validate(participations, championship, Gender.MF);
+                assertEquals(3, result.memberCount());
+                assertFalse("implicit mixed roster has no explicit roster cap", result.isTeamOverLimit());
+        }
+
+        @Test
+        public void testVfeReportHighlightsAllSelectedOverLimitMemberships() {
+                Category category = vfeTestCategory();
+                Championship championship = category.getAgeGroup().getChampionship();
+                int originalCategoryLimit = championship.getMaxPerCategory();
+                int originalTeamLimit = championship.getMaxTeamSize();
+                try {
+                        championship.setMaxPerCategory(2);
+                        championship.setMaxTeamSize(2);
+                        VFETeamReport.Data report = VFETeamReport.build(vfeTestAthletes(category));
+                        assertEquals(1, report.getScopes().size());
+                        VFETeamReport.Block block = report.getTeams().get(0).getBlocks().get(0);
+                        assertEquals(4, block.getMembers().size());
+                        assertEquals("category and team limit each have a summary", 2, block.getViolations().size());
+                        for (int index = 0; index < 3; index++) {
+                                VFETeamReport.Membership membership = block.getMembers().get(index).getMemberships().get(0);
+                                assertEquals(category.getNameWithAgeGroup(), membership.category());
+				assertTrue(membership.selected());
+                                assertTrue("every selected cell in the illegal category is highlighted", membership.warning());
+                        }
+                        VFETeamReport.Membership unselected = block.getMembers().get(3).getMemberships().get(0);
+			assertEquals(category.getNameWithAgeGroup(), unselected.category());
+			assertFalse(unselected.selected());
+                        assertFalse(unselected.warning());
+                } finally {
+                        championship.setMaxPerCategory(originalCategoryLimit);
+                        championship.setMaxTeamSize(originalTeamLimit);
+                }
+        }
+
+        @Test
+        public void testVfeGeneratedTemplatesHighlightAllOverLimitCellsAndSummaries() throws Exception {
+                Category category = vfeTestCategory();
+                Championship championship = category.getAgeGroup().getChampionship();
+                int originalCategoryLimit = championship.getMaxPerCategory();
+                int originalTeamLimit = championship.getMaxTeamSize();
+                try {
+                        championship.setMaxPerCategory(2);
+                        championship.setMaxTeamSize(2);
+                        for (String paper : List.of("A4", "LETTER")) {
+                                List<Athlete> athletes = vfeTestAthletes(category);
+                                List<String> expectedViolations = VFETeamReport.build(athletes).getTeams().get(0)
+                                                .getBlocks().get(0).getViolations();
+                                JXLSStartingListDocs writer = new JXLSStartingListDocs();
+                                writer.setSortedAthletes(athletes);
+                                writer.createTeamColumns(9, 6);
+                                writer.setTemplateFileName("/templates/teams/VFE_Teams-" + paper + ".xlsx");
+                                try (InputStream stream = writer.createInputStream(); Workbook workbook = WorkbookFactory.create(stream)) {
+                                        assertEquals("one delegation sheet", 1, workbook.getNumberOfSheets());
+                                        Sheet sheet = workbook.getSheetAt(0);
+                                        int highlightedCells = 0;
+					int struckCells = 0;
+                                        int warningRows = 0;
+                                        int lastMemberRow = -1;
+                                        int firstWarningRow = Integer.MAX_VALUE;
+                                        for (Row row : sheet) {
+                                                for (Cell cell : row) {
+                                                        if (cell.getCellType() != CellType.STRING) {
+                                                                continue;
+                                                        }
+                                                        String value = cell.getStringCellValue();
+                                                        assertFalse("postprocessing removes row tokens", value.startsWith("VFE_ROW_"));
+                                                            assertFalse("postprocessing removes summary tokens at " + cell.getAddress() + ": " + value,
+                                                                    value.startsWith("VFE_WARNING:"));
+                                                        if (cell.getColumnIndex() >= 9 && value.equals(category.getNameWithAgeGroup())) {
+                                                                lastMemberRow = Math.max(lastMemberRow, row.getRowNum());
+                                                                                                if (workbook.getFontAt(cell.getCellStyle().getFontIndexAsInt()).getStrikeout()) {
+                                                                                                        struckCells++;
+                                                                                                } else {
+                                                                                                        assertEquals(IndexedColors.ROSE.getIndex(), cell.getCellStyle().getFillForegroundColor());
+                                                                                                        highlightedCells++;
+                                                                                                }
+                                                        }
+                                                            if (expectedViolations.contains(value)) {
+                                                                warningRows++;
+                                                                firstWarningRow = Math.min(firstWarningRow, row.getRowNum());
+                                                        }
+                                                }
+                                        }
+                                        assertEquals(paper + " highlights all three selected cells", 3, highlightedCells);
+					assertEquals(paper + " strikes out the eligible unselected cell", 1, struckCells);
+                                        assertEquals(paper + " contains both violation summaries", 2, warningRows);
+                                        assertTrue("summaries follow the member block", firstWarningRow > lastMemberRow);
+                                        assertNotNull(workbook.getPrintArea(0));
+                                }
+                        }
+                } finally {
+                        championship.setMaxPerCategory(originalCategoryLimit);
+                        championship.setMaxTeamSize(originalTeamLimit);
+                }
+        }
+
+        private static Category vfeTestCategory() {
+                Championship senior = ChampionshipRepository.findByName("Senior");
+                return AgeGroupRepository.allParticipationsForAgeGroupAgeDivision(null, senior).stream()
+                                .map(Participation::getCategory).filter(category -> category.getGender() == Gender.M)
+                                .findFirst().orElseThrow();
+        }
+
+        private static List<Athlete> vfeTestAthletes(Category category) {
+                List<Athlete> athletes = new ArrayList<>();
+                for (int index = 0; index < 4; index++) {
+                        Athlete athlete = new Athlete();
+                        athlete.setFirstName("VFE");
+                        athlete.setLastName("Athlete" + index);
+                        athlete.setGender(Gender.M);
+                        athlete.setTeam("ARG");
+                        athlete.setCategory(category);
+                        athlete.addEligibleCategory(category, index < 3, false);
+                        athlete.setMainRankings(athlete.getParticipations().get(0));
+                        athletes.add(athlete);
+                }
+                return athletes;
+        }
 
     @Test
     public void testMastersTeamSummaryShowsOnlyChampionshipSelectedScore() throws Exception {
