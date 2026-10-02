@@ -41,9 +41,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import app.owlcms.Main;
 import app.owlcms.access.AccessMode;
@@ -72,7 +74,17 @@ public class Config {
 	public static final String FAKE_PIN = "\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF";
 	public static final int SHORT_TEAM_LENGTH = 6;
 	private static Config current;
-	private static final ObjectMapper FEATURE_SWITCH_JSON_MAPPER = new ObjectMapper();
+	@JsonAutoDetect(
+	        fieldVisibility = JsonAutoDetect.Visibility.ANY,
+	        getterVisibility = JsonAutoDetect.Visibility.NONE,
+	        isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+	        setterVisibility = JsonAutoDetect.Visibility.NONE)
+	private abstract static class StoredForwardingConnectionMixin {
+	}
+
+	private static final ObjectMapper FEATURE_SWITCH_JSON_MAPPER = JsonMapper.builder()
+	        .addMixIn(ForwardingConnection.class, StoredForwardingConnectionMixin.class)
+	        .build();
 	private static final TypeReference<LinkedHashMap<String, Boolean>> FEATURE_SWITCH_JSON_TYPE = new TypeReference<>() {
 	};
 	private static final TypeReference<List<ForwardingConnection>> FORWARDING_CONNECTIONS_JSON_TYPE = new TypeReference<>() {
@@ -375,7 +387,7 @@ public class Config {
 	private static void addLegacyForwardingConnection(List<ForwardingConnection> connections, String url,
 			String updateKey) {
 		if (url != null && !url.isBlank()) {
-			connections.add(new ForwardingConnection(url, updateKey));
+			connections.add(ForwardingConnection.fromStored(url, updateKey, true, false));
 		}
 	}
 
@@ -415,10 +427,9 @@ public class Config {
 				continue;
 			}
 			String url = normalizeForwardingUrl(connection.getUrl());
-			String updateKey = connection.getUpdateKey();
-			connectionsByUrl.put(url, new ForwardingConnection(url,
-			        updateKey == null || updateKey.isBlank() ? null : updateKey,
-			        connection.isActive(), connection.isControlPanelManaged()));
+			ForwardingConnection normalized = new ForwardingConnection(connection);
+			normalized.setUrl(url);
+			connectionsByUrl.put(url, normalized);
 		}
 		return new ArrayList<>(connectionsByUrl.values());
 	}

@@ -15,12 +15,17 @@ import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import app.owlcms.Main;
 import app.owlcms.access.PasswordHasher;
@@ -36,6 +41,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.coach.Coach;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.ForwardingConnection;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.export.CompetitionData;
 import app.owlcms.data.export.v2.AthleteDTO;
@@ -43,12 +49,16 @@ import app.owlcms.data.export.v2.ChampionshipDTO;
 import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.utils.InstallationSecret;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
 
 public class JSONExportImportTest {
+
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 	
     @BeforeClass
     public static void setupTests() {
@@ -111,6 +121,54 @@ public class JSONExportImportTest {
         assertTrue(importedV2.getAccounts().stream()
                 .anyMatch(imported -> imported.getUsername().equals("fixtureuser")
                         && PasswordHasher.verify("fixtureuser", imported.getPasswordHash())));
+    }
+
+    @Test
+    public void forwardingUpdateKeysRoundTripThroughBothJsonFormats() throws Exception {
+        Config config = Config.getCurrent();
+        List<ForwardingConnection> originalConnections = config.getForwardingDestinations();
+        String originalHome = System.getProperty("user.home");
+        Path testHome = this.temporaryFolder.newFolder("crypto-home").toPath();
+        Path keyDirectory = Files.createDirectories(testHome.resolve(".owlcms"));
+        Files.writeString(keyDirectory.resolve("key"), Base64.getEncoder().encodeToString(new byte[32]),
+            StandardCharsets.US_ASCII);
+        ObjectMapper mapper = JsonMapper.builder().build();
+        ForwardingConnection legacyPlaintext = mapper.readValue(
+                "{\"url\":\"wss://tracker.example/ws\",\"updateKey\":\"fixture-update-key\"}",
+                ForwardingConnection.class);
+        try {
+            System.setProperty("user.home", testHome.toString());
+            config.setForwardingDestinations(List.of(legacyPlaintext));
+
+            String legacyJson = new CompetitionData().exportDataAsString();
+            String legacyExportedKey = mapper.readTree(legacyJson)
+                    .get("config").get("forwardingDestinations").get(0).get("updateKey").asString();
+                CompetitionData legacyImported = new CompetitionData().importDataFromString(legacyJson);
+
+                Config.setCurrent(config);
+            CompetitionDataV2 v2 = new CompetitionDataV2().fromDatabase();
+            String v2Json = new String(v2.exportData().readAllBytes(), StandardCharsets.UTF_8);
+            String v2ExportedKey = mapper.readTree(v2Json)
+                    .get("config").get("forwardingDestinations").get(0).get("updateKey").asString();
+                CompetitionDataV2 v2Imported = new CompetitionDataV2().importData(
+                    new ByteArrayInputStream(v2Json.getBytes(StandardCharsets.UTF_8)));
+
+            assertTrue(legacyExportedKey.startsWith("enc:v1:"));
+            assertTrue(v2ExportedKey.startsWith("enc:v1:"));
+            assertEquals("fixture-update-key", InstallationSecret.decrypt(legacyExportedKey));
+            assertEquals("fixture-update-key", InstallationSecret.decrypt(v2ExportedKey));
+                assertEquals("fixture-update-key",
+                    legacyImported.getConfig().getForwardingDestinations().get(0).getUpdateKey());
+                assertEquals("fixture-update-key",
+                    v2Imported.getConfig().getForwardingDestinations().get(0).getUpdateKey());
+            assertEquals("fixture-update-key", config.getForwardingDestinations().get(0).getUpdateKey());
+            assertFalse(legacyJson.contains("\"updateKey\" : \"fixture-update-key\""));
+            assertFalse(v2Json.contains("\"updateKey\" : \"fixture-update-key\""));
+        } finally {
+            System.setProperty("user.home", originalHome);
+            config.setForwardingDestinations(originalConnections);
+                Config.setCurrent(config);
+        }
     }
 
     @Test
