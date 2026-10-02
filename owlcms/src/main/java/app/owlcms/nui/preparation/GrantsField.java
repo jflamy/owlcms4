@@ -13,7 +13,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import app.owlcms.access.Role;
 import app.owlcms.data.account.RoleGrant;
-import app.owlcms.data.account.RoleGrantScope;
 import app.owlcms.i18n.Translator;
 
 /** Rows of role and platform scope; a scope is only offered for roles that can be limited to a platform. */
@@ -28,7 +27,6 @@ class GrantsField extends CustomField<List<RoleGrant>> {
 	private final VerticalLayout rows = new VerticalLayout();
 	private final List<Row> rowList = new ArrayList<>();
 	private final List<String> platforms;
-	private final Button allPlatformsButton;
 	private boolean rebuilding;
 
 	GrantsField(List<String> platforms) {
@@ -36,12 +34,11 @@ class GrantsField extends CustomField<List<RoleGrant>> {
 		this.platforms = platforms;
 		this.rows.setPadding(false);
 		this.rows.setSpacing(false);
-		Button add = new Button(Translator.translate("Access.Grant.Add"), VaadinIcon.PLUS.create(),
-		        e -> addRow(new RoleGrant(null, null)));
-		this.allPlatformsButton = new Button(Translator.translate("Access.Grant.AllPlatforms.Button"),
-		        VaadinIcon.GLOBE.create(), e -> grantAllPlatforms());
-		add(this.rows, new HorizontalLayout(add, this.allPlatformsButton));
-		updateAllPlatformsButton();
+		Button add = new Button(Translator.translate("Access.Grant.Add"), VaadinIcon.PLUS.create());
+		add.setEnabled(false);
+		add.setVisible(false);
+		add(this.rows, new HorizontalLayout(add));
+		setPresentationValue(List.of());
 	}
 
 	@Override
@@ -67,13 +64,14 @@ class GrantsField extends CustomField<List<RoleGrant>> {
 		try {
 			this.rows.removeAll();
 			this.rowList.clear();
-			if (grants != null) {
+			if (grants == null || grants.isEmpty()) {
+				addRow(new RoleGrant(null, null));
+			} else {
 				grants.forEach(this::addRow);
 			}
 		} finally {
 			this.rebuilding = false;
 		}
-		updateAllPlatformsButton();
 	}
 
 	private void addRow(RoleGrant grant) {
@@ -102,7 +100,10 @@ class GrantsField extends CustomField<List<RoleGrant>> {
 		Button remove = new Button(VaadinIcon.TRASH.create(), e -> {
 			this.rows.remove(layout);
 			this.rowList.remove(row);
-			updateValue();
+			if (this.rowList.isEmpty()) {
+				setPresentationValue(List.of());
+			}
+			changed();
 		});
 		layout.add(role, scope, remove);
 		this.rows.add(layout);
@@ -121,16 +122,6 @@ class GrantsField extends CustomField<List<RoleGrant>> {
 		}
 	}
 
-	private void grantAllPlatforms() {
-		List<RoleGrant> grants = RoleGrantScope.allPlatforms(generateModelValue());
-		setPresentationValue(grants);
-		updateValue();
-	}
-
-	private void updateAllPlatformsButton() {
-		this.allPlatformsButton.setEnabled(RoleGrantScope.needsAllPlatforms(generateModelValue()));
-	}
-
 	private void limitScopeToScopableRoles(Row row) {
 		Role role = row.role().getValue();
 		boolean scopable = role != null && role.isPlatformScopable();
@@ -143,7 +134,6 @@ class GrantsField extends CustomField<List<RoleGrant>> {
 	private void changed() {
 		if (!this.rebuilding) {
 			updateValue();
-			updateAllPlatformsButton();
 		}
 	}
 

@@ -54,10 +54,17 @@ import app.owlcms.nui.preparation.RecordsNavigationContent;
 import app.owlcms.nui.home.navigation.JuryNavigationContent;
 import app.owlcms.nui.home.navigation.RefereeNavigationContent;
 import app.owlcms.nui.lifting.PassiveAnnouncerContent;
+import app.owlcms.nui.lifting.CompetitionDirectorContent;
+import app.owlcms.nui.lifting.LiftingNavigationContent;
+import app.owlcms.nui.lifting.WeighinContent;
 import app.owlcms.nui.lifting.JuryContent;
 import app.owlcms.nui.lifting.MarshallContent;
 import app.owlcms.nui.lifting.TCContent;
 import app.owlcms.nui.lifting.TimekeeperContent;
+import app.owlcms.nui.preparation.PreparationNavigationContent;
+import app.owlcms.nui.preparation.RegistrationContent;
+import app.owlcms.nui.results.ResultsNavigationContent;
+import app.owlcms.nui.displays.DisplayNavigationContent;
 import app.owlcms.nui.shared.ContentWrapping;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.nui.shared.OwlcmsLayoutAware;
@@ -375,8 +382,16 @@ public class LoginView extends Composite<VerticalLayout>
 
 	private void redirectAccountLanding(Principal principal) {
 		AccountLandingPolicy.singleWorkPage(principal).ifPresentOrElse(page -> {
-			QueryParameters parameters = QueryParameters.simple(Map.of("fop", principal.loginPlatform()));
+			QueryParameters parameters = principal.loginPlatform() != null
+			        ? QueryParameters.simple(Map.of("fop", principal.loginPlatform())) : QueryParameters.empty();
 			switch (page) {
+				case HOME -> UI.getCurrent().navigate(HomeNavigationContent.class);
+				case COMPETITION_DIRECTOR -> UI.getCurrent().navigate(CompetitionDirectorContent.class, parameters);
+				case PREPARATION -> UI.getCurrent().navigate(PreparationNavigationContent.class, parameters);
+				case REGISTRATION -> UI.getCurrent().navigate(RegistrationContent.class, parameters);
+				case WEIGHIN -> UI.getCurrent().navigate(WeighinContent.class, parameters);
+				case RESULTS -> UI.getCurrent().navigate(ResultsNavigationContent.class, parameters);
+				case LIFTING -> UI.getCurrent().navigate(LiftingNavigationContent.class, parameters);
 				case ANNOUNCER -> UI.getCurrent().navigate(PassiveAnnouncerContent.class, parameters);
 				case MARSHAL -> UI.getCurrent().navigate(MarshallContent.class, parameters);
 				case TIMEKEEPER -> UI.getCurrent().navigate(TimekeeperContent.class, parameters);
@@ -384,6 +399,7 @@ public class LoginView extends Composite<VerticalLayout>
 				case JURY_CONSOLE -> UI.getCurrent().navigate(JuryContent.class, parameters);
 				case REFEREE_NAVIGATION -> UI.getCurrent().navigate(RefereeNavigationContent.class, parameters);
 				case JURY_NAVIGATION -> UI.getCurrent().navigate(JuryNavigationContent.class, parameters);
+				case DISPLAY_NAVIGATION -> UI.getCurrent().navigate(DisplayNavigationContent.class, parameters);
 			}
 		}, () -> UI.getCurrent().navigate(HomeNavigationContent.class));
 	}
