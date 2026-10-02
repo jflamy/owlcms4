@@ -152,7 +152,7 @@ public interface SoundParametersReader extends SoundParameters, FOPParametersRea
 			}
 			
 			// Also update FOP's singleReferee field for announcer (runtime state)
-			if (this instanceof AnnouncerContent) {
+			if (this instanceof AnnouncerContent announcer && !announcer.isPassiveSpeaker()) {
 				fop.setSingleReferee(isSingleReferee());
 			}
 			// Note: No saves here - settings are only persisted when user changes them via cogwheel menu
@@ -260,7 +260,7 @@ public interface SoundParametersReader extends SoundParameters, FOPParametersRea
 				fop.getPlatform().saveSettings();
 			}
 			// Also update FOP's singleReferee field for announcer
-			if (component instanceof AnnouncerContent) {
+			if (component instanceof AnnouncerContent announcer && !announcer.isPassiveSpeaker()) {
 				fop.setSingleReferee(b);
 			}
 		}

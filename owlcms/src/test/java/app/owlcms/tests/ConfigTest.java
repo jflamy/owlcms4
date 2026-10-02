@@ -16,6 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import app.owlcms.access.AccessMode;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 
@@ -108,5 +109,42 @@ public class ConfigTest {
         assertEquals("{\"athleteCardEntryTotal\":true}", config.getFeatureSwitchJson());
         assertEquals("athleteCardEntryTotal", config.getFeatureSwitches());
         assertTrue(config.featureSwitch(FeatureSwitch.ATHLETE_CARD_ENTRY_TOTAL));
+    }
+
+    @Test
+    public void competitionDirectorDefaultFollowsAccessMode() {
+        Config config = new Config();
+        config.setAccessMode(AccessMode.PIN);
+        assertFalse(config.featureSwitch(FeatureSwitch.COMPETITION_DIRECTOR_PAGE));
+        assertFalse(config.getFeatureSwitchValue(FeatureSwitch.COMPETITION_DIRECTOR_PAGE));
+
+        config.setAccessMode(AccessMode.ACCOUNTS);
+        assertTrue(config.featureSwitch(FeatureSwitch.COMPETITION_DIRECTOR_PAGE));
+        assertFalse(config.getFeatureSwitchValue(FeatureSwitch.COMPETITION_DIRECTOR_PAGE));
+    }
+
+    @Test
+    public void competitionDirectorExplicitValuesSurviveModeChanges() {
+        Config config = new Config();
+        config.setAccessMode(AccessMode.PIN);
+        config.setFeatureSwitchValue(FeatureSwitch.COMPETITION_DIRECTOR_PAGE, true);
+        assertTrue(config.featureSwitch(FeatureSwitch.COMPETITION_DIRECTOR_PAGE));
+        config.setAccessMode(AccessMode.ACCOUNTS);
+        assertTrue(config.featureSwitch(FeatureSwitch.COMPETITION_DIRECTOR_PAGE));
+
+        config.setFeatureSwitchValue(FeatureSwitch.COMPETITION_DIRECTOR_PAGE, false);
+        config.setAccessMode(AccessMode.PIN);
+        assertFalse(config.featureSwitch(FeatureSwitch.COMPETITION_DIRECTOR_PAGE));
+        config.setAccessMode(AccessMode.ACCOUNTS);
+        assertTrue(config.featureSwitch(FeatureSwitch.COMPETITION_DIRECTOR_PAGE));
+        config.setFeatureSwitchValue(FeatureSwitch.NO_LIVE_LIGHTS, true);
+        assertTrue(config.featureSwitch(FeatureSwitch.COMPETITION_DIRECTOR_PAGE));
+
+        config.setAccessMode(AccessMode.PIN);
+        assertFalse(config.featureSwitch(FeatureSwitch.COMPETITION_DIRECTOR_PAGE));
+
+        System.setProperty("featureSwitches", FeatureSwitch.COMPETITION_DIRECTOR_PAGE.getId());
+        assertTrue(config.featureSwitch(FeatureSwitch.COMPETITION_DIRECTOR_PAGE));
+        assertFalse(config.getFeatureSwitchValue(FeatureSwitch.COMPETITION_DIRECTOR_PAGE));
     }
 }

@@ -119,6 +119,28 @@ public class AccessPolicyTest {
 	}
 
 	@Test
+	public void competitionDirectorAccessIsNotGrantedToOrdinaryOfficials() {
+		PageRule directorPage = page(true, Role.COMPETITION_DIRECTOR);
+		Principal director = account("A", new RoleGrant(Role.COMPETITION_DIRECTOR, null));
+		Principal admin = account(null, new RoleGrant(Role.ADMIN, null));
+		Principal announcer = account("A", new RoleGrant(Role.ANNOUNCER, "A"));
+		Principal platform = account("A", new RoleGrant(Role.PLATFORM, null));
+
+		assertTrue(AccessPolicy.canOpen(director, directorPage, "B"));
+		assertTrue(AccessPolicy.canOpen(admin, directorPage, "A"));
+		assertTrue(AccessPolicy.canOpen(Principal.admin(AuthSource.OFFICIALS_PIN), directorPage, "A"));
+		assertFalse(AccessPolicy.canOpen(announcer, directorPage, "A"));
+		assertFalse(AccessPolicy.canOpen(platform, directorPage, "A"));
+		assertFalse(AccessPolicy.canOpen(Principal.displays(), directorPage, "A"));
+		assertFalse(AccessPolicy.requiresPlatformChoice(director));
+		assertFalse(AccessPolicy.isLocked(director));
+		assertFalse(AccessPolicy.isAdmin(director));
+		assertEquals(PLATFORMS, AccessPolicy.allowedSessionPlatforms(director, PLATFORMS));
+		assertTrue(AccessPolicy.canOpen(director, page(true, Role.ANNOUNCER), "C"));
+		assertFalse(AccessPolicy.canOpen(director, page(false, Role.ADMIN_PAGES), null));
+	}
+
+	@Test
 	public void resultsAccountOpensResultsAndAnyPlatformScoreboardWithoutPlatformChoice() {
 		Principal results = account(null, new RoleGrant(Role.RESULTS, null));
 

@@ -69,7 +69,7 @@ public final class AccessPolicy {
 
 	/** True for accounts that hold a lockable role and are not administrators. */
 	public static boolean requiresPlatformChoice(Principal principal) {
-		if (principal == null || principal.source() != Principal.AuthSource.ACCOUNT || isAdmin(principal)) {
+		if (principal == null || principal.source() != Principal.AuthSource.ACCOUNT || hasUnrestrictedPlatforms(principal)) {
 			return false;
 		}
 		return principal.grants().stream().anyMatch(g -> g.getRole().expand().stream().anyMatch(Role::isLockable));
@@ -98,8 +98,13 @@ public final class AccessPolicy {
 		return principal != null && principal.grants().stream().anyMatch(g -> g.getRole() == Role.ADMIN);
 	}
 
+	private static boolean hasUnrestrictedPlatforms(Principal principal) {
+		return isAdmin(principal) || principal != null
+		        && principal.grants().stream().anyMatch(grant -> grant.getRole() == Role.COMPETITION_DIRECTOR);
+	}
+
 	public static boolean isLocked(Principal principal) {
-		return principal != null && principal.loginPlatform() != null && !isAdmin(principal);
+		return principal != null && principal.loginPlatform() != null && !hasUnrestrictedPlatforms(principal);
 	}
 
 	/** Platforms the session may switch to: everything unless locked. */
@@ -148,7 +153,7 @@ public final class AccessPolicy {
 	}
 
 	private static boolean lockMatches(Principal principal, Role role, String platform) {
-		return platform == null || !role.isLockable() || principal.loginPlatform() == null || isAdmin(principal)
+		return platform == null || !role.isLockable() || principal.loginPlatform() == null || hasUnrestrictedPlatforms(principal)
 		        || principal.loginPlatform().equals(platform);
 	}
 }

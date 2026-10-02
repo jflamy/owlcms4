@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.nui.lifting;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,9 +26,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
+import app.owlcms.access.AccessUi;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
+import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -118,7 +122,9 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(weighIn);
 		doGroup(Translator.translate("WeighIn_Title"), grid3, this);
 
-		Button announcer = openInNewTabWithFop(AnnouncerContent.class, Translator.translate("Announcer"));
+		Button announcer = Config.getCurrent().isAccountsMode()
+		        ? openInNewTabWithFop(PassiveAnnouncerContent.class, Translator.translate("Announcer"))
+		        : openInNewTabWithFop(AnnouncerContent.class, Translator.translate("Announcer"));
 		announcer.setIcon(new Icon(VaadinIcon.MICROPHONE));
 		announcer.setTabIndex(2);
 		announcer.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
@@ -130,9 +136,18 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 		VerticalLayout intro = new VerticalLayout();
 		addP(intro, Translator.translate("AnnouncerSelectsGroup") + Translator.translate("ChangesGroupEverywhere")
 		        + Translator.translate("AnnouncerEtc"));
+		intro.setVisible(!Config.getCurrent().isAccountsMode());
 		intro.getStyle().set("margin-bottom", "0");
 
-		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(announcer, marshall, timekeeper, technical);
+		List<Button> operationalButtons = new ArrayList<>(List.of(announcer, marshall, timekeeper, technical));
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.COMPETITION_DIRECTOR_PAGE)
+		        && AccessUi.canOpen(CompetitionDirectorContent.class, getFop())) {
+			Button director = openInNewTabWithFop(CompetitionDirectorContent.class, Translator.translate("CompetitionDirector"));
+			director.setIcon(new Icon(VaadinIcon.USER_STAR));
+			director.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+			operationalButtons.add(1, director);
+		}
+		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(operationalButtons.toArray(new Button[0]));
 		doGroup(Translator.translate("Scoreboard.LiftingOrder"), intro, grid1, this);
 
 		Button referee = openInNewTabWithFop(RefereeNavigationContent.class, Translator.translate("Referee_Mobile_Device"));

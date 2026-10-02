@@ -216,7 +216,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 	@Override
 	public boolean isGroupURLAllowedToMutateFop() {
-		return true;
+		return !isPassiveSpeaker();
 	}
 
 	@Override
@@ -227,7 +227,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 	@Override
 	protected boolean isLiftReversalEnabled() {
-		return true;
+		return !isPassiveSpeaker();
 	}
 
 	@Override
@@ -248,8 +248,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 	@Override
 	public void setHeaderContent() {
-		getRouterLayout().setMenuTitle(getMenuTitle());
-		getRouterLayout().setMenuArea(new FlexLayout());
+		getRouterLayout().setMenuTitle(this.topBar == null || this.initialBar ? getMenuTitle() : "");
+		getRouterLayout().setMenuArea(this.topBar != null ? this.topBar : new FlexLayout());
 		getRouterLayout().showLocaleDropdown(false);
 		getRouterLayout().setDrawerOpened(false);
 		getRouterLayout().updateHeader(false);
@@ -582,6 +582,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	protected void syncWithFop(boolean refreshGrid, FieldOfPlay fop) {
 		super.syncWithFop(refreshGrid, fop);
+		applyPassiveControls();
 		// The field of play is the source of truth after attach/refresh. If it still exposes a visible
 		// decision, make sure this page also has a matching decision notification.
 		if (fop != null && fop.getState() == FOPState.DECISION_VISIBLE && fop.getGoodLift() != null
@@ -693,19 +694,27 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	protected void create1MinButton() {
 		super.create1MinButton();
+		if (isPassiveSpeaker()) {
+			this._1min.setEnabled(false);
+			return;
+		}
 		currentUI.access(() -> {
-			currentUI.addShortcutListener(() -> do1Minute(), Key.NUMPAD_ADD);
-			currentUI.addShortcutListener(() -> do1Minute(), Key.EQUAL, KeyModifier.SHIFT);
+			currentUI.addShortcutListener(() -> do1Minute(), Key.NUMPAD_ADD).bindLifecycleTo(this);
+			currentUI.addShortcutListener(() -> do1Minute(), Key.EQUAL, KeyModifier.SHIFT).bindLifecycleTo(this);
 		});
 	}
 
 	@Override
 	protected void create2MinButton() {
 		super.create2MinButton();
+		if (isPassiveSpeaker()) {
+			this._2min.setEnabled(false);
+			return;
+		}
 		currentUI.access(() -> {
-			currentUI.addShortcutListener(() -> do2Minutes(), Key.EQUAL);
-			currentUI.addShortcutListener(() -> do2Minutes(), Key.NUMPAD_EQUAL);
-			currentUI.addShortcutListener(() -> do2Minutes(), Key.SEMICOLON);
+			currentUI.addShortcutListener(() -> do2Minutes(), Key.EQUAL).bindLifecycleTo(this);
+			currentUI.addShortcutListener(() -> do2Minutes(), Key.NUMPAD_EQUAL).bindLifecycleTo(this);
+			currentUI.addShortcutListener(() -> do2Minutes(), Key.SEMICOLON).bindLifecycleTo(this);
 		});
 	}
 
@@ -766,6 +775,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 		this.topBar.setFlexGrow(0.2, getTopBarLeft());
 		this.topBar.setFlexGrow(0.5, topBarRight);
+		applyPassiveControls();
 		return this.topBar;
 	}
 
@@ -807,6 +817,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		if (this.medalCeremonyButton != null) {
 			this.medalCeremonyButton.setVisible(sessionDone);
 		}
+		applyPassiveControls();
 	}
 
 	/**
@@ -814,6 +825,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	 */
 	@Override
 	protected Component createReset() {
+		if (isPassiveSpeaker()) {
+			return null;
+		}
 		this.reset = new Button(Translator.translate("Announcer.ReloadGroup"), new Icon(VaadinIcon.REFRESH),
 		        (e) -> {
 			        var fop = getFop();
@@ -839,16 +853,20 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	protected void createStartTimeButton() {
 		super.createStartTimeButton();
+		if (isPassiveSpeaker()) {
+			this.startTimeButton.setEnabled(false);
+			return;
+		}
 		boolean notSpanish = !OwlcmsSession.getLocale().getLanguage().startsWith("es");
 		boolean keepSpanishKeypadShortcut = Config.getCurrent().featureSwitch(FeatureSwitch.KEEP_SPANISH_HYPHEN_SHORTCUT);
 		currentUI.access(() -> {
-			currentUI.addShortcutListener(() -> doStartTime(), Key.COMMA);
+			currentUI.addShortcutListener(() -> doStartTime(), Key.COMMA).bindLifecycleTo(this);
 			if (notSpanish || keepSpanishKeypadShortcut) {
-				currentUI.addShortcutListener(() -> doStartTime(), Key.SLASH);
+				currentUI.addShortcutListener(() -> doStartTime(), Key.SLASH).bindLifecycleTo(this);
 			}
-			currentUI.addShortcutListener(() -> doStartTime(), Key.NUMPAD_DIVIDE);
-			currentUI.addShortcutListener(() -> doToggleTime(), Key.NUMPAD_MULTIPLY);
-			currentUI.addShortcutListener(() -> doToggleTime(), Key.DIGIT_8, KeyModifier.SHIFT);
+			currentUI.addShortcutListener(() -> doStartTime(), Key.NUMPAD_DIVIDE).bindLifecycleTo(this);
+			currentUI.addShortcutListener(() -> doToggleTime(), Key.NUMPAD_MULTIPLY).bindLifecycleTo(this);
+			currentUI.addShortcutListener(() -> doToggleTime(), Key.DIGIT_8, KeyModifier.SHIFT).bindLifecycleTo(this);
 		});
 	}
 
@@ -860,9 +878,13 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	protected void createStopTimeButton() {
 		super.createStopTimeButton();
+		if (isPassiveSpeaker()) {
+			this.stopTimeButton.setEnabled(false);
+			return;
+		}
 		currentUI.access(() -> {
-			currentUI.addShortcutListener(() -> doStopTime(), Key.PERIOD);
-			currentUI.addShortcutListener(() -> doStopTime(), Key.NUMPAD_DECIMAL);
+			currentUI.addShortcutListener(() -> doStopTime(), Key.PERIOD).bindLifecycleTo(this);
+			currentUI.addShortcutListener(() -> doStopTime(), Key.NUMPAD_DECIMAL).bindLifecycleTo(this);
 		});
 	}
 
@@ -941,6 +963,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		this.topBar.setAlignSelf(Alignment.CENTER, this.attempt, this.weight, time);
 		this.topBar.setFlexGrow(0.5, fullName);
 		this.topBar.setFlexGrow(0.2, topBarLeft);
+		applyPassiveControls();
 		return this.topBar;
 	}
 
@@ -966,6 +989,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        (g1) -> fop.fopEventPost(
 		                new FOPEvent.SwitchGroup(g1.compareTo(fop.getGroup()) == 0 ? null : g1, this)),
 		        (g1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
+		this.topBarMenu.setEnabled(!isPassiveSpeaker());
 		createTopBarSettingsMenu();
 	}
 
@@ -975,6 +999,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		this.topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
 		MenuItem item2 = this.topBarSettings.addItem(new Icon(VaadinIcon.COG));
 		SubMenu subMenu2 = item2.getSubMenu();
+
+		addSpeakerModeSwitch(subMenu2);
 
 		// FieldOfPlay fop = OwlcmsSession.getFop();
 		MenuItem subItemSoundOn = subMenu2.addItem(
@@ -999,6 +1025,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        Translator.translate("Settings.SingleReferee"));
 		subItemSingleRef.setCheckable(true);
 		subItemSingleRef.setChecked(this.isSingleReferee());
+		subItemSingleRef.setEnabled(!isPassiveSpeaker());
 
 		// MenuItem immediateDecision = subMenu2.addItem(
 		// Translator.translate("Settings.ImmediateDecision"));
@@ -1010,7 +1037,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        e -> {
 			        switchLiveLightsMode(this, !this.isLiveLights(), true);
 			        FieldOfPlay fop2 = getFop();
-			        if (fop2 != null) {
+			        if (fop2 != null && !isPassiveSpeaker()) {
 				        fop2.setSingleReferee(false);
 			        }
 			        // switchSingleRefereeMode(this, false, true);
@@ -1049,6 +1076,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		// });
 
 		subItemSingleRef.addClickListener(e -> {
+			if (isPassiveSpeaker()) {
+				return;
+			}
 			boolean singleReferee2 = !this.isSingleReferee();
 			switchSingleRefereeMode(this, singleReferee2, true);
 			FieldOfPlay fop2 = getFop();
@@ -1072,14 +1102,38 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 		Button bad = new Button(new Icon(VaadinIcon.CLOSE), (e) -> badLift());
 		bad.getElement().setAttribute("theme", "error icon");
+		good.setEnabled(!isPassiveSpeaker());
+		bad.setEnabled(!isPassiveSpeaker());
 
-		currentUI.access(() -> {
-			currentUI.addShortcutListener(() -> goodLift(), Key.F2);
-			currentUI.addShortcutListener(() -> badLift(), Key.F4);
-		});
+		if (!isPassiveSpeaker()) {
+			currentUI.access(() -> {
+				currentUI.addShortcutListener(() -> goodLift(), Key.F2).bindLifecycleTo(this);
+				currentUI.addShortcutListener(() -> badLift(), Key.F4).bindLifecycleTo(this);
+			});
+		}
 
 		HorizontalLayout decisions = new HorizontalLayout(good, bad);
 		return decisions;
+	}
+
+	protected void addSpeakerModeSwitch(SubMenu settings) {
+		MenuItem controlsActive = settings.addItem(Translator.translate(isPassiveSpeaker() ? "Announcer.SwitchToActive" : "Announcer.SwitchToPassive"), event -> {
+			Map<String, List<String>> parameters = new HashMap<>(getDefaultParameters().getParameters());
+			parameters.putAll(getLocation().getQueryParameters().getParameters());
+			parameters.put(FOP, List.of(getFop().getName()));
+			parameters.put(SoundParameters.SILENT, List.of(Boolean.toString(isSilenced())));
+			parameters.put(SoundParameters.DOWNSILENT, List.of(Boolean.toString(isDownSilenced())));
+			parameters.put(SoundParameters.SINGLEREF, List.of(Boolean.toString(isSingleReferee())));
+			parameters.put(SoundParameters.LIVE_LIGHTS, List.of(Boolean.toString(isLiveLights())));
+			parameters.put(SoundParameters.SHOW_DECLARATIONS, List.of(Boolean.toString(isDeclarations())));
+			parameters.put(SoundParameters.CENTER_NOTIFICATIONS, List.of(Boolean.toString(isCenterNotifications())));
+			getUI().ifPresent(attachedUI -> {
+				Class<? extends AnnouncerContent> target = isPassiveSpeaker() ? AnnouncerContent.class : PassiveAnnouncerContent.class;
+				attachedUI.getPage().setLocation(URLUtils.getUrlFromTargetClass(target, null, new QueryParameters(parameters)));
+			});
+		});
+		controlsActive.setCheckable(true);
+		controlsActive.setChecked(!isPassiveSpeaker());
 	}
 
 	@Override
@@ -1088,12 +1142,33 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		this.ui = UI.getCurrent();
 		createTopBarGroupSelect();
 		FieldOfPlay fop = getFop();
-		if (fop != null) {
+		if (fop != null && !isPassiveSpeaker()) {
 			fop.forceResendCurrentStateToLegacyDisplay();
 		}
 		// setLiveLights(!Config.getCurrent().featureSwitch(FeatureSwitch.NO_LIVE_LIGHTS));
 		// setCenterNotifications(Config.getCurrent().featureSwitch(FeatureSwitch.CENTER_ANNOUNCER_NOTIFICATIONS));
 		defineFilters(this.getCrudGrid());
+	}
+
+	private void applyPassiveControls() {
+		if (!isPassiveSpeaker()) {
+			return;
+		}
+		for (Component control : new Component[] { this.buttons, this.decisions, this.introCountdownButton,
+		        this.startLiftingButton, this.medalsDownloadButton, this.medalCeremonyButton }) {
+			if (control != null) {
+				control.setVisible(false);
+				control.getElement().setEnabled(false);
+			}
+		}
+		if (this.breakButton != null) {
+			this.breakButton.setEnabled(false);
+			this.breakButton.setVisible(true);
+			boolean paused = getFop() != null && getFop().getState() == FOPState.BREAK;
+			this.breakButton.getStyle().set("opacity", "1")
+			        .set("background-color", paused ? "var(--lumo-error-color)" : "var(--lumo-error-color-10pct)")
+			        .set("color", paused ? "var(--lumo-error-contrast-color)" : "var(--lumo-error-text-color)");
+		}
 	}
 
 	private void badLift() {
@@ -1106,7 +1181,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 	private void postDecision(boolean decision) {
 		var fop = getFop();
-		if (fop == null || !isDecisionDebounceExpired(decision)) {
+		if (isPassiveSpeaker() || fop == null || !isDecisionDebounceExpired(decision)) {
 			return;
 		}
 		fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), decision,

@@ -18,6 +18,7 @@ public enum FeatureSwitch {
     LOCAL_TEMPLATES_ONLY("localTemplatesOnly", FeatureSwitchSection.USER_INTERFACE_OVERRIDE),
     ATHLETE_CARD_ENTRY_TOTAL("athleteCardEntryTotal", FeatureSwitchSection.USER_INTERFACE_OVERRIDE),
     ENABLE_TIME_KEEPER_SESSION_SWITCH("enableTimeKeeperSessionSwitch", FeatureSwitchSection.USER_INTERFACE_OVERRIDE),
+    COMPETITION_DIRECTOR_PAGE("competitionDirectorPage", FeatureSwitchSection.USER_INTERFACE_OVERRIDE),
     RECORD_REPOSITORY("recordRepository", FeatureSwitchSection.USER_INTERFACE_OVERRIDE),
 
     MEDALISTS_AS_LEADERS("medalistsAsLeaders", FeatureSwitchSection.SCOREBOARD_OPTIONS),

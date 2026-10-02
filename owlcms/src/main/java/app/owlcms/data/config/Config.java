@@ -249,8 +249,15 @@ public class Config {
 	}
 
 	public boolean featureSwitch(FeatureSwitch featureSwitch) {
+		if (featureSwitch == FeatureSwitch.COMPETITION_DIRECTOR_PAGE && isAccountsMode()) {
+			return true;
+		}
 		Boolean configuredValue = getEffectiveFeatureSwitches().get(featureSwitch.getId());
-		return configuredValue != null ? configuredValue : featureSwitch.isEnabledByDefault();
+		return configuredValue != null ? configuredValue : featureSwitchDefault(featureSwitch);
+	}
+
+	private boolean featureSwitchDefault(FeatureSwitch featureSwitch) {
+		return featureSwitch.isEnabledByDefault();
 	}
 
 	@JsonIgnore
@@ -546,12 +553,12 @@ public class Config {
 	}
 
 	public boolean getFeatureSwitchValue(FeatureSwitch featureSwitch) {
-		return getConfiguredFeatureSwitches().getOrDefault(featureSwitch.getId(), featureSwitch.isEnabledByDefault());
+		return getConfiguredFeatureSwitches().getOrDefault(featureSwitch.getId(), featureSwitchDefault(featureSwitch));
 	}
 
 	public void setFeatureSwitchValue(FeatureSwitch featureSwitch, boolean enabled) {
 		LinkedHashMap<String, Boolean> switches = getConfiguredFeatureSwitches();
-		if (enabled == featureSwitch.isEnabledByDefault()) {
+		if (featureSwitch != FeatureSwitch.COMPETITION_DIRECTOR_PAGE && enabled == featureSwitch.isEnabledByDefault()) {
 			switches.remove(featureSwitch.getId());
 		} else {
 			switches.put(featureSwitch.getId(), enabled);

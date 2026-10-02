@@ -1,230 +1,101 @@
-# Competition Director Page — Implementation Plan
+# Competition Director and Passive Speaker Implementation
 
-Status: implementation plan only. No implementation is authorized by this document.
+Status: implemented; focused Maven verification passes. Authenticated browser acceptance is pending.
 
 Related: [COMPETITION_DIRECTOR_PASSIVE_ANNOUNCER_ANALYSIS.md](COMPETITION_DIRECTOR_PASSIVE_ANNOUNCER_ANALYSIS.md) and [ACCESS_CONTROL_DESIGN.md](ACCESS_CONTROL_DESIGN.md).
 
-## 1. Outcome
+## 1. Confirmed Behavior
 
-Add a read-only `CompetitionDirectorContent` page for following a running session without exposing competition-operating controls. Add a **Competition Director** button to the **Run Session** page.
+Competition Director performs the same operations as an active speaker when the speaker is passive. It must not inherit a switch to passive mode.
 
-The page availability setting has a mode-sensitive default:
+The passive speaker is the existing announcer page with operational controls hidden or disabled, not a separately reimplemented page. All athlete information, timers, lights, grid layout and notifications remain inherited.
 
-| Access mode | Default when no override is stored |
-| --- | --- |
-| PIN | Off |
-| Accounts | On |
+Jury interactions are an explicit exception: the passive speaker retains the existing interactive jury dialogs and notification dismissal. Passive does not mean that the page can never post a competition event; jury interactions may do so.
 
-An administrator can explicitly enable or disable the page. An explicit value overrides the mode-sensitive default and remains in effect when the access mode changes.
+| Surface | Active Speaker | Passive Speaker | Competition Director |
+| --- | --- | --- | --- |
+| Athlete information and lifting-order grid | Existing layout | Same layout | Same layout |
+| Timer and decision display | Visible | Visible | Visible |
+| Clock and direct decision controls | Active | Hidden and disabled; no shortcuts | Active |
+| Session selection, introduction and reload | Active | Disabled or hidden | Active |
+| Athlete editing and attempt reversal | Active | Disabled | Active |
+| Pause indicator | Interactive | Red, visible, disabled | Interactive |
+| Jury dialogs and jury actions | Interactive | Interactive | Interactive |
+| All speaker notifications and local dismissal | Available | Available | Available |
+| Live-light cogwheel setting | Available | Available, display-only | Available |
+| Speaker mode switch | To passive | To active | Absent |
 
-Page availability and page authorization are separate checks:
+## 2. Mode Defaults
 
-- availability controls whether the Run Session button and route are enabled for the installation;
-- authorization controls whether the current principal may open the route for the selected platform; and
-- hiding the button is not an authorization boundary.
+| Access mode | Speaker destination | Competition Director availability when unset |
+| --- | --- | --- |
+| PIN | Active | Off |
+| Accounts | Passive | On |
 
-## 2. Route and Entry Point
+Competition Director can be enabled in PIN mode through the existing Features checkbox. The stored toggle and startup feature overrides control PIN-mode availability only. Accounts mode ignores the toggle and permits access only to Competition Director and Admin accounts.
 
-### 2.1 New route
+Default speaker selection applies to Run Session navigation and the account announcer landing page. Direct active and passive URLs remain usable in either mode, subject to platform role authorization.
 
-Create `CompetitionDirectorContent` in the lifting package with a stable route such as:
+## 3. Implementation
+
+- `CompetitionDirectorContent` extends `AnnouncerContent`, overrides the title and suppresses only the speaker-mode menu item.
+- `PassiveAnnouncerContent` extends `AnnouncerContent`, overrides the title and returns true from `isPassiveSpeaker()`.
+- `AnnouncerContent` retains its original header, grid and notification implementations. Passive checks hide or disable only the operational controls.
+- `AthleteGridContent` prevents passive row editing and clock actions. The existing attempt-reversal hook is disabled for passive speakers.
+- `SoundParametersReader` does not write the Field of Play single-referee setting when reading passive-page parameters.
+- `JuryDecisionDialog` remains unchanged and fully interactive.
+- Active clock and decision shortcuts are bound to the page lifecycle and are not registered for the passive wrapper.
+
+Routes:
 
 ```text
+lifting/announcer
+lifting/announcer/passive
 lifting/competition-director
 ```
 
-The route is platform-bound. It accepts the normal `fop` display-selection parameter, but loading the route must not select, load or change the session assigned to the Field of Play.
+The active and passive speaker routes use platform-bound `ANNOUNCER` access. The director route requires `COMPETITION_DIRECTOR`; Admin includes that permission. The grantable director role expands to competition-operating permissions without `ADMIN_PAGES` and is not platform-locked. The existing global access listener also checks the PIN-mode feature gate and platform authorization.
 
-Use the same platform access that protects the announcer information in the first iteration. The route annotation should name a base role accepted by the existing access framework; do not use button visibility or a composite-role check as route protection. If the Competition Director role is implemented in the same delivery, add a dedicated base page capability to its expansion only if access must be narrower than `ANNOUNCER`.
+## 4. View Switching
 
-### 2.2 Run Session button
+The speaker cogwheel switches between the active and passive routes using full-page navigation. This creates a fresh UI and avoids requiring a manual refresh after the switch.
 
-Update `LiftingNavigationContent.onAttach()` to add a **Competition Director** button to the operational grid that currently contains Announcer, Marshal, Timekeeper and Technical Controller.
+The destination receives platform, group and applicable sound, single-referee, live-light, declaration and notification-position parameters. Route authorization runs again at the destination. No mode switch is offered on the Competition Director page.
 
-The button:
+## 5. Translation Delivery
 
-- opens `CompetitionDirectorContent` in a new tab using the selected `fop`;
-- uses a distinct, familiar icon, such as `VaadinIcon.EYE`;
-- is created only when the effective page-availability setting is enabled; and
-- remains subject to the existing role-aware navigation and route access checks.
+Six new keys are proposed in `shared/src/main/resources/i18n/competition_director_translations.tsv`:
 
-Do not replace or redirect the existing Announcer button. The active Announcer page remains available at its existing URL.
+- `CompetitionDirector`
+- `Access.Role.COMPETITION_DIRECTOR`
+- `Announcer.PassiveTitle`
+- `Announcer.SwitchToPassive`
+- `Announcer.SwitchToActive`
+- `FeatureSwitch.competitionDirectorPage`
 
-## 3. Mode-Sensitive Availability
+The managed `translation4.csv` contains five maintainer-imported feature labels. The TSV includes the new role label and the revised PIN-only feature description for the next translation import. Missing-key markers remain possible for keys not yet imported.
 
-### 3.1 Configuration model
+## 6. Verification
 
-Add a feature identifier such as `competitionDirectorPage` under the user-interface feature section. The current `FeatureSwitch` model has a fixed boolean default, so it cannot directly represent an unset value whose default depends on `Config.isAccountsMode()`.
+Focused Maven command:
 
-Extend the feature API narrowly:
-
-1. Preserve the stored feature map as the source of explicit overrides.
-2. Add a way to distinguish “configured false” from “not configured”.
-3. Resolve the effective Competition Director page value as:
-
-```text
-explicit override, when present
-otherwise Config.isAccountsMode()
+```bash
+mvn -pl owlcms -am -Dtest=AccessPolicyTest,ConfigTest,RouteAccessCoverageTest -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false test
 ```
 
-4. Keep existing feature switches and their fixed defaults unchanged.
+Coverage includes PIN-only feature gating, startup override precedence, wrapper inheritance, director/admin access, exclusion of ordinary announcer and platform accounts, and unrestricted director platform access without administrative permissions. Tests do not instantiate Vaadin UI objects.
 
-The environment/startup feature-switch override remains the highest-priority value, consistent with the existing effective-feature map.
+Browser acceptance still needs an authenticated session:
 
-### 3.2 Features UI
+1. Verify PIN opens active speaker and Accounts opens passive speaker.
+2. Verify the director feature default and explicit PIN enablement.
+3. Compare active, passive and director athlete headers and grids.
+4. Verify passive controls remain hidden or disabled after start, stop, break, session and lifting-order updates.
+5. Verify the red pause indicator is visible but cannot be clicked.
+6. Verify passive row clicks, attempt clicks and active-page shortcuts cannot operate the competition.
+7. Verify every notification remains dismissible and jury dialogs retain their actions.
+8. Verify live-light settings affect only the passive presentation.
+9. Verify both cogwheel switches take effect immediately without manual refresh and preserve parameters.
+10. Verify director controls stay active and its cogwheel has no passive-mode command.
 
-Show the setting in the Features tab with three meaningful states:
-
-- **Use access-mode default**;
-- **Enabled**; and
-- **Disabled**.
-
-A plain checkbox is insufficient because clearing an explicit override must be possible. Implement a small select or radio group for this switch rather than changing every existing feature row.
-
-Display the currently resolved default in the description so administrators understand that PIN defaults to off and Accounts defaults to on. Changing Accounts/PIN mode must not rewrite an explicit override.
-
-### 3.3 Disabled behavior
-
-When effectively disabled:
-
-- omit the Competition Director button from Run Session; and
-- reject direct navigation to the route without constructing or attaching the page.
-
-Prefer a reusable availability guard integrated with navigation authorization. If the first implementation uses a route lifecycle check, forward to the access-denied page before registering event listeners or building page controls.
-
-## 4. Read-Only Page Construction
-
-Implement the page as a dedicated read-only view. Do not subclass `AthleteGridContent` or instantiate `AnnouncerContent`, because both expose mutation paths.
-
-The page displays:
-
-- selected platform and current session;
-- current athlete, start number, attempt and requested weight;
-- authoritative countdown using `PassiveTimerElement`;
-- referee lights using passive decision components;
-- lifting order and completed attempts through a dedicated read-only grid; and
-- jury notifications through display-only components.
-
-The page must not create or register:
-
-- clock, decision, break, resume or start-lifting controls;
-- session-switch, group-load or reload actions;
-- athlete edit, attempt clear or attempt reversal handlers;
-- medal or ceremony actions;
-- active-announcer keyboard shortcuts; or
-- any handler that posts an `FOPEvent`, saves an athlete or mutates `FieldOfPlay` state.
-
-Extract immutable presentation models or narrowly reusable passive components where the active Announcer page already computes suitable display data. Do not share active dialogs or handlers merely to avoid duplication.
-
-## 5. Jury Notifications
-
-Create a passive jury-notification presenter that handles summons, deliberation or challenge, technical pause, loading error, verdict, reason and end events.
-
-It may close automatically on the corresponding end event and may offer a browser-local Dismiss action. It must not post `JuryDecision`, `StartLifting` or acknowledgement events, and it must not bind Enter or another shortcut to a competition action.
-
-Keep active and passive notification behavior in separate controller code. Share only immutable event-to-display-text mapping where useful.
-
-## 6. Access-Control Integration
-
-If delivered together with the proposed Competition Director role:
-
-1. Add the grantable composite role and its all-platform competition-role expansion.
-2. Add an explicit policy concept for principals that are not platform-locked, rather than treating the role as Admin.
-3. Keep `ADMIN_PAGES` out of the role expansion.
-4. Test the page capability independently from configuration and account-management permissions.
-
-PIN-mode officials retain their existing access behavior. Enabling the page in PIN mode makes the new button and route available under the selected base-role rule; it does not create a new PIN or alter PIN authentication.
-
-## 7. Navigation Between Active and Read-Only Views
-
-Add a cogwheel command on the active Announcer page to open the Competition Director page, and a reciprocal command on the Competition Director page to open active Announcer controls.
-
-Preserve applicable query parameters, including `fop`, sound, light and notification-presentation preferences. Re-run route authorization and availability checks at the destination. Navigating away from active Announcer must detach its shortcuts and mutation handlers.
-
-Do not automatically rewrite an already open browser tab when Accounts/PIN mode or the availability override changes.
-
-## 8. Translation Work
-
-Add translation keys for:
-
-- Competition Director page and button title;
-- feature setting title and description;
-- Use access-mode default, Enabled and Disabled options; and
-- active/read-only view-switch commands.
-
-Follow the repository translation workflow: read the language header from `translation4.csv`, create a separate tab-delimited import file under `shared/src/main/resources/i18n/`, and do not edit `translation4.csv` directly.
-
-## 9. Implementation Sequence
-
-1. Add focused tests for mode-sensitive availability and explicit override precedence.
-2. Add the feature identifier, tri-state persistence API and Features-tab control.
-3. Add route-level availability enforcement and its access tests.
-4. Build the passive current-lift header, timer and decision-light presentation.
-5. Add the read-only lifting-order grid and prove that row interaction cannot edit data.
-6. Add passive jury-notification handling and event-side-effect tests.
-7. Add `CompetitionDirectorContent` and the conditional Run Session button.
-8. Add reciprocal cogwheel navigation with query-parameter preservation.
-9. Add translations through the approved TSV workflow.
-10. Perform focused Java validation, then browser acceptance checks in both access modes.
-
-Each page slice should be validated before adding the next. This limits the risk of accidentally importing mutation behavior from the active Announcer implementation.
-
-## 10. Focused Tests
-
-### Configuration tests
-
-- Unset setting resolves false in PIN mode.
-- Unset setting resolves true in Accounts mode.
-- Explicit true resolves true in both modes.
-- Explicit false resolves false in both modes.
-- Clearing the override restores the current mode-derived default.
-- Environment/startup override has the documented precedence.
-- Saving unrelated feature switches preserves the tri-state value.
-
-### Access and navigation tests
-
-- Disabled page is absent from Run Session and direct navigation is rejected.
-- Enabled page button carries the selected `fop` and opens the new route.
-- A principal lacking the route role cannot open the route even when the feature is enabled.
-- A platform-scoped principal cannot use a crafted `fop` parameter to cross platforms.
-- PIN-mode official behavior remains unchanged when the feature is disabled by default.
-- Accounts mode shows the button by default without changing existing Announcer navigation.
-
-### Read-only behavior tests
-
-- Timer, lights, current athlete and lifting order follow Field of Play updates.
-- Clicking rows or attempts does not open an editor or mutate an athlete.
-- No clock, decision, break, reload, group-switch or ceremony controls exist.
-- Active-page keyboard shortcuts have no effect on the Competition Director page.
-- Every jury notification renders without posting an `FOPEvent`.
-- One active Announcer browser and one Competition Director browser stay synchronized while only the active browser can mutate state.
-
-### Regression tests
-
-- Existing Announcer route, Run Session button and controls remain unchanged.
-- Existing fixed-default feature switches retain their current persistence behavior.
-- Switching Accounts/PIN mode does not overwrite an explicit page-availability override.
-- Admin, PIN officials and existing account roles retain their current route access except for the intentionally added page.
-
-## 11. Browser Acceptance Matrix
-
-| Mode | Stored override | Run Session button | Direct route |
-| --- | --- | --- | --- |
-| PIN | Unset | Hidden | Rejected |
-| Accounts | Unset | Shown to authorized principal | Allowed to authorized principal |
-| PIN | Enabled | Shown to authorized principal | Allowed to authorized principal |
-| Accounts | Disabled | Hidden | Rejected |
-
-For every allowed case, verify at least two platforms and a crafted unauthorized `fop` value. Verify desktop layout at 1920x1080 and a narrow viewport, with no overlap in the current-lift header, timer, decision lights or lifting-order grid.
-
-## 12. Completion Criteria
-
-The change is complete when:
-
-- the availability matrix above is enforced by both navigation and direct routing;
-- the Run Session page contains the conditional Competition Director button;
-- the new page presents all required live session information;
-- static review and tests find no state-changing handler reachable from the new page;
-- active Announcer behavior has no regression;
-- focused Java checks pass; and
-- browser checks confirm synchronized, read-only behavior in PIN and Accounts modes.
+The grantable Competition Director role is implemented. Partial configuration-tab permissions remain separate work.

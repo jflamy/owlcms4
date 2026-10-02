@@ -53,7 +53,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.nui.preparation.RecordsNavigationContent;
 import app.owlcms.nui.home.navigation.JuryNavigationContent;
 import app.owlcms.nui.home.navigation.RefereeNavigationContent;
-import app.owlcms.nui.lifting.AnnouncerContent;
+import app.owlcms.nui.lifting.PassiveAnnouncerContent;
 import app.owlcms.nui.lifting.JuryContent;
 import app.owlcms.nui.lifting.MarshallContent;
 import app.owlcms.nui.lifting.TCContent;
@@ -377,7 +377,7 @@ public class LoginView extends Composite<VerticalLayout>
 		AccountLandingPolicy.singleWorkPage(principal).ifPresentOrElse(page -> {
 			QueryParameters parameters = QueryParameters.simple(Map.of("fop", principal.loginPlatform()));
 			switch (page) {
-				case ANNOUNCER -> UI.getCurrent().navigate(AnnouncerContent.class, parameters);
+				case ANNOUNCER -> UI.getCurrent().navigate(PassiveAnnouncerContent.class, parameters);
 				case MARSHAL -> UI.getCurrent().navigate(MarshallContent.class, parameters);
 				case TIMEKEEPER -> UI.getCurrent().navigate(TimekeeperContent.class, parameters);
 				case TC -> UI.getCurrent().navigate(TCContent.class, parameters);

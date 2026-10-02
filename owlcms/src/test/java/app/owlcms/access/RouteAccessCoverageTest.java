@@ -1,6 +1,8 @@
 package app.owlcms.access;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -9,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.junit.Test;
@@ -16,6 +19,11 @@ import org.junit.Test;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.access.Principal.AuthSource;
+import app.owlcms.data.account.RoleGrant;
+import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.nui.lifting.AnnouncerContent;
+import app.owlcms.nui.lifting.CompetitionDirectorContent;
+import app.owlcms.nui.lifting.PassiveAnnouncerContent;
 
 /**
  * Every {@code @Route} class must declare exactly one access rule. The classes are loaded without initialization, so no
@@ -67,6 +75,33 @@ public class RouteAccessCoverageTest {
 			}
 		}
 		assertEquals(problems.toString(), 0, problems.size());
+	}
+
+	@Test
+	public void directorAndSpeakerRoutesKeepSeparateContracts() {
+		assertEquals(AnnouncerContent.class, CompetitionDirectorContent.class.getSuperclass());
+		assertEquals(AnnouncerContent.class, PassiveAnnouncerContent.class.getSuperclass());
+		assertEquals(FeatureSwitch.COMPETITION_DIRECTOR_PAGE, PageRule.of(CompetitionDirectorContent.class).feature());
+		assertNull(PageRule.of(AnnouncerContent.class).feature());
+		assertNull(PageRule.of(PassiveAnnouncerContent.class).feature());
+		Principal speakerA = new Principal(AuthSource.ACCOUNT, 1L, "speaker",
+		        List.of(new RoleGrant(Role.ANNOUNCER, "A")), "A");
+		for (Class<?> page : List.of(AnnouncerContent.class, PassiveAnnouncerContent.class)) {
+			PageRule rule = PageRule.of(page);
+			assertEquals(Set.of(Role.ANNOUNCER), rule.roles());
+			assertTrue(rule.platformBound());
+			assertTrue(AccessPolicy.canOpen(speakerA, rule, "A"));
+			assertFalse(AccessPolicy.canOpen(speakerA, rule, "B"));
+			assertFalse(AccessPolicy.canOpen(Principal.displays(), rule, "A"));
+		}
+		PageRule directorRule = PageRule.of(CompetitionDirectorContent.class);
+		assertEquals(Set.of(Role.COMPETITION_DIRECTOR), directorRule.roles());
+		assertTrue(directorRule.platformBound());
+		assertFalse(AccessPolicy.canOpen(speakerA, directorRule, "A"));
+		Principal director = new Principal(AuthSource.ACCOUNT, 2L, "director",
+		        List.of(new RoleGrant(Role.COMPETITION_DIRECTOR, null)), null);
+		assertTrue(AccessPolicy.canOpen(director, directorRule, "B"));
+		assertTrue(AccessPolicy.canOpen(Principal.admin(AuthSource.ACCOUNT), directorRule, "A"));
 	}
 
 	private static List<Class<?>> routeClasses() throws IOException, URISyntaxException {

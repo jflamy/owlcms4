@@ -1,6 +1,18 @@
 # Competition Director and Passive Announcer — Compliance Analysis
 
-Status: analysis and proposed requirements only. No implementation is authorized by this document.
+Status: historical analysis. The confirmed implementation decisions below supersede the original passive-page recommendations.
+
+## Implementation Clarification (2026-10-02)
+
+The page change uses thin wrappers around `AnnouncerContent`, not a separately reimplemented passive display. Competition Director keeps all active-speaker controls and settings and does not offer a switch to passive mode.
+
+Passive speaker keeps the exact announcer layout, athlete information, grid, timers, lights and notifications. Non-jury operating controls are hidden or disabled, and their keyboard shortcuts are not registered. The red pause indicator remains visible but disabled. Row editing, attempt reversal, session loading and changes to Field of Play single-referee state are blocked.
+
+Jury handling is an explicit exception to passive operation: the existing jury dialogs and actions remain fully interactive, including their competition events. Notification dismissal and the cogwheel live-light setting remain available. The cogwheel can switch back to active speaker, using full-page navigation so no manual refresh is required.
+
+PIN defaults to active speaker; Accounts defaults to passive speaker. Competition Director availability defaults off in PIN and on in Accounts, with explicit feature overrides allowing it in PIN mode.
+
+The original recommendations below concerning independent passive implementation, prohibition of all competition events and display-only jury dialogs are superseded. The grantable Competition Director role is now implemented and exclusively protects its operational page alongside Admin. The feature toggle applies only in PIN mode. Partial configuration-tab permissions remain separate work.
 
 Related: [ACCESS_CONTROL_DESIGN.md](ACCESS_CONTROL_DESIGN.md) and
 [COMPETITION_DIRECTOR_PAGE_IMPLEMENTATION_PLAN.md](COMPETITION_DIRECTOR_PAGE_IMPLEMENTATION_PLAN.md).

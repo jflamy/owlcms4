@@ -554,6 +554,10 @@ public abstract class AthleteGridContent extends BaseContent
 		this.recordNotifications = new ArrayList<>();
 	}
 
+	public boolean isPassiveSpeaker() {
+		return false;
+	}
+
 	/**
 	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
 	 */
@@ -1349,7 +1353,7 @@ public abstract class AthleteGridContent extends BaseContent
 		};
 
 		crudGrid.setCrudListener(this);
-		crudGrid.setClickRowToUpdate(true);
+		crudGrid.setClickRowToUpdate(!isPassiveSpeaker());
 		this.crudLayout.addToolbarComponent(getGroupFilter());
 
 		return crudGrid;
@@ -1605,11 +1609,17 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected void do1Minute() {
+		if (isPassiveSpeaker()) {
+			return;
+		}
 		getFop().fopEventPost(new FOPEvent.ForceTime(Competition.athleteTimerOneMinute, this.getOrigin()));
 		passiveTimerDisplay(Competition.athleteTimerOneMinute);
 	}
 
 	protected void do2Minutes() {
+		if (isPassiveSpeaker()) {
+			return;
+		}
 		getFop().fopEventPost(new FOPEvent.ForceTime(Competition.athleteTimerTwoMinutes, this.getOrigin()));
 		passiveTimerDisplay(Competition.athleteTimerTwoMinutes);
 	}
@@ -1773,6 +1783,9 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected void doStartTime() {
+		if (isPassiveSpeaker()) {
+			return;
+		}
 		long now = System.currentTimeMillis();
 		long timeElapsed = now - this.previousStartMillis;
 		IProxyTimer athleteTimer = getFop().getAthleteTimer();
@@ -1790,6 +1803,9 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected void doStopTime() {
+		if (isPassiveSpeaker()) {
+			return;
+		}
 		long now = System.currentTimeMillis();
 		long timeElapsed = now - this.previousStopMillis;
 		boolean running = getFop().getAthleteTimer().isRunning();
@@ -2144,10 +2160,10 @@ public abstract class AthleteGridContent extends BaseContent
 			} else {
 				// logger.debug("notBreak");
 				if (this.buttons != null) {
-					this.buttons.setVisible(true);
+					this.buttons.setVisible(!isPassiveSpeaker());
 				}
 				if (this.decisions != null) {
-					this.decisions.setVisible(true);
+					this.decisions.setVisible(!isPassiveSpeaker());
 				}
 				if (this.breakButton == null) {
 					logger.debug("breakButton is null\n{}", LoggerUtils.stackTrace());
@@ -2159,7 +2175,7 @@ public abstract class AthleteGridContent extends BaseContent
 				}
 			}
 			if (this.breakButton != null) {
-				this.breakButton.setEnabled(true);
+				this.breakButton.setEnabled(!isPassiveSpeaker());
 			}
 			Athlete curAthlete = fop.getCurAthlete();
 			int timeRemaining = fop.getAthleteTimer().liveTimeRemaining();

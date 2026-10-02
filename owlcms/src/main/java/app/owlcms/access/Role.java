@@ -10,6 +10,7 @@ import java.util.Set;
 public enum Role {
 	ADMIN(true, false, false, false),
 	ADMIN_PAGES(false, false, false, true),
+	COMPETITION_DIRECTOR(true, false, false, true),
 	PREPARATION(true, false, false, true),
 	REGISTRATION(true, false, false, true),
 	WEIGHIN(true, false, false, true),
@@ -56,6 +57,8 @@ public enum Role {
 	public Set<Role> expand() {
 		return switch (this) {
 			case ADMIN -> baseRoles();
+			case COMPETITION_DIRECTOR -> EnumSet.of(COMPETITION_DIRECTOR, PREPARATION, REGISTRATION, WEIGHIN,
+			        RESULTS, ANNOUNCER, MARSHAL, TIMEKEEPER, TC, JURY, REFEREE, DISPLAYS);
 			case RESULTS -> EnumSet.of(RESULTS, DISPLAYS);
 			case PLATFORM -> EnumSet.of(ANNOUNCER, MARSHAL, TIMEKEEPER, TC, DISPLAYS);
 			default -> EnumSet.of(this);
