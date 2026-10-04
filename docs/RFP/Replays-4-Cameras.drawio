@@ -1,0 +1,184 @@
+<mxfile host="Electron">
+  <diagram id="replays-four-cameras" name="Replays - 4 Cameras">
+    <mxGraphModel dx="2054" dy="1210" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="960" pageHeight="1190" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="JCyEPB3uYGeDWC2hDoV--7" parent="1" style="rounded=1;arcSize=3;whiteSpace=wrap;html=1;fillColor=#f5f9fc;strokeColor=#455a64;strokeWidth=2;container=0;verticalAlign=bottom;fontSize=48;" value="..." vertex="1">
+          <mxGeometry height="358" width="235" x="367.5" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="owlcms" parent="1" style="rounded=1;arcSize=5;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="100" width="200" x="50" y="326" as="geometry" />
+        </mxCell>
+        <mxCell id="owlcms-title" parent="owlcms" style="text;html=0;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=16;fontStyle=1;fontColor=#000000;" value="OWLCMS" vertex="1">
+          <mxGeometry height="20" width="200" y="18" as="geometry" />
+        </mxCell>
+        <mxCell id="owlcms-description" parent="owlcms" style="text;html=0;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=12;fontColor=#333333;" value="On-Venue Results System" vertex="1">
+          <mxGeometry height="16" width="185" x="15" y="43" as="geometry" />
+        </mxCell>
+        <mxCell id="owlcms-broker" parent="owlcms" style="text;html=0;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=12;fontColor=#333333;" value="MQTT Broker" vertex="1">
+          <mxGeometry height="16" width="170" x="15" y="63" as="geometry" />
+        </mxCell>
+        <mxCell id="video" parent="1" style="rounded=1;arcSize=3;whiteSpace=wrap;html=1;fillColor=#f5f9fc;strokeColor=#455a64;strokeWidth=2;container=0;" value="" vertex="1">
+          <mxGeometry height="379" width="235" x="365" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="replays" parent="1" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#e3f2fd;strokeColor=#1976d2;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="76" width="200" x="385" y="543" as="geometry" />
+        </mxCell>
+        <mxCell id="replays-title" parent="replays" style="text;html=0;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=16;fontColor=#000000;" value="Replay Capture" vertex="1">
+          <mxGeometry height="8.941176470588236" width="200" y="6.705882352941176" as="geometry" />
+        </mxCell>
+        <mxCell id="replays-playback" parent="replays" style="text;html=0;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=12;fontColor=#333333;" value="• Replay capture" vertex="1">
+          <mxGeometry height="7.152941176470589" width="185" x="15" y="32.8235294117647" as="geometry" />
+        </mxCell>
+        <mxCell id="replays-recording" parent="replays" style="text;html=0;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=12;fontColor=#333333;" value="• Distribution + recording" vertex="1">
+          <mxGeometry height="7.152941176470589" width="185" x="15" y="50.76470588235294" as="geometry" />
+        </mxCell>
+        <mxCell id="cameras" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#e3f2fd;strokeColor=#1976d2;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="80" width="200" x="385" y="674" as="geometry" />
+        </mxCell>
+        <mxCell id="cameras-title" parent="cameras" style="text;html=0;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=16;fontColor=#000000;" value="Camera Feeds" vertex="1">
+          <mxGeometry height="15.999999999999998" width="200" y="12" as="geometry" />
+        </mxCell>
+        <mxCell id="cameras-ingest" parent="cameras" style="text;html=0;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=12;fontColor=#333333;" value="• Capture / ingest" vertex="1">
+          <mxGeometry height="12.799999999999999" width="185" x="25" y="46" as="geometry" />
+        </mxCell>
+        <mxCell id="center-camera" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#388e3c;strokeWidth=2;verticalAlign=middle;" value="&lt;meta charset=&quot;utf-8&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Arial; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 700; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nowrap; background-color: rgb(236, 236, 236); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;Center Camera&lt;/span&gt;" vertex="1">
+          <mxGeometry height="40" width="150" x="410" y="814" as="geometry" />
+        </mxCell>
+        <mxCell id="side-camera-1" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#388e3c;strokeWidth=2;verticalAlign=middle;" value="&lt;meta charset=&quot;utf-8&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Arial; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 700; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nowrap; background-color: rgb(236, 236, 236); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;Left Camera&lt;/span&gt;" vertex="1">
+          <mxGeometry height="40" width="150" x="163" y="638.5" as="geometry" />
+        </mxCell>
+        <mxCell id="side-camera-2" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#388e3c;strokeWidth=2;" value="&lt;meta charset=&quot;utf-8&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Arial; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 700; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nowrap; background-color: rgb(236, 236, 236); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;Right Camera&lt;/span&gt;" vertex="1">
+          <mxGeometry height="40" width="150" x="163" y="698.5" as="geometry" />
+        </mxCell>
+        <mxCell id="back-camera" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#388e3c;strokeWidth=2;" value="&lt;meta charset=&quot;utf-8&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Arial; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 700; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nowrap; background-color: rgb(236, 236, 236); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;Back Camera&lt;/span&gt;" vertex="1">
+          <mxGeometry height="40" width="150" x="163" y="761.5" as="geometry" />
+        </mxCell>
+        <mxCell id="marshal-tv" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;fillColor=#fff8e1;strokeColor=#f9a825;strokeWidth=2;verticalAlign=bottom;" value="Live Video" vertex="1">
+          <mxGeometry height="40" width="120" x="345" y="921" as="geometry" />
+        </mxCell>
+        <mxCell id="marshal-title" parent="marshal-tv" style="text;html=0;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=16;fontStyle=1;fontColor=#000000;" value="Marshal TV" vertex="1">
+          <mxGeometry height="10" width="120" y="4" as="geometry" />
+        </mxCell>
+        <mxCell id="warmup-tv" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;fillColor=#fff8e1;strokeColor=#f9a825;strokeWidth=2;verticalAlign=bottom;" value="Live Video" vertex="1">
+          <mxGeometry height="40" width="120" x="505" y="921" as="geometry" />
+        </mxCell>
+        <mxCell id="warmup-title" parent="warmup-tv" style="text;html=0;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=16;fontStyle=1;fontColor=#000000;" value="Warmup TV" vertex="1">
+          <mxGeometry height="10" width="120" y="4" as="geometry" />
+        </mxCell>
+        <mxCell id="usb" edge="1" parent="1" source="center-camera" style="edgeStyle=none;html=1;endArrow=block;endFill=1;endSize=12;strokeColor=#666666;strokeWidth=2;exitX=0.5;exitY=0;exitPerimeter=0;entryX=0.5;entryY=1;entryPerimeter=0;" target="cameras">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rtsp-1" edge="1" parent="1" source="side-camera-1" style="html=1;endArrow=block;endFill=1;endSize=12;strokeColor=#00838f;strokeWidth=2;dashed=1;dashPattern=5 5;exitX=1;exitY=0.5;entryX=0;entryY=1;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" target="cameras-title" value="RTSP">
+          <mxGeometry relative="1" x="-0.4321" y="13" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="88" y="674.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rtsp-2" edge="1" parent="1" source="side-camera-2" style="html=1;endArrow=block;endFill=1;endSize=12;strokeColor=#00838f;strokeWidth=2;dashed=1;dashPattern=5 5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="cameras" value="RTSP">
+          <mxGeometry relative="1" x="-0.2589" y="-12" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="88" y="698.4999999999998" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rtsp-3" edge="1" parent="1" source="back-camera" style="html=1;endArrow=block;endFill=1;endSize=12;strokeColor=#00838f;strokeWidth=2;dashed=1;dashPattern=5 5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" target="cameras" value="RTSP">
+          <mxGeometry relative="1" x="-0.4583" y="-14" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="88" y="722.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="capture-1" edge="1" parent="1" source="cameras" style="edgeStyle=none;html=1;endArrow=block;endFill=1;endSize=12;strokeColor=#1976d2;strokeWidth=2;exitX=0.2;exitY=0;exitPerimeter=0;entryX=0.2;entryY=1;entryPerimeter=0;" target="replays">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="capture-2" edge="1" parent="1" source="cameras" style="edgeStyle=none;html=1;endArrow=block;endFill=1;endSize=12;strokeColor=#1976d2;strokeWidth=2;exitX=0.4;exitY=0;exitPerimeter=0;entryX=0.4;entryY=1;entryPerimeter=0;" target="replays">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="capture-3" edge="1" parent="1" source="cameras" style="edgeStyle=none;html=1;endArrow=block;endFill=1;endSize=12;strokeColor=#1976d2;strokeWidth=2;exitX=0.6;exitY=0;exitPerimeter=0;entryX=0.6;entryY=1;entryPerimeter=0;" target="replays">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="capture-4" edge="1" parent="1" source="cameras" style="edgeStyle=none;html=1;endArrow=block;endFill=1;endSize=12;strokeColor=#1976d2;strokeWidth=2;exitX=0.8;exitY=0;exitPerimeter=0;entryX=0.8;entryY=1;entryPerimeter=0;" target="replays">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="hdmi-fiber" edge="1" parent="1" source="center-camera" style="edgeStyle=none;html=1;endArrow=block;endFill=1;endSize=12;strokeColor=#666666;strokeWidth=2;exitX=0.5;exitY=1;exitPerimeter=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="485" y="880" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="hdmi-marshal" edge="1" parent="1" style="edgeStyle=none;html=1;endArrow=block;endFill=1;endSize=12;strokeColor=#666666;strokeWidth=2;entryX=0.5;entryY=0;entryPerimeter=0;" target="marshal-tv">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="480" y="881" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="hdmi-warmup" edge="1" parent="1" style="edgeStyle=none;html=1;endArrow=block;endFill=1;endSize=12;strokeColor=#666666;strokeWidth=2;entryX=0.5;entryY=0;entryPerimeter=0;" target="warmup-tv">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="530" y="901" />
+            </Array>
+            <mxPoint x="490" y="881" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="websocket" edge="1" parent="1" source="owlcms-title" style="edgeStyle=none;html=1;endArrow=block;endFill=1;endSize=12;strokeColor=#000000;strokeWidth=2;dashed=1;dashPattern=5 5;exitX=1;exitY=0.25;entryX=-0.009;entryY=0.479;entryPerimeter=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;fontColor=default;labelBorderColor=#1A1A1A;labelBackgroundColor=#000000;" target="JCyEPB3uYGeDWC2hDoV--7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="http-replay" edge="1" parent="1" source="replays" style="html=1;endArrow=block;endFill=1;endSize=12;strokeColor=#000000;strokeWidth=2;dashed=1;dashPattern=5 5;exitX=0.5;exitY=0;entryX=0.5;entryY=1;entryPerimeter=0;exitDx=0;exitDy=0;" target="tracker">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="usb-label" parent="1" style="text;html=0;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=12;fontColor=#333333;" value="USB H.264 60fps&#xa;or RTSP" vertex="1">
+          <mxGeometry height="16" width="100" x="489" y="777" as="geometry" />
+        </mxCell>
+        <mxCell id="hdmi-fiber-label" parent="1" style="text;html=0;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=12;fontColor=#333333;" value="HDMI over CAT or fiber" vertex="1">
+          <mxGeometry height="16" width="180" x="500" y="863" as="geometry" />
+        </mxCell>
+        <mxCell id="hdmi-marshal-label" parent="1" style="text;html=0;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=12;fontColor=#333333;" value="HDMI" vertex="1">
+          <mxGeometry height="16" width="45" x="410" y="890" as="geometry" />
+        </mxCell>
+        <mxCell id="hdmi-warmup-label" parent="1" style="text;html=0;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=12;fontColor=#333333;" value="HDMI" vertex="1">
+          <mxGeometry height="16" width="45" x="548" y="891" as="geometry" />
+        </mxCell>
+        <mxCell id="mqtt-clock-label" parent="1" style="text;html=0;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=12;fontColor=#7b1fa2;" value="Clock Events&#xa;(MQTT)" vertex="1">
+          <mxGeometry height="16" width="84" x="250" y="482" as="geometry" />
+        </mxCell>
+        <mxCell id="websocket-label-1" parent="1" style="text;html=0;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=12;fontColor=#000000;" value="Competition Events + Data&#xa;(WebSocket)" vertex="1">
+          <mxGeometry height="16" width="150" x="150" y="272.5" as="geometry" />
+        </mxCell>
+        <mxCell id="JCyEPB3uYGeDWC2hDoV--2" edge="1" parent="1" source="owlcms" style="edgeStyle=none;html=1;endArrow=block;endFill=1;endSize=12;strokeColor=#7b1fa2;strokeWidth=2;dashed=1;dashPattern=5 5;exitX=1.016;exitY=0.667;entryX=0.011;entryY=0.092;entryPerimeter=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;exitPerimeter=0;" target="replays">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="280" y="367" as="sourcePoint" />
+            <mxPoint x="410" y="284" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="video-title" parent="1" style="text;html=0;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=16;fontStyle=1;fontColor=#000000;" value="VPT" vertex="1">
+          <mxGeometry height="26.08108108108108" width="170.9090909090909" x="397.05" y="397.00054054054056" as="geometry" />
+        </mxCell>
+        <mxCell id="tracker" parent="1" style="rounded=1;arcSize=5;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#000000;strokeWidth=2;" value="&lt;span style=&quot;font-family: Arial; font-size: 16px; font-weight: 700; white-space: nowrap;&quot;&gt;Jury Replay Interface&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="200" x="385" y="438" as="geometry" />
+        </mxCell>
+        <mxCell id="http-replay-label" parent="1" style="text;html=0;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=12;fontColor=#333333;" value="HTTP (mp4 replay)" vertex="1">
+          <mxGeometry height="16" width="103.25757575757576" x="496.74242424242425" y="509" as="geometry" />
+        </mxCell>
+        <mxCell id="capture-label-1" parent="1" style="text;html=0;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=12;fontColor=#1976d2;" value="MPEG-TS" vertex="1">
+          <mxGeometry height="16" width="110" x="313" y="638" as="geometry" />
+        </mxCell>
+        <mxCell id="capture-label-2" parent="1" style="text;html=0;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=12;fontColor=#1976d2;" value="(H.264)" vertex="1">
+          <mxGeometry height="16" width="45" x="378" y="652" as="geometry" />
+        </mxCell>
+        <mxCell id="JCyEPB3uYGeDWC2hDoV--5" parent="1" style="rounded=1;arcSize=5;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#000000;strokeWidth=2;" value="&lt;span style=&quot;font-family: Arial; font-size: 16px; font-weight: 700; white-space: nowrap;&quot;&gt;TV Graphics&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="200" x="387.5" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="JCyEPB3uYGeDWC2hDoV--6" parent="1" style="text;html=0;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacing=0;fontFamily=Arial;fontSize=16;fontStyle=1;fontColor=#000000;" value="Interfaces" vertex="1">
+          <mxGeometry height="26.08108108108108" width="170.9090909090909" x="399.54999999999995" y="29.000540540540555" as="geometry" />
+        </mxCell>
+        <mxCell id="JCyEPB3uYGeDWC2hDoV--8" parent="1" style="rounded=1;arcSize=5;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#000000;strokeWidth=2;" value="&lt;font face=&quot;Arial&quot;&gt;&lt;span style=&quot;font-size: 16px; text-wrap-mode: nowrap;&quot;&gt;&lt;b&gt;Games Data&lt;br&gt;Interfaces&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="60" width="200" x="387.5" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="JCyEPB3uYGeDWC2hDoV--9" parent="1" style="rounded=1;arcSize=5;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#000000;strokeWidth=2;" value="&lt;font face=&quot;Arial&quot;&gt;&lt;span style=&quot;font-size: 16px; text-wrap-mode: nowrap;&quot;&gt;&lt;b&gt;Start and Result Books&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="60" width="200" x="387.5" y="210.5" as="geometry" />
+        </mxCell>
+        <mxCell id="JCyEPB3uYGeDWC2hDoV--10" parent="1" style="rounded=1;arcSize=5;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#000000;strokeWidth=2;" value="&lt;font face=&quot;Arial&quot;&gt;&lt;span style=&quot;font-size: 16px; text-wrap-mode: nowrap;&quot;&gt;&lt;b&gt;Checkpoint Data&lt;br&gt;Snapshots&lt;/b&gt;&lt;/span&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="60" width="200" x="387.5" y="282" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

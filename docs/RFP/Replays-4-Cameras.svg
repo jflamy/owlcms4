@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="120 140 960 1190">
+  <rect x="120" y="140" width="960" height="1190" fill="white"/>
+
+  <defs>
+    <style>
+      .device-box { fill: #e3f2fd; stroke: #1976d2; stroke-width: 2; }
+      .video-box { fill: #f5f9fc; stroke: #455a64; stroke-width: 2; }
+      .master-box { fill: #eeeeee; stroke-width: 2; }
+      .display-box { fill: #e8f5e9; stroke: #388e3c; stroke-width: 2; }
+      .output-box { fill: #fff8e1; stroke: #f9a825; stroke-width: 2; }
+      .label { font-family: Arial, sans-serif; font-size: 12px; fill: #333; }
+      .title-text { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; text-anchor: middle; }
+      .module-title { font-family: Arial, sans-serif; font-size: 16px; font-weight: normal; text-anchor: middle; }
+      .connection { stroke: #666; stroke-width: 2; fill: none; marker-end: url(#arrowhead-physical); }
+      .mqtt-arrow { stroke: #7b1fa2; stroke-width: 2; fill: none; marker-end: url(#arrowhead-mqtt); }
+      .capture-arrow { stroke: #1976d2; stroke-width: 2; fill: none; marker-end: url(#arrowhead-video); }
+      .rtsp-arrow { stroke: #00838f; stroke-width: 2; fill: none; stroke-dasharray: 5,5; marker-end: url(#arrowhead-rtsp); }
+      .http-arrow { stroke: #000; stroke-width: 2; fill: none; stroke-dasharray: 5,5; marker-end: url(#arrowhead-http); }
+    </style>
+    <marker id="arrowhead-mqtt" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#7b1fa2" />
+    </marker>
+    <marker id="arrowhead-physical" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#666" />
+    </marker>
+    <marker id="arrowhead-video" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#1976d2" />
+    </marker>
+    <marker id="arrowhead-rtsp" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#00838f" />
+    </marker>
+    <marker id="arrowhead-http" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#000" />
+    </marker>
+  </defs>
+
+
+  <g transform="translate(85, 0)">
+  <rect x="230" y="270" width="200" height="100" class="master-box" style="stroke: #ff0000" rx="5"/>
+  <text x="330" y="305" class="title-text">OWLCMS</text>
+  <text x="245" y="325" class="label">On-Venue Results System</text>
+  <text x="245" y="345" class="label">MQTT Broker</text>
+
+  <rect x="580" y="270" width="170" height="100" class="master-box" style="stroke: #000000" rx="5"/>
+  <text x="655" y="305" class="title-text">Tracker</text>
+  <text x="665" y="325" class="label" style="text-anchor: middle">User-Friendly Jury</text>
+  <text x="665" y="343" class="label" style="text-anchor: middle">Replay Interface</text>
+
+  <rect x="370" y="445" width="240" height="370" class="video-box" rx="5"/>
+  <text x="490" y="472" class="title-text">Video</text>
+
+  <rect x="390" y="490" width="200" height="170" class="device-box" rx="5"/>
+  <text x="490" y="522" class="module-title">Replays</text>
+  <text x="405" y="562" class="label">• Replay playback / review</text>
+  <text x="405" y="582" class="label">• Distribution + recording</text>
+  <text x="405" y="602" class="label">• MQTT Subscriber</text>
+
+  <rect x="390" y="700" width="200" height="100" class="device-box" rx="5"/>
+  <text x="490" y="732" class="module-title">Cameras</text>
+  <text x="405" y="760" class="label">• Four camera feeds</text>
+  <text x="405" y="780" class="label">• Capture / ingest</text>
+
+  <rect x="415" y="860" width="150" height="80" class="display-box" rx="5"/>
+  <text x="490" y="885" class="title-text">Center Camera</text>
+  <text x="430" y="905" class="label">(Camera 1)</text>
+  <text x="430" y="925" class="label">UVC PTZ USB</text>
+
+  <rect x="665" y="660" width="150" height="80" class="display-box" rx="5"/>
+  <text x="740" y="685" class="title-text">Side Camera 1</text>
+  <text x="680" y="705" class="label">(Camera 2)</text>
+  <text x="680" y="725" class="label">RTSP</text>
+
+  <rect x="665" y="760" width="150" height="80" class="display-box" rx="5"/>
+  <text x="740" y="785" class="title-text">Side Camera 2</text>
+  <text x="680" y="805" class="label">(Camera 3)</text>
+  <text x="680" y="825" class="label">RTSP</text>
+
+  <rect x="665" y="860" width="150" height="80" class="display-box" rx="5"/>
+  <text x="740" y="885" class="title-text">Back Camera</text>
+  <text x="680" y="905" class="label">(Camera 4)</text>
+  <text x="680" y="925" class="label">RTSP</text>
+
+
+  <rect x="415" y="970" width="150" height="60" class="output-box" rx="5"/>
+  <text x="490" y="995" class="title-text">HDMI Splitter</text>
+  <text x="430" y="1015" class="label">1 in → 2 out</text>
+
+  <rect x="350" y="1060" width="120" height="80" class="output-box" rx="5"/>
+  <text x="410" y="1085" class="title-text">Marshal TV</text>
+  <text x="365" y="1105" class="label">Live Video</text>
+
+  <rect x="510" y="1060" width="120" height="80" class="output-box" rx="5"/>
+  <text x="570" y="1085" class="title-text">Warmup TV</text>
+  <text x="525" y="1105" class="label">Live Video</text>
+
+  <path d="M 490 860 L 490 800" class="connection"/>
+  <text x="505" y="835" class="label">USB 3.0</text>
+
+  <path d="M 665 700 Q 625 705 590 720" class="rtsp-arrow"/>
+  <text x="620" y="700" class="label" fill="#00838f">RTSP</text>
+
+  <path d="M 665 800 Q 625 775 590 750" class="rtsp-arrow"/>
+  <text x="620" y="785" class="label" fill="#00838f">RTSP</text>
+
+  <path d="M 665 900 Q 625 825 590 780" class="rtsp-arrow"/>
+  <text x="620" y="855" class="label" fill="#00838f">RTSP</text>
+
+
+  <path d="M 430 700 L 430 660" class="capture-arrow"/>
+  <path d="M 470 700 L 470 660" class="capture-arrow"/>
+  <path d="M 510 700 L 510 660" class="capture-arrow"/>
+  <path d="M 550 700 L 550 660" class="capture-arrow"/>
+  <text x="350" y="688" class="label" style="text-anchor: end; fill: #1976d2">MPEG-TS</text>
+  <text x="350" y="702" class="label" style="text-anchor: end; fill: #1976d2">(H.264)</text>
+
+  <line x1="490" y1="940" x2="490" y2="970" class="connection"/>
+  <text x="505" y="960" class="label">Fiber Optic HDMI Cable</text>
+
+  <line x1="455" y1="1030" x2="410" y2="1060" class="connection"/>
+  <text x="448" y="1047" class="label">HDMI</text>
+
+  <line x1="525" y1="1030" x2="570" y2="1060" class="connection"/>
+  <text x="553" y="1047" class="label">HDMI</text>
+
+  <path d="M 330 370 Q 395 430 457 490" class="mqtt-arrow" stroke-dasharray="5,5"/>
+  <text x="300" y="415" class="label" style="fill: #7b1fa2">MQTT (clock events)</text>
+
+  <line x1="430" y1="320" x2="580" y2="320" class="mqtt-arrow" stroke-dasharray="5,5"/>
+  <text x="505" y="310" class="label" style="text-anchor: middle; fill: #7b1fa2">WebSocket</text>
+  <text x="505" y="335" class="label" style="text-anchor: middle; fill: #7b1fa2">(Competition Events)</text>
+
+  <path d="M 523 490 Q 590 430 665 370" class="http-arrow"/>
+  <text x="625" y="415" class="label">HTTP (mp4 replay)</text>
+
+  </g>
+
+  <rect x="150" y="1240" width="900" height="80" fill="#f5f5f5" stroke="#999" stroke-width="1" rx="5"/>
+  <text x="600" y="1265" class="title-text">Data Flow Legend</text>
+
+  <text x="180" y="1290" class="label">Physical</text>
+  <line x1="180" y1="1300" x2="280" y2="1300" class="connection"/>
+
+  <text x="350" y="1290" class="label">API OWLCMS</text>
+  <path d="M 350 1300 L 450 1300" class="mqtt-arrow" stroke-dasharray="5,5"/>
+
+  <text x="520" y="1290" class="label">HTTP</text>
+  <path d="M 520 1300 L 620 1300" class="http-arrow"/>
+
+  <text x="690" y="1290" class="label">RTSP</text>
+  <path d="M 690 1300 L 790 1300" class="rtsp-arrow"/>
+
+  <text x="860" y="1290" class="label">MPEG-TS</text>
+  <path d="M 860 1300 L 960 1300" class="capture-arrow"/>
+</svg>
