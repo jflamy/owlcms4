@@ -12,9 +12,11 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -29,6 +31,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.OverallRankSetter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.athleteSort.WinningOrderComparator;
@@ -384,6 +387,46 @@ public class AthleteSorterTest {
             assertEquals(3, pAthlete.getBestLifterRank());
             assertEquals(Integer.valueOf(77), athlete.getSinclairRank());
         } finally {
+            JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(null);
+        }
+    }
+
+    @Test
+    public void pAthleteBestLifterRankUsesReportRowRankForAllScoringSystems() {
+        Athlete athlete = athletes.stream()
+                .filter(a -> a.getCategory() != null && !a.getParticipations().isEmpty())
+                .findFirst()
+                .orElseThrow();
+        EligibleForIndividualRankingStatus previousEligibility = athlete.getIndividualEligibilityStatus();
+        athlete.setIndividualEligibilityStatus(EligibleForIndividualRankingStatus.ELIGIBLE);
+        Participation participation = athlete.getMainRankings();
+        EnumMap<Ranking, Boolean> previousConfig = RankingConfig.getConfig();
+        Set<Ranking> rankingsWithoutStoredRank = EnumSet.of(Ranking.GAMX_MS, Ranking.GAMX_MC, Ranking.GAMX_S,
+                Ranking.GAMX_C);
+        try {
+            for (Ranking ranking : RankingConfig.getAllScoringRankings()) {
+                if (rankingsWithoutStoredRank.contains(ranking)) {
+                    continue;
+                }
+                RankingConfig.setUserEnabled(ranking, true);
+                JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(ranking);
+
+                OverallRankSetter athleteRanks = new OverallRankSetter();
+                athleteRanks.increment(athlete, ranking, true, false);
+                athleteRanks.increment(athlete, ranking, true, false);
+
+                PAthlete reportRow = new PAthlete(participation);
+                new OverallRankSetter().increment(reportRow, ranking, true, false);
+
+                assertEquals(ranking.name(), 1, reportRow.getBestLifterRank());
+                assertEquals(ranking.name(), 2, athlete.getBestLifterRank());
+                assertEquals(ranking.name(), 2, new PAthlete(participation).getBestLifterRank());
+            }
+        } finally {
+            for (Ranking ranking : RankingConfig.getAllScoringRankings()) {
+                RankingConfig.setUserEnabled(ranking, previousConfig.getOrDefault(ranking, false));
+            }
+            athlete.setIndividualEligibilityStatus(previousEligibility);
             JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(null);
         }
     }

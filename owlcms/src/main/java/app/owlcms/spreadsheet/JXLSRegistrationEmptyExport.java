@@ -12,13 +12,19 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.RichTextString;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFVMLDrawing;
 import org.slf4j.LoggerFactory;
+
+import com.microsoft.schemas.office.excel.STTrueFalseBlank;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.i18n.Translator;
@@ -84,8 +90,31 @@ public class JXLSRegistrationEmptyExport extends JXLSWorkbookStreamSource {
 		                Translator.translate("EmptyInstructions.4"));
 		Comment comment = drawing.createCellComment(anchor);
 		comment.setString(instructions);
-		comment.setVisible(true);
 
+		int commentRowIndex = anchor.getRow1();
+		Row commentRow = sheet.getRow(commentRowIndex);
+		if (commentRow == null) {
+			commentRow = sheet.createRow(commentRowIndex);
+		}
+		int commentColumnIndex = anchor.getCol1();
+		Cell commentCell = commentRow.getCell(commentColumnIndex);
+		if (commentCell == null) {
+			commentCell = commentRow.createCell(commentColumnIndex);
+		}
+		commentCell.setCellComment(comment);
+		comment.setVisible(true);
+		if (sheet instanceof XSSFSheet xssfSheet) {
+			var drawingPart = xssfSheet.getRelationById(xssfSheet.getCTWorksheet().getLegacyDrawing().getId());
+			if (!(drawingPart instanceof XSSFVMLDrawing vmlDrawing)) {
+				throw new IllegalStateException("Instructions comment is missing its VML drawing");
+			}
+			var shape = vmlDrawing.findCommentShape(commentRowIndex, commentColumnIndex);
+			if (shape == null) {
+				throw new IllegalStateException("Instructions comment is missing its VML shape");
+			}
+			// POI 4 sets only the shape style; Excel also needs the note's Visible flag.
+			shape.getClientDataArray(0).addVisible(STTrueFalseBlank.TRUE);
+		}
 	}
 
 }

@@ -9,6 +9,7 @@ package app.owlcms.spreadsheet;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -50,6 +51,8 @@ public class PAthlete extends Athlete implements IRankHolder {
 	@JsonIgnore
 	private Participation originalParticipation;
 	private Participation p;
+	// Overall ranks computed for this report row; initialized lazily because Athlete's constructor may call setters.
+	private EnumMap<Ranking, Integer> rowOverallRanks;
 
 	public PAthlete(Athlete a2) {
 		this.a = a2;
@@ -358,7 +361,62 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public int getCatSinclairRank() {
-		return this.a.getCatSinclairRank();
+		Integer rowRank = getRowOverallRank(Ranking.CAT_SINCLAIR);
+		return rowRank != null ? rowRank : this.a.getCatSinclairRank();
+	}
+
+	@Override
+	public Integer getCatQPointsRank() {
+		Integer rowRank = getRowOverallRank(Ranking.CAT_QPOINTS);
+		return rowRank != null ? rowRank : this.a.getCatQPointsRank();
+	}
+
+	@Override
+	public Integer getCatGAMXRank() {
+		Integer rowRank = getRowOverallRank(Ranking.CAT_GAMX);
+		return rowRank != null ? rowRank : this.a.getCatGAMXRank();
+	}
+
+	@Override
+	public Integer getGamxRank() {
+		Integer rowRank = getRowOverallRank(Ranking.GAMX);
+		return rowRank != null ? rowRank : this.a.getGamxRank();
+	}
+
+	@Override
+	public Integer getGamxMRank() {
+		Integer rowRank = getRowOverallRank(Ranking.GAMX_M);
+		return rowRank != null ? rowRank : this.a.getGamxMRank();
+	}
+
+	@Override
+	public Integer getGamxURank() {
+		Integer rowRank = getRowOverallRank(Ranking.GAMX_U);
+		return rowRank != null ? rowRank : this.a.getGamxURank();
+	}
+
+	@Override
+	public Integer getGamxARank() {
+		Integer rowRank = getRowOverallRank(Ranking.GAMX_A);
+		return rowRank != null ? rowRank : this.a.getGamxARank();
+	}
+
+	@Override
+	public Integer getqPointsRank() {
+		Integer rowRank = getRowOverallRank(Ranking.QPOINTS);
+		return rowRank != null ? rowRank : this.a.getqPointsRank();
+	}
+
+	@Override
+	public int getQMastersRank() {
+		Integer rowRank = getRowOverallRank(Ranking.QAGE);
+		return rowRank != null ? rowRank : this.a.getQMastersRank();
+	}
+
+	@Override
+	public Integer getQYouthRank() {
+		Integer rowRank = getRowOverallRank(Ranking.AGEFACTORS);
+		return rowRank != null ? rowRank : this.a.getQYouthRank();
 	}
 
 	@Override
@@ -828,7 +886,8 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public Integer getRobiRank() {
-		return this.a.getRobiRank();
+		Integer rowRank = getRowOverallRank(Ranking.ROBI);
+		return rowRank != null ? rowRank : this.a.getRobiRank();
 	}
 
 	@Override
@@ -873,7 +932,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public Integer getSinclairRank() {
-		Integer rowRank = super.getSinclairRank();
+		Integer rowRank = getRowOverallRank(Ranking.BW_SINCLAIR);
 		return rowRank != null ? rowRank : this.a.getSinclairRank();
 	}
 
@@ -889,7 +948,8 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public int getSmhfRank() {
-		return this.a.getSmhfRank();
+		Integer rowRank = getRowOverallRank(Ranking.SMM);
+		return rowRank != null ? rowRank : this.a.getSmhfRank();
 	}
 
 	@Override
@@ -1172,52 +1232,57 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public void setCatSinclairRank(int i) {
-		super.setCatSinclairRank(i);
+		setRowOverallRank(Ranking.CAT_SINCLAIR, i);
 	}
 
 	@Override
 	public void setCatQPointsRank(int i) {
-		super.setCatQPointsRank(i);
+		setRowOverallRank(Ranking.CAT_QPOINTS, i);
+	}
+
+	@Override
+	public void setCatQPointsRank(Integer catQPointsRank) {
+		setRowOverallRank(Ranking.CAT_QPOINTS, catQPointsRank);
 	}
 
 	@Override
 	public void setCatGAMXRank(Integer catGAMXRank) {
-		super.setCatGAMXRank(catGAMXRank);
+		setRowOverallRank(Ranking.CAT_GAMX, catGAMXRank);
 	}
 
 	@Override
 	public void setGamxRank(Integer rank) {
-		super.setGamxRank(rank);
+		setRowOverallRank(Ranking.GAMX, rank);
 	}
 
 	@Override
 	public void setGamxMRank(Integer rank) {
-		super.setGamxMRank(rank);
+		setRowOverallRank(Ranking.GAMX_M, rank);
 	}
 
 	@Override
 	public void setGamxURank(Integer rank) {
-		super.setGamxURank(rank);
+		setRowOverallRank(Ranking.GAMX_U, rank);
 	}
 
 	@Override
 	public void setGamxARank(Integer rank) {
-		super.setGamxARank(rank);
+		setRowOverallRank(Ranking.GAMX_A, rank);
 	}
 
 	@Override
 	public void setQMastersRank(int qAgeRank2) {
-		super.setQMastersRank(qAgeRank2);
+		setRowOverallRank(Ranking.QAGE, qAgeRank2);
 	}
 
 	@Override
 	public void setqPointsRank(Integer qPointsRank) {
-		super.setqPointsRank(qPointsRank);
+		setRowOverallRank(Ranking.QPOINTS, qPointsRank);
 	}
 
 	@Override
 	public void setQYouthRank(Integer ageAdjustedTotalRank) {
-		super.setQYouthRank(ageAdjustedTotalRank);
+		setRowOverallRank(Ranking.AGEFACTORS, ageAdjustedTotalRank);
 	}
 
 	@Override
@@ -1257,7 +1322,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public void setRobiRank(Integer robiRank) {
-		super.setRobiRank(robiRank);
+		setRowOverallRank(Ranking.ROBI, robiRank);
 	}
 
 	@Override
@@ -1267,12 +1332,12 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public void setSinclairRank(Integer sinclairRank) {
-		super.setSinclairRank(sinclairRank);
+		setRowOverallRank(Ranking.BW_SINCLAIR, sinclairRank);
 	}
 
 	@Override
 	public void setSmhfRank(int i) {
-		super.setSmhfRank(i);
+		setRowOverallRank(Ranking.SMM, i);
 	}
 
 	@Override
@@ -1329,5 +1394,16 @@ public class PAthlete extends Athlete implements IRankHolder {
 	@Override
 	public void setFederationCodes(String federationCodes) {
 		this.a.setFederationCodes(federationCodes);
+	}
+
+	private Integer getRowOverallRank(Ranking ranking) {
+		return this.rowOverallRanks != null ? this.rowOverallRanks.get(ranking) : null;
+	}
+
+	private void setRowOverallRank(Ranking ranking, Integer rank) {
+		if (this.rowOverallRanks == null) {
+			this.rowOverallRanks = new EnumMap<>(Ranking.class);
+		}
+		this.rowOverallRanks.put(ranking, rank);
 	}
 }
