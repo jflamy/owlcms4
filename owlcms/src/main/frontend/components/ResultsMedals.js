@@ -86,6 +86,7 @@ class ResultsMedals extends LitElement {
                         <th class="rank" .innerHTML="${mc.rankingTitle}"></th>
                         <th class="vspacer"></th>
                         <th class="total" .innerHTML="${this.t?.Total}"></th>
+                        <th class="medalScore" .innerHTML="${this.medalScoringName ?? this.t?.ScoringTitle}"></th>
                         <th class="totalRank" .innerHTML="${mc.rankingTitle}"></th>
                         <th class="sinclair" .innerHTML="${mc.scoreScoringTitle}"></th>
                         <th class="sinclairRank" .innerHTML="${mc.scoreRankingTitle}"></th>
@@ -145,8 +146,11 @@ class ResultsMedals extends LitElement {
       currentAttempt: {},
       showLiftRanks: {type: Boolean},
       showBest: {type: Boolean},
+      showMedalScore: {type: Boolean},
+      medalScoringName: {},
+      scoringName: {},
       showSinclair: {type: Boolean},
-      showSinclairRanks: {type: Boolean},
+      showSinclairRank: {type: Boolean},
       showCustom1: {type: Boolean},
       showLeaders: {type: Boolean},
       showRecords: {type: Boolean},
@@ -222,7 +226,8 @@ class ResultsMedals extends LitElement {
       + (this.showLiftRanks ? "" : " noranks") 
      // + (this.showBest ? "" : " nobest")
       + (this.showCustom1 ? " custom1" : " nocustom1")
-      + (this.showSinclair ? " sinclair" : " nosinclair")
+      + (this.showMedalScore ? " medalScore" : " nomedalScore")
+    + (this.showSinclair ? " sinclair" : " nosinclair")
       + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")
       ;
   }

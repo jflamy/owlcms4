@@ -13,12 +13,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.athleteSort.ScoreboardRankData;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.export.v2.AthleteDTO;
 import app.owlcms.data.export.v2.TeamDTO;
 import app.owlcms.data.team.Team;
@@ -330,8 +330,7 @@ public class AthleteExporter {
 		}
 		
 		// Sinclair/computed score
-		displayInfo.put("sinclair", computedScore(athlete));
-		displayInfo.put("sinclairRank", computedScoreRank(athlete));
+		displayInfo.putAll(ScoreboardRankData.fields(athlete, Config.getCurrent().getDefaultLocale(), false));
 		
 		// Group and subcategory
 		if (athlete.getGroup() != null) {
@@ -398,19 +397,5 @@ public class AthleteExporter {
 		}
 	}
 
-	private static String computedScore(Athlete a) {
-		Ranking scoringSystem = a.getAgeGroup() != null
-		        ? a.getAgeGroup().getChampionship().getScoringSystem()
-		        : Championship.of(null).getScoringSystem();
-		double value = Ranking.getRankingValue(a, scoringSystem);
-		return value > 0.001 ? String.format("%.3f", value) : "-";
-	}
 
-	private static String computedScoreRank(Athlete a) {
-		Ranking scoringSystem = a.getAgeGroup() != null
-		        ? a.getAgeGroup().getChampionship().getScoringSystem()
-		        : Championship.of(null).getScoringSystem();
-		Integer value = Ranking.getRanking(a, scoringSystem);
-		return value != null && value > 0 ? "" + value : "-";
-	}
 }

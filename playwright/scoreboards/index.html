@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="/local/logos/owlcms-logo.svg">
+  <title>Scoreboard rendering fixtures</title>
+  <script type="importmap">
+    {"imports":{
+      "lit":"/modules/lit/index.js","lit/":"/modules/lit/",
+      "lit-html":"/modules/lit-html/lit-html.js","lit-html/":"/modules/lit-html/",
+      "lit-element":"/modules/lit-element/lit-element.js","lit-element/":"/modules/lit-element/",
+      "@lit/reactive-element":"/modules/@lit/reactive-element/reactive-element.js",
+      "@lit/reactive-element/":"/modules/@lit/reactive-element/"
+    }}
+  </script>
+  <style>
+    body { margin: 0; }
+    #controls {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 10000;
+      background: white; color: #111; padding: 8px; font: 14px Arial;
+      display: none; gap: 12px; align-items: center; flex-wrap: wrap;
+      border-bottom: 2px solid #888;
+    }
+    #status { color: #a00; }
+    #show-controls { position: fixed; bottom: 0; left: 0; z-index: 10001; display: block; }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <strong>Rendering fixture (not a live competition)</strong>
+    <label>Layout <select id="component"></select></label>
+    <label>Championships on display <select id="scenario"></select></label>
+    <label>Theme <select id="theme"></select></label>
+    <label>Appearance <select id="appearance"></select></label>
+    <label><input type="checkbox" id="best-score">Best-athlete score</label>
+    <label><input type="checkbox" id="best-rank">Best-athlete rank</label>
+    <label><input type="checkbox" id="category-headers">Category headers</label>
+    <button id="hide-controls">Hide controls</button>
+    <span id="expected"></span>
+    <span id="status" role="alert"></span>
+  </div>
+  <button id="show-controls">Show fixture controls</button>
+  <main id="fixture"></main>
+  <script type="module" src="/fixture/app.mjs"></script>
+</body>
+</html>

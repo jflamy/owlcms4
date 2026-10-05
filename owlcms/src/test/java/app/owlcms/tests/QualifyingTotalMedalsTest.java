@@ -168,8 +168,10 @@ public class QualifyingTotalMedalsTest {
 		for (int index = 0; index < athletes.size(); index++) {
 			if (expectedMedals[index]) {
 				assertTrue(AthleteSorter.isMedalist(athletes.get(index), Ranking.TOTAL));
+				assertTrue(AthleteSorter.isMedalist(athletes.get(index), Ranking.CATEGORY_SCORE));
 			} else {
 				assertFalse(AthleteSorter.isMedalist(athletes.get(index), Ranking.TOTAL));
+				assertFalse(AthleteSorter.isMedalist(athletes.get(index), Ranking.CATEGORY_SCORE));
 			}
 		}
 	}

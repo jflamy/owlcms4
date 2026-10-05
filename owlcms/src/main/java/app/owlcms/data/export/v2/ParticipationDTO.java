@@ -24,6 +24,8 @@ public class ParticipationDTO {
 	private Integer cleanJerkRank;
 	private Integer totalRank;
 	private Integer bestAthleteRank;
+	private Integer categoryScoreRank;
+	private Double categoryScore;
 	private Integer combinedRank;
 	private Integer customRank;
 	private Integer snatchRank;
@@ -51,6 +53,8 @@ public class ParticipationDTO {
 		dto.setCleanJerkRank(participation.getCleanJerkRank());
 		dto.setTotalRank(participation.getTotalRank());
 		dto.setBestAthleteRank(participation.getBestAthleteRank());
+		dto.setCategoryScoreRank(participation.getCategoryScoreRank());
+		dto.setCategoryScore(participation.getCategoryScore());
 		dto.setCombinedRank(participation.getCombinedRank());
 		dto.setCustomRank(participation.getCustomRank());
 		dto.setSnatchRank(participation.getSnatchRank());
@@ -90,6 +94,7 @@ public class ParticipationDTO {
 		participation.setCleanJerkRank(cleanJerkRank != null ? cleanJerkRank : 0);
 		participation.setTotalRank(totalRank != null ? totalRank : 0);
 		participation.setBestAthleteRank(bestAthleteRank != null ? bestAthleteRank : 0);
+		participation.setCategoryScoreRank(categoryScoreRank != null ? categoryScoreRank : 0);
 		participation.setCombinedRank(combinedRank != null ? combinedRank : 0);
 		participation.setCustomRank(customRank != null ? customRank : 0);
 		participation.setSnatchRank(snatchRank != null ? snatchRank : 0);
@@ -107,6 +112,22 @@ public class ParticipationDTO {
 	}
 	
 	// Getters and setters
+	public Integer getCategoryScoreRank() {
+		return categoryScoreRank;
+	}
+
+	public void setCategoryScoreRank(Integer rank) {
+		this.categoryScoreRank = rank;
+	}
+
+	public Double getCategoryScore() {
+		return categoryScore;
+	}
+
+	public void setCategoryScore(Double score) {
+		this.categoryScore = score;
+	}
+
 	public Integer getBestAthleteRank() {
 		return bestAthleteRank;
 	}

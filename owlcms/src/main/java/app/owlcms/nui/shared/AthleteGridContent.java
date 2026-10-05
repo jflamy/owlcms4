@@ -325,7 +325,7 @@ public abstract class AthleteGridContent extends BaseContent
 
 		Button cancel = new Button(Translator.translate("Cancel"), event -> dialog.close());
 		Button clear = new Button(Translator.translate("Clear"), event -> {
-			athlete.doLift(liftNumber, null);
+			athlete.clearLift(liftNumber);
 			AthleteRepository.save(athlete);
 			fop.fopEventPost(new FOPEvent.WeightChange(this, athlete, true));
 			dialog.close();

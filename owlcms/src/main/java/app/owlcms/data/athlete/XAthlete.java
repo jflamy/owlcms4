@@ -81,6 +81,11 @@ public class XAthlete extends Athlete {
 	}
 
 	@Override
+	public void clearLift(int liftNo) {
+		this.a.clearLift(liftNo);
+	}
+
+	@Override
 	public void enforceCategoryIsEligible() {
 		this.a.enforceCategoryIsEligible();
 	}

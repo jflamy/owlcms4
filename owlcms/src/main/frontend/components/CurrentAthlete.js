@@ -97,9 +97,14 @@ class CurrentAthlete extends LitElement {
                           <td class="total" style="${this.decisionHiddenStyles()}">
                             <div id="totalCellTd" style="${this.decisionHiddenStyles()}">${item.total}</div>
                           </td>
+                          ${this.showMedalScore ? html`
+                            <td class="medalScore"><div>${this.medalScoringName}: ${item.medalScore}</div></td>
+                          ` : html``}
                           <td class="totalRank">
-                            <div id="totalRankTd" style="${this.decisionHiddenStyles()}">${this.t?.Rank} <b>${item.totalRank}</b> </div>
+                            <div id="totalRankTd" style="${this.decisionHiddenStyles()}">${this.t?.Rank} <b>${item.medalRank}</b> </div>
                           </td>
+                          ${this.showSinclair ? html`<td class="sinclair"><div>${this.scoringName}: ${item.sinclair}</div></td>` : html``}
+                          ${this.showSinclairRank ? html`<td class="sinclairRank"><div>${this.t?.Rank} <b>${item.sinclairRank}</b></div></td>` : html``}
                         </tr>
                       `
                     : html``}
@@ -112,6 +117,11 @@ class CurrentAthlete extends LitElement {
 
   static get properties() {
     return {
+      showMedalScore: {type: Boolean},
+      medalScoringName: {},
+      scoringName: {},
+      showSinclair: {type: Boolean},
+      showSinclairRank: {type: Boolean},
       boardState: { type: Object, noAccessor: true },
       competitionName: {},
       displayType: {},

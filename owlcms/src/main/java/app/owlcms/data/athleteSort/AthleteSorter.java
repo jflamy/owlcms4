@@ -389,7 +389,8 @@ public class AthleteSorter implements Serializable {
 		if (rank == null || rank < 1 || rank > 3) {
 			return false;
 		}
-		if (ranking == Ranking.TOTAL && isMedalWithheldByImwaQualifyingTotal(athlete)) {
+		if ((ranking == Ranking.TOTAL || ranking == Ranking.CATEGORY_SCORE)
+		        && isMedalWithheldByImwaQualifyingTotal(athlete)) {
 			return false;
 		}
 		return true;
@@ -564,7 +565,7 @@ public class AthleteSorter implements Serializable {
 			// IMWA lowers points for 1-person and two-person categories
 			Category category = a.getCategory();
 			int athleteCount = AthleteRepository.retrieveMastersAthleteCountForCategory(category);
-			int rank = a.getTotalRank();
+			int rank = mr.getCategoryScoreRank();
 			if (rank <= 0) {
 				return 0;
 			}

@@ -54,7 +54,7 @@ import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.athleteSort.ScoreboardRankData;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -262,6 +262,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	Thread keepaliveThread;
 	private boolean showLiftRanks;
 	private boolean showSinclair;
+	private boolean showMedalScore;
+	private String medalScoringName;
+	private String bestScoringName;
 	private boolean showSinclairRank;
 	private boolean showTotalRank;
 	private CeremonyType ceremonyType;
@@ -913,16 +916,25 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		// getElement().setProperty("showTotal", true);
 		// getElement().setProperty("showBest", true);
 		var scoreboardChampionships = this.fop != null ? this.fop.getScoreboardChampionships() : Collections.singleton(Championship.of(null));
-		boolean hasMultiMedals = Championship.anyMultiMedal(scoreboardChampionships);
 		boolean hasScoreMedals = Championship.anyScoreMedalChampionship(scoreboardChampionships);
 		boolean hasTotalMedals = scoreboardChampionships.stream()
 		        .anyMatch(c -> c != null && !c.isScoreMedalChampionship());
 		// Total/lift ranks are withdrawn only when every shown registration category medals by score.
 		boolean scoreOnly = hasScoreMedals && !hasTotalMedals;
-		setShowLiftRanks(hasMultiMedals && !scoreOnly);
+		setShowLiftRanks(true);
 		setShowTotalRank(!scoreOnly);
-		setShowSinclair(hasScoreMedals || Competition.getCurrent().isDisplayScores());
-		setShowSinclairRank(hasScoreMedals || Competition.getCurrent().isDisplayScoreRanks());
+
+		Config displayConfig = Config.getCurrent();
+		var columns = ScoreboardRankData.columns(scoreboardChampionships,
+		        displayConfig.featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE),
+		        displayConfig.featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE_RANK),
+		        displayConfig.featureSwitch(FeatureSwitch.NO_BEST_SCORE_RANK)
+		                || displayConfig.featureSwitch(FeatureSwitch.NO_SINCLAIR_RANK));
+		this.showMedalScore = columns.medalScore();
+		setShowSinclair(columns.bestScore());
+		setShowSinclairRank(columns.bestRank());
+		this.medalScoringName = ScoreboardRankData.title(columns.medalSystems(), displayConfig.getDefaultLocale());
+		this.bestScoringName = ScoreboardRankData.title(columns.bestSystems(), displayConfig.getDefaultLocale());
 
 		computeLeaders();
 		JsonNode recordsJson = this.fop.getRecordsJson();
@@ -930,22 +942,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setRecords(recordsJson);
 	}
 
-	private String computedScore(Athlete a) {
-		Ranking scoringSystem = a.getAgeGroup() != null
-		        ? a.getAgeGroup().getChampionship().getScoringSystem()
-		        : Championship.of(null).getScoringSystem();
-		double value = Ranking.getRankingValue(a, scoringSystem);
-		String score = value > 0.001 ? String.format("%.3f", value) : "-";
-		return score;
-	}
 
-	private String computedScoreRank(Athlete a) {
-		Ranking scoringSystem = a.getAgeGroup() != null
-		        ? a.getAgeGroup().getChampionship().getScoringSystem()
-		        : Championship.of(null).getScoringSystem();
-		Integer value = Ranking.getRanking(a, scoringSystem);
-		return value != null && value > 0 ? "" + value : "-";
-	}
 
 	private void computeLeaders() {
 		// logger.debug("|||| computeLeaders {} {} {} {} {} {}", System.identityHashCode(this), fop.getName(),
@@ -1316,6 +1313,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		// bottom tables
 		mapPut(sb, "showLiftRanks", Boolean.toString(isShowLiftRanks()));
 		mapPut(sb, "showTotalRank", Boolean.toString(isShowTotalRank()));
+		mapPut(sb, "showMedalScore", Boolean.toString(this.showMedalScore));
+		mapPut(sb, "medalScoringName", this.medalScoringName);
+		mapPut(sb, "scoringName", this.bestScoringName);
 		mapPut(sb, "showSinclair", Boolean.toString(isShowSinclair()));
 		mapPut(sb, "showSinclairRank", Boolean.toString(isShowSinclairRank()));
 
@@ -1648,8 +1648,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			logger.error("main rankings null for {}", a);
 		}
 
-		ja.put("sinclair", computedScore(a));
-		ja.put("sinclairRank", computedScoreRank(a));
+		ScoreboardRankData.fields(a, Config.getCurrent().getDefaultLocale(), false).forEach(ja::put);
 
 		if (a.getGroup() != null) {
 			ja.put("group", a.getGroup().getName());

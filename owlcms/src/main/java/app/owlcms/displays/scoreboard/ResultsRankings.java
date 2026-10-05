@@ -24,6 +24,7 @@ import tools.jackson.databind.node.ObjectNode;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -95,8 +96,7 @@ public class ResultsRankings extends Results {
 	private void applyMedalClasses(Athlete athlete, ObjectNode athleteJson) {
 		athleteJson.put("snatchMedal", "");
 		athleteJson.put("cleanJerkMedal", "");
-		athleteJson.put("totalMedal", "");
-		athleteJson.put("sinclairMedal", "");
+		athleteJson.put("medalHighlight", "");
 
 		if (!shouldShowMedalsForAthlete(athlete)) {
 			return;
@@ -108,20 +108,13 @@ public class ResultsRankings extends Results {
 			return;
 		}
 
-		if (athlete.getComputedScoringSystem() == Ranking.TOTAL) {
-			boolean liftMedals = awardsLiftMedals(athlete);
-			int snatchRank = mainRankings.getSnatchRank();
-			athleteJson.put("snatchMedal", liftMedals && snatchRank >= 1 && snatchRank <= 3 ? "medal" + snatchRank : "");
 
-			int cleanJerkRank = mainRankings.getCleanJerkRank();
-			athleteJson.put("cleanJerkMedal", liftMedals && cleanJerkRank >= 1 && cleanJerkRank <= 3 ? "medal" + cleanJerkRank : "");
-
-			int totalRank = mainRankings.getTotalRank();
-			athleteJson.put("totalMedal", athlete.getMedalPolicy().includesTotal() && totalRank >= 1 && totalRank <= 3 ? "medal" + totalRank : "");
-		} else {
-			int scoreRank = mainRankings.getCategoryScoreRank();
-			athleteJson.put("sinclairMedal", scoreRank >= 1 && scoreRank <= 3 ? "medal" + scoreRank : "");
-		}
+		boolean liftMedals = awardsLiftMedals(athlete);
+		int snatchRank = mainRankings.getSnatchRank();
+		athleteJson.put("snatchMedal", liftMedals && AthleteSorter.isMedalist(athlete, Ranking.SNATCH) ? "medal" + snatchRank : "");
+		int cleanJerkRank = mainRankings.getCleanJerkRank();
+		athleteJson.put("cleanJerkMedal", liftMedals && AthleteSorter.isMedalist(athlete, Ranking.CLEANJERK) ? "medal" + cleanJerkRank : "");
+		putRankData(athlete, athleteJson, true);
 	}
 
 	private boolean shouldShowMedalsForAthlete(Athlete athlete) {

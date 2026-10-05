@@ -47,6 +47,7 @@ import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AbstractLifterComparator;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.athleteSort.ScoreboardRankData;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -449,16 +450,8 @@ public class BaseResults extends LitTemplate
 	public void setLeadersDisplay(boolean b) {
 		this.leadersDisplay = b;
 		this.getElement().setProperty("showLeaders", b);
-		FieldOfPlay fop = getFop();
-		boolean done = fop != null && fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
-		if (!isLeadersDisplay() || done) {
-			this.logger.debug("setLeadersDisplay 0px: isLeaders = {} done = {}", isLeadersDisplay(), done);
-			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: 0px");
-		} else {
-			this.logger.debug("setLeadersDisplay default: isLeaders = {} done = {}", isLeadersDisplay(), done);
-			this.getElement().setProperty("leaderFillerHeight",
-			        "--leaderFillerHeight: var(--defaultLeaderFillerHeight)");
-		}
+		// provisional until the next update; computeLeaders sets the final filler height
+		setLeaderFiller(b);
 	}
 
 	final public void setLocation(Location location) {
@@ -792,81 +785,19 @@ public class BaseResults extends LitTemplate
 		});
 	}
 
-	protected String computedScore(Athlete a) {
-		AgeGroup ageGroup = a.getAgeGroup();
-		Ranking ageGroupScoringSystem = ageGroup != null ? ageGroup.getComputedScoringSystem() : null;
-		Championship athleteChampionship = ageGroup != null ? ageGroup.getChampionship() : Championship.of(null);
-
-		boolean scoreMedalChampionship = athleteChampionship.isScoreMedalChampionship();
-		boolean displayGlobal = Competition.getCurrent().isDisplayScores();
-		Ranking scoringSystem = athleteChampionship.getScoringSystem();
-
-		if (ageGroupScoringSystem != null && !scoreMedalChampionship && !displayGlobal) {
-			Participation p = null;
-			String athleteCatCode = a.getCategory() != null ? a.getCategory().getCode() : null;
-			if (a.getParticipations() != null && a.getParticipations().size() > 0 && athleteCatCode != null) {
-				for (Participation part : a.getParticipations()) {
-					if (part.getCategory() != null && athleteCatCode.equals(part.getCategory().getCode())) {
-						p = part;
-						break;
-					}
-				}
-			}
-			double value = (p != null) ? p.getCategoryScore() : Ranking.getRankingValue(a, Ranking.CATEGORY_SCORE);
-			if (p != null) {
-				a.dump("[DISPLAY] computed CATEGORY_SCORE");
-			} else {
-				// logger.debug("[DISPLAY] Athlete: {} | Category: {} | CATEGORY_SCORE value: {} | Participation not found", a.getAbbreviatedName(),
-				// athleteCatCode, value);
-			}
-			String score;
-			if (ageGroupScoringSystem == Ranking.TOTAL) {
-				score = value > 0.001 ? String.format("%.0f", value) : "\u2013";
-			} else {
-				score = value > 0.001 ? String.format("%.3f", value) : "\u2013";
-			}
-			return score;
-		} else {
-			double value = Ranking.getRankingValue(a, scoringSystem);
-			String score = value > 0.001 ? String.format("%.3f", value) : "\u2013";
-			return score;
-		}
+	protected String computedScore(Athlete athlete) {
+		return ScoreboardRankData.fields(athlete, this.capturedLocale, false).get("sinclair");
 	}
 
-	protected String computedScoreRank(Athlete a) {
-		AgeGroup ageGroup = a.getAgeGroup();
-		Ranking ageGroupScoringSystem = ageGroup != null ? ageGroup.getComputedScoringSystem() : null;
-		Championship athleteChampionship = ageGroup != null ? ageGroup.getChampionship() : Championship.of(null);
 
-		boolean scoreMedalChampionship = athleteChampionship.isScoreMedalChampionship();
-		boolean displayGlobal = Competition.getCurrent().isDisplayScoreRanks();
-		Ranking bestLifterScoringSystem = athleteChampionship.getScoringSystem();
-
-		String result;
-		if (a.isEligibleForIndividualRanking()) {
-			if (ageGroupScoringSystem != null && !scoreMedalChampionship && !displayGlobal) {
-				Participation p = null;
-				String athleteCatCode = a.getCategory() != null ? a.getCategory().getCode() : null;
-				if (a.getParticipations() != null && a.getParticipations().size() > 0 && athleteCatCode != null) {
-					for (Participation part : a.getParticipations()) {
-						if (part.getCategory() != null && athleteCatCode.equals(part.getCategory().getCode())) {
-							p = part;
-							break;
-						}
-					}
-				}
-				Integer value = (p != null) ? p.getCategoryScoreRank() : Ranking.getRanking(a, Ranking.CATEGORY_SCORE);
-				result = value != null && value > 0 ? "" + value : "-";
-			} else {
-				Integer value = Ranking.getRanking(a, bestLifterScoringSystem);
-				result = value != null && value > 0 ? "" + value : "-";
-			}
-		} else {
-			result = Translator.translate("Results.Extra/Invited");
-		}
-		// logger.debug("computedScoreRank for athlete {} = {}", a, result);
-		return result;
+	protected String computedScoreRank(Athlete athlete) {
+		return ScoreboardRankData.fields(athlete, this.capturedLocale, false).get("sinclairRank");
 	}
+
+	protected void putRankData(Athlete athlete, ObjectNode json, boolean highlightMedals) {
+		ScoreboardRankData.fields(athlete, this.capturedLocale, highlightMedals).forEach(json::put);
+	}
+
 
 	protected void computeLeaders(boolean done) {
 		FieldOfPlay fop = getFop();
@@ -881,6 +812,7 @@ public class BaseResults extends LitTemplate
 			clearProjectedRankText();
 			this.getElement().setPropertyJson("leaders", JsonUtils.nullNode());
 			setBottomSize(1);
+			setLeaderFiller(false);
 			return;
 		}
 		computeProjectedRankText(fop);
@@ -909,12 +841,22 @@ public class BaseResults extends LitTemplate
 				// leaderboard
 				this.getElement().setPropertyJson("leaders", getAthletesJson(this.displayOrder, null, fop));
 				setBottomSize(this.displayOrder.size() + 2); // spacer + title
+				// leaders are shown even though the session may be done: keep the filler
+				setLeaderFiller(isLeadersDisplay());
 			} else {
 				// nothing to show
 				this.getElement().setPropertyJson("leaders", JsonUtils.nullNode());
 				setBottomSize(1);
+				setLeaderFiller(false);
 			}
 		}
+	}
+
+	/** The filler row only exists to push a visible leaderboard down; collapse it otherwise. */
+	private void setLeaderFiller(boolean leadersShown) {
+		this.getElement().setProperty("leaderFillerHeight", leadersShown
+		        ? "--leaderFillerHeight: var(--defaultLeaderFillerHeight)"
+		        : "--leaderFillerHeight: 0px");
 	}
 
 	private void computeProjectedRankText(FieldOfPlay fop) {
@@ -1148,8 +1090,6 @@ public class BaseResults extends LitTemplate
 	}
 
 	protected void getAthleteJson(Athlete a, ObjectNode ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
-		boolean bestScore = Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE);
-		boolean bestScoreRank = Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE_RANK);
 
 		String category;
 		category = curCat != null ? curCat.getDisplayName() : "";
@@ -1183,14 +1123,7 @@ public class BaseResults extends LitTemplate
 		ja.put("custom1", getCustom1Value(a));
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 
-		if (a.getComputedScoringSystem() != Ranking.TOTAL || bestScore || bestScoreRank) {
-			ja.put("sinclair", computedScore(a));
-			if (bestScoreRank || a.getComputedScoringSystem() != Ranking.TOTAL) {
-				ja.put("sinclairRank", computedScoreRank(a));
-			} else {
-				ja.put("sinclairRank", a.getBestLifterRank());
-			}
-		}
+		putRankData(a, ja, false);
 
 		boolean notDone = a.getAttemptsDone() < 6;
 		String blink = (notDone ? " blink" : "");
@@ -1486,31 +1419,29 @@ public class BaseResults extends LitTemplate
 		}
 		setTranslationMap();
 
-		// Column visibility is based on the registration categories actually displayed, not on every
-		// participation in the field of play. A secondary participation in a score-medal championship
-		// must not turn on the scalar Score/Rank columns for a total-medal registration category.
-		boolean showScore = scoring[0] || Competition.getCurrent().isDisplayScores();
-		this.getElement().setProperty("showSinclair", showScore);
 
-		boolean showScoreRank = scoring[0] || Competition.getCurrent().isDisplayScoreRanks();
-		boolean noBestScoreRank = Config.getCurrent().featureSwitch(FeatureSwitch.NO_BEST_SCORE_RANK)
-		        || Config.getCurrent().featureSwitch(FeatureSwitch.NO_SINCLAIR_RANK);
-		if (noBestScoreRank) {
-			showScoreRank = false;
-		} else if (Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE_RANK)) {
-			showScoreRank = true;
-		}
-		this.getElement().setProperty("showSinclairRank", showScoreRank);
-
-		// Lift/total rank columns track the registration categories actually displayed, recomputed on
-		// every group switch (not only on attach) so a freshly loaded group reveals its snatch/CJ/total
-		// ranks without requiring a page refresh. Total rank is withdrawn only when every displayed
-		// registration category medals by score.
-		boolean scoreOnly = scoring[0] && !totalMedals[0];
-		this.getElement().setProperty("showLiftRanks", multiMedals[0] && !scoreOnly);
-		this.getElement().setProperty("showTotalRank", !scoreOnly);
-
+		List<Athlete> shown = fop != null ? getOrder(fop) : List.of();
+		setRankColumns(shown != null ? shown : List.of());
 		this.displayOrder = ImmutableList.of();
+	}
+
+	protected void setRankColumns(List<Athlete> shown) {
+		var championships = shown.stream().map(Athlete::getAgeGroup)
+		        .filter(ageGroup -> ageGroup != null).map(AgeGroup::getChampionship).toList();
+		Config config = Config.getCurrent();
+		var columns = ScoreboardRankData.columns(championships,
+		        config.featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE),
+		        config.featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE_RANK),
+		        config.featureSwitch(FeatureSwitch.NO_BEST_SCORE_RANK)
+		                || config.featureSwitch(FeatureSwitch.NO_SINCLAIR_RANK));
+		getElement().setProperty("showMedalScore", columns.medalScore());
+		getElement().setProperty("showSinclair", columns.bestScore());
+		getElement().setProperty("showSinclairRank", columns.bestRank());
+		getElement().setProperty("showLiftRanks", columns.liftRanks());
+		getElement().setProperty("showTotalRank", true);
+		getElement().setProperty("medalScoringName", ScoreboardRankData.title(columns.medalSystems(), this.capturedLocale));
+		getElement().setProperty("scoringName", ScoreboardRankData.title(columns.bestSystems(), this.capturedLocale));
+
 	}
 
 	/**
@@ -1601,14 +1532,7 @@ public class BaseResults extends LitTemplate
 
 		updateGroupInfo(liftType);
 		// getAgeGroupNamesJson must be called before getAthletesJson
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE)) {
-			Championship scoringChampionship = fop.getCurAthlete() != null && fop.getCurAthlete().getAgeGroup() != null
-			        ? fop.getCurAthlete().getAgeGroup().getChampionship()
-			        : fop.getActiveChampionships().stream().findFirst().orElse(Championship.of(null));
-			this.getElement().setProperty("scoringName", Translator.translate("Scoreboard." + scoringChampionship.getScoringSystem().name()));
-		} else {
-			this.getElement().setProperty("scoringName", Translator.translate("Score"));
-		}
+
 		if (fop.getGroup() != null) {
 			this.getElement().setPropertyJson("ageGroups", getAgeGroupNamesJson(fop.getAgeGroupMap()));
 		}
@@ -1618,19 +1542,9 @@ public class BaseResults extends LitTemplate
 		List<Athlete> order = getOrder(fop);
 		int resultLines = (order != null ? order.size() : 0) + countSubsets(order);
 		boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
-
-		if (!isLeadersDisplay() || done || (Config.getCurrent().featureSwitch(FeatureSwitch.MEDALISTS_AS_LEADERS)
-		        && fop.getState() == FOPState.BREAK
-		        && (fop.getBreakType() == BreakType.BEFORE_INTRODUCTION || fop.getBreakType() == BreakType.FIRST_SNATCH))) {
-			this.logger.debug("0px: isLeaders = {} done = {}", isLeadersDisplay(), done);
-			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: 0px");
-		} else {
-			this.logger.debug("default: isLeaders = {} done = {}", isLeadersDisplay(), done);
-			this.getElement().setProperty("leaderFillerHeight",
-			        "--leaderFillerHeight: var(--defaultLeaderFillerHeight)");
-		}
 		this.getElement().setProperty("resultLines", resultLines);
 
+		// computeLeaders decides whether a leaderboard is shown and sizes the filler accordingly
 		computeLeaders(done);
 		computeRecords(done);
 	}
