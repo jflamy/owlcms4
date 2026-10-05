@@ -361,6 +361,14 @@ table.results tr td.club div.clubName div.ellipsis {
     visibility: var(--birthVisibility);
 }
 
+/* body weight (feature switch displayBodyWeight) */
+:host table.results tr td.bodyWeight,
+:host table.results tr th.bodyWeight {
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
+    visibility: var(--bodyWeightVisibility);
+}
+
 /* custom fields */
 :host table.results tr td.custom1,
 :host table.results tr th.custom1 {
@@ -497,6 +505,8 @@ table {
         var(--categoryWidth)
         /* birth */
         var(--birthWidth)
+        /* body weight */
+        var(--bodyWeightWidth)
         /* custom fields */
         var(--custom1Width) var(--custom2Width)
         /* team name */

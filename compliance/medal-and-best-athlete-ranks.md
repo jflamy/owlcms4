@@ -599,7 +599,7 @@ URL option.
 | `displayBestScore` | Shows the `sinclair` (best-athlete score) column |
 | `displayBestScoreRank` | Shows the `sinclairRank` column |
 | `noBestScoreRank` / `noSinclairRank` | Force the `sinclairRank` column off; takes precedence over `displayBestScoreRank`. Kept as an override. |
-| `displayBodyWeight` | Unrelated to ranks: repurposes the `custom1` column to show body weight (2 decimals) with a "Body Weight" header; unchanged |
+| `displayBodyWeight` | Unrelated to ranks: shows the body weight (2 decimals) in its own `bodyWeight` column, placed after Birth, with a "B.W." header. It no longer repurposes `custom1`; the `custom1`/`custom2` columns are again controlled only by the stylesheet variables (`--custom1Width`, `--custom1Visibility`). |
 
 Changes:
 

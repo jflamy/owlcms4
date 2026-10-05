@@ -61,6 +61,7 @@ export function readControls() {
     appearance: document.getElementById('appearance').value,
     bestScore: document.getElementById('best-score').checked,
     bestRank: document.getElementById('best-rank').checked,
+    bodyWeight: document.getElementById('body-weight').checked,
     categoryHeaders: document.getElementById('category-headers').checked
   };
 }
@@ -69,7 +70,7 @@ export function setControls(options) {
   const ids = {scenario: 'scenario', board: 'component', theme: 'theme', appearance: 'appearance'};
   for (const [key, id] of Object.entries(ids)) document.getElementById(id).value = options[key];
   for (const [key, id] of [['bestScore', 'best-score'], ['bestRank', 'best-rank'],
-    ['categoryHeaders', 'category-headers']]) {
+    ['bodyWeight', 'body-weight'], ['categoryHeaders', 'category-headers']]) {
     document.getElementById(id).checked = options[key] === true;
   }
 }
@@ -101,6 +102,7 @@ setControls({
   appearance: params.get('appearance') || 'dark',
   bestScore: params.get('bestScore') === 'true',
   bestRank: params.get('bestRank') === 'true',
+  bodyWeight: params.get('bodyWeight') === 'true',
   categoryHeaders: params.get('categoryHeaders') === 'true'
 });
 try {

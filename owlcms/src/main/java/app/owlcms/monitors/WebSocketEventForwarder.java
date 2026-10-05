@@ -1317,6 +1317,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		mapPut(sb, "scoringName", this.bestScoringName);
 		mapPut(sb, "showSinclair", Boolean.toString(isShowSinclair()));
 		mapPut(sb, "showSinclairRank", Boolean.toString(isShowSinclairRank()));
+		mapPut(sb, "showBodyWeight", Boolean.toString(Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT)));
 
 		// Always use V2 format: send athlete order (with spacers) plus full session athlete data
 		List<Athlete> displayOrder = getFop().getDisplayOrder();
@@ -1637,6 +1638,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		if (notDone) {
 			ja.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
 		}
+		ja.put("bodyWeight", ScoreboardRankData.bodyWeight(a, Config.getCurrent().getDefaultLocale()));
 		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 		ja.put("membership", a.getMembership() != null ? a.getMembership() : "");

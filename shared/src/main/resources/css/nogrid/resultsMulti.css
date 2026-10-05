@@ -25,6 +25,8 @@ table {
         var(--categoryWidth)
         /* birth */
         var(--birthWidth)
+        /* body weight */
+        var(--bodyWeightWidth)
         /* custom fields */
         var(--custom1Width) var(--custom2Width)
         /* team name */

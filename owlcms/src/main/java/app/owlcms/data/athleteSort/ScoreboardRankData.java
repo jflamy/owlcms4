@@ -42,6 +42,12 @@ public final class ScoreboardRankData {
 		        : Translator.translate("Score", locale);
 	}
 
+	/** Body weight for the optional scoreboard column (feature switch displayBodyWeight). */
+	public static String bodyWeight(Athlete athlete, Locale locale) {
+		Double bodyWeight = athlete.getBodyWeight();
+		return bodyWeight != null ? String.format(locale, "%.2f", bodyWeight) : "";
+	}
+
 	public static Map<String, String> fields(Athlete athlete, Locale locale, boolean highlightMedals) {
 		athlete.getCategory();
 		Participation participation = Objects.requireNonNull(athlete.getMainRankings(),

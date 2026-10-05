@@ -106,6 +106,9 @@ class ResultsFull extends LitElement {
                     <th class="yob" style="grid-row: span 2">
                       <div style="display: grid; align-self: center" .innerHTML="${this.t?.Birth}" ></div>
                     </th>
+                    <th class="bodyWeight" style="grid-row: span 2">
+                      <div style="display: grid; align-self: center" .innerHTML="${this.t?.BodyWeight}" ></div>
+                    </th>
                     <th class="custom1" style="grid-row: span 2">
                       <div style="display: grid; align-self: center" .innerHTML="${this.t?.Custom1}" ></div>
                     </th>
@@ -179,6 +182,9 @@ class ResultsFull extends LitElement {
                               </td>
                               <td class="yob">
                                 <div>${item?.yearOfBirth}</div>
+                              </td>
+                              <td class="bodyWeight">
+                                <div>${item?.bodyWeight}</div>
                               </td>
                               <td class="custom1">
                                 <div>${item?.custom1}</div>
@@ -271,6 +277,7 @@ class ResultsFull extends LitElement {
                                 <td class="${"name " + (item?.classname ?? "")}" style="${this.leadingAthleteStyles()} "> <div class="ellipsis">   ${item?.fullName} </div></td>
                                 <td class="category" style="${this.leadingAthleteStyles()} "> <div>${item?.category}</div></td>
                                 <td class="yob" style="${this.leadingAthleteStyles()} "> <div>${item?.yearOfBirth}</div></td>
+                                <td class="bodyWeight" style="${this.leadingAthleteStyles()} "> <div>${item?.bodyWeight}</div></td>
                                 <td class="custom1" style="${this.leadingAthleteStyles()} "> <div>${item?.custom1}</div></td>
                                 <td class="custom2" style="${this.leadingAthleteStyles()} "> <div>${item?.custom2}</div></td>
                                 <td class="${"club " + (item?.flagClass ?? "")} ">
@@ -635,7 +642,7 @@ class ResultsFull extends LitElement {
       + (this.showLiftRanks ? " ranks" : " noranks")
       + (this.showBest ? " best" : " nobest")
       + " totalRank"
-      + (this.showCustom1 ? " custom1" : " nocustom1")
+      + (this.showBodyWeight ? " bodyWeight" : " nobodyWeight")
       + (this.showMedalScore ? " medalScore" : " nomedalScore")
     + (this.showSinclair ? " sinclair" : " nosinclair")
       + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")

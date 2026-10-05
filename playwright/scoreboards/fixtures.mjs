@@ -51,6 +51,7 @@ export function buildFixture({
   appearance = 'dark',
   bestScore = false,
   bestRank = false,
+  bodyWeight = false,
   categoryHeaders = false
 } = {}) {
   if (!Object.hasOwn(SCENARIOS, scenario) || !Object.hasOwn(BOARDS, board)
@@ -80,7 +81,8 @@ export function buildFixture({
       startNumber: index + 1,
       category: categories[index],
       teamName: 'Team',
-      bodyWeight: 63.5,
+      // production sends the formatted string (BaseResults.getBodyWeightValue, %.2f)
+      bodyWeight: '63.50',
       yearOfBirth: categories[index].startsWith('W35Q') ? '1990'
         : categories[index].startsWith('U15') ? '2012' : '2001',
       categoryMinimumWeight: 0,
@@ -120,7 +122,7 @@ export function buildFixture({
     + (separateCategories ? 'one athlete per category, medal ranks 1 and 1' : 'medal ranks 1 and 2')
     + (scenario === 'mixed' ? '; F 64 score blank; W35Q range 0-999 kg' : '');
   return {
-    options: {scenario, board, theme, appearance, bestScore, bestRank, categoryHeaders},
+    options: {scenario, board, theme, appearance, bestScore, bestRank, bodyWeight, categoryHeaders},
     title: `Fixture: ${BOARDS[board]} — ${SCENARIOS[scenario]}`,
     tag: renderer.tag,
     rankingOrder: renderer.rankingOrder,
@@ -139,6 +141,7 @@ export function buildFixture({
       showMedalScore: scenario !== 'total',
       showSinclair: bestScore,
       showSinclairRank: bestRank,
+      showBodyWeight: bodyWeight,
       showCategoryHeaders: renderer.rankingOrder || categoryHeaders,
       showRecords: false,
       showLeaders: false,
@@ -155,6 +158,7 @@ export function buildFixture({
       sizeOverride: '--tableFontSize:1.25rem;',
       t: {
         Start: 'Start', Name: 'Name', Category: 'Category', Birth: 'Birth', Team: 'Team',
+        BodyWeight: 'B.W.',
         Snatch: 'Snatch', Clean_and_Jerk: 'Clean & Jerk', Total: 'Total', Rank: 'Rank',
         Best: 'Best', ScoringTitle: 'Score', Custom1: '', Custom2: ''
       },

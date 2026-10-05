@@ -460,7 +460,8 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 		putRankData(a, ja, true);
 
-		ja.put("custom1", getCustom1Value(a));
+		ja.put("bodyWeight", getBodyWeightValue(a));
+		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 
 		String prop = null;
@@ -516,7 +517,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		this.setUi(attachEvent.getUI());
-		this.getElement().setProperty("showCustom1", Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT));
+		this.getElement().setProperty("showBodyWeight", Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT));
 		// we listen on uiEventBus.
 		FieldOfPlay fop = getFop();
 		this.uiEventBus = uiEventBusRegister(this, fop);

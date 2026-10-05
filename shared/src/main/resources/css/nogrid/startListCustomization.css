@@ -34,6 +34,9 @@ table.results.startList {
         minmax(50px, var(--nameWidth))
         var(--categoryWidth)
         var(--birthWidth)
+        /* body weight */
+        var(--bodyWeightWidth)
+        /* custom fields */
         var(--custom1Width) var(--custom2Width)
         var(--clubWidth)
         0.5fr;
