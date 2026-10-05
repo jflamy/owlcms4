@@ -40,7 +40,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 
@@ -3489,16 +3488,12 @@ public class FieldOfPlay implements IUnregister {
 			// we update the ranks all athletes in our category, as well as the current
 			// scoring system
 			athletes = JPAService.runInTransaction(em -> {
-				List<Athlete> l = AthleteSorter.fetchForCategoryRanks(em, g);
-				List<Athlete> nl = updateScoringSystemRanking(em, l);
-				return nl;
+				return AthleteSorter.fetchForCategoryRanks(em, g);
 			});
 		} else {
 			// only recompute the current scoring system
 			athletes = JPAService.runInTransaction(em -> {
-				List<Athlete> l = AthleteRepository.findAthletesForGlobalRanking(em, g);
-				List<Athlete> nl = updateScoringSystemRanking(em, l);
-				return nl;
+				return AthleteRepository.findAthletesForGlobalRanking(em, g);
 			});
 		}
 		endAssignRanks = System.nanoTime();
@@ -4770,29 +4765,6 @@ public class FieldOfPlay implements IUnregister {
 		getRefereeTime()[2] = ref3Time;
 	}
 
-	private List<Athlete> updateScoringSystemRanking(EntityManager em, List<Athlete> l) {
-		if (Competition.getCurrent().isDisplayScoreRanks() || Competition.getCurrent().isDisplayScores()) {
-			// long beforeRanks = System.currentTimeMillis();
-			try {
-				// this only computes the current scoring system
-				Competition.getCurrent().scoringSystemRankings(em);
-			} catch (Exception e) {
-				this.logger.error("{} scoringSystemRankings exception {}\n ", FieldOfPlay.getLoggingName(this),
-						e,
-						LoggerUtils.stackTrace(e));
-			}
-			// long afterRanks = System.currentTimeMillis();
-			// logger.debug("-------------------- scoringSystemRankings {}ms", afterRanks -
-			// beforeRanks);
-		}
-
-		List<Athlete> nl = new LinkedList<>();
-		for (Athlete a : l) {
-			nl.add(em.merge(a));
-		}
-		em.flush();
-		return nl;
-	}
 
 	private void warnMissingKg() {
 		Athlete cur = this.getCurAthlete();

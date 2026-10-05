@@ -126,16 +126,7 @@ public class AthleteDTO {
 	private Integer total;
 	
 	// Rankings
-	private Integer sinclairRank;
-	private Integer qPointsRank;
-	private Integer qMastersRank;
-	private Integer smhfRank;
 	private Integer teamSinclairRank;
-	private Integer catSinclairRank;
-	private Integer catQPointsRank;
-	private Integer gamxRank;
-	private Integer robiRank;
-	private Integer ageAdjustedTotalRank;
 	private Integer combinedRank;
 	private Integer teamCleanJerkRank;
 	private Integer teamCombinedRank;
@@ -282,16 +273,16 @@ public class AthleteDTO {
 		dto.setTotal(athlete.getTotal());
 		
 		// Rankings
-		dto.setSinclairRank(athlete.getSinclairRank());
-		dto.setqPointsRank(athlete.getqPointsRank());
-		dto.setQMastersRank(athlete.getQMastersRank());
-		dto.setSmhfRank(athlete.getSmhfRank());
+
+
+
+
 		dto.setTeamSinclairRank(athlete.getTeamSinclairRank());
-		dto.setCatSinclairRank(athlete.getCatSinclairRank());
-		dto.setCatQPointsRank(athlete.getCatQPointsRank());
-		dto.setGamxRank(athlete.getGamxRank());
-		dto.setRobiRank(athlete.getRobiRank());
-		dto.setAgeAdjustedTotalRank(athlete.getQYouthRank());
+
+
+
+
+
 		dto.setCombinedRank(athlete.getCombinedRank());
 		dto.setTeamCleanJerkRank(athlete.getTeamCleanJerkRank());
 		dto.setTeamCombinedRank(athlete.getTeamCombinedRank());
@@ -453,16 +444,16 @@ public class AthleteDTO {
 		athlete.setPersonalBestTotal(this.personalBestTotal);
 		
 		// Rankings
-		athlete.setSinclairRank(this.sinclairRank);
-		athlete.setqPointsRank(this.qPointsRank);
-		athlete.setQMastersRank(this.qMastersRank);
-		athlete.setSmhfRank(this.smhfRank);
+
+
+
+
 		athlete.setTeamSinclairRank(this.teamSinclairRank);
-		athlete.setCatSinclairRank(this.catSinclairRank);
-		athlete.setCatQPointsRank(this.catQPointsRank);
-		athlete.setGamxRank(this.gamxRank);
-		athlete.setRobiRank(this.robiRank);
-		athlete.setQYouthRank(this.ageAdjustedTotalRank);
+
+
+
+
+
 		athlete.setCombinedRank(this.combinedRank);
 		athlete.setTeamCleanJerkRank(this.teamCleanJerkRank);
 		athlete.setTeamCombinedRank(this.teamCombinedRank);
@@ -1130,40 +1121,14 @@ public class AthleteDTO {
 		this.total = total;
 	}
 
-	public Integer getSinclairRank() {
-		return sinclairRank;
-	}
 
-	public void setSinclairRank(Integer sinclairRank) {
-		this.sinclairRank = sinclairRank;
-	}
 
 	// Jackson does not recognize get/set followed by a lowercase letter as an accessor.
-	@JsonProperty("qPointsRank")
-	public Integer getqPointsRank() {
-		return qPointsRank;
-	}
 
-	@JsonProperty("qPointsRank")
-	public void setqPointsRank(Integer qPointsRank) {
-		this.qPointsRank = qPointsRank;
-	}
 
-	public Integer getQMastersRank() {
-		return qMastersRank;
-	}
 
-	public void setQMastersRank(Integer qMastersRank) {
-		this.qMastersRank = qMastersRank;
-	}
 
-	public Integer getSmhfRank() {
-		return smhfRank;
-	}
 
-	public void setSmhfRank(Integer smhfRank) {
-		this.smhfRank = smhfRank;
-	}
 
 	public Integer getTeamSinclairRank() {
 		return teamSinclairRank;
@@ -1173,45 +1138,15 @@ public class AthleteDTO {
 		this.teamSinclairRank = teamSinclairRank;
 	}
 
-	public Integer getCatSinclairRank() {
-		return catSinclairRank;
-	}
 
-	public void setCatSinclairRank(Integer catSinclairRank) {
-		this.catSinclairRank = catSinclairRank;
-	}
 
-	public Integer getCatQPointsRank() {
-		return catQPointsRank;
-	}
 
-	public void setCatQPointsRank(Integer catQPointsRank) {
-		this.catQPointsRank = catQPointsRank;
-	}
 
-	public Integer getGamxRank() {
-		return gamxRank;
-	}
 
-	public void setGamxRank(Integer gamxRank) {
-		this.gamxRank = gamxRank;
-	}
 
-	public Integer getRobiRank() {
-		return robiRank;
-	}
 
-	public void setRobiRank(Integer robiRank) {
-		this.robiRank = robiRank;
-	}
 
-	public Integer getAgeAdjustedTotalRank() {
-		return ageAdjustedTotalRank;
-	}
 
-	public void setAgeAdjustedTotalRank(Integer ageAdjustedTotalRank) {
-		this.ageAdjustedTotalRank = ageAdjustedTotalRank;
-	}
 
 	public Integer getCombinedRank() {
 		return combinedRank;

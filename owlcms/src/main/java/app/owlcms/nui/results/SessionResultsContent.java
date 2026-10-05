@@ -560,6 +560,10 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 				if (!event.isFromClient()) {
 					return;
 				}
+				if (event.getValue() == null) {
+					scoringCombo.setValue(getScoringSystem());
+					return;
+				}
 				setScoringSystem(event.getValue());
 				resetGrid();
 			});

@@ -58,6 +58,8 @@ public class Participation implements IRankHolder {
 	@Column(columnDefinition = "integer default 0")
 	private int categoryScoreRank;
 	@Column(columnDefinition = "integer default 0")
+	private int bestAthleteRank;
+	@Column(columnDefinition = "integer default 0")
 	private int combinedRank;
 	@Column(columnDefinition = "integer default 0")
 	private int customRank;
@@ -106,6 +108,7 @@ public class Participation implements IRankHolder {
 		this.totalRank = p.totalRank;
 		this.combinedRank = p.combinedRank;
 		this.setCategoryScoreRank(p.getCategoryScoreRank());
+		this.bestAthleteRank = p.bestAthleteRank;
 		this.setTeamMember(p.isTeamMember());
 		this.setMixedTeamMember(p.isMixedTeamMember());
 	}
@@ -136,6 +139,11 @@ public class Participation implements IRankHolder {
 	@JsonIdentityReference(alwaysAsId = true)
 	public Category getCategory() {
 		return this.category;
+	}
+
+	@JsonIgnore
+	public int getBestAthleteRank() {
+		return this.bestAthleteRank;
 	}
 
 	@JsonIgnore
@@ -287,6 +295,10 @@ public class Participation implements IRankHolder {
 
 	public void setCategory(Category category) {
 		this.category = category;
+	}
+
+	public void setBestAthleteRank(int rank) {
+		this.bestAthleteRank = rank;
 	}
 
 	public void setCategoryScoreRank(int scoreRank) {

@@ -136,7 +136,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		}
 	}
 
-	protected static void setNoInterimScoresInResults(boolean noInterimScoresInResultsP) {
+	public static void setNoInterimScoresInResults(boolean noInterimScoresInResultsP) {
 		noInterimScoresInResults.set(noInterimScoresInResultsP);
 	}
 

@@ -41,67 +41,16 @@ public class MultiCategoryRankSetter {
 			participationCategory = a.getCategory();
 		}
 
-		Participation participation = a.getMainRankings();
-		int rank = eligible ? (rankingValue == 0 ? 0 : ++this.rank) : -1;
-		// logger.debug("c {} r {} -- a {}/{} v {} z {} e {} rank={} {}", participationCategory, r, a.getAbbreviatedName(), System.identityHashCode(a),
-		// rankingValue, zero, eligible, rank, ""); // LoggerUtils.stackTrace());
-		switch (r) {
-			case SNATCH:
-			case CLEANJERK:
-			case TOTAL:
-			case CUSTOM:
-			case CATEGORY_SCORE:
-				participation = doCategoryBasedRankings(a, r, participationCategory, zero);
-				break;
-			case BW_SINCLAIR:
-				a.setSinclairRank(rank);
-				break;
-			case CAT_SINCLAIR:
-				a.setCatSinclairRank(rank);
-				break;
-			case CAT_QPOINTS:
-				a.setCatQPointsRank(rank);
-				break;
-			case CAT_GAMX:
-				a.setCatGAMXRank(rank);
-				break;
-			case SNATCH_CJ_TOTAL:
-				a.setCombinedRank(rank);
-				break;
-			case ROBI:
-				a.setRobiRank(rank);
-				break;
-			case SMM:
-				a.setSmhfRank(rank);
-				break;
-			case QPOINTS:
-				a.setqPointsRank(rank);
-				break;
-			case QAGE:
-				a.setQMastersRank(rank);
-				break;
-			case GAMX:
-				a.setGamxRank(rank);
-				break;
-			case GAMX_M:
-				a.setGamxMRank(rank);
-				break;
-			case GAMX_MS:
-			case GAMX_MC:
-			case GAMX_S:
-			case GAMX_C:
-				break;
-			case GAMX_U:
-				a.setGamxURank(rank);
-				break;
-			case GAMX_A:
-				a.setGamxARank(rank);
-				break;
-			case AGEFACTORS:
-				a.setQYouthRank(rank);
-				break;
-		}
-		return participation;
+
+		return switch (r) {
+			case SNATCH, CLEANJERK, TOTAL, CUSTOM, CATEGORY_SCORE ->
+				doCategoryBasedRankings(a, r, participationCategory, zero);
+			case SNATCH_CJ_TOTAL -> {
+				a.setCombinedRank(eligible ? (zero ? 0 : ++this.rank) : -1);
+				yield a.getMainRankings();
+			}
+			default -> throw new IllegalArgumentException("Category ranking requires a medal ranking: " + r);
+		};
 	}
 
 	CategoryRankingHolder getCategoryRankings(Category category) {

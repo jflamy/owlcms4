@@ -9,14 +9,12 @@ package app.owlcms.data.competition;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
 import java.util.Properties;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +35,6 @@ import tools.jackson.databind.ObjectMapper;
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -60,6 +57,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.BestAthleteRankingService;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.athleteSort.WinningOrderComparator;
@@ -112,7 +110,6 @@ public class Competition {
 	private static final String ATHLETE_TIMER_ONE_MINUTE_ENV = "OWLCMS_ATHLETE_TIMER_ONE_MINUTE";
 	private static Competition competition;
 	final static private Logger logger = (Logger) LoggerFactory.getLogger(Competition.class);
-	private static final boolean SCORING_SYSTEM_ONLY = true;
 
 	/**
 	 * Load timer milestone values from timing/timing.properties and environment variables.
@@ -785,71 +782,8 @@ public class Competition {
 		return this.reportingBeans;
 	}
 
-	public void doGlobalRankings(List<Athlete> athletes, Boolean scoringSystemOnly) {
-		doGlobalRankings(athletes, scoringSystemOnly, false);
-	}
 
-	public void doGlobalRankings(List<Athlete> athletes, Boolean scoringSystemOnly, boolean participationScopedRanks) {
-		// long beforeDedup = System.currentTimeMillis();
-		TreeSet<Athlete> noDup = new TreeSet<>(Comparator.comparing(a -> globalRankingKey(a, participationScopedRanks)));
-		for (Athlete pAthlete : athletes) {
-			Athlete athlete;
-			if (pAthlete instanceof PAthlete && !participationScopedRanks) {
-				athlete = ((PAthlete) pAthlete)._getAthlete();
-				noDup.add(athlete);
-			} else {
-				noDup.add(pAthlete);
-			}
-		}
-		ArrayList<Athlete> nodupAthletes = new ArrayList<>(noDup);
-		// long afterDedup = System.currentTimeMillis();
-		// logger.trace("------------------------- dedup {}ms {}", afterDedup - beforeDedup, LoggerUtils.whereFrom(5));
 
-		if (scoringSystemOnly) {
-			// long beforeReporting = System.currentTimeMillis();
-			Ranking scoringSystem = getScoringSystem();
-			if (RankingConfig.getAllScoringRankings().contains(scoringSystem) && RankingConfig.shouldCompute(scoringSystem)) {
-				doReporting(nodupAthletes, scoringSystem, true);
-			}
-			// long afterReporting = System.currentTimeMillis();
-			// logger.trace("------------------------- scoringSystem reporting {}ms", afterReporting - beforeReporting);
-		} else {
-			// long beforeReporting = System.currentTimeMillis();
-			for (Ranking ranking : List.of(
-			        Ranking.BW_SINCLAIR,
-			        Ranking.SMM,
-			        Ranking.QPOINTS,
-			        Ranking.QAGE, // Q-masters
-			        Ranking.CAT_SINCLAIR,
-			        Ranking.CAT_QPOINTS,
-			        Ranking.CAT_GAMX,
-			        Ranking.GAMX,
-			        Ranking.GAMX_M,
-			        Ranking.GAMX_MS,
-			        Ranking.GAMX_MC,
-			        Ranking.GAMX_U,
-			        Ranking.GAMX_A,
-			        Ranking.GAMX_S,
-			        Ranking.GAMX_C,
-			        Ranking.AGEFACTORS // Q-youth
-			)) {
-				if (RankingConfig.shouldCompute(ranking)) {
-					doReporting(nodupAthletes, ranking, true);
-				}
-			}
-			// long afterReporting = System.currentTimeMillis();
-			// logger.trace("------------------------- full reporting {}ms", afterReporting - beforeReporting);
-		}
-	}
-
-	private String globalRankingKey(Athlete athlete, boolean participationScopedRanks) {
-		if (participationScopedRanks && athlete instanceof PAthlete pAthlete) {
-			Category category = pAthlete.getCategory();
-			String categoryCode = category != null ? category.getComputedCode() : "";
-			return pAthlete.getFullId() + "|" + categoryCode;
-		}
-		return athlete.getFullId();
-	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -1259,19 +1193,7 @@ public class Competition {
 		return this.finalPackageTemplateFileName;
 	}
 
-	@JsonIgnore
-	synchronized public List<Athlete> getGlobalRanking(Gender gender, Ranking ranking) {
-		if (gender == null || ranking == null) {
-			return Collections.emptyList();
-		}
-		return getListOrElseRecompute(
-		        gender == Gender.F ? ranking.getWReportingName() : ranking.getMReportingName());
-	}
 
-	@JsonIgnore
-	synchronized public List<Athlete> getGlobalScoreRanking(Gender gender) {
-		return getGlobalRanking(gender, getScoringSystem());
-	}
 
 	/**
 	 * Gets the id.
@@ -1310,31 +1232,6 @@ public class Competition {
 		return this.juryTemplateFileName;
 	}
 
-	@SuppressWarnings("unchecked")
-	@JsonIgnore
-	synchronized public List<Athlete> getListOrElseRecompute(String listName) {
-		// logger.trace("getting list {}",listName);
-		List<Athlete> athletes = (List<Athlete>) this.reportingBeans.get(listName);
-		if (isRankingsInvalid() || athletes == null) {
-			setRankingsInvalid(true);
-			while (isRankingsInvalid()) { // could be made invalid again while we compute
-				setRankingsInvalid(false);
-				// recompute because an athlete has been saved (new weight requested, good/bad
-				// lift, etc.)
-				computeReportingInfo();
-				athletes = (List<Athlete>) this.reportingBeans.get(listName);
-				if (athletes == null) {
-					String error = MessageFormat.format("list {0} not found", listName);
-					logger./**/warn(error);
-					athletes = Collections.emptyList();
-				}
-			}
-			// logger.trace("recomputed {} size {} from {}", listName, athletes != null ? athletes.size() : null);
-		} else {
-			// logger.trace("found {} size {} from {}", listName, athletes != null ? athletes.size() : null);
-		}
-		return athletes;
-	}
 
 	// @Transient
 	// @JsonIgnore
@@ -1917,13 +1814,6 @@ public class Competition {
 		return pAthletes;
 	}
 
-	public void scoringSystemRankings(EntityManager em) {
-		// long beforeFindAll = System.currentTimeMillis();
-		List<Athlete> athletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, null, true, null);
-		// long afterFindAll = System.currentTimeMillis();
-		// logger.trace("------------------------- scoringSystemRankings doFindAllByGroupAndWeighIn {}ms", afterFindAll - beforeFindAll);
-		doGlobalRankings(athletes, SCORING_SYSTEM_ONLY);
-	}
 
 	public void setAgeGroupsFileName(String localizedName) {
 		this.ageGroupsFileName = localizedName;
@@ -2409,12 +2299,12 @@ public class Competition {
 		}).collect(Collectors.toList()));
 		this.reportingBeans.put("t", Translator.getMap());
 
-		doReporting(athletes, Ranking.SNATCH, false);
-		doReporting(athletes, Ranking.CLEANJERK, false);
-		doMixedReporting(athletes, Ranking.TOTAL, false);
-		doReporting(athletes, Ranking.CUSTOM, false);
+		doReporting(athletes, Ranking.SNATCH);
+		doReporting(athletes, Ranking.CLEANJERK);
+		doMixedReporting(athletes, Ranking.TOTAL);
+		doReporting(athletes, Ranking.CUSTOM);
 		// you can have two robi (one for junior, one for senior)
-		doMixedReporting(athletes, Ranking.ROBI, false);
+
 	}
 
 	private void clearTeamReportingBeans(String suffix) {
@@ -2462,7 +2352,7 @@ public class Competition {
 					}
 				}
 
-				doGlobalRankings(athletes, false, ageGroupPrefix != null || ad != null);
+
 			} catch (Throwable t) {
 				t.printStackTrace();
 				throw t;
@@ -2471,10 +2361,7 @@ public class Competition {
 		}, Thread.MIN_PRIORITY);
 	}
 
-	private void doMixedReporting(List<Athlete> athletes, Ranking ranking, boolean overall) {
-		if (!RankingConfig.shouldCompute(ranking)) {
-			return;
-		}
+	private void doMixedReporting(List<Athlete> athletes, Ranking ranking) {
 		List<Athlete> sortedAthletes;
 		List<Athlete> sortedMen;
 		List<Athlete> sortedWomen;
@@ -2482,9 +2369,6 @@ public class Competition {
 		String wBeanName;
 		String mwBeanName;
 		sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, ranking);
-		if (overall) {
-			AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, ranking);
-		}
 		sortedMen = new ArrayList<>(sortedAthletes.size());
 		sortedWomen = new ArrayList<>(sortedAthletes.size());
 		splitByGender(sortedAthletes, sortedMen, sortedWomen);
@@ -2499,19 +2383,13 @@ public class Competition {
 		// logger.trace("{} {}", mwBeanName, sortedAthletes);
 	}
 
-	private void doReporting(List<Athlete> athletes, Ranking ranking, boolean overall) {
-		if (!RankingConfig.shouldCompute(ranking)) {
-			return;
-		}
+	private void doReporting(List<Athlete> athletes, Ranking ranking) {
 		List<Athlete> sortedAthletes;
 		List<Athlete> sortedMen;
 		List<Athlete> sortedWomen;
 		String mBeanName;
 		String wBeanName;
 		sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, ranking);
-		if (overall) {
-			AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, ranking);
-		}
 		sortedMen = new ArrayList<>(sortedAthletes.size());
 		sortedWomen = new ArrayList<>(sortedAthletes.size());
 		splitByGender(sortedAthletes, sortedMen, sortedWomen);
@@ -2523,9 +2401,6 @@ public class Competition {
 		// logger.trace("{} {}", wBeanName, sortedWomen);
 		// additional entry in the map so we can have a simple book with
 		// just the global score.
-		Ranking defaultScoring = Championship.of(null).getScoringSystem();
-		this.reportingBeans.put("mBest", AthleteSorter.resultsOrderCopy(sortedMen, defaultScoring));
-		this.reportingBeans.put("wBest", AthleteSorter.resultsOrderCopy(sortedWomen, defaultScoring));
 	}
 
 	/**
@@ -2800,6 +2675,7 @@ public class Competition {
 		JPAService.runInTransaction(em -> {
 			for (Athlete a : updatedAthletes) {
 				Athlete oldAthlete = em.find(Athlete.class, a.getId());
+				BestAthleteRankingService.preserveRanks(oldAthlete, a);
 				Athlete newAthlete = em.merge(a);
 				// dumpAthlete("updated", a);
 				// dumpAthlete("old", oldAthlete);
@@ -2993,18 +2869,10 @@ public class Competition {
 	}
 
 	public static void recomputeAllAthleteRanks() {
-		JPAService.runInTransaction(em -> {
-			// assign ranks to all categories, recompute global
-			List<Athlete> l = AthleteRepository.findAllByGroupAndWeighIn(null, true);
-
-			getCurrent().computeMedalsByCategory(l);
-			getCurrent().doGlobalRankings(l, true);
-			for (Athlete a : l) {
-				em.merge(a);
-			}
-			em.flush();
-			return null;
-		});
+		List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
+		getCurrent().computeMedalsByCategory(athletes);
+		BestAthleteRankingService.recomputeAll();
 	}
+
 
 }

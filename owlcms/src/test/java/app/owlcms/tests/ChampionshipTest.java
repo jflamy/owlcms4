@@ -60,7 +60,9 @@ import app.owlcms.data.agegroup.MedalPolicy;
 import app.owlcms.data.agegroup.TeamPointsPolicy;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.BestAthleteRankingService;
 import app.owlcms.data.athleteSort.MedalCategoryComparator;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.RankingConfig;
@@ -68,6 +70,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.category.ParticipationId;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.export.v2.ChampionshipDTO;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
@@ -1139,6 +1142,274 @@ public class ChampionshipTest {
         }
         assertMixedTeamScoresMatchSelectedGamx(teams, selectedByTeam,
                 "senior mixed first two females and first two males");
+    }
+
+    @Test
+    public void testBestAthleteRanksPersistSeparatelyForEachChampionship() {
+        Championship senior = ChampionshipRepository.findByName("Senior");
+        Championship junior = ChampionshipRepository.findByName("Junior");
+        Participation seed = findChampionshipParticipationForAthlete(senior, "POURAMIN", "IRI");
+        Athlete athlete = AthleteRepository.findById(seed.getAthlete().getId());
+        Participation seniorParticipation = findParticipationForChampionship(athlete, senior);
+        Participation juniorParticipation = findParticipationForChampionship(athlete, junior);
+        int originalSeniorRank = seniorParticipation.getBestAthleteRank();
+        int originalJuniorRank = juniorParticipation.getBestAthleteRank();
+        try {
+            JPAService.runInTransaction(em -> {
+                em.find(Participation.class, seniorParticipation.getId()).setBestAthleteRank(7);
+                em.find(Participation.class, juniorParticipation.getId()).setBestAthleteRank(2);
+                return null;
+            });
+            Athlete reloaded = AthleteRepository.findById(athlete.getId());
+            Participation seniorReloaded = findParticipationForChampionship(reloaded, senior);
+            Participation juniorReloaded = findParticipationForChampionship(reloaded, junior);
+            assertEquals(7, seniorReloaded.getBestAthleteRank());
+            assertEquals(2, juniorReloaded.getBestAthleteRank());
+            int mainRank = reloaded.getBestAthleteRank();
+            assertEquals(reloaded.getMainRankings().getBestAthleteRank(), mainRank);
+
+            PAthlete reporting = PAthlete.copyForReporting(new PAthlete(seniorReloaded));
+            assertEquals(7, reporting.getBestAthleteRank());
+            reporting.setBestAthleteRank(1);
+            assertEquals(7, seniorReloaded.getBestAthleteRank());
+            assertEquals(2, juniorReloaded.getBestAthleteRank());
+            assertEquals(7, JPAService.runInTransaction(em ->
+                    em.find(Participation.class, seniorParticipation.getId()).getBestAthleteRank()).intValue());
+        } finally {
+            JPAService.runInTransaction(em -> {
+                em.find(Participation.class, seniorParticipation.getId()).setBestAthleteRank(originalSeniorRank);
+                em.find(Participation.class, juniorParticipation.getId()).setBestAthleteRank(originalJuniorRank);
+                return null;
+            });
+        }
+    }
+
+    @Test
+    public void testSavingLiftReranksChampionshipAcrossSessionsAndCategories() {
+        try (LiveBestAthleteFixture fixture = new LiveBestAthleteFixture(400)) {
+            Athlete lifter = AthleteRepository.findById(fixture.juniorAthleteId);
+            Athlete otherSession = AthleteRepository.findById(fixture.seniorAthleteId);
+            assertEquals("the competitors must be ranked in the same gender", lifter.getGender(), otherSession.getGender());
+            assertFalse("the competitors must lift in different sessions",
+                    lifter.getGroup().getId().equals(otherSession.getGroup().getId()));
+            assertFalse("best-athlete ranking must span different weight categories",
+                    fixture.juniorSeniorParticipation.categoryId.equals(fixture.seniorParticipation.categoryId));
+            int previousCompetitorRank = persistedBestAthleteRank(fixture.seniorParticipation);
+            assertTrue("the lifter starts behind the other-session competitor",
+                    persistedBestAthleteRank(fixture.juniorSeniorParticipation) > previousCompetitorRank);
+
+            lifter.setValidation(false);
+            lifter.setCleanJerk3ActualLift("1000");
+            AthleteRepository.save(lifter);
+
+            assertEquals("the new lift must be persisted", Integer.valueOf(1000),
+                    AthleteRepository.findById(lifter.getId()).getCleanJerk3AsInteger());
+            assertEquals("the lifter becomes first in Senior", 1,
+                    persistedBestAthleteRank(fixture.juniorSeniorParticipation));
+            assertEquals("the lifter becomes first in Junior", 1,
+                    persistedBestAthleteRank(fixture.juniorParticipation));
+            assertEquals("the athlete in another session moves down one place",
+                    previousCompetitorRank + 1, persistedBestAthleteRank(fixture.seniorParticipation));
+        }
+    }
+
+    @Test
+    public void testSavingLiftKeepsRanksIndependentWhenChampionshipsUseSameSystem() {
+        try (LiveBestAthleteFixture fixture = new LiveBestAthleteFixture(1300)) {
+            assertEquals(Ranking.BW_SINCLAIR,
+                    ChampionshipRepository.findByName("Senior").getBestAthleteScoringSystem());
+            assertEquals(Ranking.BW_SINCLAIR,
+                    ChampionshipRepository.findByName("Junior").getBestAthleteScoringSystem());
+            Athlete lifter = AthleteRepository.findById(fixture.juniorAthleteId);
+            lifter.setValidation(false);
+            lifter.setCleanJerk3ActualLift("1000");
+            Athlete saved = AthleteRepository.save(lifter);
+
+            assertEquals("the adult competitor remains first in Senior", 1,
+                    persistedBestAthleteRank(fixture.seniorParticipation));
+            assertEquals("the same athlete is second in Senior", 2,
+                    persistedBestAthleteRank(fixture.juniorSeniorParticipation));
+            assertEquals("but first in Junior, which excludes that adult", 1,
+                    persistedBestAthleteRank(fixture.juniorParticipation));
+            saved.getCategory();
+            ParticipationId mainId = saved.getMainRankings().getId();
+            assertEquals("the saved athlete reads the registration championship's rank",
+                    persistedBestAthleteRank(mainId), saved.getBestAthleteRank());
+            Athlete reloaded = AthleteRepository.findById(lifter.getId());
+            assertEquals("reloading must preserve the registration championship's rank",
+                    saved.getBestAthleteRank(), reloaded.getBestAthleteRank());
+        }
+    }
+
+    @Test
+    public void testSavingLiftDoesNotRerankUnaffectedChampionshipsOrOtherGender() {
+        try (LiveBestAthleteFixture fixture = new LiveBestAthleteFixture(400)) {
+            Athlete lifter = AthleteRepository.findById(fixture.seniorAthleteId);
+            Set<BestAthleteRankingService.Scope> affected = BestAthleteRankingService.scopes(lifter);
+            assertFalse("the adult must not participate in Junior",
+                    affected.contains(new BestAthleteRankingService.Scope("Junior", lifter.getGender())));
+            // Sentinels prove that untouched populations were not silently recomputed to the same ranks.
+            Map<ParticipationId, Integer> untouched = JPAService.runInTransaction(em -> {
+                Map<ParticipationId, Integer> ranks = new HashMap<>();
+                for (Participation participation : em.createQuery("select p from Participation p",
+                        Participation.class).getResultList()) {
+                    BestAthleteRankingService.Scope scope = new BestAthleteRankingService.Scope(
+                            participation.getCategory().getAgeGroup().getChampionship().getName(),
+                            participation.getAthlete().getGender());
+                    if (!affected.contains(scope)) {
+                        participation.setBestAthleteRank(10000 + ranks.size());
+                        ranks.put(participation.getId(), participation.getBestAthleteRank());
+                    }
+                }
+                return ranks;
+            });
+            assertTrue("Junior ranks for the lifter's gender must be included in the untouched population",
+                    untouched.containsKey(fixture.juniorParticipation));
+            assertTrue("Senior ranks for the other gender must be included in the untouched population",
+                    getChampionshipParticipations(ChampionshipRepository.findByName("Senior")).stream()
+                            .anyMatch(p -> p.getAthlete().getGender() != lifter.getGender()
+                                    && untouched.containsKey(p.getId())));
+
+            lifter.setValidation(false);
+            lifter.setCleanJerk3ActualLift("650");
+            AthleteRepository.save(lifter);
+
+            assertEquals("the affected Senior ranking is updated", 1,
+                    persistedBestAthleteRank(fixture.seniorParticipation));
+            Map<ParticipationId, Integer> after = snapshotBestAthleteRanks();
+            untouched.forEach((id, rank) ->
+                    assertEquals("unaffected participation " + id + " must not be reranked", rank, after.get(id)));
+        }
+    }
+
+    @Test
+    public void testSavingDetachedAthleteCannotRestoreStaleBestAthleteRanks() {
+        try (LiveBestAthleteFixture fixture = new LiveBestAthleteFixture(400)) {
+            Athlete stale = AthleteRepository.findById(fixture.seniorAthleteId);
+            int staleRank = stale.getBestAthleteRank();
+            Athlete lifter = AthleteRepository.findById(fixture.juniorAthleteId);
+            lifter.setValidation(false);
+            lifter.setCleanJerk3ActualLift("1000");
+            AthleteRepository.save(lifter);
+            int currentRank = persistedBestAthleteRank(fixture.seniorParticipation);
+            assertEquals("the stale athlete's rank changed when its competitor lifted",
+                    staleRank + 1, currentRank);
+            assertEquals("the detached object still contains its old rank", staleRank, stale.getBestAthleteRank());
+            Map<ParticipationId, Integer> before = snapshotBestAthleteRanks();
+
+            stale.setCustom1("stale-rank regression");
+            Athlete saved = AthleteRepository.save(stale);
+
+            assertEquals("the edited non-ranking field is saved", "stale-rank regression", saved.getCustom1());
+            assertEquals("the save result must use the current rank", currentRank, saved.getBestAthleteRank());
+            assertEquals("the persisted rank must not revert", currentRank,
+                    persistedBestAthleteRank(fixture.seniorParticipation));
+            assertEquals("a metadata-only save must preserve all official ranks",
+                    before, snapshotBestAthleteRanks());
+        }
+    }
+
+    private static int persistedBestAthleteRank(ParticipationId id) {
+        return JPAService.runInTransaction(em -> em.find(Participation.class, id).getBestAthleteRank());
+    }
+
+    private static Map<ParticipationId, Integer> snapshotBestAthleteRanks() {
+        return JPAService.runInTransaction(em -> em.createQuery("select p from Participation p", Participation.class)
+                .getResultList().stream()
+                .collect(Collectors.toMap(Participation::getId, Participation::getBestAthleteRank)));
+    }
+
+    private record LiveAthleteSnapshot(Long id, Double bodyWeight, List<String> lifts,
+            EligibleForIndividualRankingStatus eligibility, String custom1) {
+        private LiveAthleteSnapshot(Athlete athlete) {
+            this(athlete.getId(), athlete.getBodyWeight(), BestAthleteRankingService.inputs(athlete).lifts(),
+                    athlete.getIndividualEligibilityStatus(), athlete.getCustom1());
+        }
+
+        private void restore(Athlete athlete) {
+            athlete.setValidation(false);
+            athlete.setBodyWeight(bodyWeight);
+            for (int lift = 0; lift < lifts.size(); lift++) {
+                athlete.setActualLift(lift + 1, lifts.get(lift));
+            }
+            athlete.setIndividualEligibilityStatus(eligibility);
+            athlete.setCustom1(custom1);
+        }
+    }
+
+    private static class LiveBestAthleteFixture implements AutoCloseable {
+        private final Long juniorAthleteId;
+        private final Long seniorAthleteId;
+        private final ParticipationId juniorSeniorParticipation;
+        private final ParticipationId juniorParticipation;
+        private final ParticipationId seniorParticipation;
+        private final List<LiveAthleteSnapshot> athletesBefore;
+        private final Map<ParticipationId, Integer> ranksBefore;
+        private final Map<Long, Ranking> systemsBefore = new HashMap<>();
+
+        private LiveBestAthleteFixture(int seniorTotal) {
+            Championship senior = ChampionshipRepository.findByName("Senior");
+            Championship junior = ChampionshipRepository.findByName("Junior");
+            Athlete juniorAthlete = AthleteRepository.findById(
+                    findChampionshipParticipationForAthlete(senior, "POURAMIN", "IRI").getAthlete().getId());
+            juniorAthleteId = juniorAthlete.getId();
+            juniorSeniorParticipation = findParticipationForChampionship(juniorAthlete, senior).getId();
+            juniorParticipation = findParticipationForChampionship(juniorAthlete, junior).getId();
+            Athlete seniorAthlete = getChampionshipParticipations(senior).stream()
+                    .map(Participation::getAthlete)
+                    .filter(a -> a.getGender() == juniorAthlete.getGender() && !a.getId().equals(juniorAthleteId))
+                    .filter(a -> a.getGroup() != null
+                            && !a.getGroup().getId().equals(juniorAthlete.getGroup().getId()))
+                    .filter(a -> !a.getCategory().getId().equals(juniorAthlete.getCategory().getId()))
+                    .filter(a -> a.getCategory().getAgeGroup().getChampionship().getName().equals("Senior"))
+                    .filter(a -> !BestAthleteRankingService.scopes(a)
+                            .contains(new BestAthleteRankingService.Scope("Junior", juniorAthlete.getGender())))
+                    .sorted(Comparator.comparing(Athlete::getId))
+                    .findFirst().orElseThrow();
+            seniorAthleteId = seniorAthlete.getId();
+            seniorParticipation = findParticipationForChampionship(seniorAthlete, senior).getId();
+            athletesBefore = List.of(new LiveAthleteSnapshot(juniorAthlete), new LiveAthleteSnapshot(seniorAthlete));
+            ranksBefore = snapshotBestAthleteRanks();
+            for (Championship championship : List.of(senior, junior)) {
+                systemsBefore.put(championship.getId(),
+                        ChampionshipDTO.fromChampionship(championship).getBestAthleteScoringSystem());
+            }
+            JPAService.runInTransaction(em -> {
+                systemsBefore.keySet().forEach(id ->
+                        em.find(Championship.class, id).setBestAthleteScoringSystem(Ranking.BW_SINCLAIR));
+                configureAthlete(em.find(Athlete.class, juniorAthleteId), 200);
+                configureAthlete(em.find(Athlete.class, seniorAthleteId), seniorTotal);
+                return null;
+            });
+            Championship.reset();
+            BestAthleteRankingService.recomputeAll();
+        }
+
+        private static void configureAthlete(Athlete athlete, int total) {
+            athlete.setValidation(false);
+            athlete.setBodyWeight(70.0);
+            athlete.setIndividualEligibilityStatus(EligibleForIndividualRankingStatus.ELIGIBLE);
+            athlete.setSnatch1ActualLift("100");
+            athlete.setSnatch2ActualLift("0");
+            athlete.setSnatch3ActualLift("0");
+            athlete.setCleanJerk1ActualLift(Integer.toString(total - 100));
+            athlete.setCleanJerk2ActualLift("0");
+            athlete.setCleanJerk3ActualLift("0");
+        }
+
+        @Override
+        public void close() {
+            JPAService.runInTransaction(em -> {
+                for (LiveAthleteSnapshot snapshot : athletesBefore) {
+                    snapshot.restore(em.find(Athlete.class, snapshot.id()));
+                }
+                systemsBefore.forEach((id, system) ->
+                        em.find(Championship.class, id).setBestAthleteScoringSystem(system));
+                ranksBefore.forEach((id, rank) -> em.find(Participation.class, id).setBestAthleteRank(rank));
+                return null;
+            });
+            Championship.reset();
+        }
     }
 
     @Test

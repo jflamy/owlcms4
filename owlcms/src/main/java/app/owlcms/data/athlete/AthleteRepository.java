@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.BestAthleteRankingService;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.category.UnfinishedCategories;
@@ -164,7 +166,11 @@ public class AthleteRepository {
 	 */
 	public static void delete(Athlete Athlete) {
 		JPAService.runInTransaction(em -> {
-			em.remove(getById(Athlete.getId(), em));
+			Athlete current = getById(Athlete.getId(), em);
+			var scopes = BestAthleteRankingService.scopes(current);
+			em.remove(current);
+			em.flush();
+			BestAthleteRankingService.recompute(em, scopes);
 			Competition.getCurrent().setRankingsInvalid(true);
 			return null;
 		});
@@ -475,6 +481,7 @@ public class AthleteRepository {
 			});
 		}
 		Championship.recomputeParticipantCounts();
+		BestAthleteRankingService.recomputeAll();
 	}
 
 	/**
@@ -489,11 +496,21 @@ public class AthleteRepository {
 		}
 		SaveResult result = JPAService.runInTransaction((em) -> {
 			Athlete persisted = getById(athlete.getId(), em);
-			AthleteDiff.Snapshot before = AthleteDiff.snapshot(persisted);
+			AthleteDiff.Snapshot beforeSnapshot = AthleteDiff.snapshot(persisted);
 			Competition.getCurrent().setRankingsInvalid(true);
+			var before = BestAthleteRankingService.inputs(persisted);
+			var after = BestAthleteRankingService.inputs(athlete);
+			Set<BestAthleteRankingService.Scope> scopes = new HashSet<>(after.scopes());
+			if (before != null) {
+				scopes.addAll(before.scopes());
+			}
+			BestAthleteRankingService.preserveRanks(persisted, athlete);
 			Athlete merged = em.merge(athlete);
 			em.flush();
-			List<Change> changes = AthleteDiff.diff(before, AthleteDiff.snapshot(merged));
+			if (!Objects.equals(before, after)) {
+				BestAthleteRankingService.recompute(em, scopes);
+			}
+			List<Change> changes = AthleteDiff.diff(beforeSnapshot, AthleteDiff.snapshot(merged));
 			return new SaveResult(merged, changes);
 		});
 		AthleteAudit.write(result.athlete(), result.changes());

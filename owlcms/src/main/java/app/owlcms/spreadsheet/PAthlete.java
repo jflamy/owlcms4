@@ -9,7 +9,6 @@ package app.owlcms.spreadsheet;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -51,8 +50,16 @@ public class PAthlete extends Athlete implements IRankHolder {
 	@JsonIgnore
 	private Participation originalParticipation;
 	private Participation p;
-	// Overall ranks computed for this report row; initialized lazily because Athlete's constructor may call setters.
-	private EnumMap<Ranking, Integer> rowOverallRanks;
+
+	/**
+	 * Copies the current participation ranks without changing the source athlete or participation.
+	 * Unlike the legacy Athlete constructor, this always owns a private participation copy.
+	 */
+	public static PAthlete copyForReporting(Athlete athlete) {
+		athlete.getCategory(); // Resolves the registration participation on a freshly loaded Athlete.
+		return new PAthlete(Objects.requireNonNull(athlete.getMainRankings(),
+		        "Reporting PAthlete requires a participation"));
+	}
 
 	public PAthlete(Athlete a2) {
 		this.a = a2;
@@ -229,23 +236,6 @@ public class PAthlete extends Athlete implements IRankHolder {
 		return this.a.getBestCleanJerkAttemptTime();
 	}
 
-	@Override
-	public int getBestLifterRank() {
-		if (!this.a.isEligibleForIndividualRanking()) {
-			return -1;
-		}
-		Ranking scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
-		if (scoringSystem == null) {
-			Category cat = this.p.getCategory();
-			if (cat != null && cat.getAgeGroup() != null) {
-				scoringSystem = cat.getAgeGroup().computedBestAthleteScoringSystem();
-			}
-		}
-		if (scoringSystem == null) {
-			scoringSystem = Championship.of(null).getBestAthleteScoringSystem();
-		}
-		return Ranking.getRanking(this, scoringSystem);
-	}
 
 	@Override
 	public Double getBestLifterScore() {
@@ -359,65 +349,15 @@ public class PAthlete extends Athlete implements IRankHolder {
 		return this.a.getCategorySinclair();
 	}
 
-	@Override
-	public int getCatSinclairRank() {
-		Integer rowRank = getRowOverallRank(Ranking.CAT_SINCLAIR);
-		return rowRank != null ? rowRank : this.a.getCatSinclairRank();
-	}
 
-	@Override
-	public Integer getCatQPointsRank() {
-		Integer rowRank = getRowOverallRank(Ranking.CAT_QPOINTS);
-		return rowRank != null ? rowRank : this.a.getCatQPointsRank();
-	}
 
-	@Override
-	public Integer getCatGAMXRank() {
-		Integer rowRank = getRowOverallRank(Ranking.CAT_GAMX);
-		return rowRank != null ? rowRank : this.a.getCatGAMXRank();
-	}
 
-	@Override
-	public Integer getGamxRank() {
-		Integer rowRank = getRowOverallRank(Ranking.GAMX);
-		return rowRank != null ? rowRank : this.a.getGamxRank();
-	}
 
-	@Override
-	public Integer getGamxMRank() {
-		Integer rowRank = getRowOverallRank(Ranking.GAMX_M);
-		return rowRank != null ? rowRank : this.a.getGamxMRank();
-	}
 
-	@Override
-	public Integer getGamxURank() {
-		Integer rowRank = getRowOverallRank(Ranking.GAMX_U);
-		return rowRank != null ? rowRank : this.a.getGamxURank();
-	}
 
-	@Override
-	public Integer getGamxARank() {
-		Integer rowRank = getRowOverallRank(Ranking.GAMX_A);
-		return rowRank != null ? rowRank : this.a.getGamxARank();
-	}
 
-	@Override
-	public Integer getqPointsRank() {
-		Integer rowRank = getRowOverallRank(Ranking.QPOINTS);
-		return rowRank != null ? rowRank : this.a.getqPointsRank();
-	}
 
-	@Override
-	public int getQMastersRank() {
-		Integer rowRank = getRowOverallRank(Ranking.QAGE);
-		return rowRank != null ? rowRank : this.a.getQMastersRank();
-	}
 
-	@Override
-	public Integer getQYouthRank() {
-		Integer rowRank = getRowOverallRank(Ranking.AGEFACTORS);
-		return rowRank != null ? rowRank : this.a.getQYouthRank();
-	}
 
 	@Override
 	public String getCleanJerk1ActualLift() {
@@ -850,9 +790,6 @@ public class PAthlete extends Athlete implements IRankHolder {
 	// }
 
 	// @Override
-	// public int getqAgeRank() {
-	// 	return this.a.getqAgeRank();
-	// }
 
 	@Override
 	public Integer getQualifyingTotal() {
@@ -884,11 +821,6 @@ public class PAthlete extends Athlete implements IRankHolder {
 		return robi;
 	}
 
-	@Override
-	public Integer getRobiRank() {
-		Integer rowRank = getRowOverallRank(Ranking.ROBI);
-		return rowRank != null ? rowRank : this.a.getRobiRank();
-	}
 
 	@Override
 	public String getRoundedBodyWeight() {
@@ -930,11 +862,6 @@ public class PAthlete extends Athlete implements IRankHolder {
 		return this.a.getSinclairForDelta();
 	}
 
-	@Override
-	public Integer getSinclairRank() {
-		Integer rowRank = getRowOverallRank(Ranking.BW_SINCLAIR);
-		return rowRank != null ? rowRank : this.a.getSinclairRank();
-	}
 
 	@Override
 	public Double getSmhf() {
@@ -946,11 +873,6 @@ public class PAthlete extends Athlete implements IRankHolder {
 		return this.a.getSmhfForDelta();
 	}
 
-	@Override
-	public int getSmhfRank() {
-		Integer rowRank = getRowOverallRank(Ranking.SMM);
-		return rowRank != null ? rowRank : this.a.getSmhfRank();
-	}
 
 	@Override
 	public String getSnatch1ActualLift() {
@@ -1230,60 +1152,16 @@ public class PAthlete extends Athlete implements IRankHolder {
 		this.a.setCategoryFinished(done);
 	}
 
-	@Override
-	public void setCatSinclairRank(int i) {
-		setRowOverallRank(Ranking.CAT_SINCLAIR, i);
-	}
 
-	@Override
-	public void setCatQPointsRank(int i) {
-		setRowOverallRank(Ranking.CAT_QPOINTS, i);
-	}
 
-	@Override
-	public void setCatQPointsRank(Integer catQPointsRank) {
-		setRowOverallRank(Ranking.CAT_QPOINTS, catQPointsRank);
-	}
 
-	@Override
-	public void setCatGAMXRank(Integer catGAMXRank) {
-		setRowOverallRank(Ranking.CAT_GAMX, catGAMXRank);
-	}
 
-	@Override
-	public void setGamxRank(Integer rank) {
-		setRowOverallRank(Ranking.GAMX, rank);
-	}
 
-	@Override
-	public void setGamxMRank(Integer rank) {
-		setRowOverallRank(Ranking.GAMX_M, rank);
-	}
 
-	@Override
-	public void setGamxURank(Integer rank) {
-		setRowOverallRank(Ranking.GAMX_U, rank);
-	}
 
-	@Override
-	public void setGamxARank(Integer rank) {
-		setRowOverallRank(Ranking.GAMX_A, rank);
-	}
 
-	@Override
-	public void setQMastersRank(int qAgeRank2) {
-		setRowOverallRank(Ranking.QAGE, qAgeRank2);
-	}
 
-	@Override
-	public void setqPointsRank(Integer qPointsRank) {
-		setRowOverallRank(Ranking.QPOINTS, qPointsRank);
-	}
 
-	@Override
-	public void setQYouthRank(Integer ageAdjustedTotalRank) {
-		setRowOverallRank(Ranking.AGEFACTORS, ageAdjustedTotalRank);
-	}
 
 	@Override
 	public void setCoach(String coach) {
@@ -1315,30 +1193,14 @@ public class PAthlete extends Athlete implements IRankHolder {
 		this.a.setPersonalBestTotal(personalBestTotal);
 	}
 
-	@Override
-	public void setqAgeRank(int i) {
-		this.a.setqAgeRank(i);
-	}
 
-	@Override
-	public void setRobiRank(Integer robiRank) {
-		setRowOverallRank(Ranking.ROBI, robiRank);
-	}
 
 	@Override
 	public void setSessionPattern(String ignored) {
 		this.a.setSessionPattern(ignored);
 	}
 
-	@Override
-	public void setSinclairRank(Integer sinclairRank) {
-		setRowOverallRank(Ranking.BW_SINCLAIR, sinclairRank);
-	}
 
-	@Override
-	public void setSmhfRank(int i) {
-		setRowOverallRank(Ranking.SMM, i);
-	}
 
 	@Override
 	public void setTeamCleanJerkRank(Integer teamCJRank) {
@@ -1396,14 +1258,5 @@ public class PAthlete extends Athlete implements IRankHolder {
 		this.a.setFederationCodes(federationCodes);
 	}
 
-	private Integer getRowOverallRank(Ranking ranking) {
-		return this.rowOverallRanks != null ? this.rowOverallRanks.get(ranking) : null;
-	}
 
-	private void setRowOverallRank(Ranking ranking, Integer rank) {
-		if (this.rowOverallRanks == null) {
-			this.rowOverallRanks = new EnumMap<>(Ranking.class);
-		}
-		this.rowOverallRanks.put(ranking, rank);
-	}
 }

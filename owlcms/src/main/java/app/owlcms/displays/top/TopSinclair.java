@@ -29,6 +29,7 @@ import tools.jackson.databind.node.BaseJsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
@@ -84,7 +85,6 @@ public class TopSinclair extends AbstractTop {
        private boolean displayLifts;
 	private int nbAthletes = 10;
 	private Gender gender = null; // default to no filtering
-	private boolean useFilteredResults = false;
 
 
        public int getNbAthletes() {
@@ -103,9 +103,6 @@ public class TopSinclair extends AbstractTop {
 	       this.gender = gender;
        }
 
-       public void setUseFilteredResults(boolean useFilteredResults) {
-	       this.useFilteredResults = useFilteredResults;
-       }
 
        public TopSinclair() {
 	       uiEventLogger.setLevel(Level.INFO);
@@ -128,12 +125,6 @@ public class TopSinclair extends AbstractTop {
 	}
 
        public void doUpdate(Competition competition) {
-	       // If using filtered results, don't update with global rankings
-	       if (useFilteredResults) {
-		       logger.debug("Skipping global ranking update because filtered results are active");
-		       return;
-	       }
-
 	       FieldOfPlay fop = getFop();
 	       if (fop != null) {
 		       setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
@@ -142,13 +133,16 @@ public class TopSinclair extends AbstractTop {
 	       // create copies because we want to change the list
 	       AthleteSorter.TopScore topScores;
 	       this.scoringSystem = getEffectiveScoringSystem();
-	       List<Athlete> sortedMen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.M));
+	       List<PAthlete> ranked = AthleteSorter.bestAthleteOrderCopy(
+	               AgeGroupRepository.allWeighedInPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(), getChampionship())
+	                       .stream().filter(a -> a.getGroup() != null).toList(), this.scoringSystem);
+	       List<Athlete> sortedMen2 = new ArrayList<>(ranked.stream().filter(a -> a.getGender() == Gender.M).toList());
 	       int limitMen = Math.min(nbAthletes, sortedMen2.size());
 	       topScores = (AthleteSorter.topScore(sortedMen2, limitMen, this.scoringSystem));
 	       setSortedMen(topScores.topAthletes);
 	       this.topManScore = topScores.best;
 
-	       List<Athlete> sortedWomen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.F));
+	       List<Athlete> sortedWomen2 = new ArrayList<>(ranked.stream().filter(a -> a.getGender() == Gender.F).toList());
 	       int limitWomen = Math.min(nbAthletes, sortedWomen2.size());
 	       topScores = (AthleteSorter.topScore(sortedWomen2, limitWomen, this.scoringSystem));
 	       setSortedWomen(topScores.topAthletes);

@@ -76,89 +76,19 @@ public enum Ranking {
 		}
 	}
 
-	public static int getRanking(Athlete curLifter, Ranking rankingType) {
-		Integer value = null;
-		if (rankingType == null) {
+	public static int getRanking(Athlete athlete, Ranking rankingType) {
+		if (rankingType == null || shouldHideIncompletePublishedScore(athlete, rankingType)) {
 			return 0;
 		}
-		if (!RankingConfig.shouldCompute(rankingType)) {
-			return 0;
-		}
-		if (shouldHideIncompletePublishedScore(curLifter, rankingType)) {
-			return 0;
-		}
-		switch (rankingType) {
-			case SNATCH:
-				value = curLifter.getSnatchRank();
-				break;
-			case CLEANJERK:
-				value = curLifter.getCleanJerkRank();
-				break;
-			case TOTAL:
-				value = curLifter.getTotalRank();
-				break;
-			case ROBI:
-				value = curLifter.getRobiRank();
-				break;
-			case CUSTOM:
-				value = curLifter.getCustomRank();
-				break;
-			case SNATCH_CJ_TOTAL:
-				value = 0; // no such thing
-				break;
-			case BW_SINCLAIR:
-				value = curLifter.getSinclairRank();
-				break;
-			case CAT_SINCLAIR:
-				value = curLifter.getCatSinclairRank();
-				break;
-			case CAT_QPOINTS:
-				value = curLifter.getCatQPointsRank();
-				break;
-			case CAT_GAMX:
-				value = curLifter.getCatGAMXRank();
-				break;
-			case SMM:
-				value = curLifter.getSmhfRank();
-				break;
-			case GAMX:
-				value = curLifter.getGamxRank();
-				break;
-			case GAMX_M:
-				value = curLifter.getGamxMRank();
-				break;
-			case GAMX_MS:
-				value = curLifter.getGamxMSRank();
-				break;
-			case GAMX_MC:
-				value = curLifter.getGamxMCRank();
-				break;
-			case GAMX_U:
-				value = curLifter.getGamxURank();
-				break;
-			case GAMX_A:
-				value = curLifter.getGamxARank();
-				break;
-			case GAMX_S:
-				value = curLifter.getGamxSRank();
-				break;
-			case GAMX_C:
-				value = curLifter.getGamxCRank();
-				break;
-			case QPOINTS:
-				value = curLifter.getqPointsRank();
-				break;
-			case QAGE:
-				value = curLifter.getQMastersRank();
-				break;
-			case AGEFACTORS:
-				value = curLifter.getQYouthRank();
-				break;
-			case CATEGORY_SCORE:
-				value = curLifter.getCategoryScoreRank();
-				break;
-		}
-		return value == null ? 0 : value;
+		return switch (rankingType) {
+			case SNATCH -> athlete.getSnatchRank();
+			case CLEANJERK -> athlete.getCleanJerkRank();
+			case TOTAL -> athlete.getTotalRank();
+			case CUSTOM -> athlete.getCustomRank();
+			case CATEGORY_SCORE -> athlete.getCategoryScoreRank();
+			case SNATCH_CJ_TOTAL -> 0;
+			default -> athlete.getBestAthleteRank();
+		};
 	}
 
 	private static boolean shouldHideIncompletePublishedScore(Athlete curLifter, Ranking rankingType) {
@@ -180,9 +110,6 @@ public enum Ranking {
 
 	public static double getRankingValueForDelta(Athlete curLifter, Ranking rankingType) {
 		if (rankingType == null) {
-			return 0D;
-		}
-		if (!RankingConfig.shouldCompute(rankingType)) {
 			return 0D;
 		}
 		Double d = 0D;
@@ -271,9 +198,6 @@ public enum Ranking {
 	 */
 	public static double getRankingValue(Athlete curLifter, Ranking rankingType) {
 		if (rankingType == null) {
-			return 0D;
-		}
-		if (!RankingConfig.shouldCompute(rankingType)) {
 			return 0D;
 		}
 		Ranking originalRankingType = rankingType;

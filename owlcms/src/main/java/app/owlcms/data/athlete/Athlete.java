@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -277,20 +278,20 @@ public class Athlete {
 			if (copyResults) {
 				// Category-specific results are in the participation objects
 				// Category-independent scores are here
-				dest.setSinclairRank(src.getSinclairRank());
-				dest.setqPointsRank(src.getqPointsRank());
-				dest.setqAgeRank(src.getqAgeRank());
-				dest.setSmhfRank(src.getSmhfRank());
+
+
+
+
 				dest.setTeamSinclairRank(src.getTeamSinclairRank());
-				dest.setCatSinclairRank(src.getCatSinclairRank());
-				dest.setCatQPointsRank(src.getCatQPointsRank());
-				dest.setCatGAMXRank(src.getCatGAMXRank());
-				dest.setGamxRank(src.getGamxRank());
-				dest.setGamxMRank(src.getGamxMRank());
-				dest.setGamxURank(src.getGamxURank());
-				dest.setGamxARank(src.getGamxARank());
-				dest.setRobiRank(src.getRobiRank());
-				dest.setAgeAdjustedTotalRank(src.getAgeAdjustedTotalRank());
+
+
+
+
+
+
+
+
+
 			}
 		} catch (Exception e) {
 			LoggerUtils.logError((Logger) LoggerFactory.getLogger(Athlete.class), e);
@@ -383,6 +384,8 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	Integer liftOrderRank = 0;
+	@Deprecated
+	@JsonIgnore
 	private Integer ageAdjustedTotalRank;
 	private Double bodyWeight = null;
 	private Double scaleWeight = null;
@@ -408,6 +411,8 @@ public class Athlete {
 	@JsonIgnore
 	@Column(columnDefinition = "boolean default false")
 	private Boolean categoryFinished = false;
+	@Deprecated
+	@JsonIgnore
 	@Column(columnDefinition = "integer default 0")
 	private int catSinclairRank;
 	@Transient
@@ -463,12 +468,20 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	private boolean isoBirthDateImported;
+	@Deprecated
+	@JsonIgnore
 	@Column(columnDefinition = "integer default 0", name = "gmaxRank")
 	private Integer gamxRank;
+	@Deprecated
+	@JsonIgnore
 	@Column(columnDefinition = "integer default 0", name = "gamxMRank")
 	private Integer gamxMRank;
+	@Deprecated
+	@JsonIgnore
 	@Column(columnDefinition = "integer default 0", name = "gamxURank")
 	private Integer gamxURank;
+	@Deprecated
+	@JsonIgnore
 	@Column(columnDefinition = "integer default 0", name = "gamxARank")
 	private Integer gamxARank;
 	private Gender gender = null; // $NON-NLS-1$
@@ -495,21 +508,30 @@ public class Athlete {
 	 * body weight inferred from category, used until real bodyweight is known.
 	 */
 	private Double presumedBodyWeight;
+	@Deprecated
 	@JsonIgnore
 	@Column(columnDefinition = "integer default 0")
 	private int qAgeRank;
+	@Deprecated
 	@JsonIgnore
 	@Column(columnDefinition = "integer default 0")
 	private Integer qPointsRank;
+	@Deprecated
+	@JsonIgnore
 	@Column(columnDefinition = "integer default 0")
 	private Integer catQPointsRank;
+	@Deprecated
+	@JsonIgnore
 	@Column(columnDefinition = "integer default 0")
 	private Integer catGAMXRank;
 	private Integer qualifyingTotal = 0;
+	@Deprecated
 	@JsonIgnore
 	private Integer robiRank;
+	@Deprecated
 	@JsonIgnore
 	private Integer sinclairRank;
+	@Deprecated
 	@JsonIgnore
 	@Column(name = "smmRank", columnDefinition = "integer default 0")
 	private int smhfRank;
@@ -1266,16 +1288,18 @@ public class Athlete {
 		return date.getYear() - fullBirthDate2.getYear();
 	}
 
-	@JsonIgnore
+	/** @deprecated Use getBestAthleteRank(). */
 	@Deprecated
-	// keep backward compatibility with older databases
+	@JsonIgnore
 	public Integer getAgeAdjustedTotalRank() {
-		return this.ageAdjustedTotalRank;
+		return getBestAthleteRank();
 	}
 
+	/** @deprecated Use getBestAthleteRank(). */
+	@Deprecated
 	@JsonIgnore
 	public Integer getQYouthRank() {
-		return this.getAgeAdjustedTotalRank();
+		return getBestAthleteRank();
 	}
 
 	/**
@@ -1488,18 +1512,24 @@ public class Athlete {
 	}
 
 	@JsonIgnore
+	public int getBestAthleteRank() {
+		getCategory(); // Resolves mainRankings lazily on athletes loaded from the database.
+		Participation participation = getMainRankings();
+		return participation != null ? participation.getBestAthleteRank() : 0;
+	}
+
+	public void setBestAthleteRank(int rank) {
+		getCategory();
+		Objects.requireNonNull(getMainRankings(), "Best-athlete rank requires a participation")
+		        .setBestAthleteRank(rank);
+	}
+
+	@JsonIgnore
 	public int getBestLifterRank() {
 		if (!isEligibleForIndividualRanking()) {
 			return -1;
 		}
-		// if we are invoked from a printing thread, the value will be defined.
-		Ranking scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
-		if (scoringSystem == null) {
-			AgeGroup ageGroup = getAgeGroup();
-			scoringSystem = ageGroup != null ? ageGroup.computedBestAthleteScoringSystem()
-					: Championship.of(null).getBestAthleteScoringSystem();
-		}
-		return Ranking.getRanking(this, scoringSystem);
+		return JXLSWorkbookStreamSource.isNoInterimScoresInResults() && !isDone() ? 0 : getBestAthleteRank();
 	}
 
 	@JsonIgnore
@@ -1732,8 +1762,11 @@ public class Athlete {
 		}
 	}
 
+	/** @deprecated Use getBestAthleteRank(). */
+	@Deprecated
+	@JsonIgnore
 	public int getCatSinclairRank() {
-		return this.catSinclairRank;
+		return getBestAthleteRank();
 	}
 
 	/**
@@ -2362,9 +2395,11 @@ public class Athlete {
 		return getTotal() > 0 ? getGamxForDelta() : 0.0D;
 	}
 
+	/** @deprecated Use getBestAthleteRank(). */
+	@Deprecated
 	@JsonIgnore
 	public Integer getGamxRank() {
-		return this.gamxRank;
+		return getBestAthleteRank();
 	}
 
 	@JsonIgnore
@@ -2375,9 +2410,11 @@ public class Athlete {
 		return getTotal() > 0 ? getGamxMForDelta() : 0.0D;
 	}
 
+	/** @deprecated Use getBestAthleteRank(). */
+	@Deprecated
 	@JsonIgnore
 	public Integer getGamxMRank() {
-		return this.gamxMRank;
+		return getBestAthleteRank();
 	}
 
 	@JsonIgnore
@@ -2385,9 +2422,11 @@ public class Athlete {
 		return 0.0D;
 	}
 
+	/** @deprecated Use getBestAthleteRank(). */
+	@Deprecated
 	@JsonIgnore
 	public Integer getGamxMSRank() {
-		return 0;
+		return getBestAthleteRank();
 	}
 
 	@JsonIgnore
@@ -2395,9 +2434,11 @@ public class Athlete {
 		return 0.0D;
 	}
 
+	/** @deprecated Use getBestAthleteRank(). */
+	@Deprecated
 	@JsonIgnore
 	public Integer getGamxMCRank() {
-		return 0;
+		return getBestAthleteRank();
 	}
 
 	@JsonIgnore
@@ -2408,9 +2449,11 @@ public class Athlete {
 		return getTotal() > 0 ? getGamxUForDelta() : 0.0D;
 	}
 
+	/** @deprecated Use getBestAthleteRank(). */
+	@Deprecated
 	@JsonIgnore
 	public Integer getGamxURank() {
-		return this.gamxURank;
+		return getBestAthleteRank();
 	}
 
 	@JsonIgnore
@@ -2421,9 +2464,11 @@ public class Athlete {
 		return getTotal() > 0 ? getGamxAForDelta() : 0.0D;
 	}
 
+	/** @deprecated Use getBestAthleteRank(). */
+	@Deprecated
 	@JsonIgnore
 	public Integer getGamxARank() {
-		return this.gamxARank;
+		return getBestAthleteRank();
 	}
 
 	@JsonIgnore
@@ -2431,9 +2476,11 @@ public class Athlete {
 		return 0.0D;
 	}
 
+	/** @deprecated Use getBestAthleteRank(). */
+	@Deprecated
 	@JsonIgnore
 	public Integer getGamxSRank() {
-		return 0;
+		return getBestAthleteRank();
 	}
 
 	@JsonIgnore
@@ -2441,9 +2488,11 @@ public class Athlete {
 		return 0.0D;
 	}
 
+	/** @deprecated Use getBestAthleteRank(). */
+	@Deprecated
 	@JsonIgnore
 	public Integer getGamxCRank() {
-		return 0;
+		return getBestAthleteRank();
 	}
 
 	@JsonIgnore
@@ -2945,14 +2994,18 @@ public class Athlete {
 		return doGetProgression(requestedWeight, attempt);
 	}
 
+	/** @deprecated Use getBestAthleteRank(). */
 	@Deprecated
+	@JsonIgnore
 	public int getqAgeRank() {
-		return this.qAgeRank;
+		return getBestAthleteRank();
 	}
 
+	/** @deprecated Use getBestAthleteRank(). */
+	@Deprecated
 	@JsonIgnore
 	public int getQMastersRank() {
-		return getqAgeRank();
+		return getBestAthleteRank();
 	}
 
 	@JsonIgnore
@@ -2996,8 +3049,11 @@ public class Athlete {
 		return getqPointsForDelta();
 	}
 
+	/** @deprecated Use getBestAthleteRank(). */
+	@Deprecated
+	@JsonIgnore
 	public Integer getqPointsRank() {
-		return this.qPointsRank;
+		return getBestAthleteRank();
 	}
 
 	/**
@@ -3098,8 +3154,11 @@ public class Athlete {
 	 *
 	 * @return the robi rank
 	 */
+	/** @deprecated Use getBestAthleteRank(). */
+	@Deprecated
+	@JsonIgnore
 	public Integer getRobiRank() {
-		return this.robiRank;
+		return getBestAthleteRank();
 	}
 
 	@JsonIgnore
@@ -3226,8 +3285,11 @@ public class Athlete {
 	 *
 	 * @return the sinclair rank
 	 */
+	/** @deprecated Use getBestAthleteRank(). */
+	@Deprecated
+	@JsonIgnore
 	public Integer getSinclairRank() {
-		return this.sinclairRank;
+		return getBestAthleteRank();
 	}
 
 	/**
@@ -3264,9 +3326,11 @@ public class Athlete {
 		return d;
 	}
 
+	/** @deprecated Use getBestAthleteRank(). */
+	@Deprecated
 	@JsonIgnore
 	public int getSmhfRank() {
-		return this.smhfRank;
+		return getBestAthleteRank();
 	}
 
 	@JsonIgnore
@@ -3274,9 +3338,11 @@ public class Athlete {
 		return getSmhf();
 	}
 
+	/** @deprecated Use getBestAthleteRank(). */
+	@Deprecated
 	@JsonIgnore
 	public int getSmmRank() {
-		return getSmhfRank();
+		return getBestAthleteRank();
 	}
 
 	/**
@@ -4002,17 +4068,7 @@ public class Athlete {
 		setForcedAsCurrent(false);
 	}
 
-	@JsonIgnore
-	public void setQYouthRank(Integer ageAdjustedTotalRank) {
-		setAgeAdjustedTotalRank(ageAdjustedTotalRank);
-	}
 
-	@Deprecated
-	public void setAgeAdjustedTotalRank(Integer ageAdjustedTotalRank) {
-		// logger.debug("setAgeAdjustedTotalRank {} {}", ageAdjustedTotalRank,
-		// this.getFullName());
-		this.ageAdjustedTotalRank = ageAdjustedTotalRank;
-	}
 
 	@JsonIgnore
 	public void setAgeGroupTeams(Set<String> s) {
@@ -4120,13 +4176,7 @@ public class Athlete {
 		// ignored. computed property. setter needed for beans introspection.
 	}
 
-	public void setCatSinclairRank(int i) {
-		this.catSinclairRank = i;
-	}
 
-	public void setCatQPointsRank(int i) {
-		this.catQPointsRank = i;
-	}
 
 	public void setCheckTiming(boolean checkTiming) {
 		// logger.debug("setting timing check {}, {}", checkTiming,
@@ -4654,21 +4704,9 @@ public class Athlete {
 		setIsoBirthDate(isoBirthDate);
 	}
 
-	public void setGamxRank(Integer rank) {
-		this.gamxRank = rank;
-	}
 
-	public void setGamxMRank(Integer rank) {
-		this.gamxMRank = rank;
-	}
 
-	public void setGamxURank(Integer rank) {
-		this.gamxURank = rank;
-	}
 
-	public void setGamxARank(Integer rank) {
-		this.gamxARank = rank;
-	}
 
 	/**
 	 * Sets the gender.
@@ -4791,19 +4829,8 @@ public class Athlete {
 		this.category = category;
 	}
 
-	@Deprecated
-	public void setqAgeRank(int qAgeRank2) {
-		this.qAgeRank = qAgeRank2;
-	}
 
-	@JsonIgnore
-	public void setQMastersRank(int qAgeRank2) {
-		setqAgeRank(qAgeRank2);
-	}
 
-	public void setqPointsRank(Integer qPointsRank) {
-		this.qPointsRank = qPointsRank;
-	}
 
 	/**
 	 * Sets the qualifying total.
@@ -4829,9 +4856,6 @@ public class Athlete {
 	 *
 	 * @param robiRank the new robi rank
 	 */
-	public void setRobiRank(Integer robiRank) {
-		this.robiRank = robiRank;
-	}
 
 	public void setSessionPattern(String ignored) {
 
@@ -4842,13 +4866,7 @@ public class Athlete {
 	 *
 	 * @param sinclairRank the new sinclair rank
 	 */
-	public void setSinclairRank(Integer sinclairRank) {
-		this.sinclairRank = sinclairRank;
-	}
 
-	public void setSmhfRank(int i) {
-		this.smhfRank = i;
-	}
 
 	/**
 	 * Sets the snatch 1 actual lift.
@@ -6880,21 +6898,21 @@ public class Athlete {
 		return collect;
 	}
 
+	/** @deprecated Use getBestAthleteRank(). */
+	@Deprecated
+	@JsonIgnore
 	public Integer getCatQPointsRank() {
-		return catQPointsRank;
+		return getBestAthleteRank();
 	}
 
-	public void setCatQPointsRank(Integer catQPointsRank) {
-		this.catQPointsRank = catQPointsRank;
-	}
 
+	/** @deprecated Use getBestAthleteRank(). */
+	@Deprecated
+	@JsonIgnore
 	public Integer getCatGAMXRank() {
-		return catGAMXRank;
+		return getBestAthleteRank();
 	}
 
-	public void setCatGAMXRank(Integer catGAMXRank) {
-		this.catGAMXRank = catGAMXRank;
-	}
 
 	@JsonIgnore
 	public LocalDateTime getLiftTime(int i) {

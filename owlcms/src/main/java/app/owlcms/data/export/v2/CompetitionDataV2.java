@@ -433,6 +433,7 @@ public class CompetitionDataV2 {
 		ChampionshipRepository.reconcileImportedAgeGroups();
 		Championship.reset();
 		Championship.recomputeParticipantCounts();
+		Competition.recomputeAllAthleteRanks();
 		
 		RecordConfig current = RecordConfig.getCurrent();
 		current.addMissing(RecordRepository.findAllRecordNames());
