@@ -10,6 +10,18 @@
 
 **Maintenance Log**
 
+- 68.0.0-rc11: Fixes for scoreboards
+  - Handle values and ranks correctly when a single session includes both score-based and total-based categories
+  - Reinstated the `displayBodyWeight` feature toggle as a first class citizen (no longer shares the custom1 column)
+
+- 68.0.0-rc11: Finish the transition to championships as source of truth for best athlete.
+  - There is one best athlete scheme per championship.
+  - For a given championship the mBest and wBest categories are computed.  The old globally computed collections have been dropped.
+  - It is still possible to switch the best athlete scheme when producing reports for comparison purposes -- this does not change the ranking scheme officially defined for the championship
+  - Templates can get all the individual scores e.g.
+  - The current best athlete score and rank for a given athlete are `${a.bestAthleteScore}` and `${bestAthleteRank}`
+  - A template can still get any computed score e.g.,`${a.gamx}` independently of the current best athlete score.  But only the currently selected scheme rank.
+
 - 68.0.0-rc10: The `alwaysUseLiftingOrderTieBreaks` feature switch lets concurrent A/B/C sessions use category-wide lifting-order tie breaks. For equal totals, session and lift times are ignored; lot number replaces start number as the final tie breaker.
 
 - 68.0.0-rc10: IMWA team results exclude athletes who did not weigh in from category athlete counts.
