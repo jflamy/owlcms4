@@ -291,14 +291,10 @@ table.results.nosinclair {
     --sinclairVisibility: hidden;
     --sinclairVspacerWidth: 0;
     --sinclairVspacerVisibility: hidden;
-    --sinclairRankWidth: 0;
-    --sinclairRankVisibility: hidden;
 }
 
 table.results.nosinclair th.sinclair,
 table.results.nosinclair td.sinclair,
-table.results.nosinclair th.sinclairRank,
-table.results.nosinclair td.sinclairRank,
 table.results.nosinclair th.sinclairVspacer,
 table.results.nosinclair td.sinclairVspacer {
     visibility: hidden !important;

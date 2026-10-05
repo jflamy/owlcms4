@@ -189,8 +189,11 @@ class ResultsStartList extends LitElement {
       video: {},
       showLiftRanks: {type: Boolean},
       showBest: {type: Boolean},
+      showMedalScore: {type: Boolean},
+      medalScoringName: {},
+      scoringName: {},
       showSinclair: {type: Boolean},
-      showSinclairRanks: {type: Boolean},
+      showSinclairRank: {type: Boolean},
       showCustom1: {type: Boolean},
       showLeaders: {type: Boolean},
       showRecords: {type: Boolean},
@@ -412,8 +415,9 @@ class ResultsStartList extends LitElement {
     + (this.showTotal ? " total" : " nototal")
     + (this.showLiftRanks ? " ranks" : " noranks")
     + (this.showBest ? " best" : " nobest")
-    + (this.showTotalRank ? " totalRank" : " nototalRank")
+    + " totalRank"
     + (this.showCustom1 ? " custom1" : " nocustom1")
+    + (this.showMedalScore ? " medalScore" : " nomedalScore")
     + (this.showSinclair ? " sinclair" : " nosinclair")
     + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")
     ;

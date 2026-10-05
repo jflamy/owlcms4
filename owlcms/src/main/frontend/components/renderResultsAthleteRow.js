@@ -59,13 +59,14 @@ export function renderResultsAthleteRow(item) {
       <td class="total">
         <div>${item?.total}</div>
       </td>
-      <td class="${"totalRank " + (item?.totalMedal ?? "")}">
-        <div .innerHTML="${item?.totalRank}"></div>
+      <td class="medalScore"><div>${item?.medalScore}</div></td>
+      <td class="${"totalRank " + (item?.medalHighlight ?? "")}">
+        <div .innerHTML="${item?.medalRank}"></div>
       </td>
       <td class="sinclair">
         <div>${item?.sinclair}</div>
       </td>
-      <td class="${"sinclairRank " + (item?.sinclairMedal ?? "")}">
+      <td class="sinclairRank">
         <div>${item?.sinclairRank}</div>
       </td>
     </tr>

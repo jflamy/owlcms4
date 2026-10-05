@@ -141,6 +141,8 @@ table.results {
     /* do not use rankWidth since we set it to 0 */
     --totalRankWidth: var(--liftResultWidth);
     --totalRankVisibility: visible;
+    --medalScoreWidth: 0;
+    --medalScoreVisibility: hidden;
     --sinclairWidth: 0;
     --sinclairVisibility: hidden;
     --sinclairRankWidth: 0;
@@ -182,12 +184,12 @@ table.results.sinclair {
     --sinclairVisibility: visible;
 }
 
-table.results.sinclair.sinclairRank {
+table.results.sinclairRank {
     --sinclairRankWidth: var(--liftResultWidth);
     --sinclairRankVisibility: visible;
 }
 
-table.results.sinclair.nosinclairRank {
+table.results.nosinclairRank {
     --sinclairRankWidth: 0;
     --sinclairRankVisibility: hidden;
 }
@@ -514,6 +516,7 @@ table {
         /* total */
         var(--spacerWidth)
         var(--totalWidth)
+        var(--medalScoreWidth)
         /* one total rank per category */
         repeat(var(--nbRanks), var(--totalRankWidth))
         /* sinclair result */
@@ -1209,4 +1212,30 @@ div.ellipsis {
     justify-content: center;
     align-items: center;
     white-space: nowrap;
+}
+
+/* The medal score is independent of the championship best-athlete score. */
+table.results.medalScore {
+    --medalScoreWidth: min-content;
+    --medalScoreVisibility: visible;
+}
+:host table.results tr td.medalScore,
+:host table.results tr th.medalScore {
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
+    visibility: var(--medalScoreVisibility);
+    min-width: var(--medalScoreWidth);
+}
+table.results.nomedalScore td.medalScore,
+table.results.nomedalScore th.medalScore {
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Cell-level customization defaults must not reveal disabled lift-rank columns. */
+:host table.results.noranks tr td.rank,
+:host table.results.noranks tr th.rank {
+    visibility: hidden;
+    padding: 0;
+    overflow: hidden;
 }

@@ -340,6 +340,7 @@ public class CurrentAthlete extends Results {
 		ja.put("snatchRank", formatInt(a.getMainRankings().getSnatchRank()));
 		ja.put("cleanJerkRank", formatInt(a.getMainRankings().getCleanJerkRank()));
 		ja.put("totalRank", formatInt(a.getMainRankings().getTotalRank()));
+		putRankData(a, ja, false);
 		ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
 		// boolean notDone = a.getAttemptsDone() < 6;
 		// String blink = (notDone ? " blink" : "");

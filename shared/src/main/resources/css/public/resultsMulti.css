@@ -45,6 +45,7 @@ table {
         /* total */
         var(--spacerWidth)
         var(--totalWidth)
+        var(--medalScoreWidth)
         /* one total rank per category */
         repeat(var(--nbRanks), var(--totalRankWidth))
         /* sinclair result - EXTRA SPACER FOR MULTI-CATEGORY */

@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +36,6 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
-import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.MedalCategoryComparator;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
@@ -200,15 +198,12 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 					        || (selectedChampionship != null
 					                && !selectedChampionship.equals(category.getAgeGroup().getChampionship()));
 				});
-				boolean liftRanks = Championship.anyMultiMedal(selectedMedals.values().stream()
-				        .flatMap(List::stream).map(athlete -> athlete.getCategory().getAgeGroup().getChampionship())
-				        .collect(Collectors.toSet()));
 				displayUi.access(() -> {
 					if (!isAttached() || request != this.medalRequest || scope != medalCeremony()) {
 						return;
 					}
 					setDisplay();
-					this.getElement().setProperty("showLiftRanks", liftRanks);
+					this.getElement().setProperty("showLiftRanks", true);
 					this.getElement().setProperty("platformName",
 					        fop2 != null ? CSSUtils.sanitizeCSSClassName(fop2.getName()) : "");
 					computeMedalsJson(selectedMedals);
@@ -229,9 +224,14 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	}
 
 	public void setScoreRanks(boolean scoreNeeded) {
-		this.getElement().setProperty("showSinclair", scoreNeeded);
-		this.getElement().setProperty("showSinclairRank", scoreNeeded);
+		getElement().setProperty("showMedalScore", scoreNeeded);
+		Config config = Config.getCurrent();
+		getElement().setProperty("showSinclair", config.featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE));
+		getElement().setProperty("showSinclairRank", config.featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE_RANK)
+		        && !config.featureSwitch(FeatureSwitch.NO_BEST_SCORE_RANK)
+		        && !config.featureSwitch(FeatureSwitch.NO_SINCLAIR_RANK));
 	}
+
 
 	@Override
 	public void setSilenced(boolean silent) {
@@ -244,18 +244,13 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			logger.error("category without ageGroup: {}", cat);
 		}
 		Ranking scoringSystem = ageGroup2 != null ? ageGroup2.getComputedScoringSystem() : null;
-		String rankingTitle = Translator.translate("Scoreboard.Rank");
-		if (scoringSystem != null && scoringSystem != Ranking.TOTAL) {
-			String scoreScoringTitle = Translator.translate("Score");
-			scoreScoringTitle = Ranking.getScoringTitle(scoringSystem);
-			jMC.put("rankingTitle", "");
-			jMC.put("scoreScoringTitle", scoreScoringTitle);
-			jMC.put("scoreRankingTitle", rankingTitle);
-		} else {
-			jMC.put("rankingTitle", rankingTitle);
-			jMC.put("scoreScoringTitle", "");
-			jMC.put("scoreRankingTitle", "");
-		}
+
+		jMC.put("rankingTitle", Translator.translate("Scoreboard.Rank"));
+		jMC.put("medalScoringTitle", scoringSystem != Ranking.TOTAL ? Ranking.getScoringTitle(scoringSystem) : "");
+		jMC.put("scoreScoringTitle", ageGroup2 != null
+		        ? Ranking.getScoringTitle(ageGroup2.getChampionship().getBestAthleteScoringSystem())
+		        : Translator.translate("Score"));
+		jMC.put("scoreRankingTitle", Translator.translate("Scoreboard.Rank"));
 	}
 
 	@Subscribe
@@ -449,46 +444,21 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		if (mainRankings != null) {
 			boolean liftMedals = awardsLiftMedals(a);
 			int snatchRank = mainRankings.getSnatchRank();
-			if (a.getComputedScoringSystem() == Ranking.TOTAL) {
-				ja.put("snatchRank", formatRank(snatchRank));
-				ja.put("snatchMedal", liftMedals && snatchRank >= 1 && snatchRank <= 3 ? "medal" + snatchRank : "");
-			} else {
-				ja.put("snatchRank", "");
-				ja.put("snatchMedal", "");
-			}
+			ja.put("snatchRank", formatRank(snatchRank));
+			ja.put("snatchMedal", liftMedals && snatchRank >= 1 && snatchRank <= 3 ? "medal" + snatchRank : "");
 
 			int cleanJerkRank = mainRankings.getCleanJerkRank();
-			if (a.getComputedScoringSystem() == Ranking.TOTAL) {
-				ja.put("cleanJerkRank", formatRank(cleanJerkRank));
-				ja.put("cleanJerkMedal", liftMedals && cleanJerkRank >= 1 && cleanJerkRank <= 3 ? "medal" + cleanJerkRank : "");
-			} else {
-				ja.put("cleanJerkRank", "");
-				ja.put("cleanJerkMedal", "");
-			}
+			ja.put("cleanJerkRank", formatRank(cleanJerkRank));
+			ja.put("cleanJerkMedal", liftMedals && cleanJerkRank >= 1 && cleanJerkRank <= 3 ? "medal" + cleanJerkRank : "");
 
-			int totalRank = mainRankings.getTotalRank();
-			if (a.getComputedScoringSystem() == Ranking.TOTAL) {
-				ja.put("totalRank", formatRank(totalRank));
-				ja.put("totalMedal", a.getMedalPolicy().includesTotal() && AthleteSorter.isMedalist(a, Ranking.TOTAL)
-				        ? "medal" + totalRank : "");
-			} else {
-				ja.put("totalRank", "");
-				ja.put("totalMedal", "");
-			}
+			ja.put("totalRank", formatRank(mainRankings.getTotalRank()));
 		} else {
 			this.logger.error("main rankings null for {}", a);
 		}
 		ja.put("group", a.getGroup().getName());
 		ja.put("subCategory", a.getSubCategory());
 
-		if (a.getComputedScoringSystem() != Ranking.TOTAL) {
-			ja.put("sinclair", computedScore(a));
-			if (mainRankings != null) {
-				int computedScoreRank = mainRankings.getCategoryScoreRank();
-				ja.put("sinclairRank", computedScoreRank);
-				ja.put("sinclairMedal", AthleteSorter.isMedalist(a, Ranking.CATEGORY_SCORE) ? "medal" + computedScoreRank : "");
-			}
-		}
+		putRankData(a, ja, true);
 
 		ja.put("custom1", getCustom1Value(a));
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
@@ -584,6 +554,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		ArrayNode jsonMCArray = JsonUtils.array();
 		ObjectNode jMC = JsonUtils.object();
 		int mcX = 0;
+		setRankColumns(medals2.values().stream().flatMap(List::stream).toList());
 		if (medalists != null && !medalists.isEmpty()) {
 			BaseJsonNode leaders = getAthletesJson(new ArrayList<>(medalists), fop);
 			// isMedalist filtering can leave no rows; skip the category entirely

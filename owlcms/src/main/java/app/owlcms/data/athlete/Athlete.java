@@ -1058,6 +1058,20 @@ public class Athlete {
 			throw new IllegalArgumentException("A live lift requires a nonzero result and a decision time");
 		}
 		setActualLift(liftNo, weight);
+		setLiftTime(liftNo, decisionTime);
+	}
+
+	/**
+	 * Erase a recorded attempt as if it had not been performed yet (announcer correction).
+	 *
+	 * @param liftNo 1..6
+	 */
+	public void clearLift(int liftNo) {
+		setActualLift(liftNo, null);
+		setLiftTime(liftNo, null);
+	}
+
+	private void setLiftTime(int liftNo, LocalDateTime decisionTime) {
 		switch (liftNo) {
 			case 1:
 				this.setSnatch1LiftTime(decisionTime);
@@ -1077,6 +1091,8 @@ public class Athlete {
 			case 6:
 				this.setCleanJerk3LiftTime(decisionTime);
 				break;
+			default:
+				throw new IllegalArgumentException("Invalid attempt: " + liftNo);
 		}
 	}
 
@@ -2810,11 +2826,13 @@ public class Athlete {
 	 */
 	@JsonIgnore
 	public Integer getMedalRank() {
-		Integer i = getRank();
-		if (i == null) {
-			return 0;
-		}
-		return (i <= 3 ? i : 0);
+		getCategory();
+		return getCategoryScoreRank();
+	}
+
+	@JsonIgnore
+	public Double getMedalScore() {
+		return getCategoryScore();
 	}
 
 	/**

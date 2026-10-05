@@ -58,9 +58,10 @@ best-athlete rank within the championship of each participation.
 
 ## Ranks and Scores
 
-Terminology: there are only two kinds of rank. A *medal rank* is computed within
-a category. A *best-athlete rank* is computed across categories, within a
-championship (or over the athletes shown, under principle 5). The term
+Terminology: category kg ranks (Snatch, Clean and Jerk, Total) and the
+category's *medal rank* are distinct when medals are awarded by score. A
+*best-athlete rank* is computed across categories, within a championship
+(or over the athletes shown, under principle 5). The term
 "overall rank" used in existing code (`OverallRankSetter`,
 `assignOverallRanksAndPoints`, the `overall` flag of `Competition.doReporting`)
 means best-athlete rank and is retired.
@@ -78,14 +79,15 @@ participations yields three reporting `PAthlete`s.
 
 | Concept | Source | Scope |
 | --- | --- | --- |
+| Kg result ranks | `Participation.snatchRank`, `cleanJerkRank`, `totalRank` | Category, irrespective of medal scheme |
 | Medal rank | `Participation.categoryScoreRank` | Category |
 | Medal score | `Participation.categoryScore` | Category |
 | Total (kg) | `Athlete.getTotal()` | Athlete |
 | Best-athlete score | `Ranking.getRankingValue(athlete, championship.getBestAthleteScoringSystem())` | Athlete (does not depend on the participation) |
 | Best-athlete rank | Ranking of the championship's participants, by gender, with the championship's best-athlete system | Championship |
 
-The Snatch and Clean and Jerk ranks used by multi-medal championships are
-unchanged.
+Snatch and Clean and Jerk kg ranks are computed and displayed in every medal
+scheme. Medal policy controls their medal highlights, not their visibility.
 
 Scores and ranks behave differently everywhere (templates, scoreboards,
 payloads):
@@ -553,16 +555,33 @@ weight-medal and score-medal categories must not show two rank columns.
 
 ### Scenarios
 
-Columns before the total are unchanged. Snatch and Clean and Jerk rank columns
-are shown only when a displayed category awards lift medals; score-medal rows
-leave them blank.
+Snatch and Clean and Jerk kg rank columns follow the **medal policy** of the
+championships on display, not the medal system: they are shown when at least
+one displayed championship awards lift medals (`Lifts and Total` or
+`Lifts only`). Displayed championships may have conflicting policies; the board
+shows the union of what they need, so one three-medal championship is enough to
+show the lift rank columns for every row. A score medal system
+(`Championship.resolveMedalScoringSystem`) forces a Total-only policy, so a
+session of only Q-Masters or GAMX-U championships has no lift rank columns.
+
+Where lift ranks are shown, an athlete can be fifth by kg lifted but first by
+the category's medal score; these ranks measure different things. The medal
+policy alone determines whether the kg lift-rank cells receive medal highlights.
+
+Mixed medal systems coexist in a session, never within one registration
+category. The validation fixtures use separate athletes and categories:
+`F 64` for Total medals and `W35Q 64` for Q-Masters medals (the W35Q category
+has a 0-999 kg bodyweight range), and a separate youth category for GAMX-U.
+When there is one athlete in each category, both athletes have medal rank 1;
+they are not ranked against one another. Category-grouped boards must show
+separate category sections.
 
 | Session | Sn/CJ ranks | Total | Medal score | Medal rank | Best athlete |
 | --- | --- | --- | --- | --- | --- |
-| Only Q-Masters medals | Hidden | Shown | Shown, header "Q-Masters" | Q-Masters rank within the category | Hidden by default |
-| Only Total medals | Shown if the policy includes lift medals | Shown | Hidden | Total rank within the category | Hidden by default |
-| Q-Masters + GAMX-U medals | Hidden | Shown | Shown, header "Score"; each row shows its own system's value | Each row's score rank within its category | Hidden by default |
-| Total + Q-Masters medals | Shown if the Total categories award lift medals; blank on Q-Masters rows | Shown | Shown, header "Q-Masters"; blank on Total rows | Total rows: total rank. Q-Masters rows: Q-Masters rank | Hidden by default |
+| Only Q-Masters medals | Hidden (Total-only policy) | Shown | Shown, header "Q-Masters" | Q-Masters rank within the category | Hidden by default |
+| Only Total medals | Per medal policy: shown for three-medal, hidden for Total-only | Shown | Hidden | Total rank within the category | Hidden by default |
+| Q-Masters + GAMX-U medals | Hidden (both Total-only) | Shown | Shown, header "Score"; each row shows its own system's value | Each row's score rank within its category | Hidden by default |
+| Total + Q-Masters medals | Per the Total championship's policy; when shown, kg ranks appear on both category types | Shown | Shown, header "Q-Masters"; blank on Total rows | Total rows: total rank. Q-Masters rows: Q-Masters rank | Hidden by default |
 
 Compared with today: in score-medal sessions the total-rank column is no longer
 hidden, the medal rank is the category rank (not the stored competition-wide
@@ -657,6 +676,8 @@ unchanged.
 ### Part 2 acceptance criteria
 
 - `totalRank` is the kg total rank in every category and every payload.
+- Snatch and Clean and Jerk kg ranks are always visible, regardless of the
+  medal scheme. Category-boundary spacers are retained.
 - In a weight-medal category, `medalRank` equals `totalRank`.
 - In a score-medal category, `medalRank` equals `categoryScoreRank`, and the
   medal-score column shows `categoryScore`.

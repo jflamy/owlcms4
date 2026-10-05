@@ -67,8 +67,6 @@ public class ResultsMultiRanks extends Results {
 
 	@Override
 	protected void getAthleteJson(Athlete a, ObjectNode ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
-		boolean bestScore = Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE);
-		boolean bestScoreRank = Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE_RANK);
 
 		String category;
 		category = curCat != null ? curCat.getDisplayName() : "";
@@ -92,21 +90,11 @@ public class ResultsMultiRanks extends Results {
 		ja.set("snatchRanks", getRanksJson(a, Ranking.SNATCH, this.getAgeGroupMap()));
 		ja.set("cleanJerkRanks", getRanksJson(a, Ranking.CLEANJERK, this.getAgeGroupMap()));
 		ja.set("totalRanks", getRanksJson(a, Ranking.TOTAL, this.getAgeGroupMap()));
+		ja.set("medalRanks", getMedalRanksJson(this.getAgeGroupMap()));
 		ja.put("group", a.getGroup().getName());
 		ja.put("subCategory", a.getSubCategory());
 
-		if (a.getComputedScoringSystem() != Ranking.TOTAL || bestScore || bestScoreRank) {
-			if (bestScore || bestScoreRank) {
-				var value =  a.getBestLifterScore();
-				var score = value > 0.001 ? String.format("%.3f", value) : "\u2013";
-				ja.put("sinclair", score);
-				if (bestScoreRank) {
-					ja.put("sinclairRank", a.getBestLifterRank());
-				}
-			} else {
-				ja.put("sinclair", computedScore(a));
-			}
-		}
+		putRankData(a, ja, false);
 
 		ja.put("custom1", getCustom1Value(a));
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
@@ -148,7 +136,7 @@ public class ResultsMultiRanks extends Results {
 						JsonUtils.set(ranks, i, formatRank(p.getSnatchRank()));
 						break;
 					case TOTAL:
-						JsonUtils.set(ranks, i, formatRank(p.getCategoryScoreRank()));
+						JsonUtils.set(ranks, i, formatRank(p.getTotalRank()));
 						break;
 					default:
 						JsonUtils.set(ranks, i, formatRank(p.getCategoryScoreRank()));
@@ -156,6 +144,15 @@ public class ResultsMultiRanks extends Results {
 				}
 			}
 			i++;
+		}
+		return ranks;
+	}
+
+	private ArrayNode getMedalRanksJson(LinkedHashMap<String, Participation> participations) {
+		ArrayNode ranks = JsonUtils.array();
+		int index = 0;
+		for (Participation participation : participations.values()) {
+			JsonUtils.set(ranks, index++, formatRank(participation != null ? participation.getCategoryScoreRank() : null));
 		}
 		return ranks;
 	}

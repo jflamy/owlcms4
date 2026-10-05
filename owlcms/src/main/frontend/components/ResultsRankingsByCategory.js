@@ -95,6 +95,7 @@ class ResultsRankingsByCategory extends LitElement {
                         <th class="rank" .innerHTML="${mc.rankingTitle}"></th>
                         <th class="vspacer"></th>
                         <th class="total" .innerHTML="${this.t?.Total}"></th>
+                        <th class="medalScore" .innerHTML="${this.medalScoringName ?? this.t?.ScoringTitle}"></th>
                         <th class="totalRank" .innerHTML="${mc.rankingTitle}"></th>
                         <th class="sinclair" .innerHTML="${mc.scoreScoringTitle}"></th>
                         <th class="sinclairRank" .innerHTML="${mc.scoreRankingTitle}"></th>
@@ -157,13 +158,14 @@ class ResultsRankingsByCategory extends LitElement {
                             <td class="total">
                               <div>${item?.total}</div>
                             </td>
-                            <td class="${"totalRank " + ((this.showMedals === "true" || (this.showMedals === "auto" && mc.categoryDone)) ? (item?.totalMedal ?? "") : "")}">
-                              <div .innerHTML="${item?.totalRank}"></div>
+                            <td class="medalScore"><div>${item?.medalScore}</div></td>
+                            <td class="${"totalRank " + ((this.showMedals === "true" || (this.showMedals === "auto" && mc.categoryDone)) ? (item?.medalHighlight ?? "") : "")}">
+                              <div .innerHTML="${item?.medalRank}"></div>
                             </td>
                             <td class="sinclair">
                               <div>${item?.sinclair}</div>
                             </td>
-                            <td class="${"sinclairRank " + ((this.showMedals === "true" || (this.showMedals === "auto" && mc.categoryDone)) ? (item?.sinclairMedal ?? "") : "")}">
+                            <td class="sinclairRank">
                               <div>${item?.sinclairRank}</div>
                             </td>
                           </tr>
@@ -214,9 +216,11 @@ class ResultsRankingsByCategory extends LitElement {
       showLiftRanks: {type: Boolean},
       showBest: {type: Boolean},
       showTotalRank: {type: Boolean},
+      showMedalScore: {type: Boolean},
+      medalScoringName: {},
+      scoringName: {},
       showSinclair: {type: Boolean},
       showSinclairRank: {type: Boolean},
-      showSinclairRanks: {type: Boolean},
       showLeaders: {type: Boolean},
       showRecords: {type: Boolean},
       resultLines: {},
@@ -274,14 +278,15 @@ class ResultsRankingsByCategory extends LitElement {
   }
 
   athleteClasses() {
-    const showSinclairRank = this.showSinclairRank ?? this.showSinclairRanks;
+    const showSinclairRank = this.showSinclairRank;
     return "results "
       + (this.showTotal ? " total" : " nototal")
       + (this.showLiftRanks ? " ranks" : " noranks")
       + (this.showBest ? " best" : " nobest")
-      + (this.showTotalRank ? " totalRank" : " nototalRank")
+      + " totalRank"
       + (this.showCustom1 ? " custom1" : " nocustom1")
-      + (this.showSinclair ? " sinclair" : " nosinclair")
+      + (this.showMedalScore ? " medalScore" : " nomedalScore")
+    + (this.showSinclair ? " sinclair" : " nosinclair")
       + (showSinclairRank ? " sinclairRank" : " nosinclairRank")
       ;
   }

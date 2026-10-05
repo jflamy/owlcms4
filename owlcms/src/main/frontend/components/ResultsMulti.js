@@ -120,9 +120,9 @@ class ResultsFull extends LitElement {
                     <th class="vspacer"></th>
                     <th style="grid-column: span calc(3 + ${this.nbRanks} + 1);" .innerHTML="${this.t?.Clean_and_Jerk}" ></th>
                     <th class="vspacer"></th>
-                    <th style="grid-column: span calc(1 + ${this.nbRanks});" .innerHTML="${this.t?.Total}" ></th>
+                    <th style="grid-column: span calc(2 + ${this.nbRanks});" .innerHTML="${this.t?.Total}" ></th>
                     <th class="vspacer sinclairVspacer"></th>
-                    <th class="sinclair" style="grid-column: span 2;" .innerHTML="${this.t?.ScoringTitle}" ></th>
+                    <th class="sinclair" style="grid-column: span 2;" .innerHTML="${this.scoringName ?? this.t?.ScoringTitle}" ></th>
                   </tr>
                   <tr class="head">
                     <th class="vspacer"></th>
@@ -146,6 +146,7 @@ class ResultsFull extends LitElement {
                       `)}
                     <th class="vspacer"></th>
                     <th>✓</th>
+                    <th class="medalScore" .innerHTML="${this.medalScoringName ?? this.t?.ScoringTitle}"></th>
                     ${(this.ageGroups ?? []).map(
                 (item) =>
                   html`
@@ -229,7 +230,8 @@ class ResultsFull extends LitElement {
                               <td class="total">
                                 <div>${item?.total}</div>
                               </td>
-                              ${(item?.totalRanks ?? []).map(
+                              <td class="medalScore"><div>${item?.medalScore}</div></td>
+                              ${(item?.medalRanks ?? []).map(
                                         (rk, index) => html`
                                   <td class="totalRank">
                                     <div .innerHTML="${rk}"></div>
@@ -305,7 +307,8 @@ class ResultsFull extends LitElement {
                                   `)}                                
                                 <td class="vspacer"></td>
                                 <td class="total" style="${this.leadingAthleteStyles()} "> <div>${item?.total}</div></td>
-                                ${(item.totalRanks ?? []).map(
+                                <td class="medalScore"><div>${item?.medalScore}</div></td>
+                                ${(item.medalRanks ?? []).map(
                               (rk, index) => html`
                                     <td class="totalRank">
                                       <div .innerHTML="${rk}"></div>
@@ -407,8 +410,11 @@ class ResultsFull extends LitElement {
       showLiftRanks: { type: Boolean },
       showTotalRanks: { type: Boolean },
       showBest: { type: Boolean },
+      showMedalScore: {type: Boolean},
+      medalScoringName: {},
+      scoringName: {},
       showSinclair: { type: Boolean },
-      showSinclairRanks: { type: Boolean },
+      showSinclairRank: { type: Boolean },
       showLeaders: { type: Boolean },
       showRecords: { type: Boolean },
       showDecisionSection: { type: Boolean },
@@ -628,9 +634,10 @@ class ResultsFull extends LitElement {
       + (this.showTotal ? " total" : " nototal")
       + (this.showLiftRanks ? " ranks" : " noranks")
       + (this.showBest ? " best" : " nobest")
-      + (this.showTotalRank ? " totalRank" : " nototalRank")
+      + " totalRank"
       + (this.showCustom1 ? " custom1" : " nocustom1")
-      + (this.showSinclair ? " sinclair" : " nosinclair")
+      + (this.showMedalScore ? " medalScore" : " nomedalScore")
+    + (this.showSinclair ? " sinclair" : " nosinclair")
       + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")
       ;
   }

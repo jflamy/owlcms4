@@ -160,6 +160,16 @@ public class Participation implements IRankHolder {
 	}
 
 	@JsonIgnore
+	public int getMedalRank() {
+		return getCategoryScoreRank();
+	}
+
+	@JsonIgnore
+	public Double getMedalScore() {
+		return getCategoryScore();
+	}
+
+	@JsonIgnore
 	public int getCleanJerkPoints() {
 		if (!AthleteSorter.includesLiftTeamPoints(this)) {
 			return 0;
@@ -264,7 +274,7 @@ public class Participation implements IRankHolder {
 	@JsonIgnore
 	public int getTotalPoints() {
 		return isTeamMember() && AthleteSorter.includesTotalTeamPoints(this)
-		        ? AthleteSorter.pointsFormula(this.totalRank, this)
+		        ? AthleteSorter.pointsFormula(this.categoryScoreRank, this)
 		        : 0;
 	}
 

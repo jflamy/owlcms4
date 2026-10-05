@@ -90,21 +90,15 @@ table.results.nosinclair {
     --sinclairWidth: 0;
     --sinclairVisibility: hidden;
     --sinclairVspacerWidth: 0;
-    --sinclairRankWidth: 0;
-    --sinclairRankVisibility: hidden;
 }
 
-/* Hide all sinclair elements when nosinclair */
+/* Hide best-athlete score elements when the score column is disabled. */
 table.results.nosinclair th.sinclair,
 table.results.nosinclair td.sinclair,
-table.results.nosinclair th.sinclairRank,
-table.results.nosinclair td.sinclairRank,
 table.results.nosinclair th.sinclairVspacer,
 table.results.nosinclair td.sinclairVspacer,
 table.results.nosinclair .leaders th.sinclair,
 table.results.nosinclair .leaders td.sinclair,
-table.results.nosinclair .leaders th.sinclairRank,
-table.results.nosinclair .leaders td.sinclairRank,
 table.results.nosinclair .leaders th.sinclairVspacer,
 table.results.nosinclair .leaders td.sinclairVspacer {
     visibility: hidden !important;

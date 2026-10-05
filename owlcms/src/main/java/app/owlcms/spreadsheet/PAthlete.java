@@ -98,6 +98,11 @@ public class PAthlete extends Athlete implements IRankHolder {
 	}
 
 	@Override
+	public void clearLift(int liftNo) {
+		this.a.clearLift(liftNo);
+	}
+
+	@Override
 	public void setSnatch1ActualLift(String value) {
 		this.a.setSnatch1ActualLift(value);
 	}
@@ -723,7 +728,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public Integer getMedalRank() {
-		return this.a.getMedalRank();
+		return getCategoryScoreRank();
 	}
 
 	@Override
