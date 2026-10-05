@@ -9,6 +9,7 @@ package app.owlcms.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -21,16 +22,21 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFVMLDrawing;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
+
+import com.microsoft.schemas.office.excel.STTrueFalseBlank;
 
 import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
@@ -254,6 +260,30 @@ public class NRegistrationFileProcessorTest {
             assertEquals("technology 1", exportedValue(exported, columns, "Technology Support 1", formatter));
             assertEquals("technology 2", exportedValue(exported, columns, "Technology Support 2", formatter));
             assertEquals("7", exportedValue(exported, columns, "Time before Clean & Jerk", formatter));
+        }
+    }
+
+    @Test
+    public void testEmptyRegistrationInstructionsRemainVisibleAfterExport() throws Exception {
+        JXLSRegistrationEmptyExport export = new JXLSRegistrationEmptyExport();
+        try (InputStream input = export.createInputStream();
+             Workbook workbook = WorkbookFactory.create(input)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            Comment comment = sheet.getRow(3).getCell(4).getCellComment();
+            assertNotNull("Registration instructions should be attached to E4", comment);
+            assertTrue("Registration instructions should not be empty", !comment.getString().getString().isBlank());
+            assertTrue("Registration instructions should be visible", comment.isVisible());
+
+            assertTrue("Registration export should be XLSX", sheet instanceof XSSFSheet);
+            XSSFSheet xssfSheet = (XSSFSheet) sheet;
+            var drawingPart = xssfSheet.getRelationById(xssfSheet.getCTWorksheet().getLegacyDrawing().getId());
+            assertTrue("Registration instructions should have a VML drawing", drawingPart instanceof XSSFVMLDrawing);
+            XSSFVMLDrawing vmlDrawing = (XSSFVMLDrawing) drawingPart;
+            var shape = vmlDrawing.findCommentShape(3, 4);
+            assertNotNull("Registration instructions should have a VML shape", shape);
+            var clientData = shape.getClientDataArray(0);
+            assertEquals("Excel needs an explicit note visibility flag", 1, clientData.sizeOfVisibleArray());
+            assertEquals(STTrueFalseBlank.TRUE, clientData.getVisibleArray(0));
         }
     }
 
