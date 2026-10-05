@@ -1076,18 +1076,8 @@ public class BaseResults extends LitTemplate
 		return ageGroups;
 	}
 
-	protected String getCustom1Label() {
-		return Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT)
-		        ? Translator.translate("Scoreboard.BodyWeight")
-		        : Translator.translate("Scoreboard.Custom1");
-	}
-
-	protected String getCustom1Value(Athlete a) {
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT)) {
-			Double bodyWeight = a.getBodyWeight();
-			return bodyWeight != null ? String.format(this.capturedLocale, "%.2f", bodyWeight) : "";
-		}
-		return a.getCustom1() != null ? a.getCustom1() : "";
+	protected String getBodyWeightValue(Athlete a) {
+		return ScoreboardRankData.bodyWeight(a, this.capturedLocale);
 	}
 
 	protected void getAthleteJson(Athlete a, ObjectNode ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
@@ -1121,7 +1111,8 @@ public class BaseResults extends LitTemplate
 		ja.put("group", a.getGroup().getName());
 		ja.put("subCategory", a.getSubCategory());
 
-		ja.put("custom1", getCustom1Value(a));
+		ja.put("bodyWeight", getBodyWeightValue(a));
+		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 
 		putRankData(a, ja, false);
@@ -1390,7 +1381,7 @@ public class BaseResults extends LitTemplate
 
 		getElement().setProperty("showTotal", true);
 		getElement().setProperty("showBest", true); // overridden by media queries, not a variable
-		getElement().setProperty("showCustom1", Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT));
+		getElement().setProperty("showBodyWeight", Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT));
 		getElement().setProperty("video", this.video);
 		getElement().setProperty("currentAttempt", this.currentAttempt);
 		getElement().setProperty("showMedals", this.showMedals);
@@ -1495,9 +1486,6 @@ public class BaseResults extends LitTemplate
 		        || isVideo() && (videoStylesDir.endsWith("paTV") || videoStylesDir.endsWith("qcTV"));
 		if (blankStartHeader) {
 			translations.put("Start", "\u00A0");
-		}
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT)) {
-			translations.put("Custom1", getCustom1Label());
 		}
 		translations.put("ScoringTitle", Translator.translate("Score"));
 		if (!Config.getCurrent().featureSwitch(FeatureSwitch.MEDALISTS_AS_LEADERS)) {

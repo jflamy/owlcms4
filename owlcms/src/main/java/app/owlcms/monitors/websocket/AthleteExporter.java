@@ -348,6 +348,7 @@ public class AthleteExporter {
 		}
 		
 		// Custom fields
+		displayInfo.put("bodyWeight", ScoreboardRankData.bodyWeight(athlete, Config.getCurrent().getDefaultLocale()));
 		displayInfo.put("custom1", athlete.getCustom1() != null ? athlete.getCustom1() : "");
 		displayInfo.put("custom2", athlete.getCustom2() != null ? athlete.getCustom2() : "");
 		displayInfo.put("membership", athlete.getMembership() != null ? athlete.getMembership() : "");

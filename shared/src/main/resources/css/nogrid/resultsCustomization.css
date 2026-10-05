@@ -30,6 +30,9 @@
     */
     --birthWidth: 6ch;
     --birthVisibility: visible;
+    /* body weight: turned on by the displayBodyWeight feature switch, see table.results.bodyWeight */
+    --bodyWeightWidth: 0;
+    --bodyWeightVisibility: hidden;
     --custom1Width: 0;
     --custom1Visibility: hidden;
     --custom2Width: 0;
@@ -265,25 +268,25 @@
     --rowSmallSpacerHeight: 0; /* set to 0.25vh if transparent background */
 }
 
-table.results.custom1 {
-    --custom1Width: minmax(7ch, min-content);
-    --custom1Visibility: visible;
+/* body weight column, enabled by the displayBodyWeight feature switch */
+table.results.bodyWeight {
+    --bodyWeightWidth: minmax(7ch, min-content);
+    --bodyWeightVisibility: visible;
 }
 
 /* The column-visibility variables are declared on the universal selector (*),
    so they are applied directly to every cell and override the value inherited
-   from table.results.custom1. Force the cells visible explicitly. */
-table.results.custom1 th.custom1,
-table.results.custom1 td.custom1 {
-    --custom1Visibility: visible;
+   from table.results.bodyWeight. Force the cells visible explicitly. */
+table.results.bodyWeight th.bodyWeight,
+table.results.bodyWeight td.bodyWeight {
+    --bodyWeightVisibility: visible;
     visibility: visible;
     /* enough room for a body weight like 199.99 */
     min-width: 7ch;
 }
 
-table.results.nocustom1 {
-    --custom1Width: 0;
-    --custom1Visibility: hidden;
+td.bodyWeight div {
+    text-align: center;
 }
 
 table.results.nosinclair {

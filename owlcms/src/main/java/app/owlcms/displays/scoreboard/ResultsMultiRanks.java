@@ -96,7 +96,8 @@ public class ResultsMultiRanks extends Results {
 
 		putRankData(a, ja, false);
 
-		ja.put("custom1", getCustom1Value(a));
+		ja.put("bodyWeight", getBodyWeightValue(a));
+		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 
 		boolean notDone = a.getAttemptsDone() < 6;

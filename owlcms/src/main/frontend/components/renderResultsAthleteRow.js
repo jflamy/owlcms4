@@ -15,6 +15,9 @@ export function renderResultsAthleteRow(item) {
       <td class="yob">
         <div>${item?.yearOfBirth}</div>
       </td>
+      <td class="bodyWeight">
+        <div>${item?.bodyWeight}</div>
+      </td>
       <td class="custom1">
         <div>${item?.custom1}</div>
       </td>

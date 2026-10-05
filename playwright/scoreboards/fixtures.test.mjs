@@ -113,6 +113,18 @@ test('best-athlete score and rank are independent display flags', () => {
   }
 });
 
+test('body weight is its own column and never written into custom1', () => {
+  for (const bodyWeight of [false, true]) {
+    const fixture = buildFixture({bodyWeight});
+    assert.equal(fixture.properties.showBodyWeight, bodyWeight);
+    for (const athlete of fixture.athleteRows) {
+      assert.equal(athlete.bodyWeight, '63.50');
+      assert.equal(athlete.custom1, undefined);
+    }
+  }
+  assert.equal(buildFixture().properties.t.BodyWeight, 'B.W.');
+});
+
 test('unknown scenarios and layout options fail explicitly', () => {
   assert.throws(() => buildFixture({scenario: 'unknown'}));
   assert.throws(() => buildFixture({board: 'resultsrankings-template'}));

@@ -50,6 +50,11 @@ export async function checkCase(options) {
     assert(visible(row.querySelector('td.sinclair')) === fixture.properties.showSinclair, 'Incorrect best-athlete score visibility');
     assert(visible(row.querySelector('td.sinclairRank')) === fixture.properties.showSinclairRank, 'Incorrect best-athlete rank visibility');
     assert(row.querySelector('td.sinclairRank').textContent.trim() === athlete.sinclairRank, 'Incorrect best-athlete rank');
+    const bodyWeightCell = row.querySelector('td.bodyWeight');
+    assert(visible(bodyWeightCell) === fixture.properties.showBodyWeight, 'Incorrect body-weight column visibility');
+    assert(bodyWeightCell.textContent.trim() === athlete.bodyWeight, 'Incorrect body weight');
+    assert(row.querySelector('td.custom1').textContent.trim() === '', 'Body weight must not be written into custom1');
+    assert(!visible(row.querySelector('td.custom1')), 'custom1 stays CSS-controlled and hidden by default');
     const height = row.querySelector('td.name').getBoundingClientRect().height;
     assert(height > 0 && height <= 80, `Stretched or collapsed athlete row: ${height}px`);
     const categoryCell = row.querySelector('td.category').getBoundingClientRect();
@@ -80,19 +85,21 @@ export async function checkCase(options) {
   }
   return {scenario: fixture.options.scenario, board: fixture.options.board,
     theme: fixture.options.theme, appearance: fixture.options.appearance,
-    bestScore: fixture.options.bestScore, bestRank: fixture.options.bestRank, passed: true};
+    bestScore: fixture.options.bestScore, bestRank: fixture.options.bestRank,
+    bodyWeight: fixture.options.bodyWeight, passed: true};
 }
 
 export async function runMatrix({scenarios = Object.keys(SCENARIOS), boards = Object.keys(BOARDS),
   themes = THEMES, appearances = APPEARANCES,
-  bestColumns = [[false, false], [true, false], [false, true], [true, true]]} = {}) {
+  bestColumns = [[false, false], [true, false], [false, true], [true, true]],
+  bodyWeights = [false, true]} = {}) {
   const original = readControls();
   const results = [];
   try {
     for (const scenario of scenarios) for (const board of boards)
       for (const theme of themes) for (const appearance of appearances)
-        for (const [bestScore, bestRank] of bestColumns) {
-          const options = {scenario, board, theme, appearance, bestScore, bestRank, categoryHeaders: false};
+        for (const [bestScore, bestRank] of bestColumns) for (const bodyWeight of bodyWeights) {
+          const options = {scenario, board, theme, appearance, bestScore, bestRank, bodyWeight, categoryHeaders: false};
           try {
             results.push(await checkCase(options));
           } catch (error) {

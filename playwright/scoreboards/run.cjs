@@ -6,7 +6,8 @@
 //   node playwright/scoreboards/run.cjs --boards simple,medals --scenarios total
 //   node playwright/scoreboards/run.cjs --chrome "/path/to/Chrome"
 //
-// Axes: --scenarios, --boards, --themes, --appearances (comma lists), --best (e.g. 00,10,01,11).
+// Axes: --scenarios, --boards, --themes, --appearances (comma lists), --best (e.g. 00,10,01,11),
+// --body-weight (0,1).
 // Exit code 0 when every rendered case passes, 1 otherwise.
 
 const {spawn} = require('child_process');
@@ -94,7 +95,8 @@ async function main() {
   const options = {
     scenarios: list('scenarios'), boards: list('boards'), themes: list('themes'),
     appearances: list('appearances'),
-    bestColumns: list('best')?.map(pair => [pair[0] === '1', pair[1] === '1'])
+    bestColumns: list('best')?.map(pair => [pair[0] === '1', pair[1] === '1']),
+    bodyWeights: list('body-weight')?.map(value => value === '1' || value === 'true')
   };
   for (const key of Object.keys(options)) if (options[key] === undefined) delete options[key];
 

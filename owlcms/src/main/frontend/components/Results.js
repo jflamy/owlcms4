@@ -99,6 +99,7 @@ class Results extends LitElement {
                   <th class="name" .innerHTML="${this.t?.Name}"></th>
                   <th class="category" .innerHTML="${this.t?.Category}"></th>
                   <th class="yob" .innerHTML="${this.t?.Birth}"></th>
+                  <th class="bodyWeight" .innerHTML="${this.t?.BodyWeight}"></th>
                   <th class="custom1" .innerHTML="${this.t?.Custom1}"></th>
                   <th class="custom2" .innerHTML="${this.t?.Custom2}"></th>
                   <th class="club" .innerHTML="${this.t?.Team}"></th>
@@ -148,6 +149,7 @@ class Results extends LitElement {
                                 <td class="${"name " + (item?.classname ?? "")}" style="${this.leadingAthleteStyles()} "> <div class="ellipsis">   ${item?.fullName} </div></td>
                                 <td class="category" style="${this.leadingAthleteStyles()} "> <div>${item?.category}</div></td>
                                 <td class="yob" style="${this.leadingAthleteStyles()} "> <div>${item?.yearOfBirth}</div></td>
+                                <td class="bodyWeight" style="${this.leadingAthleteStyles()} "> <div>${item?.bodyWeight}</div></td>
                                 <td class="custom1" style="${this.leadingAthleteStyles()} "> <div>${item?.custom1}</div></td>
                                 <td class="custom2" style="${this.leadingAthleteStyles()} "> <div>${item?.custom2}</div></td>
                                 <td class="${"club " + (item?.flagClass ?? "")} ">
@@ -277,7 +279,7 @@ class Results extends LitElement {
       scoringName: {},
       showSinclair: {type: Boolean},
       showSinclairRank: {type: Boolean},
-      showCustom1: {type: Boolean},
+      showBodyWeight: {type: Boolean},
       showLeaders: {type: Boolean},
       showRecords: {type: Boolean},
       showDecisionSection: {type: Boolean},
@@ -556,7 +558,7 @@ class Results extends LitElement {
     + (this.showLiftRanks ? " ranks" : " noranks")
     + (this.showBest ? " best" : " nobest")
     + " totalRank"
-    + (this.showCustom1 ? " custom1" : " nocustom1")
+    + (this.showBodyWeight ? " bodyWeight" : " nobodyWeight")
     + (this.showMedalScore ? " medalScore" : " nomedalScore")
     + (this.showSinclair ? " sinclair" : " nosinclair")
     + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")

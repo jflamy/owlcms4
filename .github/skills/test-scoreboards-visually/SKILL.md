@@ -117,6 +117,7 @@ Use `Show fixture controls` in the lower-left corner when switching:
 - Normal (nogrid) and public stylesheets
 - Dark and light appearances
 - Best-athlete score and rank independently
+- Body weight column (`bodyWeight=true` in the URL)
 - Optional category headers on boards where they are configurable
 
 ## Run deterministic fixture tests
@@ -152,8 +153,9 @@ The full matrix covers:
 - 2 stylesheet families (normal `nogrid`, public `public`)
 - 2 appearances
 - 4 best-athlete score/rank visibility combinations
+- body weight column off and on
 
-That is 320 rendered cases. The check restores the tab's original controls after
+That is 640 rendered cases. The check restores the tab's original controls after
 completion.
 
 ## What the browser assertions verify
@@ -180,6 +182,8 @@ completion.
 - Vertical gutters are blank and borderless.
 - No-grid receives the required filler and footer-row layout properties.
 - Rows do not collapse, stretch, or wrap into mismatched grid tracks.
+- Body weight has its own column, visible only when enabled, and is never written
+  into `custom1`; `custom1` stays hidden unless a stylesheet enables it.
 
 ## Focused checks
 

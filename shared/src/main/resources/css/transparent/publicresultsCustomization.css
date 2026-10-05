@@ -30,6 +30,9 @@
     */
     --birthWidth: 0;
     --birthVisibility: hidden;
+    /* body weight: turned on by the displayBodyWeight feature switch, see table.results.bodyWeight */
+    --bodyWeightWidth: 0;
+    --bodyWeightVisibility: hidden;
     --custom1Width: 0;
     --custom1Visibility: hidden;
     --custom2Width: 0;
@@ -90,6 +93,27 @@ td.flags div {
     line-height:  var(--athleteNameFontSize);
     align-self: center;
     display: flex;
+}
+
+/* body weight column, enabled by the displayBodyWeight feature switch */
+table.results.bodyWeight {
+    --bodyWeightWidth: minmax(7ch, min-content);
+    --bodyWeightVisibility: visible;
+}
+
+/* The column-visibility variables are declared on the universal selector (*),
+   so they are applied directly to every cell and override the value inherited
+   from table.results.bodyWeight. Force the cells visible explicitly. */
+table.results.bodyWeight th.bodyWeight,
+table.results.bodyWeight td.bodyWeight {
+    --bodyWeightVisibility: visible;
+    visibility: visible;
+    /* enough room for a body weight like 199.99 */
+    min-width: 7ch;
+}
+
+td.bodyWeight div {
+    text-align: center;
 }
 
 td.custom1 div {

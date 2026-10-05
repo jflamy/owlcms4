@@ -73,6 +73,7 @@ class ResultsMedals extends LitElement {
                         <th class="name" .innerHTML="${this.t?.Name}"></th>
                         <th class="category" .innerHTML="${this.t?.Category}"></th>
                         <th class="yob" .innerHTML="${this.t?.Birth}"></th>
+                        <th class="bodyWeight" .innerHTML="${this.t?.BodyWeight}"></th>
                         <th class="custom1" .innerHTML="${this.t?.Custom1}"></th>
                         <th class="custom2" .innerHTML="${this.t?.Custom2}"></th>
                         <th class="club" .innerHTML="${this.t?.Team}"></th>
@@ -151,7 +152,7 @@ class ResultsMedals extends LitElement {
       scoringName: {},
       showSinclair: {type: Boolean},
       showSinclairRank: {type: Boolean},
-      showCustom1: {type: Boolean},
+      showBodyWeight: {type: Boolean},
       showLeaders: {type: Boolean},
       showRecords: {type: Boolean},
       resultLines: {},
@@ -225,7 +226,7 @@ class ResultsMedals extends LitElement {
     return "results medals " 
       + (this.showLiftRanks ? "" : " noranks") 
      // + (this.showBest ? "" : " nobest")
-      + (this.showCustom1 ? " custom1" : " nocustom1")
+      + (this.showBodyWeight ? " bodyWeight" : " nobodyWeight")
       + (this.showMedalScore ? " medalScore" : " nomedalScore")
     + (this.showSinclair ? " sinclair" : " nosinclair")
       + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")
