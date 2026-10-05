@@ -384,31 +384,15 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	public Ranking getScoringSystem() {
-		if (this.scoringSystem != null) {
-			return this.scoringSystem;
-		}
-		// When no championship is selected and more than one championship is in use, there is no single
-		// best-athlete scoring system: each athlete is scored using its own championship's rule.
-		// Returning null makes SessionResultsContent.computeScore compute a per-athlete score.
-		if (this.championship == null && hasMultipleChampionships()) {
-			return null;
-		}
-		Championship effectiveChampionship = this.championship != null ? this.championship : Championship.of(null);
-		Ranking championshipScoring = effectiveChampionship.getBestAthleteScoringSystem();
-		return championshipScoring != null ? championshipScoring : effectiveChampionship.getScoringSystem();
+		return this.scoringSystem != null ? this.scoringSystem
+		        : (this.championship != null ? this.championship : Championship.of(null)).getBestAthleteScoringSystem();
 	}
+
 
 	/**
 	 * @return true if more than one championship is in use, in which case no single best-athlete scoring
 	 *         system applies and each athlete is scored using its own championship's rule.
 	 */
-	private boolean hasMultipleChampionships() {
-		List<Championship> items = getChampionshipItems();
-		if (items == null) {
-			items = Championship.findAllVisible(true);
-		}
-		return items != null && items.size() > 1;
-	}
 
 	@Override
 	public boolean isIgnoreFopFromURL() {
@@ -608,10 +592,14 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			scoringCombo.getElement().getStyle().set("--vaadin-combo-box-overlay-width", "30ch");
 			scoringCombo.setWidth("30ch");
 			this.setRankingSelector(scoringCombo);
-			scoringCombo.setClearButtonVisible(true);
+			scoringCombo.setClearButtonVisible(false);
 			getCrudLayout(crud).addFilterComponent(scoringCombo);
 			scoringCombo.addValueChangeListener(event -> {
 				if (!event.isFromClient()) {
+					return;
+				}
+				if (event.getValue() == null) {
+					scoringCombo.setValue(getScoringSystem());
 					return;
 				}
 				bestAthleteScoringSelected(event.getValue());
@@ -741,8 +729,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		        // For eligibility category results, only pass a scoring system when one is actually
 		        // selected (championship default or explicit dropdown choice). Otherwise pass null so
 		        // each athlete is scored using its own championship's best-athlete rule.
-		        Ranking computeScoringSystem = (this.championship != null || this.scoringSystem != null)
-		                ? computeScoringSystem() : null;
+		        Ranking computeScoringSystem = computeScoringSystem();
 			        logger.debug("setBestLifterScoringSystem {} {}", computeScoringSystem);
 			        rs.setBestLifterScoringSystem(computeScoringSystem);
 
@@ -868,28 +855,13 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	
 	@Override
 	public void onChampionshipChanged(Championship championship) {
-		// Update scoring system dropdown when championship changes
-		// Get best athlete scoring system from championship's age groups
-		// Use null age group to get scoring from all age groups in championship
-		if (this.getRankingSelector() != null) {
-			Ranking newRanking;
-			if (championship != null) {
-				newRanking = championship.getBestAthleteScoringSystem();
-				if (newRanking == null) {
-					newRanking = Championship.of(null).getBestAthleteScoringSystem();
-				}
-			} else if (hasMultipleChampionships()) {
-				// No championship selected and more than one championship in use: leave the selection
-				// empty so each athlete is scored using its own championship's best-athlete rule.
-				newRanking = null;
-			} else {
-				newRanking = Championship.of(null).getBestAthleteScoringSystem();
-			}
-			// Update dropdown and field, then refresh grid via helper
-			this.getRankingSelector().setValue(newRanking);
-			setScoringSystem(newRanking);
+		if (getRankingSelector() != null) {
+			Ranking ranking = championship != null ? championship.getBestAthleteScoringSystem() : getScoringSystem();
+			getRankingSelector().setValue(ranking);
+			setScoringSystem(ranking);
 			resetGrid();
 		}
 	}
+
 
 }

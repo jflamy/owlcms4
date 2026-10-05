@@ -90,18 +90,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 			return;
 		}
 
-		List<Athlete> rankedAthletes = AthleteSorter.resultsOrderCopy(
-				sourceAthletes.stream()
-						.map(a -> a instanceof PAthlete ? ((PAthlete) a)._getAthlete() : a)
-						.collect(Collectors.toMap(
-								Athlete::getFullId,
-								athlete -> athlete,
-								(existing, replacement) -> existing,
-								LinkedHashMap::new))
-						.values()
-						.stream()
-						.toList(),
-				ranking);
+		List<PAthlete> rankedAthletes = AthleteSorter.bestAthleteOrderCopy(sourceAthletes, ranking);
 
 		getReportingBeans().put("mBest", rankedAthletes.stream().filter(a -> a.getGender() == Gender.M).toList());
 		getReportingBeans().put("wBest", rankedAthletes.stream().filter(a -> a.getGender() == Gender.F).toList());
@@ -456,13 +445,11 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 	}
 
 	private Ranking resolveBestAthleteRanking() {
-		if (getChampionship() != null && getChampionship().getBestAthleteScoringSystem() != null) {
-			return getChampionship().getBestAthleteScoringSystem();
-		}
 		if (getBestLifterScoringSystem() != null) {
 			return getBestLifterScoringSystem();
 		}
-		return Championship.of(null).getBestAthleteScoringSystem();
+		return (getChampionship() != null ? getChampionship() : Championship.of(null)).getBestAthleteScoringSystem();
 	}
+
 
 }

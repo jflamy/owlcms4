@@ -25,6 +25,7 @@ import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
@@ -230,21 +231,15 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		reportingBeans.put("bestRankingTitle", brt);
 
 		if (overallScoringSystem != null) {
-			if (isWinnersOnly()) {
-				Collection<Athlete> bestMen = ((Collection<Athlete>) reportingBeans
-				        .get(overallScoringSystem.getMReportingName()));
-				bestMen = reportScopedBestAthletes(bestMen, overallScoringSystem, this.winnersOnly);
-				reportingBeans.put("mBest", bestMen);
-				Collection<Athlete> bestWomen = ((Collection<Athlete>) reportingBeans
-				        .get(overallScoringSystem.getWReportingName()));
-				bestWomen = reportScopedBestAthletes(bestWomen, overallScoringSystem, this.winnersOnly);
-				reportingBeans.put("wBest", bestWomen);
-			} else {
-				reportingBeans.put("mBest", reportScopedBestAthletes(
-				        (Collection<Athlete>) reportingBeans.get(overallScoringSystem.getMReportingName()), overallScoringSystem, false));
-				reportingBeans.put("wBest", reportScopedBestAthletes(
-				        (Collection<Athlete>) reportingBeans.get(overallScoringSystem.getWReportingName()), overallScoringSystem, false));
-			}
+
+			List<Athlete> candidates = ((List<Athlete>) reportingBeans.get("mwTot")).stream()
+			        .filter(a -> getGender() == null || a.getGender() == getGender())
+			        .filter(a -> getCategory() == null || getCategory().equals(a.getCategory()))
+			        .filter(a -> !isWinnersOnly() || a.getTotalRank() == 1 || !a.isEligibleForIndividualRanking())
+			        .toList();
+			List<PAthlete> ranked = AthleteSorter.bestAthleteOrderCopy(candidates, overallScoringSystem);
+			reportingBeans.put("mBest", ranked.stream().filter(a -> a.getGender() == Gender.M).toList());
+			reportingBeans.put("wBest", ranked.stream().filter(a -> a.getGender() == Gender.F).toList());
 
 			@SuppressWarnings("unchecked")
 			Collection<Athlete> mBest = (Collection<Athlete>) reportingBeans.get("mBest");
@@ -264,35 +259,15 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		setReportingBeans(reportingBeans);
 	}
 
-	private Collection<Athlete> reportScopedBestAthletes(Collection<Athlete> athletes, Ranking overallScoringSystem,
-	        boolean winnersOnly) {
-		if (athletes == null) {
-			return List.of();
-		}
-		List<Athlete> reportRows = athletes.stream()
-		        .map(this::copyReportRow)
-		        .filter(a -> !winnersOnly || a.getTotalRank() == 1 || !a.isEligibleForIndividualRanking())
-		        .toList();
-		AthleteSorter.assignOverallRanksAndPoints(reportRows, overallScoringSystem);
-		return reportRows;
-	}
 
-	private Athlete copyReportRow(Athlete athlete) {
-		if (athlete instanceof PAthlete pAthlete) {
-			return new PAthlete(pAthlete._getOriginalParticipation());
-		}
-		return athlete;
-	}
 
 	private Ranking resolveBestAthleteScoringSystem() {
-		if (getChampionship() != null && getChampionship().getBestAthleteScoringSystem() != null) {
-			return getChampionship().getBestAthleteScoringSystem();
-		}
 		if (getBestLifterScoringSystem() != null) {
 			return getBestLifterScoringSystem();
 		}
-		return Championship.of(null).getBestAthleteScoringSystem();
+		return (getChampionship() != null ? getChampionship() : Championship.of(null)).getBestAthleteScoringSystem();
 	}
+
 
 	private boolean isGenderedTeamsEnabled() {
 		return getChampionship() == null || getChampionship().isGenderedTeamsEnabled();

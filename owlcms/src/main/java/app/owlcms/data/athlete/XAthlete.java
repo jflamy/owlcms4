@@ -261,10 +261,6 @@ public class XAthlete extends Athlete {
 		return this.a.getCategorySinclair();
 	}
 
-	@Override
-	public int getCatSinclairRank() {
-		return this.a.getCatSinclairRank();
-	}
 
 	/**
 	 * @return
@@ -826,10 +822,6 @@ public class XAthlete extends Athlete {
 		return this.a.getQMasters();
 	}
 
-	@Override
-	public int getqAgeRank() {
-		return this.a.getQMastersRank();
-	}
 
 	/**
 	 * @return
@@ -885,10 +877,6 @@ public class XAthlete extends Athlete {
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getRobiRank()
 	 */
-	@Override
-	public Integer getRobiRank() {
-		return this.a.getRobiRank();
-	}
 
 	/**
 	 * @return
@@ -951,10 +939,6 @@ public class XAthlete extends Athlete {
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getSinclairRank()
 	 */
-	@Override
-	public Integer getSinclairRank() {
-		return this.a.getSinclairRank();
-	}
 
 	/**
 	 * @return
@@ -970,10 +954,6 @@ public class XAthlete extends Athlete {
 		return this.a.getSmhfForDelta();
 	}
 
-	@Override
-	public int getSmhfRank() {
-		return this.a.getSmhfRank();
-	}
 
 	/**
 	 * @return
@@ -1426,15 +1406,7 @@ public class XAthlete extends Athlete {
 		this.a.computeCategory(category);
 	}
 
-	@Override
-	public void setCatSinclairRank(int i) {
-		this.a.setCatSinclairRank(i);
-	}
 
-	@Override
-	public void setCatQPointsRank(int i) {
-		this.a.setCatQPointsRank(i);
-	}
 	
 	/**
 	 * @param cleanJerk1ActualLift
@@ -1824,10 +1796,6 @@ public class XAthlete extends Athlete {
 		super.setPresumedCategory(category);
 	}
 
-	@Override
-	public void setqAgeRank(int i) {
-		this.a.setQMastersRank(i);
-	}
 
 	/**
 	 * @param qualifyingTotal
@@ -1842,24 +1810,12 @@ public class XAthlete extends Athlete {
 	 * @param robiRank
 	 * @see app.owlcms.data.athlete.Athlete#setRobiRank(java.lang.Integer)
 	 */
-	@Override
-	public void setRobiRank(Integer robiRank) {
-		this.a.setRobiRank(robiRank);
-	}
 
 	/**
 	 * @param sinclairRank
 	 * @see app.owlcms.data.athlete.Athlete#setSinclairRank(java.lang.Integer)
 	 */
-	@Override
-	public void setSinclairRank(Integer sinclairRank) {
-		this.a.setSinclairRank(sinclairRank);
-	}
 
-	@Override
-	public void setSmhfRank(int i) {
-		this.a.setSmhfRank(i);
-	}
 
 	/**
 	 * @param snatch1ActualLift

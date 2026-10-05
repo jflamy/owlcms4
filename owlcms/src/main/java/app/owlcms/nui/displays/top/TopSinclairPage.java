@@ -7,6 +7,7 @@
  *******************************************************************************/
 package app.owlcms.nui.displays.top;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -204,26 +205,17 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		        .allWeighedInPAthletesForAgeGroupAgeDivision(null, championship).stream()
 		        .filter(athlete -> athlete.getGroup() != null && athlete.getGender() == gender)
 		        .toList();
-		return AthleteSorter.resultsOrderCopy(championshipAthletes, effectiveBestAthleteScoring(championship));
+		return new ArrayList<>(AthleteSorter.bestAthleteOrderCopy(championshipAthletes,
+		        effectiveBestAthleteScoring(championship)));
 	}
 
 	/**
 	 * Refreshes the TopSinclair board with athletes filtered by the given championship.
 	 */
-	private void refreshFilteredBoard(app.owlcms.data.agegroup.Championship championship) {
-		if (this.getBoard() instanceof app.owlcms.displays.top.TopSinclair topSinclairBoard) {
-			if (championship == null) {
-				topSinclairBoard.setUseFilteredResults(false);
-			} else {
-				topSinclairBoard.setUseFilteredResults(true);
-			}
-
-			List<Athlete> rankedMen = championship != null
-			        ? getChampionshipRanking(championship, Gender.M)
-			        : Competition.getCurrent().getGlobalRanking(Gender.M, effectiveBestAthleteScoring(null));
-			List<Athlete> rankedWomen = championship != null
-			        ? getChampionshipRanking(championship, Gender.F)
-			        : Competition.getCurrent().getGlobalRanking(Gender.F, effectiveBestAthleteScoring(null));
+	private void refreshFilteredBoard(Championship championship) {
+		if (this.getBoard() instanceof TopSinclair topSinclairBoard) {
+			List<Athlete> rankedMen = getChampionshipRanking(championship, Gender.M);
+			List<Athlete> rankedWomen = getChampionshipRanking(championship, Gender.F);
 			topSinclairBoard.doUpdateWithFilteredLists(rankedMen, rankedWomen);
 		}
 	}

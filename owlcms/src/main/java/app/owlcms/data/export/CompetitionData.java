@@ -381,6 +381,7 @@ public class CompetitionData {
 		Competition.setCurrent(CompetitionRepository.findAll().stream().findFirst().orElse(null));
 		Championship.reset();
 		Championship.recomputeParticipantCounts();
+		Competition.recomputeAllAthleteRanks();
 //		CategoryRepository.resetCodeMap();
 //		// register the new FOPs for events and MQTT
 //		OwlcmsFactory.initDefaultFOP();

@@ -16,6 +16,8 @@ import javax.persistence.TypedQuery;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.athleteSort.BestAthleteRankingService;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
@@ -91,6 +93,8 @@ public class ChampionshipRepository {
 	 */
 	public static Championship save(Championship c) {
 		return JPAService.runInTransaction(em -> {
+			Championship previous = c.getId() != null ? em.find(Championship.class, c.getId()) : null;
+			Ranking previousBest = previous != null ? previous.getBestAthleteScoringSystem() : null;
 			if (!c.isCompetitionTemplate() && c.getOrder() == null) {
 				int nextOrder = em.createQuery(
 				        "select c from Championship c where c.competitionTemplate = false", Championship.class)
@@ -105,6 +109,10 @@ public class ChampionshipRepository {
 			Championship saved = em.merge(c);
 			normalizeDefaultTypes(em);
 			normalizeCompetitionDefaultFlags(em);
+			if (previousBest != saved.getBestAthleteScoringSystem()) {
+				em.flush();
+				BestAthleteRankingService.recomputeAll(em);
+			}
 			return saved;
 		});
 	}
@@ -315,6 +323,8 @@ public class ChampionshipRepository {
 			managed.setUseCompetitionDefaults(true);
 			Championship merged = em.merge(managed);
 			normalizeCompetitionDefaultFlags(em);
+			em.flush();
+			BestAthleteRankingService.recomputeAll(em);
 			return merged;
 		});
 		Championship.reset();

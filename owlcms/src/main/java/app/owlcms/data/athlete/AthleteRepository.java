@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.BestAthleteRankingService;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.category.UnfinishedCategories;
@@ -161,7 +163,11 @@ public class AthleteRepository {
 	 */
 	public static void delete(Athlete Athlete) {
 		JPAService.runInTransaction(em -> {
-			em.remove(getById(Athlete.getId(), em));
+			Athlete current = getById(Athlete.getId(), em);
+			var scopes = BestAthleteRankingService.scopes(current);
+			em.remove(current);
+			em.flush();
+			BestAthleteRankingService.recompute(em, scopes);
 			Competition.getCurrent().setRankingsInvalid(true);
 			return null;
 		});
@@ -471,6 +477,7 @@ public class AthleteRepository {
 			});
 		}
 		Championship.recomputeParticipantCounts();
+		BestAthleteRankingService.recomputeAll();
 	}
 
 	/**
@@ -485,7 +492,19 @@ public class AthleteRepository {
 		}
 		return JPAService.runInTransaction((em) -> {
 			Competition.getCurrent().setRankingsInvalid(true);
+			Athlete previous = em.find(Athlete.class, athlete.getId());
+			var before = BestAthleteRankingService.inputs(previous);
+			var after = BestAthleteRankingService.inputs(athlete);
+			Set<BestAthleteRankingService.Scope> scopes = new HashSet<>(after.scopes());
+			if (before != null) {
+				scopes.addAll(before.scopes());
+			}
+			BestAthleteRankingService.preserveRanks(previous, athlete);
 			Athlete merged = em.merge(athlete);
+			if (!Objects.equals(before, after)) {
+				em.flush();
+				BestAthleteRankingService.recompute(em, scopes);
+			}
 			return merged;
 		});
 	}

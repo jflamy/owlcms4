@@ -8,13 +8,19 @@ package app.owlcms.tests;
 
 import static app.owlcms.tests.AllTests.assertEqualsToReferenceFile;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -23,6 +29,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import net.sf.jxls.transformer.XLSTransformer;
 
 import app.owlcms.Main;
 import app.owlcms.apputils.DebugUtils;
@@ -31,11 +44,12 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.athleteSort.OverallRankSetter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.athleteSort.WinningOrderComparator;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -46,6 +60,7 @@ import app.owlcms.spreadsheet.PAthlete;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
+@SuppressWarnings("deprecation")
 public class AthleteSorterTest {
 
     private static final Level LOGGER_LEVEL = Level.OFF;
@@ -344,7 +359,9 @@ public class AthleteSorterTest {
 
             for (Ranking ranking : RankingConfig.getAllScoringRankings()) {
                 RankingConfig.setUserEnabled(ranking, true);
-                AthleteSorter.assignOverallRanksAndPoints(List.of(ooc), ranking);
+                PAthlete ranked = new PAthlete(ooc.getMainRankings());
+                AthleteSorter.assignBestAthleteRanks(new ArrayList<>(List.of(ranked)), ranking);
+                ooc.setBestAthleteRank(ranked.getBestAthleteRank());
                 JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(ranking);
                 assertEquals(-1, ooc.getBestLifterRank());
             }
@@ -379,8 +396,8 @@ public class AthleteSorterTest {
         Participation participation = athlete.getMainRankings();
         PAthlete pAthlete = new PAthlete(participation);
 
-        athlete.setSinclairRank(77);
-        pAthlete.setSinclairRank(3);
+        athlete.setBestAthleteRank(77);
+        pAthlete.setBestAthleteRank(3);
 
         try {
             JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(Ranking.BW_SINCLAIR);
@@ -411,12 +428,10 @@ public class AthleteSorterTest {
                 RankingConfig.setUserEnabled(ranking, true);
                 JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(ranking);
 
-                OverallRankSetter athleteRanks = new OverallRankSetter();
-                athleteRanks.increment(athlete, ranking, true, false);
-                athleteRanks.increment(athlete, ranking, true, false);
+                athlete.setBestAthleteRank(2);
 
                 PAthlete reportRow = new PAthlete(participation);
-                new OverallRankSetter().increment(reportRow, ranking, true, false);
+                reportRow.setBestAthleteRank(1);
 
                 assertEquals(ranking.name(), 1, reportRow.getBestLifterRank());
                 assertEquals(ranking.name(), 2, athlete.getBestLifterRank());
@@ -429,6 +444,239 @@ public class AthleteSorterTest {
             athlete.setIndividualEligibilityStatus(previousEligibility);
             JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(null);
         }
+    }
+
+    @Test
+    public void bestAthleteAccessorsAndLegacyAliasesUseParticipation() {
+        Athlete athlete = athletes.get(0);
+        athlete.getBestAthleteRank();
+        Participation original = athlete.getMainRankings();
+        athlete.setBestAthleteRank(7);
+
+        PAthlete reporting = PAthlete.copyForReporting(athlete);
+        assertNotSame(original, reporting.getMainRankings());
+        assertEquals(7, reporting.getBestAthleteRank());
+        reporting.setBestAthleteRank(2);
+        assertEquals(2, reporting.getMainRankings().getBestAthleteRank());
+        assertEquals(7, athlete.getBestAthleteRank());
+        assertEquals(Integer.valueOf(7), athlete.getSinclairRank());
+        assertEquals(Integer.valueOf(2), reporting.getSinclairRank());
+        assertEquals(Integer.valueOf(2), reporting.getGamxMRank());
+        assertEquals(2, reporting.getQMastersRank());
+
+        PAthlete anotherReport = PAthlete.copyForReporting(reporting);
+        assertEquals(2, anotherReport.getBestAthleteRank());
+        anotherReport.setBestAthleteRank(1);
+        assertEquals(2, reporting.getBestAthleteRank());
+        assertEquals(7, original.getBestAthleteRank());
+
+        PAthlete legacyWrapper = new PAthlete(athlete);
+        assertSame(original, legacyWrapper.getMainRankings());
+        PAthlete safeReport = PAthlete.copyForReporting(legacyWrapper);
+        safeReport.setBestAthleteRank(4);
+        assertEquals(7, original.getBestAthleteRank());
+    }
+
+    @Test
+    public void bestAthleteReportingDeduplicatesWithoutChangingSourceRanks() {
+        Athlete first = prepareBestAthlete(0, Gender.M, 100, 120);
+        Athlete tied = prepareBestAthlete(1, Gender.M, 100, 120);
+        Athlete third = prepareBestAthlete(2, Gender.M, 80, 100);
+        Participation original = first.getMainRankings();
+        original.setBestAthleteRank(8);
+        original.setTotalRank(5);
+        original.setCategoryScoreRank(4);
+        Participation secondary = new Participation(first, new Category(first.getCategory()));
+        secondary.setBestAthleteRank(9);
+        List<PAthlete> inputs = List.of(new PAthlete(original), new PAthlete(tied.getMainRankings()),
+                new PAthlete(secondary), new PAthlete(third.getMainRankings()));
+
+        List<PAthlete> report = AthleteSorter.bestAthleteOrderCopy(inputs, Ranking.BW_SINCLAIR);
+        assertEquals(3, report.size());
+        assertEquals(3, report.stream().map(Athlete::getId).distinct().count());
+        assertEquals(List.of(1, 2, 3), report.stream().map(Athlete::getBestAthleteRank).toList());
+        assertEquals(third.getId(), report.get(2).getId());
+        assertTrue(report.get(0).getId() < report.get(1).getId());
+        PAthlete firstInReport = report.stream().filter(a -> a.getId().equals(first.getId()))
+                .findFirst().orElseThrow();
+        assertEquals(5, firstInReport.getTotalRank());
+        assertEquals(4, firstInReport.getCategoryScoreRank());
+        assertEquals(8, original.getBestAthleteRank());
+        assertEquals(9, secondary.getBestAthleteRank());
+        assertEquals(8, inputs.get(0).getBestAthleteRank());
+        assertEquals(9, inputs.get(2).getBestAthleteRank());
+
+        List<PAthlete> assigned = new ArrayList<>(inputs);
+        AthleteSorter.assignBestAthleteRanks(assigned, Ranking.BW_SINCLAIR);
+        assertEquals(inputs.get(0).getBestAthleteRank(), inputs.get(2).getBestAthleteRank());
+        assertEquals(3, inputs.get(3).getBestAthleteRank());
+        assertEquals(8, original.getBestAthleteRank());
+        assertEquals(9, secondary.getBestAthleteRank());
+    }
+
+    @Test
+    public void bestAthleteReportsKeepPopulationAndScoringSelectionsIndependent() {
+        Athlete stronger = prepareBestAthlete(0, Gender.M, 110, 130);
+        Athlete athlete = prepareBestAthlete(1, Gender.M, 90, 110);
+        athlete.getMainRankings().setBestAthleteRank(7);
+
+        List<PAthlete> largerReport = AthleteSorter.bestAthleteOrderCopy(List.of(athlete, stronger),
+                Ranking.BW_SINCLAIR);
+        List<PAthlete> smallerReport = AthleteSorter.bestAthleteOrderCopy(List.of(athlete),
+                Ranking.BW_SINCLAIR);
+        assertEquals(2, largerReport.get(1).getBestAthleteRank());
+        assertEquals(1, smallerReport.get(0).getBestAthleteRank());
+        assertEquals(7, athlete.getBestAthleteRank());
+
+        EnumMap<Ranking, Boolean> previousConfig = RankingConfig.getConfig();
+        try {
+            for (Ranking ranking : RankingConfig.getAllScoringRankings()) {
+                RankingConfig.setUserEnabled(ranking, true);
+                List<PAthlete> report = AthleteSorter.bestAthleteOrderCopy(List.of(athlete), ranking);
+                int expectedRank = Ranking.getRankingValue(athlete, ranking) > 0 ? 1 : 0;
+                assertEquals(ranking.name(), expectedRank, report.get(0).getBestAthleteRank());
+                assertEquals(ranking.name(), 7, athlete.getBestAthleteRank());
+                assertEquals(ranking.name(), 2, largerReport.get(1).getBestAthleteRank());
+            }
+        } finally {
+            previousConfig.forEach(RankingConfig::setUserEnabled);
+        }
+    }
+
+    @Test
+    public void quebecTemplatesUseSelectedBestAthleteListsScoresAndRanks() throws Exception {
+        Athlete man = prepareBestAthlete(0, Gender.M, 100, 120);
+        Athlete secondMan = prepareBestAthlete(1, Gender.M, 80, 100);
+        Athlete woman = prepareBestAthlete(2, Gender.F, 70, 90);
+        man.getMainRankings().setBestAthleteRank(77);
+        for (Ranking system : List.of(Ranking.CAT_SINCLAIR, Ranking.BW_SINCLAIR)) {
+            List<PAthlete> ranked = AthleteSorter.bestAthleteOrderCopy(List.of(man, secondMan, woman), system);
+            List<PAthlete> men = ranked.stream().filter(a -> a.getGender() == Gender.M).toList();
+            List<PAthlete> women = ranked.stream().filter(a -> a.getGender() == Gender.F).toList();
+            assertEquals(2, men.size());
+            assertEquals(1, women.size());
+            assertTrue(men.get(0).getBestAthleteRank() > 0);
+            Ranking previousSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
+            try {
+                JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(system);
+                for (String template : List.of("Qc_JduQ_fr_CA.xlsx", "Qc_Juvenile_fr_CA.xlsx")) {
+                    try (Workbook workbook = renderQuebecTemplate(template, system, men, women)) {
+                        assertQuebecBestAthletes(workbook.getSheet("MS"), men, system);
+                        assertQuebecBestAthletes(workbook.getSheet("WS"), women, system);
+                    }
+                    try (Workbook workbook = renderQuebecTemplate(template, system, List.of(), List.of())) {
+                        assertQuebecBestAthletes(workbook.getSheet("MS"), List.of(), system);
+                        assertQuebecBestAthletes(workbook.getSheet("WS"), List.of(), system);
+                    }
+                }
+            } finally {
+                JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(previousSystem);
+            }
+        }
+        assertEquals(77, man.getBestAthleteRank());
+    }
+
+    private Workbook renderQuebecTemplate(String template, Ranking system, List<PAthlete> men,
+            List<PAthlete> women) throws Exception {
+        Map<String, Object> beans = new HashMap<>();
+        beans.put("competition", Competition.getCurrent());
+        beans.put("mBest", men);
+        beans.put("wBest", women);
+        beans.put("bestRankingTitle", Ranking.getScoringTitle(system));
+        for (String name : List.of("mTot", "wTot", "clubs", "mwCombined", "mwTeam")) {
+            beans.put(name, List.of());
+        }
+        beans.put("nbAthletes", men.size() + women.size());
+        beans.put("nbClubs", 0);
+        try (InputStream input = getClass().getResourceAsStream("/templates/competitionBook/qc/" + template)) {
+            Workbook workbook = WorkbookFactory.create(input);
+            try {
+                new XLSTransformer().transformWorkbook(workbook, beans);
+                return workbook;
+            } catch (Exception e) {
+                workbook.close();
+                throw e;
+            }
+        }
+    }
+
+    private void assertQuebecBestAthletes(Sheet sheet, List<PAthlete> athletes, Ranking system) {
+        assertEquals(Ranking.getScoringTitle(system), sheet.getRow(0).getCell(18).getStringCellValue());
+        int found = 0;
+        for (Row row : sheet) {
+            for (Cell cell : row) {
+                if (cell.getCellType() == CellType.STRING) {
+                    assertTrue(cell.getStringCellValue(),
+                            !cell.getStringCellValue().contains("${l.best"));
+                }
+            }
+            for (PAthlete athlete : athletes) {
+                boolean nameMatches = false;
+                for (Cell cell : row) {
+                    if (cell.getCellType() == CellType.STRING
+                            && athlete.getLastName().equals(cell.getStringCellValue())) {
+                        nameMatches = true;
+                    }
+                }
+                if (nameMatches) {
+                    assertEquals(athlete.getBestAthleteRank(), row.getCell(20).getNumericCellValue(), 0);
+                    assertEquals(Ranking.getRankingValue(athlete._getAthlete(), system),
+                            row.getCell(19).getNumericCellValue(), 0.000001);
+                    assertEquals(athlete.getSinclair(), row.getCell(18).getNumericCellValue(), 0.000001);
+                    found++;
+                }
+            }
+        }
+        assertEquals(athletes.size(), found);
+    }
+
+    @Test
+    public void bestAthleteRanksSeparateGendersAndSkipZeroAndInvitedAthletes() {
+        Athlete man = prepareBestAthlete(0, Gender.M, 100, 120);
+        Athlete secondMan = prepareBestAthlete(1, Gender.M, 80, 100);
+        Athlete invited = prepareBestAthlete(2, Gender.M, 150, 180);
+        invited.setIndividualEligibilityStatus(EligibleForIndividualRankingStatus.OOC_INVITED);
+        Athlete zero = prepareBestAthlete(3, Gender.M, 0, 0);
+        zero.getMainRankings().setBestAthleteRank(99);
+        Athlete woman = prepareBestAthlete(4, Gender.F, 70, 90);
+
+        List<PAthlete> report = AthleteSorter.bestAthleteOrderCopy(
+                List.of(secondMan, zero, woman, invited, man), Ranking.BW_SINCLAIR);
+        for (PAthlete row : report) {
+            int expectedRank = row.getId().equals(invited.getId()) ? -1
+                    : row.getId().equals(zero.getId()) ? 0
+                    : row.getId().equals(secondMan.getId()) ? 2 : 1;
+            assertEquals(row.getFullName(), expectedRank, row.getBestAthleteRank());
+        }
+        assertEquals(99, zero.getBestAthleteRank());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void bestAthleteReportingRejectsMedalRankingTypes() {
+        AthleteSorter.bestAthleteOrderCopy(List.of(athletes.get(0)), Ranking.TOTAL);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void bestAthleteReportingRejectsMissingParticipation() {
+        Athlete athlete = new Athlete();
+        assertEquals(0, athlete.getBestAthleteRank());
+        PAthlete.copyForReporting(athlete);
+    }
+
+    private Athlete prepareBestAthlete(int index, Gender gender, int snatch, int cleanJerk) {
+        Athlete athlete = athletes.get(index);
+        athlete.setValidation(false);
+        athlete.setGender(gender);
+        athlete.setBodyWeight(70.0);
+        athlete.setIndividualEligibilityStatus(EligibleForIndividualRankingStatus.ELIGIBLE);
+        athlete.setSnatch1ActualLift(Integer.toString(snatch));
+        athlete.setSnatch2ActualLift("0");
+        athlete.setSnatch3ActualLift("0");
+        athlete.setCleanJerk1ActualLift(Integer.toString(cleanJerk));
+        athlete.setCleanJerk2ActualLift("0");
+        athlete.setCleanJerk3ActualLift("0");
+        athlete.getCategory();
+        return athlete;
     }
 
     private void assertCategoryRanksAreExtra(Athlete athlete) {
