@@ -10,6 +10,8 @@
 
 **Maintenance Log**
 
+- 68.0.0-rc12: Fixes for corrupted competition results templates and jury protocols
+
 - 68.0.0-rc11: Fixes for scoreboards
   - Handle values and ranks correctly when a single session includes both score-based and total-based categories
   - Reinstated the `displayBodyWeight` feature toggle as a first class citizen (no longer shares the custom1 column)
