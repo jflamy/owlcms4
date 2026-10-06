@@ -57,4 +57,11 @@ public class PasswordHasherTest {
 		assertFalse(PasswordHasher.isAcceptable("1234567"));
 		assertTrue(PasswordHasher.isAcceptable("12345678"));
 	}
+
+	@Test
+	public void explicitlyHashedEmptyPasswordIsDistinctFromAnUnsetPassword() {
+		assertFalse(PasswordHasher.isAcceptable(""));
+		assertTrue(PasswordHasher.verify("", PasswordHasher.hash("")));
+		assertFalse(PasswordHasher.verify("", null));
+	}
 }

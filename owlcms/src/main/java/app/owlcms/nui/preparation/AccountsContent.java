@@ -5,10 +5,17 @@ import java.util.stream.Collectors;
 
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
+import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -16,12 +23,14 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.access.AccessMode;
+import app.owlcms.access.AccessStartup;
 import app.owlcms.access.AccountModeAuthenticator;
 import app.owlcms.access.Principal;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
 import app.owlcms.access.SessionLogout;
 import app.owlcms.apputils.queryparameters.BaseContent;
+import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.account.RoleGrant;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
@@ -33,6 +42,7 @@ import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
+import ch.qos.logback.classic.Logger;
 
 /** Named accounts and their role grants; usable in both access modes so accounts can be prepared beforehand. */
 @SuppressWarnings("serial")
@@ -40,6 +50,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 @Route(value = "preparation/accounts", layout = OwlcmsLayout.class)
 public class AccountsContent extends BaseContent implements CrudListener<UserAccount>, OwlcmsContent {
 
+	private static final Logger logger = (Logger) LoggerFactory.getLogger(AccountsContent.class);
 	private OwlcmsCrudFormFactory<UserAccount> editingFormFactory;
 	private OwlcmsLayout routerLayout;
 	private GridCrud<UserAccount> crud;
@@ -130,6 +141,8 @@ public class AccountsContent extends BaseContent implements CrudListener<UserAcc
 		grid.addComponentColumn(this::enabledToggle).setHeader(Translator.translate("Active")).setAutoWidth(true).setFlexGrow(0);
 		grid.addColumn(UserAccount::getUsername).setHeader(Translator.translate("Access.Username"));
 		grid.addColumn(UserAccount::getDisplayName).setHeader(Translator.translate("Access.Account.DisplayName"));
+		grid.addComponentColumn(this::passwordRequiredIndicator)
+		        .setHeader(Translator.translate("Access.Account.PasswordRequired")).setAutoWidth(true).setFlexGrow(0);
 		grid.addColumn(a -> summary(a)).setHeader(Translator.translate("Access.Account.Grants"));
 
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(UserAccount.class);
@@ -137,9 +150,36 @@ public class AccountsContent extends BaseContent implements CrudListener<UserAcc
 		gridCrud.setCrudListener(this);
 		gridCrud.setClickRowToUpdate(true);
 		gridCrud.getCrudLayout().addToolbarComponent(createAccessModeSwitch());
+		gridCrud.getCrudLayout().addToolbarComponent(createResetPlatformAccountsButton(grid));
 		((HorizontalLayout) gridLayout.getToolbarLayout())
 		        .setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 		return gridCrud;
+	}
+
+	private Button createResetPlatformAccountsButton(Grid<UserAccount> grid) {
+		String label = Translator.translate("Access.Account.ResetPlatforms");
+		Button reset = new Button(label, event -> new ConfirmationDialog(
+		        label, Translator.translate("Access.Account.ResetPlatformsConfirm"),
+		        label, null, () -> resetPlatformAccounts(grid)).open());
+		reset.addThemeVariants(ButtonVariant.LUMO_ERROR);
+		return reset;
+	}
+
+	private void resetPlatformAccounts(Grid<UserAccount> grid) {
+		UI ui = UI.getCurrent();
+		String success = Translator.translate("Access.Account.ResetPlatformsDone");
+		String failureMessage = Translator.translate("Access.Account.ResetPlatformsFailed");
+		this.crud.getElement().setEnabled(false);
+		AccessStartup.resetPlatformAccountsInBackground().whenComplete((accounts, failure) -> ui.accessLater(() -> {
+			this.crud.getElement().setEnabled(true);
+			if (failure != null) {
+				Notification.show(failureMessage, 5000, Notification.Position.MIDDLE);
+				return;
+			}
+			grid.asSingleSelect().clear();
+			grid.setItems(accounts);
+			Notification.show(success);
+		}, () -> logger.info("platform account reset notification skipped because account page detached")).run());
 	}
 
 	private Checkbox enabledToggle(UserAccount account) {
@@ -155,6 +195,21 @@ public class AccountsContent extends BaseContent implements CrudListener<UserAcc
 			}
 		});
 		return enabled;
+	}
+
+	private Component passwordRequiredIndicator(UserAccount account) {
+		if (!account.isPasswordChangeRequired()) {
+			return new NativeLabel();
+		}
+		String label = Translator.translate("Access.Account.PasswordRequired");
+		Icon warning = new Icon(VaadinIcon.WARNING);
+		warning.getStyle().set("color", "var(--lumo-error-color)");
+		warning.getStyle().set("width", "1.5em");
+		warning.getStyle().set("height", "1.5em");
+		warning.getElement().setAttribute("title", label);
+		warning.getElement().setAttribute("aria-label", label);
+		warning.getElement().setAttribute("role", "img");
+		return warning;
 	}
 
 	private static String summary(UserAccount account) {

@@ -12,6 +12,8 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import app.owlcms.utils.IdUtils;
 
 // must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
@@ -60,11 +62,16 @@ public class UserAccount implements Serializable {
 	}
 
 	public boolean isBuiltInAdmin() {
-		return BUILT_IN_ADMIN.equals(this.username);
+		return BUILT_IN_ADMIN.equals(normalizeUsername(this.username));
 	}
 
 	public boolean hasPassword() {
 		return this.passwordHash != null && !this.passwordHash.isBlank();
+	}
+
+	@JsonIgnore
+	public boolean isPasswordChangeRequired() {
+		return !hasPassword();
 	}
 
 	@Override
@@ -96,7 +103,7 @@ public class UserAccount implements Serializable {
 	}
 
 	public void setUsername(String username) {
-		this.username = normalizeUsername(username);
+		this.username = username == null ? null : username.trim();
 	}
 
 	public String getDisplayName() {

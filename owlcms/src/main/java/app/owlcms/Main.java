@@ -208,6 +208,7 @@ public class Main {
         // before injectData as it may create/migrate categories
         Gender.initPublicGenderCodeMapString(l != null ? l : Locale.ENGLISH);
         injectData(initialData, l);
+        AccessStartup.initializeRoleAccountsAfterDataLoad();
 		Championship.recomputeParticipantCounts();
 
         StartupUtils.getStartupLogger().info("Initializing scoring.");

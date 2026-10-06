@@ -147,4 +147,18 @@ public class ConfigTest {
         assertTrue(config.featureSwitch(FeatureSwitch.COMPETITION_DIRECTOR_PAGE));
         assertFalse(config.getFeatureSwitchValue(FeatureSwitch.COMPETITION_DIRECTOR_PAGE));
     }
+
+    @Test
+    public void accountsModeEnablesCompetitionDirectorEvenWhenEnvironmentDisablesIt() {
+        Config config = new Config();
+        config.setFeatureSwitchValue(FeatureSwitch.COMPETITION_DIRECTOR_PAGE, false);
+        System.setProperty("featureSwitches", "-" + FeatureSwitch.COMPETITION_DIRECTOR_PAGE.getId());
+        config.setAccessMode(AccessMode.ACCOUNTS);
+
+        assertTrue(config.featureSwitch(FeatureSwitch.COMPETITION_DIRECTOR_PAGE));
+        assertFalse(config.getFeatureSwitchValue(FeatureSwitch.COMPETITION_DIRECTOR_PAGE));
+
+        config.setAccessMode(AccessMode.PIN);
+        assertFalse(config.featureSwitch(FeatureSwitch.COMPETITION_DIRECTOR_PAGE));
+    }
 }

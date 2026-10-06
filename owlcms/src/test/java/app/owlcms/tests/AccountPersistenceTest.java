@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import app.owlcms.Main;
 import app.owlcms.access.AccessMode;
+import app.owlcms.access.AccessStartup;
 import app.owlcms.access.PasswordHasher;
 import app.owlcms.access.Role;
 import app.owlcms.data.account.RoleGrant;
@@ -21,6 +22,7 @@ import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.platform.Platform;
 
 public class AccountPersistenceTest {
 
@@ -33,6 +35,7 @@ public class AccountPersistenceTest {
 
 	@AfterClass
 	public static void closeDatabase() {
+		AccessStartup.roleAccountInitialization().join();
 		JPAService.close();
 	}
 
@@ -86,7 +89,7 @@ public class AccountPersistenceTest {
 
 		UserAccount found = UserAccountRepository.findByUsername("  CAROL ");
 		assertNotNull(found);
-		assertEquals("carol", found.getUsername());
+		assertEquals("Carol", found.getUsername());
 		assertEquals(List.of(new RoleGrant(Role.PLATFORM, "A"), new RoleGrant(Role.RESULTS, null)), found.getGrants());
 		assertNull(UserAccountRepository.findByUsername("nobody"));
 	}
@@ -133,11 +136,18 @@ public class AccountPersistenceTest {
 		assertNull(UserAccountRepository.findByUsername("gina"));
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void usernamesDifferingOnlyInCaseAreRejected() {
+		newAccount("CaseSensitiveDisplay", new RoleGrant(Role.WEIGHIN, null));
+		newAccount("casesensitivedisplay", new RoleGrant(Role.RESULTS, null));
+	}
+
 	@Test
 	public void importedConfigKeepsTheRunningAccessMode() {
 		Config current = Config.getCurrent();
 		current.setAccessMode(AccessMode.ACCOUNTS);
 		Config.setCurrent(current);
+		AccessStartup.roleAccountInitialization().join();
 		try {
 			Config imported = new Config();
 			Config saved = Config.setCurrent(imported);
@@ -150,5 +160,82 @@ public class AccountPersistenceTest {
 			Config.setCurrent(restored);
 		}
 		assertEquals(AccessMode.PIN, Config.getCurrent().getAccessMode());
+	}
+
+	@Test
+	public void enablingAccountsPersistsMissingRolesWithPasswordsRequired() {
+		JPAService.runInTransaction(em -> {
+			em.persist(new Platform("Seed A"));
+			em.persist(new Platform("Seed B"));
+			return null;
+		});
+		Config config = Config.getCurrent();
+		config.setAccessMode(AccessMode.PIN);
+		Config.setCurrent(config);
+		try {
+			config = Config.getCurrent();
+			config.setAccessMode(AccessMode.ACCOUNTS);
+			Config.setCurrent(config);
+			AccessStartup.roleAccountInitialization().join();
+			UserAccountRepository.invalidate();
+			UserAccount results = UserAccountRepository.findByUsername("results");
+			assertNotNull(results);
+			assertEquals(List.of(new RoleGrant(Role.RESULTS, null)), results.getGrants());
+			UserAccount announcer = UserAccountRepository.findByUsername("announcer-seed a");
+			assertNotNull(announcer);
+			assertEquals("announcer-Seed A", announcer.getUsername());
+			assertTrue(announcer.isPasswordChangeRequired());
+			assertEquals(List.of(new RoleGrant(Role.ANNOUNCER, "Seed A")), announcer.getGrants());
+			UserAccount referee = UserAccountRepository.findByUsername("referee-seed b");
+			assertNotNull(referee);
+			assertTrue(referee.isPasswordChangeRequired());
+			assertEquals(List.of(new RoleGrant(Role.REFEREE, "Seed B")), referee.getGrants());
+		} finally {
+			Config restored = Config.getCurrent();
+			restored.setAccessMode(AccessMode.PIN);
+			Config.setCurrent(restored);
+		}
+	}
+
+	@Test
+	public void resetPlatformAccountsReplacesConventionalAccountsAndPreservesOthers() {
+		JPAService.runInTransaction(em -> {
+			em.persist(new Platform("Reset A"));
+			em.persist(new Platform("Reset B"));
+			return null;
+		});
+		UserAccount single = newAccount("announcer", new RoleGrant(Role.ANNOUNCER, "Reset A"));
+		UserAccount suffixed = newAccount("announcer-Reset A", new RoleGrant(Role.ANNOUNCER, "Reset A"));
+		suffixed.setPasswordHash(PasswordHasher.hash("old platform password"));
+		UserAccountRepository.save(suffixed);
+		UserAccount custom = newAccount("custom-reset-speaker", new RoleGrant(Role.ANNOUNCER, "Reset A"));
+		custom.setPasswordHash(PasswordHasher.hash("custom password"));
+		UserAccountRepository.save(custom);
+		UserAccount global = newAccount("global-reset-results", new RoleGrant(Role.RESULTS, null));
+		global.setPasswordHash(PasswordHasher.hash("global password"));
+		UserAccountRepository.save(global);
+		UserAccountRepository.ensureBuiltInAdmin();
+		UserAccount admin = UserAccountRepository.findByUsername("admin");
+
+		List<UserAccount> reset = AccessStartup.resetPlatformAccountsInBackground().join();
+		UserAccountRepository.invalidate();
+
+		assertNull(UserAccountRepository.findById(single.getId()));
+		assertNull(UserAccountRepository.findById(suffixed.getId()));
+		assertNull(UserAccountRepository.findByUsername("announcer"));
+		UserAccount recreated = UserAccountRepository.findByUsername("announcer-reset a");
+		assertNotNull(recreated);
+		assertTrue(recreated.isPasswordChangeRequired());
+		assertEquals(List.of(new RoleGrant(Role.ANNOUNCER, "Reset A")), recreated.getGrants());
+		assertNotNull(UserAccountRepository.findByUsername("announcer-reset b"));
+		assertEquals(custom.getId(), UserAccountRepository.findByUsername("custom-reset-speaker").getId());
+		assertTrue(PasswordHasher.verify("custom password",
+		        UserAccountRepository.findByUsername("custom-reset-speaker").getPasswordHash()));
+		assertEquals(global.getId(), UserAccountRepository.findByUsername("global-reset-results").getId());
+		assertTrue(PasswordHasher.verify("global password",
+		        UserAccountRepository.findByUsername("global-reset-results").getPasswordHash()));
+		assertEquals(admin.getId(), UserAccountRepository.findByUsername("admin").getId());
+		assertEquals(admin.getPasswordHash(), UserAccountRepository.findByUsername("admin").getPasswordHash());
+		assertEquals(reset.size(), UserAccountRepository.findAll().size());
 	}
 }

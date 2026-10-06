@@ -14,6 +14,7 @@ import javax.persistence.Query;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.access.AccessStartup;
 import app.owlcms.data.jpa.JPAService;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -98,17 +99,25 @@ public class ConfigRepository {
 			config.setClearZip(false); // Reset flag after clearing
 		}
 		
-		Config merged = JPAService.runInTransaction(em -> {
+		SaveResult result = JPAService.runInTransaction(em -> {
+			Config previous = em.find(Config.class, config.getId());
+			boolean initializeAccounts = config.isAccountsMode()
+			        && (previous == null || !previous.isAccountsMode());
 			Config nc = em.merge(config);
 			TimeZone tz = nc.getTimeZone();
 			if (tz != null) {
 				logger.info("setting time zone to {}", tz);
 				TimeZone.setDefault(tz);
 			}
-			return nc;
+			return new SaveResult(nc, initializeAccounts);
 		});
-		
-		return merged;
+		if (result.initializeAccounts()) {
+			AccessStartup.initializeRoleAccountsInBackground();
+		}
+		return result.config();
+	}
+
+	private record SaveResult(Config config, boolean initializeAccounts) {
 	}
 
 }

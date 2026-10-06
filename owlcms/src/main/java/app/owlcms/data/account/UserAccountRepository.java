@@ -3,6 +3,7 @@ package app.owlcms.data.account;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.access.Role;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.platform.Platform;
 import ch.qos.logback.classic.Logger;
 
 public final class UserAccountRepository {
@@ -48,7 +50,7 @@ public final class UserAccountRepository {
 			return null;
 		}
 		for (UserAccount account : cached().values()) {
-			if (key.equals(account.getUsername())) {
+			if (key.equals(UserAccount.normalizeUsername(account.getUsername()))) {
 				return account;
 			}
 		}
@@ -56,7 +58,16 @@ public final class UserAccountRepository {
 	}
 
 	public static UserAccount save(UserAccount account) {
-		UserAccount saved = JPAService.runInTransaction(em -> em.merge(account));
+		UserAccount saved = JPAService.runInTransaction(em -> {
+			List<UserAccount> matching = em.createQuery(
+			        "select a from UserAccount a where lower(trim(a.username)) = :username", UserAccount.class)
+			        .setParameter("username", UserAccount.normalizeUsername(account.getUsername())).getResultList();
+			if (matching.stream().anyMatch(a -> !Objects.equals(a.getId(), account.getId()))) {
+				logger./**/warn("duplicate account username refused username={}", account.getUsername());
+				throw new IllegalArgumentException("Account username already exists: " + account.getUsername());
+			}
+			return em.merge(account);
+		});
 		invalidate();
 		return saved;
 	}
@@ -74,6 +85,7 @@ public final class UserAccountRepository {
 
 	/** Replaces all accounts as part of an account-bearing competition import. */
 	public static void replaceAll(EntityManager em, List<UserAccount> accounts) {
+		accountsByUsername(accounts);
 		List<UserAccount> existing = em.createQuery("select a from UserAccount a", UserAccount.class).getResultList();
 		for (UserAccount account : existing) {
 			em.remove(account);
@@ -98,6 +110,91 @@ public final class UserAccountRepository {
 	public static boolean adminHasPassword() {
 		UserAccount admin = findByUsername(UserAccount.BUILT_IN_ADMIN);
 		return admin != null && admin.hasPassword();
+	}
+
+	public static synchronized void ensureRoleAccounts() {
+		initializeRoleAccounts(false);
+	}
+
+	public static synchronized List<UserAccount> resetPlatformAccounts() {
+		initializeRoleAccounts(true);
+		return findAll();
+	}
+
+	private static void initializeRoleAccounts(boolean resetPlatforms) {
+		JPAService.runInTransaction(em -> {
+			List<UserAccount> existing = em.createQuery("select a from UserAccount a", UserAccount.class).getResultList();
+			List<String> platforms = em.createQuery("select p from Platform p order by p.id", Platform.class)
+			        .getResultList().stream().map(Platform::getName).toList();
+			if (resetPlatforms) {
+				for (UserAccount account : existing.stream()
+				        .filter(UserAccountRepository::isConventionalPlatformAccount).toList()) {
+					em.remove(account);
+					logger.info("platform role account reset username={}", account.getUsername());
+				}
+				em.flush();
+				existing = existing.stream().filter(a -> !isConventionalPlatformAccount(a)).toList();
+			}
+			for (UserAccount account : missingRoleAccounts(existing, platforms)) {
+				em.persist(account);
+				logger.info("role account created username={} (password required)", account.getUsername());
+			}
+			return null;
+		});
+		invalidate();
+	}
+
+	static boolean isConventionalPlatformAccount(UserAccount account) {
+		if (account.isBuiltInAdmin() || account.getGrants().size() != 1) {
+			return false;
+		}
+		RoleGrant grant = account.getGrants().get(0);
+		if (!grant.getRole().isPlatformScopable() || grant.getPlatformName() == null) {
+			return false;
+		}
+		String roleName = grant.getRole().name().toLowerCase(Locale.ROOT);
+		String username = UserAccount.normalizeUsername(account.getUsername());
+		return roleName.equals(username)
+		        || UserAccount.normalizeUsername(roleName + "-" + grant.getPlatformName()).equals(username);
+	}
+
+	static List<UserAccount> missingRoleAccounts(List<UserAccount> existing, List<String> platforms) {
+		Map<String, UserAccount> byUsername = accountsByUsername(existing);
+		List<UserAccount> missing = new ArrayList<>();
+		for (Role role : Role.values()) {
+			if (!role.isGrantable()) {
+				continue;
+			}
+			List<String> scopes = role.isPlatformScopable() ? platforms : Collections.singletonList(null);
+			for (String platform : scopes) {
+				String username = role.name().toLowerCase(Locale.ROOT)
+				        + (platform == null || platforms.size() == 1 ? "" : "-" + platform);
+				String key = UserAccount.normalizeUsername(username);
+				if (byUsername.containsKey(key)) {
+					UserAccount account = byUsername.get(key);
+					if (!account.getGrants().contains(new RoleGrant(role, platform))) {
+						logger./**/warn("role account username={} already exists with different grants; left unchanged",
+						        username);
+					}
+					continue;
+				}
+				UserAccount account = new UserAccount();
+				account.setUsername(username);
+				account.setDisplayName(username);
+				account.getGrants().add(new RoleGrant(role, platform));
+				missing.add(account);
+				byUsername.put(key, account);
+			}
+		}
+		return missing;
+	}
+
+	private static Map<String, UserAccount> accountsByUsername(List<UserAccount> accounts) {
+		return accounts.stream().collect(Collectors.toMap(
+		        a -> UserAccount.normalizeUsername(a.getUsername()), Function.identity(), (first, duplicate) -> {
+			        logger./**/warn("duplicate account username refused username={}", duplicate.getUsername());
+			        throw new IllegalArgumentException("Duplicate account username: " + duplicate.getUsername());
+		        }));
 	}
 
 	/** Creates or repairs the built-in admin account. */
