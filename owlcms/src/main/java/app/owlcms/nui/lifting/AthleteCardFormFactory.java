@@ -143,49 +143,61 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	private TextField snatch3Declaration;
 	private BinderValidationStatus<Athlete> status;
 	private Boolean updatingResults;
-	private EventBus uiEventBus;
 
 	/**
-	 * Form component that registers itself safely on the UI event bus and receives DownSignal events.
+	 * Card body. While it is attached, it listens on the FOP UI bus so that the card closes when its athlete gets the
+	 * down signal or a decision. It unsubscribes when the dialog closes, because the factory builds a new instance for
+	 * every card.
 	 */
-	private class FormComponent extends VerticalLayout implements SafeEventBusRegistration {
+	private class FormComponent extends VerticalLayout {
 		private static final long serialVersionUID = 1L;
+		private final Athlete cardAthlete;
+		private EventBus fopUiEventBus;
+
+		FormComponent(Athlete cardAthlete) {
+			this.cardAthlete = cardAthlete;
+			addAttachListener(e -> subscribe());
+			addDetachListener(e -> unsubscribe());
+		}
 
 		@Subscribe
 		public void onDownSignal(UIEvent.DownSignal e) {
-			handleCloseIfCurrent(e);
+			closeIfCurrent(e);
 		}
 
 		@Subscribe
 		public void onDecision(UIEvent.Decision e) {
-			handleCloseIfCurrent(e);
+			closeIfCurrent(e);
 		}
 
-		private void handleCloseIfCurrent(UIEvent e) {
-			// execute in UI thread and perform common close/unregister logic
-			UIEventProcessor.uiAccess(AthleteCardFormFactory.this.origin instanceof Component ? (Component) AthleteCardFormFactory.this.origin : null,
-					AthleteCardFormFactory.this.uiEventBus, e, () -> {
-						try {
-							FieldOfPlay fop = e.getFop();
-							if (fop != null && AthleteCardFormFactory.this.originalAthlete != null
-									&& fop.getCurAthlete() != null
-									&& fop.getCurAthlete().equals(AthleteCardFormFactory.this.originalAthlete)) {
-								// explicitly unregister from the UI event bus, then log and close the dialog
-								try {
-									if (AthleteCardFormFactory.this.uiEventBus != null) {
-										SafeEventBusRegistration.unregisterSubscriber(FormComponent.this,
-										        AthleteCardFormFactory.this.uiEventBus);
-									}
-								} catch (Exception ex) {
-									// ignore unregister failures
-								}
-								logger.info("Athlete card closed on event {} for athlete {}", e.getClass().getSimpleName(), AthleteCardFormFactory.this.originalAthlete.getId());
-								AthleteCardFormFactory.this.origin.closeDialog();
-							}
-						} catch (Throwable ex) {
-							// swallow
-						}
-					});
+		private void subscribe() {
+			FieldOfPlay fop = AthleteCardFormFactory.this.origin.getFop();
+			if (fop == null) {
+				return;
+			}
+			unsubscribe();
+			this.fopUiEventBus = fop.getUiEventBus();
+			SafeEventBusRegistration.registerSubscriber(this, this.fopUiEventBus);
+		}
+
+		private void unsubscribe() {
+			if (this.fopUiEventBus != null) {
+				SafeEventBusRegistration.unregisterSubscriber(this, this.fopUiEventBus);
+				this.fopUiEventBus = null;
+			}
+		}
+
+		private void closeIfCurrent(UIEvent e) {
+			UIEventProcessor.uiAccess(this, this.fopUiEventBus, e, () -> {
+				FieldOfPlay fop = e.getFop();
+				if (!isAttached() || fop == null || this.cardAthlete == null
+				        || !this.cardAthlete.equals(fop.getCurAthlete())) {
+					return;
+				}
+				logger.info("{}Athlete card closed on event {} for athlete {}", FieldOfPlay.getLoggingName(fop),
+				        e.getClass().getSimpleName(), this.cardAthlete.getId());
+				AthleteCardFormFactory.this.origin.closeDialog();
+			});
 		}
 	}
 
@@ -414,7 +426,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		Component footerLayout = this.buildFooter(operation, getEditedAthlete(), cancelButtonClickListener,
 		        updateButtonClickListener, deleteButtonClickListener, true);
 
-	FormComponent mainLayout = new FormComponent();
+		FormComponent mainLayout = new FormComponent(this.originalAthlete);
 		mainLayout.add(formLayout);
 		mainLayout.add(this.gridLayout);
 		mainLayout.add(labelWrapper);
@@ -440,25 +452,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		}
 
 		setFocus(getEditedAthlete(), this.initialValidationStatus.hasErrors());
-		// Use SafeEventBusRegistration to register the form component on the FOP UI event bus
-		// when the component is attached (so a UI is present).
-		mainLayout.addAttachListener((e) -> {
-			try {
-				FieldOfPlay fop = this.origin.getFop();
-				if (fop != null) {
-					// uiEventBusRegister requires the component to have a UI; calling it on attach
-					// ensures SafeEventBusRegistration can obtain the UI and wire unregister listeners.
-					this.uiEventBus = mainLayout.uiEventBusRegister(mainLayout, fop);
-				}
-			} catch (Throwable t) {
-				// ignore registration failures
-			}
-		});
 
 		return mainLayout;
 	}
-
-	// The DownSignal subscriber is implemented on the form component instance. See above.
 
 	/**
 	 * Special version because we use setBean instead of readBean

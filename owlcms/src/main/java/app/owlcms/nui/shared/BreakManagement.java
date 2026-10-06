@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -71,7 +72,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-public class BreakManagement extends BaseContent implements SafeEventBusRegistration {
+public class BreakManagement extends BaseContent {
 
 	public class LazyComponent extends Div {
 		public LazyComponent(
@@ -207,10 +208,18 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		super.onAttach(attachEvent);
 		FieldOfPlay currentFop = this.fop;
 		if (currentFop != null) {
-			this.uiEventBus = uiEventBusRegister(this, currentFop);
+			// transient dialog content: tie the subscription to this component, not to the UI
+			this.uiEventBus = currentFop.getUiEventBus();
+			SafeEventBusRegistration.registerSubscriber(this, this.uiEventBus);
 		}
 
 		addListeners();
+	}
+
+	@Override
+	protected void onDetach(DetachEvent detachEvent) {
+		SafeEventBusRegistration.unregisterSubscriber(this, this.uiEventBus);
+		super.onDetach(detachEvent);
 	}
 
 	private void addListeners() {
