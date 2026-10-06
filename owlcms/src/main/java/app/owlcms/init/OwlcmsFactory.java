@@ -188,6 +188,30 @@ public class OwlcmsFactory {
 		return values;
 	}
 
+	/**
+	 * @return the platform on which the session is selected and in progress (see
+	 *         {@link FieldOfPlay#isSessionInProgress()}), null if none. Athletes of such a session must not be edited
+	 *         outside the platform, since the platform keeps its own copies of them. This is a status check: once the
+	 *         session is unselected, editing is possible again.
+	 */
+	public static FieldOfPlay getFOPSessionInProgress(Group group) {
+		if (group == null || group.getId() == null || getFopByName() == null) {
+			return null;
+		}
+		for (FieldOfPlay fop : getFOPs()) {
+			Group fopGroup = fop.getGroup();
+			if (fopGroup != null && group.getId().equals(fopGroup.getId()) && fop.isSessionInProgress()) {
+				return fop;
+			}
+		}
+		return null;
+	}
+
+	public static FieldOfPlay getFOPSessionInProgress(Group proposed, Group stored) {
+		FieldOfPlay fop = getFOPSessionInProgress(proposed);
+		return fop != null ? fop : getFOPSessionInProgress(stored);
+	}
+
 	public static String getVersion() {
 		return StartupUtils.getVersion();
 	}

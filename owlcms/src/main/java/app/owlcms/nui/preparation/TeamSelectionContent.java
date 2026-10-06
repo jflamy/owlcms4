@@ -73,6 +73,7 @@ import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.IAthleteEditing;
+import app.owlcms.nui.shared.LiftingSessionGuard;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
@@ -486,6 +487,9 @@ public class TeamSelectionContent extends BaseContent
 			protected void updateButtonClicked() {
 				TeamTreeItem item = this.grid.asSingleSelect().getValue();
 				if (item.getAthlete() == null) {
+					return;
+				}
+				if (LiftingSessionGuard.refuseIfLifting(item.getAthlete().getGroup(), LiftingSessionGuard.CANNOT_EDIT_REGISTRATION)) {
 					return;
 				}
 

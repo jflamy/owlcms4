@@ -27,6 +27,7 @@ import org.vaadin.crudui.crud.CrudOperation;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ModalityMode;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -89,6 +90,7 @@ import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.lifting.AthleteCardFormFactory;
 import app.owlcms.nui.results.IFilterCascade;
 import app.owlcms.nui.shared.IAthleteEditing;
+import app.owlcms.nui.shared.LiftingSessionGuard;
 import app.owlcms.nui.shared.NAthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -646,7 +648,17 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 				OwlcmsSession.setAttribute("weighIn", null);
 			}
 		},
-		        crudFormFactory, grid);
+		        crudFormFactory, grid) {
+			@Override
+			protected void updateButtonClicked() {
+				Athlete athlete = this.grid.asSingleSelect().getValue();
+				if (athlete != null
+				        && LiftingSessionGuard.refuseIfLifting(athlete.getGroup(), LiftingSessionGuard.CANNOT_EDIT_REGISTRATION)) {
+					return;
+				}
+				super.updateButtonClicked();
+			}
+		};
 		
 		crudGrid.setCrudListener(this);
 		crudGrid.setClickRowToUpdate(true);
@@ -667,6 +679,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 	private void openAthleteCard(Athlete athlete) {
 		Dialog dialog = new Dialog();
+		dialog.setModality(ModalityMode.STRICT);
 		IAthleteEditing origin = new IAthleteEditing() {
 			@Override
 			public void closeDialog() {

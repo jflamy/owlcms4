@@ -481,6 +481,15 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 		return this.valid;
 	}
 
+	/**
+	 * Called once the form values are written to the domain object and valid, before saving them. Subclasses may
+	 * refuse or defer the update. Deferred persistence runs in a worker; completed must run on the UI thread.
+	 */
+	protected void confirmUpdate(T domainObject, Runnable update, Runnable completed) {
+		update.run();
+		completed.run();
+	}
+
 	protected void performOperationAndCallback(CrudOperation operation, T domainObject,
 	        ComponentEventListener<ClickEvent<Button>> gridCallback, boolean ignoreErrors) {
 		if (ignoreErrors) {
@@ -513,11 +522,12 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 				gridCallback.onComponentEvent(this.operationTriggerEvent);
 			} else if (operation == CrudOperation.UPDATE) {
 				logger.debug("updating 	{}", domainObject);
-				this.update(domainObject);
-				this.notif.setPosition(Position.TOP_END);
-				this.notif.setDuration(2500);
-				this.notif.open();
-				gridCallback.onComponentEvent(this.operationTriggerEvent);
+				confirmUpdate(domainObject, () -> this.update(domainObject), () -> {
+					this.notif.setPosition(Position.TOP_END);
+					this.notif.setDuration(2500);
+					this.notif.open();
+					gridCallback.onComponentEvent(this.operationTriggerEvent);
+				});
 			} else if (operation == CrudOperation.DELETE) {
 				logger.debug("deleting 	{}", domainObject);
 				this.delete(domainObject);

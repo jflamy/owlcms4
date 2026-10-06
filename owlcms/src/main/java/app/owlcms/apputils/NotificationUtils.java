@@ -8,6 +8,7 @@ package app.owlcms.apputils;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
@@ -31,6 +32,24 @@ public class NotificationUtils {
 		error.add(layout);
 		error.setPosition(Position.MIDDLE);
 		error.open();
+	}
+
+	/**
+	 * Centered red notification that stays until the user clicks it (dismissal ✕ shown).
+	 */
+	public static Notification centeredError(String text) {
+		Notification n = new Notification();
+		Div div = new Div();
+		div.setText(text + "\u00A0\u00A0\u00A0\u2715");
+		div.getStyle().set("font-size", "large");
+		div.getStyle().set("cursor", "pointer");
+		div.addClickListener(click -> n.close());
+		n.add(div);
+		n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+		n.setPosition(Position.MIDDLE);
+		n.setDuration(0);
+		n.open();
+		return n;
 	}
 
 }

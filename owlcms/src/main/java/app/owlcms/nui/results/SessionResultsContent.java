@@ -32,8 +32,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -69,6 +67,7 @@ import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.AthleteCrudGrid;
 import app.owlcms.nui.shared.AthleteGridContent;
+import app.owlcms.nui.shared.LiftingSessionGuard;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSMedalsSheet;
 import app.owlcms.spreadsheet.JXLSResultSheet;
@@ -588,19 +587,9 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 	 * @return true if the current group is safe for editing -- i.e. not lifting currently
 	 */
 	private boolean checkFOP() {
-		Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
-		FieldOfPlay liftingFop = null;
-		search: for (FieldOfPlay fop : fops) {
-			if (fop.getGroup() != null && fop.getGroup().equals(this.getCurrentGroup())) {
-				liftingFop = fop;
-				break search;
-			}
-		}
+		FieldOfPlay liftingFop = OwlcmsFactory.getFOPSessionInProgress(this.getCurrentGroup());
 		if (liftingFop != null) {
-			Notification.show(
-			        Translator.translate("Warning_GroupLifting") + liftingFop.getName()
-			                + Translator.translate("CannotEditResults"),
-			        3000, Position.MIDDLE);
+			LiftingSessionGuard.notifyLifting(liftingFop, LiftingSessionGuard.CANNOT_EDIT_RESULTS);
 			logger.debug(Translator.translate("CannotEditResults_logging"), this.getCurrentGroup(), liftingFop);
 			// subscribeIfLifting(currentGroup);
 		} else {

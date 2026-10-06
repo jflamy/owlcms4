@@ -11,6 +11,7 @@ import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.layout.impl.WindowBasedCrudLayout;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ModalityMode;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
@@ -139,6 +140,8 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 		this.dialogCaption.getStyle().set("margin-top", "0");
 		this.dialogCaption.getStyle().set("margin-bottom", "0");
 		this.dialog = new Dialog(this.dialogCaption, dialogLayout);
+		// Closing the form must also detach all subsequently opened confirmations.
+		this.dialog.setModality(ModalityMode.STRICT);
 		this.dialog.setWidth(this.formWindowWidth);
 		this.dialog.setCloseOnOutsideClick(true);
 		this.dialog.setCloseOnEsc(true);

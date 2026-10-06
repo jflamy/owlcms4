@@ -189,6 +189,7 @@ public class FieldOfPlay implements IUnregister {
 	private CeremonyType ceremonyType;
 	private volatile CeremonyScope activeCeremony;
 	private boolean cjStarted;
+	private volatile boolean sessionStarted;
 	/**
 	 * the clock owner is the last athlete for whom the clock has actually started.
 	 */
@@ -1253,6 +1254,9 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void checkFirstClockForLift() {
+		if (getGroup() != null) {
+			this.sessionStarted = true;
+		}
 		if (getAthleteTimer().getTimeRemaining() == Competition.athleteTimerOneMinute) {
 			if (this.isFirstSnatch()) {
 				getGroup().setFirstSnatchTime(LocalDateTime.now(), this);
@@ -1345,6 +1349,16 @@ public class FieldOfPlay implements IUnregister {
 
 	public boolean isCjStarted() {
 		return this.cjStarted;
+	}
+
+	/**
+	 * A session is in progress once the athlete clock has been started for it, or if it already had completed
+	 * attempts when selected. Stops, resets and breaks do not change this; unselecting the session clears it.
+	 *
+	 * @return true if registration and results data for the selected session must not be edited.
+	 */
+	public boolean isSessionInProgress() {
+		return this.group != null && this.sessionStarted;
 	}
 
 	public boolean isClockStoppedDecisionsAllowed() {
@@ -1473,6 +1487,9 @@ public class FieldOfPlay implements IUnregister {
 				groupAthletes = AthleteRepository.findAllByGroupAndWeighIn(group, true);
 			}
 
+			if (groupAthletes.stream().anyMatch(a -> a.getAttemptsDone() > 0)) {
+				this.sessionStarted = true;
+			}
 			init(groupAthletes, this.athleteTimer, this.breakTimer, alreadyLoaded);
 			this.lastGroupLoaded = now;
 		} else {
@@ -1700,6 +1717,11 @@ public class FieldOfPlay implements IUnregister {
 	 * @param group the group to set
 	 */
 	public void setGroup(Group group) {
+		boolean sameGroup = group != null && this.group != null
+				&& (group == this.group || (group.getId() != null && group.getId().equals(this.group.getId())));
+		if (!sameGroup) {
+			this.sessionStarted = false;
+		}
 		this.group = group;
 	}
 

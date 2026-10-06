@@ -80,6 +80,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athlete.RuleViolationException;
+import app.owlcms.data.athlete.RegistrationEditCheck;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
@@ -117,6 +118,9 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	private TextField custom1Field;
 	private TextField custom2Field;
 	private Athlete editedAthlete = null;
+	private RegistrationEditCheck registrationEditCheck;
+	private FormSaveTask saveTask;
+	private ComponentEventListener<ClickEvent<Button>> cancelListener;
 	private CheckboxGroup<Category> eligibleField;
 	private CheckboxGroup<String> ageGroupTeamField;
 	private CheckboxGroup<String> mixedAgeGroupTeamField;
@@ -275,6 +279,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	        ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
 
 		setupAthlete(operation, aFromList);
+		this.cancelListener = cancelButtonClickListener;
 		this.binder = buildBinder(operation, getEditedAthlete());
 
 		// when in weigh-in, the validations need to ignore the weight that was last
@@ -290,10 +295,11 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		dumpCategories(aFromList, null, new ArrayList<Category>(aFromList.getEligibleCategories()));
 
 		Component form = createTabSheets(footer);
+		this.saveTask = new FormSaveTask(form);
 		if (this.getCurrentGroup() != null && !this.getCurrentGroup().getName().equals("*")) {
-			aFromList.setGroup(getCurrentGroup());
+			getEditedAthlete().setGroup(getCurrentGroup());
 		}
-		this.binder.readBean(aFromList); // CODEREVIEW should be getEditedAthlete() ?
+		this.binder.readBean(getEditedAthlete());
 
 		// binder has read bean.
 		filterCategories(getEditedAthlete().getCategory(), operation != CrudOperation.ADD);
@@ -358,6 +364,27 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		athlete.enforceCategoryIsEligible();
 		AthleteRepository.save(athlete);
 		return athlete;
+	}
+
+	/**
+	 * Athletes of a session in progress are edited with the athlete card only; the session may have started
+	 * since this form was opened, or the athlete may be moved into such a session.
+	 */
+	@Override
+	protected void confirmUpdate(Athlete athlete, Runnable update, Runnable completed) {
+		RegistrationEditCheck check = this.registrationEditCheck;
+		FormSaveTask task = this.saveTask;
+		String athleteName = athlete.getFullName();
+		task.execute(() -> check.trySave(athlete, task::isActive, update), result -> {
+			if (result.lifting() != null) {
+				LiftingSessionGuard.notifyLifting(result.lifting(), LiftingSessionGuard.CANNOT_EDIT_REGISTRATION);
+			} else if (result.stale()) {
+				ConcurrentEditDialog.refuseRegistration(athleteName,
+				        () -> this.cancelListener.onComponentEvent(null));
+			} else if (result.saved()) {
+				completed.run();
+			}
+		}, e -> showError(CrudOperation.UPDATE, e));
 	}
 
 	/**
@@ -1804,6 +1831,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	}
 
 	private void setupAthlete(CrudOperation operation, Athlete aFromList) {
+		this.registrationEditCheck = null;
 		if (operation == CrudOperation.ADD) {
 			Athlete editedAthlete2 = new Athlete();
 
@@ -1815,6 +1843,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			setEditedAthlete(editedAthlete2);
 		} else if (aFromList != null) {
 			setEditedAthlete(AthleteRepository.findById(aFromList.getId()));
+			this.registrationEditCheck = RegistrationEditCheck.open(getEditedAthlete());
 		}
 	}
 

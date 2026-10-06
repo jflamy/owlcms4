@@ -9,6 +9,7 @@ package app.owlcms.nui.lifting;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.LoggerFactory;
@@ -53,6 +54,7 @@ import com.vaadin.flow.dom.ClassList;
 import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.ConcurrentEditCheck;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
@@ -60,8 +62,10 @@ import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.nui.shared.ConcurrentEditDialog;
 import app.owlcms.nui.shared.CustomFormFactory;
 import app.owlcms.nui.shared.IAthleteEditing;
+import app.owlcms.nui.shared.FormSaveTask;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.Notification;
@@ -127,6 +131,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	private Button cancelButton;
 	private IAthleteEditing origin;
 	private Athlete originalAthlete;
+	private ConcurrentEditCheck concurrentEditCheck;
+	private FormSaveTask saveTask;
 	private TextField snatch1ActualLift;
 	private TextField snatch1Change1;
 	private TextField snatch1Change2;
@@ -410,6 +416,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			this.originalAthlete = aFromList;
 		}
 		Athlete aFromDb = AthleteRepository.findById(aFromList.getId());
+		this.concurrentEditCheck = ConcurrentEditCheck.open(aFromDb);
 		Athlete.conditionalCopy(getEditedAthlete(), aFromDb, true, true, true);
 
 		getEditedAthlete().setValidation(false); // turn off validation in the Athlete setters; binder will call
@@ -427,6 +434,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		        updateButtonClickListener, deleteButtonClickListener, true);
 
 		FormComponent mainLayout = new FormComponent(this.originalAthlete);
+		this.saveTask = new FormSaveTask(mainLayout);
 		mainLayout.add(formLayout);
 		mainLayout.add(this.gridLayout);
 		mainLayout.add(labelWrapper);
@@ -569,7 +577,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	 */
 	@Override
 	public Athlete update(Athlete athleteFromDb) {
-		doUpdate();
+		if (this.binder.validate().isOk()) {
+			saveCard(a -> {}, true, isLiftResultChanged(), null, () -> {});
+		}
 		return this.originalAthlete;
 	}
 
@@ -608,11 +618,12 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 				gridCallback.onComponentEvent(this.operationTriggerEvent);
 			} else if (operation == CrudOperation.UPDATE) {
 				logger.debug("updating 	{}", domainObject);
-				this.update(domainObject);
-				this.notif.setPosition(Position.TOP_END);
-				this.notif.setDuration(2500);
-				this.notif.open();
-				gridCallback.onComponentEvent(this.operationTriggerEvent);
+				saveCard(a -> {}, true, isLiftResultChanged(), null, () -> {
+					this.notif.setPosition(Position.TOP_END);
+					this.notif.setDuration(2500);
+					this.notif.open();
+					gridCallback.onComponentEvent(this.operationTriggerEvent);
+				});
 			} else if (operation == CrudOperation.DELETE) {
 				logger.debug("deleting 	{}", domainObject);
 				this.delete(domainObject);
@@ -1094,37 +1105,13 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 
 		Button snatchWithdrawalButton = new Button(Translator.translate("SnatchWithdrawal"),
 		        new Icon(VaadinIcon.SIGN_OUT),
-		        (e) -> {
-			        Athlete.conditionalCopy(this.originalAthlete, getEditedAthlete(), true, true, true);
-			        this.originalAthlete.withdrawFromSnatch();
-			        AthleteRepository.save(this.originalAthlete);
-			        FieldOfPlay fop = this.origin.getFop();
-			        if (fop != null) {
-				        fop.pushOutUIEvent(new UIEvent.Notification(
-				                this.originalAthlete, this, Notification.Level.WARNING,
-				                "SnatchWithdrawalNotification", 5000, fop, this.originalAthlete.getFullName()));
-				        fop.fopEventPost(new FOPEvent.WeightChange(this.getOrigin(), this.originalAthlete, true));
-			        }
-			        this.origin.closeDialog();
-		        });
+		        (e) -> saveCard(Athlete::withdrawFromSnatch, false, true, "SnatchWithdrawalNotification", () -> {}));
 		snatchWithdrawalButton.getElement().setAttribute("theme", "error");
 		snatchWithdrawalButton.setWidth("200px");
 
 		Button withdrawalButton = new Button(Translator.translate("Withdrawal"),
 		        new Icon(VaadinIcon.SIGN_OUT),
-		        (e) -> {
-			        Athlete.conditionalCopy(this.originalAthlete, getEditedAthlete(), true, true, true);
-			        this.originalAthlete.withdraw();
-			        AthleteRepository.save(this.originalAthlete);
-			        FieldOfPlay fop = this.origin.getFop();
-			        if (fop != null) {
-				        fop.pushOutUIEvent(new UIEvent.Notification(
-				                this.originalAthlete, this, Notification.Level.WARNING,
-				                "FullWithdrawalNotification", 5000, fop, this.originalAthlete.getFullName()));
-				        fop.fopEventPost(new FOPEvent.WeightChange(this.getOrigin(), this.originalAthlete, true));
-			        }
-			        this.origin.closeDialog();
-		        });
+		        (e) -> saveCard(Athlete::withdraw, false, true, "FullWithdrawalNotification", () -> {}));
 		withdrawalButton.getElement().setAttribute("theme", "error");
 		withdrawalButton.setWidth("200px");
 
@@ -1334,18 +1321,44 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	/**
 	 * Update the original athlete so that the lifting order picks up the change.
 	 */
-	private void doUpdate() {
-		BinderValidationStatus<Athlete> val = this.binder.validate();
-		if (!val.isOk()) {
-			return;
-		}
-		Athlete.conditionalCopy(this.originalAthlete, getEditedAthlete(), true, true, true);
-		AthleteRepository.save(this.originalAthlete);
+	private void saveCard(Consumer<Athlete> mutation, boolean validate, boolean resultChanged, String notificationKey,
+	        Runnable completed) {
+		Athlete values = new Athlete();
+		Athlete.conditionalCopy(values, getEditedAthlete(), true, true, true);
+		values.setValidation(false);
 		FieldOfPlay fop = this.origin.getFop();
-		if (fop != null) {
-			fop.fopEventPost(new FOPEvent.WeightChange(this.getOrigin(), this.originalAthlete, isLiftResultChanged()));
+		// Off-platform cards retain their existing behavior, but serialize with each other.
+		Object monitor = fop != null ? fop : ConcurrentEditCheck.class;
+		Athlete original = this.originalAthlete;
+		Object eventOrigin = getOrigin();
+		FOPEvent.WeightChange weightChange = new FOPEvent.WeightChange(eventOrigin, original, resultChanged);
+		boolean accepting = this.acceptingStartingWeightViolation;
+		ConcurrentEditDialog.saveUnlessConflicting(this.saveTask, this.concurrentEditCheck, monitor, values,
+		        original.getFullName(), () -> !validate || validateCard(accepting), () -> {
+			        Athlete.conditionalCopy(original, values, true, true, true);
+			        mutation.accept(original);
+			        AthleteRepository.save(original);
+			        if (fop != null) {
+				        if (notificationKey != null) {
+					        fop.pushOutUIEvent(new UIEvent.Notification(original, this, Notification.Level.WARNING,
+					                notificationKey, 5000, fop, original.getFullName()));
+				        }
+				        fop.fopEventPost(weightChange);
+			        }
+		        }, () -> {
+			        this.origin.closeDialog();
+			        completed.run();
+		        }, () -> this.origin.closeDialog(), e -> showError(CrudOperation.UPDATE, e));
+	}
+
+	private boolean validateCard(boolean accepting) {
+		boolean previous = this.acceptingStartingWeightViolation;
+		this.acceptingStartingWeightViolation = accepting;
+		try {
+			return this.binder.validate().isOk();
+		} finally {
+			this.acceptingStartingWeightViolation = previous;
 		}
-		this.origin.closeDialog();
 	}
 
 	private Athlete getEditedAthlete() {

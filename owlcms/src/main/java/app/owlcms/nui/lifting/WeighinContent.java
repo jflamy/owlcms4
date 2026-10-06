@@ -79,6 +79,7 @@ import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.preparation.DocumentsPrecheckService;
 import app.owlcms.nui.preparation.DocumentsContent;
 import app.owlcms.nui.results.IFilterCascade;
+import app.owlcms.nui.shared.LiftingSessionGuard;
 import app.owlcms.nui.shared.NAthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -111,6 +112,16 @@ public class WeighinContent extends BaseContent
 		private NextCrudGrid(Class<Athlete> domainType, OwlcmsGridLayout crudLayout,
 		        OwlcmsCrudFormFactory<Athlete> owlcmsCrudFormFactory, Grid<Athlete> grid) {
 			super(domainType, crudLayout, owlcmsCrudFormFactory, grid);
+		}
+
+		@Override
+		protected void updateButtonClicked() {
+			Athlete athlete = this.grid.asSingleSelect().getValue();
+			if (athlete != null
+			        && LiftingSessionGuard.refuseIfLifting(athlete.getGroup(), LiftingSessionGuard.CANNOT_EDIT_REGISTRATION)) {
+				return;
+			}
+			super.updateButtonClicked();
 		}
 
 		/**
