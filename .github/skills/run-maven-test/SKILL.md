@@ -1,24 +1,30 @@
 ---
 name: run-maven-test
-description: "Use when: running owlcms Maven/Surefire tests after explicit human consent, especially single Java test classes, AllTests, reactor module dependencies, -pl owlcms -am, shared module no matching tests, surefire.failIfNoSpecifiedTests, Surefire reports, Maven output missing or failed to retrieve. Keywords: mvn test, Maven runner, Surefire, target/surefire-reports, BUILD FAILURE, test report."
+description: "Use when: running owlcms Maven/Surefire tests with standing maintainer authorization, especially single Java test classes, AllTests, reactor module dependencies, -pl owlcms -am, shared module no matching tests, surefire.failIfNoSpecifiedTests, Surefire reports, Maven output missing or failed to retrieve. Keywords: mvn test, Maven runner, Surefire, target/surefire-reports, BUILD FAILURE, test report."
 ---
 
 # Run OWLCMS Maven Tests and Read Surefire Reports
 
-This skill documents the Maven/Surefire path for owlcms when the user has explicitly allowed Maven for more detailed test output.
+This skill documents the default Maven/Surefire test path for owlcms.
+VS Code test tools are optional, not a prerequisite.
 
 ## When To Use
 
-- The user explicitly authorizes Maven, asks to use the Maven runner, or needs stack traces/assertion details that the Java Test Runner did not show.
+- The user asks to run Java tests, or a Java change needs test verification.
 - You need to run one Java test class, a small set of Java test classes, or `AllTests` through Surefire.
 - The terminal tool reports `Failed to retrieve command output` after a Maven test run.
 - Maven output is too large, truncated, or less useful than Surefire reports.
 
 ## Permission
 
-- Do not run Maven in this repository unless the user has explicitly consented in the current task context.
-- Prefer the VS Code Java Test Runner first when consent has not been given. See `../run-java-test/SKILL.md`.
-- Once consent is given, keep Maven runs narrow: run the specific test class or suite needed for the current diagnosis.
+- The maintainer has given standing authorization for focused Maven test runs
+  and the compilation needed to run them. Do not request consent for each run
+  or require a VS Code test-runner attempt first.
+- This authorization does not cover packaging, installation, deployment,
+  application launch or unrelated builds. Respect any current user restriction
+  on test execution.
+- Keep Maven runs narrow: run the specific test class or suite needed for the
+  current diagnosis.
 
 ## Required Maven Shape
 
@@ -81,7 +87,8 @@ Failure line numbers and stack traces are usually in the `.txt` report. XML repo
 
 ## Practical Workflow
 
-1. Confirm Maven consent exists.
+1. Select the smallest test class or set covering the change, respecting any
+   current user restriction.
 2. Run the narrow reactor command with `-pl owlcms -am` and the two no-match flags.
 3. If terminal output is missing or truncated, do not rerun immediately. First read the Surefire `.txt` report for the test class.
 4. If the report timestamp did not change or the report is missing, check whether Maven is still running before retrying.
