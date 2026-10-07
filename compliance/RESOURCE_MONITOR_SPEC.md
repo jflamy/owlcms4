@@ -1,8 +1,9 @@
 # Periodic CPU / Memory / GC Log (Resource Monitor) — Spec
 
-Status: draft
+Status: implemented; production RSS comparison and live feature-switch checks pending
 Scope: owlcms server process, observability only (no UI, no data model change)
-Owner files: new `app.owlcms.monitors.ResourceMonitor`, `FeatureSwitch`, `Main`
+Owner files: `app.owlcms.monitors.ResourceMonitor`, `ResourceSample`,
+`ResourceTableEncoder`, `FeatureSwitch`, `Main`
 
 ## Problem
 
@@ -22,7 +23,8 @@ something goes wrong, the log file is usually the only evidence we get back.
 
 ## Goal
 
-When the feature switch is on, write one compact log line per minute with:
+When the feature switch is on, write one compact standard-log sample and one
+table row every 30 seconds with:
 
 1. CPU usage of the owlcms process and of the whole machine.
 2. Physical memory actually used by the owlcms process (RSS / Windows working
@@ -31,7 +33,7 @@ When the feature switch is on, write one compact log line per minute with:
 4. Garbage-collection activity since the previous line.
 
 The switch can be turned on and off at runtime without restarting. It costs
-nothing when off.
+no sampling or JFR overhead when off (only the scheduler's switch check).
 
 ## Non-goals
 
@@ -166,9 +168,9 @@ Rules:
 - GC deltas are `+count (time ms)` since the previous line. The first line after
   enabling shows deltas since the JVM started, prefixed with `since start`.
 - For G1, an increase in `old` means a full collection. Explicit
-  `System.gc()` calls are also counted there (measured). This spec assumes the
-  `DebugUtils.gc()` calls on navigation pages are removed (or moved to an
-  admin-page action), so an `old` increase normally indicates heap pressure.
+  `System.gc()` calls are also counted there (measured). Existing navigation
+  pages still call `DebugUtils.gc()`, so an `old` increase does not necessarily
+  indicate heap pressure. This version does not escalate full collections.
 - An interval with no collections still prints the segment (`+0 (0ms)`), so
   the line has a fixed shape and is easy to `grep`, `cut` or chart.
 
@@ -233,13 +235,14 @@ share the same column schema, including the collector columns.
   `Results` and `MQTTMonitor` schedulers.
 - Start it from `Main.initConfig()` after `Config.initConfig()`, so that
   `Config.getCurrent()` is valid on the first tick.
-- Fixed rate of 60 s and an initial delay of 60 s. Not configurable in this
-  version (see open questions).
+- Fixed rate of 30 s and an initial delay of 30 s. Not configurable in this
+  version.
 - Each tick:
   1. Read the switch. If off: close the JFR stream if it is open, clear the
      previous-sample state, and return.
-  2. If on and the JFR stream is not open: open it and log
-     `resource monitor enabled`.
+  2. If newly enabled: log `resource monitor enabled` and attempt to open the
+     JFR stream once. If JFR or the RSS event is unavailable, continue without
+     RSS; do not retry or repeat the availability notice on every tick.
   3. Sample once, compute deltas, write the standard-log sample and the
      table-log row from that snapshot, and store the current GC counters/times
      as the new baseline.
@@ -249,8 +252,8 @@ share the same column schema, including the collector columns.
 
 ### Robustness
 
-- The tick body catches `Throwable` and logs it at WARN (without a stack trace
-  unless repeated). Otherwise a single exception would cancel all future runs
+- The tick body catches `Throwable` and logs it at WARN with a stack trace.
+  Otherwise a single exception would cancel all future runs
   of a scheduled task.
 - Never call `UI.getCurrent()`, `OwlcmsSession` or Vaadin APIs from the
   monitor thread.
@@ -263,12 +266,14 @@ share the same column schema, including the collector columns.
 
 | File | Change |
 |---|---|
-| `owlcms/.../monitors/ResourceMonitor.java` | **New.** Scheduler, JFR stream lifecycle, sampling, formatting (~100 lines) |
+| `owlcms/.../monitors/ResourceMonitor.java` | **New.** Scheduler, JFR stream lifecycle, sampling and two independent logging calls |
+| `owlcms/.../monitors/ResourceSample.java` | **New.** Immutable snapshot, GC delta calculation and shared standard/table formatting schema |
 | `owlcms/.../monitors/ResourceTableEncoder.java` | **New.** Table row encoding and `headerBytes()`, using the same column schema as the monitor |
 | `owlcms/.../data/config/FeatureSwitch.java` | Add `RESOURCE_TRACES` in the `OBSERVABILITY` section |
 | `owlcms/.../Main.java` | Start in `initConfig()`, stop in `prepareForExit(...)` |
 | `owlcms/src/main/resources/logback.xml` | Add an explicit standard resource logger, a dedicated daily rolling table appender with the custom encoder, and an explicitly INFO, non-additive table logger |
 | `owlcms/src/main/resources/logback-console.xml` | Add the same independent resource logger controls and table output while preserving standard console logging |
+| `owlcms/src/test/java/app/owlcms/monitors/ResourceMonitorTest.java` | **New.** Formatting, unavailable metrics, GC deltas, enable/disable and JFR lifecycle, logger independence, both Logback configurations and encoder rollover headers |
 | `shared/src/main/resources/i18n/resource_monitor_translations.tsv` | **New.** `FeatureSwitch.resourceTraces` row in all languages, following the TSV process. Do not edit `translation4.csv` |
 | `docs/.../ReleaseNotes.md` | Release-note entry (via the release-notes process) |
 
@@ -276,16 +281,17 @@ Imports, not fully qualified names. `com.sun.management.OperatingSystemMXBean`
 is imported directly. It is the only type used under that name in the class,
 so it does not clash with `java.lang.management.OperatingSystemMXBean`.
 
-Proposed English text for the switch description: *Log CPU, process memory,
-heap and garbage-collection usage once per minute.*
+Proposed English text for the switch description: *Periodically log CPU,
+process memory, heap and garbage-collection usage.* The interval is
+deliberately omitted so the translations stay valid if it changes.
 
 ## Acceptance criteria
 
 1. With the switch off (default), the `owlcms-resource-monitor` thread wakes
-   every 60 s, logs nothing, and does not start a JFR recording (`jcmd <pid>
+   every 30 s, emits no samples, and does not start a JFR recording (`jcmd <pid>
    JFR.check` shows none).
 2. Turning the switch on in System Settings produces `resource monitor enabled`
-   followed by one sample per minute in the standard log's usual format and
+   followed by one sample every 30 seconds in the standard log's usual format and
    one matching row in the separate table log, with no restart. The table's
    first column is the timestamp; table rows do not duplicate into the
    standard log.
@@ -321,7 +327,7 @@ roughly 10× slower.
 | JFR `RecordingStream` start | ~0.3–0.4 s CPU, once per enable |
 | JFR stream running | ~2 ms CPU per second (≈0.2 % of one core), **same with a 1 s or 5 s period**: the cost comes from the stream's own flush cycle, not from the event period |
 | JFR memory | +~26 MB RSS while the stream is open |
-| Log volume | ~150 bytes/line: 0.2 MB/day at 60 s, 1.3 MB/day at 10 s (log rolls daily) |
+| Log volume | Original compact message estimate: ~150 bytes/sample, ~0.4 MB/day at 30 s. Standard logging prefixes and the additional aligned table increase the actual volume; dual-output volume has not been measured (logs roll daily) |
 
 Conclusion: the interval does not drive the cost. The JFR stream (needed only
 for RSS) is the only measurable overhead, and it exists only while the switch
@@ -330,17 +336,14 @@ is on.
 ## Decisions
 
 1. Switch name: `resourceTraces`.
+2. Fixed 30-second interval, selected by the maintainer.
 3. No Vaadin session count.
 4. No thread count or allocation rate.
+5. Two independently controlled logger calls from one sampled snapshot.
 
 ## Open questions
 
-2. Interval. 60 s is too coarse: `getProcessCpuLoad()` averages since the
-   previous call, so a 60 s window smooths away short CPU spikes. Since the
-   interval does not affect the cost, the choice is between log volume and
-   resolution. Proposal: default 10 s, configurable through
-   `OWLCMS_RESOURCE_LOG_SEC`.
-5. Full-GC escalation. Precondition: the `DebugUtils.gc()` calls are removed
+1. Full-GC escalation (not implemented). Precondition: the `DebugUtils.gc()` calls are removed
    from the navigation pages (or moved to an explicit admin action).
 
    A genuine full GC means G1 could not reclaim enough memory concurrently.

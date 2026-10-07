@@ -78,6 +78,7 @@ public enum FeatureSwitch {
 
     ATTEMPT_TRACES("attemptTraces", FeatureSwitchSection.OBSERVABILITY),
     CLOCK_TRACES("clockTraces", FeatureSwitchSection.OBSERVABILITY),
+    RESOURCE_TRACES("resourceTraces", FeatureSwitchSection.OBSERVABILITY),
     PLAYWRIGHT("playwright", FeatureSwitchSection.OBSERVABILITY);
 
     private static final Map<String, FeatureSwitch> BY_ID = buildLookup();

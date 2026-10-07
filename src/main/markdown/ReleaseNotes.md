@@ -20,6 +20,9 @@
 - 69.0.0: Per-platform tamper-resistant audit trails record competition actions and athlete changes.
   - Includes accepted and refused commands, record changes, session activity, and application start/stop events, with operator and station identification.
 
+- 69.0.0: Optional resource monitoring logs CPU, process memory, heap and garbage-collection usage every 30 seconds.
+  - Enable `resourceTraces` in System Settings. Samples appear in the normal log and a separate timestamped resource table; normal-log samples can be disabled independently.
+
 - 69.0.0: Competition Director page for managing lifting
   - Enabled by named accounts; in PIN mode, enabled by `competitionDirectorPage` feature switch.
   - Passive speaker view follows live lifting without allowing timer control, athlete edits, or decision reversals.

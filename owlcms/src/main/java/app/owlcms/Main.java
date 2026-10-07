@@ -57,6 +57,7 @@ import app.owlcms.init.OwlcmsSessionThreadLocal;
 import app.owlcms.jetty.EmbeddedJetty;
 import app.owlcms.monitors.ForwarderSetup;
 import app.owlcms.monitors.MQTTMonitor;
+import app.owlcms.monitors.ResourceMonitor;
 import app.owlcms.servlet.MqttWebSocketProxyEndpoint;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.MdnsResponder;
@@ -92,6 +93,7 @@ public class Main {
         public static void prepareForExit(String reason) {
 		ApplicationAudit.stopping(reason);
         MQTTMonitor.disableReconnectForAll();
+        ResourceMonitor.stop();
         MdnsResponder.stop();
     }
 
@@ -171,6 +173,7 @@ public class Main {
         JPAService.init(memoryMode, resetMode);
         // check for database override of resource files
         Config.initConfig();
+        ResourceMonitor.start();
         AccessStartup.run();
 
         // Run UTC normalization migration after JPAService and Config are initialized

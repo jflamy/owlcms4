@@ -14,6 +14,14 @@
         </encoder>
     </appender>
 
+    <appender name="RESOURCE_TABLE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/resources.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/resources_%d{yyyy-MM-dd}.log</fileNamePattern>
+        </rollingPolicy>
+        <encoder class="app.owlcms.monitors.ResourceTableEncoder" />
+    </appender>
+
     <!-- Startup log appender for control panel feedback (IDE development testing) -->
     <appender name="STARTUP_FILE" class="ch.qos.logback.core.FileAppender">
         <file>logs/startup.log</file>
@@ -77,6 +85,11 @@
 
     <!-- default levels for owlcms -->
     <logger name="app.owlcms" level="INFO" />
+    <!-- Set the standard resource logger to OFF for table-only output. -->
+    <logger name="app.owlcms.monitors.ResourceMonitor" level="INFO" />
+    <logger name="app.owlcms.monitors.ResourceMonitor.table" level="INFO" additivity="false">
+        <appender-ref ref="RESOURCE_TABLE" />
+    </logger>
     <logger name="app.owlcms.fieldofplay.FieldOfPlay" level="DEBUG" />
     <logger name="app.owlcms.fieldofplay.FOPEvent" level="DEBUG" />
 
