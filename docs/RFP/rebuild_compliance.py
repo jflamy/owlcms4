@@ -10,6 +10,8 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.text.paragraph import Paragraph
 
+import heading_numbering
+
 
 TABLE_HEADERS = ("Requirement", "Compliance", "Reference", "Justification")
 REQUIREMENT_STYLE = "requirementNarrative"
@@ -37,9 +39,11 @@ def next_version(directory):
     return source, directory / f"OTIS_Proposal_{number + 1:02d}.docx"
 
 
-def parse_arguments():
+def parse_arguments(
+    description="Rebuild RFP compliance tables from requirementNarrative paragraphs.",
+):
     parser = argparse.ArgumentParser(
-        description="Rebuild RFP compliance tables from requirementNarrative paragraphs.",
+        description=description,
         epilog=(
             "Defaults to the latest numbered proposal beside this script, or "
             "OTIS_Proposal_IWF.docx as version 00, and writes the next numbered file "
@@ -97,41 +101,29 @@ def justification_after(paragraph, document):
     return "\n".join(lines) or "[TO BE COMPLETED]"
 
 
-def bookmark_for_heading(heading, document, next_bookmark_id):
+def bookmark_for_heading(heading, reference, document, next_bookmark_id):
     bookmarks = heading._element.xpath(".//w:bookmarkStart")
     if bookmarks:
         return bookmarks[0].get(qn("w:name")), next_bookmark_id
 
-    reference = clean(heading.text).split()[0]
-    bookmark_name = "Ref_" + re.sub(r"[^A-Za-z0-9_]", "_", reference)
+    bookmark_name = heading_numbering.unique_bookmark_name(
+        document, "Ref_" + re.sub(r"[^A-Za-z0-9_]", "_", reference)
+    )
     start = OxmlElement("w:bookmarkStart")
     start.set(qn("w:id"), str(next_bookmark_id))
     start.set(qn("w:name"), bookmark_name)
     end = OxmlElement("w:bookmarkEnd")
     end.set(qn("w:id"), str(next_bookmark_id))
-    heading._element.insert(0, start)
+    heading_numbering.insert_after_pPr(heading._element, start)
     heading._element.append(end)
     return bookmark_name, next_bookmark_id + 1
 
 
 def add_internal_link(paragraph, display_text, bookmark_name):
-    hyperlink = OxmlElement("w:hyperlink")
-    hyperlink.set(qn("w:anchor"), bookmark_name)
-    hyperlink.set(qn("w:history"), "1")
-
-    run = OxmlElement("w:r")
-    properties = OxmlElement("w:rPr")
-    color = OxmlElement("w:color")
-    color.set(qn("w:val"), "0563C1")
-    underline = OxmlElement("w:u")
-    underline.set(qn("w:val"), "single")
-    properties.extend((color, underline))
-
-    text = OxmlElement("w:t")
-    text.text = display_text
-    run.extend((properties, text))
-    hyperlink.append(run)
-    paragraph._element.append(hyperlink)
+    """Heading-number cross-reference (REF \\w \\h) that Word keeps up to date."""
+    heading_numbering.append_heading_number_ref(
+        paragraph._element, bookmark_name, display_text
+    )
 
 
 def set_repeat_header(row):
@@ -236,12 +228,11 @@ def validate_output(path, expected_requirements, expected_sections):
         for row in table.rows[1:]:
             if row.cells[1].text != "Compliant":
                 raise RuntimeError("A compliance cell does not contain 'Compliant'")
-            hyperlinks = row.cells[2]._element.xpath(".//w:hyperlink")
-            if len(hyperlinks) != 1:
+            anchor = heading_numbering.field_bookmark(row.cells[2]._element)
+            if anchor is None:
                 raise RuntimeError(
-                    f"Reference {row.cells[2].text!r} does not contain one hyperlink"
+                    f"Reference {row.cells[2].text!r} does not contain a cross-reference"
                 )
-            anchor = hyperlinks[0].get(qn("w:anchor"))
             if anchor not in bookmark_names:
                 raise RuntimeError(f"Reference points to missing bookmark: {anchor}")
             references.append(clean(row.cells[2].text))
@@ -264,10 +255,12 @@ def main():
             continue
         compliance_tables.append(table)
         for row in table.rows[1:]:
-            reference = clean(row.cells[2].text)
+            reference = heading_numbering.field_bookmark(row.cells[2]._element)
+            reference = reference or clean(row.cells[2].text)
             requirement_id = clean(row.cells[0].text).split()[0]
             existing_ids[reference] = requirement_id
 
+    numbers = heading_numbering.heading_numbers(document)
     requirements = []
     max_bookmark_id = max(
         (int(bookmark.get(qn("w:id"))) for bookmark in document.element.xpath(".//w:bookmarkStart")),
@@ -284,9 +277,11 @@ def main():
             )
         origin, requirement_text = match.groups()
         heading = heading_before(paragraph, document)
-        reference = clean(heading.text).split()[0]
+        reference = numbers.get(heading._element)
+        if reference is None:
+            raise RuntimeError(f"Requirement follows an unnumbered heading: {heading.text}")
         bookmark_name, next_bookmark_id = bookmark_for_heading(
-            heading, document, next_bookmark_id
+            heading, reference, document, next_bookmark_id
         )
         requirements.append({
             "origin": origin,
@@ -304,7 +299,9 @@ def main():
     used_ids = set(existing_ids.values())
     origin_counts = defaultdict(int)
     for record in requirements:
-        requirement_id = existing_ids.get(record["reference"])
+        requirement_id = existing_ids.get(record["bookmark"])
+        if requirement_id is None:
+            requirement_id = existing_ids.get(record["reference"])
         if requirement_id is None:
             requirement_id = generated_requirement_id(record, used_ids, origin_counts)
         record["requirement_id"] = requirement_id
@@ -316,9 +313,14 @@ def main():
 
     for table in compliance_tables:
         body.remove(table._element)
-    for paragraph in list(document.paragraphs):
-        if re.fullmatch(r"RFP Section \d+", paragraph.text):
-            body.remove(paragraph._element)
+    section_headings = {}
+    for paragraph in document.paragraphs:
+        match = re.fullmatch(r"RFP Section (\d+)", paragraph.text)
+        if match:
+            if int(match.group(1)) in section_headings:
+                body.remove(paragraph._element)
+            else:
+                section_headings[int(match.group(1))] = paragraph
 
     appendices = next(
         paragraph for paragraph in document.paragraphs if paragraph.text == "Appendices"
@@ -327,8 +329,14 @@ def main():
     for record in requirements:
         by_section[section_for_origin(record["origin"])].append(record)
 
+    for section in set(section_headings) - set(by_section):
+        body.remove(section_headings.pop(section)._element)
+
     for section_index, section in enumerate(sorted(by_section)):
-        heading = document.add_paragraph(f"RFP Section {section}", style="Heading 2")
+        heading = section_headings.get(section)
+        if heading is None:
+            heading = document.add_paragraph(f"RFP Section {section}", style="Heading 2")
+        heading_numbering.suppress_numbering(heading)
         heading.paragraph_format.page_break_before = section_index > 0
         appendices._element.addprevious(heading._element)
 

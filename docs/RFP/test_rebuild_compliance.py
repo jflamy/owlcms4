@@ -5,7 +5,48 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+from docx import Document
+from docx.enum.style import WD_STYLE_TYPE
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+
 import rebuild_compliance
+
+
+class RebuildTest(unittest.TestCase):
+    def test_existing_section_headings_are_kept_not_recreated(self):
+        document = Document()
+        document.styles.add_style(rebuild_compliance.REQUIREMENT_STYLE, WD_STYLE_TYPE.PARAGRAPH)
+        document.add_heading("A. Company", 1)
+        document.add_heading("A.1 Eligibility", 2)
+        document.add_paragraph("[RFP §2.1] Be eligible.", style=rebuild_compliance.REQUIREMENT_STYLE)
+        document.add_paragraph("We are eligible.")
+        document.add_heading("L. Compliance matrix", 1)
+        kept = document.add_heading("RFP Section 2", 2)
+        start = OxmlElement("w:bookmarkStart")
+        start.set(qn("w:id"), "90")
+        start.set(qn("w:name"), "_Toc123")
+        kept._element.append(start)
+        obsolete = document.add_heading("RFP Section 9", 2)
+        document.add_heading("Appendices", 1)
+
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "source.docx"
+            output = Path(directory) / "output.docx"
+            document.save(source)
+            with patch("sys.argv", ["rebuild_compliance.py", str(source), str(output)]), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                rebuild_compliance.main()
+            rebuilt = Document(output)
+
+        labels = [p for p in rebuilt.paragraphs if p.text.startswith("RFP Section")]
+        self.assertEqual([p.text for p in labels], ["RFP Section 2"])
+        self.assertEqual(
+            [b.get(qn("w:name")) for b in labels[0]._element.iter(qn("w:bookmarkStart"))],
+            ["_Toc123"],
+        )
+        self.assertIsNone(rebuilt.settings.element.find(qn("w:updateFields")))
+        self.assertNotIn(obsolete.text, [p.text for p in rebuilt.paragraphs])
 
 
 class VersionSelectionTest(unittest.TestCase):
