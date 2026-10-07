@@ -264,6 +264,47 @@ public class RecordFilter {
 		return filterEligibleRecordsForAthlete(curAthlete, candidateRecords);
 	}
 
+	/**
+	 * Records that can be broken by at least one of the athletes, keeping the current (largest) value for each
+	 * kind of record.
+	 */
+	public static List<RecordEvent> computeChallengeableRecords(Collection<Athlete> athletes) {
+		Map<String, RecordEvent> best = new HashMap<>();
+		if (athletes == null) {
+			return new ArrayList<>();
+		}
+		for (Athlete a : athletes) {
+			Double bw = a.getBodyWeight();
+			if ((bw == null || bw < 0.01) && a.getCategory() != null) {
+				// not weighed-in yet, use the registration category
+				bw = a.getCategory().getMaximumWeight();
+			}
+			if (a.getGender() == null || bw == null) {
+				continue;
+			}
+			List<RecordEvent> candidates = RecordRepository.findFiltered(a.getGender(), a.getAge(), bw, null, null);
+			for (RecordEvent r : filterEligibleRecordsForAthlete(a, candidates)) {
+				if (r.getRecordValue() == null) {
+					continue;
+				}
+				RecordEvent curMax = best.get(r.getKey());
+				if (curMax == null || r.getRecordValue() > curMax.getRecordValue()) {
+					best.put(r.getKey(), r);
+				}
+			}
+		}
+		List<RecordEvent> records = new ArrayList<>(best.values());
+		records.sort(Comparator
+		        .comparing(RecordEvent::getRecordFederation, Comparator.nullsLast(Comparator.naturalOrder()))
+		        .thenComparing(RecordEvent::getRecordName, Comparator.nullsLast(Comparator.naturalOrder()))
+		        .thenComparing(RecordEvent::getGender, Comparator.nullsLast(Comparator.naturalOrder()))
+		        .thenComparing(RecordEvent::getAgeGrpUpper)
+		        .thenComparing(RecordEvent::getAgeGrpLower)
+		        .thenComparing(RecordEvent::getBwCatUpper, Comparator.nullsLast(Comparator.naturalOrder()))
+		        .thenComparing(r -> r.getRecordLift().ordinal()));
+		return records;
+	}
+
 	public static List<RecordEvent> keepCurrentCompetitionProvisionalRecords(Collection<RecordEvent> records,
 	        String currentEvent) {
 		return keepCurrentCompetitionProvisionalRecords(records, currentEvent, null, null);

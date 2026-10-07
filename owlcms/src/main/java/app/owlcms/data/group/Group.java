@@ -50,6 +50,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.records.RecordEvent;
+import app.owlcms.data.records.RecordFilter;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
@@ -548,6 +549,14 @@ public class Group implements Comparable<Group> {
 
 	@JsonIgnore
 	public void setRecords(List<RecordEvent> ignored) {
+	}
+
+	/**
+	 * Current records that the athletes in the session can break (used by the empty protocol).
+	 */
+	@JsonIgnore
+	public List<RecordEvent> getChallengeableRecords() {
+		return RecordFilter.computeChallengeableRecords(getAthletes());
 	}
 
 	public Integer getCleanJerkBreakDuration() {
