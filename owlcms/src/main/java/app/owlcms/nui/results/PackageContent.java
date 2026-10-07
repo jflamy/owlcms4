@@ -749,7 +749,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 					rs.setAgeGroupPrefix(this.ageGroupPrefix);
 					rs.setGender(this.gender);
 					rs.setCategory(this.categoryValue);
-					rs.setIncludeRecords(Boolean.TRUE.equals(this.includeRecords.getValue()));
+					rs.setIncludeRecords(true);
 					rs.setIncludeUnfinished(Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue()));
 					rs.setWinnersOnly(this.winnersOnly);
 					Ranking computeScoringSystem = computeScoringSystemForBook();
