@@ -106,7 +106,7 @@ Maven compilation and 37 focused tests passed: 18 card-conflict/guarded-save tes
 - **Heartbeat**: see §3.5. Recommendation: keep the default interval.
 - **People who already have the card open are told**, on every platform and on Registration and Weigh-in, through a targeted event on the application-wide bus (§4.4).
 
-Related: [ACCESS_CONTROL_DESIGN.md](ACCESS_CONTROL_DESIGN.md) (identity), [AUDIT_TRAIL_DESIGN.md](AUDIT_TRAIL_DESIGN.md) (stations, change records).
+Related: [ACCESS_CONTROL_DESIGN.md](ACCESS_CONTROL_DESIGN.md) (identity), [AUDIT_TRAIL_SPECIFICATION.md](AUDIT_TRAIL_SPECIFICATION.md) (stations, change records).
 
 ## 1. Question
 
@@ -307,7 +307,7 @@ A hard lock is not acceptable. A stale claim (crashed tablet, lost network) woul
 ### 5.3 Personal data and privacy
 
 - Show only the shown name, the station and the platform. **Never** show the client IP or the session hash. `AuditActor.client` stays in the audit trail only.
-- The registry is in memory only. It is not included in JSON or SBDE exports, not written to the database and not written to the audit files. The audit trail records *changes*, not views (AUDIT_TRAIL_DESIGN §1 "Individual changes only"). Recording card *opens* in the audit would change its scope and is not recommended.
+- The registry is in memory only. It is not included in JSON or SBDE exports, not written to the database and not written to the audit files. The audit trail records *changes*, not views ([AUDIT_TRAIL_SPECIFICATION.md](AUDIT_TRAIL_SPECIFICATION.md) §1). Recording card *opens* in the audit would change its scope and is not recommended.
 - Debug logging of claim and release is allowed with the platform prefix (`FieldOfPlay.getLoggingName`). Log the station and the user name, never the IP or the session id.
 
 ### 5.4 Thread safety (repository rules)

@@ -504,7 +504,7 @@ Cross-cutting items to review with the servlets:
 - **Client IP.** `AccessUtils.getClientIp()` and `ProxyUtils.getClientIp()` use the `X-Forwarded-For` header when it is present, whoever sent it. The backdoor list, the officials whitelist and every "localhost" or "local network" rule depend on it. Decide when the header may be trusted (behind a known proxy) and when only the socket address counts.
 - **CORS.** `CorsFilter` (`/*`) allows every origin with credentials and rewrites the session cookie to `SameSite=None`, but only for Vaadin UIDL and heartbeat requests and for `/VAADIN/build/` and `/web-component/`. The servlets above are not affected. Review whether a session cookie usable cross-site is acceptable once accounts exist.
 - **Password in logs.** `MoquetteAuthenticator` logs the client-supplied MQTT password at debug level. Remove it (§14: never log passwords).
-- **Audit.** Servlet actions are not audited (export, backup, simulation start and stop, control panel stop). A control panel stop is recorded only as `application.stopping`. Decide what to record (AUDIT_TRAIL_DESIGN).
+- **Audit.** Audit requirements are defined in [AUDIT_TRAIL_SPECIFICATION.md](AUDIT_TRAIL_SPECIFICATION.md) and [AUDIT_INTEGRITY_SPECIFICATION.md](AUDIT_INTEGRITY_SPECIFICATION.md).
 
 ---
 

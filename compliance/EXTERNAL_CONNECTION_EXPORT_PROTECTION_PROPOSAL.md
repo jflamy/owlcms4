@@ -2,7 +2,7 @@
 
 Status: proposal only, 2026-10-02. No implementation changes are authorized by this document.
 
-Related: [AUDIT_INTEGRITY_PROPOSAL.md](AUDIT_INTEGRITY_PROPOSAL.md).
+Related: [AUDIT_INTEGRITY_SPECIFICATION.md](AUDIT_INTEGRITY_SPECIFICATION.md).
 
 ## 1. Scope and Decision
 
