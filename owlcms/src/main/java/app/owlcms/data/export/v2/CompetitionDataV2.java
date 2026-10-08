@@ -6,9 +6,8 @@
  *******************************************************************************/
 package app.owlcms.data.export.v2;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +26,8 @@ import com.vaadin.flow.component.notification.Notification;
 
 import java.time.Instant;
 
+import app.owlcms.audit.AuditActor;
+import app.owlcms.audit.ExportAudit;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
@@ -40,6 +41,8 @@ import app.owlcms.data.coach.Coach;
 import app.owlcms.data.coach.CoachRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.export.ChecksummedJsonExport;
+import app.owlcms.data.export.ChecksummedJsonExport.ChecksummedInputStream;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -120,52 +123,37 @@ public class CompetitionDataV2 {
 		        .build();
 	}
 
-	public InputStream exportData() {
-		ObjectMapper mapper = createMapper();
-		try {
-			ObjectWriter writerWithDefaultPrettyPrinter = mapper.writerWithDefaultPrettyPrinter();
-
-			PipedOutputStream out = new PipedOutputStream();
-			PipedInputStream in = new PipedInputStream(out);
-			new Thread(() -> {
-				try {
-					writerWithDefaultPrettyPrinter.writeValue(out, this);
-					out.flush();
-					out.close();
-				} catch (Throwable e) {
-					LoggerUtils.logError(logger, e);
-				}
-			}).start();
-			return in;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+	/** Serializes this instance as-is (used by tests and tooling); the SHA-256 is still written to the audit log. */
+	public ChecksummedInputStream exportData() {
+		return export(null, null, null, ExportAudit.CHANNEL_INTERNAL, false);
 	}
 
-	public InputStream exportData(UI ui, Notification notification) {
+	/** Exports the current database contents; the SHA-256 of the exact bytes is written to the audit log. */
+	public ChecksummedInputStream exportData(AuditActor actor, String channel) {
+		return export(null, null, actor, channel, true);
+	}
+
+	public ChecksummedInputStream exportData(UI ui, Notification notification, AuditActor actor, String channel) {
+		return export(ui, notification, actor, channel, true);
+	}
+
+	private ChecksummedInputStream export(UI ui, Notification notification, AuditActor actor, String channel,
+			boolean fromDatabase) {
 		if (ui != null) {
 			ui.access(() -> notification.open());
 		}
-		ObjectMapper mapper = createMapper();
+		ObjectWriter writerWithDefaultPrettyPrinter = createMapper().writerWithDefaultPrettyPrinter();
 		try {
-			ObjectWriter writerWithDefaultPrettyPrinter = mapper.writerWithDefaultPrettyPrinter();
-
-			PipedOutputStream out = new PipedOutputStream();
-			PipedInputStream in = new PipedInputStream(out);
-			new Thread(() -> {
+			return ChecksummedJsonExport.audited(2, channel, actor, out -> {
 				try {
-					writerWithDefaultPrettyPrinter.writeValue(out, this.fromDatabase());
-					out.flush();
-					out.close();
+					writerWithDefaultPrettyPrinter.writeValue(out, fromDatabase ? this.fromDatabase() : this);
+				} finally {
 					if (ui != null) {
 						ui.access(() -> notification.close());
 					}
-				} catch (Throwable e) {
-					LoggerUtils.logError(logger, e);
 				}
-			}).start();
-			return in;
-		} catch (Exception e) {
+			});
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}

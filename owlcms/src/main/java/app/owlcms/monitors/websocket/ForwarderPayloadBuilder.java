@@ -6,15 +6,11 @@
  *******************************************************************************/
 package app.owlcms.monitors.websocket;
 
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +22,10 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
+import app.owlcms.audit.AuditActor;
+import app.owlcms.audit.ExportAudit;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.export.ChecksummedJsonExport.ChecksummedInputStream;
 import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -62,29 +61,24 @@ public class ForwarderPayloadBuilder {
 	}
 
 	/**
-	 * Competition data export result holder.
+	 * Competition data export result holder. The exact {@code bytes} have their own audited artifact SHA-256;
+	 * {@code databaseChecksum} is the separate stable tracker cache identity.
 	 */
 	public static final class CompetitionDataExport {
-		private final Object structure;
-		private final String json;
-		private final String checksum;
+		private final byte[] bytes;
+		private final String databaseChecksum;
 
-		public CompetitionDataExport(Object structure, String json, String checksum) {
-			this.structure = structure;
-			this.json = json;
-			this.checksum = checksum;
+		public CompetitionDataExport(byte[] bytes, String databaseChecksum) {
+			this.bytes = bytes;
+			this.databaseChecksum = databaseChecksum;
 		}
 
-		public Object structure() {
-			return this.structure;
+		public byte[] bytes() {
+			return this.bytes;
 		}
 
-		public String json() {
-			return this.json;
-		}
-
-		public String checksum() {
-			return this.checksum;
+		public String databaseChecksum() {
+			return this.databaseChecksum;
 		}
 	}
 
@@ -329,18 +323,10 @@ public class ForwarderPayloadBuilder {
 	 * Export competition data as a structured object with checksum.
 	 */
 	public static CompetitionDataExport exportCompetitionData(FieldOfPlay fop) {
-		try {
-			CompetitionDataV2 competitionData = new CompetitionDataV2();
-			competitionData.fromDatabase();
-			InputStream inputStream = competitionData.exportData();
-			
-			try (inputStream) {
-				byte[] dataBytes = inputStream.readAllBytes();
-				Object structure = JSON_MAPPER.readValue(dataBytes, Object.class);
-				String json = new String(dataBytes, StandardCharsets.UTF_8);
-				String checksum = computeChecksum(dataBytes, fop);
-				return new CompetitionDataExport(structure, json, checksum);
-			}
+		try (ChecksummedInputStream inputStream = new CompetitionDataV2().exportData(AuditActor.system(),
+		        ExportAudit.CHANNEL_WEBSOCKET)) {
+			byte[] dataBytes = inputStream.readAllBytes();
+			return new CompetitionDataExport(dataBytes, TrackerDatabaseChecksum.compute(dataBytes));
 		} catch (Exception e) {
 			if (fop != null) {
 				logger.error("{}failed to export competition data: {}", FieldOfPlay.getLoggingName(fop),
@@ -505,22 +491,6 @@ public class ForwarderPayloadBuilder {
 			sb.remove("recordKind");
 			sb.remove("recordMessage");
 			sb.remove("records");
-		}
-	}
-
-	private static String computeChecksum(byte[] dataBytes, FieldOfPlay fop) {
-		try {
-			MessageDigest digest = MessageDigest.getInstance("SHA-256");
-			byte[] hash = digest.digest(dataBytes);
-			return HexFormat.of().formatHex(hash);
-		} catch (Exception e) {
-			if (fop != null) {
-				logger.debug("{}failed to compute competition data checksum: {}", FieldOfPlay.getLoggingName(fop),
-				        LoggerUtils.exceptionMessage(e));
-			} else {
-				logger.debug("failed to compute competition data checksum: {}", LoggerUtils.exceptionMessage(e));
-			}
-			return null;
 		}
 	}
 

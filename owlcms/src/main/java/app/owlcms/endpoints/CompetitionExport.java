@@ -31,6 +31,8 @@ import java.util.function.Supplier;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.apputils.AccessUtils;
+import app.owlcms.audit.AuditActor;
+import app.owlcms.audit.ExportAudit;
 import app.owlcms.data.export.CompetitionData;
 import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.init.OwlcmsSession;
@@ -162,7 +164,7 @@ public class CompetitionExport extends HttpServlet {
 
 		try {
 			installRequestSession(request);
-			ExportPayload payload = createPayload(request.getServletPath());
+			ExportPayload payload = createPayload(request.getServletPath(), AuditActor.http(host));
 			if (payload == null) {
 				response.setStatus(404);
 				response.flushBuffer();
@@ -201,12 +203,14 @@ public class CompetitionExport extends HttpServlet {
 		}
 	}
 
-	private ExportPayload createPayload(String path) {
+	private ExportPayload createPayload(String path, AuditActor actor) {
 		if (LEGACY_JSON_V1_PATH.equals(path) || JSON_V1_PATH.equals(path)) {
-			return new ExportPayload(() -> new CompetitionData().exportData(), JSON_CONTENT_TYPE, null, true);
+			return new ExportPayload(() -> new CompetitionData().exportData(actor, ExportAudit.CHANNEL_HTTP),
+			        JSON_CONTENT_TYPE, null, true);
 		}
 		if (JSON_V2_PATH.equals(path)) {
-			return new ExportPayload(() -> new CompetitionDataV2().exportData(null, null), JSON_CONTENT_TYPE, null, true);
+			return new ExportPayload(() -> new CompetitionDataV2().exportData(actor, ExportAudit.CHANNEL_HTTP),
+			        JSON_CONTENT_TYPE, null, true);
 		}
 		if (SBDE_PATH.equals(path)) {
 			JXLSSBDEExport sbdeExport = new JXLSSBDEExport(null);

@@ -41,6 +41,11 @@ public record AuditActor(String mode, String user, String station, Integer index
 		return new AuditActor("PIN", "-", station, index, false, "-", device);
 	}
 
+	/** An unauthenticated servlet request from the local network or backdoor list. */
+	public static AuditActor http(String clientIp) {
+		return new AuditActor("-", "-", "HTTP", null, false, clientIp, "-");
+	}
+
 	public String displayStation() {
 		return this.index == null ? this.station : this.station + "#" + this.index;
 	}

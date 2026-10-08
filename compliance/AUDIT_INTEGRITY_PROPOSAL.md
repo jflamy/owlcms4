@@ -1,18 +1,49 @@
 # Audit Log and JSON V2 Export Integrity
 
-Status: proposal only, 2026-10-01. No implementation changes are authorized by this document.
+Status: proposal, 2026-10-01; updated 2026-10-07. Implementation is proceeding incrementally; see §0.
 
 Related: [AUDIT_TRAIL_DESIGN.md](AUDIT_TRAIL_DESIGN.md).
+
+## 0. IWF Context and Scope
+
+This work exists to satisfy IWF competition-management requirements. JSON V2 is the IWF export format; JSON V1 remains available for other federations and for backward compatibility.
+
+### 0.1 `iwfCompliance` Feature Toggle
+
+Add an `iwfCompliance` `FeatureSwitch` (section `SPECIALTY_FEATURES`, off by default). It is the single switch that turns on IWF-specific behaviors. Behaviors introduced by this proposal are classified as follows:
+
+| Behavior | Gated by `iwfCompliance`? | Rationale |
+|---|---|---|
+| SHA-256 and byte length of every JSON export written to the audit log (§5) | No — always on | Cheap, harmless, and useful for any federation; a checksum that is sometimes absent cannot be relied upon. |
+| Audit-log sealing and signing (§3) | Yes | Requires key provisioning and operational discipline that other federations do not need. |
+| Signing-key required at startup; missing or mismatched pair is a startup error (§4) | Yes | Without the toggle, no key is required and no seals are written. |
+| Embedded-H2-only restriction (§6) | Yes | Removes a diagnostic convenience that non-IWF users may still rely on. |
+| Signed inventory and independent retention (§7) | Yes | IWF evidence-handover requirement. |
+| Final-export declaration with snapshot and audit boundary (§5) | Yes | Only meaningful when sealing is active. |
+
+The toggle is read through `Config.getCurrent().featureSwitch(FeatureSwitch.IWF_COMPLIANCE)` like every other switch and may be overridden through the usual environment mechanism.
+
+### 0.2 Incremental Steps
+
+1. **Export checksums in the audit log** (§5, always on). Done first because it is independent of keys and sealing, and because the resulting `export.json` events are exactly what later sealing protects.
+2. `iwfCompliance` toggle and key provisioning (§4).
+3. Audit-log sealing (§3).
+4. Embedded-H2 restriction (§6).
+5. Inventory, retention and the Check Integrity program (§7, §8).
+
+### 0.3 Matching an Export to the Log
+
+To verify a JSON file, compute its SHA-256 and look for an `export.json` audit event with the same `sha256` value. A V2 file contains its own `exportDate` (ISO-8601 instant, written as the second field) which narrows the time window to search. V1 files have no embedded production time; they are matched by checksum alone.
 
 ## 1. Final Recommendation
 
 - **Audit log:** retain bounded batches of the exact bytes written by the logger. Hash and sign each completed batch asynchronously, then append a `SEAL` line covering audit records X through Y.
-- **JSON V2:** hash the exact exported bytes once and record the SHA-256 and byte length in the audited `export.jsonv2` event. The audit seal covering that event authenticates the checksum.
+- **JSON exports (V1 and V2):** hash the exact exported bytes once, on the fly, and record the SHA-256 and byte length in the audited `export.json` event. The audit seal covering that event authenticates the checksum.
 - **Key pair:** use a dedicated Ed25519 pair. Low-risk installations may load it from `~/.owlcms/auditKey.pem`. Higher-risk installations retrieve it from a password manager and inject it without local persistence. Cloud deployments inject the same values through cloud configuration and secrets.
 - **H2:** remove the H2 TCP server option and permit only process-local embedded H2 URLs. Keep the existing Hikari connection pool.
 - **Retention:** keep completed seals or the final signed inventory independently from the competition machine to detect replacement or rollback of the complete local evidence set.
 
-Changing, deleting or reordering sealed records invalidates a signature, and changing a JSON export makes its digest differ from the sealed `export.jsonv2` event. Replacing the public key fails comparison with the independently registered fingerprint. Immediate transfer to another system preserves the later seals and final inventory needed to detect truncation or rollback.
+Changing, deleting or reordering sealed records invalidates a signature, and changing a JSON export makes its digest differ from the sealed `export.json` event. Replacing the public key fails comparison with the independently registered fingerprint. Immediate transfer to another system preserves the later seals and final inventory needed to detect truncation or rollback.
 
 The password-manager profile assumes no administrative or interactive access to the competition machine while OWLCMS runs. On restart, the operator injects a key pair again. The same pair is expected but not required: a different pair starts a new signer section in the audit log, and that section must later be verified with its own public key. Compromise of the password manager, key-entry path or running process remains outside the guarantee.
 
@@ -23,7 +54,7 @@ The security, access control, availability and retention policy of the independe
 ## 2. Current Implementation
 
 - [AuditLog.java](../owlcms/src/main/java/app/owlcms/audit/AuditLog.java) uses SLF4J and Logback with daily rolling files under `logs/audit/`. Each platform has a readable `.log` and a `_full.log`; the `_full` logs are the authoritative files to seal.
-- [CompetitionDataV2.java](../owlcms/src/main/java/app/owlcms/data/export/v2/CompetitionDataV2.java) writes JSON V2 through a background writer and pipe. It does not currently compute a digest.
+- [CompetitionData.java](../owlcms/src/main/java/app/owlcms/data/export/CompetitionData.java) and [CompetitionDataV2.java](../owlcms/src/main/java/app/owlcms/data/export/v2/CompetitionDataV2.java) write JSON through a background writer and pipe. Neither computes a digest; §5.1 adds it on the fly.
 - [InstallationSecret.java](../shared/src/main/java/app/owlcms/utils/InstallationSecret.java) and `controlpanel/shared/secret.go` share the existing Base64-encoded 32-byte AES installation key at `~/.owlcms/key`.
 - [JPAService.java](../owlcms/src/main/java/app/owlcms/data/jpa/JPAService.java) uses embedded H2 by default and a Hikari pool with minimum 5 and maximum 15 connections. It can currently start an H2 TCP listener when `H2ServerPort` or `OWLCMS_H2SERVERPORT` is set.
 
@@ -128,22 +159,73 @@ OWLCMS validates the pair at startup. A missing, malformed or mismatched pair is
 
 The local PEM profile relies on OS account access and file permissions. The password-manager profile removes that at-rest copy but does not protect against compromise during entry or while OWLCMS holds the key in its environment and memory.
 
-## 5. JSON V2 Export
+## 5. JSON Export Checksums
 
-Generate the JSON once and compute SHA-256 over the exact bytes delivered as the export. Do not regenerate the content for checksum calculation.
+Applies to both JSON V1 and JSON V2. Always on; not gated by `iwfCompliance` (§0.1).
 
-After successful serialization, emit a competition-wide `export.jsonv2` audit event containing:
+### 5.1 Streaming Computation
 
-- requesting actor and station;
-- event timestamp, export ID and competition audit ID;
-- artifact name and format version;
-- exact byte length and full SHA-256;
-- generation outcome; and
-- for a final export, its declared snapshot and audit boundary.
+Both exporters already serialize through a `PipedOutputStream` on a writer thread while the consumer reads the `PipedInputStream`. The checksum is computed on the fly by wrapping the pipe's output side in a `java.security.DigestOutputStream` (SHA-256) together with a byte counter:
 
-Audit failed generation explicitly. A successful digest must never describe a partial artifact.
+```text
+Jackson writer ──► DigestOutputStream(SHA-256) ──► PipedOutputStream ──► PipedInputStream ──► consumer
+                   (and byte count)
+```
 
-The export event is authenticated when its containing audit batch is sealed. Final evidence handover includes that seal. Verification first checks the seal and then compares the supplied JSON's byte length and SHA-256 with the event.
+Every byte that reaches the pipe updates the digest; nothing is buffered and nothing is re-serialized. The digest and count are final when the writer closes the stream. Generate the JSON once; do not regenerate it to compute the checksum.
+
+Implementation: one shared helper replaces the four duplicated pipe/thread blocks in `CompetitionData.exportData(...)` and `CompetitionDataV2.exportData(...)`.
+
+### 5.2 Audit Event
+
+When the writer completes, it writes a competition-wide `export.json` audit event from the writer thread. The requesting actor is captured on the calling thread before the writer thread starts and passed in; `UI.getCurrent()` is not available on the writer thread.
+
+Success detail:
+
+```text
+format=2,channel=download,bytes=2948571,sha256=<64 hex characters>
+```
+
+Failure detail (no digest is ever reported for a partial artifact):
+
+```text
+format=2,channel=download,outcome=failed,reason="..."
+```
+
+Fields:
+
+- `format`: `1` or `2`;
+- `channel`: `download` (Vaadin button), `http` (`/competition/export...` servlet), `websocket` (tracker forwarding), `internal` (serialization of a prepared instance by tests or tooling);
+- `bytes`: exact byte length of the serialized JSON;
+- `sha256`: lower-case hex SHA-256 of the exact serialized bytes.
+
+Under `iwfCompliance`, a final export additionally declares its snapshot and audit boundary.
+
+### 5.3 Writer Failure Propagation
+
+Today both exporters catch a writer exception, log it, and close the pipe; the reader sees a truncated file that looks like a normal EOF. The checksummed stream must surface the failure to the reader so a truncated export is neither delivered silently nor audited as a success.
+
+### 5.4 WebSocket Path and the Tracker's `databaseChecksum`
+
+The artifact SHA-256 and tracker `databaseChecksum` have different meanings and must remain separate:
+
+- the artifact SHA-256 covers the exact `competition.json` bytes, including `exportDate`, and is written to the audit log;
+- `databaseChecksum` is a cache-busting token over the same bytes with `exportDate` and the encrypted `updateKey`
+  values removed (the latter are re-encrypted with a fresh nonce on every serialization). It is not written to the
+  audit log.
+
+`tracker-core` compares `databaseChecksum` with string equality against the last accepted value to skip a reload, and
+plugins use it as a cache-key component. OWLCMS sends it in a `database_metadata` WebSocket API message immediately
+before the corresponding `database_zip` binary frame. Tracker-core retains it per connection and attaches it to the
+parsed database before cache processing. It is no longer sent in `update` messages, where the tracker ignored it.
+
+The ZIP remains a compression container only. It contains the exact, audited `competition.json` and no protocol
+metadata. `DatabaseZipHelper` places the already-serialized bytes in `competition.json` instead of re-serializing the
+parsed structure.
+
+### 5.5 Verification
+
+The export event is authenticated when its containing audit batch is sealed (§3, `iwfCompliance`). Verification first checks the seal and then compares the supplied JSON's byte length and SHA-256 with the event. See §0.3 for locating the event.
 
 The JSON schema remains unchanged and no separate JSON signature or checksum sidecar is required. The checksum identifies exact bytes; it does not establish snapshot consistency. For a final export, pause relevant edits or use a proven consistent snapshot and declare its audit boundary.
 
@@ -188,7 +270,7 @@ The checker must:
 4. Detect changed, missing, duplicated, overlapping or reordered records and batches.
 5. Report unsigned tails, incomplete seals, untrusted signer sections, missing streams and non-finalized packages.
 6. Verify the signed competition inventory and independently retained checkpoints, including the expected run IDs and signer fingerprints.
-7. Locate each sealed `export.jsonv2` event and compare the named JSON export's byte length and SHA-256 with that event.
+7. Locate each sealed `export.json` event and compare the named JSON export's byte length and SHA-256 with that event.
 8. Report results by file and signer section, showing run ID, fingerprint, covered record range, signature status, completeness and JSON status.
 
 The program exits unsuccessfully for any altered data, invalid signature, missing required key, unsealed gap, inventory mismatch or JSON mismatch. It distinguishes those failures from an otherwise valid but deliberately non-finalized package.

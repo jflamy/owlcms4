@@ -24,6 +24,7 @@ public final class StationResolver {
 			Map.entry("SessionResultsContent", "RESULTS"),
 			Map.entry("TeamResultsContent", "RESULTS"),
 			Map.entry("PackageContent", "RESULTS"),
+			Map.entry("ResultsNavigationContent", "RESULTS"),
 			Map.entry("ProxyAthleteTimer", "SYSTEM"),
 			Map.entry("ProxyBreakTimer", "SYSTEM"),
 			Map.entry("FieldOfPlay", "SYSTEM"),

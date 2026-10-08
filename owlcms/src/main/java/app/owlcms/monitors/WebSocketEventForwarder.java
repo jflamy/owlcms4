@@ -1417,17 +1417,6 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
 		mapPut(sb, "mode", getBoardMode());
 
-		// Database is now sent proactively on connection open and after platform updates.
-		// No longer embed empty database structure in update messages - it confuses the tracker
-		// into thinking a binary database_zip will follow.
-		if (event instanceof UIEvent.SwitchGroup || event instanceof UIEvent.GroupDone) {
-			CompetitionDataExport export = ForwarderPayloadBuilder.exportCompetitionData(getFop());
-			if (export != null) {
-				// Only send checksum so tracker can verify it has current data
-				mapPut(sb, "databaseChecksum", export.checksum());
-			}
-		}
-
 		// dumpMap("createUpdate " + System.identityHashCode(sb), event.getTrace(), sb);
 
 		return sb;
@@ -2069,17 +2058,18 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 		WebSocketEventSender sender = WebSocketEventSender.getOrCreate(baseUrl, () -> baseUrl, null, updateKey);
 		if (sender != null) {
-			byte[] databaseZipBytes = DatabaseZipHelper.createDatabaseZipBytes(export.structure());
+			byte[] databaseZipBytes = DatabaseZipHelper.createDatabaseZipBytes(export.bytes());
 
 			if (databaseZipBytes.length > 0) {
+				sendDatabaseMetadata(sender, export.databaseChecksum());
 				boolean sent = sender.sendBinary("database_zip", databaseZipBytes);
 				if (sent) {
-					String jsonDatabase = export.json();
-					double ratio = 100.0 * (1.0 - (double) databaseZipBytes.length / jsonDatabase.getBytes().length);
+					int jsonLength = export.bytes().length;
+					double ratio = 100.0 * (1.0 - (double) databaseZipBytes.length / jsonLength);
 					logger.info(
 						"{}sent database ZIP via WebSocket to {} ({} bytes, from {}, {}% reduction)",
 						FieldOfPlay.getLoggingName(getFop()), baseUrl, databaseZipBytes.length,
-						jsonDatabase.getBytes().length, String.format("%.1f", ratio)
+						jsonLength, String.format("%.1f", ratio)
 					);
 				} else {
 					logger.debug(
@@ -2513,18 +2503,28 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		sender.setMissingDataCallback(baseName + "_zip", callback);
 	}
 
-	private static byte[] createFreshDatabaseZipBytes(String url) {
+	private static DatabaseZipExport createFreshDatabaseZipExport(String url) {
 		CompetitionDataExport export = ForwarderPayloadBuilder.exportCompetitionDataStatic();
 		if (export == null) {
 			logger.error("Unable to build competition data payload for {}", url);
-			return new byte[0];
+			return null;
 		}
 
-		byte[] zipBytes = DatabaseZipHelper.createDatabaseZipBytes(export.structure());
+		byte[] zipBytes = DatabaseZipHelper.createDatabaseZipBytes(export.bytes());
 		if (zipBytes.length == 0) {
 			logger.error("No database ZIP available to send to {}", url);
+			return null;
 		}
-		return zipBytes;
+		return new DatabaseZipExport(zipBytes, export.databaseChecksum());
+	}
+
+	private static void sendDatabaseMetadata(WebSocketEventSender sender, String databaseChecksum) {
+		if (databaseChecksum != null) {
+			sender.send("database_metadata", Map.of("databaseChecksum", databaseChecksum));
+		}
+	}
+
+	private record DatabaseZipExport(byte[] zipBytes, String databaseChecksum) {
 	}
 
 	private static void registerStartupCallbacksForDestination(ForwardingDestination destination,
@@ -2537,9 +2537,10 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(url, () -> url, null, updateKey);
 			if (sender != null) {
 				Runnable databaseCallback = () -> {
-					byte[] zipBytes = createFreshDatabaseZipBytes(url);
-					if (zipBytes.length > 0) {
-						sender.sendBinary("database_zip", zipBytes);
+					DatabaseZipExport export = createFreshDatabaseZipExport(url);
+					if (export != null) {
+						sendDatabaseMetadata(sender, export.databaseChecksum());
+						sender.sendBinary("database_zip", export.zipBytes());
 					}
 				};
 				registerMissingDataCallbackAliases(sender, "database", databaseCallback);
@@ -2570,9 +2571,10 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 				sender.setOnOpenCallback(() -> {
 					logger.info("WebSocket connected to {}, sending startup data (mode=BINARY)", url);
-					byte[] databaseZipBytes = createFreshDatabaseZipBytes(url);
-					if (databaseZipBytes.length > 0) {
-						boolean sent = sender.sendBinary("database_zip", databaseZipBytes);
+					DatabaseZipExport export = createFreshDatabaseZipExport(url);
+					if (export != null) {
+						sendDatabaseMetadata(sender, export.databaseChecksum());
+						boolean sent = sender.sendBinary("database_zip", export.zipBytes());
 						if (sent) {
 							logger.info("Sent startup database_zip via WebSocket to {}", url);
 						} else {

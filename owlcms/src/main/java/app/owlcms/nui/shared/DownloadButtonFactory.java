@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Supplier;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,8 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.server.InputStreamFactory;
 
+import app.owlcms.audit.AuditActor;
+import app.owlcms.audit.ExportAudit;
 import app.owlcms.components.elements.LazyDownloadButton;
 import app.owlcms.data.export.CompetitionData;
 import app.owlcms.data.export.v2.CompetitionDataV2;
@@ -70,6 +73,8 @@ public class DownloadButtonFactory {
 
 	public static Div createDynamicJsonDownloadButton(String prefix, String label, Notification notification) {
 		UI ui = UI.getCurrent();
+		// the stream is produced on a request thread with no current UI; capture the actor on click
+		AtomicReference<AuditActor> actor = new AtomicReference<>();
 		final LazyDownloadButton downloadButton = new LazyDownloadButton(
 		        label,
 		        new Icon(VaadinIcon.DOWNLOAD_ALT),
@@ -80,8 +85,9 @@ public class DownloadButtonFactory {
 			                + ".json";
 		        },
 		        () -> {
-			        return new CompetitionData().exportData(ui, notification);
+			        return new CompetitionData().exportData(ui, notification, actor.get(), ExportAudit.CHANNEL_DOWNLOAD);
 		        });
+		downloadButton.addClickListener(e -> actor.set(AuditActor.fromCurrentUi()));
 	// Keep notification handling to the stream source doneCallback to avoid
 	// duplicate notifications. The stream source will open/close the
 	// processing notification via its doneCallback.
@@ -90,6 +96,7 @@ public class DownloadButtonFactory {
 
 	public static Div createDynamicJsonV2DownloadButton(String prefix, String label, Notification notification) {
 		UI ui = UI.getCurrent();
+		AtomicReference<AuditActor> actor = new AtomicReference<>();
 		final LazyDownloadButton downloadButton = new LazyDownloadButton(
 		        label,
 		        new Icon(VaadinIcon.DOWNLOAD_ALT),
@@ -100,8 +107,9 @@ public class DownloadButtonFactory {
 			                + ".json";
 		        },
 		        () -> {
-			        return new CompetitionDataV2().exportData(ui, notification);
+			        return new CompetitionDataV2().exportData(ui, notification, actor.get(), ExportAudit.CHANNEL_DOWNLOAD);
 		        });
+		downloadButton.addClickListener(e -> actor.set(AuditActor.fromCurrentUi()));
 	// Keep notification handling to the stream source doneCallback to avoid
 	// duplicate notifications. The stream source will open/close the
 	// processing notification via its doneCallback.

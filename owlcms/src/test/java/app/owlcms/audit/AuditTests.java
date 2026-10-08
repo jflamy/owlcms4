@@ -7,6 +7,7 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
 		AuditContextTest.class,
 		AuditFormatTest.class,
+		ExportAuditTest.class,
 		AthleteDiffTest.class,
 		RecordChallengeTrackerTest.class,
 		StationResolverTest.class

@@ -19,6 +19,8 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import app.owlcms.access.RequiresRole;
@@ -28,6 +30,8 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.preparation.RecordContent;
@@ -113,10 +117,35 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		        Translator.translate("RecordEvent.EditExportRecords"));
 		editExportRecords.setWidthFull();
 
+		Notification exportNotification = new Notification(Translator.translate("LongProcessing"));
+		exportNotification.setPosition(Position.TOP_END);
+		Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
+		        Translator.translate("ExportDatabase.DownloadJson"), exportNotification);
+		Optional<Component> exportJsonButton = exportJsonDiv.getChildren().findFirst();
+		exportJsonButton.ifPresent(c -> ((Button) c).setWidth("100%"));
+		exportJsonDiv.setWidthFull();
+
+		Div exportJsonV2Div = null;
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.V2_EXPORT)) {
+			Notification exportV2Notification = new Notification(Translator.translate("LongProcessing"));
+			exportV2Notification.setPosition(Position.TOP_END);
+			exportJsonV2Div = DownloadButtonFactory.createDynamicJsonV2DownloadButton("owlcmsDatabase",
+			        Translator.translate("ExportDatabase.DownloadJsonV2"), exportV2Notification);
+			Optional<Component> exportJsonV2Button = exportJsonV2Div.getChildren().findFirst();
+			exportJsonV2Button.ifPresent(c -> ((Button) c).setWidth("100%"));
+			exportJsonV2Div.setWidthFull();
+		}
+
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(groupResults, medalScheduleDiv);
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(teamResults, teams);
-		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(finalPackage,
-		     editExportRecords, timingStats);
+		FlexibleGridLayout grid3;
+		if (exportJsonV2Div != null) {
+			grid3 = HomeNavigationContent.navigationGrid(finalPackage, editExportRecords, timingStats,
+			        exportJsonDiv, exportJsonV2Div);
+		} else {
+			grid3 = HomeNavigationContent.navigationGrid(finalPackage, editExportRecords, timingStats,
+			        exportJsonDiv);
+		}
 
 		doGroup(Translator.translate("ForEachCompetitionGroup"), grid1, this);
 		doGroup(Translator.translate("TeamResults.Title"), grid2, this);

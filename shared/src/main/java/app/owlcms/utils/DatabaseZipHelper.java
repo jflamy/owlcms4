@@ -40,13 +40,30 @@ public class DatabaseZipHelper {
 			logger./**/warn("[DatabaseZipHelper] Payload is null, returning empty ZIP");
 			return new byte[0];
 		}
+		try {
+			String jsonString = objectMapper.writeValueAsString(databasePayload);
+			return createDatabaseZipBytes(jsonString.getBytes(StandardCharsets.UTF_8));
+		} catch (RuntimeException e) {
+			logger.error("[DatabaseZipHelper] Failed to serialize database payload: {}", LoggerUtils.exceptionMessage(e));
+			return new byte[0];
+		}
+	}
+
+	/**
+	 * Create a ZIP archive whose {@code competition.json} entry holds exactly the given bytes, so that a checksum
+	 * computed over them describes the transmitted content.
+	 *
+	 * @param jsonBytes the serialized competition database
+	 * @return byte array containing the zipped database, or empty array on error
+	 */
+	public static byte[] createDatabaseZipBytes(byte[] jsonBytes) {
+		if (jsonBytes == null || jsonBytes.length == 0) {
+			logger./**/warn("[DatabaseZipHelper] Payload is empty, returning empty ZIP");
+			return new byte[0];
+		}
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try (ZipOutputStream zipOut = new ZipOutputStream(baos)) {
-			// Convert payload to JSON string
-			String jsonString = objectMapper.writeValueAsString(databasePayload);
-			byte[] jsonBytes = jsonString.getBytes(StandardCharsets.UTF_8);
-
 			// Create ZIP entry for competition.json
 			ZipEntry entry = new ZipEntry("competition.json");
 			zipOut.putNextEntry(entry);
