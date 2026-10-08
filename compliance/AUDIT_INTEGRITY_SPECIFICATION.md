@@ -36,20 +36,57 @@ Audit-record content, routing and actor attribution are defined in [AUDIT_TRAIL_
 
 This work exists to satisfy IWF competition-management requirements. JSON V2 is the IWF export format; JSON V1 remains available for other federations and for backward compatibility.
 
-### 0.1 `iwfCompliance` Feature Toggle
+### 0.1 Compliance Feature Toggles
 
-Add an `iwfCompliance` `FeatureSwitch` (section `SPECIALTY_FEATURES`, off by default). It is the single switch that turns on IWF-specific behaviors. Behaviors introduced by this proposal are classified as follows:
+Add two independent `FeatureSwitch` values in `SPECIALTY_FEATURES`, both off by default:
 
-| Behavior | Gated by `iwfCompliance`? | Rationale |
+- `TCRR_COMPLIANCE` (`tcrrCompliance`) enables compliance with IWF Technical and Competition Rules and Regulations.
+- `IWF_COMPLIANCE` (`iwfCompliance`) enables IWF integrity and evidence controls, including cryptographic audit sealing.
+
+Neither switch implies the other. An event requiring both rule compliance and integrity protection must enable both.
+
+| Behavior | Control | Rationale |
 |---|---|---|
-| SHA-256 and byte length of every JSON export written to the audit log (§4) | No — always on | Cheap, harmless, and useful for any federation; a checksum that is sometimes absent cannot be relied upon. |
-| Audit-log sealing and signing (§2) | No — always on | Signed with the configured key if one is present, otherwise with the built-in default key (§3.0). Running the same code everywhere keeps it exercised; the built-in key provides no protection and the log says so. |
-| Real (non-built-in) signing key required at startup (§3) | Never required | The built-in key is always the fallback. Protection depends only on configuring a real key whose fingerprint the technical delegate recorded in advance. A configured but missing, malformed or mismatched key is still a startup error. |
-| Remove the H2 TCP service and permit embedded H2 only (§5) | No — global | External H2 access is removed from OWLCMS entirely, independently of IWF compliance. |
-| Inventory and off-machine copy of the full audit logs (§6) | Yes | IWF evidence-handover requirement. |
-| Final-export declaration with snapshot and audit boundary (§4) | Yes | Only meaningful when sealing is active. |
+| Base audit records defined by the audit-trail specification | Always on | Ordinary auditability is useful for every competition. |
+| SHA-256 and byte length of every JSON export written to the audit log (§4) | Always on | Cheap, harmless, and useful for any federation. |
+| IWF Technical and Competition Rules behavior | `tcrrCompliance` | Rule compliance is independent of cryptographic integrity. |
+| Audit-log sealing, signing and integrity-controlled rollover (§2) | `iwfCompliance` | Plain audit logs remain available without cryptographic markers. |
+| Signing-key loading and pending-key promotion (§3) | `iwfCompliance` | No key is loaded when integrity controls are off. |
+| Real signing key | Optional within `iwfCompliance` | The built-in key is the fallback and is reported as unprotected. |
+| Remove the H2 TCP service and permit embedded H2 only (§5) | Always/global | External H2 access is removed independently of both switches. |
+| Competition inventory and off-machine log-copy procedure (§6) | `iwfCompliance` | IWF evidence-handover requirement. |
+| Final-export declaration with snapshot and audit boundary (§4) | `iwfCompliance` | IWF evidence-handover requirement. |
+| Integrity checking page (§7) | Always available to administrators | A clean installation must be able to check evidence without enabling sealing locally. |
 
-The toggle is read through `Config.getCurrent().featureSwitch(FeatureSwitch.IWF_COMPLIANCE)` like every other switch and may be overridden through the usual environment mechanism.
+Both switches use the normal feature-switch configuration and environment override mechanism. `tcrrCompliance` is controlled only by its configured feature-switch value.
+
+The effective `iwfCompliance` value is:
+
+```text
+configured iwfCompliance
+OR
+real-key configuration present
+```
+
+Real-key configuration is present when any of the following exists:
+
+- `OWLCMS_AUDIT_SIGNING_PEM_BASE64`;
+- an explicitly configured `OWLCMS_AUDIT_KEY_FILE` override;
+- `auditkey.pem.new`;
+- `auditkey.pem` at the configured/default audit-key location.
+
+Key presence therefore turns integrity mode on. While a real-key configuration is present, `iwfCompliance` cannot be turned off: a configured false value is overridden, and the UI shows that integrity mode is forced by the key. Removing the key configuration and restarting is required before integrity mode can be disabled.
+
+The effective values are fixed at startup; changing either switch or any key source requires a restart.
+
+When effective `iwfCompliance` is off:
+
+- audit records are written without `FIRST`, `CONTINUE`, `SEAL` or `FINAL`;
+- no signing key is loaded or promoted;
+- ordinary non-integrity audit rollover applies;
+- the checker reports such input as unsealed rather than altered.
+
+When effective `iwfCompliance` is on, all requirements in §§2–3 and §6 apply.
 
 ### 0.2 Matching an Export to the Log
 
@@ -57,9 +94,9 @@ To verify a JSON file, compute its SHA-256 and look for an `export.json` audit e
 
 ## 1. Final Recommendation
 
-- **Audit log:** retain bounded batches of the exact bytes written by the logger. Hash and sign each completed batch asynchronously, then append a `SEAL` line covering audit records X through Y.
+- **Audit log:** always write the ordinary audit trail. When `iwfCompliance` is enabled, retain bounded batches of the exact bytes written by the logger, hash and sign each completed batch asynchronously, and append a `SEAL` line covering audit records X through Y.
 - **JSON exports (V1 and V2):** hash the exact exported bytes once, on the fly, and record the SHA-256 and byte length in the audited `export.json` event. The audit seal covering that event authenticates the checksum.
-- **Key pair:** use a dedicated Ed25519 pair. The competition director generates it and places the PEM file at a fixed location on the competition machine; OWLCMS loads it automatically at every start. Before the competition, the director sends the fingerprint to the technical delegate, who keeps it off the machine. When no key is configured, a public built-in default pair is used so that sealing always runs; it provides no protection.
+- **Key pair:** under `iwfCompliance`, use a dedicated Ed25519 pair. The competition director generates it and places the PEM file at a fixed location on the competition machine; OWLCMS loads it automatically at every start. Before the competition, the director sends the fingerprint to the technical delegate, who keeps it off the machine. When no key is configured, a public built-in default pair is used; it provides no protection.
 - **H2:** remove the H2 TCP server option and permit only process-local embedded H2 URLs. Keep the existing Hikari connection pool.
 - **Retention:** the competition director periodically copies the full sealed audit logs to a removable device or private network destination. The off-machine copies are the evidence used to resolve a dispute; they also detect a later local rewrite by anyone able to read the key file.
 
@@ -409,7 +446,7 @@ Keep `~/.owlcms/key` in its current format. It remains the raw Base64-encoded 32
 
 ### 3.0 Built-in Default Key
 
-When no flattened PEM variable and no key file are configured (§3.1), OWLCMS uses a built-in Ed25519 pair compiled into the application. A real key is never mandatory: development, PIN-mode and ordinary competitions run sealing with this pair, so the same code path is exercised everywhere.
+When `iwfCompliance` is explicitly enabled and no real-key configuration is present (§3.1), OWLCMS uses a built-in Ed25519 pair compiled into the application. A real key is never mandatory within integrity mode. Development and tests explicitly enable `iwfCompliance` to exercise sealing with this pair.
 
 The built-in private key is public and provides **no protection**: anyone can produce valid seals with it. Its fingerprint must never be registered as trusted. Each run using it records `keySource=builtin` in `audit.open`, and the startup log states that audit logs are sealed with the built-in key.
 
@@ -441,38 +478,97 @@ The PEM file contains both blocks:
 A pair can be generated and its fingerprint shown with standard tools:
 
 ```bash
-openssl genpkey -algorithm ed25519 -out auditKey.pem
-openssl pkey -in auditKey.pem -pubout >> auditKey.pem
-openssl pkey -in auditKey.pem -pubout -outform DER | shasum -a 256
+openssl genpkey -algorithm ed25519 -out auditkey.pem
+openssl pkey -in auditkey.pem -pubout >> auditkey.pem
+openssl pkey -in auditkey.pem -pubout -outform DER | shasum -a 256
 ```
 
-The file is at a fixed location given by `OWLCMS_AUDIT_KEY_FILE`. OWLCMS reads it at every start, so restarts need no operator action, and logs the fingerprint and `keySource=configured` in `audit.open`. The file may equally be on a removable device that the director plugs in before starting OWLCMS and removes afterwards; OWLCMS keeps the key in memory for the lifetime of the process.
+The default key path is:
+
+```text
+~/.owlcms/auditkey.pem
+```
+
+OWL CMS resolves this programmatically from the operating-system user home directory:
+
+```java
+Path home = Path.of(System.getProperty("user.home"));
+Path keyFile = home.resolve(".owlcms").resolve("auditkey.pem");
+```
+
+The default is equivalent to the machine-independent setting:
+
+```text
+OWLCMS_AUDIT_KEY_FILE=~/.owlcms/auditkey.pem
+```
+
+OWL CMS, not the shell or environment-file parser, expands a leading `~/` or `~\`. On Windows, if `user.home` is `C:\Users\Director`, the resolved path is:
+
+```text
+C:\Users\Director\.owlcms\auditkey.pem
+```
+
+This is independent of the OWLCMS installation directory and version. Multiple installed versions and an upgraded version use the same key when they run under the same operating-system account. It follows the existing version-independent `~/.owlcms/key` convention used for the installation secret.
+
+`OWLCMS_AUDIT_KEY_FILE` optionally overrides the path. Resolution is:
+
+1. Trim surrounding whitespace.
+2. If the value is exactly `~`, use `user.home`.
+3. If it begins with `~/` or `~\`, remove that prefix, resolve the remainder against `user.home`, and normalize it.
+4. Reject a home-relative result that does not still start with the normalized home path (for example `~/../other/auditkey.pem`).
+5. Otherwise parse and normalize the value and require it to be an absolute path.
+
+No `~otheruser`, `$HOME`, `${HOME}` or `%USERPROFILE%` expansion is performed.
+
+The setting may be placed in a local environment file, the process environment or cloud configuration. The same portable value works on Windows, macOS and Linux:
+
+```text
+OWLCMS_AUDIT_KEY_FILE=~/.owlcms/auditkey.pem
+```
+
+Windows environment files may also use an absolute path with forward slashes:
+
+```text
+OWLCMS_AUDIT_KEY_FILE=E:/owlcms/auditkey.pem
+```
+
+An override on macOS may point to a removable device:
+
+```text
+OWLCMS_AUDIT_KEY_FILE=/Volumes/OWLCMSKEY/auditkey.pem
+```
+
+The pending file is the resolved path with `.new` appended, for example `~/.owlcms/auditkey.pem.new`.
+
+OWL CMS reads the resolved path at every start, so restarts need no operator action, and logs the fingerprint and `keySource=configured` in `audit.open`. The override may point to a removable device that the director plugs in before starting OWLCMS and removes afterwards; OWLCMS keeps the key in memory for the lifetime of the process.
 
 Environment-file and cloud deployments may supply the complete PEM through the single-line secret `OWLCMS_AUDIT_SIGNING_PEM_BASE64`. Its value is the Base64 encoding of the complete PEM file, including both blocks and their line terminators:
 
 ```bash
-openssl base64 -A -in auditKey.pem
+openssl base64 -A -in auditkey.pem
 ```
 
 At startup, OWLCMS Base64-decodes the value to PEM text and applies the same pair validation as for a file. The outer Base64 layer only flattens the PEM for `.env` and cloud-secret settings; it is not encryption and the variable must be treated as a secret.
 
 The `/admin` preparation page is a convenience, not the only provisioning method. An administrator may manually:
 
-- place a complete valid `auditKey.pem` at the configured path and start or restart OWLCMS; or
-- place a complete valid `auditKey.pem.new` beside it and restart OWLCMS, causing startup to validate and promote the pending file.
+- place a complete valid `auditkey.pem` at the configured path and start or restart OWLCMS; or
+- place a complete valid `auditkey.pem.new` beside it and restart OWLCMS, causing startup to validate and promote the pending file.
 
 Startup precedence is:
 
 1. a valid `OWLCMS_AUDIT_SIGNING_PEM_BASE64`;
-2. otherwise, a valid `auditKey.pem.new`, which is promoted to `auditKey.pem`;
-3. otherwise, a valid configured `auditKey.pem`;
-4. otherwise, when no environment key and no key path are configured, the built-in key.
+2. otherwise, a valid `auditkey.pem.new`, which is promoted to `auditkey.pem`;
+3. otherwise, a valid configured `auditkey.pem`;
+4. otherwise, the built-in key when `iwfCompliance` was explicitly enabled without a real-key configuration.
 
-If the environment variable is present but cannot be decoded or does not contain a valid matching pair, startup fails visibly; it does not continue to the files. When the environment variable is present, startup does not promote, delete or otherwise modify `auditKey.pem.new` or `auditKey.pem`. If a configured or pending file is selected but invalid, startup likewise fails instead of continuing to the next choice.
+If the environment variable is present but cannot be decoded or does not contain a valid matching pair, startup fails visibly; it does not continue to the files. When the environment variable is present, startup does not promote, delete or otherwise modify `auditkey.pem.new` or `auditkey.pem`. If a configured or pending file is selected but invalid, startup likewise fails instead of continuing to the next choice.
 
 ### 3.2 Validation and Exposure
 
-OWLCMS validates the key at startup. If no environment key and no key path are configured, the built-in key of §3.0 is used. If an environment key or file is configured but cannot be decoded, is missing, incomplete, malformed or mismatched, that is a visible configuration error: it must neither fall back to the built-in key nor cause silent generation of a new identity. Key replacement requires explicit, recorded rotation, and the new fingerprint must reach the technical delegate. Retain old public keys so existing evidence remains verifiable.
+OWL CMS determines effective `iwfCompliance` from the configured switch and key presence before audit logging starts. Any real-key configuration forces integrity mode on and is validated. If an environment key or file is configured but cannot be decoded, is missing, incomplete, malformed or mismatched, startup fails visibly: it must neither fall back to the built-in key nor silently disable integrity mode. Key replacement requires explicit, recorded rotation, and the new fingerprint must reach the technical delegate. Retain old public keys so existing evidence remains verifiable.
+
+Only when `iwfCompliance` is configured off and no real-key configuration is present does OWLCMS skip key loading, pending-file promotion and signing initialization.
 
 The PEM file is not secret from anyone who can read it, and its fingerprint can be computed from it; that is acceptable because trust comes from the fingerprint recorded in advance by the technical delegate, not from secrecy of the fingerprint. A key generated by anyone else has a different fingerprint and its sections are reported as untrusted. Anyone able to read the real key file can rewrite and re-sign the local logs; the off-machine copy of §6 exposes such a rewrite.
 
@@ -616,11 +712,14 @@ The report has three independent result dimensions:
 |---|---|---|
 | Integrity | `INTACT` | Every sealed block, signature, block link and supplied off-machine comparison passed. |
 | Integrity | `FAILED` | A claimed sealed block, signature or link failed, or a local copy differs from the supplied off-machine copy. |
+| Integrity | `UNSEALED` | The input is an ordinary audit log produced without integrity mode; no cryptographic integrity claim can be made. |
 | Coverage | `COMPLETE` | Every expected stream and ordinary record is covered by valid markers, and every run segment expected to be finalized has `FINAL`. |
 | Coverage | `PARTIAL` | Some records are not sealed, a run is not finalized, or an expected file or stream is missing. The report lists the exact uncovered ranges and reasons. |
+| Coverage | `NOT_ASSESSED` | Coverage cannot be assessed cryptographically because the input is unsealed. |
 | Key protection | `CONFIGURED` | Every checked range is signed with a configured key. |
 | Key protection | `BUILTIN` | Every checked range is signed with the built-in key and therefore has no key protection. |
 | Key protection | `MIXED` | The checked evidence contains both configured-key and built-in-key ranges. |
+| Key protection | `NONE` | The input is unsealed and no signing key was used. |
 
 Examples:
 
@@ -644,7 +743,7 @@ Failure: block covering records 1792–1840 does not match its signed SHA-256
 
 The checker never reports a log as verified by itself. `Integrity: INTACT` means the sealed evidence is internally consistent; for the disputed period, the technical delegate completes verification by visually comparing the reported fingerprint with the fingerprint photographed before that period began. `Key protection: BUILTIN` or `MIXED` is always called out prominently.
 
-The checking page exposes these dimensions as structured result values rather than process exit statuses. Automated tests assert those values directly. Unaltered built-in-key fixtures normally produce `INTACT / COMPLETE / BUILTIN`; an unaltered crash fixture with an unsealed tail produces `INTACT / PARTIAL / BUILTIN`.
+The checking page exposes these dimensions as structured result values rather than process exit statuses. Automated tests assert those values directly. Unaltered built-in-key fixtures normally produce `INTACT / COMPLETE / BUILTIN`; an unaltered crash fixture with an unsealed tail produces `INTACT / PARTIAL / BUILTIN`; an ordinary audit log produced with `iwfCompliance` off produces `UNSEALED / NOT_ASSESSED / NONE`.
 
 Acceptance tests cover byte alteration, deletion, reordering, truncation, removal of a complete final batch, omission of a stream, public-key replacement, restart, crash during publication, disk full, key loss and unavailable independent storage.
 
@@ -658,40 +757,42 @@ The `/admin` route adds a **Prepare Audit Integrity** action that opens a dedica
 
 The preparation and checking pages share the same fingerprint computation and display format. Key generation uses only the JDK (Ed25519 is supported since Java 15) and needs no OpenSSL installation.
 
-If `OWLCMS_AUDIT_SIGNING_PEM_BASE64` is present, the preparation page reports that the environment key has precedence and does not create `auditKey.pem.new`; replacing a cloud or `.env` key is done in that environment setting.
+If `OWLCMS_AUDIT_SIGNING_PEM_BASE64` is present, the preparation page reports that the environment key has precedence and does not create `auditkey.pem.new`; replacing a cloud or `.env` key is done in that environment setting.
+
+Otherwise, the preparation page may create `auditkey.pem.new` even while integrity mode is currently off. The pending key forces effective `iwfCompliance` on at the restart that promotes it.
 
 1. Generates an Ed25519 key pair.
-2. Writes `auditKey.pem.new` in the same directory as the configured `auditKey.pem`, containing the `PRIVATE KEY` and `PUBLIC KEY` blocks (§3.1), with owner-only permissions on macOS and Linux.
-3. Flushes and rereads `auditKey.pem.new`, parses both keys, verifies that they form a pair, and recomputes the displayed fingerprint from the reread public key.
+2. Writes `auditkey.pem.new` in the same directory as the configured `auditkey.pem`, containing the `PRIVATE KEY` and `PUBLIC KEY` blocks (§3.1), with owner-only permissions on macOS and Linux.
+3. Flushes and rereads `auditkey.pem.new`, parses both keys, verifies that they form a pair, and recomputes the displayed fingerprint from the reread public key.
 4. Prints the fingerprint in full and in groups of four hexadecimal digits for visual comparison, for example `d8a3 1872 5d89 bf63 …`.
 5. Displays a confirmation that preparation succeeded and that OWLCMS will restart to activate the pending key.
 6. Triggers the repository-standard OWLCMS restart. The restart is not triggered after a write or validation failure.
 
-Preparation never modifies the active `auditKey.pem`. A failure leaves the existing key untouched.
+Preparation never modifies the active `auditkey.pem`. A failure leaves the existing key untouched.
 
 At startup, before audit logging is initialized:
 
 1. If `OWLCMS_AUDIT_SIGNING_PEM_BASE64` is present, decode and validate it, load that key and leave both PEM files untouched.
-2. Otherwise, if `auditKey.pem.new` is absent, load and validate `auditKey.pem` normally.
-3. If `auditKey.pem.new` is present, validate it again.
-4. Delete the old `auditKey.pem` if it exists.
-5. Rename `auditKey.pem.new` to `auditKey.pem` in the same directory.
-6. Reread and validate the resulting `auditKey.pem`.
+2. Otherwise, if `auditkey.pem.new` is absent, load and validate `auditkey.pem` normally.
+3. If `auditkey.pem.new` is present, validate it again.
+4. Delete the old `auditkey.pem` if it exists.
+5. Rename `auditkey.pem.new` to `auditkey.pem` in the same directory.
+6. Reread and validate the resulting `auditkey.pem`.
 7. Only then initialize audit logging and write `audit.open` with the newly active fingerprint.
 
 If validation, deletion or rename fails, startup stops with a visible error. It must not use the pending key directly, fall back to the built-in key or silently continue with the old PEM.
 
-No audit record has been written during promotion. If the process stops after deleting the old PEM but before renaming the new one, the next startup finds the complete `auditKey.pem.new`, validates it and repeats the delete-and-rename procedure. The old PEM is deleted only after the pending PEM has been fully written and validated.
+No audit record has been written during promotion. If the process stops after deleting the old PEM but before renaming the new one, the next startup finds the complete `auditkey.pem.new`, validates it and repeats the delete-and-rename procedure. The old PEM is deleted only after the pending PEM has been fully written and validated.
 
 Key generation and file I/O run in a background worker, not on the Vaadin UI thread. The page captures the `UI` before starting the worker and uses a short `ui.access(...)` block only to show the result and initiate the restart.
 
 ### 8.2 About Page
 
-The About page ([InfoNavigationContent.java](../owlcms/src/main/java/app/owlcms/nui/home/InfoNavigationContent.java)) displays the fingerprint of the key OWLCMS actually loaded, under the version number at the top of the page, in the same groups of four. When the built-in key is in use, it shows `builtin key — no protection` instead. Nothing else about the key is shown.
+The About page ([InfoNavigationContent.java](../owlcms/src/main/java/app/owlcms/nui/home/InfoNavigationContent.java)) displays audit-integrity status under the version number. When the configured switch is off but key presence forces integrity on, it says so. With effective `iwfCompliance` off it shows `audit integrity — off`. With integrity mode on it displays the fingerprint of the key OWLCMS actually loaded, in groups of four. When the built-in key is in use, it also shows `builtin key — no protection`. Nothing else about the key is shown.
 
 ### 8.3 Procedure
 
-1. The competition director opens `/admin`, selects **Prepare Audit Integrity**, and confirms creation of the pending `auditKey.pem.new`. The technical delegate photographs the fingerprint shown on the preparation page.
+1. The competition director opens `/admin`, selects **Prepare Audit Integrity**, and confirms creation of the pending `auditkey.pem.new`. The technical delegate photographs the fingerprint shown on the preparation page.
 2. The page restarts OWLCMS. Startup promotes the pending key before audit logging begins. After reconnection, the director opens the About page and the delegate checks that the fingerprint shown there matches. This confirms that OWLCMS activated the key that was just generated, not a stale file or the built-in key.
 3. The delegate keeps the photo or sheet away from the competition machine. Its date establishes that it was recorded before the competition.
 4. If the key is ever replaced, the procedure is repeated and the new fingerprint is recorded the same way.
@@ -703,7 +804,8 @@ Preparing a key does not rewrite or re-sign existing audit records. The normal r
 
 The same daily log may therefore contain consecutive ranges signed by different keys:
 
-- if no PEM existed before preparation, the earlier ranges are signed with the built-in key and are reported as `intact — builtin key, no protection`;
+- ranges written before `iwfCompliance` was enabled are unsealed and are reported as `UNSEALED / NOT_ASSESSED / NONE`;
+- if integrity mode was already enabled but no PEM existed before preparation, the earlier ranges are signed with the built-in key and are reported as `INTACT / COMPLETE / BUILTIN` when otherwise complete;
 - if an older PEM existed, the earlier ranges are signed with that key and are reported with its observed fingerprint;
 - ranges after the restart are signed with the newly prepared key and are reported with its observed fingerprint;
 - records not covered by a valid seal, for example after an abrupt stop, are reported separately as not validated.
