@@ -12,6 +12,7 @@ public final class ExportAudit {
 	public static final String CHANNEL_HTTP = "http";
 	public static final String CHANNEL_WEBSOCKET = "websocket";
 	public static final String CHANNEL_INTERNAL = "internal";
+	public static final String CHANNEL_AUDIT = "audit";
 	private static final String COMPETITION = "competition";
 
 	private ExportAudit() {

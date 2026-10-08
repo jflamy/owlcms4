@@ -40,6 +40,22 @@ public class ConfigTest {
     }
 
     @Test
+    public void complianceSwitchesAreOffByDefaultAndIndependent() {
+        Config config = new Config();
+        assertFalse(config.featureSwitch(FeatureSwitch.IWF_COMPLIANCE));
+        assertFalse(config.featureSwitch(FeatureSwitch.TCRR_COMPLIANCE));
+        config.setFeatureSwitchValue(FeatureSwitch.TCRR_COMPLIANCE, true);
+        assertFalse(config.featureSwitch(FeatureSwitch.IWF_COMPLIANCE));
+        assertTrue(config.featureSwitch(FeatureSwitch.TCRR_COMPLIANCE));
+        config.setFeatureSwitchValue(FeatureSwitch.TCRR_COMPLIANCE, false);
+        config.setFeatureSwitchValue(FeatureSwitch.IWF_COMPLIANCE, true);
+        assertTrue(config.featureSwitch(FeatureSwitch.IWF_COMPLIANCE));
+        assertFalse(config.featureSwitch(FeatureSwitch.TCRR_COMPLIANCE));
+        assertEquals(FeatureSwitch.IWF_COMPLIANCE, FeatureSwitch.fromId("IWFcompliance").orElseThrow());
+        assertEquals(FeatureSwitch.TCRR_COMPLIANCE, FeatureSwitch.fromId("TCRRcompliance").orElseThrow());
+    }
+
+    @Test
     public void legacyFeatureSwitchStringMigratesToJson() {
         Config config = new Config();
 

@@ -1,6 +1,7 @@
 package app.owlcms.audit;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import app.owlcms.audit.AthleteDiff.Change;
 import app.owlcms.data.athlete.Athlete;
@@ -22,8 +23,9 @@ public final class AthleteAudit {
 		}
 		String platform = athlete.getGroup() != null && athlete.getGroup().getPlatform() != null
 				? athlete.getGroup().getPlatform().getName() : "competition";
+		List<AuditEntry> entries = new ArrayList<>();
 		for (Change change : changes) {
-			AuditLog.write(AuditEntry.builder(platform, "athlete.change")
+			entries.add(AuditEntry.builder(platform, "athlete.change")
 					.actor(actor)
 					.athlete(athlete)
 					.attempt(change.attempt())
@@ -33,6 +35,11 @@ public final class AthleteAudit {
 					.cause(AuditContext.cause())
 					.build());
 		}
+		AuditLog.writeBatch(entries, sealsSave(actor));
+	}
+
+	static boolean sealsSave(AuditActor actor) {
+		return "WEIGHIN".equals(actor.station()) || "REGISTRATION".equals(actor.station());
 	}
 
 	/** Marks automatic progressions as (+1) after a good lift or (SAME) after a no lift. */

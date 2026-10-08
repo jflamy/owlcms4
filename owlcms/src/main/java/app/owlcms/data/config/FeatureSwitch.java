@@ -61,6 +61,8 @@ public enum FeatureSwitch {
 
     USAW_SESSION_BLOCKS("usawSessionBlocks", FeatureSwitchSection.SPECIALTY_FEATURES),
     USAW_COLLARS("usawCollars", FeatureSwitchSection.SPECIALTY_FEATURES),
+    TCRR_COMPLIANCE("tcrrCompliance", FeatureSwitchSection.SPECIALTY_FEATURES),
+    IWF_COMPLIANCE("iwfCompliance", FeatureSwitchSection.SPECIALTY_FEATURES),
     MQTT_DOWN_SIGNAL("mqttDownSignal", FeatureSwitchSection.SPECIALTY_FEATURES),
     BREAK_TIMER_SOUNDS("breakTimerSounds", FeatureSwitchSection.SPECIALTY_FEATURES),
     BLACK_STOP_BUTTON("blackStopButton", FeatureSwitchSection.SPECIALTY_FEATURES),

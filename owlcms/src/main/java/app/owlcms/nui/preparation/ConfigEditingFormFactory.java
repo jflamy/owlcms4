@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
+import app.owlcms.audit.AuditIntegrity;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -485,6 +486,12 @@ public class ConfigEditingFormFactory
 	private Component featureSwitchRow(Config config, FeatureSwitch featureSwitch, boolean delimiterAbove) {
 		Checkbox enabled = new Checkbox();
 		enabled.setValue(config.getFeatureSwitchValue(featureSwitch));
+		if (featureSwitch == FeatureSwitch.IWF_COMPLIANCE && AuditIntegrity.isInitialized()
+				&& AuditIntegrity.current().forcedByKey()) {
+			enabled.setValue(true);
+			enabled.setEnabled(false);
+			enabled.setTooltipText(Translator.translate("AuditIntegrity.ForcedByKey"));
+		}
 		enabled.addValueChangeListener(e -> config.setFeatureSwitchValue(featureSwitch, e.getValue()));
 		enabled.getStyle().set("justify-self", "center");
 

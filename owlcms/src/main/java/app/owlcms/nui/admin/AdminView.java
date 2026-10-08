@@ -34,6 +34,10 @@ public class AdminView extends Composite<VerticalLayout> implements HasDynamicTi
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
+		checkLocalAccess();
+	}
+
+	public static void checkLocalAccess() {
 		Principal principal = OwlcmsSession.getPrincipal();
 		boolean accountSession = principal != null && principal.source() == Principal.AuthSource.ACCOUNT;
 		if (!OwlcmsSession.isAuthenticated() && !accountSession) {
@@ -95,9 +99,15 @@ public class AdminView extends Composite<VerticalLayout> implements HasDynamicTi
 		repairBirthYearsNote.getStyle().set("color", "var(--lumo-secondary-text-color)");
 		HorizontalLayout repairBirthYearsAction = new HorizontalLayout(repairBirthYears, repairBirthYearsNote);
 		repairBirthYearsAction.setAlignItems(FlexComponent.Alignment.CENTER);
+		Button prepareAudit = new Button(Translator.translate("AuditIntegrity.PrepareTitle"),
+				event -> event.getSource().getUI().ifPresent(ui -> ui.navigate(AuditIntegrityPreparationView.class)));
+		Button checkAudit = new Button(Translator.translate("AuditIntegrity.CheckTitle"),
+				event -> event.getSource().getUI().ifPresent(ui -> ui.navigate(AuditIntegrityCheckView.class)));
+		Button snapshotAudit = new Button(Translator.translate("AuditSnapshot.Title"),
+				event -> event.getSource().getUI().ifPresent(ui -> ui.navigate(AuditSnapshotView.class)));
 
 		content.add(title, stop, restart, reloadTranslationsAction, separator(), repairBirthDatesAction,
-		        repairBirthYearsAction);
+		        repairBirthYearsAction, separator(), prepareAudit, snapshotAudit, checkAudit);
 	}
 
 	private Hr separator() {

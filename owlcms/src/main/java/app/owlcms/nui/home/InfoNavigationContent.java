@@ -26,6 +26,8 @@ import com.github.appreciated.css.grid.sizes.Repeat;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Pre;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -34,6 +36,8 @@ import app.owlcms.access.AuthenticatedPage;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
+import app.owlcms.audit.AuditIntegrity;
+import app.owlcms.audit.AuditLog;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
@@ -128,6 +132,23 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 		        sectionTitle(
 		                Translator.translate("OwlcmsBuild", OwlcmsFactory.getVersion(),
 		                        OwlcmsFactory.getBuildTimestamp())));
+		if (!AuditIntegrity.isInitialized()) {
+			license.add(new Paragraph(Translator.translate("AuditIntegrity.RestartRequired")));
+		} else if (!AuditIntegrity.current().enabled()) {
+			license.add(new Paragraph(Translator.translate("AuditIntegrity.Off")));
+		} else {
+			AuditIntegrity.State integrity = AuditIntegrity.current();
+			Pre fingerprint = new Pre(integrity.signingKey().displayFingerprint());
+			fingerprint.getStyle().set("white-space", "pre-wrap");
+			license.add(fingerprint, new Paragraph(Translator.translate(
+					AuditLog.integrityHealthy() ? "AuditIntegrity.Active" : "AuditIntegrity.Failed")));
+			if (integrity.signingKey().isBuiltin()) {
+				license.add(new Paragraph(Translator.translate("AuditIntegrity.Builtin")));
+			}
+			if (integrity.forcedByKey()) {
+				license.add(new Paragraph(Translator.translate("AuditIntegrity.ForcedByKey")));
+			}
+		}
 		license.add(sectionTitle(Translator.translate("CopyrightLicense")));
 		addUL(license,
 		        Translator.translate("Copyright2009") + LocalDate.now().getYear() + " " + Translator.translate("JFL"),

@@ -50,6 +50,7 @@ import tools.jackson.databind.json.JsonMapper;
 import app.owlcms.Main;
 import app.owlcms.access.AccessMode;
 import app.owlcms.apputils.AccessUtils;
+import app.owlcms.audit.AuditIntegrity;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
@@ -261,6 +262,18 @@ public class Config {
 	}
 
 	public boolean featureSwitch(FeatureSwitch featureSwitch) {
+		if (AuditIntegrity.isInitialized()) {
+			if (featureSwitch == FeatureSwitch.IWF_COMPLIANCE) {
+				return AuditIntegrity.current().enabled();
+			}
+			if (featureSwitch == FeatureSwitch.TCRR_COMPLIANCE) {
+				return AuditIntegrity.current().tcrrCompliance();
+			}
+		}
+		return requestedFeatureSwitch(featureSwitch);
+	}
+
+	public boolean requestedFeatureSwitch(FeatureSwitch featureSwitch) {
 		if (featureSwitch == FeatureSwitch.COMPETITION_DIRECTOR_PAGE && isAccountsMode()) {
 			return true;
 		}

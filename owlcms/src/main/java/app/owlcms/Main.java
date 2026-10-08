@@ -25,6 +25,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import app.owlcms.access.AccessStartup;
 import app.owlcms.audit.ApplicationAudit;
+import app.owlcms.audit.AuditIntegrity;
 import app.owlcms.audit.AuditContext;
 import app.owlcms.utils.BrowserUtils;
 import app.owlcms.apputils.LogbackConfigReloader;
@@ -158,6 +159,7 @@ public class Main {
                 embeddedJetty.run(serverPort, "/");
             } catch (Exception e) {
                 logger.error("cannot start server {}\\n{}", e, LoggerUtils.stackTrace(e));
+                embeddedJetty.stop("OWLCMS initialization failed");
             }
         });
         server.start();
@@ -173,6 +175,7 @@ public class Main {
         JPAService.init(memoryMode, resetMode);
         // check for database override of resource files
         Config.initConfig();
+        AuditIntegrity.initialize(Config.getCurrent());
         ResourceMonitor.start();
         AccessStartup.run();
 

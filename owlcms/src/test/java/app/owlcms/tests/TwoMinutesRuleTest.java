@@ -461,7 +461,7 @@ public class TwoMinutesRuleTest {
         successfulLift(fopBus, curLifter, fopState);
     }
 
-    void doSequence3(FieldOfPlay fopState, EventBus fopBus, Logger logger) {
+    public void doSequence3(FieldOfPlay fopState, EventBus fopBus, Logger logger) {
         testPrepState3(fopState, fopBus, logger);
         Group group = fopState.getGroup();
         fopBus.post(new FOPEvent.SwitchGroup(group, this));

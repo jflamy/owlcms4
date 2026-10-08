@@ -27,7 +27,7 @@ Audit-record content, routing and actor attribution are defined in [AUDIT_TRAIL_
 - From `/admin`, **Check Audit Integrity** opens a dedicated checking page (§7). The checker needs no secret: it reads the public key from the log itself.
 - It confirms that every block is unchanged, that the seals form an unbroken chain, and that each seal was made with the private key matching that public key.
 - JSON-file comparison is a documented manual process (§4.5). OWLCMS does not retain copies of downloaded JSON files, and the checker does not try to infer which audit line belongs to a supplied file.
-- It compares the local log with the off-machine copy; any difference shows local tampering, including a log rewritten and re-signed with the real key.
+- It checks whatever audit logs the user selects. Normally the off-machine copies are placed by hand in the audit log directory of a clean installation and checked there. Running it on the competition machine itself is also valid: it detects any change to sealed content, but the matching fingerprint there is not proof that the key was never substituted; only the delegate's photographed fingerprint settles that.
 - It prints the fingerprint of the key that sealed the log, for example: `Log intact. Sealed with key fingerprint d8a3…dde6.`
 - For the disputed period, the technical delegate visually compares the fingerprint reported by the checker with the fingerprint photographed before that period began. Nothing is typed into the checker.
 - The built-in key is recognized and reported as `builtin key, no protection`, never as verified.
@@ -106,7 +106,7 @@ The competition director is trusted. The key file protects against everyone else
 
 Under these constraints, the competition director copies sealed logs to independent safekeeping at operationally chosen intervals. Given the fingerprint recorded by the technical delegate, the Check Integrity program confirms that every retained sealed log section is unchanged. JSON-file comparison, when needed, is performed separately using the documented manual process (§4.5). A successful complete check therefore confirms the absence of tampering in the retained evidence.
 
-The security, access control, availability and retention policy of the independent safekeeping system are outside the scope of this proposal.
+The security, access control, availability and retention policy of the independent safekeeping system are outside the scope of this specification.
 
 ## 2. Audit Log Sealing
 
@@ -274,7 +274,7 @@ For each `_full.log` stream:
 
 1. Encode each ordinary audit record once, including its actual line terminator.
 2. Write those bytes through the normal appender and retain the same bytes in the active bounded batch.
-3. Close the batch right after a natural boundary (a lift decision, an athlete saved from the weigh-in or registration station, or 5 minutes of idle time with unsealed records), when the batch reaches its fallback age, record count or byte size, or at rollover, shutdown or finalization.
+3. Close the batch right after a natural boundary (a saved lift result, an athlete saved from the weigh-in or registration station, or 5 minutes of idle time with unsealed records), when the batch reaches its fallback age, record count or byte size, or at rollover, shutdown or finalization.
 4. Freeze the batch and transfer it to a background worker while logging continues into a new batch.
 5. Hash the frozen bytes with SHA-256, sign the seal payload with Ed25519, and return the completed seal to the owning appender.
 6. Append the seal through the same serialized writer, bypassing ordinary audit capture so seals cannot recursively enter a batch.
@@ -285,12 +285,21 @@ Batches are non-overlapping. Each ordinary record belongs to exactly one batch. 
 
 Batches are closed at natural boundaries:
 
-- **A lift.** On a platform stream, the batch is closed immediately after a `referee.decision` record, and again after a `jury.decision` record when the jury rules. A seal then covers everything logged for that lift: attempt changes, clock events, votes and the decision.
+- **A lift.** On a platform stream, the batch is closed as soon as the lift result has been saved to the athlete (together with any new or cancelled records). If the save happens while the triggering event is being processed, the batch is closed after that event's own audit record is written. The batch is closed again after a `jury.decision` record, which is written after the jury's change has been saved. A seal then covers everything logged for that lift: attempt changes, clock events, votes, the decision and the saved result. Decision visibility is not the boundary: with `showDecisionsImmediately` the decision is shown before the reversal window ends and saved afterwards.
 - **An athlete saved from the weigh-in or registration station.** One form save writes one `athlete.change` record per changed field (station `WEIGHIN` or `REGISTRATION`). The batch is closed after the last record of that save. Weigh-in records go to the platform stream of the athlete's session, which may not be lifting at the time (before the first session, between sessions, or on a weigh-in day), so lift decisions alone would leave them unsealed.
 
 - **Five minutes of idle time, on every stream.** When no new record has arrived for 5 minutes and there are unsealed records, the batch is closed. If the last line is already a seal, nothing is done. On the competition-wide stream, which records logins (a burst at the start of the day, then occasional ones) and exports (about every hour), this is the usual trigger: the morning login burst is sealed 5 minutes after the last login, and each export 5 minutes after it is written. On platform streams it seals anything left after the last lift or athlete save, for example during a break.
 
-Remaining cases, such as continuous activity that never pauses for 5 minutes, are covered by fallback limits: a maximum age measured from the oldest unsealed record, a record count and a byte size. The age is not a periodic timer, so nothing is sealed when nothing is logged. The fallback values will be set later. After an abrupt stop, at most the records since the last seal are reported as not validated (§2.4).
+Remaining cases, such as continuous activity that never reaches a natural boundary, are covered by fallback limits:
+
+| Limit | Value |
+|---|---|
+| Block byte size | 1 MiB (1,048,576 bytes) |
+| Ordinary records per block | 500 |
+| Block age | 5 minutes from the oldest unsealed record |
+| Frozen data awaiting signing | 8 MiB (8,388,608 bytes) |
+
+The first block limit reached closes the block, independently of the five-minute idle trigger. The age timer operates only while records are unsealed, so empty periods produce no seals. The signing-queue bound applies across streams; reaching it applies explicit backpressure and must never discard a block silently. After an abrupt stop, at most the records since the last seal are reported as not validated (§2.4).
 
 ### 2.2 Inline Seal
 
@@ -392,7 +401,7 @@ Each rendered control line has the form:
 MARKER {all signed fields...,"signature":"<Base64 Ed25519 signature>"}
 ```
 
-The `marker` value is included inside the signed JSON even though it is also printed before the JSON. The signature covers an explicit audit-seal purpose/version prefix followed by RFC 8785 canonical JSON of every field except `signature`. Batch numbers are unnecessary because signed sequence ranges and predecessor hashes establish ordering.
+The `marker` value is included inside the signed JSON even though it is also printed before the JSON. Version 1 signs the UTF-8 bytes of `OWLCMS-AUDIT-SEAL:1\n` (with one literal LF byte) followed by RFC 8785 canonical JSON of every field except `signature`. Marker fields contain only strings and nonnegative integers no greater than 9,007,199,254,740,991. Unknown fields, duplicate JSON keys, unsupported versions, invalid ranges and unpaired Unicode surrogates are rejected. Batch numbers are unnecessary because signed sequence ranges and predecessor hashes establish ordering.
 
 ### 2.3 Public Key and Fingerprint
 
@@ -416,7 +425,7 @@ The audit component owns authoritative `_full` file writing and rollover; it doe
 2. If the file has reached the configured target size, append `FINAL`, flush and close it.
 3. Open the next file, reset the sequence to 1, write `audit.open` with the previous filename and last-block hash, and immediately write `CONTINUE` before accepting another ordinary record.
 
-Rollover never splits a block. A file may therefore exceed the target by at most one bounded block plus its control lines. The target size and block-size fallback limits will be set later.
+Rollover never splits a block. The file target is 10 MiB (10,485,760 bytes). A file may exceed the target by at most one bounded block plus its control lines. Block limits are specified in §2.1.
 
 Authoritative filenames contain the stream name and the UTC ISO date-time at which the file was opened. Colons are rendered as hyphens for filesystem portability:
 
@@ -672,11 +681,11 @@ A loopback listener is not an acceptable substitute for removing server startup.
 
 ## 6. Completeness and Independent Retention
 
-The competition director periodically copies the full sealed audit logs to a removable device or private network destination. This is an operational procedure; OWLCMS does not transfer the logs or require a receiving protocol.
+The competition director periodically copies the rolled, finalized audit logs — files no longer being written — to a removable device or private network destination. This is an operational procedure; OWLCMS does not transfer the logs or require a receiving protocol. The file currently being written is not locked, so it can be copied, but the copy is only the prefix that existed at that instant; it has no `FINAL` and the checker reports it as `PARTIAL`. The **Audit Log Snapshot** admin action (`/admin/audit/snapshot`) gives the director a quiet point to copy from: it optionally writes a database export (recorded as `export.json` with `channel=audit`), writes an `audit.snapshot` line, forces every sealed stream into a new file so all previous files are finalized, and downloads a zip of the entire `logs` tree — sealed audit files, readable audit files and application logs alike, since the snapshot doubles as a diagnostic backup — optionally with the `local` folder. Only the sealed files just opened by the roll are omitted, as they hold nothing yet. Checked, the sealed files from this run are `COMPLETE`; a tail left by an earlier crash is reported as `PARTIAL`, as it should be.
 
-Each copy is kept as a timestamped snapshot and does not overwrite earlier snapshots. Full logs are copied, not only seals, because resolving a dispute requires the original records, not merely proof that the local copy changed. Downloaded JSON files are not retained by OWLCMS or by this procedure.
+Each copy is kept as a timestamped snapshot and does not overwrite earlier snapshots. Full logs are copied, not only seals, because resolving a dispute requires the original records, not merely proof that something changed. Downloaded JSON files are not retained by OWLCMS or by this procedure.
 
-In a dispute, the latest relevant off-machine snapshot is the evidence examined. The local copy matters only for comparison: a difference shows local tampering. A rewrite re-signed with the real key file (§3.2) no longer matches any earlier snapshot containing the original records. The exposure is limited to records created or changed since the most recent retained copy.
+In a dispute, the latest relevant off-machine snapshot is the evidence examined. A rewrite re-signed with the real key file (§3.2) cannot alter a snapshot already taken off the machine. The exposure is limited to records created or changed since the most recent retained copy.
 
 Maintain a competition inventory listing every expected stream, file generation and process run, including each run ID and public-key fingerprint, so that an omitted platform stream or process run is detected.
 
@@ -684,12 +693,9 @@ The copy schedule, custody of the removable device and security of the private n
 
 ## 7. Integrity Checker and Acceptance
 
-The `/admin` route adds a **Check Audit Integrity** action that opens a dedicated checking page. The page requires no private key and accepts:
+The `/admin` route adds a **Check Audit Integrity** action that opens a dedicated checking page. The page requires no private key and checks whatever the user selects: one audit log, or a directory of audit logs, defaulting to the installation's own audit log directory. OWLCMS does not copy, collect or compare logs; choosing the evidence is the user's decision.
 
-- one audit log, or a directory containing all audit logs for the competition;
-- the off-machine copy of the logs.
-
-In a dispute, checks are performed on a separate machine with a clean installation of the official OWLCMS version, not on the disputed competition installation.
+The normal dispute procedure is: copy the retained logs from the removable device into the audit log directory of a clean installation of the official OWLCMS version, then run the checker there. The checker may also be run on a competition machine that is in production. It detects any alteration of sealed content there, but a fingerprint that matches the machine's own key is not evidence that the key was never substituted; that is established only by the delegate's visual comparison against the fingerprint photographed in advance.
 
 No key or fingerprint is entered. The public key is read from each section's `audit.open`. The checker prints the fingerprint used for each covered range. For the disputed period, the technical delegate visually compares the reported fingerprint with the fingerprint photographed before that period began.
 
@@ -702,7 +708,7 @@ The checker must:
 3. Verify every marker signature, every `previousBlockSha256` link, adjacent non-overlapping record ranges, and each `CONTINUE` against the named previous file's valid `FINAL` and matching `lastBlockSha256`.
 4. Detect changed, missing, duplicated, overlapping or reordered records and batches.
 5. Report records not covered by a valid seal (for example after a crash) as not validated, together with incomplete seals, missing streams and non-finalized runs. These conditions make coverage partial; they are not by themselves evidence that a sealed record was altered.
-6. Verify the competition inventory, and compare the local logs with the off-machine copy, reporting any difference as local tampering.
+6. Verify the competition inventory when one is supplied.
 7. Report results by file and run, showing run ID, fingerprint, covered and uncovered record ranges, signature status, coverage and key protection.
 8. End with a summary listing each distinct fingerprint found, prominently and in full, with its covered time and record ranges. For the disputed period, the technical delegate compares the reported fingerprint with the fingerprint photographed before that period began. If several fingerprints cover the disputed period, each must be compared.
 
@@ -710,8 +716,8 @@ The report has three independent result dimensions:
 
 | Dimension | Value | Meaning |
 |---|---|---|
-| Integrity | `INTACT` | Every sealed block, signature, block link and supplied off-machine comparison passed. |
-| Integrity | `FAILED` | A claimed sealed block, signature or link failed, or a local copy differs from the supplied off-machine copy. |
+| Integrity | `INTACT` | Every sealed block, signature and block link passed. |
+| Integrity | `FAILED` | A claimed sealed block, signature or link failed. |
 | Integrity | `UNSEALED` | The input is an ordinary audit log produced without integrity mode; no cryptographic integrity claim can be made. |
 | Coverage | `COMPLETE` | Every expected stream and ordinary record is covered by valid markers, and every run segment expected to be finalized has `FINAL`. |
 | Coverage | `PARTIAL` | Some records are not sealed, a run is not finalized, or an expected file or stream is missing. The report lists the exact uncovered ranges and reasons. |
@@ -796,7 +802,7 @@ The About page ([InfoNavigationContent.java](../owlcms/src/main/java/app/owlcms/
 2. The page restarts OWLCMS. Startup promotes the pending key before audit logging begins. After reconnection, the director opens the About page and the delegate checks that the fingerprint shown there matches. This confirms that OWLCMS activated the key that was just generated, not a stale file or the built-in key.
 3. The delegate keeps the photo or sheet away from the competition machine. Its date establishes that it was recorded before the competition.
 4. If the key is ever replaced, the procedure is repeated and the new fingerprint is recorded the same way.
-5. In a dispute, an administrator uses a separate machine with a clean OWLCMS installation, opens **Check Audit Integrity** from `/admin`, selects the retained evidence, and runs the check. For the disputed period, the delegate visually compares the fingerprint reported by the checking page with the fingerprint photographed before that period began. No fingerprint is typed at any stage.
+5. In a dispute, an administrator copies the retained logs from the removable device into the audit log directory of a clean OWLCMS installation, opens **Check Audit Integrity** from `/admin`, and runs the check. For the disputed period, the delegate visually compares the fingerprint reported by the checking page with the fingerprint photographed before that period began. No fingerprint is typed at any stage.
 
 ### 8.4 Existing Log When a Key Is Prepared
 

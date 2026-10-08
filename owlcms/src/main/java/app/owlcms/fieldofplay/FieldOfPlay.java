@@ -56,6 +56,7 @@ import tools.jackson.databind.node.BaseJsonNode;
 import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.AuditContext;
 import app.owlcms.audit.AuditFormat;
+import app.owlcms.audit.AuditLog;
 import app.owlcms.audit.FopAudit;
 import app.owlcms.audit.RecordAudit;
 import app.owlcms.audit.RecordChallengeTracker;
@@ -237,6 +238,8 @@ public class FieldOfPlay implements IUnregister {
 	private EventBus eventForwardingBus = null;
 	private Integer prevHash;
 	private boolean auditEventRefused;
+	private int auditEventDepth;
+	private boolean auditLiftBoundary;
 	private boolean auditEventSkipped;
 	private FOPState auditRefusedState;
 	private final RecordChallengeTracker recordChallengeTracker = new RecordChallengeTracker();
@@ -753,22 +756,31 @@ public class FieldOfPlay implements IUnregister {
 		this.auditEventRefused = false;
 		this.auditEventSkipped = false;
 		this.auditRefusedState = null;
-		AuditContext.run(e.getAuditActor(), e.getClass().getSimpleName(), () -> {
-			String clockBefore = e instanceof FOPEvent.ForceTime ? FopAudit.clock(this) : null;
-			doHandleFOPEvent(e);
-			if (!this.auditEventSkipped) {
-				if (!this.auditEventRefused && this.sessionSummaryArmed
-						&& (e instanceof FOPEvent.StartLifting || e instanceof FOPEvent.TimeStarted)) {
-					SessionSummary.write(this, e.getAuditActor());
-					this.sessionSummaryArmed = false;
+		this.auditEventDepth++;
+		try {
+			AuditContext.run(e.getAuditActor(), e.getClass().getSimpleName(), () -> {
+				String clockBefore = e instanceof FOPEvent.ForceTime ? FopAudit.clock(this) : null;
+				doHandleFOPEvent(e);
+				if (!this.auditEventSkipped) {
+					if (!this.auditEventRefused && this.sessionSummaryArmed
+							&& (e instanceof FOPEvent.StartLifting || e instanceof FOPEvent.TimeStarted)) {
+						SessionSummary.write(this, e.getAuditActor());
+						this.sessionSummaryArmed = false;
+					}
+					FopAudit.write(this, e, this.auditEventRefused,
+							stateName(this.auditRefusedState != null ? this.auditRefusedState : getState()), clockBefore);
+					if (!this.auditEventRefused && e instanceof FOPEvent.SwitchGroup) {
+						this.sessionSummaryArmed = true;
+					}
 				}
-				FopAudit.write(this, e, this.auditEventRefused,
-						stateName(this.auditRefusedState != null ? this.auditRefusedState : getState()), clockBefore);
-				if (!this.auditEventRefused && e instanceof FOPEvent.SwitchGroup) {
-					this.sessionSummaryArmed = true;
-				}
+			});
+		} finally {
+			this.auditEventDepth--;
+			if (this.auditEventDepth == 0 && this.auditLiftBoundary) {
+				this.auditLiftBoundary = false;
+				AuditLog.closeBlock(getName());
 			}
-		});
+		}
 	}
 
 	private void doHandleFOPEvent(FOPEvent e) {
@@ -4191,6 +4203,11 @@ public class FieldOfPlay implements IUnregister {
 					notifyRecords(recordsBroken ? getChallengedRecords() : List.of(),
 							recordsBroken, attempted);
 				}, this.recordNotificationDelayMs);
+		this.auditLiftBoundary = true;
+		if (this.auditEventDepth == 0) {
+			this.auditLiftBoundary = false;
+			AuditLog.closeBlock(getName());
+		}
 	}
 
 	private Boolean computeCurrentGoodLift() {

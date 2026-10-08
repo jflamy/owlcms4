@@ -7,6 +7,22 @@ This plan implements:
 
 Each checkpoint ends with reviewable behavior and is a candidate commit boundary. Do not combine checkpoints into one large change. Obtain authorization before commits or broad Maven runs.
 
+## Checkpoint Progress
+
+- **Checkpoint 0:** specification references checked; whitespace validation passed.
+- **Checkpoints 1–2:** switches, startup-frozen key identity, key precedence, path resolution and pending promotion implemented. Focused key/configuration tests pass.
+- **Checkpoint 3:** preparation page, checking-page placeholder, About identity/status and forced-switch display implemented. Browser validation is pending: no local OWLCMS instance was listening on port 8080. New translation rows require the external translation import workflow.
+- **Numeric limits:** agreed: 10 MiB files, 1 MiB / 500 ordinary records / five-minute maximum age per block, and 8 MiB total frozen data awaiting signing. Five-minute idle sealing remains an independent trigger.
+- **Checkpoint 4:** implemented and tested: typed marker schemas, canonical UTF-8 signed encoding, public-key verification, block-hash chaining and strict parsing. OpenSSL independently verifies a Java-signed fixture and rejects an altered fixture.
+- **Checkpoint 5 core:** implemented and tested: exact-byte stream capture, ordered asynchronous signing, the 8 MiB shared queue, explicit block boundaries, idle/age triggers, byte/count limits, and failure propagation. Production event hooks are deferred to Checkpoint 6 so they are connected together with the audit-owned file lifecycle rather than attached to Logback's old rollover.
+- **Checkpoint 6:** implemented and tested: audit-owned `_full` files with timestamped names, 10 MiB rollover with CONTINUE, restart append with a new FIRST, read-back verification, idle timer, shutdown FINAL, and degraded failure reporting. Production boundaries are wired: weigh-in/registration batch seals, a seal after each jury decision, and a seal once a lift result is saved (deferred until the enclosing event's audit line is written). About shows active or failed sealing. The lift end-to-end test reuses `TwoMinutesRuleTest` sequence 3 and checks that every `referee.decision` line is followed immediately by a SEAL.
+- **Checkpoint 6 review:** production rollover, restart, orderly shutdown, abrupt-tail preservation and save boundaries agree with the specification. The step 7 fixtures now also cover restart after rollover and restart after a partially published marker.
+- **Checkpoint 7:** implemented and tested as a read-only, non-UI checker. It returns structured integrity, coverage and key-protection dimensions; validates exact bytes, marker signatures, block/range/predecessor links and cross-file continuations; reports validated and unvalidated ranges plus fingerprint coverage; supports inventory expectations and independent-file warnings. It checks only what the user selects; it does not copy or compare logs.
+- **Checkpoints 8 and 10:** not started. Checkpoint 9 (H2 TCP) is tracked outside this plan.
+- **Audit Log Snapshot:** implemented (see the section at the end). Forced rollover is tested at the file-store level, including that the resulting zip contents check `COMPLETE`.
+- **Validation:** audit suite (76 tests, including 15 checker tests), configuration, route access, JSON export/import and the FieldOfPlay regressions (`TwoMinutesRuleTest`, `ClockStartRestartTest`, `RecordsTest`) pass. Java Problems diagnostics are clean. Browser verification still requires a running instance.
+- No implementation changes have been committed.
+
 ## Checkpoint 0 — Freeze the Specifications
 
 ### Work
@@ -194,11 +210,11 @@ Prepare a development key, restart, and verify that the About-page fingerprint m
 
 Before sealing implementation, decide:
 
-- target `_full.log` file size;
-- maximum block byte count;
-- maximum block record count;
-- maximum block age during continuous activity;
-- maximum pending signing-queue bytes.
+- target `_full.log` file size: 10 MiB (10,485,760 bytes), agreed;
+- maximum block byte count: 1 MiB (1,048,576 bytes), agreed;
+- maximum block record count: 500, agreed;
+- maximum block age during continuous activity: five minutes, agreed;
+- maximum pending signing-queue bytes: 8 MiB (8,388,608 bytes), agreed.
 
 The five-minute idle boundary is already specified. Keep limits in one place and make them overridable in tests.
 
@@ -362,10 +378,9 @@ It must:
 - recompute every block hash;
 - verify predecessor links and ranges;
 - verify `CONTINUE` against the named previous file;
-- compare local and retained copies;
-- report exact validated/unvalidated ranges;
-- list fingerprints by covered time/range;
 - support independent single-file checking with a predecessor-not-checked warning.
+
+The checker examines only the evidence the user selects; it never copies or compares logs.
 
 ### Tests
 
@@ -396,13 +411,13 @@ UNSEALED / NOT_ASSESSED / NONE
 
 Implement the `/admin` checking page over the non-UI checker.
 
-- Select/upload retained logs and optional local copies.
+- Select the logs or directory to check; default to the installation's own audit log directory, where the retained copies are placed by hand.
 - Run checking in a bounded background task.
 - Display the three result dimensions.
 - Display failed/unvalidated ranges.
 - Display full grouped fingerprints.
 - Never modify or repair evidence.
-- Document that disputes are checked on a separate machine with a clean OWLCMS installation.
+- Document the normal procedure (copies placed in a clean installation's audit directory) and that running on a production machine detects content changes but says nothing about key substitution.
 
 JSON upload/checksum calculation remains a future enhancement.
 
@@ -417,9 +432,9 @@ JSON upload/checksum calculation remains a future enhancement.
 
 Check retained fixtures from a clean installation and perform visual fingerprint comparison.
 
-## Checkpoint 9 — Remove H2 TCP Service
+## Checkpoint 9 — Remove H2 TCP Service (out of scope for this plan)
 
-Independent global change:
+Independent global change, tracked separately; it does not depend on audit integrity and is not part of this delivery:
 
 - remove H2 TCP startup;
 - remove `H2ServerPort` / `OWLCMS_H2SERVERPORT`;
@@ -444,3 +459,7 @@ Verify embedded H2 startup and rejection of external H2 configuration.
 - Remove temporary artifacts.
 - Review diffs for unrelated changes.
 - Commit in checkpoint-sized commits only after authorization.
+
+## Audit Log Snapshot (former backup TODO)
+
+Implemented as `/admin/audit/snapshot` over the non-UI `AuditSnapshot`: optional database export (sealed as `export.json`, `channel=audit`), an `audit.snapshot` line, forced rollover of every sealed stream (`AuditLog.rollover()`), and a zip of the whole `logs` tree (application logs, readable and sealed audit logs), optionally with the `local` folder. The snapshot is a diagnostic backup as well as evidence, so nothing is filtered out except the sealed files just opened by the roll, which hold nothing yet. In plain (unsealed) mode nothing is rolled. Browser review is pending.

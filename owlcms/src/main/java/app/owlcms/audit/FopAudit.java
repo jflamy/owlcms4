@@ -1,6 +1,7 @@
 package app.owlcms.audit;
 
 import java.util.StringJoiner;
+import java.util.List;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FOPEvent;
@@ -31,7 +32,7 @@ public final class FopAudit {
 		if (event instanceof FOPEvent.ForceTime forceTime) {
 			builder.field("clock").oldValue(clockBefore).newValue(formatClock(forceTime.timeAllowed));
 		}
-		AuditLog.write(builder.build());
+		AuditLog.writeBatch(List.of(builder.build()), !refused && event instanceof FOPEvent.JuryDecision);
 	}
 
 	private static AuditActor actor(FOPEvent event) {
