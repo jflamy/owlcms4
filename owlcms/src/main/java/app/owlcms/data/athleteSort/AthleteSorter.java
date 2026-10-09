@@ -269,21 +269,54 @@ public class AthleteSorter implements Serializable {
 	}
 
 	/**
-	 * Assign start numbers to athletes.
+	 * Assign start numbers to the athletes of a session, in list order.
+	 * <p>
+	 * This is the shared start number rule. Weighed-in athletes get 1..n. Once someone in the session has weighed in,
+	 * athletes who did not weigh in get {@link Athlete#NOT_LIFTING_START_NUMBER} so they are ignored when deciding
+	 * whether a category is finished. Before anyone weighs in, they get 0 so a future session still counts.
 	 *
 	 * @param sortedList the sorted list
 	 */
 	public static void doAssignStartNumbers(List<Athlete> sortedList) {
+		boolean weighInStarted = sortedList.stream().anyMatch(AthleteSorter::isWeighedIn);
 		int rank = 1;
 		for (Athlete curLifter : sortedList) {
-			Double bodyWeight = curLifter.getBodyWeight();
-			if (bodyWeight != null && bodyWeight > 0.0D) {
+			if (isWeighedIn(curLifter)) {
 				curLifter.setStartNumber(rank);
 				rank++;
 			} else {
-				curLifter.setStartNumber(0);
+				curLifter.setStartNumber(weighInStarted ? Athlete.NOT_LIFTING_START_NUMBER : 0);
 			}
 		}
+	}
+
+	/**
+	 * Same rule as {@link #doAssignStartNumbers(List)} for manual start numbers: only athletes who did not weigh in
+	 * are changed.
+	 */
+	public static void doMarkNotLifting(List<Athlete> sessionAthletes) {
+		boolean weighInStarted = sessionAthletes.stream().anyMatch(AthleteSorter::isWeighedIn);
+		for (Athlete a : sessionAthletes) {
+			if (!isWeighedIn(a)) {
+				a.setStartNumber(weighInStarted ? Athlete.NOT_LIFTING_START_NUMBER : 0);
+			}
+		}
+	}
+
+	/**
+	 * @return true if the session athletes do not follow the start number rule of {@link #doAssignStartNumbers(List)}
+	 */
+	public static boolean needsStartNumbers(List<Athlete> sessionAthletes, boolean manualStartNumbers) {
+		boolean weighInStarted = sessionAthletes.stream().anyMatch(AthleteSorter::isWeighedIn);
+		return sessionAthletes.stream()
+		        .anyMatch(a -> isWeighedIn(a)
+		                ? (!manualStartNumbers && a.getStartNumber() <= 0)
+		                : (weighInStarted && a.getStartNumber() != Athlete.NOT_LIFTING_START_NUMBER));
+	}
+
+	public static boolean isWeighedIn(Athlete a) {
+		Double bodyWeight = a.getBodyWeight();
+		return bodyWeight != null && bodyWeight > 0.0D;
 	}
 
 	/**

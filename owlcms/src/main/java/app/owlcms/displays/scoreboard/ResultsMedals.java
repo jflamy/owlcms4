@@ -84,6 +84,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	private UI ui;
 	private boolean categoryPinnedFromURL;
 	private boolean fopPinnedFromURL;
+	private boolean medalLeaders;
 	private long medalRequest;
 
 	public ResultsMedals() {
@@ -185,11 +186,11 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		Category selectedCategory = getCategory();
 		AgeGroup selectedAgeGroup = getAgeGroup();
 		Championship selectedChampionship = getChampionship();
-		boolean onlyFinished = isOnlyFinished();
 		Thread.ofVirtual().name("MedalDisplay").start(() -> {
 			try {
-				TreeMap<String, List<Athlete>> selectedMedals = medalsForSelection(fop2, selectedGroup,
-				        selectedCategory, onlyFinished);
+				TreeMap<String, List<Athlete>> selectedMedals = isLeadersMode()
+				        ? leadersForSelection(fop2, selectedGroup, selectedCategory)
+				        : finishedMedalsForSelection(fop2, selectedGroup);
 				selectedMedals.entrySet().removeIf(entry -> {
 					Category category = entry.getValue().isEmpty() ? null : entry.getValue().get(0).getCategory();
 					return category == null || category.getAgeGroup() == null || !category.getAgeGroup().getMedals()
@@ -651,22 +652,49 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		doMedals(fop);
 	}
 
-	private boolean isOnlyFinished() {
-		return isCeremony();
+	/**
+	 * Select medals for finished categories only, using the same rule as the medals sheet.
+	 * <ul>
+	 * <li>An explicit group selects the finished categories represented by participants in that group.</li>
+	 * <li>Otherwise, all finished categories from completed sessions are selected.</li>
+	 * </ul>
+	 * A category spanning several sessions is shown only once all its sessions are finished.
+	 */
+	private TreeMap<String, List<Athlete>> finishedMedalsForSelection(FieldOfPlay fop, Group selectedGroup) {
+		if (selectedGroup != null) {
+			return Competition.getCurrent().getMedals(fop, selectedGroup, true);
+		}
+		TreeMap<String, List<Athlete>> completedMedals = new TreeMap<>();
+		GroupRepository.findAll().stream()
+		        .filter(Group::isDone)
+		        .filter(group -> group.getLastCJDecisionTime() != null || group.getLastSnatchDecisionTime() != null)
+		        .forEach(group -> completedMedals.putAll(Competition.getCurrent().getMedals(fop, group, true)));
+		return completedMedals;
 	}
 
 	/**
-	 * Select live medal projections for the requested scope.
-	 * <ul>
-	 * <li>An explicit group selects every category represented by participants in that group.</li>
-	 * <li>Otherwise, an FOP selects every category represented by participants in its current group.</li>
-	 * <li>Without a group or FOP, all competition categories are selected.</li>
-	 * </ul>
-	 * Medalists may come from other sessions; this is a live "who would medal" view.
+	 * Medal leaders are prospective: ceremonies always use finished categories.
 	 */
-	private TreeMap<String, List<Athlete>> medalsForSelection(FieldOfPlay fop, Group selectedGroup,
-	        Category selectedCategory, boolean onlyFinished) {
-		if (selectedCategory != null && !onlyFinished) {
+	private boolean isLeadersMode() {
+		return this.medalLeaders && !isCeremony();
+	}
+
+	public void setMedalLeaders(boolean medalLeaders) {
+		this.medalLeaders = medalLeaders;
+	}
+
+	/**
+	 * Select prospective medalists for the requested scope, whether or not the categories are finished.
+	 * <ul>
+	 * <li>A category selects that category only.</li>
+	 * <li>An explicit group selects every category represented by participants in that group.</li>
+	 * <li>Without a group, all competition categories are selected.</li>
+	 * </ul>
+	 * Medalists may come from other sessions.
+	 */
+	private TreeMap<String, List<Athlete>> leadersForSelection(FieldOfPlay fop, Group selectedGroup,
+	        Category selectedCategory) {
+		if (selectedCategory != null) {
 			TreeMap<String, List<Athlete>> selected = new TreeMap<>();
 			List<Athlete> athletes = Competition.getCurrent().computeMedalsForCategory(fop, selectedCategory);
 			if (athletes != null) {
@@ -675,15 +703,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			return selected;
 		}
 		if (selectedGroup != null) {
-			return Competition.getCurrent().getMedals(fop, selectedGroup, onlyFinished);
-		}
-		if (onlyFinished) {
-			TreeMap<String, List<Athlete>> completedMedals = new TreeMap<>();
-			GroupRepository.findAll().stream()
-			        .filter(Group::isDone)
-			        .filter(group -> group.getLastCJDecisionTime() != null || group.getLastSnatchDecisionTime() != null)
-			        .forEach(group -> completedMedals.putAll(Competition.getCurrent().getMedals(fop, group, true)));
-			return completedMedals;
+			return Competition.getCurrent().getMedals(fop, selectedGroup, false);
 		}
 		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(null, false);
 		return Competition.getCurrent().computeMedalsByCategory(fop, rankedAthletes);

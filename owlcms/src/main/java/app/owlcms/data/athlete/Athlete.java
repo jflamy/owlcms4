@@ -142,6 +142,11 @@ public class Athlete {
 	private static SinclairCoefficients sinclairProperties2028;
 	static private boolean skipValidationsDuringImport = false;
 	private static final int YEAR = LocalDateTime.now().getYear();
+	/**
+	 * Start number given to athletes of a session who did not weigh in, once someone in the session has weighed in.
+	 * They are then treated as if they had no session when deciding whether a category is finished.
+	 */
+	public static final int NOT_LIFTING_START_NUMBER = -1;
 
 	public static void conditionalCopy(Athlete dest, Athlete src, boolean copyResults, boolean copyChanges,
 			boolean copyId) {
@@ -3927,9 +3932,9 @@ public class Athlete {
 				|| this.getCleanJerk3AsInteger() == null;
 		if (notFinishedLifting) {
 			Group g = getGroup();
-			if (g == null) {
-				// athlete has no session (no show was taken out), ignore them in their
-				// category.
+			if (g == null || isNotLifting()) {
+				// athlete has no session (no show was taken out), or did not weigh in when
+				// their session's start numbers were assigned: ignore them in their category.
 				return true;
 			}
 			if (g.isDone()) {
@@ -3947,9 +3952,10 @@ public class Athlete {
 		// At the end of session "medalingSession", If a category still has athletes
 		// that are not done, medals cannot be given out for that category
 		Group athleteGroup = getGroup();
-		if (athleteGroup == null) {
+		if (athleteGroup == null || isNotLifting()) {
 			// athletes that are registered in the medaling categories but were withdrawn
-			// (have no session) are considered done
+			// (have no session), or did not weigh in when their session's start numbers
+			// were assigned, are considered done
 			return true;
 		}
 		if (medalingSession != null && athleteGroup.equals(medalingSession)
@@ -3960,6 +3966,17 @@ public class Athlete {
 		boolean notFinishedLifting = this.getCleanJerk3ActualLift() == null || this.getCleanJerk3ActualLift().isBlank()
 				|| this.getCleanJerk3AsInteger() == null;
 		return !notFinishedLifting;
+	}
+
+	/**
+	 * @return true if the athlete did not weigh in for a session whose start numbers were assigned
+	 * @see #NOT_LIFTING_START_NUMBER
+	 */
+	private boolean isNotLifting() {
+		Integer startNumber = getStartNumber();
+		Double bodyWeight = getBodyWeight();
+		return startNumber != null && startNumber == NOT_LIFTING_START_NUMBER
+				&& (bodyWeight == null || bodyWeight < 0.01);
 	}
 
 	public boolean isEligibleForIndividualRanking() {
