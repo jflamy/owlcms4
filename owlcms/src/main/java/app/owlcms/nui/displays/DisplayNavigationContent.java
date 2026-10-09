@@ -16,6 +16,7 @@ import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -35,7 +36,9 @@ import app.owlcms.nui.displays.attemptboards.AthleteFacingDecisionBoardPage;
 import app.owlcms.nui.displays.attemptboards.PublicFacingAttemptBoardPage;
 import app.owlcms.nui.displays.scoreboards.JuryDecisionsPage;
 import app.owlcms.nui.displays.scoreboards.JuryScoreboardPage;
+import app.owlcms.nui.displays.scoreboards.MedalLeadersPage;
 import app.owlcms.nui.displays.scoreboards.MedalsPage;
+import app.owlcms.nui.displays.scoreboards.PublicMedalLeadersPage;
 import app.owlcms.nui.displays.scoreboards.PublicMedalsPage;
 import app.owlcms.nui.displays.scoreboards.PublicMultiRanksPage;
 import app.owlcms.nui.displays.scoreboards.PublicNoLeadersPage;
@@ -121,6 +124,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			Button scoreboardRankings = openInNewTabWithFop(WarmupRankingOrderPage.class,
 			        Translator.translate("Scoreboard.RankingOrderButton"));
 			Button medals = openInNewTabWithFop(MedalsPage.class, Translator.translate("CeremonyType.MEDALS"));
+			Button medalLeaders = openInNewTabWithFop(MedalLeadersPage.class, Translator.translate("CeremonyType.MEDALS"));
 			VerticalLayout warmupSectionIntro = new VerticalLayout();
 			addP(warmupSectionIntro, Translator.translate("WarmupScoreboards.navigationExplanation"));
 			VerticalLayout warmupAttemptIntro = new VerticalLayout();
@@ -139,8 +143,8 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			        warmupAttemptGrid,
 			        warmupDevicesIntro, warmupDevicesGrid, warmupScoreboardsIntro, warmupScoreboardsGrid);
 			doGroup(Translator.translate("Scoreboard.StartList"), HomeNavigationContent.navigationGrid(startList), warmupSection);
-			doGroup(Translator.translate("Scoreboard.RankingOrder"),
-			        HomeNavigationContent.navigationGrid(scoreboardRankings, medals), warmupSection);
+			doGroup(Translator.translate("Scoreboard.RankingOrder"), includeNotCompletedIntro(medals, medalLeaders),
+			        HomeNavigationContent.navigationGrid(scoreboardRankings, medals, medalLeaders), warmupSection);
 			tabSheet.add(Translator.translate("WarmupScoreboards"), warmupSection);
 
 			Button scoreboard1 = openInNewTabWithFopNoCurrentAttempt(PublicNoLeadersPage.class, Translator.translate("Scoreboard"));
@@ -163,6 +167,8 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			Button juryDecisions1 = openInNewTabWithFopNoCurrentAttempt(JuryDecisionsPage.class,
 			        Translator.translate("JuryDecisions.Title"));
 			Button publicMedals1 = openInNewTabWithFop(PublicMedalsPage.class, Translator.translate("CeremonyType.MEDALS"));
+			Button publicMedalLeaders1 = openInNewTabWithFop(PublicMedalLeadersPage.class,
+			        Translator.translate("CeremonyType.MEDALS"));
 			VerticalLayout publicSectionIntro = new VerticalLayout();
 			addP(publicSectionIntro, Translator.translate("PublicScoreboards.navigationExplanation"));
 			VerticalLayout publicAttemptIntro = new VerticalLayout();
@@ -185,7 +191,9 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			        publicDevicesIntro, publicDevicesGrid, publicScoreboardsIntro, publicScoreboardsGrid);
 			doGroup(Translator.translate("Scoreboard.StartList"), HomeNavigationContent.navigationGrid(startList1), publicSection);
 			doGroup(Translator.translate("Scoreboard.RankingOrder"),
-			        HomeNavigationContent.navigationGrid(scoreboardRankings1, publicMedals1), publicSection);
+			        includeNotCompletedIntro(publicMedals1, publicMedalLeaders1),
+			        HomeNavigationContent.navigationGrid(scoreboardRankings1, publicMedals1, publicMedalLeaders1),
+			        publicSection);
 			tabSheet.add(Translator.translate("PublicScoreboards"), publicSection);
 
 			FlexibleGridLayout juryGrid = HomeNavigationContent.navigationGrid(
@@ -280,6 +288,22 @@ public class DisplayNavigationContent extends BaseNavigationContent
 
 	private void highlight(Button button) {
 		button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
+	}
+
+	/**
+	 * The buttons open their tab client-side, so both variants exist and the checkbox selects the visible one.
+	 */
+	private VerticalLayout includeNotCompletedIntro(Button finishedMedals, Button medalLeaders) {
+		medalLeaders.setVisible(false);
+		Checkbox includeNotCompleted = new Checkbox(Translator.translate("Video.includeNotCompleted"));
+		includeNotCompleted.addValueChangeListener(e -> {
+			boolean leaders = Boolean.TRUE.equals(e.getValue());
+			finishedMedals.setVisible(!leaders);
+			medalLeaders.setVisible(leaders);
+		});
+		VerticalLayout intro = new VerticalLayout(includeNotCompleted);
+		intro.setSpacing(false);
+		return intro;
 	}
 
 	private VerticalLayout doScoreboardSection(VerticalLayout sectionIntro, VerticalLayout attemptIntro,

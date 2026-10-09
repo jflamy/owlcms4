@@ -49,6 +49,7 @@ import app.owlcms.nui.displays.attemptboards.PublicFacingAttemptBoardPage;
 import app.owlcms.nui.displays.attemptboards.PublicFacingDecisionBoardPage;
 import app.owlcms.nui.displays.scoreboards.CurrentAthletePage;
 import app.owlcms.nui.displays.scoreboards.JuryDecisionsPage;
+import app.owlcms.nui.displays.scoreboards.MedalLeadersPage;
 import app.owlcms.nui.displays.scoreboards.MedalsPage;
 import app.owlcms.nui.displays.scoreboards.NCurrentAthletePage;
 import app.owlcms.nui.displays.scoreboards.PublicRankingOrderPage;
@@ -152,7 +153,9 @@ public class VideoNavigationContent extends BaseNavigationContent
 		Button medals = new Button(Translator.translate("CeremonyType.MEDALS"));
 		Button rankings = new Button(Translator.translate("Scoreboard.RANKING"));
 		medals.addClickListener((e) -> {
-			Class<MedalsPage> class1 = MedalsPage.class;
+			Class<? extends MedalsPage> class1 = Boolean.TRUE.equals(includeNotCompleted.getValue())
+			        ? MedalLeadersPage.class
+			        : MedalsPage.class;
 			openInNewTabWithResultsQueryParameters(class1);
 		});
 		rankings.addClickListener((e) -> {

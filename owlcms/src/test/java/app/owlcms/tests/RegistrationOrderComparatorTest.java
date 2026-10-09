@@ -7,6 +7,8 @@
 package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +32,7 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 
 public class RegistrationOrderComparatorTest {
@@ -108,6 +111,38 @@ public class RegistrationOrderComparatorTest {
         assertEquals(List.of("junior70", "senior70", "junior85", "senior85"), athleteNames(athletes));
         assertEquals(List.of("senior70", "junior85", "senior85"), athleteNames(weighedAthletes));
         assertEquals(List.of(1, 2, 3), weighedAthletes.stream().map(Athlete::getStartNumber).collect(Collectors.toList()));
+    }
+
+    @Test
+    public void athleteWhoDidNotWeighInIsIgnoredForMedalsOnceStartNumbersAreAssigned() {
+        Group sessionB = new Group("69B");
+        Group sessionA = new Group("69A");
+        List<Athlete> athletes = athletesAcrossAgeGroupsAndBodyweights();
+        athletes.forEach(a -> a.setGroup(sessionB));
+        Athlete absent = athletes.stream().filter(a -> a.getLastName().equals("junior70")).findFirst().orElseThrow();
+        AthleteSorter.registrationOrder(athletes);
+
+        AthleteSorter.doAssignStartNumbers(athletes);
+        assertEquals("before anyone weighs in, a future session still counts", 0, (int) absent.getStartNumber());
+        assertFalse(absent.isDone(sessionA));
+        assertFalse(absent.isDone());
+        assertFalse(AthleteSorter.needsStartNumbers(athletes, false));
+
+        athletes.stream()
+                .filter(a -> a != absent)
+                .forEach(a -> a.setBodyWeight(a.getCategory().getMaximumWeight() - 0.1));
+        assertTrue("absent athlete must be marked", AthleteSorter.needsStartNumbers(athletes, false));
+
+        AthleteSorter.doAssignStartNumbers(athletes);
+        assertEquals(Athlete.NOT_LIFTING_START_NUMBER, (int) absent.getStartNumber());
+        assertTrue("medals for another session ignore the absent athlete", absent.isDone(sessionA));
+        assertTrue(absent.isDone(sessionB));
+        assertTrue(absent.isDone());
+        assertFalse(AthleteSorter.needsStartNumbers(athletes, false));
+        assertEquals(List.of(1, 2, 3), athletes.stream()
+                .filter(a -> a != absent)
+                .map(Athlete::getStartNumber)
+                .collect(Collectors.toList()));
     }
 
     private List<Athlete> athletesAcrossAgeGroupsAndBodyweights() {

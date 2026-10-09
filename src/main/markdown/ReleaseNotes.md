@@ -10,6 +10,11 @@
 
 **Maintenance Log**
 
+- 68.0.0-rc13: The Medals board now matches the medals sheet and only shows finished categories. A category split across sessions (e.g. 69A and 69B) is not shown until all its sessions are finished.
+  - To see prospective medalists, tick "Include not completed" before opening the Medals board (warmup, public and video displays).
+
+- 68.0.0-rc13: When start numbers are assigned for a session (weigh-in page button, or automatically when lifting starts), athletes who have not weighed in get start number -1. They no longer prevent medals for their category after a later session (e.g. an absent 69B athlete no longer blocks 69 medals after the 69A session).
+
 - 68.0.0-rc12: Fixes for corrupted competition results templates and jury protocols
 
 - 68.0.0-rc11: Fixes for scoreboards

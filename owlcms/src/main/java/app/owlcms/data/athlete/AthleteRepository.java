@@ -82,20 +82,42 @@ public class AthleteRepository {
 		});
 	}
 
+	/**
+	 * Assign start numbers to all the athletes of the session, using {@link AthleteSorter#doAssignStartNumbers(List)}.
+	 * Used by the weigh-in page and when lifting starts.
+	 */
 	public static void assignStartNumbers(Group group) {
 		JPAService.runInTransaction((em) -> {
-			List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, true,
+			List<Athlete> sessionAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, null,
 			        (Gender) null);
-			AthleteSorter.registrationOrder(currentGroupAthletes);
-			AthleteSorter.doAssignStartNumbers(currentGroupAthletes);
-			return currentGroupAthletes;
+			AthleteSorter.registrationOrder(sessionAthletes);
+			AthleteSorter.doAssignStartNumbers(sessionAthletes);
+			return sessionAthletes;
 		});
 	}
 
+	/**
+	 * With manual start numbers, only athletes who did not weigh in are updated.
+	 */
 	public static void assignStartNumbersUnlessManual(Group group) {
 		if (!Competition.getCurrent().isManualStartNumbers()) {
 			assignStartNumbers(group);
+		} else {
+			JPAService.runInTransaction((em) -> {
+				List<Athlete> sessionAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, null,
+				        (Gender) null);
+				AthleteSorter.doMarkNotLifting(sessionAthletes);
+				return sessionAthletes;
+			});
 		}
+	}
+
+	/**
+	 * @return true if the start numbers of the session must be (re)assigned before lifting
+	 */
+	public static boolean needsStartNumbers(Group group) {
+		return AthleteSorter.needsStartNumbers(findAllByGroupAndWeighIn(group, (Boolean) null),
+		        Competition.getCurrent().isManualStartNumbers());
 	}
 
 	/**

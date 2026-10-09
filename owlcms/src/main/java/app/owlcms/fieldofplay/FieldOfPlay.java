@@ -1428,10 +1428,11 @@ public class FieldOfPlay implements IUnregister {
 			groupAthletes = groupAthletes.stream().filter(a -> a.getCategory() != null).toList();
 
 			// skip if session is already in progress (forceLoad == false)
-			if (forceLoad && groupAthletes.stream().map(Athlete::getStartNumber).anyMatch(sn -> sn == 0)) {
-				this.logger./**/warn("start numbers were not assigned correctly");
+			if (forceLoad && AthleteRepository.needsStartNumbers(group)) {
+				this.logger.info("{}assigning start numbers for group {}", FieldOfPlay.getLoggingName(this), group);
 				AthleteRepository.assignStartNumbersUnlessManual(group);
-				groupAthletes = AthleteRepository.findAllByGroupAndWeighIn(group, true);
+				groupAthletes = AthleteRepository.findAllByGroupAndWeighIn(group, true).stream()
+						.filter(a -> a.getCategory() != null).toList();
 			}
 
 			init(groupAthletes, this.athleteTimer, this.breakTimer, alreadyLoaded);
