@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.HtmlSanitizer;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
@@ -187,6 +188,12 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 	@Override
 	public String toString() {
 		return getFullName();
+	}
+
+	/** Names from an imported file are plain text; remove any tags. */
+	public void cleanImportedNames() {
+		this.lastName = HtmlSanitizer.toPlainText(this.lastName);
+		this.firstName = HtmlSanitizer.toPlainText(this.firstName);
 	}
 
 	public String getLastName() {

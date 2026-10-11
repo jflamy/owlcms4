@@ -39,6 +39,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.HtmlSanitizer;
 import app.owlcms.utils.IdUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -182,6 +183,20 @@ public class RecordEvent implements Comparable<RecordEvent> {
 
 		RecordEvent other = (RecordEvent) o;
 		return this.id != null && this.id.equals(other.getId());
+	}
+
+	/** Text from an imported file is plain text; remove any tags. */
+	public void cleanImportedText() {
+		this.ageGrp = HtmlSanitizer.toPlainText(this.ageGrp);
+		this.athleteName = HtmlSanitizer.toPlainText(this.athleteName);
+		this.event = HtmlSanitizer.toPlainText(this.event);
+		this.eventLocation = HtmlSanitizer.toPlainText(this.eventLocation);
+		this.nation = HtmlSanitizer.toPlainText(this.nation);
+		this.recordFederation = HtmlSanitizer.toPlainText(this.recordFederation);
+		this.recordName = HtmlSanitizer.toPlainText(this.recordName);
+		this.bwCatString = HtmlSanitizer.toPlainText(this.bwCatString);
+		this.groupNameString = HtmlSanitizer.toPlainText(this.groupNameString);
+		this.categoryString = HtmlSanitizer.toPlainText(this.categoryString);
 	}
 
 	public void fillDefaults() throws MissingAgeGroup, MissingGender, UnknownIWFBodyWeightCategory {

@@ -58,6 +58,7 @@ import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.utils.DateTimeUtils;
+import app.owlcms.utils.HtmlSanitizer;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -488,6 +489,11 @@ public class NRegistrationFileProcessor {
 		displayUpdater.run();
 	}
 
+	/** Session official names are plain text; tags from the file are removed. */
+	private String officialName(Cell cell) {
+		return HtmlSanitizer.toPlainText(cellToString(cell));
+	}
+
 	private String cellToString(Cell cell) {
 		String raw;
 		switch (cell.getCellType()) {
@@ -604,39 +610,39 @@ public class NRegistrationFileProcessor {
 			}
 			rg.setCompetitionTime(cellToString(cell));
 		});
-		base.put("Weighin1", (rg, cell) -> rg.setWeighInTO1(cellToString(cell)));
-		base.put("Weighin2", (rg, cell) -> rg.setWeighInTO2(cellToString(cell)));
+		base.put("Weighin1", (rg, cell) -> rg.setWeighInTO1(officialName(cell)));
+		base.put("Weighin2", (rg, cell) -> rg.setWeighInTO2(officialName(cell)));
 
-		base.put("Announcer", (rg, cell) -> rg.setAnnouncer(cellToString(cell)));
-		base.put("Marshall", (rg, cell) -> rg.setMarshall(cellToString(cell)));
-		base.put("Marshal2", (rg, cell) -> rg.setMarshal2(cellToString(cell)));
-		base.put("Timekeeper", (rg, cell) -> rg.setTimekeeper(cellToString(cell)));
-		base.put("TechnicalController", (rg, cell) -> rg.setTechController(cellToString(cell)));
-		base.put("TechnicalController2", (rg, cell) -> rg.setTechController2(cellToString(cell)));
-		base.put("TechnicalController3", (rg, cell) -> rg.setTechController3(cellToString(cell)));
-		base.put("Referee1", (rg, cell) -> rg.setRef1(cellToString(cell)));
-		base.put("Referee2", (rg, cell) -> rg.setRef2(cellToString(cell)));
-		base.put("Referee3", (rg, cell) -> rg.setRef3(cellToString(cell)));
-		base.put("Reserve", (rg, cell) -> rg.setReserve(cellToString(cell)));
+		base.put("Announcer", (rg, cell) -> rg.setAnnouncer(officialName(cell)));
+		base.put("Marshall", (rg, cell) -> rg.setMarshall(officialName(cell)));
+		base.put("Marshal2", (rg, cell) -> rg.setMarshal2(officialName(cell)));
+		base.put("Timekeeper", (rg, cell) -> rg.setTimekeeper(officialName(cell)));
+		base.put("TechnicalController", (rg, cell) -> rg.setTechController(officialName(cell)));
+		base.put("TechnicalController2", (rg, cell) -> rg.setTechController2(officialName(cell)));
+		base.put("TechnicalController3", (rg, cell) -> rg.setTechController3(officialName(cell)));
+		base.put("Referee1", (rg, cell) -> rg.setRef1(officialName(cell)));
+		base.put("Referee2", (rg, cell) -> rg.setRef2(officialName(cell)));
+		base.put("Referee3", (rg, cell) -> rg.setRef3(officialName(cell)));
+		base.put("Reserve", (rg, cell) -> rg.setReserve(officialName(cell)));
 
-		base.put("Jury1", (rg, cell) -> rg.setJury1(cellToString(cell)));
-		base.put("Jury2", (rg, cell) -> rg.setJury2(cellToString(cell)));
-		base.put("Jury3", (rg, cell) -> rg.setJury3(cellToString(cell)));
-		base.put("Jury4", (rg, cell) -> rg.setJury4(cellToString(cell)));
-		base.put("Jury5", (rg, cell) -> rg.setJury5(cellToString(cell)));
-		base.put("ReserveJury", (rg, cell) -> rg.setReserveJury(cellToString(cell)));
+		base.put("Jury1", (rg, cell) -> rg.setJury1(officialName(cell)));
+		base.put("Jury2", (rg, cell) -> rg.setJury2(officialName(cell)));
+		base.put("Jury3", (rg, cell) -> rg.setJury3(officialName(cell)));
+		base.put("Jury4", (rg, cell) -> rg.setJury4(officialName(cell)));
+		base.put("Jury5", (rg, cell) -> rg.setJury5(officialName(cell)));
+		base.put("ReserveJury", (rg, cell) -> rg.setReserveJury(officialName(cell)));
 
-		base.put("Doctor", (rg, cell) -> rg.setDoctor(cellToString(cell)));
-		base.put("Doctor2", (rg, cell) -> rg.setDoctor2(cellToString(cell)));
-		base.put("Doctor3", (rg, cell) -> rg.setDoctor3(cellToString(cell)));
+		base.put("Doctor", (rg, cell) -> rg.setDoctor(officialName(cell)));
+		base.put("Doctor2", (rg, cell) -> rg.setDoctor2(officialName(cell)));
+		base.put("Doctor3", (rg, cell) -> rg.setDoctor3(officialName(cell)));
 
-		base.put("CompetitionSecretary", (rg, cell) -> rg.setCompetitionSecretary(cellToString(cell)));
-		base.put("CompetitionSecretary2", (rg, cell) -> rg.setCompetitionSecretary2(cellToString(cell)));
-		CellSetterRG competitionDirectorSetter = (rg, cell) -> rg.setCompetitionDirector(cellToString(cell));
+		base.put("CompetitionSecretary", (rg, cell) -> rg.setCompetitionSecretary(officialName(cell)));
+		base.put("CompetitionSecretary2", (rg, cell) -> rg.setCompetitionSecretary2(officialName(cell)));
+		CellSetterRG competitionDirectorSetter = (rg, cell) -> rg.setCompetitionDirector(officialName(cell));
 		base.put("CompetitionDirector", competitionDirectorSetter);
 		base.put("AccreditationRole.COMPETITION_DIRECTOR", competitionDirectorSetter);
-		base.put("TIS1", (rg, cell) -> rg.setTis1(cellToString(cell)));
-		base.put("TIS2", (rg, cell) -> rg.setTis2(cellToString(cell)));
+		base.put("TIS1", (rg, cell) -> rg.setTis1(officialName(cell)));
+		base.put("TIS2", (rg, cell) -> rg.setTis2(officialName(cell)));
 		base.put("CJ_BreakDuration", (rg, cell) -> rg.setCleanJerkBreakDuration(cellToString(cell)));
 
 		Map<String, CellSetterRG> result = new HashMap<>();

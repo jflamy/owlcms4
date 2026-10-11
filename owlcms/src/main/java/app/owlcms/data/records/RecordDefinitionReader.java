@@ -226,6 +226,7 @@ public class RecordDefinitionReader {
 					}
 
 					if (!error && !isEmptyRow(rec)) {
+						rec.cleanImportedText();
 						try {
 							rec.fillDefaults();
 						} catch (MissingAgeGroup | MissingGender | UnknownIWFBodyWeightCategory e1) {
@@ -364,6 +365,7 @@ public class RecordDefinitionReader {
 				}
 
 				if (!error && !isEmptyRow(rec)) {
+					rec.cleanImportedText();
 					try {
 						rec.fillDefaults();
 					} catch (RecordEvent.MissingAgeGroup | RecordEvent.MissingGender | RecordEvent.UnknownIWFBodyWeightCategory e1) {

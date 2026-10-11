@@ -2663,19 +2663,11 @@ public class FieldOfPlay implements IUnregister {
 			String holder = rec.getResAthleteName();
 			boolean okDate = date != null && !date.isBlank();
 			boolean okHolder = holder != null && !holder.isBlank();
-			// always show the challenged/broken records
-			if ((okDate || okHolder)) {
-				StringBuilder sbh = new StringBuilder();
-				sbh.append(" (");
-				if (okDate) {
-					sbh.append(date);
-					sbh.append(", ");
-				}
-				if (okHolder) {
-					sbh.append(holder);
-				}
-				sbh.append(")");
-				sb.append(sbh);
+			// always show the challenged/broken records; values go through translate so they are cleaned
+			if (okDate && okHolder) {
+				sb.append(" ").append(Translator.translate("RecordNotification.DateAndHolder", date, holder));
+			} else if (okDate || okHolder) {
+				sb.append(" ").append(Translator.translate("RecordNotification.DateOrHolder", okDate ? date : holder));
 			}
 		}
 		pushOutUIEvent(

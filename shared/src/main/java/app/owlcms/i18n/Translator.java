@@ -20,8 +20,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +49,7 @@ import tools.jackson.databind.ObjectMapper;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.i18n.I18NProvider;
 
+import app.owlcms.utils.HtmlSanitizer;
 import app.owlcms.utils.InstallationSecret;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.MemTempUtils;
@@ -293,6 +296,7 @@ public class Translator implements I18NProvider {
 	public static String translate(String string, Object... params) {
 		return helper.getTranslation(string, getLocaleSupplier().get(), params);
 	}
+
 
 	public static String translateNoOverrideOrElseNull(String string, Locale locale) {
 		return helper.getTranslationNoOverrideOrElseNull(string, locale);
@@ -826,10 +830,30 @@ public class Translator implements I18NProvider {
 			// single quotes must be doubled. If already doubled in the input, fix back.
 			pattern = pattern.replaceAll("'", "''");
 			pattern = pattern.replaceAll("''''", "''");
-			value = MessageFormat.format(pattern, params);
+			value = MessageFormat.format(pattern, cleanParams(params));
 			// logger.trace("format {} input={} params={} \\n result={}", params.getClass(), pattern, params, value);
 		}
 		return value;
+	}
+
+	/**
+	 * Translations are trusted and may contain markup, but inserted values are data (names from the database or
+	 * imported files): strip any tags from them so they can never become markup wherever the message is shown.
+	 * Text without tags, numbers and dates are unchanged.
+	 */
+	private static Object[] cleanParams(Object[] params) {
+		Object[] cleaned = new Object[params.length];
+		for (int i = 0; i < params.length; i++) {
+			Object p = params[i];
+			if (p == null || p instanceof Number || p instanceof Date || p instanceof TemporalAccessor
+			        || p instanceof Boolean) {
+				cleaned[i] = p;
+			} else {
+				// MessageFormat would use toString() for these anyway
+				cleaned[i] = HtmlSanitizer.toPlainText(p.toString());
+			}
+		}
+		return cleaned;
 	}
 
 	private Locale overrideLocale(Locale locale) {

@@ -30,6 +30,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.DateTimeUtils;
+import app.owlcms.utils.HtmlSanitizer;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -162,15 +163,15 @@ public class RAthlete {
 	}
 
 	public void setCoach(String s) {
-		this.a.setCoach(s);
+		this.a.setCoach(HtmlSanitizer.toPlainText(s));
 	}
 
 	public void setCustom1(String s) {
-		this.a.setCustom1(s);
+		this.a.setCustom1(HtmlSanitizer.cleanFormattedText(s));
 	}
 
 	public void setCustom2(String s) {
-		this.a.setCustom2(s);
+		this.a.setCustom2(HtmlSanitizer.cleanFormattedText(s));
 	}
 
 	public void setFederationCodes(String s) {
@@ -188,7 +189,7 @@ public class RAthlete {
 		if (s != null) {
 			s = CharMatcher.javaIsoControl().removeFrom(s);
 		}
-		this.a.setFirstName(s);
+		this.a.setFirstName(HtmlSanitizer.toPlainText(s));
 	}
 
 	/**
@@ -289,7 +290,7 @@ public class RAthlete {
 		if (s != null) {
 			s = CharMatcher.javaIsoControl().removeFrom(s);
 		}
-		this.a.setLastName(s);
+		this.a.setLastName(HtmlSanitizer.toPlainText(s));
 	}
 
 	/**

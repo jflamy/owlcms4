@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +42,7 @@ import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.monitors.WebSocketEventForwarder;
+import app.owlcms.utils.HtmlSanitizer;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
 
@@ -319,9 +321,10 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		if (names.isEmpty()) {
 			return Translator.translate("Championship.DeleteWithAgeGroupsWarning", championshipName);
 		}
+		String items = names.stream().map(HtmlSanitizer::toPlainText).collect(Collectors.joining("</li><li>"));
 		String list = "<div style='max-height:12em; overflow-y:auto; margin-top:1ex;"
 		        + " border:1px solid var(--lumo-contrast-20pct); border-radius:var(--lumo-border-radius-m)'>"
-		        + "<ul style='margin:0.5ex 0'><li>" + String.join("</li><li>", names) + "</li></ul></div>";
+		        + "<ul style='margin:0.5ex 0'><li>" + items + "</li></ul></div>";
 		return Translator.translate("Championship.DeleteWithAgeGroupsList", championshipName, names.size()) + list;
 	}
 

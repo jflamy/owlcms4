@@ -310,6 +310,7 @@ public class CompetitionData {
 				}
 
 				for (Athlete a : updated.getAthletes()) {
+					a.cleanImportedText();
 					em.persist(a);
 				}
 
@@ -320,11 +321,13 @@ public class CompetitionData {
 				}
 
 				for (Group g : updated.getGroups()) {
+					g.cleanImportedOfficialNames();
 					em.merge(g);
 				}
 
 				if (updated.getRecords() != null) {
 					for (RecordEvent r : updated.getRecords()) {
+						r.cleanImportedText();
 						em.merge(r);
 					}
 				}
@@ -345,6 +348,7 @@ public class CompetitionData {
 
 				if (updated.getTechnicalOfficials() != null) {
 					for (TechnicalOfficial p : updated.getTechnicalOfficials()) {
+						p.cleanImportedNames();
 						em.merge(p);
 					}
 				}

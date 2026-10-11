@@ -57,6 +57,7 @@ import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.DateTimeUtils;
+import app.owlcms.utils.HtmlSanitizer;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
@@ -1113,6 +1114,37 @@ public class Group implements Comparable<Group> {
 	 */
 	public String getDoctor() {
 		return this.doctor;
+	}
+
+	/** Official names from an imported file are plain text; remove any tags. */
+	public void cleanImportedOfficialNames() {
+		this.announcer = HtmlSanitizer.toPlainText(this.announcer);
+		this.marshall = HtmlSanitizer.toPlainText(this.marshall);
+		this.marshal2 = HtmlSanitizer.toPlainText(this.marshal2);
+		this.timeKeeper = HtmlSanitizer.toPlainText(this.timeKeeper);
+		this.technicalController = HtmlSanitizer.toPlainText(this.technicalController);
+		this.technicalController2 = HtmlSanitizer.toPlainText(this.technicalController2);
+		this.technicalController3 = HtmlSanitizer.toPlainText(this.technicalController3);
+		this.referee1 = HtmlSanitizer.toPlainText(this.referee1);
+		this.referee2 = HtmlSanitizer.toPlainText(this.referee2);
+		this.referee3 = HtmlSanitizer.toPlainText(this.referee3);
+		this.reserve = HtmlSanitizer.toPlainText(this.reserve);
+		this.jury1 = HtmlSanitizer.toPlainText(this.jury1);
+		this.jury2 = HtmlSanitizer.toPlainText(this.jury2);
+		this.jury3 = HtmlSanitizer.toPlainText(this.jury3);
+		this.jury4 = HtmlSanitizer.toPlainText(this.jury4);
+		this.jury5 = HtmlSanitizer.toPlainText(this.jury5);
+		this.reserveJury = HtmlSanitizer.toPlainText(this.reserveJury);
+		this.doctor = HtmlSanitizer.toPlainText(this.doctor);
+		this.doctor2 = HtmlSanitizer.toPlainText(this.doctor2);
+		this.doctor3 = HtmlSanitizer.toPlainText(this.doctor3);
+		this.competitionSecretary = HtmlSanitizer.toPlainText(this.competitionSecretary);
+		this.competitionSecretary2 = HtmlSanitizer.toPlainText(this.competitionSecretary2);
+		this.competitionDirector = HtmlSanitizer.toPlainText(this.competitionDirector);
+		this.tis1 = HtmlSanitizer.toPlainText(this.tis1);
+		this.tis2 = HtmlSanitizer.toPlainText(this.tis2);
+		this.weighIn1 = HtmlSanitizer.toPlainText(this.weighIn1);
+		this.weighIn2 = HtmlSanitizer.toPlainText(this.weighIn2);
 	}
 
 	public void setDoctor(String doctor) {
