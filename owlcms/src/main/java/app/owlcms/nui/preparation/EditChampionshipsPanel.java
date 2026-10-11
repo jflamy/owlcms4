@@ -7,6 +7,7 @@
 package app.owlcms.nui.preparation;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -28,8 +29,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.router.QueryParameters;
-import com.vaadin.flow.component.UI;
 
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.agegroup.AgeGroup;
@@ -49,13 +48,9 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class EditChampionshipsPanel extends VerticalLayout {
-	static final String DIALOG_TABLE_WIDTH = "76em";
 	private static final String NAME_COLUMN_WIDTH = "20em";
-	private static final String TYPE_COLUMN_WIDTH = "34em";
-	private static final String ACTIONS_COLUMN_WIDTH = "26em";
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(EditChampionshipsPanel.class);
 
-	private final boolean fullWidth;
 	private Grid<ChampionshipRow> championshipsTable = new Grid<>(ChampionshipRow.class, false);
 	private Checkbox hideEmptyChampionships;
 	private Checkbox hideCompetitionDefaults;
@@ -63,19 +58,9 @@ public class EditChampionshipsPanel extends VerticalLayout {
 	private List<ChampionshipRow> displayedRows = new ArrayList<>();
 
 	public EditChampionshipsPanel() {
-		this(true);
-	}
-
-	public EditChampionshipsPanel(boolean fullWidth) {
-		this.fullWidth = fullWidth;
 		setPadding(false);
 		setSpacing(false);
-		if (this.fullWidth) {
-			setWidthFull();
-		} else {
-			setWidth(DIALOG_TABLE_WIDTH);
-			setMaxWidth("calc(100vw - 4rem)");
-		}
+		setWidthFull();
 		configureChampionshipsTable();
 
 		ChampionshipRepository.normalizeDefaultTypes();
@@ -103,11 +88,22 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		gridLayout.addToolbarComponent(createRefreshButton());
 		gridLayout.addToolbarComponent(createAddButton());
 		gridLayout.addFilterComponent(this.hideEmptyChampionships);
-		gridLayout.addFilterComponent(this.hideCompetitionDefaults);
+		// Filter disabled: the checkbox stays unchecked and is no longer shown, so no rows are hidden.
+		// gridLayout.addFilterComponent(this.hideCompetitionDefaults);
+		gridLayout.addFilterComponent(newTabButton("DefineAgeGroups", VaadinIcon.PENCIL, AgeGroupContent.class));
+		gridLayout.addFilterComponent(
+		        newTabButton("ChampionshipTemplate.Define", VaadinIcon.TROPHY, ChampionshipTemplateContent.class));
 		gridLayout.getHeaderLayout().setVisible(true);
 		gridLayout.getToolbarLayout().setVisible(true);
 		gridLayout.getFilterLayout().setVisible(true);
 		return gridLayout;
+	}
+
+	private static <T extends Component> Button newTabButton(String labelKey, VaadinIcon icon, Class<T> target) {
+		Button button = new Button(Translator.translate(labelKey), icon.create());
+		button.getElement().setAttribute("onClick",
+		        "window.open('" + URLUtils.getUrlFromTargetClass(target) + "','_blank')");
+		return button;
 	}
 
 	private Button createRefreshButton() {
@@ -132,12 +128,7 @@ public class EditChampionshipsPanel extends VerticalLayout {
 	}
 
 	private void configureChampionshipsTable() {
-		if (this.fullWidth) {
-			this.championshipsTable.setWidthFull();
-		} else {
-			this.championshipsTable.setWidth(DIALOG_TABLE_WIDTH);
-			this.championshipsTable.setMaxWidth("calc(100vw - 4rem)");
-		}
+		this.championshipsTable.setWidthFull();
 		this.championshipsTable.setAllRowsVisible(true);
 		this.championshipsTable.getThemeNames().add("row-stripes");
 		this.championshipsTable.addComponentColumn(row -> {
@@ -154,14 +145,11 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		        .setFlexGrow(0);
 		Column<ChampionshipRow> actionsColumn = this.championshipsTable.addColumn(new ComponentRenderer<>(this::actionsCell))
 		        .setHeader("")
-		        .setFlexGrow(this.fullWidth ? 1 : 0);
-		if (this.fullWidth) {
-			typeColumn.setAutoWidth(true);
-			actionsColumn.setAutoWidth(true);
-		} else {
-			typeColumn.setWidth(TYPE_COLUMN_WIDTH);
-			actionsColumn.setWidth(ACTIONS_COLUMN_WIDTH);
-		}
+		        .setFlexGrow(1);
+		typeColumn.setAutoWidth(true);
+		// type is still edited in the championship details; the list no longer shows it
+		typeColumn.setVisible(false);
+		actionsColumn.setAutoWidth(true);
 
 		for (Column<ChampionshipRow> column : List.of(nameColumn, typeColumn, actionsColumn)) {
 			column.setResizable(true);
@@ -190,7 +178,6 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		boolean hideEmptyRows = this.hideEmptyChampionships == null
 		        || Boolean.TRUE.equals(this.hideEmptyChampionships.getValue());
 		Map<String, ChampionshipCandidate> candidates = championshipCandidates(false);
-		Map<String, ChampionshipCandidate> activeCandidates = championshipCandidates(true);
 		Map<String, Championship> explicitChampionships = explicitChampionships();
 		List<ChampionshipRow> rows = new ArrayList<>();
 
@@ -206,8 +193,7 @@ public class EditChampionshipsPanel extends VerticalLayout {
 			if (hideDefaultRows && usesDefaults) {
 				continue;
 			}
-			boolean canDelete = existing != null && !activeCandidates.containsKey(candidate.name);
-			rows.add(new ChampionshipRow(candidate.name, candidate.type, existing, canDelete));
+			rows.add(new ChampionshipRow(candidate.name, candidate.type, existing));
 		}
 
 		explicitChampionships.values().stream().sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName())).forEach(c -> {
@@ -221,10 +207,13 @@ public class EditChampionshipsPanel extends VerticalLayout {
 				if (hideDefaultRows && usesDefaults) {
 					return;
 				}
-				boolean canDelete = !activeCandidates.containsKey(c.getName());
-				rows.add(new ChampionshipRow(c.getName(), c.getType(), c, canDelete));
+				rows.add(new ChampionshipRow(c.getName(), c.getType(), c));
 		});
 		rows.sort((first, second) -> {
+			// championships referenced by at least one age group come first
+			boolean firstActive = candidates.containsKey(first.name);
+			boolean secondActive = candidates.containsKey(second.name);
+			if (firstActive != secondActive) return firstActive ? -1 : 1;
 			Integer firstOrder = first.championship != null ? first.championship.getOrder() : null;
 			Integer secondOrder = second.championship != null ? second.championship.getOrder() : null;
 			if (firstOrder != null && secondOrder != null) return Integer.compare(firstOrder, secondOrder);
@@ -290,8 +279,8 @@ public class EditChampionshipsPanel extends VerticalLayout {
 			new ChampionshipDetailsDialog(championship, this::updateChampionshipsTable).open();
 		});
 		actions.add(championshipButton);
-		actions.add(editAgeGroupsButton(row.name));
-		if (row.championship != null && !row.championship.computeUsesCompetitionDefaults()) {
+		actions.add(selectAgeGroupsButton(row));
+		if (row.championship != null) {
 			actions.add(resetButton(() -> {
 				new ConfirmationDialog(
 				        Translator.translate("Championship.ResetToDefaults"),
@@ -302,11 +291,11 @@ public class EditChampionshipsPanel extends VerticalLayout {
 				        }).open();
 			}));
 		}
-		if (row.canDelete) {
+		if (row.championship != null) {
 			actions.add(deleteButton(() -> {
 				new ConfirmationDialog(
 				        Translator.translate("Delete"),
-				        Translator.translate("Championship.DeleteWithAgeGroupsWarning", row.name),
+				        deleteWarning(row.name),
 				        null, () -> {
 					        Championship.removeWithAssociatedAgeGroups(row.championship, associatedAgeGroups(row.name));
 					        updateChampionshipsTable();
@@ -316,24 +305,44 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		return actions;
 	}
 
+	/**
+	 * Lists every age group that will be deleted with the championship, in a scrolling box since a masters
+	 * championship can have dozens.
+	 */
+	private String deleteWarning(String championshipName) {
+		List<String> names = associatedAgeGroups(championshipName).stream()
+		        .sorted(Comparator.comparing(AgeGroup::getGender, Comparator.nullsLast(Comparator.naturalOrder()))
+		                .thenComparing(AgeGroup::getMinAge, Comparator.nullsLast(Comparator.naturalOrder()))
+		                .thenComparing(AgeGroup::getMaxAge, Comparator.nullsLast(Comparator.naturalOrder())))
+		        .map(AgeGroup::getDisplayName)
+		        .toList();
+		if (names.isEmpty()) {
+			return Translator.translate("Championship.DeleteWithAgeGroupsWarning", championshipName);
+		}
+		String list = "<div style='max-height:12em; overflow-y:auto; margin-top:1ex;"
+		        + " border:1px solid var(--lumo-contrast-20pct); border-radius:var(--lumo-border-radius-m)'>"
+		        + "<ul style='margin:0.5ex 0'><li>" + String.join("</li><li>", names) + "</li></ul></div>";
+		return Translator.translate("Championship.DeleteWithAgeGroupsList", championshipName, names.size()) + list;
+	}
+
 	private Button championshipButton(String name, Runnable action) {
-		Button button = new Button(Translator.translate("Edit"), VaadinIcon.PENCIL.create(), e -> action.run());
+		Span medal = new Span("\uD83C\uDFC5");
+		Button button = new Button(Translator.translate("Championship.EditMedalsAndTeams"), medal,
+		        e -> action.run());
 		button.addThemeVariants(ButtonVariant.LUMO_SMALL);
 		return button;
 	}
 
-	private Button editAgeGroupsButton(String championshipName) {
-		Button button = new Button(Translator.translate("EditAgeGroups"), VaadinIcon.PENCIL.create(), e -> {
-			QueryParameters parameters = new QueryParameters(Map.of("championship", List.of(championshipName)));
-			String url = URLUtils.getUrlFromTargetClass(AgeGroupContent.class, null, parameters);
-			UI.getCurrent().getPage().executeJs("window.open($0, $1)", url, AgeGroupContent.class.getSimpleName());
-		});
+	private Button selectAgeGroupsButton(ChampionshipRow row) {
+		Button button = new Button(Translator.translate("Championship.SelectAgeGroups"), VaadinIcon.CHECK_SQUARE_O.create(),
+		        e -> new SelectAgeGroupsDialog(row.championship, associatedAgeGroups(row.name), this::updateChampionshipsTable)
+		                .open());
 		button.addThemeVariants(ButtonVariant.LUMO_SMALL);
 		return button;
 	}
 
 	private Button resetButton(Runnable action) {
-		Button button = new Button(Translator.translate("Championship.ResetToDefaults"), VaadinIcon.REFRESH.create(), e -> action.run());
+		Button button = new Button(Translator.translate("Championship.ResetToDefaults"), VaadinIcon.TROPHY.create(), e -> action.run());
 		button.addThemeVariants(ButtonVariant.LUMO_SMALL);
 		return button;
 	}
@@ -408,13 +417,11 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		private String name;
 		private ChampionshipType type;
 		private final Championship championship;
-		private final boolean canDelete;
 
-		ChampionshipRow(String name, ChampionshipType type, Championship championship, boolean canDelete) {
+		ChampionshipRow(String name, ChampionshipType type, Championship championship) {
 			this.name = name;
 			this.type = type != null ? type : ChampionshipType.U;
 			this.championship = championship;
-			this.canDelete = canDelete;
 		}
 	}
 }

@@ -31,7 +31,6 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -48,9 +47,6 @@ import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.router.Location;
 
 import app.owlcms.components.fields.LocalizedIntegerField;
-import app.owlcms.data.agegroup.ChampionshipRepository;
-import app.owlcms.data.athleteSort.Ranking;
-import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
@@ -61,7 +57,6 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
-import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -72,8 +67,8 @@ public class CompetitionEditingFormFactory
 	// Zero-based tab indices. The URL uses these values directly, so "/0" is equivalent to "/".
 	public static final int INFORMATION_TAB = 0;
 	public static final int RULES_TAB = 1;
-	/** Index of the tab holding the default championship scoring/medaling rules. */
-	public static final int DEFAULT_CHAMPIONSHIP_TAB = 2;
+	/** Index of the tab holding the championships (medals and teams) editor. */
+	public static final int MEDALS_AND_TEAMS_TAB = 2;
 	public static final int SPECIAL_RULES_TAB = 3;
 
 	private static final String COMPETITION_ROUTE = "preparation/competition";
@@ -84,13 +79,7 @@ public class CompetitionEditingFormFactory
 	@SuppressWarnings("unused")
 	private CompetitionContent origin;
 	
-	// Map of ranking checkboxes to update when mustCompute changes
-	private java.util.Map<Ranking, Checkbox> rankingCheckboxes = new java.util.HashMap<>();
-	
-	// Reference to sinclairYear radio buttons for enabling/disabling
-	private RadioButtonGroup<Integer> sinclairYear;
 	private RadioButtonGroup<StartNumberOrder> startNumberOrderField;
-	private ChampionshipDetailsForm championshipDefaultsEditor;
 	private TabSheet tabSheet;
 	private boolean jurySizeChanged;
 
@@ -176,7 +165,7 @@ public class CompetitionEditingFormFactory
 		FormLayout liftingOrderLayout = liftingOrderForm();
 		FormLayout otherRulesLayout = otherRulesForm();
 		FormLayout pointScoresForm = pointScoresForm();
-		this.championshipDefaultsEditor = new ChampionshipDetailsForm(ChampionshipRepository.ensureCompetitionTemplate());
+		EditChampionshipsPanel championshipsPanel = new EditChampionshipsPanel();
 
 		Component footer = this.buildFooter(operation, comp, cancelButtonClickListener,
 		        c -> {
@@ -195,10 +184,9 @@ public class CompetitionEditingFormFactory
 		                juryRulesLayout, separator(),
 		                mastersRulesLayout, separator(),
 		                breakDurationLayout));
-		ts.add(Translator.translate("Competition.DefaultScoringMedalingRulesTab"),
+		ts.add(Translator.translate("Competition.MedalsAndTeamsTab"),
 		        new VerticalLayout(
-		                scoringMedalingRulesIntro(), separator(),
-		                this.championshipDefaultsEditor, separator(),
+		                championshipsPanel, separator(),
 		                pointScoresForm));
 		ts.add(Translator.translate("Competition.scoreboardAndLiftingOrder"),
 		        new VerticalLayout(
@@ -232,9 +220,6 @@ public class CompetitionEditingFormFactory
 		if ((operation == CrudOperation.UPDATE || operation == CrudOperation.ADD) && gridCallBackAction != null) {
 			Button button = doBuildButton(operation);
 			button.addClickListener(event -> {
-				if (this.championshipDefaultsEditor != null && !this.championshipDefaultsEditor.validateForm()) {
-					return;
-				}
 				performOperationAndCallback(operation, domainObject, gridCallBackAction, false);
 			});
 			return button;
@@ -266,9 +251,9 @@ public class CompetitionEditingFormFactory
 
 	@Override
 	public Competition update(Competition competition) {
-		if (this.championshipDefaultsEditor != null && !this.championshipDefaultsEditor.save()) {
-			return competition;
-		}
+		// The championships panel saves this flag immediately on Competition.getCurrent(),
+		// which may be a newer instance than the one being edited by this form.
+		competition.setHideEmptyChampionships(Competition.getCurrent().isHideEmptyChampionships());
 		// Save current RankingConfig state to competition before persisting
 		competition.saveRankingConfig();
 		applyStartNumberOrder(competition);
@@ -494,64 +479,12 @@ public class CompetitionEditingFormFactory
 	private FormLayout pointScoresForm() {
 		FormLayout layout = createLayout();
 
-		// Scoring systems section
 		Component scoringTitle = createTitle("ScoringSystems");
 		layout.add(scoringTitle);
 		layout.setColspan(scoringTitle, 2);
 
-		Paragraph scoringExplain = new Paragraph(Translator.translate("ScoringSystems.Explanation"));
-		scoringExplain.getStyle().set("margin-top", "2ex");
-		scoringExplain.getStyle().set("margin-bottom", "2ex");
-		layout.add(scoringExplain);
-		layout.setColspan(scoringExplain, 2);
-
-		// Ranking system selection rows: one horizontal row of checkboxes per ranking family
-		// Sinclair-based rankings
-		HorizontalLayout sinclairRow = new HorizontalLayout();
-		for (Ranking r : RankingConfig.getSinclairRankings()) {
-			Checkbox cb = createRankingCheckbox(r);
-			sinclairRow.add(cb);
-		}
-		layout.add(sinclairRow);
-		layout.setColspan(sinclairRow, 2);
-
-		// QPoints-based rankings
-		HorizontalLayout qpointsRow = new HorizontalLayout();
-		for (Ranking r : RankingConfig.getQPointsRankings()) {
-			Checkbox cb = createRankingCheckbox(r);
-			qpointsRow.add(cb);
-		}
-		layout.add(qpointsRow);
-		layout.setColspan(qpointsRow, 2);
-
-		// GAMX-based rankings
-		HorizontalLayout gamxRow = new HorizontalLayout();
-		for (Ranking r : RankingConfig.getGamxRankings()) {
-			Checkbox cb = createRankingCheckbox(r);
-			gamxRow.add(cb);
-		}
-		layout.add(gamxRow);
-		layout.setColspan(gamxRow, 2);
-
-		// Other global scoring systems (SMM, ROBI, etc.)
-		HorizontalLayout otherRow = new HorizontalLayout();
-		for (Ranking r : RankingConfig.getRobiRankings()) {
-			Checkbox cb = createRankingCheckbox(r);
-			otherRow.add(cb);
-		}
-		otherRow.getStyle().set("margin-bottom", "2ex");
-		layout.add(otherRow);
-		layout.setColspan(otherRow, 2);
-
-		// Checkbox showScoressOnScoreboard = new Checkbox();
-		// layout.addFormItem(showScoressOnScoreboard, Translator.translate("Competition.showScoresOnScoreboard"));
-		// this.binder.forField(showScoressOnScoreboard)
-		// .bind(Competition::isDisplayScores, Competition::setDisplayScores);
-		//
-		// Checkbox showScoreRanksOnScoreboard = new Checkbox();
-		// layout.addFormItem(showScoreRanksOnScoreboard, Translator.translate("Competition.showScoreRanksOnScoreboard"));
-		// this.binder.forField(showScoreRanksOnScoreboard)
-		// .bind(Competition::isDisplayScoreRanks, Competition::setDisplayScoreRanks);
+		// Scores are always available and the best-athlete rank is computed per championship;
+		// there is no longer a per-competition selection of which scoring systems to compute.
 
 		RadioButtonGroup<Integer> sinclairYearLocal = new RadioButtonGroup<>();
 		layout.addFormItem(sinclairYearLocal, Translator.translate("sinclair"));
@@ -559,83 +492,7 @@ public class CompetitionEditingFormFactory
 		this.binder.forField(sinclairYearLocal)
 		        .bind(Competition::getSinclairYear, Competition::setSinclairYear);
 
-		// Store reference for later access when checkboxes change
-		this.sinclairYear = sinclairYearLocal;
-		
-		// Disable sinclairYear if neither Sinclair nor Category Sinclair is computed
-		updateSinclairYearEnabled();
-		
-		// Add listeners to Sinclair checkboxes to update radio button state
-		Checkbox sinclairCb = rankingCheckboxes.get(Ranking.BW_SINCLAIR);
-		Checkbox catSinclairCb = rankingCheckboxes.get(Ranking.CAT_SINCLAIR);
-		if (sinclairCb != null) {
-			sinclairCb.addValueChangeListener(e -> updateSinclairYearEnabled());
-		}
-		if (catSinclairCb != null) {
-			catSinclairCb.addValueChangeListener(e -> updateSinclairYearEnabled());
-		}
-
-		// Checkbox sinclairMeetField = new Checkbox();
-		// layout.addFormItem(sinclairMeetField,
-		// labelWithHelp("Competition.SinclairMeet", "Competition.SinclairMeetExplanation"));
-		// this.binder.forField(sinclairMeetField)
-		// .bind(Competition::isSinclair, Competition::setSinclair);
-
 		return layout;
-	}
-
-	private HorizontalLayout scoringMedalingRulesIntro() {
-		Paragraph paragraph = new Paragraph(Translator.translate("Competition.DefaultScoringMedalingRulesIntro"));
-		paragraph.getStyle().set("margin-top", "0");
-		paragraph.getStyle().set("margin-bottom", "0");
-
-		Button editChampionships = new Button(Translator.translate("EditChampionships.Title"), VaadinIcon.COG.create());
-		editChampionships.getElement().setAttribute("onClick",
-		        getWindowOpenerFromClassNoParam(ChampionshipsContent.class));
-
-		HorizontalLayout layout = new HorizontalLayout(paragraph, editChampionships);
-		layout.setAlignItems(Alignment.CENTER);
-		layout.setWidthFull();
-		return layout;
-	}
-
-	private <T extends Component> String getWindowOpenerFromClassNoParam(Class<T> targetClass) {
-		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "','"
-		        + targetClass.getSimpleName() + "')";
-	}
-
-	/**
-	 * Create a checkbox for a ranking system.
-	 * Stores reference in rankingCheckboxes map for later refresh.
-	 */
-	private Checkbox createRankingCheckbox(Ranking r) {
-		Checkbox cb = new Checkbox(Ranking.getScoringTitle(r));
-		cb.setValue(RankingConfig.shouldCompute(r));
-		// Read-only if mustCompute (required by age group or global scoring)
-		if (RankingConfig.isMustCompute(r)) {
-			cb.setReadOnly(true);
-			cb.getStyle().set("font-weight", "bold");
-		}
-		cb.addValueChangeListener(e -> {
-			if (!cb.isReadOnly()) {
-				RankingConfig.setUserEnabled(r, e.getValue());
-			}
-		});
-		rankingCheckboxes.put(r, cb);
-		return cb;
-	}
-
-	/**
-	 * Update Sinclair year radio buttons enabled state.
-	 * Disable if neither Sinclair nor Category Sinclair is being computed.
-	 */
-	private void updateSinclairYearEnabled() {
-		if (sinclairYear == null) {
-			return; // Not yet initialized
-		}
-		boolean sinclairEnabled = RankingConfig.shouldCompute(Ranking.BW_SINCLAIR)
-				|| RankingConfig.shouldCompute(Ranking.CAT_SINCLAIR);
-		sinclairYear.setEnabled(sinclairEnabled);
 	}
 
 	private FormLayout generalRulesForm() {

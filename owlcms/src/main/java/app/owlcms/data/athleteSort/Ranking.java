@@ -6,10 +6,7 @@
  *******************************************************************************/
 package app.owlcms.data.athleteSort;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.LoggerFactory;
@@ -353,12 +350,6 @@ public enum Ranking {
 			default:
 				throw new UnsupportedOperationException("not a score ranking " + rankingType);
 		}
-	}
-
-	public static List<Ranking> scoringSystems() {
-		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMM, ROBI, AGEFACTORS, QPOINTS, QAGE, GAMX, GAMX_M, GAMX_MS, GAMX_MC, GAMX_U, GAMX_A, GAMX_S, GAMX_C, CAT_QPOINTS, CAT_GAMX, CAT_SINCLAIR));
-		systems.removeIf(ranking -> !RankingConfig.shouldCompute(ranking));
-		return systems;
 	}
 
 	private String reportingName;

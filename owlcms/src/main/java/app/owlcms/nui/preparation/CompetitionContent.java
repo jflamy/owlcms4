@@ -61,7 +61,7 @@ public class CompetitionContent extends Composite<VerticalLayout>
 
 	/**
 	 * Open directly on a specific tab when a {@code tab} route parameter is present
-	 * (e.g. {@code preparation/competition/2} for the default championship rules).
+	 * (e.g. {@code preparation/competition/2} for the medals and teams tab).
 	 */
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
