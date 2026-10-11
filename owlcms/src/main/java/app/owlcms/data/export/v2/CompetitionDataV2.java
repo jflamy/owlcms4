@@ -368,6 +368,7 @@ public class CompetitionDataV2 {
 		// Athletes reference Groups via GroupRepository.findByName() during toAthlete()
 		for (SessionDTO sDto : updated.getSessions()) {
 			Group g = sDto.toGroup(em);
+			g.cleanImportedOfficialNames();
 			em.merge(g);
 		}
 
@@ -389,12 +390,14 @@ public class CompetitionDataV2 {
 
 		if (updated.getRecords() != null) {
 			for (RecordEvent r : updated.getRecords()) {
+				r.cleanImportedText();
 				em.merge(r);
 			}
 		}
 
 		if (updated.getTechnicalOfficials() != null) {
 			for (TechnicalOfficial p : updated.getTechnicalOfficials()) {
+				p.cleanImportedNames();
 				em.merge(p);
 			}
 		}

@@ -67,6 +67,7 @@ import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.Notification;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import app.owlcms.utils.HtmlSanitizer;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import ch.qos.logback.classic.Logger;
@@ -1200,7 +1201,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			String message = sb.toString();
 			logger.debug("{} setting message {}", simpleName, message);
 			this.errorLabel.setVisible(true);
-			this.errorLabel.getElement().setProperty("innerHTML", "\u26A0 " + message);
+			this.errorLabel.getElement().setProperty("innerHTML",
+			        "\u26A0 " + HtmlSanitizer.sanitizeFormattedHtml(message));
 			this.errorLabel.getClassNames().set("errorMessage", true);
 			// Show Accept Change button, hide normal Update button
 			if (this.operationButton != null && this.acceptChangeButton != null) {
@@ -1243,7 +1245,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			this.startingWeightConfirmationRequired = false;
 			logger.debug("{} setting message {}", message);
 			this.errorLabel.setVisible(true);
-			this.errorLabel.getElement().setProperty("innerHTML", message);
+			this.errorLabel.getElement().setProperty("innerHTML", HtmlSanitizer.sanitizeFormattedHtml(message));
 			this.errorLabel.getClassNames().set("errorMessage", true);
 			field.getElement().getClassList().set("error", true);
 			field.setInvalid(true);
@@ -1288,7 +1290,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 
 	private void doSetStartingWeightError(String message) {
 		this.errorLabel.setVisible(true);
-		this.errorLabel.getElement().setProperty("innerHTML", "\u26A0 " + message);
+		this.errorLabel.getElement().setProperty("innerHTML",
+		        "\u26A0 " + HtmlSanitizer.sanitizeFormattedHtml(message));
 		this.errorLabel.getClassNames().set("errorMessage", true);
 		setStartingWeightConfirmationControls();
 		setFocus(getEditedAthlete(), true);

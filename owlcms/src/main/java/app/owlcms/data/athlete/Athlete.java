@@ -83,6 +83,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.spreadsheet.RAthlete;
 import app.owlcms.utils.DateTimeUtils;
+import app.owlcms.utils.HtmlSanitizer;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
@@ -4546,6 +4547,18 @@ public class Athlete {
 
 	public void setCombinedRank(int i) {
 		this.combinedRank = i;
+	}
+
+	/**
+	 * Text from an imported file: names and coach are plain text (tags removed), custom1 and custom2 may contain
+	 * formatting (only script content removed).
+	 */
+	public void cleanImportedText() {
+		this.lastName = HtmlSanitizer.toPlainText(this.lastName);
+		this.firstName = HtmlSanitizer.toPlainText(this.firstName);
+		this.coach = HtmlSanitizer.toPlainText(this.coach);
+		this.custom1 = HtmlSanitizer.cleanFormattedText(this.custom1);
+		this.custom2 = HtmlSanitizer.cleanFormattedText(this.custom2);
 	}
 
 	public void setCustom1(String v) {

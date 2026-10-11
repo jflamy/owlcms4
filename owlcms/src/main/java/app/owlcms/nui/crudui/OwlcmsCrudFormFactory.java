@@ -48,6 +48,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.HtmlSanitizer;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -251,7 +252,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 		if (showInLabel) {
 			String message = sb.toString();
 			this.errorLabel.setVisible(true);
-			this.errorLabel.getElement().setProperty("innerHTML", message);
+			this.errorLabel.getElement().setProperty("innerHTML", HtmlSanitizer.sanitizeFormattedHtml(message));
 			this.errorLabel.getClassNames().set("errorMessage", true);
 		} else {
 			this.errorLabel.setVisible(false);

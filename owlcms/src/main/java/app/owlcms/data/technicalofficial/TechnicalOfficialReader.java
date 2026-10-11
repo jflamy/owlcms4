@@ -268,6 +268,7 @@ public class TechnicalOfficialReader {
             }
 
             TechnicalOfficial official = new TechnicalOfficial(lastName, firstName, level, iwfId, federation, federationId, affiliation, team);
+            official.cleanImportedNames();
             official.setAccreditationRole(role);
             official.setActive(active);
             official.setTeamRole(teamRole);

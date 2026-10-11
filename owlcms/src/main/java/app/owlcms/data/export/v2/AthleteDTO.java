@@ -22,6 +22,7 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.utils.HtmlSanitizer;
 
 /**
  * DTO for Athlete in V2 export format.
@@ -330,8 +331,8 @@ public class AthleteDTO {
 		Athlete athlete = new Athlete();
 		
 		// Basic info
-		athlete.setLastName(this.lastName);
-		athlete.setFirstName(this.firstName);
+		athlete.setLastName(HtmlSanitizer.toPlainText(this.lastName));
+		athlete.setFirstName(HtmlSanitizer.toPlainText(this.firstName));
 		if (this.isoBirthDate != null) {
 			athlete.setIsoBirthDate(this.isoBirthDate);
 		} else {
@@ -463,9 +464,9 @@ public class AthleteDTO {
 		athlete.setTeamTotalRank(this.teamTotalRank);
 		
 		// Other fields
-		athlete.setCoach(this.coach);
-		athlete.setCustom1(this.custom1);
-		athlete.setCustom2(this.custom2);
+		athlete.setCoach(HtmlSanitizer.toPlainText(this.coach));
+		athlete.setCustom1(HtmlSanitizer.cleanFormattedText(this.custom1));
+		athlete.setCustom2(HtmlSanitizer.cleanFormattedText(this.custom2));
 		athlete.setCustomScore(this.customScore);
 		athlete.setEligibleForIndividualRanking(this.eligibleForIndividualRanking != null ? this.eligibleForIndividualRanking : true);
 		athlete.setIndividualEligibilityStatus(this.individualEligibilityStatus);

@@ -26,7 +26,9 @@ public class ConfirmationDialog extends Dialog {
 	 * Creates a confirmation dialog with a custom confirm button label.
 	 *
 	 * @param title              the dialog title
-	 * @param question           the confirmation question/warning message (can contain HTML)
+	 * @param question           the confirmation question/warning message, as trusted HTML (may contain
+	 *                           formatting and icons). Values inserted by {@link Translator#translate} have their
+	 *                           tags removed.
 	 * @param confirmButtonLabel the label for the confirm button (red, dangerous action)
 	 * @param cancelButtonLabel  the label for the cancel button (null uses translated default)
 	 * @param successNotification the notification message shown after successful action (can be null)
@@ -85,7 +87,9 @@ public class ConfirmationDialog extends Dialog {
 	 * Creates a confirmation dialog with default "Confirm" button label.
 	 *
 	 * @param title              the dialog title
-	 * @param question           the confirmation question/warning message (can contain HTML)
+	 * @param question           the confirmation question/warning message, as trusted HTML (may contain
+	 *                           formatting and icons). Values inserted by {@link Translator#translate} have their
+	 *                           tags removed.
 	 * @param successNotification the notification message shown after successful action (can be null)
 	 * @param pAction            the action to run when confirmed
 	 */
