@@ -10,6 +10,20 @@
 
 **Maintenance Log**
 
+- 68.0.0-rc14: Championship editing reorganized under the "Championships, Medals and Teams" tab and the Define Championships page.
+  - Each championship row has "Edit Medals and Team Rules", "Select Age Groups", "Reset to Template" and "Delete".
+  - "Define Age Groups and Categories" and "Define Championship Template" buttons are next to the championship list; championships in use are listed first.
+
+- 68.0.0-rc14: New "Select Age Groups" dialog moves age groups into a championship, after a confirmation that names the championship each one leaves.
+
+- 68.0.0-rc14: Deleting a championship deletes its age groups, after a confirmation listing them.
+  -  Athletes are kept and moved to their most specific remaining category; previously, deleting age groups that had registered athletes failed.
+
+- 68.0.0-rc14: The Scoring Systems selection was removed from the competition settings: all scores are always computed, and the best athlete rank is computed for each championship's own scheme.
+  - The best athlete scoring selector on the results pages lists the championships' schemes first, then the GAMX, QPoints, Robi and Sinclair families.
+
+- 68.0.0-rc14: Text imported from registration files, database exports, technical official files and record files is cleaned of HTML tags, so it cannot alter or run code on the screens where it is shown. The custom1 and custom2 fields keep their formatting.
+
 - 68.0.0-rc13: The Medals board now matches the medals sheet and only shows finished categories. A category split across sessions (e.g. 69A and 69B) is not shown until all its sessions are finished.
   - To see prospective medalists, tick "Include not completed" before opening the Medals board (warmup, public and video displays).
 
