@@ -235,7 +235,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 			int compare = 0;
 			compare = ObjectUtils.compare(ag1.getChampionship(), ag2.getChampionship());
 			if (compare != 0) {
-				return -compare; // reverse order for DEFAULT first.
+				return compare; // configured championship order
 			}
 			compare = ObjectUtils.compare(ag1.getGender(), ag2.getGender());
 			if (compare != 0) {

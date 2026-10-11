@@ -182,7 +182,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 	private JXLSDownloader downloadDialog;
 	private Checkbox includeRecords;
 	private Checkbox medalsOnly;
-	private ComboBox<Ranking> rankingSelector;
+	private ScoringSystemSelect rankingSelector;
 	private Ranking scoringSystem;
 
 	/**
@@ -427,7 +427,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		URLUtils.replaceState(event.getUI().getPage().getHistory(), null, newLocation, getLocation());
 	}
 
-	public void setRankingSelector(ComboBox<Ranking> rankingSelector) {
+	public void setRankingSelector(ScoringSystemSelect rankingSelector) {
 		this.rankingSelector = rankingSelector;
 	}
 
@@ -546,11 +546,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		crud.getCrudLayout().addFilterComponent(this.getGenderFilter());
 
 		if (this.getRankingSelector() == null) {
-			ComboBox<Ranking> scoringCombo = new ComboBox<>(Translator.translate("Ranking.BestAthlete"));
-			scoringCombo.setItems(Ranking.scoringSystems());
-			scoringCombo.setItemLabelGenerator(r -> Ranking.getScoringExplanation(r));
-			scoringCombo.getElement().getStyle().set("--vaadin-combo-box-overlay-width", "30ch");
-			scoringCombo.setWidth("30ch");
+			ScoringSystemSelect scoringCombo = new ScoringSystemSelect(Translator.translate("Ranking.BestAthlete"));
 			this.setRankingSelector(scoringCombo);
 			getCrudLayout(crud).addFilterComponent(scoringCombo);
 			scoringCombo.addValueChangeListener(event -> {
@@ -558,14 +554,14 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 					return;
 				}
 				if (event.getValue() == null) {
-					scoringCombo.setValue(getScoringSystem());
+					scoringCombo.setRanking(getScoringSystem());
 					return;
 				}
-				setScoringSystem(event.getValue());
+				setScoringSystem(event.getValue().ranking());
 				resetGrid();
 			});
 			Ranking initialValue = getScoringSystem();
-			scoringCombo.setValue(initialValue);
+			scoringCombo.setRanking(initialValue);
 			if (this.scoringSystem == null) {
 				setScoringSystem(initialValue);
 			}
@@ -608,8 +604,8 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 
 	private Ranking computeScoringSystem() {
 		Ranking ranking;
-		if (getRankingSelector() != null && getRankingSelector().getValue() != null) {
-			ranking = getRankingSelector().getValue();
+		if (getRankingSelector() != null && getRankingSelector().getRanking() != null) {
+			ranking = getRankingSelector().getRanking();
 		} else {
 			ranking = getScoringSystem();
 		}
@@ -700,7 +696,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		return this.currentGroup;
 	}
 
-	private ComboBox<Ranking> getRankingSelector() {
+	private ScoringSystemSelect getRankingSelector() {
 		return this.rankingSelector;
 	}
 

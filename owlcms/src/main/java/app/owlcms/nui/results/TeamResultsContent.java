@@ -60,7 +60,7 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
-import app.owlcms.nui.preparation.EditChampionshipsDialog;
+import app.owlcms.nui.preparation.ChampionshipsContent;
 import app.owlcms.nui.shared.IAthleteEditing;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -135,8 +135,9 @@ public class TeamResultsContent extends BaseContent
 		Button teamResultsDownloadButton = createTeamResultsDownloadButton();
 		Button editChampionshipsButton = new Button(
 			Translator.translate("EditChampionships.Title"),
-			VaadinIcon.PENCIL.create(),
-			e -> new EditChampionshipsDialog(() -> this.crudGrid.refreshGrid()).open());
+			VaadinIcon.PENCIL.create());
+		editChampionshipsButton.getElement().setAttribute("onClick",
+		        "window.open('" + URLUtils.getUrlFromTargetClass(ChampionshipsContent.class) + "','_blank')");
 		HorizontalLayout buttons = new HorizontalLayout(teamResultsDownloadButton, editChampionshipsButton);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 

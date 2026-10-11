@@ -106,7 +106,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	private Gender gender;
 	private Checkbox includeRecords;
 	private Checkbox includeUnfinishedCategories;
-	private ComboBox<Ranking> rankingSelector;
+	private ScoringSystemSelect rankingSelector;
 	private Ranking scoringSystem;
 	private boolean winnersOnly;
 
@@ -474,7 +474,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		this.genderFilter = genderFilter;
 	}
 
-	public void setRankingSelector(ComboBox<Ranking> rankingSelector) {
+	public void setRankingSelector(ScoringSystemSelect rankingSelector) {
 		this.rankingSelector = rankingSelector;
 	}
 
@@ -586,27 +586,22 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		Checkbox winnersOnlyCheckbox = new Checkbox(Translator.translate("Results.WinnersOnly"));
 
 		if (this.getRankingSelector() == null) {
-			ComboBox<Ranking> scoringCombo = new ComboBox<>(Translator.translate("Ranking.BestAthlete"));
-			scoringCombo.setItems(Ranking.scoringSystems());
-			scoringCombo.setItemLabelGenerator(r -> Ranking.getScoringExplanation(r));
-			scoringCombo.getElement().getStyle().set("--vaadin-combo-box-overlay-width", "30ch");
-			scoringCombo.setWidth("30ch");
+			ScoringSystemSelect scoringCombo = new ScoringSystemSelect(Translator.translate("Ranking.BestAthlete"));
 			this.setRankingSelector(scoringCombo);
-			scoringCombo.setClearButtonVisible(false);
 			getCrudLayout(crud).addFilterComponent(scoringCombo);
 			scoringCombo.addValueChangeListener(event -> {
 				if (!event.isFromClient()) {
 					return;
 				}
 				if (event.getValue() == null) {
-					scoringCombo.setValue(getScoringSystem());
+					scoringCombo.setRanking(getScoringSystem());
 					return;
 				}
-				bestAthleteScoringSelected(event.getValue());
+				bestAthleteScoringSelected(event.getValue().ranking());
 			});
 			// Initialize to current value or global default
 			Ranking initialValue = getScoringSystem();
-			scoringCombo.setValue(initialValue);
+			scoringCombo.setRanking(initialValue);
 			if (this.scoringSystem == null) {
 				setScoringSystem(initialValue); // Set field on first initialization
 			}
@@ -695,8 +690,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
 	private Ranking computeScoringSystem() {
 		Ranking ranking;
-		if (getRankingSelector() != null && getRankingSelector().getValue() != null) {
-			ranking = getRankingSelector().getValue();
+		if (getRankingSelector() != null && getRankingSelector().getRanking() != null) {
+			ranking = getRankingSelector().getRanking();
 		} else {
 			ranking = getScoringSystem();
 		}
@@ -705,8 +700,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
 	private Ranking computeScoringSystemForBook() {
 		Ranking ranking;
-		if (getRankingSelector() != null && getRankingSelector().getValue() != null) {
-			ranking = getRankingSelector().getValue();
+		if (getRankingSelector() != null && getRankingSelector().getRanking() != null) {
+			ranking = getRankingSelector().getRanking();
 		} else {
 			ranking = getScoringSystem();
 		}
@@ -802,7 +797,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		return resultsButton;
 	}
 
-	private ComboBox<Ranking> getRankingSelector() {
+	private ScoringSystemSelect getRankingSelector() {
 		return this.rankingSelector;
 	}
 
@@ -857,7 +852,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	public void onChampionshipChanged(Championship championship) {
 		if (getRankingSelector() != null) {
 			Ranking ranking = championship != null ? championship.getBestAthleteScoringSystem() : getScoringSystem();
-			getRankingSelector().setValue(ranking);
+			getRankingSelector().setRanking(ranking);
 			setScoringSystem(ranking);
 			resetGrid();
 		}

@@ -15,6 +15,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.BestAthleteRankingService;
 import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
@@ -273,6 +275,7 @@ public class AgeGroupRepository {
 	static void delete(EntityManager em, AgeGroup ageGroup) {
 		for (Category category : new ArrayList<>(ageGroup.getCategories())) {
 			Category managedCategory = em.contains(category) ? category : em.merge(category);
+			promoteRemainingRegistrationCategory(em, ageGroup, managedCategory);
 			cascadeCategoryRemoval(em, ageGroup, managedCategory);
 		}
 		em.remove(ageGroup);
@@ -465,6 +468,30 @@ public class AgeGroupRepository {
 	}
 
 	/**
+	 * Move age groups to another championship and recompute best-athlete ranks, in a single transaction.
+	 * Only the championship name is changed; categories and athlete assignments are not affected.
+	 */
+	public static void moveToChampionship(List<Long> ageGroupIds, String championshipName) {
+		// runInTransaction swallows Postgres errors and returns null, so require an explicit success marker
+		Boolean committed = JPAService.runInTransaction(em -> {
+			for (Long id : ageGroupIds) {
+				AgeGroup ageGroup = em.find(AgeGroup.class, id);
+				if (ageGroup == null) {
+					throw new IllegalStateException("age group " + id + " not found");
+				}
+				ageGroup.setChampionshipName(championshipName);
+			}
+			em.flush();
+			BestAthleteRankingService.recomputeAll(em);
+			return Boolean.TRUE;
+		});
+		if (!Boolean.TRUE.equals(committed)) {
+			throw new IllegalStateException("moving age groups to " + championshipName + " failed");
+		}
+		RankingConfig.updateMustCompute();
+	}
+
+	/**
 	 * Save.
 	 *
 	 * @param AgeGroup the group
@@ -620,6 +647,39 @@ public class AgeGroupRepository {
 			em.remove(p);
 		}
 		em.flush();
+	}
+
+	/**
+	 * Athletes registered in a category of an age group being deleted get, as registration category, the most
+	 * specific of their remaining eligible categories (same rule as registration); none if nothing remains.
+	 */
+	@SuppressWarnings("unchecked")
+	private static void promoteRemainingRegistrationCategory(EntityManager em, AgeGroup deleted, Category removed) {
+		Set<Long> deletedIds = deleted.getAllCategories().stream().map(Category::getId).collect(Collectors.toSet());
+		Query query = em.createQuery("select a from Athlete a where a.category = :category");
+		query.setParameter("category", removed);
+		for (Athlete a : (List<Athlete>) query.getResultList()) {
+			Athlete na = em.contains(a) ? a : em.merge(a);
+			Category replacement = remainingRegistrationCategory(na, deletedIds);
+			logger.debug("athlete {} registration category {} -> {}", na, removed.getId(), replacement);
+			// setCategory, not computeCategory: keep the presumed body weight used to reassign later
+			na.setCategory(replacement);
+			na.computeMainRankings();
+		}
+	}
+
+	/**
+	 * The most specific active category the athlete is eligible for, ignoring the categories being deleted.
+	 *
+	 * @return null if no eligible category remains
+	 */
+	private static Category remainingRegistrationCategory(Athlete athlete, Set<Long> deletedCategoryIds) {
+		return athlete.getParticipations().stream()
+		        .map(Participation::getCategory)
+		        .filter(c -> c != null && !deletedCategoryIds.contains(c.getId()) && Boolean.TRUE.equals(c.isActive()))
+		        .sorted(Category.specificityComparator)
+		        .findFirst()
+		        .orElse(null);
 	}
 
 	@SuppressWarnings("unchecked")

@@ -73,10 +73,7 @@ public class JXLSTeamResultsSheet extends JXLSWorkbookStreamSource {
 		Ranking genderedRanking = computeTeamRanking(championship, Gender.M);
 		Ranking mixedRanking = computeTeamRanking(championship, Gender.MF);
 
-		// Ensure the per-tab scoring systems are computed for athletes — otherwise
-		// Ranking.getRankingValue() returns 0 (gated by RankingConfig.shouldCompute)
-		// and member.score cells render blank even when the team total is populated
-		// via the team-level accumulator.
+		// Refresh the required-rankings set so any later consumer sees the current championship settings.
 		RankingConfig.updateMustCompute();
 
 		// Build the tree — internally calls getRankingForGender() per gender group,

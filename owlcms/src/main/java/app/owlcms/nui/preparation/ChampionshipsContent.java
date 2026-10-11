@@ -33,11 +33,8 @@ public class ChampionshipsContent extends BaseContent implements OwlcmsContent {
 
 	@Override
 	public FlexLayout createMenuArea() {
-		return AgeGroupActionsMenu.build(() -> {
-			ChampionshipRepository.normalizeDefaultTypes();
-			ChampionshipRepository.normalizeCompetitionDefaultFlags();
-			this.panel.updateChampionshipsTable();
-		});
+		// actions are in the panel, as on the competition page
+		return new FlexLayout();
 	}
 
 	@Override
