@@ -102,7 +102,7 @@ class VersionSelectionTest(unittest.TestCase):
         with patch("sys.argv", ["rebuild_compliance.py"]), patch.object(
             rebuild_compliance, "next_version", return_value=(source, output)
         ):
-            self.assertEqual(rebuild_compliance.parse_arguments(), (source, output))
+            self.assertEqual(rebuild_compliance.parse_arguments(), (source, output, None))
 
     def test_explicit_paths_do_not_require_default_proposals(self):
         source = self.create_file("custom.docx")
@@ -110,7 +110,7 @@ class VersionSelectionTest(unittest.TestCase):
         with patch("sys.argv", ["rebuild_compliance.py", str(source), str(output)]), patch.object(
             rebuild_compliance, "next_version", side_effect=RuntimeError("No defaults")
         ):
-            self.assertEqual(rebuild_compliance.parse_arguments(), (source, output))
+            self.assertEqual(rebuild_compliance.parse_arguments(), (source, output, None))
 
     def test_existing_output_is_rejected(self):
         source = self.create_file("source.docx")

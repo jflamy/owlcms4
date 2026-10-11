@@ -10,6 +10,7 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.text.paragraph import Paragraph
 
+import compliance_summaries
 import heading_numbering
 
 
@@ -52,6 +53,15 @@ def parse_arguments(
     )
     parser.add_argument("source", nargs="?", type=Path)
     parser.add_argument("output", nargs="?", type=Path)
+    parser.add_argument(
+        "--summaries",
+        type=Path,
+        help=(
+            "Markdown file produced by compliance_summaries.py extract; non-empty "
+            "summaries replace the verbose requirement/justification text, and a "
+            "matching .md is written next to the output."
+        ),
+    )
     arguments = parser.parse_args()
     directory = Path(__file__).resolve().parent
     source = arguments.source
@@ -64,7 +74,11 @@ def parse_arguments(
         parser.error("Source and output must be different files")
     if output.exists():
         parser.error(f"Output already exists: {output}")
-    return source, output
+    if arguments.summaries is not None and not arguments.summaries.is_file():
+        parser.error(f"Summaries file not found: {arguments.summaries}")
+    if arguments.summaries is not None and output.with_suffix(".md").exists():
+        parser.error(f"Output already exists: {output.with_suffix('.md')}")
+    return source, output, arguments.summaries
 
 
 def is_compliance_table(table):
@@ -193,7 +207,11 @@ def generated_requirement_id(record, used_ids, origin_counts):
     candidate = record["origin"]
     if candidate not in used_ids:
         return candidate
-    return f"{record['origin']}-R{origin_counts[record['origin']]:02d}"
+    while True:
+        candidate = f"{record['origin']}-R{origin_counts[record['origin']]:02d}"
+        if candidate not in used_ids:
+            return candidate
+        origin_counts[record["origin"]] += 1
 
 
 def validate_output(path, expected_requirements, expected_sections):
@@ -240,11 +258,8 @@ def validate_output(path, expected_requirements, expected_sections):
         raise RuntimeError("Duplicate proposal references exist in the compliance tables")
 
 
-def main():
-    source, output = parse_arguments()
-    document = Document(source)
-    body = document.element.body
-
+def collect_requirements(document):
+    """Return requirement records (with stable IDs) and the existing compliance tables."""
     if REQUIREMENT_STYLE not in document.styles:
         raise RuntimeError(f"Paragraph style not found: {REQUIREMENT_STYLE}")
 
@@ -297,19 +312,38 @@ def main():
         raise RuntimeError(f"No {REQUIREMENT_STYLE} paragraphs were found")
 
     used_ids = set(existing_ids.values())
+    assigned_ids = set()
     origin_counts = defaultdict(int)
     for record in requirements:
         requirement_id = existing_ids.get(record["bookmark"])
         if requirement_id is None:
             requirement_id = existing_ids.get(record["reference"])
         if requirement_id is None:
+            requirement_id = existing_ids.get(
+                "Ref_" + re.sub(r"[^A-Za-z0-9_]", "_", record["reference"])
+            )
+        if requirement_id is None or requirement_id in assigned_ids:
             requirement_id = generated_requirement_id(record, used_ids, origin_counts)
         record["requirement_id"] = requirement_id
         used_ids.add(requirement_id)
+        assigned_ids.add(requirement_id)
 
     requirements.sort(
         key=lambda record: (origin_sort_key(record["origin"]), record["document_order"])
     )
+    return requirements, compliance_tables
+
+
+def main():
+    source, output, summaries_path = parse_arguments()
+    document = Document(source)
+    body = document.element.body
+    requirements, compliance_tables = collect_requirements(document)
+
+    if summaries_path is not None:
+        summaries = compliance_summaries.read_summaries(summaries_path)
+        for warning in compliance_summaries.apply_summaries(requirements, summaries):
+            print(f"Warning: {warning}")
 
     for table in compliance_tables:
         body.remove(table._element)
@@ -351,16 +385,17 @@ def main():
 
         for record in by_section[section]:
             row = table.add_row()
-            row.cells[0].text = (
-                f"{record['requirement_id']}  {record['requirement']}"
-            )
+            requirement = record.get("requirement_summary") or record["requirement"]
+            row.cells[0].text = f"{record['requirement_id']}  {requirement}"
             row.cells[1].text = "Compliant"
             add_internal_link(
                 row.cells[2].paragraphs[0],
                 record["reference"],
                 record["bookmark"],
             )
-            row.cells[3].text = record["justification"]
+            row.cells[3].text = (
+                record.get("justification_summary") or record["justification"]
+            )
         appendices._element.addprevious(table._element)
 
     document.save(output)
@@ -370,6 +405,10 @@ def main():
     print(f"Requirements/rows: {len(requirements)}")
     print(f"RFP section tables: {len(by_section)}")
     print("Validation: passed")
+    if summaries_path is not None:
+        compliance_summaries.extract(
+            output, output.with_suffix(".md"), previous_path=summaries_path, from_table=True
+        )
 
 
 if __name__ == "__main__":
