@@ -22,7 +22,7 @@
 	<properties>
 		<!-- revision is overridden by .github/workflow/release.yaml for the official
 		builds. this value is only used for local development -->
-		<revision>68.0.0-SNAPSHOT</revision>
+		<revision>69.0.0-SNAPSHOT</revision>
 
 		<vaadin.version>25.2.8</vaadin.version>
 		<logback.version>1.5.34</logback.version>
