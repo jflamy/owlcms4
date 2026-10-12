@@ -139,18 +139,22 @@ class TeamScheduleEditor extends LitElement {
     }
 
     td.session {
-      padding: .4rem .75rem;
+      padding: 0 .75rem;
       font-weight: 600;
       white-space: nowrap;
+    }
+
+    tbody tr:nth-child(even) td {
+      background: linear-gradient(var(--lumo-contrast-5pct), var(--lumo-contrast-5pct)), var(--lumo-base-color);
     }
 
     input {
       box-sizing: border-box;
       width: 100%;
       min-width: 0;
-      height: 2.5rem;
+      height: 1.75rem;
       border: 0;
-      padding: .25rem .5rem;
+      padding: 0 .5rem;
       background: transparent;
       color: inherit;
       font: inherit;
