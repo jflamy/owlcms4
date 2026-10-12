@@ -221,7 +221,11 @@ public class DecisionElementState {
 
 	@Subscribe
 	public void slaveStartTimer(UIEvent.StartTime e) {
-		nextGeneration();
+		long generation = nextGeneration();
+		if (this.resetOnClockStart && !this.dontReset) {
+			setResetSnapshot(generation);
+			this.renderer.resetDecisionDisplay(e, generation);
+		}
 		setEnabledSnapshot(true);
 		this.renderer.setEnabled(e, true);
 	}
