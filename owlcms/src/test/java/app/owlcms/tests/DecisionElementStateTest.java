@@ -405,6 +405,22 @@ public class DecisionElementStateTest {
     }
 
     @Test
+    public void startTimeReplacesPendingNewClockReset() {
+        MockDecisionRenderer renderer = new MockDecisionRenderer(new EventTimeline());
+        DecisionElementState state = new DecisionElementState(renderer);
+        state.setResetOnClockStart(true);
+        state.slaveResetOnNewClock(new UIEvent.ResetOnNewClock(null, this, null));
+        long pendingReset = renderer.resetGeneration;
+        assertTrue(pendingReset >= 0);
+        state.slaveStartTimer(new UIEvent.StartTime(60000, this, false, null));
+        long clockStartReset = renderer.resetGeneration;
+        assertFalse("clock start must supersede the pending new-clock reset",
+                state.isCurrentGeneration(pendingReset));
+        assertTrue("clock start must issue a replacement reset", clockStartReset > pendingReset);
+        assertTrue("the replacement reset must remain current", state.isCurrentGeneration(clockStartReset));
+    }
+
+    @Test
     public void juryLightsPersistThroughResetUntilNextReveal() {
         MockDecisionRenderer renderer = new MockDecisionRenderer(new EventTimeline());
         DecisionElementState state = new DecisionElementState(renderer);
@@ -892,6 +908,7 @@ public class DecisionElementStateTest {
         private List<String> juryLights = List.of();
         private int juryRenderCount;
         private long juryGeneration;
+        private long resetGeneration = -1;
 
         private MockDecisionRenderer(EventTimeline timeline) {
             this.timeline = timeline;
@@ -906,6 +923,7 @@ public class DecisionElementStateTest {
 
         @Override
         public void resetDecisionDisplay(UIEvent event, long generation) {
+            this.resetGeneration = generation;
             this.eventNames.add(event.getClass().getSimpleName());
             this.timeline.mark("render reset");
             if (this.finalDecisionSeen) {
