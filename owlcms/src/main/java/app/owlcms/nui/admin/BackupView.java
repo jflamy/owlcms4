@@ -26,22 +26,22 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 
 @SuppressWarnings("serial")
 @RequiresRole(Role.ADMIN_PAGES)
-@Route(value = "admin/audit/snapshot", layout = OwlcmsLayout.class)
-public class AuditSnapshotView extends Composite<VerticalLayout>
+@Route(value = "admin/backup", layout = OwlcmsLayout.class)
+public class BackupView extends Composite<VerticalLayout>
 		implements BeforeEnterObserver, HasDynamicTitle {
 	private final RadioButtonGroup<Scope> scope = new RadioButtonGroup<>();
 
-	public AuditSnapshotView() {
+	public BackupView() {
 		this.scope.setItems(Scope.values());
-		this.scope.setItemLabelGenerator(value -> Translator.translate("AuditSnapshot." + value.name()));
+		this.scope.setItemLabelGenerator(value -> Translator.translate("Backup." + value.name()));
 		this.scope.setValue(Scope.LOGS_AND_EXPORT);
 		this.scope.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
 
 		// the zip is built on a request thread with no current UI; capture the actor and scope on click
 		AtomicReference<AuditActor> actor = new AtomicReference<>();
 		AtomicReference<Scope> selected = new AtomicReference<>(this.scope.getValue());
-		Div download = DownloadButtonFactory.createDynamicZipDownloadButton("audit_snapshot",
-				Translator.translate("AuditSnapshot.Download"),
+		Div download = DownloadButtonFactory.createDynamicZipDownloadButton("owlcms_backup",
+				Translator.translate("Backup.Download"),
 				() -> AuditSnapshot.stream(selected.get(), actor.get()));
 		download.getChildren().filter(LazyDownloadButton.class::isInstance).findFirst()
 				.ifPresent(button -> ((LazyDownloadButton) button).addClickListener(event -> {
@@ -50,7 +50,7 @@ public class AuditSnapshotView extends Composite<VerticalLayout>
 				}));
 
 		getContent().add(new H2(getPageTitle()),
-				new Paragraph(Translator.translate("AuditSnapshot.Description")),
+				new Paragraph(Translator.translate("Backup.Description")),
 				this.scope, download);
 	}
 
@@ -61,6 +61,6 @@ public class AuditSnapshotView extends Composite<VerticalLayout>
 
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("AuditSnapshot.Title");
+		return Translator.translate("Backup.Title");
 	}
 }

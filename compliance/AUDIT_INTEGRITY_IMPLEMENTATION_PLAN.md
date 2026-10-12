@@ -21,7 +21,7 @@ Each checkpoint ends with reviewable behavior and is a candidate commit boundary
 - **Audit file layout:** with integrity on, each stream writes `<stream>_sealed_<time>.log` and a paired `<stream>_plain_<time>.log`, rolled together (size, Backup) and appended together after a restart. With integrity off, each run writes `<stream>_full_<time>.log` (unsealed, starting with `audit.open`) and `<stream>_plain_<time>.log`, rolling at the size target. Plain files hold event lines only, without `audit.open`. The Logback daily appender is no longer used for audit logs. An `audit.open` header takes the time of the adjacent record, so timestamps never go backwards in a file.
 - **Checkpoints 8 and 10:** not started.
 - **Checkpoint 9 (H2 TCP):** implemented and tested. The H2 TCP server and `H2ServerPort` / `OWLCMS_H2SERVERPORT` are removed; `H2UrlPolicy` accepts only `jdbc:h2:file:` and named `jdbc:h2:mem:` URLs, with options limited to `DB_CLOSE_DELAY`, `TRACE_LEVEL_FILE` and `TRACE_LEVEL_SYSTEM_OUT` (integer values, no duplicates). The configuration documentation is updated. `H2UrlPolicyTest`, `ConfigTest`, `ChampionshipDeleteTest` and `JsonV1ToV2ConversionTest` pass.
-- **Audit Log Snapshot:** implemented (see the section at the end). Forced rollover is tested at the file-store level, including that the resulting zip contents check `COMPLETE`.
+- **Backup (audit log snapshot):** implemented (see the section at the end). Forced rollover is tested at the file-store level, including that the resulting zip contents check `COMPLETE`.
 - **Validation:** audit suite (80 tests, including 15 checker tests), configuration, route access, JSON export/import and the FieldOfPlay regressions (`TwoMinutesRuleTest`, `ClockStartRestartTest`, `RecordsTest`) pass. Java Problems diagnostics are clean. Browser verification still requires a running instance.
 - No implementation changes have been committed.
 
@@ -163,8 +163,8 @@ Show Java and OpenSSL producing the same fingerprint and demonstrate recoverable
 
 Add actions to `AdminView`:
 
-- **Prepare Audit Integrity**
-- **Check Audit Integrity**
+- **Audit Key Initialization**
+- **Audit Integrity Verification**
 
 The preparation page:
 
@@ -462,6 +462,6 @@ Verify embedded H2 startup and rejection of external H2 configuration.
 - Review diffs for unrelated changes.
 - Commit in checkpoint-sized commits only after authorization.
 
-## Audit Log Snapshot (former backup TODO)
+## Backup (audit log snapshot)
 
-Implemented as `/admin/audit/snapshot` over the non-UI `AuditSnapshot`: optional database export (sealed as `export.json`, `channel=audit`), an `audit.snapshot` line, forced rollover of every sealed stream (`AuditLog.rollover()`), and a zip of the whole `logs` tree (application logs, readable and sealed audit logs), optionally with the `local` folder. The snapshot is a diagnostic backup as well as evidence, so nothing is filtered out except the sealed files just opened by the roll, which hold nothing yet. In plain (unsealed) mode nothing is rolled. Browser review is pending.
+Implemented as the **Backup** page (`/admin/backup`, `BackupView`), separate from the audit key initialization and verification pages, over the non-UI `AuditSnapshot`: optional database export (sealed as `export.json`, `channel=audit`), an `audit.snapshot` line, forced rollover of every sealed stream (`AuditLog.rollover()`), and a zip of the whole `logs` tree (application logs, readable and sealed audit logs), optionally with the `local` folder. The snapshot is a diagnostic backup as well as evidence, so nothing is filtered out except the sealed files just opened by the roll, which hold nothing yet. In plain (unsealed) mode nothing is rolled. Browser review is pending.

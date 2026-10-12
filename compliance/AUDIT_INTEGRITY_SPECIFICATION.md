@@ -6,7 +6,7 @@ Audit-record content, routing and actor attribution are defined in [AUDIT_TRAIL_
 
 ### Preparing
 
-- The competition director opens `/admin` and selects **Prepare Audit Integrity**, which opens a dedicated preparation page (§8).
+- The competition director opens `/admin` and selects **Audit Key Initialization**, which opens a dedicated preparation page (§8).
 - The page generates the key pair, writes the PEM file to its configured location and prints the key's fingerprint.
 - A successful preparation triggers an OWLCMS restart. After the restart, the About page shows the fingerprint of the loaded key under the version number.
 - The technical delegate photographs the fingerprint and checks that the About page shows the same one.
@@ -24,7 +24,7 @@ Audit-record content, routing and actor attribution are defined in [AUDIT_TRAIL_
 
 ### Checking
 
-- From `/admin`, **Check Audit Integrity** opens a dedicated checking page (§7). The checker needs no secret: it reads the public key from the log itself.
+- From `/admin`, **Audit Integrity Verification** opens a dedicated checking page (§7). The checker needs no secret: it reads the public key from the log itself.
 - It confirms that every block is unchanged, that the seals form an unbroken chain, and that each seal was made with the private key matching that public key.
 - JSON-file comparison is a documented manual process (§4.5). OWLCMS does not retain copies of downloaded JSON files, and the checker does not try to infer which audit line belongs to a supplied file.
 - It checks whatever audit logs the user selects. Normally the off-machine copies are placed by hand in the audit log directory of a clean installation and checked there. Running it on the competition machine itself is also valid: it detects any change to sealed content, but the matching fingerprint there is not proof that the key was never substituted; only the delegate's photographed fingerprint settles that.
@@ -683,7 +683,7 @@ A loopback listener is not an acceptable substitute for removing server startup.
 
 ## 6. Completeness and Independent Retention
 
-The competition director periodically copies the rolled, finalized audit logs — files no longer being written — to a removable device or private network destination. This is an operational procedure; OWLCMS does not transfer the logs or require a receiving protocol. The file currently being written is not locked, so it can be copied, but the copy is only the prefix that existed at that instant; it has no `FINAL` and the checker reports it as `PARTIAL`. The **Audit Log Snapshot** admin action (`/admin/audit/snapshot`) gives the director a quiet point to copy from: it optionally writes a database export (recorded as `export.json` with `channel=audit`), writes an `audit.snapshot` line, forces every sealed stream into a new file so all previous files are finalized, and downloads a zip of the entire `logs` tree — sealed audit files, plain audit files and application logs alike, since the snapshot doubles as a diagnostic backup — optionally with the `local` folder. Only the sealed files just opened by the roll are omitted, as they hold nothing yet. Checked, the sealed files from this run are `COMPLETE`; a tail left by an earlier crash is reported as `PARTIAL`, as it should be.
+The competition director periodically copies the rolled, finalized audit logs — files no longer being written — to a removable device or private network destination. This is an operational procedure; OWLCMS does not transfer the logs or require a receiving protocol. The file currently being written is not locked, so it can be copied, but the copy is only the prefix that existed at that instant; it has no `FINAL` and the checker reports it as `PARTIAL`. The **Backup** admin action (`/admin/backup`) gives the director a quiet point to copy from: it optionally writes a database export (recorded as `export.json` with `channel=audit`), writes an `audit.snapshot` line, forces every sealed stream into a new file so all previous files are finalized, and downloads a zip of the entire `logs` tree — sealed audit files, plain audit files and application logs alike, since the snapshot doubles as a diagnostic backup — optionally with the `local` folder. Only the sealed files just opened by the roll are omitted, as they hold nothing yet. Checked, the sealed files from this run are `COMPLETE`; a tail left by an earlier crash is reported as `PARTIAL`, as it should be.
 
 Each copy is kept as a timestamped snapshot and does not overwrite earlier snapshots. Full logs are copied, not only seals, because resolving a dispute requires the original records, not merely proof that something changed. Downloaded JSON files are not retained by OWLCMS or by this procedure.
 
@@ -695,7 +695,7 @@ The copy schedule, custody of the removable device and security of the private n
 
 ## 7. Integrity Checker and Acceptance
 
-The `/admin` route adds a **Check Audit Integrity** action that opens a dedicated checking page. The page requires no private key and checks whatever the user selects: one audit log, or a directory of audit logs, defaulting to the installation's own audit log directory. OWLCMS does not copy, collect or compare logs; choosing the evidence is the user's decision.
+The `/admin` route adds an **Audit Integrity Verification** action that opens a dedicated checking page. The page requires no private key and checks whatever the user selects: one audit log, or a directory of audit logs, defaulting to the installation's own audit log directory. OWLCMS does not copy, collect or compare logs; choosing the evidence is the user's decision.
 
 The normal dispute procedure is: copy the retained logs from the removable device into the audit log directory of a clean installation of the official OWLCMS version, then run the checker there. The checker may also be run on a competition machine that is in production. It detects any alteration of sealed content there, but a fingerprint that matches the machine's own key is not evidence that the key was never substituted; that is established only by the delegate's visual comparison against the fingerprint photographed in advance.
 
@@ -761,7 +761,7 @@ Benchmark representative concurrent platform traffic before selecting final batc
 
 ### 8.1 Preparation Page
 
-The `/admin` route adds a **Prepare Audit Integrity** action that opens a dedicated preparation page. It is restricted by the existing `/admin` access rules (`ADMIN_PAGES` role and localhost or backdoor access).
+The `/admin` route adds an **Audit Key Initialization** action that opens a dedicated preparation page. It is restricted by the existing `/admin` access rules (`ADMIN_PAGES` role and localhost or backdoor access).
 
 The preparation and checking pages share the same fingerprint computation and display format. Key generation uses only the JDK (Ed25519 is supported since Java 15) and needs no OpenSSL installation.
 
@@ -800,11 +800,11 @@ The About page ([InfoNavigationContent.java](../owlcms/src/main/java/app/owlcms/
 
 ### 8.3 Procedure
 
-1. The competition director opens `/admin`, selects **Prepare Audit Integrity**, and confirms creation of the pending `auditkey.pem.new`. The technical delegate photographs the fingerprint shown on the preparation page.
+1. The competition director opens `/admin`, selects **Audit Key Initialization**, and confirms creation of the pending `auditkey.pem.new`. The technical delegate photographs the fingerprint shown on the preparation page.
 2. The page restarts OWLCMS. Startup promotes the pending key before audit logging begins. After reconnection, the director opens the About page and the delegate checks that the fingerprint shown there matches. This confirms that OWLCMS activated the key that was just generated, not a stale file or the built-in key.
 3. The delegate keeps the photo or sheet away from the competition machine. Its date establishes that it was recorded before the competition.
 4. If the key is ever replaced, the procedure is repeated and the new fingerprint is recorded the same way.
-5. In a dispute, an administrator copies the retained logs from the removable device into the audit log directory of a clean OWLCMS installation, opens **Check Audit Integrity** from `/admin`, and runs the check. For the disputed period, the delegate visually compares the fingerprint reported by the checking page with the fingerprint photographed before that period began. No fingerprint is typed at any stage.
+5. In a dispute, an administrator copies the retained logs from the removable device into the audit log directory of a clean OWLCMS installation, opens **Audit Integrity Verification** from `/admin`, and runs the check. For the disputed period, the delegate visually compares the fingerprint reported by the checking page with the fingerprint photographed before that period began. No fingerprint is typed at any stage.
 
 ### 8.4 Existing Log When a Key Is Prepared
 

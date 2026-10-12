@@ -12,6 +12,7 @@ import com.vaadin.flow.router.AccessDeniedException;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
+import app.owlcms.access.AccessPolicy;
 import app.owlcms.access.Principal;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
@@ -82,32 +83,29 @@ public class AdminView extends Composite<VerticalLayout> implements HasDynamicTi
 		HorizontalLayout reloadTranslationsAction = new HorizontalLayout(reloadTranslations,
 		        reloadTranslationsFromGoogleSheets, reloadTranslationsNote);
 		reloadTranslationsAction.setAlignItems(FlexComponent.Alignment.CENTER);
-		Button repairBirthDates = new Button("Repair Birth Dates", event -> {
-			BirthDateRepairDialog dialog = new BirthDateRepairDialog(event.getSource());
-			dialog.open();
-		});
-		Span repairBirthDatesNote = new Span("Add one day to selected athlete birth dates");
-		repairBirthDatesNote.getStyle().set("color", "var(--lumo-secondary-text-color)");
-		HorizontalLayout repairBirthDatesAction = new HorizontalLayout(repairBirthDates, repairBirthDatesNote);
-		repairBirthDatesAction.setAlignItems(FlexComponent.Alignment.CENTER);
-		Button repairBirthYears = new Button("Repair Birth Years", event -> {
-			BirthYearRepairDialog dialog = new BirthYearRepairDialog(event.getSource());
-			dialog.open();
-		});
-		Span repairBirthYearsNote = new Span(
-		        "Move selected birth dates to January 1 of the following year");
-		repairBirthYearsNote.getStyle().set("color", "var(--lumo-secondary-text-color)");
-		HorizontalLayout repairBirthYearsAction = new HorizontalLayout(repairBirthYears, repairBirthYearsNote);
-		repairBirthYearsAction.setAlignItems(FlexComponent.Alignment.CENTER);
+		Button backup = new Button(Translator.translate("Backup.Title"),
+				event -> event.getSource().getUI().ifPresent(ui -> ui.navigate(BackupView.class)));
 		Button prepareAudit = new Button(Translator.translate("AuditIntegrity.PrepareTitle"),
 				event -> event.getSource().getUI().ifPresent(ui -> ui.navigate(AuditIntegrityPreparationView.class)));
 		Button checkAudit = new Button(Translator.translate("AuditIntegrity.CheckTitle"),
 				event -> event.getSource().getUI().ifPresent(ui -> ui.navigate(AuditIntegrityCheckView.class)));
-		Button snapshotAudit = new Button(Translator.translate("AuditSnapshot.Title"),
-				event -> event.getSource().getUI().ifPresent(ui -> ui.navigate(AuditSnapshotView.class)));
 
-		content.add(title, stop, restart, reloadTranslationsAction, separator(), repairBirthDatesAction,
-		        repairBirthYearsAction, separator(), prepareAudit, snapshotAudit, checkAudit);
+		content.add(title, stop, restart, reloadTranslationsAction, separator(), backup, separator(), prepareAudit,
+		        checkAudit);
+	}
+
+	/**
+	 * The side-menu entry is offered only to signed-in administrator accounts that would pass
+	 * {@link #checkLocalAccess()}; PIN-mode sessions reach the page by its URL.
+	 */
+	public static boolean isMenuEntryAvailable() {
+		Principal principal = OwlcmsSession.getPrincipal();
+		if (principal == null || principal.source() != Principal.AuthSource.ACCOUNT
+		        || !AccessPolicy.isAdmin(principal)) {
+			return false;
+		}
+		String clientIp = AccessUtils.getClientIp();
+		return AccessUtils.isLocalhost(clientIp) || AccessUtils.checkBackdoor(clientIp);
 	}
 
 	private Hr separator() {

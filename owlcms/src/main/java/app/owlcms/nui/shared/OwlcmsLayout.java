@@ -49,6 +49,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.admin.AdminView;
 import app.owlcms.nui.displays.DisplayNavigationContent;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.home.InfoNavigationContent;
@@ -460,6 +461,9 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 		addTabIfAllowed(tabs, new Icon(VaadinIcon.TROPHY), Translator.translate("RecordEvent.PageTitle"), RecordContent.class);
 		tabs.add(createTab(new Icon(VaadinIcon.QUESTION_CIRCLE), Translator.translate("Documentation_Menu"), docOpener));
 		addTabIfAllowed(tabs, new Icon(VaadinIcon.INFO_CIRCLE_O), Translator.translate("About"), InfoNavigationContent.class);
+		if (AdminView.isMenuEntryAvailable()) {
+			tabs.add(createTab(new Icon(VaadinIcon.TOOLS), Translator.translate("Admin.Menu"), AdminView.class));
+		}
 
 		Translator.translate("RunLiftingGroup");
 		tabs.setOrientation(Tabs.Orientation.VERTICAL);
