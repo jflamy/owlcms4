@@ -329,8 +329,11 @@ public final class AuditIntegrityChecker {
 		}
 		try (Stream<Path> stream = Files.list(evidence)) {
 			return stream.filter(Files::isRegularFile)
-					.filter(path -> path.getFileName().toString().contains("_full")
-							&& path.getFileName().toString().endsWith(".log"))
+					.filter(path -> {
+						String name = path.getFileName().toString();
+						return (name.contains(AuditFileStore.SEALED_INFIX) || name.contains("_full"))
+								&& name.endsWith(".log");
+					})
 					.sorted(Comparator.comparing(path -> path.getFileName().toString())).toList();
 		}
 	}

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
 /** Startup-frozen integrity configuration and signing identity. */
@@ -51,6 +52,9 @@ public final class AuditIntegrity {
 				logger.info("Sealed audit logging enabled keySource={} fingerprint={} forcedByKey={}",
 						loaded.signingKey().isBuiltin() ? "builtin" : "configured",
 						loaded.signingKey().fingerprint(), loaded.forcedByKey());
+				// the built-in key's fingerprint is public, so only a configured key provides a usable fingerprint
+				StartupUtils.getStartupLogger().info("Audit Integrity: active, fingerprinting {}",
+						loaded.signingKey().isBuiltin() ? "off" : "on");
 			} else {
 				logger.info("Audit integrity mode is off");
 			}

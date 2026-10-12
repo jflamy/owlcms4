@@ -212,7 +212,7 @@ public class SealedAuditStreamTest {
 	private static SealedAuditStream stream(OutputStream out, AuditSigningQueue queue, AuditSealLimits limits,
 			AtomicLong nanos, String platform) throws Exception {
 		return new SealedAuditStream(out, AuditSigningKey.builtin(), queue, limits, CLOCK, nanos::get,
-				platform, "run-123", platform + "_full_fixture.log", "69.0.0", bytes("1 | audit.open\n"), null, null);
+				platform, "run-123", platform + "_sealed_fixture.log", "69.0.0", bytes("1 | audit.open\n"), null, null);
 	}
 
 	private static List<AuditMarker> markers(ByteArrayOutputStream output) throws IOException {

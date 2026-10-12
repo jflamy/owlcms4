@@ -83,7 +83,7 @@ When effective `iwfCompliance` is off:
 
 - audit records are written without `FIRST`, `CONTINUE`, `SEAL` or `FINAL`;
 - no signing key is loaded or promoted;
-- ordinary non-integrity audit rollover applies;
+- each stream is written to `<stream>_full_<time>.log`, holding the full records and starting with `audit.open`, and to its plain companion `<stream>_plain_<time>.log` (§2.1); each process run starts a new pair, and a pair also rolls when its full file reaches the size target (§2.4);
 - the checker reports such input as unsealed rather than altered.
 
 When effective `iwfCompliance` is on, all requirements in §§2–3 and §6 apply.
@@ -232,7 +232,7 @@ The new file resets its sequence and starts:
 ```text
 record 1: audit.open {
   runId: same process run,
-  previousFile: A_full_2026-10-08T09-16-40.123Z.log,
+  previousFile: A_sealed_2026-10-08T09-16-40.123Z.log,
   previousBlockSha256: H47,
   ...
 }
@@ -241,7 +241,7 @@ CONTINUE {
   firstLine: 1,
   lastLine: 1,
   sha256: H48,
-  previousFile: A_full_2026-10-08T09-16-40.123Z.log,
+  previousFile: A_sealed_2026-10-08T09-16-40.123Z.log,
   previousBlockSha256: H47,
   signature: ...
 }
@@ -270,16 +270,16 @@ There is deliberately no block-chain link across process runs. The off-machine c
 
 ### 2.1 Capture and Batch
 
-For each `_full.log` stream:
+For each sealed stream (`<stream>_sealed_<time>.log`):
 
 1. Encode each ordinary audit record once, including its actual line terminator.
-2. Write those bytes through the normal appender and retain the same bytes in the active bounded batch.
+2. Write those bytes to the sealed file and retain the same bytes in the active bounded batch.
 3. Close the batch right after a natural boundary (a saved lift result, an athlete saved from the weigh-in or registration station, or 5 minutes of idle time with unsealed records), when the batch reaches its fallback age, record count or byte size, or at rollover, shutdown or finalization.
 4. Freeze the batch and transfer it to a background worker while logging continues into a new batch.
-5. Hash the frozen bytes with SHA-256, sign the seal payload with Ed25519, and return the completed seal to the owning appender.
+5. Hash the frozen bytes with SHA-256, sign the seal payload with Ed25519, and return the completed seal to the owning writer.
 6. Append the seal through the same serialized writer, bypassing ordinary audit capture so seals cannot recursively enter a batch.
 
-Only the `_full.log` streams are sealed. The readable `.log` is not sealed separately: each of its lines is the leading part of the corresponding `_full.log` line, ending just before ` | cause=`. Sealing the full line therefore covers the readable line, and the checker can regenerate the readable log from the sealed full log to confirm they agree.
+Only the `_sealed_` files are sealed. Each sealed file has a plain companion with the same stream prefix and time, `<stream>_plain_<time>.log`, written and rolled together with it. The plain file holds one line per audit event: the leading part of the corresponding sealed line, ending just before ` | cause=`, with the same sequence number. It omits `audit.open` and the markers, so it reads as a list of events. It is created with its first event, so a sealed file that holds no event yet has no plain companion. The plain file is not sealed separately: sealing the full line covers the plain line, and the checker can regenerate the plain file from the sealed file to confirm they agree.
 
 Batches are non-overlapping. Each ordinary record belongs to exactly one batch. Bound both individual batch size and total queued bytes. If the worker cannot keep up, apply defined backpressure or report an integrity-degraded state; never discard an unsealed batch silently.
 
@@ -321,7 +321,7 @@ The next file of the same run, created by size-based rollover:
 
 ```text
 <record 1: audit.open header, naming the previous file>
-CONTINUE {"version":1,"firstLine":1,"lastLine":1,"sha256":"H1","previousFile":"A_full_2026-10-08T09-16-40.123Z.log","previousBlockSha256":"<lastBlockSha256 from the previous FINAL>","keyFingerprint":"...","signature":"..."}
+CONTINUE {"version":1,"firstLine":1,"lastLine":1,"sha256":"H1","previousFile":"A_sealed_2026-10-08T09-16-40.123Z.log","previousBlockSha256":"<lastBlockSha256 from the previous FINAL>","keyFingerprint":"...","signature":"..."}
 <records 2 through 980>
 SEAL     {"version":1,"firstLine":2,"lastLine":980,"sha256":"H2","previousBlockSha256":"H1","keyFingerprint":"...","signature":"..."}
 ...
@@ -349,7 +349,7 @@ The examples above abbreviate the marker payloads. The complete signed schemas a
 | `marker` | `FIRST`, `CONTINUE`, `SEAL` or `FINAL`. |
 | `stream` | Audit stream, for example `competition` or `A`. |
 | `runId` | Process-run identifier from `audit.open`. |
-| `artifactName` | Relative `_full.log` filename containing the marker. |
+| `artifactName` | Relative `_sealed_` filename containing the marker. |
 | `sealedAt` | UTC time at which the marker was produced. |
 | `applicationVersion` | OWLCMS version. |
 | `keyFingerprint` | Full SHA-256 fingerprint of the signing public key. |
@@ -419,7 +419,7 @@ The public key is not secret. A verifier trusts it only when its fingerprint mat
 
 ### 2.4 Rollover, Shutdown and Failure
 
-The audit component owns authoritative `_full` file writing and rollover; it does not delegate rollover to Logback's `TimeBasedRollingPolicy`. Rollover is based on file size, not time:
+The audit component owns authoritative `_sealed_` file writing and rollover, together with the plain companions; it does not use Logback appenders or Logback's `TimeBasedRollingPolicy`. Rollover is based on file size, not time:
 
 1. Finish and seal the current block.
 2. If the file has reached the configured target size, append `FINAL`, flush and close it.
@@ -430,16 +430,18 @@ Rollover never splits a block. The file target is 10 MiB (10,485,760 bytes). A f
 Authoritative filenames contain the stream name and the UTC ISO date-time at which the file was opened. Colons are rendered as hyphens for filesystem portability:
 
 ```text
-A_full_2026-10-08T09-16-40.123Z.log
-A_full_2026-10-08T14-05-02.481Z.log
-competition_full_2026-10-08T09-16-40.127Z.log
+A_sealed_2026-10-08T09-16-40.123Z.log
+A_sealed_2026-10-08T14-05-02.481Z.log
+competition_sealed_2026-10-08T09-16-40.127Z.log
 ```
+
+Plain companions use the same names with `_plain_` in place of `_sealed_`. The ISO date-time sorts correctly, so `cat A_plain_*` lists a stream's events in order. When a later run appends to a sealed file (below), its plain companion is appended too, so sequence numbers restart within the file at each run.
 
 The ISO date-time makes sequencing implicit and the file is created with create-new semantics so an existing file is never overwritten. The signed `previousFile` plus `previousBlockSha256` link remains the authoritative order if the system clock is adjusted. Time does not trigger rollover.
 
 At orderly shutdown, close the partial batch, drain pending seals and append the signed `FINAL` line containing the current run's total audit-record count (§2.2). The file may be reopened in append mode by a later run if it remains below the rollover target; the previous `FINAL` then ends that run segment, not necessarily the physical file forever.
 
-The audit logging component owns this: it registers its own JVM shutdown hook to write `FINAL`, and does not depend on Logback stopping its appenders or on any other part of the application. Logback flushes each line as it is written, so records already written survive any exit. The hook runs on a normal exit, Ctrl-C or SIGTERM, but not on a forced kill, a JVM crash or a power loss, so `FINAL` is best-effort and is never relied upon.
+The audit logging component owns this: it registers its own JVM shutdown hook to write `FINAL`, and does not depend on Logback stopping its appenders or on any other part of the application. Each line is written to its file as it is produced, so records already written survive any exit. The hook runs on a normal exit, Ctrl-C or SIGTERM, but not on a forced kill, a JVM crash or a power loss, so `FINAL` is best-effort and is never relied upon.
 
 Before declaring a generation complete, read it back and compare every covered range with its signed commitment. Do not sign bytes reread from disk as a replacement for lost original batches.
 
@@ -657,7 +659,7 @@ OWLCMS does not retain downloaded JSON files, and the integrity checker does not
 
    `shasum -a 256 disputed.json` must produce the same hexadecimal value.
 2. Note the exact byte length using an operating-system tool.
-3. Search the sealed `_full` audit logs for an `export.json` event with the same `sha256` and `bytes` values. The V2 `exportDate` and audit timestamp may help narrow the search, but the operator chooses the audit event; the checker does not infer it.
+3. Search the sealed audit files (`_sealed_`) for an `export.json` event with the same `sha256` and `bytes` values. The V2 `exportDate` and audit timestamp may help narrow the search, but the operator chooses the audit event; the checker does not infer it.
 4. Verify the seal covering that selected audit event.
 
 Tests must confirm that Java's streaming SHA-256, `openssl dgst -sha256` and `shasum -a 256` produce the same hexadecimal digest for identical fixture bytes on supported platforms.
@@ -681,7 +683,7 @@ A loopback listener is not an acceptable substitute for removing server startup.
 
 ## 6. Completeness and Independent Retention
 
-The competition director periodically copies the rolled, finalized audit logs — files no longer being written — to a removable device or private network destination. This is an operational procedure; OWLCMS does not transfer the logs or require a receiving protocol. The file currently being written is not locked, so it can be copied, but the copy is only the prefix that existed at that instant; it has no `FINAL` and the checker reports it as `PARTIAL`. The **Audit Log Snapshot** admin action (`/admin/audit/snapshot`) gives the director a quiet point to copy from: it optionally writes a database export (recorded as `export.json` with `channel=audit`), writes an `audit.snapshot` line, forces every sealed stream into a new file so all previous files are finalized, and downloads a zip of the entire `logs` tree — sealed audit files, readable audit files and application logs alike, since the snapshot doubles as a diagnostic backup — optionally with the `local` folder. Only the sealed files just opened by the roll are omitted, as they hold nothing yet. Checked, the sealed files from this run are `COMPLETE`; a tail left by an earlier crash is reported as `PARTIAL`, as it should be.
+The competition director periodically copies the rolled, finalized audit logs — files no longer being written — to a removable device or private network destination. This is an operational procedure; OWLCMS does not transfer the logs or require a receiving protocol. The file currently being written is not locked, so it can be copied, but the copy is only the prefix that existed at that instant; it has no `FINAL` and the checker reports it as `PARTIAL`. The **Audit Log Snapshot** admin action (`/admin/audit/snapshot`) gives the director a quiet point to copy from: it optionally writes a database export (recorded as `export.json` with `channel=audit`), writes an `audit.snapshot` line, forces every sealed stream into a new file so all previous files are finalized, and downloads a zip of the entire `logs` tree — sealed audit files, plain audit files and application logs alike, since the snapshot doubles as a diagnostic backup — optionally with the `local` folder. Only the sealed files just opened by the roll are omitted, as they hold nothing yet. Checked, the sealed files from this run are `COMPLETE`; a tail left by an earlier crash is reported as `PARTIAL`, as it should be.
 
 Each copy is kept as a timestamped snapshot and does not overwrite earlier snapshots. Full logs are copied, not only seals, because resolving a dispute requires the original records, not merely proof that something changed. Downloaded JSON files are not retained by OWLCMS or by this procedure.
 
@@ -734,8 +736,8 @@ Integrity: INTACT
 Coverage: PARTIAL
 Key protection: CONFIGURED
 
-Validated:     A_full_...log, run abc, records 1–1840
-Not validated: A_full_...log, run abc, records 1841–1847
+Validated:     A_sealed_...log, run abc, records 1–1840
+Not validated: A_sealed_...log, run abc, records 1841–1847
 Reason: records follow the last valid SEAL; FINAL is absent
 ```
 

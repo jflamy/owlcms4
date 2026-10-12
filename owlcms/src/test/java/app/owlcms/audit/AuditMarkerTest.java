@@ -24,7 +24,7 @@ import org.junit.rules.TemporaryFolder;
 public class AuditMarkerTest {
 	@Rule
 	public TemporaryFolder temporary = new TemporaryFolder();
-	private static final String FILE = "A_full_2026-10-08T11-12-00.000Z.log";
+	private static final String FILE = "A_sealed_2026-10-08T11-12-00.000Z.log";
 	private static final Instant TIME = Instant.parse("2026-10-08T11:12:00Z");
 
 	@Test
@@ -36,7 +36,7 @@ public class AuditMarkerTest {
 		AuditMarker.Block block = AuditMarker.Block.of(2, 3, bytes("2 | clock.start\n3 | referee.decision\n"));
 		List<AuditMarker> markers = List.of(
 				new AuditMarker.First(identity, header),
-				new AuditMarker.Continue(identity, header, "A_full_2026-10-08T11-00-00.000Z.log", header.sha256()),
+				new AuditMarker.Continue(identity, header, "A_sealed_2026-10-08T11-00-00.000Z.log", header.sha256()),
 				new AuditMarker.Seal(identity, block, header.sha256()),
 				new AuditMarker.Final(identity, 3, block.sha256()));
 		for (AuditMarker marker : markers) {
@@ -108,7 +108,7 @@ public class AuditMarkerTest {
 		String line = AuditMarkerCodec.render(signed);
 		for (String changed : List.of(
 				line.replace("\"runId\":\"run-123\"", "\"runId\":\"run-456\""),
-				line.replace(FILE, "A_full_other.log"),
+				line.replace(FILE, "A_sealed_other.log"),
 				line.replace("\"stream\":\"A\"", "\"stream\":\"B\""),
 				line.replace(TIME.toString(), "2026-10-08T11:12:01Z"),
 				line.replace("\"byteCount\":7", "\"byteCount\":8"))) {

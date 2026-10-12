@@ -15,13 +15,14 @@ Each checkpoint ends with reviewable behavior and is a candidate commit boundary
 - **Numeric limits:** agreed: 10 MiB files, 1 MiB / 500 ordinary records / five-minute maximum age per block, and 8 MiB total frozen data awaiting signing. Five-minute idle sealing remains an independent trigger.
 - **Checkpoint 4:** implemented and tested: typed marker schemas, canonical UTF-8 signed encoding, public-key verification, block-hash chaining and strict parsing. OpenSSL independently verifies a Java-signed fixture and rejects an altered fixture.
 - **Checkpoint 5 core:** implemented and tested: exact-byte stream capture, ordered asynchronous signing, the 8 MiB shared queue, explicit block boundaries, idle/age triggers, byte/count limits, and failure propagation. Production event hooks are deferred to Checkpoint 6 so they are connected together with the audit-owned file lifecycle rather than attached to Logback's old rollover.
-- **Checkpoint 6:** implemented and tested: audit-owned `_full` files with timestamped names, 10 MiB rollover with CONTINUE, restart append with a new FIRST, read-back verification, idle timer, shutdown FINAL, and degraded failure reporting. Production boundaries are wired: weigh-in/registration batch seals, a seal after each jury decision, and a seal once a lift result is saved (deferred until the enclosing event's audit line is written). About shows active or failed sealing. The lift end-to-end test reuses `TwoMinutesRuleTest` sequence 3 and checks that every `referee.decision` line is followed immediately by a SEAL.
+- **Checkpoint 6:** implemented and tested: audit-owned `_sealed_` files with timestamped names, 10 MiB rollover with CONTINUE, restart append with a new FIRST, read-back verification, idle timer, shutdown FINAL, and degraded failure reporting. Production boundaries are wired: weigh-in/registration batch seals, a seal after each jury decision, and a seal once a lift result is saved (deferred until the enclosing event's audit line is written). About shows active or failed sealing. The lift end-to-end test reuses `TwoMinutesRuleTest` sequence 3 and checks that every `referee.decision` line is followed immediately by a SEAL.
 - **Checkpoint 6 review:** production rollover, restart, orderly shutdown, abrupt-tail preservation and save boundaries agree with the specification. The step 7 fixtures now also cover restart after rollover and restart after a partially published marker.
 - **Checkpoint 7:** implemented and tested as a read-only, non-UI checker. It returns structured integrity, coverage and key-protection dimensions; validates exact bytes, marker signatures, block/range/predecessor links and cross-file continuations; reports validated and unvalidated ranges plus fingerprint coverage; supports inventory expectations and independent-file warnings. It checks only what the user selects; it does not copy or compare logs.
+- **Audit file layout:** with integrity on, each stream writes `<stream>_sealed_<time>.log` and a paired `<stream>_plain_<time>.log`, rolled together (size, Backup) and appended together after a restart. With integrity off, each run writes `<stream>_full_<time>.log` (unsealed, starting with `audit.open`) and `<stream>_plain_<time>.log`, rolling at the size target. Plain files hold event lines only, without `audit.open`. The Logback daily appender is no longer used for audit logs. An `audit.open` header takes the time of the adjacent record, so timestamps never go backwards in a file.
 - **Checkpoints 8 and 10:** not started.
 - **Checkpoint 9 (H2 TCP):** implemented and tested. The H2 TCP server and `H2ServerPort` / `OWLCMS_H2SERVERPORT` are removed; `H2UrlPolicy` accepts only `jdbc:h2:file:` and named `jdbc:h2:mem:` URLs, with options limited to `DB_CLOSE_DELAY`, `TRACE_LEVEL_FILE` and `TRACE_LEVEL_SYSTEM_OUT` (integer values, no duplicates). The configuration documentation is updated. `H2UrlPolicyTest`, `ConfigTest`, `ChampionshipDeleteTest` and `JsonV1ToV2ConversionTest` pass.
 - **Audit Log Snapshot:** implemented (see the section at the end). Forced rollover is tested at the file-store level, including that the resulting zip contents check `COMPLETE`.
-- **Validation:** audit suite (76 tests, including 15 checker tests), configuration, route access, JSON export/import and the FieldOfPlay regressions (`TwoMinutesRuleTest`, `ClockStartRestartTest`, `RecordsTest`) pass. Java Problems diagnostics are clean. Browser verification still requires a running instance.
+- **Validation:** audit suite (80 tests, including 15 checker tests), configuration, route access, JSON export/import and the FieldOfPlay regressions (`TwoMinutesRuleTest`, `ClockStartRestartTest`, `RecordsTest`) pass. Java Problems diagnostics are clean. Browser verification still requires a running instance.
 - No implementation changes have been committed.
 
 ## Checkpoint 0 — Freeze the Specifications
@@ -211,7 +212,7 @@ Prepare a development key, restart, and verify that the About-page fingerprint m
 
 Before sealing implementation, decide:
 
-- target `_full.log` file size: 10 MiB (10,485,760 bytes), agreed;
+- target sealed file size: 10 MiB (10,485,760 bytes), agreed;
 - maximum block byte count: 1 MiB (1,048,576 bytes), agreed;
 - maximum block record count: 500, agreed;
 - maximum block age during continuous activity: five minutes, agreed;
@@ -269,8 +270,8 @@ Generate and verify a small sealed fixture.
 
 Separate:
 
-- readable log: current human-readable behavior;
-- authoritative `_full.log`: integrity writer when effective `iwfCompliance` is on.
+- plain log: `<stream>_plain_<time>.log`, paired with its sealed or full file;
+- authoritative `<stream>_sealed_<time>.log`: integrity writer when effective `iwfCompliance` is on (`<stream>_full_<time>.log`, unsealed, when off).
 
 The integrity writer owns:
 
@@ -306,13 +307,13 @@ No-op when no records are unsealed. Add an explicit `AuditLog.closeBlock(stream,
 
 ### Checkpoint result
 
-Run a small competition flow and inspect readable/full logs block by block.
+Run a small competition flow and inspect plain/sealed logs block by block.
 
 ## Checkpoint 6 — Size Rollover, Restart, Shutdown and Crash Handling
 
 ### Work
 
-Replace Logback time rollover for authoritative `_full` logs with audit-owned size rollover.
+Replace Logback time rollover for authoritative sealed logs with audit-owned size rollover.
 
 At rollover:
 

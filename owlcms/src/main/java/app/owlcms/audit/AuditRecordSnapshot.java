@@ -5,12 +5,12 @@ import java.time.OffsetDateTime;
 import java.util.Locale;
 
 /** Captures mutable athlete/actor values before handing a record to the I/O worker. */
-public record AuditRecordSnapshot(String readableBody, String fullBody) {
+public record AuditRecordSnapshot(String readableBody, String fullBody, OffsetDateTime timestamp) {
 	public static AuditRecordSnapshot capture(AuditEntry entry, OffsetDateTime now) {
 		String readable = AuditFormat.format(0, entry, now, false);
 		String full = AuditFormat.format(0, entry, now, true);
 		return new AuditRecordSnapshot(readable.substring(readable.indexOf(" | ")),
-				full.substring(full.indexOf(" | ")));
+				full.substring(full.indexOf(" | ")), now);
 	}
 
 	public String readable(long sequence) {

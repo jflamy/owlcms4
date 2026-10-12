@@ -33,8 +33,11 @@ import java.util.stream.Stream;
 
 /** File lifecycle is confined to the audit I/O worker; signing publishes through each stream's output lock. */
 public final class AuditFileStore implements AutoCloseable {
-	private static final DateTimeFormatter NAME_TIME =
+	static final DateTimeFormatter NAME_TIME =
 			DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH-mm-ss.SSS'Z'").withZone(ZoneOffset.UTC);
+	static final String SEALED_INFIX = "_sealed_";
+	static final String PLAIN_INFIX = "_plain_";
+	static final String NAME_TIME_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}-\\d{2}-\\d{2}\\.\\d{3}Z";
 	private final Path directory;
 	private final AuditSigningKey key;
 	private final AuditSigningQueue signing;
@@ -43,9 +46,15 @@ public final class AuditFileStore implements AutoCloseable {
 	private final LongSupplier nanos;
 	private final String runId;
 	private final String version;
+	/** Notified after each event's plain line is written; audit.open headers are not plain lines. */
 	private final BiConsumer<String, String> readable;
 	private final Map<String, FileState> streams = new HashMap<>();
 	private final Map<String, String> filenames = new HashMap<>();
+	/*
+	 * Records reach this worker in capture order, so an audit.open header stamped with the time of an adjacent
+	 * record keeps timestamps in sequence order; the worker's own clock may already be later than queued records.
+	 */
+	private final Map<String, OffsetDateTime> lastTimestamps = new HashMap<>();
 	private boolean closed;
 
 	public AuditFileStore(Path directory, AuditSigningKey key, AuditSealLimits limits,
@@ -73,21 +82,26 @@ public final class AuditFileStore implements AutoCloseable {
 			if (owner != null && !owner.equals(stream)) {
 				throw new IOException("Audit platform names collide after filename sanitization");
 			}
-			state = open(stream, latest(prefix), null, null);
+			OffsetDateTime openedAt = records.isEmpty() ? OffsetDateTime.now(this.clock)
+					: records.getFirst().timestamp();
+			state = open(stream, latest(prefix), null, null, openedAt);
 			this.streams.put(stream, state);
 		}
 		for (AuditRecordSnapshot record : records) {
-			state = rollIfNeeded(stream, state);
+			state = rollIfNeeded(stream, state, record.timestamp());
 			long sequence = state.segment.nextSequence();
 			state.segment.append(record.full(sequence));
 			state.segment.awaitSeals();
-			this.readable.accept(stream, record.readable(sequence));
-			state = rollIfNeeded(stream, state);
+			String plainLine = record.readable(sequence);
+			state.plain.append(plainLine);
+			this.readable.accept(stream, plainLine);
+			this.lastTimestamps.put(stream, record.timestamp());
+			state = rollIfNeeded(stream, state, record.timestamp());
 		}
 		if (closeBlock) {
 			state.segment.closeBlock();
 			state.segment.awaitSeals();
-			rollIfNeeded(stream, state);
+			rollIfNeeded(stream, state, this.lastTimestamps.get(stream));
 		}
 	}
 
@@ -97,7 +111,7 @@ public final class AuditFileStore implements AutoCloseable {
 		if (state != null) {
 			state.segment.closeBlock();
 			state.segment.awaitSeals();
-			rollIfNeeded(platform, state);
+			rollIfNeeded(platform, state, this.lastTimestamps.get(platform));
 		}
 	}
 
@@ -106,7 +120,7 @@ public final class AuditFileStore implements AutoCloseable {
 		for (Map.Entry<String, FileState> entry : new ArrayList<>(this.streams.entrySet())) {
 			entry.getValue().segment.tick();
 			entry.getValue().segment.awaitSeals();
-			rollIfNeeded(entry.getKey(), entry.getValue());
+			rollIfNeeded(entry.getKey(), entry.getValue(), this.lastTimestamps.get(entry.getKey()));
 		}
 	}
 
@@ -147,6 +161,15 @@ public final class AuditFileStore implements AutoCloseable {
 					failure.addSuppressed(failed);
 				}
 			}
+			try {
+				state.plain.close();
+			} catch (IOException e) {
+				if (failure == null) {
+					failure = e;
+				} else {
+					failure.addSuppressed(e);
+				}
+			}
 		}
 		try {
 			this.signing.close();
@@ -162,33 +185,44 @@ public final class AuditFileStore implements AutoCloseable {
 		}
 	}
 
-	private FileState rollIfNeeded(String stream, FileState state) throws IOException {
+	private FileState rollIfNeeded(String stream, FileState state, OffsetDateTime openedAt) throws IOException {
 		if (state.output.bytes < this.limits.fileBytes()) {
 			return state;
 		}
-		return roll(stream, state);
+		return roll(stream, state, openedAt);
 	}
 
-	/** Finalizes every open file and continues each stream in a new one; returns the files now open. */
-	public Set<Path> rollAll() throws IOException {
+	/**
+	 * Finalizes every open file and continues each stream in a new one; returns the files now open.
+	 *
+	 * @param openedAt time for the new files' audit.open headers, captured in record order by the caller
+	 */
+	public Set<Path> rollAll(OffsetDateTime openedAt) throws IOException {
 		requireOpen();
 		Set<Path> open = new HashSet<>();
 		for (Map.Entry<String, FileState> entry : new ArrayList<>(this.streams.entrySet())) {
-			open.add(roll(entry.getKey(), entry.getValue()).path);
+			open.add(roll(entry.getKey(), entry.getValue(), openedAt).path);
 		}
 		return open;
 	}
 
-	private FileState roll(String stream, FileState state) throws IOException {
+	private FileState roll(String stream, FileState state, OffsetDateTime openedAt) throws IOException {
 		state.segment.close();
+		state.plain.close();
 		verifyCurrentSegment(state);
 		String previousHash = state.segment.lastBlockHash();
-		FileState next = open(stream, null, state.path.getFileName().toString(), previousHash);
+		FileState next = open(stream, null, state.path.getFileName().toString(), previousHash, openedAt);
 		this.streams.put(stream, next);
 		return next;
 	}
 
-	private FileState open(String stream, Path latest, String previousFile, String previousHash) throws IOException {
+	private FileState open(String stream, Path latest, String previousFile, String previousHash,
+			OffsetDateTime requestedOpenedAt) throws IOException {
+		OffsetDateTime previousStamp = this.lastTimestamps.get(stream);
+		OffsetDateTime openedAt = requestedOpenedAt != null ? requestedOpenedAt : OffsetDateTime.now(this.clock);
+		if (previousStamp != null && openedAt.isBefore(previousStamp)) {
+			openedAt = previousStamp;
+		}
 		String prefix = sanitize(stream);
 		Path path;
 		FileChannel channel;
@@ -200,13 +234,14 @@ public final class AuditFileStore implements AutoCloseable {
 			Path newest = latest(prefix);
 			if (newest != null) {
 				String name = newest.getFileName().toString();
-				Instant lastStamp = Instant.from(NAME_TIME.parse(name.substring(prefix.length() + 6, name.length() - 4)));
+				Instant lastStamp = Instant.from(NAME_TIME.parse(
+						name.substring(prefix.length() + SEALED_INFIX.length(), name.length() - 4)));
 				if (!stamp.isAfter(lastStamp)) {
 					stamp = lastStamp.plusMillis(1);
 				}
 			}
 			while (true) {
-				path = this.directory.resolve(prefix + "_full_" + NAME_TIME.format(stamp) + ".log");
+				path = this.directory.resolve(prefix + SEALED_INFIX + NAME_TIME.format(stamp) + ".log");
 				try {
 					channel = FileChannel.open(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
 					break;
@@ -234,12 +269,12 @@ public final class AuditFileStore implements AutoCloseable {
 				detail += "," + AuditFormat.kvs("previousFile", previousFile, "previousBlockSha256", previousHash);
 			}
 			AuditRecordSnapshot header = AuditRecordSnapshot.capture(AuditEntry.builder(stream, "audit.open")
-					.actor(AuditActor.system()).detail(detail).build(), OffsetDateTime.now(this.clock));
+					.actor(AuditActor.system()).detail(detail).build(), openedAt);
 			SealedAuditStream segment = new SealedAuditStream(output, this.key, this.signing, this.limits,
 					this.clock, this.nanos, stream, this.runId, path.getFileName().toString(), this.version,
 					header.full(1), previousFile, previousHash);
-			this.readable.accept(stream, header.readable(1));
-			return new FileState(path, start, output, segment);
+			this.lastTimestamps.put(stream, openedAt);
+			return new FileState(path, start, output, segment, new PlainFile(plainPath(prefix, path)));
 		} catch (IOException | RuntimeException e) {
 			try {
 				output.close();
@@ -251,8 +286,7 @@ public final class AuditFileStore implements AutoCloseable {
 	}
 
 	private Path latest(String prefix) throws IOException {
-		String pattern = Pattern.quote(prefix)
-				+ "_full_\\d{4}-\\d{2}-\\d{2}T\\d{2}-\\d{2}-\\d{2}\\.\\d{3}Z\\.log";
+		String pattern = Pattern.quote(prefix) + SEALED_INFIX + NAME_TIME_PATTERN + "\\.log";
 		try (Stream<Path> files = Files.list(this.directory)) {
 			return files.filter(path -> path.getFileName().toString().matches(pattern))
 					.max(Comparator.comparing(path -> path.getFileName().toString())).orElse(null);
@@ -335,7 +369,61 @@ public final class AuditFileStore implements AutoCloseable {
 		}
 	}
 
-	private record FileState(Path path, long start, ChannelOutput output, SealedAuditStream segment) {
+	/** The plain file pairs with its sealed file: same stream prefix and timestamp. */
+	private Path plainPath(String prefix, Path sealed) {
+		String name = sealed.getFileName().toString();
+		return this.directory.resolve(prefix + PLAIN_INFIX + name.substring(prefix.length() + SEALED_INFIX.length()));
+	}
+
+	private record FileState(Path path, long start, ChannelOutput output, SealedAuditStream segment,
+			PlainFile plain) {
+	}
+
+	/** Opened on its first line, so a file holding no events yet is never created. */
+	static final class PlainFile {
+		private final Path path;
+		private FileChannel channel;
+
+		PlainFile(Path path) {
+			this.path = path;
+		}
+
+		void append(String line) throws IOException {
+			if (this.channel == null) {
+				boolean needsNewline = false;
+				if (Files.exists(this.path) && Files.size(this.path) > 0) {
+					try (FileChannel read = FileChannel.open(this.path, StandardOpenOption.READ)) {
+						ByteBuffer last = ByteBuffer.allocate(1);
+						read.read(last, read.size() - 1);
+						needsNewline = last.array()[0] != '\n';
+					}
+				}
+				this.channel = FileChannel.open(this.path, StandardOpenOption.CREATE, StandardOpenOption.WRITE,
+						StandardOpenOption.APPEND);
+				if (needsNewline) {
+					write(new byte[] { '\n' });
+				}
+			}
+			write((line + "\n").getBytes(StandardCharsets.UTF_8));
+		}
+
+		private void write(byte[] data) throws IOException {
+			ByteBuffer buffer = ByteBuffer.wrap(data);
+			while (buffer.hasRemaining()) {
+				this.channel.write(buffer);
+			}
+		}
+
+		void close() throws IOException {
+			if (this.channel != null) {
+				try {
+					this.channel.force(false);
+				} finally {
+					this.channel.close();
+					this.channel = null;
+				}
+			}
+		}
 	}
 
 	private static final class ChannelOutput extends OutputStream {

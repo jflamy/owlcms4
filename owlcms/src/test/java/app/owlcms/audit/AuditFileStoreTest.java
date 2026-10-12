@@ -66,7 +66,60 @@ public class AuditFileStoreTest {
 			previous = segment;
 		}
 		assertEquals(12, seen);
-		assertEquals(12 + files.size(), readable.size());
+		assertEquals(12, readable.size());
+		assertPlainFilesMirrorSealedEvents(root, files);
+	}
+
+	@Test
+	public void plainFileFollowsItsSealedFileAcrossRestart() throws Exception {
+		Path root = temporary.getRoot().toPath();
+		try (AuditFileStore store = store(root, "run-1", AuditSealLimits.DEFAULT, new ArrayList<>())) {
+			store.append("A", List.of(record("referee.decision", "result=GOOD")), true);
+		}
+		try (AuditFileStore store = store(root, "run-2", AuditSealLimits.DEFAULT, new ArrayList<>())) {
+			store.append("A", List.of(record("clock.start", "clock=1:00")), true);
+		}
+		List<Path> sealed = files(root);
+		assertEquals(1, sealed.size());
+		List<String> plain = Files.readAllLines(plainFor(sealed.getFirst()), StandardCharsets.UTF_8);
+		assertEquals(2, plain.size());
+		assertTrue(plain.get(0).startsWith("    2 | ") && plain.get(0).contains("referee.decision"));
+		assertTrue(plain.get(1).startsWith("    2 | ") && plain.get(1).contains("clock.start"));
+		assertPlainFilesMirrorSealedEvents(root, sealed);
+	}
+
+	/**
+	 * Each plain file holds exactly the leading part of its sealed file's event lines, without audit.open; a sealed
+	 * file holding no event yet has no plain file.
+	 */
+	private static void assertPlainFilesMirrorSealedEvents(Path root, List<Path> sealed) throws IOException {
+		List<Path> plainFiles;
+		try (Stream<Path> paths = Files.list(root)) {
+			plainFiles = paths.filter(path -> path.getFileName().toString().contains(AuditFileStore.PLAIN_INFIX))
+					.sorted().toList();
+		}
+		int withEvents = 0;
+		for (Path file : sealed) {
+			List<String> expected = new ArrayList<>();
+			for (String line : Files.readAllLines(file, StandardCharsets.UTF_8)) {
+				if (line.contains(" | ") && !line.contains("audit.open") && !line.startsWith("FIRST ")
+						&& !line.startsWith("CONTINUE ") && !line.startsWith("SEAL ") && !line.startsWith("FINAL ")) {
+					expected.add(line.substring(0, line.indexOf(" | cause=")));
+				}
+			}
+			if (expected.isEmpty()) {
+				assertFalse(Files.exists(plainFor(file)));
+				continue;
+			}
+			withEvents++;
+			assertEquals(expected, Files.readAllLines(plainFor(file), StandardCharsets.UTF_8));
+		}
+		assertEquals(withEvents, plainFiles.size());
+	}
+
+	private static Path plainFor(Path sealed) {
+		return sealed.resolveSibling(sealed.getFileName().toString()
+				.replace(AuditFileStore.SEALED_INFIX, AuditFileStore.PLAIN_INFIX));
 	}
 
 	@Test
@@ -178,7 +231,7 @@ public class AuditFileStoreTest {
 		try (AuditFileStore store = store(root, "run-1", AuditSealLimits.DEFAULT, new ArrayList<>())) {
 			store.append("A", List.of(record("referee.decision", "result=GOOD")), true);
 			store.append("B", List.of(record("referee.decision", "result=NO_LIFT")), false);
-			java.util.Set<Path> open = store.rollAll();
+			java.util.Set<Path> open = store.rollAll(OffsetDateTime.now(CLOCK));
 			assertEquals(2, open.size());
 			List<Path> all = files(root);
 			assertEquals(4, all.size());
@@ -207,13 +260,59 @@ public class AuditFileStoreTest {
 			}
 			assertTrue(entries.contains("logs/owlcms.log"));
 			assertTrue(entries.contains("logs/audit/A.log"));
-			assertEquals(4, entries.size());
+			// owlcms.log, A.log, the two finalized sealed files and their two plain files
+			assertEquals(6, entries.size());
 			for (Path path : open) {
 				assertFalse(entries.contains("logs/audit/" + path.getFileName()));
 			}
 			AuditIntegrityChecker.Report report = AuditIntegrityChecker.check(extracted.resolve("logs/audit"));
 			assertEquals(AuditIntegrityChecker.Integrity.INTACT, report.integrity());
 			assertEquals(AuditIntegrityChecker.Coverage.COMPLETE, report.coverage());
+		}
+	}
+
+	@Test
+	public void openHeadersNeverPostdateTheRecordsThatFollowThem() throws Exception {
+		Path root = temporary.getRoot().toPath();
+		AuditSealLimits limits = new AuditSealLimits(4096, 500, Duration.ofMinutes(5),
+				Duration.ofMinutes(5), 8192, 4000);
+		// the I/O worker clock (CLOCK) is later than every record, as when records wait in the queue
+		OffsetDateTime start = OffsetDateTime.now(CLOCK).minusMinutes(10);
+		List<AuditRecordSnapshot> batch = new ArrayList<>();
+		for (int i = 0; i < 12; i++) {
+			batch.add(recordAt("athlete.change", "change=" + i, start.plusSeconds(i)));
+		}
+		try (AuditFileStore store = store(root, "run-1", limits, new ArrayList<>())) {
+			store.append("A", batch, true);
+			store.rollAll(start.plusSeconds(20));
+			store.append("A", List.of(recordAt("clock.start", "after=roll", start.plusSeconds(21))), true);
+		}
+		List<Path> files = files(root);
+		assertTrue(files.size() >= 3);
+		Pattern stamp = Pattern.compile("\\| timestamp=(\\S+) \\|");
+		OffsetDateTime previous = null;
+		for (Path file : files) {
+			boolean header = true;
+			for (String line : Files.readAllLines(file, StandardCharsets.UTF_8)) {
+				Matcher matcher = stamp.matcher(line);
+				if (!matcher.find()) {
+					continue;
+				}
+				OffsetDateTime current = OffsetDateTime.parse(matcher.group(1));
+				if (previous != null) {
+					assertFalse(file.getFileName() + ": " + line, current.isBefore(previous));
+				}
+				if (header) {
+					assertTrue(line.contains("audit.open"));
+					assertTrue(file.getFileName() + " header is later than the queued records",
+							current.isBefore(OffsetDateTime.now(CLOCK)));
+					if (file.equals(files.getFirst())) {
+						assertTrue(current.isEqual(start));
+					}
+					header = false;
+				}
+				previous = current;
+			}
 		}
 	}
 
@@ -226,8 +325,12 @@ public class AuditFileStoreTest {
 	}
 
 	static AuditRecordSnapshot record(String action, String detail) {
+		return recordAt(action, detail, OffsetDateTime.now(CLOCK));
+	}
+
+	static AuditRecordSnapshot recordAt(String action, String detail, OffsetDateTime at) {
 		return AuditRecordSnapshot.capture(AuditEntry.builder("A", action).actor(AuditActor.system())
-				.detail(detail).build(), OffsetDateTime.now(CLOCK));
+				.detail(detail).build(), at);
 	}
 
 	private static AuditFileStore store(Path root, String run, AuditSealLimits limits, List<String> readable)
@@ -238,7 +341,7 @@ public class AuditFileStoreTest {
 
 	static List<Path> files(Path root) throws IOException {
 		try (Stream<Path> paths = Files.list(root)) {
-			return paths.filter(path -> path.getFileName().toString().contains("_full_"))
+			return paths.filter(path -> path.getFileName().toString().contains(AuditFileStore.SEALED_INFIX))
 					.sorted().toList();
 		}
 	}

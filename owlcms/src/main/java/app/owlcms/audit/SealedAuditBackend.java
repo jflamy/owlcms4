@@ -3,6 +3,7 @@ package app.owlcms.audit;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Clock;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -95,10 +96,14 @@ public final class SealedAuditBackend implements AutoCloseable {
 		await(submit(256, true, this.store::tick));
 	}
 
-	/** Forces every stream into a new file so the previous files are finalized; returns the files now open. */
-	public Set<Path> rollover() throws IOException {
+	/**
+	 * Forces every stream into a new file so the previous files are finalized; returns the files now open.
+	 *
+	 * @param openedAt time for the new audit.open headers, captured in the same order as record timestamps
+	 */
+	public Set<Path> rollover(OffsetDateTime openedAt) throws IOException {
 		AtomicReference<Set<Path>> open = new AtomicReference<>();
-		await(submit(256, true, () -> open.set(this.store.rollAll())));
+		await(submit(256, true, () -> open.set(this.store.rollAll(openedAt))));
 		return open.get();
 	}
 

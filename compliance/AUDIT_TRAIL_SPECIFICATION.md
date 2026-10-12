@@ -41,6 +41,8 @@ The following records go to `competition`:
 
 Filesystem stream names are sanitized to `[A-Za-z0-9_-]`, replacing other characters with `_`. The original platform name remains in the full audit record.
 
+Each stream is written to timestamped files: `<stream>_plain_<time>.log` for the readable form (§5.1), and `<stream>_sealed_<time>.log` in integrity mode or `<stream>_full_<time>.log` otherwise for the full form (§5.2). Naming and rollover are specified in the integrity specification.
+
 ## 3. Actor and Station
 
 Each record has an `AuditActor`:
@@ -174,6 +176,8 @@ Example:
 ```text
   412 | 14:03:12.345 | MARSHAL      | athlete.change     | DOE, John | SN2 | change1 - -> 87
 ```
+
+The plain file is event-oriented: it omits the `audit.open` record that starts each full or sealed file.
 
 ### 5.2 Full form
 
