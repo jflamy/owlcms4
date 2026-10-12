@@ -29,6 +29,9 @@
 
 - 69.0.0: Event forwarding keys are securely encrypted in JSON database exports.
 
+- 69.0.0: The H2 database can no longer be opened by other programs while owlcms is running.
+  - The `H2ServerPort` / `OWLCMS_H2SERVERPORT` setting is removed. H2 database URLs must be `jdbc:h2:file:` or named `jdbc:h2:mem:`; server URLs and options such as `AUTO_SERVER`, `FILE_LOCK` and `INIT` are rejected at startup.
+
 - 69.0.0: VFE team reports flag category and team-size violations.
 
 - 69.0.0: Session selectors distinguish completed and upcoming sessions, with ordering appropriate to registration, weigh-in, and results.

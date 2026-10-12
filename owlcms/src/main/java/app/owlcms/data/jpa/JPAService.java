@@ -23,7 +23,6 @@ import static org.hibernate.cfg.AvailableSettings.USE_SECOND_LEVEL_CACHE;
 import static org.hibernate.cfg.AvailableSettings.USE_STRUCTURED_CACHE;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
-import org.h2.tools.Server;
 import org.hibernate.SessionFactory;
 import org.hibernate.dialect.H2Dialect;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
@@ -161,7 +159,6 @@ public class JPAService {
 	public static Properties processSettings(boolean inMemory, boolean reset) throws RuntimeException {
 		Properties properties;
 		String schemaGeneration = reset ? "drop-and-create" : "update";
-		boolean embeddedH2Server = false;
 
 		String postgresHost = StartupUtils.getRawStringParam("POSTGRES_HOST");
 		String userName = StartupUtils.getRawStringParam("JDBC_DATABASE_USERNAME");
@@ -181,20 +178,17 @@ public class JPAService {
 		}
 
 		if (jdbcUrlPresent) {
-			// explicit url provided
-			if (inMemory || (dbUrl != null && dbUrl.startsWith("jdbc:h2:mem"))) {
-				embeddedH2Server = true;
+			// explicit url provided; H2 is only allowed as an embedded, process-local database
+			if (H2UrlPolicy.isH2(dbUrl)) {
+				H2UrlPolicy.validate(dbUrl);
+			}
+			if (inMemory || dbUrl.startsWith(H2UrlPolicy.MEM_PREFIX)) {
 				properties = h2MemProperties(schemaGeneration, dbUrl, userName, password);
-			} else if (dbUrl != null && dbUrl.startsWith("jdbc:h2:file")) {
-				embeddedH2Server = true;
+			} else if (dbUrl.startsWith(H2UrlPolicy.FILE_PREFIX)) {
 				properties = h2FileProperties(schemaGeneration, dbUrl, userName, password);
-			} else if (dbUrl != null && dbUrl.startsWith("jdbc:h2:")) {
-				// remote h2
-				embeddedH2Server = false;
-				properties = h2ServerProperties(schemaGeneration, dbUrl, userName, password);
-			} else if (dbUrl != null && dbUrl.startsWith("jdbc:postgres")) {
+			} else if (dbUrl.startsWith("jdbc:postgres")) {
 				properties = pgProperties(schemaGeneration, dbUrl, null, null, null, userName, password);
-			} else if (dbUrl != null && dbUrl.startsWith("postgres")) {
+			} else if (dbUrl.startsWith("postgres")) {
 				properties = pgProperties(schemaGeneration, "jdbc:" + dbUrl, null, null, null, userName, password);
 			} else {
 				throw new RuntimeException("Unsupported database: " + dbUrl);
@@ -209,16 +203,11 @@ public class JPAService {
 			        password);
 		} else {
 			// local h2
-			embeddedH2Server = true;
 			if (inMemory) {
 				properties = h2MemProperties(schemaGeneration);
 			} else {
 				properties = h2FileProperties(schemaGeneration, dbUrl, userName, password);
 			}
-		}
-
-		if (embeddedH2Server) {
-			startH2EmbeddedServer();
 		}
 
 		return properties;
@@ -350,6 +339,7 @@ public class JPAService {
 		// keep the database even if all the connections have timed out
 		// to turn off transactions MVCC=FALSE;MV_STORE=FALSE;LOCK_MODE=0;
 		String url = dbUrl != null && !dbUrl.isBlank() ? dbUrl : "jdbc:h2:mem:owlcms;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4";
+		H2UrlPolicy.validate(url);
 		props.put(JPA_JDBC_URL, url);
 		props.put(JPA_JDBC_USER, userName != null ? userName : "sa");
 		props.put(JPA_JDBC_PASSWORD, password != null ? password : "");
@@ -402,42 +392,19 @@ public class JPAService {
 		Properties props = new Properties();
 		props.putAll(vals);
 
-		// use an explicit path as this allows connecting to the H2 server running
-		// embedded
 		String url;
-		String h2Options = ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4";
 		if (dbUrl == null) {
 			String databasePath = new File("database/owlcms-h2v2.mv.db").getAbsolutePath();
 			databasePath = databasePath.substring(0, databasePath.length() - ".mv.db".length());
-			url = "jdbc:h2:file:" + databasePath + h2Options;
+			url = H2UrlPolicy.FILE_PREFIX + databasePath;
 		} else {
-			url = dbUrl.replaceAll("\\.mv\\.db", "") + h2Options;
+			url = dbUrl.replaceAll("\\.mv\\.db", "");
 		}
+		url = H2UrlPolicy.withDefaultOptions(url, "DB_CLOSE_DELAY=-1", "TRACE_LEVEL_FILE=4");
+		H2UrlPolicy.validate(url);
 
 		startLogger.debug("Starting in directory {}", System.getProperty("user.dir"));
 		props.put(JPA_JDBC_URL, url);
-		props.put(JPA_JDBC_USER, userName != null ? userName : "sa");
-		props.put(JPA_JDBC_PASSWORD, password != null ? password : "");
-
-		props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
-		props.put(DIALECT, H2Dialect.class.getName());
-		props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
-
-		startLogger.info("Database: {}, inMemory={}, schema={}", url, false, schemaGeneration);
-		return props;
-	}
-
-	private static Properties h2ServerProperties(String schemaGeneration, String dbUrl, String userName,
-	        String password) {
-		setLocalDb(true);
-
-		ImmutableMap<String, Object> vals = jpaProperties();
-		Properties props = new Properties();
-		props.putAll(vals);
-
-		String url = dbUrl;
-		props.put(JPA_JDBC_URL, url);
-		startLogger.debug("Starting in directory {}", System.getProperty("user.dir"));
 		props.put(JPA_JDBC_USER, userName != null ? userName : "sa");
 		props.put(JPA_JDBC_PASSWORD, password != null ? password : "");
 
@@ -554,37 +521,6 @@ public class JPAService {
 
 		startLogger.info("Database: {}, schema={}", url, schemaGeneration);
 		return props;
-	}
-
-	/**
-	 * H2 can expose its embedded server on demand, as well as a console
-	 *
-	 * <p>
-	 * Not enabled by default, protected by a feature switch (<code>-DH2ServerPort=9092 or OWLCMS_H2SERVERPORT=9092</code>)
-	 * <p>
-	 * When using a tool to connect, such as the H2 console (<code>java -jar h2-1.4.200.jar</code>) or DBVisualizer, the the URL given to the tool must include
-	 * the absolute path to the database for example:
-	 *
-	 * <pre>
-	 * jdbc:h2:tcp://localhost:9092/c:/dev/git/owlcms4/owlcms/database/owlcms
-	 *
-	 * <pre>
-	 */
-	private static void startH2EmbeddedServer() {
-		try {
-			String h2ServerPort = StartupUtils.getStringParam("H2ServerPort");
-			if (h2ServerPort != null) {
-				int h2sp = Integer.parseInt(h2ServerPort);
-				if (h2sp > 0) {
-					logger.info("starting h2 server on port {}", h2ServerPort);
-					Server tcpServer = Server.createTcpServer(
-					        "-tcp", "-tcpAllowOthers", "-tcpPort", h2ServerPort, "-tcpDaemon");
-					tcpServer.start();
-				}
-			}
-		} catch (SQLException e) {
-			LoggerUtils.logError(logger, e);
-		}
 	}
 
 	private static void traceLeak() {
