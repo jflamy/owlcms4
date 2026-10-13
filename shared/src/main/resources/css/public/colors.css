@@ -120,10 +120,10 @@
   --RecordLiftTypeText: var(--TextColor);
   --RecordLiftTypeBorder: var(--TextColor);
 
-  --RecordHighlightBackground: darkOrange;
+  --RecordHighlightBackground: green;
   --RecordHighlightText: white;
-  --AttemptHighlightText: var(--videoHeaderTextColor);
-  --AttemptHighlightBackground: var(--videoHeaderBackgroundColor);
+  --AttemptHighlightText: white;
+  --AttemptHighlightBackground: purple;
 
 }
 

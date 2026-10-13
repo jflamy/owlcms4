@@ -1,1 +1,6 @@
 @import "../public/results.css";
+
+/* Video output is plain 16:9; the public theme's black letterbox bands do not apply. */
+:host {
+    background: transparent;
+}
