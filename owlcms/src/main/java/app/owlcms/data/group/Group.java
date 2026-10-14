@@ -573,10 +573,7 @@ public class Group implements Comparable<Group> {
 			minutesRemaining = cleanJerkBreakDuration;
 		} else {
 			minutesRemaining = 10;
-			List<Athlete> athletes = this.getAthletes().stream()
-			        .filter(a -> a.getBodyWeight() != null && a.getBodyWeight() > 0.1)
-			        .collect(Collectors.toList());
-			int size = athletes != null ? athletes.size() : 0;
+			int size = size();
 			if (cCur.getShorterBreakMin() != null && size > cCur.getShorterBreakMin()) {
 				minutesRemaining = (cCur.getShorterBreakDuration() != null ? cCur.getShorterBreakDuration() : 10);
 			} else if (cCur.getLongerBreakMax() != null && size < cCur.getLongerBreakMax()) {
@@ -1574,7 +1571,7 @@ public class Group implements Comparable<Group> {
 	}
 
 	public int size() {
-		return AthleteRepository.findAllByGroupAndWeighIn(this, null).size();
+		return getNbAthletes();
 	}
 
 	@Override
@@ -1687,8 +1684,16 @@ public class Group implements Comparable<Group> {
 		return lastCJDecisionTime;
 	}
 
+	/**
+	 * Returns the planned count until weigh-in data entry starts, then the weighed-in count.
+	 * Data entry is quick, the number will look wrong stange for that duration.
+	 */
 	public int getNbAthletes() {
-		return getAthletes().size();
+		List<Athlete> athletes = getAthletes();
+		int weighedInCount = (int) athletes.stream()
+		        .filter(a -> a.getBodyWeight() != null && a.getBodyWeight() > 0.1)
+		        .count();
+		return weighedInCount > 0 ? weighedInCount : athletes.size();
 	}
 
 	public int getNbAttemptedLifts() {

@@ -107,8 +107,12 @@ public class WeighInSheetOrderTest {
     }
 
     @Test
-    public void introductionBreakDurationUsesOnlyWeighedInAthletes() {
+    public void sessionSizeAndBreakDurationFollowWeighInProgress() {
         Competition competition = Competition.getCurrent();
+        Integer longerBreakMax = competition.getLongerBreakMax();
+        Integer longerBreakDuration = competition.getLongerBreakDuration();
+        Integer shorterBreakMin = competition.getShorterBreakMin();
+        Integer shorterBreakDuration = competition.getShorterBreakDuration();
         competition.setLongerBreakMax(2);
         competition.setLongerBreakDuration(15);
         competition.setShorterBreakMin(2);
@@ -116,10 +120,8 @@ public class WeighInSheetOrderTest {
 
         try {
             Athlete first = new Athlete();
-            first.setBodyWeight(70.0);
             Athlete absent = new Athlete();
             Athlete third = new Athlete();
-            third.setBodyWeight(85.0);
             List<Athlete> orderedAthletes = List.of(first, absent, third);
             Group group = new Group("break-test") {
                 @Override
@@ -128,13 +130,50 @@ public class WeighInSheetOrderTest {
                 }
             };
 
-            assertEquals(10, group.getCleanJerkBreakMinutes());
+            assertSessionSizeAndBreak(group, 3, 5);
+
+            absent.setBodyWeight(0.0);
+            third.setBodyWeight(0.1);
+            assertSessionSizeAndBreak(group, 3, 5);
+
+            first.setBodyWeight(70.0);
+            assertSessionSizeAndBreak(group, 1, 15);
+
+            third.setBodyWeight(85.0);
+            assertSessionSizeAndBreak(group, 2, 10);
+
+            absent.setBodyWeight(75.0);
+            assertSessionSizeAndBreak(group, 3, 5);
+
+            first.setBodyWeight(null);
+            absent.setBodyWeight(null);
+            third.setBodyWeight(null);
+            assertSessionSizeAndBreak(group, 3, 5);
         } finally {
-            competition.setLongerBreakMax(7);
-            competition.setLongerBreakDuration(10);
-            competition.setShorterBreakMin(9);
-            competition.setShorterBreakDuration(10);
+            competition.setLongerBreakMax(longerBreakMax);
+            competition.setLongerBreakDuration(longerBreakDuration);
+            competition.setShorterBreakMin(shorterBreakMin);
+            competition.setShorterBreakDuration(shorterBreakDuration);
         }
+    }
+
+    @Test
+    public void emptySessionHasZeroSize() {
+        Group group = new Group("empty-session") {
+            @Override
+            public List<Athlete> getAthletes() {
+                return List.of();
+            }
+        };
+
+        assertEquals(0, group.size());
+        assertEquals(0, group.getNbAthletes());
+    }
+
+    private void assertSessionSizeAndBreak(Group group, int expectedSize, int expectedBreakMinutes) {
+        assertEquals(expectedSize, group.size());
+        assertEquals(expectedSize, group.getNbAthletes());
+        assertEquals(expectedBreakMinutes, group.getCleanJerkBreakMinutes());
     }
 
     private static void persistAthlete(EntityManager em, Group group, String lastName,
