@@ -10,6 +10,8 @@
 
 **Maintenance Log**
 
+- 67.5.10: CJ break duration counts all session athletes before the first weigh-in, then counts only athletes who have weighed in.
+
 - 67.5.10: Fixed an error opening athlete registration/weigh-in when the competition date is unset (this issues a warning in the log that was failing).
 
 - 67.5.9: Explicitly set CJ Break values were being ignored. Should now be respected whether set before the session or updated during the snatch.
