@@ -10,7 +10,7 @@ The page contains several tabs.  The Information tab is the first one, for gener
 
 First, the name and other data about the competition and hosting federation is provided. This information appears on screens and documents.  At the minimum, provide the name and the date(s).
 
-![image-20260717184538614](img/020-CompetitionInformationAndRules/image-20260717184538614.png)
+![image-20261014082405199](img/020-CompetitionInformationAndRules/image-20261014082405199.png)
 
 ### Competition Rules
 
@@ -26,19 +26,15 @@ These rules are global to the competition.  The typical options to set/check are
 - If there is no Jury, set the Jury size to 0
 - The `Enter the body weight as read on scale` is useful to avoid calculations in the weigh-in room.  With that option, if a male athlete weighs 65,25 kg, you enter 65,25 kg.  The system will know that the athlete is allowed 0,25 kg and record him in the 65 kg category.  The only thing the officials have to know is that 65,26 is over the category threshold, they don't need to subtract.
 
-### Default Scoring and Medaling Rules
+### Scoring and Medaling Rules
 
-In OWLCMS, a Championship defines how medals, best athletes and team scores work.  This page defines the "template" that Championships follow by default.  These defaults are used for new Championships you create, or you can go to existing championships using the `Edit Championships` page and reset a championship to use these values.
-
-![image-20260717162444891](img/020-CompetitionInformationAndRules/image-20260717162444891.png)
-
-You will probably want to check the 3 settings in red:
+In OWLCMS, a Championship defines how medals, best athletes and team scores work. 
 
 - Are there medals awarded for total only (default) or for the 3 different events
 - How to determine the best athlete award (GAMX is the official IWF scoring system since May 2026).  You may still be using Sinclair, QPoints, SMHF, or Robi, for example
-- And whether there are team awards
+- And whether there are team awards, and how they are computed
 
-**Non-standard Rules**
+For details, go to the [Edit Championships](050-Championships.md) page
 
-Normally you don't need to change those.
+![image-20261014082638262](img/020-CompetitionInformationAndRules/image-20261014082638262.png)
 
