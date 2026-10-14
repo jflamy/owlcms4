@@ -10,6 +10,8 @@
 
 **Maintenance Log**
 
+- 68.0.0-rc15: Fixed the CJ break duration shown on the sessions page, as well as the athlete count for sessions where athletes did not weigh in.
+
 - 68.0.0-rc14: Championship editing reorganized under the "Championships, Medals and Teams" tab and the Define Championships page.
   - Each championship row has "Edit Medals and Team Rules", "Select Age Groups", "Reset to Template" and "Delete".
   - "Define Age Groups and Categories" and "Define Championship Template" buttons are next to the championship list; championships in use are listed first.
