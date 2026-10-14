@@ -4,13 +4,17 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Optional;
 import java.util.Set;
 
 public final class AuditKeyFiles {
@@ -70,6 +74,17 @@ public final class AuditKeyFiles {
 	}
 
 	public static AuditSigningKey prepare(Path active) throws IOException {
+		return prepare(active, false);
+	}
+
+	/**
+	 * Writes a new pending key beside the active one. The key is written to a staging file, reread and validated, and
+	 * only then moved to {@code .new}, so startup never finds a partially written pending key. The active key is never
+	 * modified.
+	 *
+	 * @param replacePending replace an existing pending key instead of failing
+	 */
+	public static AuditSigningKey prepare(Path active, boolean replacePending) throws IOException {
 		AuditSigningKey generated = AuditSigningKey.generate();
 		Path parent = active.toAbsolutePath().getParent();
 		boolean posix = active.getFileSystem().supportedFileAttributeViews().contains("posix");
@@ -81,16 +96,64 @@ public final class AuditKeyFiles {
 				: new FileAttribute<?>[0];
 		Files.createDirectories(parent, directoryAttributes);
 		Path pending = pendingPath(active);
-		try (FileChannel file = FileChannel.open(pending,
-				Set.of(StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE), fileAttributes)) {
-			ByteBuffer bytes = StandardCharsets.UTF_8.encode(generated.toPem());
-			while (bytes.hasRemaining()) {
-				file.write(bytes);
-			}
-			file.force(true);
+		if (!replacePending && exists(pending)) {
+			throw new FileAlreadyExistsException(pending.toString(), null, "A pending audit key already exists");
 		}
-		AuditSigningKey reread = AuditSigningKey.parsePem(Files.readString(pending, StandardCharsets.UTF_8));
-		if (!generated.fingerprint().equals(reread.fingerprint())) {
+		Path staging = stagingPath(active);
+		Files.deleteIfExists(staging);
+		try {
+			try (FileChannel file = FileChannel.open(staging,
+					Set.of(StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE), fileAttributes)) {
+				ByteBuffer bytes = StandardCharsets.UTF_8.encode(generated.toPem());
+				while (bytes.hasRemaining()) {
+					file.write(bytes);
+				}
+				file.force(true);
+			}
+			requireFingerprint(staging, generated);
+			if (replacePending) {
+				try {
+					Files.move(staging, pending, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+				} catch (AtomicMoveNotSupportedException e) {
+					Files.move(staging, pending, StandardCopyOption.REPLACE_EXISTING);
+				}
+			} else {
+				Files.move(staging, pending);
+			}
+		} finally {
+			Files.deleteIfExists(staging);
+		}
+		return requireFingerprint(pending, generated);
+	}
+
+	/** A pending key waiting for the next startup: either a valid key or the reason it cannot be used. */
+	public record PendingKey(AuditSigningKey key, String error) {
+		public boolean valid() {
+			return this.key != null;
+		}
+	}
+
+	/** @return empty when no pending key is waiting */
+	public static Optional<PendingKey> readPending(Path active) throws IOException {
+		Path pending = pendingPath(active);
+		if (!exists(pending)) {
+			return Optional.empty();
+		}
+		try {
+			return Optional.of(new PendingKey(AuditSigningKey.parsePem(Files.readString(pending, StandardCharsets.UTF_8)),
+					null));
+		} catch (IOException | RuntimeException e) {
+			return Optional.of(new PendingKey(null, e.getMessage()));
+		}
+	}
+
+	static Path stagingPath(Path active) {
+		return active.resolveSibling(active.getFileName() + ".new.tmp");
+	}
+
+	private static AuditSigningKey requireFingerprint(Path file, AuditSigningKey expected) throws IOException {
+		AuditSigningKey reread = AuditSigningKey.parsePem(Files.readString(file, StandardCharsets.UTF_8));
+		if (!expected.fingerprint().equals(reread.fingerprint())) {
 			throw new IOException("Prepared audit key fingerprint changed during writing");
 		}
 		return reread;

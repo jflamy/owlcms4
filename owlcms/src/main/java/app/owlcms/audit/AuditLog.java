@@ -117,6 +117,20 @@ public final class AuditLog {
 		return backend == null ? Set.of() : backend.rollover(OffsetDateTime.now());
 	}
 
+	/** The audit files this process is currently writing, sealed or not; empty when none can be determined. */
+	public static synchronized Set<Path> openFiles() {
+		SealedAuditBackend backend = sealed;
+		if (backend != null) {
+			try {
+				return backend.openFiles();
+			} catch (IOException e) {
+				logger.warn("Unable to list the open sealed audit files: {}", e.getMessage());
+				return Set.of();
+			}
+		}
+		return unsealed == null ? Set.of() : unsealed.openFiles();
+	}
+
 	private static void writePlain(AuditEntry entry) {
 		try {
 			unsealed().write(entry, OffsetDateTime.now());

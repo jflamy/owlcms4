@@ -9,9 +9,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import org.junit.Rule;
@@ -22,7 +25,10 @@ import app.owlcms.audit.AuditIntegrityChecker.Coverage;
 import app.owlcms.audit.AuditIntegrityChecker.Integrity;
 import app.owlcms.audit.AuditIntegrityChecker.Inventory;
 import app.owlcms.audit.AuditIntegrityChecker.KeyProtection;
+import app.owlcms.audit.AuditIntegrityChecker.RecordRange;
 import app.owlcms.audit.AuditIntegrityChecker.Report;
+import app.owlcms.audit.AuditIntegrityChecker.UnvalidatedReason;
+import app.owlcms.audit.AuditIntegrityReportText.FingerprintSummary;
 
 public class AuditIntegrityCheckerTest {
 	@Rule
@@ -65,6 +71,79 @@ public class AuditIntegrityCheckerTest {
 		assertEquals(List.of(new AuditIntegrityChecker.RecordRange(3, 3)),
 				report.segments().getFirst().unvalidatedRanges());
 		assertFalse(report.segments().getFirst().finalized());
+		assertFalse(report.segments().getFirst().beingWritten());
+		assertEquals(UnvalidatedReason.UNSEALED_TAIL, report.segments().getFirst().unvalidatedReason());
+		assertTrue(report.warnings().toString(),
+				report.warnings().stream().anyMatch(message -> message.contains("no FINAL")));
+	}
+
+	@Test
+	public void fileOpenInThisProcessIsReportedAsBeingWritten() throws Exception {
+		Path root = temporary.newFolder().toPath();
+		try (AuditFileStore store = store(root, AuditSigningKey.builtin(), "live", AuditSealLimits.DEFAULT)) {
+			store.append("A", List.of(record("athlete.change", "change=1")), true);
+			Set<Path> open = store.openFiles();
+			assertEquals(Set.of(AuditFileStoreTest.files(root).getFirst()), open);
+
+			Report sealed = AuditIntegrityChecker.check(root, Inventory.NONE, open);
+			assertEquals(Integrity.INTACT, sealed.integrity());
+			assertEquals("an open file is not expected to be finalized", Coverage.COMPLETE, sealed.coverage());
+			assertTrue(sealed.segments().getFirst().beingWritten());
+			assertTrue(sealed.segments().getFirst().unvalidatedRanges().isEmpty());
+			assertTrue(sealed.warnings().toString(), sealed.warnings().isEmpty());
+
+			store.append("A", List.of(record("clock.start", "clock=1:00")), false);
+			Report pending = AuditIntegrityChecker.check(root, Inventory.NONE, open);
+			assertEquals(Integrity.INTACT, pending.integrity());
+			assertEquals(Coverage.PARTIAL, pending.coverage());
+			assertEquals(List.of(new RecordRange(3, 3)), pending.segments().getFirst().unvalidatedRanges());
+			assertEquals(UnvalidatedReason.BEING_WRITTEN, pending.segments().getFirst().unvalidatedReason());
+			assertTrue(pending.warnings().toString(), pending.warnings().isEmpty());
+
+			Report copied = AuditIntegrityChecker.check(root);
+			assertEquals(UnvalidatedReason.UNSEALED_TAIL, copied.segments().getFirst().unvalidatedReason());
+			assertFalse(copied.segments().getFirst().beingWritten());
+		}
+	}
+
+	@Test
+	public void reportTextListsFilesRangesAndEachFingerprintInFull() throws Exception {
+		Path root = temporary.newFolder().toPath();
+		AuditFileStore store = store(root, AuditSigningKey.builtin(), "crashed", AuditSealLimits.DEFAULT);
+		store.append("A", List.of(record("athlete.change", "change=1")), true);
+		store.append("A", List.of(record("clock.start", "clock=1:00")), false);
+		store.abort();
+		Report report = AuditIntegrityChecker.check(root);
+		Function<String, String> label = key -> "<" + key + ">";
+
+		String details = AuditIntegrityReportText.details(report, label);
+		String builtin = AuditSigningKey.displayFingerprint(AuditSigningKey.BUILTIN_FINGERPRINT);
+		assertTrue(details, details.startsWith("<AuditCheck.Files>"));
+		assertTrue(details, details.contains(report.segments().getFirst().fileName()));
+		assertTrue(details, details.contains("<AuditCheck.Run> crashed"));
+		assertTrue(details, details.contains("<AuditCheck.NotFinalized>"));
+		assertTrue(details, details.contains("<AuditCheck.Fingerprint> " + builtin + "  (<AuditIntegrity.Builtin>)"));
+		assertTrue(details, details.contains("<AuditCheck.Validated> 1–2"));
+		assertTrue(details, details.contains("<AuditCheck.NotValidated> 3 — <AuditCheck.Reason.UNSEALED_TAIL>"));
+
+		List<FingerprintSummary> fingerprints = AuditIntegrityReportText.fingerprints(report,
+				label, ZoneOffset.UTC);
+		assertEquals(1, fingerprints.size());
+		assertEquals(builtin, fingerprints.getFirst().fingerprint());
+		assertTrue(fingerprints.getFirst().builtinKey());
+		String range = fingerprints.getFirst().ranges().getFirst();
+		assertTrue(range, range.contains("<AuditCheck.Records> 1–2"));
+		assertTrue(range, range.contains("2026-10-08 14:40:00 → 2026-10-08 14:40:00"));
+	}
+
+	@Test
+	public void reportTextOfUnsealedInputHasNoFingerprints() throws Exception {
+		Path root = temporary.newFolder().toPath();
+		Files.writeString(root.resolve("A_full.log"), "    1 | ordinary audit record\n");
+		Report report = AuditIntegrityChecker.check(root);
+		assertTrue(AuditIntegrityReportText.fingerprints(report, key -> key, ZoneOffset.UTC).isEmpty());
+		assertFalse(AuditIntegrityReportText.details(report, key -> key).contains("AuditCheck.Files"));
+		assertEquals("1–3, 5", AuditIntegrityReportText.ranges(List.of(new RecordRange(1, 3), new RecordRange(5, 5))));
 	}
 
 	@Test
@@ -103,6 +182,7 @@ public class AuditIntegrityCheckerTest {
 		assertEquals(Integrity.FAILED, report.integrity());
 		assertEquals(List.of(new AuditIntegrityChecker.RecordRange(2, 3)),
 				report.segments().getFirst().unvalidatedRanges());
+		assertEquals(UnvalidatedReason.AFTER_FAILURE, report.segments().getFirst().unvalidatedReason());
 	}
 
 	@Test

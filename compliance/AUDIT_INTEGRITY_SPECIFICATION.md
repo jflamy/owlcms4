@@ -701,7 +701,7 @@ The normal dispute procedure is: copy the retained logs from the removable devic
 
 No key or fingerprint is entered. The public key is read from each section's `audit.open`. The checker prints the fingerprint used for each covered range. For the disputed period, the technical delegate visually compares the reported fingerprint with the fingerprint photographed before that period began.
 
-Checking runs as a bounded background task so file reading, hashing and signature verification never block the Vaadin UI thread. The page uses `ui.access(...)` only to display progress and the completed report. The selected evidence is read-only: checking never modifies, repairs or re-signs a log.
+Checking runs as a bounded background task, one check at a time for the whole server, so file reading, hashing and signature verification never block the Vaadin UI thread. The page uses `ui.access(...)` only to display progress and the completed report. The selected evidence is read-only: checking never modifies, repairs or re-signs a log.
 
 The checker must:
 
@@ -709,7 +709,7 @@ The checker must:
 2. Read the embedded public key from each section and compute its fingerprint. The checker knows the built-in fingerprint (§3.0). Sections sealed with the built-in key receive every check below, exactly as for a real key, but are reported as unprotected.
 3. Verify every marker signature, every `previousBlockSha256` link, adjacent non-overlapping record ranges, and each `CONTINUE` against the named previous file's valid `FINAL` and matching `lastBlockSha256`.
 4. Detect changed, missing, duplicated, overlapping or reordered records and batches.
-5. Report records not covered by a valid seal (for example after a crash) as not validated, together with incomplete seals, missing streams and non-finalized runs. These conditions make coverage partial; they are not by themselves evidence that a sealed record was altered.
+5. Report records not covered by a valid seal (for example after a crash) as not validated, together with incomplete seals, missing streams and non-finalized runs. These conditions make coverage partial; they are not by themselves evidence that a sealed record was altered. Each not-validated range states its reason: not sealed yet, in a file that the OWLCMS running the check is still writing; written after the last seal, because the file was copied while being written or OWLCMS stopped abruptly; or not checked, because an earlier block of the file failed. The running OWLCMS knows which files it is writing; the open end of such a file is not expected to have `FINAL`. Whether another process is writing a file cannot be determined portably, so other files without `FINAL` are reported as copied while being written or stopped abruptly.
 6. Verify the competition inventory when one is supplied.
 7. Report results by file and run, showing run ID, fingerprint, covered and uncovered record ranges, signature status, coverage and key protection.
 8. End with a summary listing each distinct fingerprint found, prominently and in full, with its covered time and record ranges. For the disputed period, the technical delegate compares the reported fingerprint with the fingerprint photographed before that period began. If several fingerprints cover the disputed period, each must be compared.
@@ -777,6 +777,12 @@ Otherwise, the preparation page may create `auditkey.pem.new` even while integri
 6. Triggers the repository-standard OWLCMS restart. The restart is not triggered after a write or validation failure.
 
 Preparation never modifies the active `auditkey.pem`. A failure leaves the existing key untouched.
+
+The key is first written to `auditkey.pem.new.tmp`, reread and validated, and only then moved to `auditkey.pem.new`, so startup never finds a partially written pending key.
+
+The page shows the fingerprint of the active key (or that integrity mode is off, or that the built-in key is in use) and the key file location. If a pending key is already waiting, the page shows its fingerprint and offers both a restart to activate it and the replacement of that pending key by a new one; a fingerprint recorded for the replaced pending key no longer applies. An invalid pending key is reported as such, since startup would refuse it.
+
+When OWLCMS was not started by the control panel, the repository-standard restart only stops OWLCMS. The page then labels the action as a stop and tells the operator to start OWLCMS again.
 
 At startup, before audit logging is initialized:
 

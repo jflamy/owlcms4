@@ -103,7 +103,12 @@ public final class AuditSigningKey {
 	}
 
 	public String displayFingerprint() {
-		return this.fingerprint.replaceAll("(.{4})(?!$)", "$1 ");
+		return displayFingerprint(this.fingerprint);
+	}
+
+	/** Groups of four hexadecimal digits, shared by every page that shows a fingerprint. */
+	public static String displayFingerprint(String fingerprint) {
+		return fingerprint == null ? "-" : fingerprint.replaceAll("(.{4})(?!$)", "$1 ");
 	}
 
 	public boolean isBuiltin() {

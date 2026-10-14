@@ -12,7 +12,9 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Audit files written when integrity mode is off: {@code <stream>_plain_<time>.log} holds the readable event lines and
@@ -31,6 +33,13 @@ final class UnsealedAuditFiles {
 		this.directory = directory;
 		this.fileBytes = fileBytes;
 		this.openDetail = openDetail;
+	}
+
+	/** The full files currently being written, one per stream. */
+	Set<Path> openFiles() {
+		Set<Path> open = new HashSet<>();
+		this.streams.values().forEach(pair -> open.add(pair.path));
+		return open;
 	}
 
 	void write(AuditEntry entry, OffsetDateTime now) throws IOException {
@@ -60,7 +69,7 @@ final class UnsealedAuditFiles {
 				try {
 					FileChannel channel = FileChannel.open(full, StandardOpenOption.CREATE_NEW,
 							StandardOpenOption.WRITE);
-					Pair pair = new Pair(channel, new AuditFileStore.PlainFile(plain));
+					Pair pair = new Pair(full, channel, new AuditFileStore.PlainFile(plain));
 					pair.appendFull(AuditFormat.format(++pair.sequence, AuditEntry.builder(stream, "audit.open")
 							.actor(AuditActor.system()).detail(this.openDetail).build(), now, true));
 					return pair;
@@ -73,12 +82,14 @@ final class UnsealedAuditFiles {
 	}
 
 	private static final class Pair {
+		private final Path path;
 		private final FileChannel full;
 		private final AuditFileStore.PlainFile plain;
 		private long fullBytes;
 		private long sequence;
 
-		Pair(FileChannel full, AuditFileStore.PlainFile plain) {
+		Pair(Path path, FileChannel full, AuditFileStore.PlainFile plain) {
+			this.path = path;
 			this.full = full;
 			this.plain = plain;
 		}

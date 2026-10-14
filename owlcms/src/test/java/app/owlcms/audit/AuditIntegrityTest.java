@@ -147,4 +147,41 @@ public class AuditIntegrityTest {
 					Files.getPosixFilePermissions(AuditKeyFiles.pendingPath(active)));
 		}
 	}
+
+	@Test
+	public void replacingAPendingKeyLeavesTheActiveKeyAndNoStagingFile() throws Exception {
+		Path active = AuditKeyFiles.resolvePath(null, temporary.getRoot().toPath());
+		Files.createDirectories(active.getParent());
+		AuditSigningKey current = AuditSigningKey.generate();
+		Files.writeString(active, current.toPem());
+		AuditSigningKey first = AuditKeyFiles.prepare(active);
+		AuditSigningKey second = AuditKeyFiles.prepare(active, true);
+		assertFalse(first.fingerprint().equals(second.fingerprint()));
+		assertEquals(second.fingerprint(),
+				AuditSigningKey.parsePem(Files.readString(AuditKeyFiles.pendingPath(active))).fingerprint());
+		assertEquals(current.toPem(), Files.readString(active));
+		assertFalse(Files.exists(AuditKeyFiles.stagingPath(active)));
+		if (active.getFileSystem().supportedFileAttributeViews().contains("posix")) {
+			assertEquals(Set.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE),
+					Files.getPosixFilePermissions(AuditKeyFiles.pendingPath(active)));
+		}
+		AuditIntegrity.State state = AuditIntegrity.load(false, false, null, null, temporary.getRoot().toPath());
+		assertEquals(second.fingerprint(), state.signingKey().fingerprint());
+	}
+
+	@Test
+	public void pendingKeyIsReportedAsAbsentValidOrInvalid() throws Exception {
+		Path active = AuditKeyFiles.resolvePath(null, temporary.getRoot().toPath());
+		assertTrue(AuditKeyFiles.readPending(active).isEmpty());
+		AuditSigningKey prepared = AuditKeyFiles.prepare(active);
+		AuditKeyFiles.PendingKey valid = AuditKeyFiles.readPending(active).orElseThrow();
+		assertTrue(valid.valid());
+		assertEquals(prepared.fingerprint(), valid.key().fingerprint());
+		Files.writeString(AuditKeyFiles.pendingPath(active), "incomplete");
+		AuditKeyFiles.PendingKey invalid = AuditKeyFiles.readPending(active).orElseThrow();
+		assertFalse(invalid.valid());
+		assertTrue(invalid.error() != null && !invalid.error().isBlank());
+		AuditSigningKey replacement = AuditKeyFiles.prepare(active, true);
+		assertEquals(replacement.fingerprint(), AuditKeyFiles.readPending(active).orElseThrow().key().fingerprint());
+	}
 }

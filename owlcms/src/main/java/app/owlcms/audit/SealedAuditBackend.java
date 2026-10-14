@@ -107,6 +107,13 @@ public final class SealedAuditBackend implements AutoCloseable {
 		return open.get();
 	}
 
+	/** The sealed files currently being written; queried on the I/O worker that owns them. */
+	public Set<Path> openFiles() throws IOException {
+		AtomicReference<Set<Path>> open = new AtomicReference<>();
+		await(submit(256, true, () -> open.set(this.store.openFiles())));
+		return open.get();
+	}
+
 	public void drain() throws IOException {
 		await(submit(256, true, this.store::awaitSeals));
 	}

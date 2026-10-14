@@ -36,6 +36,16 @@ public final class AuditIntegrityChecker {
 		CONFIGURED, BUILTIN, MIXED, NONE
 	}
 
+	/** Why a segment's records are not validated. */
+	public enum UnvalidatedReason {
+		/** The file is being written by the OWLCMS running the check; the records await the next seal. */
+		BEING_WRITTEN,
+		/** Records follow the last seal: the file was copied while being written, or OWLCMS stopped abruptly. */
+		UNSEALED_TAIL,
+		/** Records were not checked because an earlier block of the segment failed. */
+		AFTER_FAILURE
+	}
+
 	public record RecordRange(long firstRecord, long lastRecord) {
 		public RecordRange {
 			if (firstRecord < 1 || lastRecord < firstRecord) {
@@ -44,9 +54,14 @@ public final class AuditIntegrityChecker {
 		}
 	}
 
+	/**
+	 * @param beingWritten       the segment is the open end of a file that the running OWLCMS is writing
+	 * @param unvalidatedReason  why {@code unvalidatedRanges} are not validated; null when there are none
+	 */
 	public record SegmentResult(String fileName, String stream, String runId, String fingerprint,
-			boolean builtinKey, boolean finalized, List<RecordRange> validatedRanges,
-			List<RecordRange> unvalidatedRanges, Instant firstSealedAt, Instant lastSealedAt) {
+			boolean builtinKey, boolean finalized, boolean beingWritten, List<RecordRange> validatedRanges,
+			List<RecordRange> unvalidatedRanges, UnvalidatedReason unvalidatedReason, Instant firstSealedAt,
+			Instant lastSealedAt) {
 		public SegmentResult {
 			validatedRanges = List.copyOf(validatedRanges);
 			unvalidatedRanges = List.copyOf(unvalidatedRanges);
@@ -95,13 +110,21 @@ public final class AuditIntegrityChecker {
 	}
 
 	public static Report check(Path evidence, Inventory inventory) throws IOException {
+		return check(evidence, inventory, Set.of());
+	}
+
+	/**
+	 * @param openFiles files the running OWLCMS is currently writing; their open end is reported as being written
+	 *                  rather than as an abrupt stop, and is not expected to be finalized
+	 */
+	public static Report check(Path evidence, Inventory inventory, Set<Path> openFiles) throws IOException {
 		List<Path> files = evidenceFiles(evidence);
 		List<SegmentState> segments = new ArrayList<>();
 		List<String> failures = new ArrayList<>();
 		List<String> warnings = new ArrayList<>();
 		Set<String> unsealedFiles = new LinkedHashSet<>();
 		for (Path file : files) {
-			checkFile(file, segments, failures, warnings, unsealedFiles);
+			checkFile(file, isOpen(file, openFiles), segments, failures, warnings, unsealedFiles);
 		}
 		if (segments.isEmpty()) {
 			if (!inventory.files().isEmpty() || !inventory.streams().isEmpty()) {
@@ -129,7 +152,7 @@ public final class AuditIntegrityChecker {
 			if (segment.key != null) {
 				keyKinds.add(segment.key.isBuiltin());
 			}
-			if (!result.unvalidatedRanges().isEmpty() || !result.finalized()) {
+			if (!result.unvalidatedRanges().isEmpty() || !result.finalized() && !result.beingWritten()) {
 				partial = true;
 			}
 			if (!result.validatedRanges().isEmpty() && result.fingerprint() != null) {
@@ -152,7 +175,22 @@ public final class AuditIntegrityChecker {
 				results, fingerprints, failures, warnings);
 	}
 
-	private static void checkFile(Path file, List<SegmentState> segments, List<String> failures,
+	private static boolean isOpen(Path file, Set<Path> openFiles) {
+		for (Path open : openFiles) {
+			try {
+				if (Files.isSameFile(open, file)) {
+					return true;
+				}
+			} catch (IOException e) {
+				if (open.toAbsolutePath().normalize().equals(file.toAbsolutePath().normalize())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private static void checkFile(Path file, boolean open, List<SegmentState> segments, List<String> failures,
 			List<String> warnings, Set<String> unsealedFiles) throws IOException {
 		List<RawLine> lines = lines(Files.readAllBytes(file));
 		boolean claimsSealing = lines.stream().anyMatch(line -> isMarker(line.text())
@@ -180,7 +218,7 @@ public final class AuditIntegrityChecker {
 			Long sequence = sequence(line.text());
 			if (sequence != null && sequence == 1 && isAuditOpen(line.text())) {
 				if (current != null) {
-					current.finish(warnings);
+					current.finish(warnings, false);
 					segments.add(current);
 				}
 				current = new SegmentState(file.getFileName().toString(), publicKey(line.text(), failures, file));
@@ -196,7 +234,7 @@ public final class AuditIntegrityChecker {
 			}
 		}
 		if (current != null) {
-			current.finish(warnings);
+			current.finish(warnings, open);
 			segments.add(current);
 		}
 	}
@@ -430,6 +468,7 @@ public final class AuditIntegrityChecker {
 		private Instant lastSealedAt;
 		private boolean invalid;
 		private boolean incomplete;
+		private boolean beingWritten;
 		// An unparsable marker is a crash remnant only if nothing else follows it in the segment.
 		private String malformedMarker;
 
@@ -549,24 +588,30 @@ public final class AuditIntegrityChecker {
 			return bytes.toByteArray();
 		}
 
-		private void finish(List<String> warnings) {
+		private void finish(List<String> warnings, boolean open) {
+			this.beingWritten = open;
 			if (this.malformedMarker != null) {
 				warnings.add(this.fileName + ": incomplete trailing audit marker was not validated");
 			}
 			if (!this.unnumbered.isEmpty()) {
 				warnings.add(this.fileName + ": incomplete trailing audit marker or record was not validated");
 			}
-			if (!this.pending.isEmpty() || this.incomplete || !this.chain.isFinalized()) {
-				warnings.add(this.fileName + ": audit segment is not fully finalized");
+			if (!this.invalid && !open && (!this.pending.isEmpty() || this.incomplete || !this.chain.isFinalized())) {
+				warnings.add(this.fileName + ": no FINAL: the file was still being written when copied, or OWLCMS"
+						+ " stopped abruptly");
 			}
 		}
 
 		private SegmentResult result() {
 			List<Long> unvalidated = this.pending.stream().map(Pending::sequence).toList();
+			UnvalidatedReason reason = unvalidated.isEmpty() ? null
+					: this.invalid ? UnvalidatedReason.AFTER_FAILURE
+							: this.beingWritten ? UnvalidatedReason.BEING_WRITTEN : UnvalidatedReason.UNSEALED_TAIL;
 			return new SegmentResult(this.fileName, this.stream, this.runId, this.fingerprint,
 					this.key != null && this.key.isBuiltin(),
 					!this.invalid && !this.incomplete && this.pending.isEmpty() && this.chain.isFinalized(),
-					ranges(this.validated), ranges(unvalidated), this.firstSealedAt, this.lastSealedAt);
+					this.beingWritten, ranges(this.validated), ranges(unvalidated), reason, this.firstSealedAt,
+					this.lastSealedAt);
 		}
 	}
 }

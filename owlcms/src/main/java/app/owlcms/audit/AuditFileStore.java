@@ -124,6 +124,13 @@ public final class AuditFileStore implements AutoCloseable {
 		}
 	}
 
+	/** The sealed files currently being written, one per stream. */
+	public Set<Path> openFiles() {
+		Set<Path> open = new HashSet<>();
+		this.streams.values().forEach(state -> open.add(state.path));
+		return open;
+	}
+
 	public void awaitSeals() throws IOException {
 		for (FileState state : this.streams.values()) {
 			state.segment.awaitSeals();
