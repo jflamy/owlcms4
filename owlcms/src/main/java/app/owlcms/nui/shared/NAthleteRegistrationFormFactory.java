@@ -1463,16 +1463,17 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		LocalDate now;
 		if (Config.getCurrent().isUseCompetitionDate()) {
 			now = Competition.getCurrent().getCompetitionDate();
+			if (now == null) {
+				now = LocalDate.now();
+				logger./**/warn("Competition date is not set; using {} for registration age calculations", now);
+			}
 		} else {
 			now = LocalDate.now();
 		}
 		if (Competition.getCurrent().isUseBirthYear()) {
-			try {
-				Integer yob = this.yobField.getValue();
-
-				age = (now.getYear()) - yob;
-			} catch (Exception e) {
-				age = null;
+			Integer yob = this.yobField.getValue();
+			if (yob != null) {
+				age = now.getYear() - yob;
 			}
 		} else {
 			LocalDate date = this.fullBirthDateField.getValue();
