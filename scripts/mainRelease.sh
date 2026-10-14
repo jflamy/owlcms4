@@ -92,10 +92,17 @@ BASE_REVISION=$(echo "${DEFAULT_REVISION}" | sed 's/-.*$//')
 echo "Default revision from release.sh: ${DEFAULT_REVISION}"
 echo "Base revision (suffix removed): ${BASE_REVISION}"
 
-# Step 6: Launch release.sh with base revision (or use passed arguments if provided)
-if [[ $# -eq 0 ]]; then
+# Step 6: Use the base revision unless an explicit revision was passed.
+HAS_REVISION=false
+for arg in "$@"; do
+  if [[ "${arg}" != --* ]]; then
+    HAS_REVISION=true
+  fi
+done
+
+if [[ "${HAS_REVISION}" == "false" ]]; then
   echo "Launching release.sh ${BASE_REVISION}..."
-  DO_GIT_PULL=false ./release.sh "${BASE_REVISION}"
+  DO_GIT_PULL=false ./release.sh "${BASE_REVISION}" "$@"
 else
   echo "Launching release.sh $@..."
   DO_GIT_PULL=false ./release.sh "$@"
