@@ -10,6 +10,8 @@
 
 **Maintenance Log**
 
+- 67.5.10: Fixed an error opening athlete registration/weigh-in when the competition date is unset (this issues a warning in the log that was failing).
+
 - 67.5.9: Explicitly set CJ Break values were being ignored. Should now be respected whether set before the session or updated during the snatch.
 
 - 67.5.8: An accidental MQTT configuration with a non-empty username was rejecting anonymous connections causing all MQTT devices to be inoperative, with no trace in the log..
