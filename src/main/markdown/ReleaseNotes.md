@@ -17,6 +17,8 @@
   - Account names preserve the written case of platform names; login names are case-insensitive.
   - Platform-role accounts omit the platform suffix when there is only one platform. "Reset Platform Accounts" recreates conventional role accounts for the current platforms, clearing their passwords while preserving custom and global accounts.
 
+- 69.0.0: Fixed the medal ceremony: starting a single category (e.g. "45" under P15 F) from the Medal Ceremony page could show an empty public medals page.
+
 - 69.0.0: Per-platform tamper-resistant audit trails record competition actions and athlete changes.
   - Includes accepted and refused commands, record changes, session activity, and application start/stop events, with operator and station identification.
 

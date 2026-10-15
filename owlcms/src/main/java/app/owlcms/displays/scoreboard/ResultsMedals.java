@@ -194,8 +194,8 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 				selectedMedals.entrySet().removeIf(entry -> {
 					Category category = entry.getValue().isEmpty() ? null : entry.getValue().get(0).getCategory();
 					return category == null || category.getAgeGroup() == null || !category.getAgeGroup().getMedals()
-					        || (selectedCategory != null && !selectedCategory.equals(category))
-					        || (selectedAgeGroup != null && !selectedAgeGroup.equals(category.getAgeGroup()))
+					        || (selectedCategory != null && !selectedCategory.sameAs(category))
+					        || (selectedAgeGroup != null && selectedAgeGroup.compareTo(category.getAgeGroup()) != 0)
 					        || (selectedChampionship != null
 					                && !selectedChampionship.equals(category.getAgeGroup().getChampionship()));
 				});
