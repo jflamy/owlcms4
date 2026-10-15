@@ -10,89 +10,7 @@
 
 **Maintenance Log**
 
-- 68.0.1: Fixed the medal ceremony: starting a single category (e.g. "45" under P15 F) from the Medal Ceremony page could show an empty public medals page.
-
-- 68.0.0-rc15: Fixed the CJ break duration shown on the sessions page, as well as the athlete count for sessions where athletes did not weigh in.
-
-- 68.0.0-rc14: Championship editing reorganized under the "Championships, Medals and Teams" tab and the Define Championships page.
-  - Each championship row has "Edit Medals and Team Rules", "Select Age Groups", "Reset to Template" and "Delete".
-  - "Define Age Groups and Categories" and "Define Championship Template" buttons are next to the championship list; championships in use are listed first.
-
-- 68.0.0-rc14: New "Select Age Groups" dialog moves age groups into a championship, after a confirmation that names the championship each one leaves.
-
-- 68.0.0-rc14: Deleting a championship deletes its age groups, after a confirmation listing them.
-  -  Athletes are kept and moved to their most specific remaining category; previously, deleting age groups that had registered athletes failed.
-
-- 68.0.0-rc14: The Scoring Systems selection was removed from the competition settings: all scores are always computed, and the best athlete rank is computed for each championship's own scheme.
-  - The best athlete scoring selector on the results pages lists the championships' schemes first, then the GAMX, QPoints, Robi and Sinclair families.
-
-- 68.0.0-rc14: Text imported from registration files, database exports, technical official files and record files is cleaned of HTML tags, so it cannot alter or run code on the screens where it is shown. The custom1 and custom2 fields keep their formatting.
-
-- 68.0.0-rc13: The Medals board now matches the medals sheet and only shows finished categories. A category split across sessions (e.g. 69A and 69B) is not shown until all its sessions are finished.
-  - To see prospective medalists, tick "Include not completed" before opening the Medals board (warmup, public and video displays).
-
-- 68.0.0-rc13: When start numbers are assigned for a session (weigh-in page button, or automatically when lifting starts), athletes who have not weighed in get start number -1. They no longer prevent medals for their category after a later session (e.g. an absent 69B athlete no longer blocks 69 medals after the 69A session).
-
-- 68.0.0-rc12: Fixes for corrupted competition results templates and jury protocols
-
-- 68.0.0-rc11: Fixes for scoreboards
-  - Handle values and ranks correctly when a single session includes both score-based and total-based categories
-  - Reinstated the `displayBodyWeight` feature toggle as a first class citizen (no longer shares the custom1 column)
-
-- 68.0.0-rc11: Finish the transition to championships as source of truth for best athlete.
-  - There is one best athlete scheme per championship.
-  - For a given championship the mBest and wBest categories are computed.  The old globally computed collections have been dropped.
-  - It is still possible to switch the best athlete scheme when producing reports for comparison purposes -- this does not change the ranking scheme officially defined for the championship
-  - Templates can get all the individual scores e.g.
-  - The current best athlete score and rank for a given athlete are `${a.bestAthleteScore}` and `${bestAthleteRank}`
-  - A template can still get any computed score e.g.,`${a.gamx}` independently of the current best athlete score.  But only the currently selected scheme rank.
-
-- 68.0.0-rc10: The `alwaysUseLiftingOrderTieBreaks` feature switch lets concurrent A/B/C sessions use category-wide lifting-order tie breaks. For equal totals, session and lift times are ignored; lot number replaces start number as the final tie breaker.
-
-- 68.0.0-rc10: IMWA team results exclude athletes who did not weigh in from category athlete counts.
-
-- 68.0.0-rc09: CJ Break overrides are not respected whether updated during snatch or before the session.
-
-- 68.0.0-rc09: MQTT login failures are now logged, such that anonymous accesses to an accidentally added login name are visible
-
-- 68.0.0-rc08: Record definition files with more than five distinct record names per federation are now rejected.
-  - Normally one federation code matches one displayed record name (IWF --> World).
-  - Two federations can share a displayed name (e.g. separate Masters and non-Masters federations for one country).
-  - Typical errror is when an AI agent generates the file from a database and puts a different record name on each row
-
-- 68.0.0-rc08: Database exports that previously failed to load can now be imported.
-  - Older exports without the competition template marker no longer cause a duplicate championship error.
-  - Exports with too many record names are recovered by using the federation codes as record names; these records can then be exported to Excel and corrected.
-
-- 68.0.0-rc08: macOS: mDNS now same as Windows and Linux - when the `owlcms.local` name is already in use on the network, owlcms now announces itself as `owlcms-2.local`, `owlcms-3.local`, etc.
-
-- 68.0.0-rc08: If the MQTT ports (1883/9090) are already in use, owlcms now starts normally with MQTT disabled and logs a warning (used during development when multiple instances can run concurrently)
-
-- 68.0.0-rc07: The Jury Control page now allows the president to indicate which IWF rejection code was invoked.  When this is done, the speaker gets the reason immediately.
-
-- 68.0.0-rc06: Added "post weigh-in athlete-card" templates that print recorded declarations and changes, with large red start numbers for quickly replacing misplaced cards.
-
-- 68.0.0-rc06: Weigh-in forms 
-  - now include a separate weight-on-scale column before body weight so both values can be recorded when calculating the adjustment by hand.
-  - revised the signatures block to accomodate IWF and non-IWF practices (e.g. weigh-in officials that are not the referees)
-
-- 68.0.0-rc06: Introduction sheets now calculate the clean and jerk break duration using only athletes who have weighed in.
-
-- 68.0.0-rc06: IMWA athletes below the category qualifying total keep their rank and team points but do not receive a Total medal.
-
-- 68.0.0-rc06: The default threshold for the longer CJ break is now 6 athletes or fewer.
-
-- 68.0.0-rc05: Loosened whitelisting requirements
-  - localhost/admin and localhost/simulation no longer require whitelisting so they can be run where the controlpanel runs.
-  - .../competition/export endpoints and .../competion/h2 endpoints are accepted from private network addresses (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 as well as link-local 169.254.0.0/16)
-
-- 68.0.0-rc05: Fix inconsistent application of 0-athlete champonship hiding.
-
-- 68.0.0-rc04: Jury decisions are optionally shown on attempt board
-
-- 68.0.0-rc04: Fix: registration file load clears the teams correctly when explicitTeams feature toggle is on
-
-- 68.0.0-rc04: Fix: Remove Exception when opening athlete card from the registration page.
+- 68.0.1: Fixed the medal ceremony dialogue: starting a single category ceremony (e.g. "45" under P15 F) from the Medal Ceremony page would show an empty medals page.
 
 **New in Release 68.0**
 
@@ -100,6 +18,55 @@
   - Change to use new CSS theming mechanism (the selectors have changed slightly)
   - Systematic cleanup of CSS files to use import+overrides instead of copies
   - **If you have customized your CSS files, you will need to review and potentially adjust them**.
+
+- 68.0.0: Championship editing reorganized under the "Championships, Medals and Teams" tab and the Define Championships page.
+
+  - Each championship row has "Edit Medals and Team Rules", "Select Age Groups", "Reset to Template" and "Delete".
+  - "Define Age Groups and Categories" and "Define Championship Template" buttons are next to the championship list; championships in use are listed first.
+  - New "Select Age Groups" dialog moves age groups into a championship, after a confirmation that names the championship each one leaves.
+  - Deleting a championship deletes its age groups, after a confirmation listing them.
+
+  -  Athletes are kept and moved to their most specific remaining category; previously, deleting age groups that had registered athletes failed.
+
+- 68.0.0: The Scoring Systems selection was removed from the competition settings: all scores are always computed, and best athlete scoring system is now championship-per-championship
+
+  - The best athlete scoring selector on the results pages lists the championships' schemes first, then the GAMX, QPoints, Robi and Sinclair families.
+
+- 68.0.0: The Medals board now matches the medals sheet and only shows finished categories. A category split across sessions (e.g. 69A and 69B) is not shown until all its sessions are finished.
+
+  - To see prospective medalists, tick "Include not completed" before opening the Medals board (warmup, public and video displays).
+
+- 68.0.0: Reinstated the `displayBodyWeight` feature toggle as a first class citizen (no longer shares the custom1 column)
+
+- 68.0.0: Finish the transition to championships as source of truth for best athlete.
+
+  - There is one best athlete scheme per championship.
+  - For a given championship the mBest and wBest categories are computed.  The old globally computed collections have been dropped.
+  - It is still possible to switch the best athlete scheme when producing reports for comparison purposes -- this does not change the ranking scheme officially defined for the championship
+  - Templates can get all the individual scores e.g.
+  - The current best athlete score and rank for a given athlete are `${a.bestAthleteScore}` and `${bestAthleteRank}`
+  - A template can still get any computed score e.g.,`${a.gamx}` independently of the current best athlete score.  But only the currently selected scheme rank.
+
+- 68.0.0: The `alwaysUseLiftingOrderTieBreaks` feature switch lets concurrent A/B/C sessions use category-wide lifting-order tie breaks. For equal totals, session and lift times are ignored; lot number replaces start number as the final tie breaker.
+
+- 68.0.0: IMWA team results exclude athletes who did not weigh in from category athlete counts.
+
+- 68.0.0: Record definition files with more than five distinct record names per federation are now rejected.
+
+  - Typical errror is when an AI agent generates the file from a database and puts a different record name on each row
+
+- 68.0.0: The Jury Control page now allows the president to indicate which IWF rejection code was invoked.  When this is done, the speaker gets the reason immediately.
+
+- 68.0.0: Added "post weigh-in athlete-card" templates that print recorded declarations and changes, with large red start numbers for emergency replacement of lost/misplaced cards.
+
+- 68.0.0: Weigh-in forms 
+
+  - now include a separate weight-on-scale column before body weight so both values can be recorded when calculating the adjustment by hand.
+
+- 68.0.0: IMWA athletes below the category qualifying total keep their rank and team points but do not receive a Total medal.
+
+- 68.0.0: Jury decisions are optionally shown on attempt board, selected on the attempt board dialog.
+
 - 68.0.0: Jury decisions can be shown on the attempt board (off by default).  
   - This relies on the jury size being set in competition options, and on being selected on the attempt board (URL parameter showJuryDecisions=true)
   - If you change the jury size, reload the session (only the reloaded sessions will pick up the new size)
