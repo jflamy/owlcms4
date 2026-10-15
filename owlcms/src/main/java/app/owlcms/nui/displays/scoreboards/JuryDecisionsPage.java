@@ -34,7 +34,7 @@ import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@RequiresRole(value = { Role.DISPLAYS, Role.JURY }, platformBound = true)
+@RequiresRole(value = { Role.DISPLAYS, Role.JURY, Role.EXTERNAL }, platformBound = true)
 @Route("displays/juryDecisions")
 public class JuryDecisionsPage extends AbstractResultsDisplayPage implements BeforeEnterObserver {
 

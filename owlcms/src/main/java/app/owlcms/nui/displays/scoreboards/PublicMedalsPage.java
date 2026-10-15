@@ -23,7 +23,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
-@RequiresRole(value = Role.DISPLAYS, platformBound = true)
+@RequiresRole(value = { Role.DISPLAYS, Role.EXTERNAL }, platformBound = true)
 @Route("displays/publicMedals")
 
 public class PublicMedalsPage extends MedalsPage {

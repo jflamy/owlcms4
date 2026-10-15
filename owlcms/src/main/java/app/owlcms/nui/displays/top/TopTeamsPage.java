@@ -42,7 +42,7 @@ import app.owlcms.nui.displays.scoreboards.AbstractResultsDisplayPage;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@RequiresRole(Role.DISPLAYS)
+@RequiresRole({ Role.DISPLAYS, Role.EXTERNAL })
 @Route("displays/topteams")
 
 public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParametersReader {

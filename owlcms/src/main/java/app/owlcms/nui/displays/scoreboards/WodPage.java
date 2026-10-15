@@ -13,7 +13,7 @@ import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@RequiresRole(value = Role.DISPLAYS, platformBound = true)
+@RequiresRole(value = { Role.DISPLAYS, Role.EXTERNAL }, platformBound = true)
 @Route("displays/wod")
 public class WodPage extends WarmupScoreboardPage {
     Logger logger = (Logger) LoggerFactory.getLogger(WodPage.class);

@@ -63,6 +63,11 @@ public final class AccessPolicy {
 		return result;
 	}
 
+	/** Keyboard input on displays is reserved to principals holding DISPLAYS on the platform. */
+	public static boolean displayInputAllowed(Principal principal, String platform) {
+		return expandedRoles(principal, platform).contains(Role.DISPLAYS);
+	}
+
 	public static boolean hasCapability(Principal principal, Capability capability, String platform) {
 		return canOpen(principal, capability.asRule(), platform);
 	}

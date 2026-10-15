@@ -36,7 +36,7 @@ import app.owlcms.uievents.UIEvent;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@RequiresRole(value = Role.DISPLAYS, platformBound = true)
+@RequiresRole(value = { Role.DISPLAYS, Role.EXTERNAL }, platformBound = true)
 @Route("displays/publicRankingOrder")
 
 public class PublicRankingOrderPage extends AbstractResultsDisplayPage {

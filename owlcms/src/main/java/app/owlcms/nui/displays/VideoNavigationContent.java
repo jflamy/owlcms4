@@ -71,7 +71,7 @@ import ch.qos.logback.classic.Logger;
  * The Class DisplayNavigationContent.
  */
 @SuppressWarnings("serial")
-@RequiresRole(Role.DISPLAYS)
+@RequiresRole({ Role.DISPLAYS, Role.EXTERNAL })
 @Route(value = "video=true", layout = OwlcmsLayout.class)
 public class VideoNavigationContent extends BaseNavigationContent
         implements NavigationPage, HasDynamicTitle {

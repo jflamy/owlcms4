@@ -198,6 +198,45 @@ public class AccessPolicyTest {
 	}
 
 	@Test
+	public void externalOpensDisplayPagesOnEveryPlatformButNothingElse() {
+		Principal external = account(null, new RoleGrant(Role.EXTERNAL, null));
+		PageRule board = page(true, Role.DISPLAYS, Role.EXTERNAL);
+
+		assertTrue(AccessPolicy.canOpen(external, board, "A"));
+		assertTrue(AccessPolicy.canOpen(external, board, "B"));
+		assertFalse(AccessPolicy.canOpen(external, page(true, Role.ANNOUNCER), "A"));
+		assertFalse(AccessPolicy.canOpen(external, page(true, Role.DISPLAYS, Role.JURY), "A"));
+		assertTrue(AccessPolicy.canOpen(external, page(true, Role.DISPLAYS, Role.JURY, Role.EXTERNAL), "A"));
+		assertEquals(PLATFORMS, AccessPolicy.selectablePlatforms(external, EnumSet.of(Role.DISPLAYS, Role.EXTERNAL),
+		        PLATFORMS));
+	}
+
+	@Test
+	public void externalIsReadOnlyAndNeverAsksForAPlatform() {
+		Principal external = account(null, new RoleGrant(Role.EXTERNAL, null));
+
+		assertFalse(AccessPolicy.requiresPlatformChoice(external));
+		assertFalse(AccessPolicy.displayInputAllowed(external, "A"));
+	}
+
+	@Test
+	public void displayInputIsReservedToDisplaysHolders() {
+		for (Role role : List.of(Role.DISPLAYS, Role.RESULTS, Role.PLATFORM, Role.ADMIN)) {
+			assertTrue(role + " keeps display input",
+			        AccessPolicy.displayInputAllowed(account(null, new RoleGrant(role, null)), "A"));
+		}
+		assertFalse(AccessPolicy.displayInputAllowed(null, "A"));
+	}
+
+	@Test
+	public void externalWithScopedDisplaysHasInputOnlyOnThatPlatform() {
+		Principal mixed = account(null, new RoleGrant(Role.EXTERNAL, null), new RoleGrant(Role.DISPLAYS, "A"));
+
+		assertTrue(AccessPolicy.displayInputAllowed(mixed, "A"));
+		assertFalse(AccessPolicy.displayInputAllowed(mixed, "B"));
+	}
+
+	@Test
 	public void breakManagementCapability() {
 		Principal timekeeperA = account("A", new RoleGrant(Role.TIMEKEEPER, "A"));
 		Principal marshalA = account("A", new RoleGrant(Role.MARSHAL, "A"));

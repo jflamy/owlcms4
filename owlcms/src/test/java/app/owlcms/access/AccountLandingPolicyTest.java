@@ -42,7 +42,8 @@ public class AccountLandingPolicyTest {
 		        Map.entry(Role.TC, WorkPage.TC),
 		        Map.entry(Role.JURY, WorkPage.JURY_CONSOLE),
 		        Map.entry(Role.REFEREE, WorkPage.REFEREE_NAVIGATION),
-		        Map.entry(Role.DISPLAYS, WorkPage.DISPLAY_NAVIGATION));
+		        Map.entry(Role.DISPLAYS, WorkPage.DISPLAY_NAVIGATION),
+		        Map.entry(Role.EXTERNAL, WorkPage.HOME));
 		for (Role role : Role.values()) {
 			if (role.isGrantable()) {
 				Principal principal = new Principal(AuthSource.ACCOUNT, 1L, "user",

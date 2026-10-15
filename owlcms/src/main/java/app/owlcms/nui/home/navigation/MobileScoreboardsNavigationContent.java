@@ -47,7 +47,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
  * Mobile/tablet launcher for warmup scoreboards and attempt/decision boards.
  */
 @SuppressWarnings("serial")
-@RequiresRole(value = Role.DISPLAYS, platformBound = true)
+@RequiresRole(value = { Role.DISPLAYS, Role.EXTERNAL }, platformBound = true)
 @Route(value = "mobile/scoreboards", layout = OwlcmsLayout.class)
 public class MobileScoreboardsNavigationContent extends BaseNavigationContent implements HasDynamicTitle {
 

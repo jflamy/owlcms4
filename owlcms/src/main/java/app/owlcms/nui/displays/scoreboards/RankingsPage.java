@@ -25,7 +25,7 @@ import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@RequiresRole(Role.DISPLAYS)
+@RequiresRole({ Role.DISPLAYS, Role.EXTERNAL })
 @Route("displays/rankings")
 
 public class RankingsPage extends AbstractResultsDisplayPage {

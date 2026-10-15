@@ -19,7 +19,7 @@ public class RoleAccountInitializationTest {
 	@Test
 	public void createsAllGrantableRolesWithTheCorrectPlatformScope() {
 		List<UserAccount> accounts = UserAccountRepository.missingRoleAccounts(List.of(), List.of("A", "B"));
-		assertEquals(22, accounts.size());
+		assertEquals(23, accounts.size());
 		for (Role role : Role.values()) {
 			if (!role.isGrantable()) {
 				assertFalse(accounts.stream().anyMatch(a -> a.getGrants().stream()
@@ -60,7 +60,7 @@ public class RoleAccountInitializationTest {
 	@Test
 	public void createsOnlyGlobalRolesWhenThereAreNoPlatforms() {
 		List<UserAccount> accounts = UserAccountRepository.missingRoleAccounts(List.of(), List.of());
-		assertEquals(6, accounts.size());
+		assertEquals(7, accounts.size());
 		assertTrue(accounts.stream().allMatch(a -> a.getGrants().get(0).getPlatformName() == null));
 	}
 
@@ -95,7 +95,7 @@ public class RoleAccountInitializationTest {
 	@Test
 	public void singlePlatformAccountsHaveNoSuffixButKeepTheirPlatformScope() {
 		List<UserAccount> accounts = UserAccountRepository.missingRoleAccounts(List.of(), List.of("Main"));
-		assertEquals(14, accounts.size());
+		assertEquals(15, accounts.size());
 		assertTrue(accounts.stream().noneMatch(a -> a.getUsername().contains("-")));
 		UserAccount announcer = accounts.stream().filter(a -> a.getUsername().equals("announcer"))
 		        .findFirst().orElseThrow();
@@ -127,7 +127,7 @@ public class RoleAccountInitializationTest {
 		UserAccount custom = account("custom-speaker", new RoleGrant(Role.ANNOUNCER, "A"));
 		List<UserAccount> retained = Stream.concat(singlePlatform.stream(), Stream.of(custom))
 		        .filter(a -> !UserAccountRepository.isConventionalPlatformAccount(a)).toList();
-		assertEquals(7, retained.size());
+		assertEquals(8, retained.size());
 		List<UserAccount> multiplePlatforms = UserAccountRepository.missingRoleAccounts(retained, List.of("A", "B"));
 		assertEquals(16, multiplePlatforms.size());
 		assertTrue(multiplePlatforms.stream().noneMatch(a -> a.getUsername().equals("announcer")));

@@ -24,6 +24,7 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 
+import app.owlcms.access.AccessUi;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.apputils.queryparameters.FOPParameters;
@@ -87,6 +88,13 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	public abstract void addDialogContent(Component page, VerticalLayout vl);
 
 	public void addKeyboardShortcuts() {
+	}
+
+	/** Shortcuts are registered only for users with display input rights; call this instead of addKeyboardShortcuts(). */
+	protected final void registerKeyboardShortcuts() {
+		if (AccessUi.displayInputAllowed(getFop())) {
+			addKeyboardShortcuts();
+		}
 	}
 
 	public void doChangeAbbreviated() {
@@ -423,7 +431,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 		if (isShowInitialDialog()) {
 			openDialog(getDialog());
 		}
-		addKeyboardShortcuts();
+		registerKeyboardShortcuts();
 		pushEmSize(this.getElement());
 		pushTeamWidth(this.getElement());
 	}

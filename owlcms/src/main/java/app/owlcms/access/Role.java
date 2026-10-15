@@ -22,7 +22,8 @@ public enum Role {
 	TC(true, true, true, true),
 	JURY(true, true, true, true),
 	REFEREE(true, true, true, true),
-	DISPLAYS(true, true, false, true);
+	DISPLAYS(true, true, false, true),
+	EXTERNAL(true, false, false, true);
 
 	private final boolean grantable;
 	private final boolean platformScopable;

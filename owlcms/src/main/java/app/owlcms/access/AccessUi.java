@@ -27,6 +27,11 @@ public final class AccessUi {
 		return fops.size() <= 1 || (AccessPolicy.isLocked(principal) && lockablePage);
 	}
 
+	/** UI thread only: reads the principal from the session. */
+	public static boolean displayInputAllowed(FieldOfPlay fop) {
+		return AccessPolicy.displayInputAllowed(OwlcmsSession.getPrincipal(), fop != null ? fop.getName() : null);
+	}
+
 	public static boolean canOpen(Class<?> target, FieldOfPlay fop) {
 		return AccessPolicy.canOpen(OwlcmsSession.getPrincipal(), PageRule.of(target),
 		        fop != null ? fop.getName() : null);

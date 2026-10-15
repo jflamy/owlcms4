@@ -74,6 +74,9 @@ class DecisionElement extends LitElement {
         type: Boolean,
         state: true,
       },
+      inputAllowed: {
+        type: Boolean,
+      },
       fopName: {
         type: String,
         notify: true,
@@ -113,6 +116,7 @@ class DecisionElement extends LitElement {
     this.jury = false;
     this.singleRef = false;
     this.enabled = false;
+    this.inputAllowed = false;
     this.silent = false;
     this._downShown = false;
     this._showDecision = false;
@@ -163,7 +167,7 @@ class DecisionElement extends LitElement {
   }
 
   _readRef(e) {
-    if (!this.enabled || this.jury) return;
+    if (!this.enabled || this.jury || !this.inputAllowed) return;
 
     switch (e.key) {
       case "1":

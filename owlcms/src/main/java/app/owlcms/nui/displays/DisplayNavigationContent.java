@@ -66,7 +66,7 @@ import ch.qos.logback.classic.Logger;
  * The Class DisplayNavigationContent.
  */
 @SuppressWarnings("serial")
-@RequiresRole(Role.DISPLAYS)
+@RequiresRole({ Role.DISPLAYS, Role.EXTERNAL })
 @Route(value = "displays", layout = OwlcmsLayout.class)
 public class DisplayNavigationContent extends BaseNavigationContent
         implements NavigationPage, HasDynamicTitle {

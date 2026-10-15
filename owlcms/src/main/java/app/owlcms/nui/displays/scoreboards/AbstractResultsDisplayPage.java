@@ -65,7 +65,7 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 		DisplayOptions.addRule(vl);
 		DisplayOptions.addSizingEntries(vl, target, this);
 
-		addKeyboardShortcuts();
+		registerKeyboardShortcuts();
 	}
 
 	@Override

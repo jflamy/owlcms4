@@ -8,12 +8,15 @@ package app.owlcms.nui.displays.scoreboards;
 
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Role;
 import app.owlcms.displays.scoreboard.ResultsMedals;
 
 /**
  * Public-styled prospective medalists, including categories that are not finished.
  */
 @SuppressWarnings("serial")
+@RequiresRole(value = { Role.DISPLAYS, Role.EXTERNAL }, platformBound = true)
 @Route("displays/publicMedalLeaders")
 
 public class PublicMedalLeadersPage extends PublicMedalsPage {

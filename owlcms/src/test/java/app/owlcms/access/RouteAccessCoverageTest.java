@@ -21,6 +21,8 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.access.Principal.AuthSource;
 import app.owlcms.data.account.RoleGrant;
 import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.nui.displays.scoreboards.JuryDecisionsPage;
+import app.owlcms.nui.displays.scoreboards.JuryScoreboardPage;
 import app.owlcms.nui.lifting.AnnouncerContent;
 import app.owlcms.nui.lifting.CompetitionDirectorContent;
 import app.owlcms.nui.lifting.PassiveAnnouncerContent;
@@ -75,6 +77,27 @@ public class RouteAccessCoverageTest {
 			}
 		}
 		assertEquals(problems.toString(), 0, problems.size());
+	}
+
+	@Test
+	public void externalIsListedExactlyOnPagesListingDisplays() throws Exception {
+		List<String> problems = new ArrayList<>();
+		for (Class<?> pageClass : routeClasses()) {
+			PageRule rule = PageRule.of(pageClass);
+			if (rule.kind() != PageRule.Kind.ROLES) {
+				continue;
+			}
+			boolean displays = rule.roles().contains(Role.DISPLAYS);
+			boolean external = rule.roles().contains(Role.EXTERNAL);
+			boolean expectedExternal = displays && pageClass != JuryScoreboardPage.class;
+			if (external != expectedExternal) {
+				problems.add(pageClass.getSimpleName() + " displays=" + displays + " external=" + external);
+			}
+		}
+		assertEquals(problems.toString(), 0, problems.size());
+		assertTrue(PageRule.of(JuryScoreboardPage.class).roles().contains(Role.DISPLAYS));
+		assertFalse(PageRule.of(JuryScoreboardPage.class).roles().contains(Role.EXTERNAL));
+		assertTrue(PageRule.of(JuryDecisionsPage.class).roles().contains(Role.EXTERNAL));
 	}
 
 	@Test

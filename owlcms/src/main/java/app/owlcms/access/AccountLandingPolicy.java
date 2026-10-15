@@ -29,7 +29,7 @@ public final class AccountLandingPolicy {
 
 	private static WorkPage defaultWorkPage(Role role) {
 		return switch (role) {
-			case ADMIN, ADMIN_PAGES -> WorkPage.HOME;
+			case ADMIN, ADMIN_PAGES, EXTERNAL -> WorkPage.HOME;
 			case COMPETITION_DIRECTOR -> WorkPage.COMPETITION_DIRECTOR;
 			case PREPARATION -> WorkPage.PREPARATION;
 			case REGISTRATION -> WorkPage.REGISTRATION;

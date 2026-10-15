@@ -41,7 +41,7 @@ Add one value to `Role`:
 
 ## 4. Pages
 
-Rule: **every page that lists DISPLAYS also lists EXTERNAL.** Each such page adds EXTERNAL to its existing annotation, for example:
+Rule: **every page that lists DISPLAYS also lists EXTERNAL, except `JuryScoreboardPage`.** Each such page adds EXTERNAL to its existing annotation, for example:
 
 ```java
 @RequiresRole(value = { Role.DISPLAYS, Role.EXTERNAL }, platformBound = true)
@@ -62,9 +62,11 @@ All current `@RequiresRole` annotations containing DISPLAYS (ACCESS_CONTROL_DESI
 | Video overlays | `CurrentAthletePage`, `NCurrentAthletePage` |
 | Medals and rankings | `MedalsPage`, `PublicMedalsPage`, `RankingsPage` |
 | Top pages | `TopSinclairPage`, `TopTeamsPage`, `TopTeamsSinclairPage` |
-| Jury displays | `JuryScoreboardPage`, `JuryDecisionsPage` (JURY stays in the list) |
+| Jury displays | `JuryDecisionsPage` (JURY stays in the list) |
 | Other | `WodPage` |
 | Navigation | `DisplayNavigationContent`, `VideoNavigationContent`, `MobileScoreboardsNavigationContent` |
+
+Excluded: `JuryScoreboardPage` keeps `{ DISPLAYS, JURY }`. Its menu buttons are hidden for EXTERNAL automatically by `AccessUi.canOpen(...)`.
 
 The menus need no other change:
 - Buttons are already shown or hidden with `AccessUi.canOpen(targetClass, fop)` in both `NavigationPage` interfaces.
@@ -147,7 +149,8 @@ Per the `add-test-case` skill: no Vaadin UI objects in tests.
   - EXTERNAL cannot open a non-display page (for example an ANNOUNCER page).
   - `displayInputAllowed`: false for EXTERNAL only; true for DISPLAYS, RESULTS, PLATFORM, ADMIN; mixed case EXTERNAL + DISPLAYS(A) → true on A, false on B.
   - `requiresPlatformChoice` is false for an EXTERNAL-only account.
-- `RouteAccessCoverageTest`: assert that a page lists EXTERNAL **if and only if** it lists DISPLAYS. This enforces the §4 rule for future display pages and keeps `isDisplayPage()` true for every EXTERNAL page.
+- `RouteAccessCoverageTest`: assert that a page lists EXTERNAL **if and only if** it lists DISPLAYS, with `JuryScoreboardPage` as the single named exception (it must not list EXTERNAL). This enforces the §4 rule for future display pages and keeps `isDisplayPage()` true for every EXTERNAL page.
+- `AccessPolicyTest`: EXTERNAL cannot open `JuryScoreboardPage` and can open `JuryDecisionsPage`.
 - Manual check: log in as an EXTERNAL-only account, open an attempt board, a decision board and a scoreboard, start the clock from the announcer, and press `1`, `3`, `5` on the board. No decision is recorded, and the server log shows the "ignored decision input" line.
 
 ## 8. Known limits
@@ -169,6 +172,7 @@ New key, delivered as a TSV in `shared/src/main/resources/i18n/` following the r
 |---|---|---|
 | D-0 | Platform scope | All platforms; EXTERNAL is not platform-scopable. |
 | D-1 | Medal, ranking and top pages | Included. |
-| D-2 | Decision boards and all other boards | Included: EXTERNAL opens every page DISPLAYS opens; keyboard refereeing is blocked (§5). |
+| D-2 | Decision boards and all other boards | Included: EXTERNAL opens every page DISPLAYS opens except the jury scoreboard; keyboard refereeing is blocked (§5). |
+| D-5 | Jury pages | `JuryDecisionsPage` included; `JuryScoreboardPage` excluded. |
 | D-3 | Click-to-open options dialog | Kept. It changes only that browser's rendering. |
 | D-4 | Role name shown to users | "External (broadcaster)". |

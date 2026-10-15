@@ -25,10 +25,13 @@ import com.vaadin.flow.component.littemplate.LitTemplate;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.Principal;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
@@ -75,6 +78,7 @@ public abstract class AbstractDecisionElement extends LitTemplate
 	private boolean busDriven = true;
 	protected boolean downSlave;
 	protected FieldOfPlay fop;
+	private boolean inputAllowed;
 	private final AtomicLong decisionPayloadSequence = new AtomicLong();
 
 	protected AbstractDecisionElement() {
@@ -146,6 +150,8 @@ public abstract class AbstractDecisionElement extends LitTemplate
 		if (this.fop == null) {
 			return;
 		}
+		this.inputAllowed = AccessUi.displayInputAllowed(this.fop);
+		getElement().setProperty("inputAllowed", this.inputAllowed);
 		init(this.fop.getName());
 		this.fopEventBus = this.fop.getFopEventBus();
 		if (this.busDriven) {
@@ -180,6 +186,9 @@ public abstract class AbstractDecisionElement extends LitTemplate
 	public void masterRefereeUpdate(String fopName, Boolean ref1, Boolean ref2, Boolean ref3, Long ref1Time,
 			Long ref2Time,
 			Long ref3Time) {
+		if (rejectReadOnlyInput()) {
+			return;
+		}
 		Object origin = this.getOrigin();
 		if (this.fop != null && fopName.contentEquals(this.fop.getName())) {
 			if (this.isSingleRef()) {
@@ -212,6 +221,9 @@ public abstract class AbstractDecisionElement extends LitTemplate
 	 * @param ref3
 	 */
 	public void masterShowDown(String fopName, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
+		if (rejectReadOnlyInput()) {
+			return;
+		}
 		Object origin = this.getOrigin();
 		getElement().setProperty("singleRef", this.isSingleRef());
 		if (this.fop != null && this.fop.getName().equals(fopName)) {
@@ -462,6 +474,16 @@ public abstract class AbstractDecisionElement extends LitTemplate
 			return;
 		}
 		bindToFopIfReady();
+	}
+
+	private boolean rejectReadOnlyInput() {
+		if (this.inputAllowed) {
+			return false;
+		}
+		Principal principal = OwlcmsSession.getPrincipal();
+		logger.info("{}ignored decision input from read-only display user={}", FieldOfPlay.getLoggingName(this.fop),
+		        principal != null ? principal.username() : null);
+		return true;
 	}
 
 	private void init(String fopName) {
