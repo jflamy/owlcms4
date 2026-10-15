@@ -59,7 +59,7 @@ class SummariesRoundTripTest(unittest.TestCase):
         self.assertEqual(cells[3], "Eligible.")
         self.assertNotIn("Warning", log)
 
-    def test_changed_source_keeps_original_and_reextract_marks_stale(self):
+    def test_changed_source_keeps_summary(self):
         self.run_quietly(compliance_summaries.extract, self.source, self.markdown)
         self.run_quietly(
             compliance_summaries.fill, self.markdown, "2.1 | Be eligible. | Eligible.\n"
@@ -67,12 +67,13 @@ class SummariesRoundTripTest(unittest.TestCase):
         changed = self.directory / "changed.docx"
         build_source(changed, justification="New wording.")
         cells, log = self.rebuild(changed)
-        self.assertEqual(cells[3], "New wording.")
-        self.assertIn("source text changed", log)
+        self.assertEqual(cells[3], "Eligible.")
+        self.assertNotIn("Warning", log)
 
-        log = self.run_quietly(compliance_summaries.extract, changed, self.markdown)
-        self.assertIn("1 stale", log)
-        self.assertIn("<!-- old J: Eligible. -->", self.markdown.read_text())
+        self.run_quietly(compliance_summaries.extract, changed, self.markdown)
+        text = self.markdown.read_text()
+        self.assertIn("J: Eligible.", text)
+        self.assertIn("> New wording.", text)
 
     def test_rebuild_writes_md_and_word_edits_are_read_back(self):
         self.run_quietly(compliance_summaries.extract, self.source, self.markdown)

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regenerate the setup diagrams in img/setup from setup.drawio.
+# Regenerate the layout diagrams in img/setup from layout.drawio.
 # Usage: ./export-images.sh [svg|png|all]   (default: svg)
 # Images are cropped to the visible content and rendered in light mode.
 # Pages and layers are looked up by name, so reordering layers in draw.io is safe.
@@ -7,9 +7,10 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 DRAWIO="${DRAWIO:-/Applications/draw.io.app/Contents/MacOS/draw.io}"
-SRC="setup.drawio"
+SRC="layout.drawio"
 OUT="img/setup"
-PNG_SCALE="${PNG_SCALE:-3}"
+PNG_WIDTH=2126
+PNG_DPI=300
 
 case "${1:-svg}" in
   svg) FORMATS=(svg) ;;
@@ -22,14 +23,11 @@ mkdir -p "$OUT"
 
 # output name | page name | layer names (phantom is always added)
 DIAGRAMS=(
-  "main_attempts|Main|computers,screens,Attempt HDMI"
-  "main_scoreboard|Main|computers,screens,Scoreboard HDMI"
-  "main_video|Main|computers,screens,Attempt HDMI,Scoreboard HDMI"
+  "main_video|Main|computers,screens,video"
+  "main_vpt|Main|vpt"
   "main_networking|Main|computers,networking"
   "main_layout|Main|computers,screens,platform,tables,distances"
-  "warmup_attempts|Warmup|computers,screens,Attempt HDMI"
-  "warmup_scoreboards|Warmup|computers,screens,Scoreboard HDMI"
-  "warmup_video|Warmup|computers,screens,Attempt HDMI,Scoreboard HDMI"
+  "warmup_video|Warmup|computers,screens,video"
   "warmup_networking|Warmup|computers,networking"
   "warmup_layout|Warmup|computers,screens,platform,tables,distances"
 )
@@ -61,9 +59,22 @@ for entry in "${DIAGRAMS[@]}"; do
   read -r page_index layer_indexes <<<"$(resolve "$page" "$layers")"
   for fmt in "${FORMATS[@]}"; do
     extra=(--theme light)
-    [[ "$fmt" == png ]] && extra+=(--scale "$PNG_SCALE")
+    [[ "$fmt" == png ]] && extra+=(--width "$PNG_WIDTH")
     "$DRAWIO" --export --format "$fmt" "${extra[@]}" --page-index "$page_index" \
       --layers "$layer_indexes" --output "$OUT/$name.$fmt" "$SRC" >/dev/null 2>&1
+    if [[ "$fmt" == png ]]; then
+      python3 -c '
+import sys
+from pathlib import Path
+from PIL import Image
+image_path = Path(sys.argv[1])
+dpi = int(sys.argv[2])
+temporary_path = image_path.with_suffix(".tmp.png")
+with Image.open(image_path) as image:
+    image.save(temporary_path, dpi=(dpi, dpi))
+temporary_path.replace(image_path)
+' "$OUT/$name.$fmt" "$PNG_DPI"
+    fi
     # draw.io appends a "Text is not SVG - cannot display" fallback that Word shows even though it renders the labels
     [[ "$fmt" == svg ]] && perl -0pi -e 's{<switch><g requiredFeatures="[^"]*"/><a[^>]*><text[^>]*>Text is not SVG - cannot display</text></a></switch>}{}g' "$OUT/$name.$fmt"
     echo "$OUT/$name.$fmt  (page $page_index, layers $layer_indexes)"
