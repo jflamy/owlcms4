@@ -10,6 +10,8 @@
 
 **Maintenance Log**
 
+- 68.0.1: Fixed the medal ceremony: starting a single category (e.g. "45" under P15 F) from the Medal Ceremony page could show an empty public medals page.
+
 - 68.0.0-rc15: Fixed the CJ break duration shown on the sessions page, as well as the athlete count for sessions where athletes did not weigh in.
 
 - 68.0.0-rc14: Championship editing reorganized under the "Championships, Medals and Teams" tab and the Define Championships page.
