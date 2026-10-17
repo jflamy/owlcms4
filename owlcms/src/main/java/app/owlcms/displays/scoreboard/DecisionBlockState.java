@@ -9,6 +9,7 @@ package app.owlcms.displays.scoreboard;
 import java.util.Arrays;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.displays.DecisionDisplayRules;
 import app.owlcms.uievents.JuryDeliberationEventType;
 
 /**
@@ -279,7 +280,7 @@ public class DecisionBlockState {
 			case DECISION:
 				this.renderer.renderAthleteUnderReview(this.reviewedAthlete);
 				renderRefereeLightsOrEmpty();
-				if (this.jurySize > 0) {
+				if (DecisionDisplayRules.showJuryDecisionsOnScoreboard(this.jurySize)) {
 					// A jury must vote, so we wait: never start a review timeout. The section is
 					// closed by the announcer starting the next clock, a break, a deliberation, or
 					// start-lifting.

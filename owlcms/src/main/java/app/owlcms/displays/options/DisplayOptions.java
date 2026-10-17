@@ -112,6 +112,15 @@ public class DisplayOptions {
 			}
 		});
 
+		boolean showDecisionSection = dp.isDecisionSection();
+		Checkbox decisionSectionCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowDecisionSection"));
+		decisionSectionCheckbox.setValue(showDecisionSection);
+		decisionSectionCheckbox.addValueChangeListener(e -> {
+			if (e.isFromClient() && e.getSource() == decisionSectionCheckbox) {
+				dp.switchDecisionSection(e.getValue(), true);
+			}
+		});
+
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.add(leadersDisplayCheckbox);
 		if (recordsDisplayCheckbox != null) {
@@ -119,6 +128,7 @@ public class DisplayOptions {
 		}
 		horizontalLayout.add(abbreviatedCheckbox);
 		horizontalLayout.add(currentAttemptCheckbox);
+		horizontalLayout.add(decisionSectionCheckbox);
 
 		layout.add(label);
 		layout.add(horizontalLayout);
