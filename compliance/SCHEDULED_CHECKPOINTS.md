@@ -1,8 +1,8 @@
 # Scheduled Checkpoints: Tracker Plugin API vs. Admin Backup (JSON + Logs)
 
-Status: analysis and proposal, 2026-10-14. No implementation changes are authorized by this document.
+Status: analysis and proposal, 2026-10-14; design decision recorded 2026-10-17 (section 1.1). No implementation changes are authorized by this document.
 
-Related: [AUDIT_INTEGRITY_SPECIFICATION.md](AUDIT_INTEGRITY_SPECIFICATION.md), [EXTERNAL_CONNECTION_EXPORT_PROTECTION_PROPOSAL.md](EXTERNAL_CONNECTION_EXPORT_PROTECTION_PROPOSAL.md).
+Related: [AUDIT_INTEGRITY_SPECIFICATION.md](AUDIT_INTEGRITY_SPECIFICATION.md), [EXTERNAL_CONNECTION_EXPORT_PROTECTION_PROPOSAL.md](EXTERNAL_CONNECTION_EXPORT_PROTECTION_PROPOSAL.md), [DIRECT_JSON_BOOT.md](DIRECT_JSON_BOOT.md) (loads the checkpoints on the spare).
 
 ## 1. Purpose and Context
 
@@ -12,6 +12,19 @@ This document analyzes two ways a `tracker` plugin on the VPT / Interfaces machi
 
 1. **Path A — JSON Snapshot via Existing APIs** (WebSocket `428` refresh or HTTP servlet `/competition/export/json/2`).
 2. **Path B — Full Backup (JSON + Sealed Audit & Application Logs)** as produced by the Admin Backup interface (`/admin/backup`).
+
+### 1.1 Decision (2026-10-17)
+
+The checkpoint mechanism is **Path A1**, with the received ZIP kept unchanged. The analysis below is retained for reference; where it differs, this section prevails.
+
+- **OWLCMS sending side:** no change. A `428` refresh already produces `CompetitionDataV2().exportData(...)` (the same V2 export as the UI download) zipped as `competition.json` and sent as `database_zip`.
+- **`tracker-core`:** like the flags, pictures, logos and GAMX ZIPs, write each received `database_zip` to disk exactly as received, for example under `local/database/`, using write-then-rename. Do not add that folder to the reconnect purge list. No hub field or event is needed.
+- **Tracker plugin:** a background timer started from `helpers.data.js`. Every N minutes it requests `['database']` through the hub's resource-request callback. When the data checksum (`databaseChecksum`) differs from the last saved copy, it copies the ZIP to `competition_v2_<yyyy-MM-dd_HHhmmss>_<shortChecksum>.zip` in the checkpoint folder, again by write-then-rename with a temporary name that does not end in `.zip`. Unchanged data produces no file.
+- **Plugin settings:** two options, the checkpoint folder and the interval in minutes (0 disables). They are declared in `config.js` and saved server-wide through the registry's `config-override.json5` defaults; the timer re-reads them on each tick. All copies are kept (about 20 MB for an 8-hour day).
+- **Checksums are forensic only.** Loading a checkpoint never verifies a hash. The ZIP holds the exact `competition.json` bytes, so their SHA-256 can be computed later and matched to the `export.json` (`channel=websocket`) lines in the primary's sealed audit log. A separate sidecar file is not required.
+- **Path A2 is not used.** It depends on private-network access to the export servlet, which ECX-20 of the export-protection proposal removes.
+- **Loading on the spare:** OWLCMS imports the ZIP directly (ZIP support in `FormatDetector`) through `OWLCMS_STANDBY=true` with `OWLCMS_LOADJSON` pointing to the checkpoint folder. See [DIRECT_JSON_BOOT.md](DIRECT_JSON_BOOT.md).
+- **Side effects per request:** one export and one `export.json` audit line in OWLCMS; when the data changed, a full hub reload in the tracker, which re-renders connected displays. Both are negligible at a 5-minute interval.
 
 ---
 
@@ -161,10 +174,10 @@ If automated remote collection of `JSON + logs` is desired, OWLCMS needs a small
 To satisfy **5-R03**, **7.3-R03**, and **AUDIT_INTEGRITY_SPECIFICATION.md** cleanly:
 
 1. **Every 5 Minutes (and on `SwitchGroup` / `GroupDone`): JSON Snapshot via Path A**
-   - Implement a `checkpoints` plugin (or background service) in `tracker` that uses **Path A1** (WebSocket `database_zip` refresh, keeping the raw ZIP/JSON bytes in `tracker-core`) or **Path A2** (`GET /competition/export/json/2`).
-   - Only write a new file to disk when `databaseChecksum` (or the FOP `lastDataUpdate` timestamp) has changed since the previous checkpoint.
-   - Keep a rolling window of 5-minute files (e.g., last 24 checkpoints = 2 hours) plus permanent copies at `SwitchGroup` and `GroupDone`.
-   - Because each export is hashed by `ChecksummedJsonExport`, its exact SHA-256 is recorded in OWLCMS's `competition_sealed_*.log` under `export.json`.
+   - Implement a `checkpoints` plugin in `tracker` that uses **Path A1**, with `tracker-core` writing each `database_zip` to disk as received (see section 1.1).
+   - Only write a new file to disk when `databaseChecksum` has changed since the previous checkpoint. Full databases that OWLCMS sends on its own (for example at `SwitchGroup`) are captured the same way.
+   - Keep all checkpoint files; their total size is small.
+   - Because each export is hashed by `ChecksummedJsonExport`, its exact SHA-256 is recorded in OWLCMS's `competition_sealed_*.log` under `export.json`, for forensic correlation.
 
 2. **At Session Boundaries (`GroupDone`) or On Demand: Sealed Audit Log Backup**
    - Trigger the full `AuditSnapshot` (`JSON + sealed logs`) at the end of each session (or via a lightweight `/competition/export/backup` servlet / WebSocket message), when rolling the sealed log file is natural and desirable.
