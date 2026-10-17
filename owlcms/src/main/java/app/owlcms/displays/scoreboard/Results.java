@@ -93,8 +93,7 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		OwlcmsFactory.waitDBInitialized();
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
 		this.getElement().setProperty("scoreboardType", this.getClass().getSimpleName());
-		this.getElement().setProperty("showDecisionSection",
-		        Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION));
+		this.getElement().setProperty("showDecisionSection", isDecisionSectionEnabled());
 		this.getElement().setProperty("showProjectedRanks",
 		        Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_PROJECTED_RANKS));
 		this.getElement().setProperty("showScoreboardTimers",
@@ -185,12 +184,12 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 			this.decisionSectionStopwatch.setFop(fop);
 		}
 		// Always give the decision-block element a FOP so it initialises cleanly even when
-		// DECISION_SECTION is off (it is always present in the DOM, just hidden).
+		// the decision section is off (it is always present in the DOM, just hidden).
 		if (this.dsRefereeDecisions != null) {
 			this.dsRefereeDecisions.setSilenced(true);
 			this.dsRefereeDecisions.setFop(fop);
 		}
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION)) {
+		if (isDecisionSectionEnabled()) {
 			syncStateFromFop(fop);
 		}
 	}
@@ -208,8 +207,32 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		if (fop != null) {
 			this.getElement().setProperty("projectedRankClockStopped", fop.getState() == FOPState.TIME_STOPPED);
 		}
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION)) {
+		if (isDecisionSectionEnabled()) {
 			syncStateFromFop(fop);
+		}
+	}
+
+	@Override
+	public void setDecisionSection(boolean b) {
+		super.setDecisionSection(b);
+		refreshDecisionSection();
+	}
+
+	/** The URL parameter is read after construction and can be toggled from the display dialog. */
+	private void refreshDecisionSection() {
+		boolean enabled = isDecisionSectionEnabled();
+		if (enabled == this.getElement().getProperty("showDecisionSection", false)) {
+			return;
+		}
+		this.getElement().setProperty("showDecisionSection", enabled);
+		if (!isAttached()) {
+			// propagateFopToTimerElements and onAttach will sync
+			return;
+		}
+		if (enabled) {
+			syncStateFromFop(getFop());
+		} else {
+			this.decisionBlock.onStartLifting();
 		}
 	}
 
@@ -245,8 +268,12 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		        Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_STOPWATCH));
 	}
 
+	/**
+	 * Driven by the {@code decisionSection} URL parameter; its default (public/video vs warmup) is
+	 * computed by the page when the URL is read.
+	 */
 	private boolean isDecisionSectionEnabled() {
-		return Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION);
+		return isDecisionSection();
 	}
 
 	/**

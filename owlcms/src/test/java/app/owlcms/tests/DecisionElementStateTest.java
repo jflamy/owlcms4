@@ -89,6 +89,7 @@ public class DecisionElementStateTest {
         });
         AthleteRepository.resetParticipations(false, true);
         this.athletes = AthleteRepository.findAll();
+        setJuryDecisionsOnAttemptBoard(false);
     }
 
     @Test
@@ -457,6 +458,18 @@ public class DecisionElementStateTest {
     }
 
     @Test
+    public void juryWaitRequiresAttemptBoardFeature() throws Exception {
+        DecisionScenario scenario = startScenario(false);
+        scenario.fopState.setJurySize(3);
+        scenario.fopState.setJuryDecisionTimingForTests(2_000, 800);
+        enterInitialGoodDecision(scenario);
+        assertFinalDecision(scenario, true);
+        assertReset(scenario);
+        scenario.timeline.assertElapsedAtMost("UI Decision", "UI DecisionReset", DECISION_VISIBLE_DURATION_MS,
+                "jury size alone must not extend the decision display");
+    }
+
+    @Test
     public void juryAlreadyCompleteUsesNormalDuration() throws Exception {
         DecisionScenario scenario = startScenario(false);
         configureJuryTiming(scenario);
@@ -523,6 +536,7 @@ public class DecisionElementStateTest {
     }
 
     private void configureJuryTiming(DecisionScenario scenario) {
+        setJuryDecisionsOnAttemptBoard(true);
         scenario.fopState.setJurySize(3);
         scenario.fopState.setJuryDecisionTimingForTests(2_000, 800);
     }
@@ -737,6 +751,12 @@ public class DecisionElementStateTest {
     private void setShowDecisionsImmediately(boolean enabled) {
         Config config = Config.getCurrent();
         config.setFeatureSwitchValue(FeatureSwitch.SHOW_DECISIONS_IMMEDIATELY, enabled);
+        Config.setCurrent(config);
+    }
+
+    private void setJuryDecisionsOnAttemptBoard(boolean enabled) {
+        Config config = Config.getCurrent();
+        config.setFeatureSwitchValue(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, enabled);
         Config.setCurrent(config);
     }
 

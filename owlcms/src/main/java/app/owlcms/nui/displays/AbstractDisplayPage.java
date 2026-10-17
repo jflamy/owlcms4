@@ -62,6 +62,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	private Map<String, List<String>> urlParameterMap;
 	private boolean video;
 	private boolean currentAttempt;
+	private boolean decisionSection;
 	private FieldOfPlay fop;
 	private Group group;
 	private boolean abbreviatedName;
@@ -174,6 +175,11 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	}
 
 	@Override
+	public final boolean isDecisionSection() {
+		return this.decisionSection;
+	}
+
+	@Override
 	final public boolean isDarkMode() {
 		return this.darkMode;
 	}
@@ -264,6 +270,12 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	public void setCurrentAttempt(boolean currentAttempt) {
 		((DisplayParameters) this.board).setCurrentAttempt(currentAttempt);
 		this.currentAttempt = currentAttempt;
+	}
+
+	@Override
+	public void setDecisionSection(boolean b) {
+		((DisplayParameters) this.board).setDecisionSection(b);
+		this.decisionSection = b;
 	}
 
 	@Override

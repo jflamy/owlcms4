@@ -75,6 +75,18 @@ public interface ParameterReader extends HasUrlParameter<String> {
 
 	public void setDefaultParameters(QueryParameters qp);
 
+	/**
+	 * Set the default for one parameter whose value is only known once other parameters have been
+	 * read (for example, a default that depends on whether the display is public).
+	 */
+	public default void setDefaultParamValue(String paramName, String value) {
+		QueryParameters current = getDefaultParameters();
+		Map<String, List<String>> defaults = current != null ? new TreeMap<>(current.getParameters())
+		        : new TreeMap<>();
+		defaults.put(paramName, List.of(value));
+		setDefaultParameters(new QueryParameters(defaults));
+	}
+
 	/*
 	 * Retrieve parameter(s) from URL and update according to current settings.
 	 *

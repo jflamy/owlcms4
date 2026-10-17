@@ -6,6 +6,9 @@
  *******************************************************************************/
 package app.owlcms.nui.displays.scoreboards;
 
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
@@ -14,6 +17,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.Location;
 
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.apputils.queryparameters.ResultsParameters;
@@ -47,6 +51,18 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 	public boolean isIgnoreGroupFromURL() {
 		// Results pages (medals, rankings) need to respect the group parameter
 		return false;
+	}
+
+	@Override
+	public Map<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
+		// DECISION_SECTION must not be among the static defaults set in init(): its default depends
+		// on public/video, which are only known after super.readParams, and an explicit URL value
+		// equal to a static default would be stripped before we get here.
+		Map<String, List<String>> params = super.readParams(location, parametersMap);
+		setDefaultParamValue(DECISION_SECTION, Boolean.toString(isDefaultDecisionSection()));
+		processBooleanParam(params, DECISION_SECTION, (v) -> switchDecisionSection(v, false));
+		setUrlParameterMap(params);
+		return params;
 	}
 
 	/**

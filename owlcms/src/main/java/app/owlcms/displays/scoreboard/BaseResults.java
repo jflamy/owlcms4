@@ -124,6 +124,7 @@ public class BaseResults extends LitTemplate
 	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	private boolean video;
 	private boolean currentAttempt;
+	private boolean decisionSection;
 	private String showMedals = "auto";
 	private int topN = DisplayParameters.DEFAULT_TOP_N;
 	private boolean groupPinnedFromURL;
@@ -300,6 +301,11 @@ public class BaseResults extends LitTemplate
 
 	public final boolean isCurrentAttempt() {
 		return this.currentAttempt;
+	}
+
+	@Override
+	public boolean isDecisionSection() {
+		return this.decisionSection;
 	}
 
 	protected void clearDecisionSectionDecisionAthlete() {
@@ -556,6 +562,11 @@ public class BaseResults extends LitTemplate
 	public void setCurrentAttempt(boolean b) {
 		this.currentAttempt = b;
 		getElement().setProperty("currentAttempt", this.currentAttempt);
+	}
+
+	@Override
+	public void setDecisionSection(boolean b) {
+		this.decisionSection = b;
 	}
 
 	@Override

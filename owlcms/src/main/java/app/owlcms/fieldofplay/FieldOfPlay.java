@@ -75,6 +75,7 @@ import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.data.records.RecordConfig;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordFilter;
+import app.owlcms.displays.DecisionDisplayRules;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.fieldofplay.FOPEvent.BarbellOrPlatesChanged;
 import app.owlcms.fieldofplay.FOPEvent.CeremonyDone;
@@ -4017,7 +4018,9 @@ public class FieldOfPlay implements IUnregister {
 		cancelDecisionReset();
 		this.decisionVisibleSince = System.nanoTime() / 1_000_000;
 		this.decisionJurySize = getJurySize();
-		this.awaitingJuryCompletion = this.decisionJurySize > 0 && !allDecisionJurorsVoted();
+		this.awaitingJuryCompletion = DecisionDisplayRules.showJuryDecisionsOnAttemptBoard(this.decisionJurySize,
+		        Config.getCurrent().featureSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD))
+		        && !allDecisionJurorsVoted();
 		long duration = this.awaitingJuryCompletion
 				? Math.max(this.decisionVisibleDuration, this.juryDecisionVisibleMaxMs)
 				: this.decisionVisibleDuration;

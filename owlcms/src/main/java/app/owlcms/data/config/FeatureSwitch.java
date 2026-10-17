@@ -24,7 +24,9 @@ public enum FeatureSwitch {
     PREVIOUS_SESSION_MEDALS_ONLY("previousSessionMedalsOnly", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     BW_CLASS_THEN_AGE_GROUP("bwClassThenAgeGroup", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     SHOW_DECISIONS_IMMEDIATELY("showDecisionsImmediately", FeatureSwitchSection.SCOREBOARD_OPTIONS),
-    DECISION_SECTION("decisionSection", FeatureSwitchSection.SCOREBOARD_OPTIONS),
+    // "decisionSection" alias keeps existing databases, exports and startup parameters working
+    DECISION_SECTION("decisionSectionOnWarmupScoreboard", FeatureSwitchSection.SCOREBOARD_OPTIONS, "decisionSection"),
+    JURY_DECISIONS_ON_ATTEMPT_BOARD("juryDecisionsOnAttemptBoard", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DECISION_SECTION_SHOW_BOTH_JURY_VOTES("decisionSectionShowBothJuryVotes", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DECISION_SECTION_STOPWATCH("decisionSectionStopwatch", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DECISION_SECTION_SHOW_AGE_GROUPS("decisionSectionShowAgeGroups", FeatureSwitchSection.SCOREBOARD_OPTIONS),

@@ -29,7 +29,9 @@ The screen also allows selecting common variations on IWF rules.
   - `Enable Custom Score` This adds a box on the Athlete Card where a custom score can be entered manually.  This is sometimes used for kid competitions where bonuses are given for 5/6 or 6/6 performances.  The score can be anything:  a modified total minus penalty points, or Sinclair + bonus, or whatever.
 
 - Jury
-  - `Jury Size`: typically 3.  Set to 0 if no Jury.
+  - `Jury Size`: 0 (no jury) by default. Set to 3 or 5 when a jury votes using owlcms devices. A jury size above 0 adds the jury decision circles to the bottom decision section of the scoreboards.
+  - Scoreboards have a `Show Bottom Decision Section` option in their display dialog (URL parameter `decisionSection`). Public and video scoreboards show the section by default; warmup scoreboards hide it by default unless the `Show the bottom decision section by default on warmup scoreboards` feature switch is on. The option in the dialog overrides the default for that screen.
+  - Attempt boards have a `Show Jury Decisions` option (URL parameter `showJuryDecisions`). It defaults to on only when the `Show jury decisions on attempt boards` feature switch is on and the jury size is above 0. Those same two conditions are required for owlcms to wait up to 10 seconds for the jury votes before clearing the decision. With a jury size of 0, the option is not offered.
   - `Announcer controls the display of decisions`: TCRR requires the speaker to announce why a decision was overruled by the jury.  This setting enables the notifications to the speaker. Turning it off makes the attempt board immediately show jury decisions.
   - `Video Playback Technology in use`: When a 5-person jury votes, it is necessary to know whether a majority or unanimous decision is needed.
 

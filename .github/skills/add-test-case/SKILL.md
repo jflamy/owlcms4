@@ -64,7 +64,8 @@ Allowed alternative:
 ## Repository-Specific Notes
 
 - `ChampionshipTest` already contains fixture-backed competition tests and is the preferred place for related team-results and championship-rule regressions.
-- Changes to tests should respect the repository rule against unnecessary Maven/build execution without explicit user consent.
+- Focused Maven test runs and the compilation needed for them have standing maintainer authorization.
+  Follow the `run-maven-test` skill and run the narrowest test class or classes that cover the change.
 - When a test needs scoring behavior, use the fixture and existing helper methods rather than inventing parallel setup.
 
 ## Expected Output
@@ -81,5 +82,5 @@ When using this skill:
 - do not create Vaadin UI objects in tests
 - do not add UI-thread dependencies to tests
 - do not add reflection-based tests against Vaadin page internals when a small extraction is viable
-- do not run Maven or full builds without explicit user approval
+- do not run broad Maven suites, packaging, installation, deployment, application launch, or unrelated builds
 - do not stage, commit, or push unless explicitly requested

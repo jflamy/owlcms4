@@ -34,6 +34,8 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.displays.DecisionDisplayRules;
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
@@ -297,6 +299,23 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 			updateURLLocation(getLocationUI(), getLocation(), CURRENT_ATTEMPT, Boolean.toString(currentAttempt));
 		}
 		setCurrentAttempt(currentAttempt);
+	}
+
+	public default void switchDecisionSection(boolean show, boolean updateURL) {
+		if (updateURL) {
+			updateURLLocation(getLocationUI(), getLocation(), DECISION_SECTION, Boolean.toString(show));
+		}
+		setDecisionSection(show);
+	}
+
+	/**
+	 * Public and video scoreboards have no attempt bar at the top, so they show the decision
+	 * section unless told otherwise; warmup scoreboards show it only when the feature switch is on.
+	 * Must be called after {@code public} and {@code video} have been read.
+	 */
+	public default boolean isDefaultDecisionSection() {
+		return DecisionDisplayRules.showDecisionSection(isPublicDisplay(), isVideo(),
+		        Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION));
 	}
 
 	public default void switchShowMedals(String showMedals, boolean updateURL) {

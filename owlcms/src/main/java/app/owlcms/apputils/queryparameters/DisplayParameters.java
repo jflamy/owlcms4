@@ -35,6 +35,7 @@ public interface DisplayParameters extends SoundParameters {
 	public static final String LIGHT = "light";
 	public static final String VIDEO = "video";
 	public static final String CURRENT_ATTEMPT = "currentAttempt";
+	public static final String DECISION_SECTION = "decisionSection";
 	public static final String SHOW_MEDALS = "showMedals";
 	public static final String KEEP_INITIAL_DECISION = "keepInitial";
 	public static final String KEEP_FINAL_DECISION = "keepFinal";
@@ -85,6 +86,14 @@ public interface DisplayParameters extends SoundParameters {
 		return false;
 	}
 
+	/**
+	 * @return true if the scoreboard shows the decision section (referee lights, athlete under
+	 *         review, jury circles when there is a jury)
+	 */
+	public default boolean isDecisionSection() {
+		return false;
+	}
+
 	public default void pushEmSize(Element element) {
 	}
 
@@ -108,6 +117,9 @@ public interface DisplayParameters extends SoundParameters {
 	public void setVideo(boolean b);
 
 	public default void setCurrentAttempt(boolean b) {
+	}
+
+	public default void setDecisionSection(boolean b) {
 	}
 
 	public default String isShowMedals() {

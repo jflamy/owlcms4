@@ -435,8 +435,8 @@ public class Competition {
 	private Integer teamPoints3rd = 23;
 	@Column(columnDefinition = "boolean default false")
 	private boolean sinclairMeet;
-	@Column(columnDefinition = "integer default 3")
-	private Integer jurySize = 3;
+	@Column(columnDefinition = "integer default 0")
+	private Integer jurySize = 0;
 	// exclusive bound: the form displays longerBreakMax - 1 ("X athletes or fewer")
 	@Column(columnDefinition = "integer default 7")
 	private Integer longerBreakMax = 7;
@@ -1220,7 +1220,7 @@ public class Competition {
 	public Integer getJurySize() {
 		if (this.jurySize == null || (this.jurySize != 0 && this.jurySize != 3
 		        && this.jurySize != 5)) {
-			return 3;
+			return 0;
 		}
 		return this.jurySize;
 	}
@@ -1994,7 +1994,7 @@ public class Competition {
 	public void setJurySize(Integer jurySize) {
 		this.jurySize = jurySize != null && (jurySize == 0 || jurySize == 3 || jurySize == 5)
 		        ? jurySize
-		        : 3;
+		        : 0;
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		if (fop != null) {
 			MQTTMonitor mqttMonitor = fop.getMqttMonitor();
