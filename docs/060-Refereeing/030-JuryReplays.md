@@ -1,133 +1,73 @@
 # Self-Service Jury Replays
 
-The `replays` module is a complement to owlcms that provides automatic recording of the lifts and makes them available to the jury.  Multiple cameras are supported. The lifts are automatically trimmed to start a little before the lift and stop after the decisions have been shown.  The jury can watch them using a regular browser, and the replays are organized by session and time (most recent first)
+The `video` module is a complement to owlcms that, among other features, allows capturing jury replays.  The lifts are automatically trimmed to start a little before the lift and stop after the decisions have been shown.  The jury can watch them using a regular browser, and the replays are organized by session and time (most recent first)
 
-There are three things to explain for the jury program
+### Starting the Video Module
 
-1. How the Jury Replay capture works, which includes a basic viewing mode
-2. How a user-friendly user interface is configured
-3. How the Jury Replay program is configured, including how it gets it's camera inputs.
+The video module is started from the control panel, but is not on by default.  You need to enable it.  You will then be offered to install it.
 
-### Using the Replay Program
+![image-20261018161810768](img/030-JuryReplays/image-20261018161810768.png)
 
-The replays program will normally locate owlcms.  So the first thing to do is to start owlcms and wait that it shows its home screen.
+Once installed, you get the usual control panel look, and you start the program using the highlighted button.  Updates and multiple versions work exactly the same as the other modules.
 
-> Reminder: Clicking on a screenshot makes it bigger.
+![image-20261018162034826](img/030-JuryReplays/image-20261018162034826.png)
 
-***Announcer Screen***
+Starting the module brings us to a monitoring page where we start cameras.  For the purpose of this tutorial, we will start a Logitech webcam attached to our laptop.  
 
-The session has not been started yet, but owlcms is running.
+By default, the program intentionally hides the built-in cameras since we don't use those for replays.  It only shows cameras that were previously configured.  In this example, we have previously configured 4 cameras, so these are visible.
 
-![owlcms](img/030-JuryReplays/owlcms.png)
+![image-20261018163329678](img/030-JuryReplays/image-20261018163329678.png)
 
-***Jury Screen***
+In order to perform tests at home before a meet, it is convenient to use the built-in cameras, so we enable them from the Cameras menu.
 
-For simplicity, we assume that the `replays` program runs on the jury laptop.  But `replays` can actually run anywhere -- wherever is most convenient for your camera or cameras.  You don't *need* to run the jury console if you have jury buttons instead, this just shows that owlcms is running.
+![image-20261018163728767](img/030-JuryReplays/image-20261018163728767.png)
 
-Once owlcms has started  we start the replays program.  If there is no address configured in the configuration file for owlcms, or if the address has changed, it will try to find owlcms -- it will show a "Scanning" message.  
+and the Configuration menu shows all that have been seen. On a Mac, this will include your phone as a linked camera, we disable it.
 
-![scanning](img/030-JuryReplays/scanning.png)
+![image-20261018163930033](img/030-JuryReplays/image-20261018163930033.png)
 
-After scanning, it will show "Ready", and you can click on "Open replay list in the browser"
+Going back to the monitoring page, we start the built-in camera. The preview button allows you to see what is being captured.
 
-![ready-open](img/030-JuryReplays/ready-open.png)
+![image-20261018164223290](img/030-JuryReplays/image-20261018164223290.png)
 
-Since we have not recorded anything at all, the web page that opens will be blank.  If you are running `replays` on a machine other than the jury because of your camera setup, you would use the URL shown at the top to open the page on the jury computer.
+## Setting up replay cameras
 
-![empty](img/030-JuryReplays/empty.png)
+From the Replays tab, we use the Select Cameras button.  In our initial test, we don't have our actual replay cameras at home, so we unselect them.  We only keep our built-in camera.  At the competition site, we will select the real cameras, of course.
 
-***Announcer Screen***
+![image-20261018164556172](img/030-JuryReplays/image-20261018164556172.png)
 
-The announcer or timekeeper will start the time normally.  They have nothing special to do.
+## Testing Replays
 
-![timerunning](img/030-JuryReplays/timerunning.png)
+1. Start OWLCMS with some data: a session with some weighed-in athletes
 
-***Jury Screen***
+2. Check that the Replays module found OWLCMS (1). If not, give the address using the menu (2) and restart the Replays module (3).
 
-The jury page will automatically switch to the current session and show that things are recording.  The recording page is just another tab in the browser.  You can pull it out to make a separate window if you wish. Or you can just leave the tab hidden until the jury needs to look at a replay.
+   ![image-20261018170911429](img/030-JuryReplays/image-20261018170911429.png)
 
-![recording](img/030-JuryReplays/recording.png)
+3. Click on the link at the top of the replays window
 
-After the decision is made visible, the replay page will show that it is removing the dead time before the lift.
+   ![image-20261018165952366](img/030-JuryReplays/image-20261018165952366.png)
 
-![trimming](img/030-JuryReplays/trimming.png)
+   You should see something like this
 
-And then the video is made available in the list.  Videos are grouped by session and shown in most recent order first.  The athlete, attempt and camera angle are clearly identified.
+   ![image-20261018170051944](img/030-JuryReplays/image-20261018170051944.png)
 
-![replaysList](img/030-JuryReplays/replaysList.png)
+4. In OWLCMS, run start the session and start the clock.  
 
-To see a replay, one simply clicks on the video.  Whatever was in front of the camera during the time the clock ran is captured.  The video can be made full screen are looked again.  There is no slow-motion, but you can pause it.
+   1. Let the clock run for 10 seconds, then show a "thumbs up" to the camera, stop the clock.
+   2. Wait 10 seconds, then enter your bad lift decision (you can use the controls on the announcer screen) - show a "thumbs down" towards your laptop camera.
 
-![watchreplay](img/030-JuryReplays/watchreplay.png)
+   What should happen: during the time from the start of the clock to about 5 seconds after decision, the replays screen should show that it is recording
 
-When the clock starts again, the recording/trimming/ready sequence starts again.
+   ![image-20261018171117212](img/030-JuryReplays/image-20261018171117212.png)
 
-![moreReplays](img/030-JuryReplays/moreReplays.png)
+   After the lift, you should see "Ready" and the video added to the list at the top.
+   ![image-20261018171340719](img/030-JuryReplays/image-20261018171340719.png)
 
-### Accessing the Videos
+### Watching Replays
 
-You can access the video files by using the `File` menu.
+The jury can simply get this screen and click on the links.  This will open the standard video browsing experience from the browser.
 
-![openDirectory](img/030-JuryReplays/openDirectory.png)
+For an easier experience, there is a tracker module that can fetch the videos and make a nicer interface.
 
-You will then see a folder called `videos` and inside, the videos for all the sessions are properly named.
-
-![videosFolder](img/030-JuryReplays/videosFolder.png)
-
-### RaspberryPi: Configuration of the program
-
-**Installation** 
-
-Download the program called `replays` (no `.exe`) from https://github.com/owlcms/replays/releases
-
-- Copy it to the Desktop where you want to use it
-
-- Right-click on the program.  **Set the execution permissions to "anyone"**
-
-**Configuration**
-
-There is nothing to do if you have only one device.  The `ffmpeg` program is already installed, and when you plug in a camera  the USB adapter will be on `/dev/video0`.
-
-If you have more than one camera, open the configuration directory, use the Text editor, and create additional sections `[linux2]` `[linux3]` etc. as needed. 
-
-- Cameras are **even-numbered** (0, 2, 4, etc.). 
-
-- Make sure that `enabled = true` for the cameras you use and `enabled = false` for those you don't.
-
-### Windows : Configuration of the program
-
-**Installation** 
-
-- Download the program called `replays.exe` (with the `.exe` extension) from https://github.com/owlcms/replays/releases
-
-- Copy it to the Desktop where you want to use it
-
-
-##### Recording Software
-
-You need to be connected to the internet when you first use the program.  The replays program will fetch the `ffmpeg` recording software for you and put a copy in the installation directory.
-
-##### Camera Configuration
-
-Once ffmpeg is installed, you need to configure your cameras.   For this, we need to list the camera names as Windows detected them.
-
-- Go to the `Help` menu and select `List Cameras`.  This will call ffmpeg and obtain the list of available cameras.
-
-For our example, we will configure a camera called `Logitech Webcam C930e`
-
-- Go back to the applications directory.
-
-
-- Find the `config.toml` file, that can be edited with Notepad
-
-- ![editToml](img/030-JuryReplays/editToml.png)
-
-- Then edit the cameras to have exactly the name as in the ffmpeg output.   Locate the `[windows]` section.
-
-
-![notepad](img/030-JuryReplays/notepad.png)
-
-If you have more than one camera,  add additional sections`[windows2]` `[windows3]`  etc.  Make sure that `enabled = true` for the cameras you use and `enabled = false` for those you don't.
-
-Normally you don't need to change the other parameters.
-
+![image-20261018172006810](img/030-JuryReplays/image-20261018172006810.png)
