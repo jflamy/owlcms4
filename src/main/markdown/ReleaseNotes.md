@@ -10,6 +10,16 @@
 
 **Maintenance Log**
 
+- 68.0.2: Updated the Spain age group template.
+
+- 68.0.2: Fixed unnecessary delays when starting the next clock after a decision:
+  - the extra wait for jury votes now applies only when jury decisions on attempt boards are enabled and the jury size is above zero.
+  - New competitions default to no jury (size 0); existing competitions keep their saved jury size.
+
+- 68.0.2: The bottom decision section can now be shown or hidden for each scoreboard. It is shown by default on public and video scoreboards, and hidden on warm-up scoreboards unless enabled by the feature switch.
+
+- 68.0.2: Jury decisions on attempt boards can be enabled by default with the `juryDecisionsOnAttemptBoard` feature switch. The actual option is only offered when the jury size is above zero.
+
 - 68.0.1: Fixed the medal ceremony dialogue: starting a single category ceremony (e.g. "45" under P15 F) from the Medal Ceremony page would show an empty medals page.
 
 **New in Release 68.0**
