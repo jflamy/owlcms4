@@ -62,6 +62,7 @@ import app.owlcms.simulation.CompetitionSimulator;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
+import app.owlcms.uievents.JuryRejectionReasons;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEventSequenceGuard;
 import app.owlcms.utils.CSSUtils;
@@ -428,6 +429,31 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		});
 	}
 
+	/**
+	 * Seven-person Adjudication Panel: show or hide the review vote during the jury break. The lights themselves are
+	 * driven by the decision element.
+	 */
+	@Subscribe
+	public void slavePanelVoteCalled(UIEvent.PanelVoteCalled e) {
+		if (e.getRef() == 0) {
+			republishReviewBreak();
+		}
+	}
+
+	@Subscribe
+	public void slavePanelVoteUpdate(UIEvent.PanelVoteUpdate e) {
+		republishReviewBreak();
+	}
+
+	private void republishReviewBreak() {
+		FieldOfPlay fop = getFop();
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			if (fop != null && fop.getState() == FOPState.BREAK) {
+				publish(buildBreakState(fop));
+			}
+		});
+	}
+
 	@Subscribe
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
 		if (e.isWaitForAnnouncer()) {
@@ -443,15 +469,20 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			switch (e.getDeliberationEventType()) {
 				case BAD_LIFT:
 					previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
+					FieldOfPlay fop = getFop();
+					// the seven-person Adjudication Panel shows the technical rule relied upon (TCRR 7.5.7)
+					String rule = fop != null && fop.isPanelProcedure()
+					        ? JuryRejectionReasons.label(e.getReasonCode())
+					        : null;
 					showJuryNotification(reversalText, Translator.translate("JuryDialog.BadLiftLabel"), e.getAthlete(),
 					        formatAttemptByIndex(previousAttemptNo), false, "failNotification",
-						        JURY_NOTIFICATION_DIALOG_DURATION_MS);
+						        JURY_NOTIFICATION_DIALOG_DURATION_MS, rule);
 					break;
 				case GOOD_LIFT:
 					previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
 					showJuryNotification(reversalText, Translator.translate("JuryDialog.GoodLiftLabel"), e.getAthlete(),
 					        formatAttemptByIndex(previousAttemptNo), e.getNewRecord(), "successNotification",
-						        JURY_NOTIFICATION_DIALOG_DURATION_MS);
+						        JURY_NOTIFICATION_DIALOG_DURATION_MS, null);
 					break;
 				default:
 					break;
@@ -787,8 +818,10 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		}
 
 		if (breakType == BreakType.JURY || breakType == BreakType.CHALLENGE) {
+			// seven-person Adjudication Panel: the review vote is shown during the break
 			return builder.lastName(inferGroupName(group, null))
 					.firstName(inferMessage(breakType, ceremonyType, true))
+					.decisionVisible(fop.isPanelVoteOpen())
 					.build();
 		}
 
@@ -1049,11 +1082,11 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	private void showJuryNotification(String status, String decision, Athlete athlete, String attempt, boolean newRecord,
-	        String notificationClass, int duration) {
+	        String notificationClass, int duration, String rule) {
 		clearJuryNotification();
 		Dialog dialog = ensureJuryNotificationDialog();
 		dialog.removeAll();
-		dialog.add(new JuryNotificationCard(status, decision, athlete, attempt, newRecord, notificationClass));
+		dialog.add(new JuryNotificationCard(status, decision, athlete, attempt, newRecord, notificationClass, rule));
 		dialog.open();
 		scheduleJuryNotificationClose(duration);
 	}

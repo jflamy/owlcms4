@@ -70,9 +70,21 @@ class PassiveDecisionElement extends LitElement {
     }
     this.singleRef = Boolean(payload.singleRef);
     this.showDecision = payload.mode !== "reset";
+    if (payload.mode === "panel") {
+      // seven-person panel review vote: referee lights only once the seven votes are revealed
+      const states = payload.refStates || [];
+      this.ref1 = this._panelRef(states[0]);
+      this.ref2 = this._panelRef(states[1]);
+      this.ref3 = this._panelRef(states[2]);
+      return;
+    }
     this.ref1 = this._coerceRef(payload.ref1);
     this.ref2 = this._coerceRef(payload.ref2);
     this.ref3 = this._coerceRef(payload.ref3);
+  }
+
+  _panelRef(state) {
+    return state === "white" ? true : state === "red" ? false : null;
   }
 
   _coerceRef(value) {

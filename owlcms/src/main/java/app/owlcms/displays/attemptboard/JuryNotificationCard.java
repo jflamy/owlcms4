@@ -19,6 +19,14 @@ public class JuryNotificationCard extends Div {
 
 	public JuryNotificationCard(String status, String decision, Athlete athlete, String attempt, boolean newRecord,
 	        String notificationClass) {
+		this(status, decision, athlete, attempt, newRecord, notificationClass, null);
+	}
+
+	/**
+	 * @param rule the technical rule for a No Lift (seven-person Adjudication Panel), null if not shown
+	 */
+	public JuryNotificationCard(String status, String decision, Athlete athlete, String attempt, boolean newRecord,
+	        String notificationClass, String rule) {
 		boolean success = "successNotification".equals(notificationClass);
 
 		addClassName("jury-notification-card");
@@ -58,6 +66,12 @@ public class JuryNotificationCard extends Div {
 		attemptDiv.add(new Html("<div>" + (attempt != null ? attempt : "") + "</div>"));
 
 		add(meta, decisionDiv, athleteDiv, attemptDiv);
+		if (rule != null && !rule.isBlank()) {
+			Div ruleDiv = new Div();
+			ruleDiv.addClassName("jury-notification-rule");
+			ruleDiv.setText(rule);
+			add(ruleDiv);
+		}
 	}
 
 	private Div createJuryNotificationChip(String text, boolean success, boolean label, boolean record) {

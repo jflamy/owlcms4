@@ -102,6 +102,10 @@ public class DecisionBlockState {
 	private Boolean[] juryVotes;
 	private JuryDeliberationEventType deliberationType;
 	private Boolean juryVerdictGood;
+	/** seven-person panel review vote in progress: votes stay hidden until all seven are in */
+	private boolean panelVoting;
+	/** the seven review votes have been revealed (shown even when the second vote is not public) */
+	private boolean panelRevealed;
 
 	public DecisionBlockState(DecisionSectionRenderer renderer) {
 		this.renderer = renderer;
@@ -143,6 +147,10 @@ public class DecisionBlockState {
 	 * Ignored in READY, and ignored during deliberation unless the second vote is public.
 	 */
 	public void onJuryUpdate(Boolean[] votes, int jurySize) {
+		if (this.panelVoting) {
+			// review vote: the jury votes are revealed with the referees' (onPanelVote)
+			return;
+		}
 		this.juryVotes = copyOf(votes);
 		this.jurySize = jurySize;
 		switch (this.state) {
@@ -174,7 +182,35 @@ public class DecisionBlockState {
 		this.refLights = reviewedLights;
 		this.juryVotes = null;
 		this.juryVerdictGood = null;
+		this.panelVoting = false;
+		this.panelRevealed = false;
 		this.state = State.DELIBERATION;
+		render();
+	}
+
+	/**
+	 * Seven-person Adjudication Panel review vote (during a deliberation or challenge).
+	 *
+	 * @param reviewLights the referees' review votes and the panel majority, null while the vote is in progress
+	 * @param juryVotes    the four jury votes, null while the vote is in progress
+	 */
+	public void onPanelVote(RefLights reviewLights, Boolean[] juryVotes) {
+		if (this.state != State.DELIBERATION) {
+			return;
+		}
+		if (reviewLights == null) {
+			// vote called or in progress: nothing is shown until the seven votes are revealed together
+			this.panelVoting = true;
+			this.panelRevealed = false;
+			this.refLights = null;
+			this.juryVotes = null;
+		} else {
+			this.panelVoting = false;
+			this.panelRevealed = true;
+			this.refLights = reviewLights;
+			this.juryVotes = copyOf(juryVotes);
+			this.jurySize = juryVotes != null ? juryVotes.length : this.jurySize;
+		}
 		render();
 	}
 
@@ -264,6 +300,8 @@ public class DecisionBlockState {
 		this.juryVotes = null;
 		this.deliberationType = null;
 		this.juryVerdictGood = null;
+		this.panelVoting = false;
+		this.panelRevealed = false;
 		render();
 	}
 
@@ -296,7 +334,7 @@ public class DecisionBlockState {
 				this.renderer.cancelReviewTimeout();
 				this.renderer.renderAthleteUnderReview(this.reviewedAthlete);
 				renderRefereeLightsOrEmpty();
-				if (this.showBothJuryVotes) {
+				if (this.showBothJuryVotes || this.panelRevealed) {
 					this.renderer.renderJuryCircles(this.juryVotes, this.jurySize);
 				} else {
 					this.renderer.renderNoJuryCircles();

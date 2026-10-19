@@ -387,6 +387,27 @@ public abstract class AbstractDecisionElement extends LitTemplate
 	}
 
 	@Override
+	public void showPanelVote(UIEvent event, List<String> refereeStates, List<String> juryStates, long generation) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, event, () -> {
+			if (!this.decisionState.isCurrentGeneration(generation)) {
+				return;
+			}
+			ObjectNode payload = JsonUtils.object();
+			payload.put("sequence", Long.toString(this.decisionPayloadSequence.incrementAndGet()));
+			payload.put("mode", "panel");
+			payload.put("singleRef", false);
+			ArrayNode refs = JsonUtils.array();
+			refereeStates.forEach(refs::add);
+			payload.set("refStates", refs);
+			ArrayNode jury = JsonUtils.array();
+			juryStates.forEach(jury::add);
+			payload.set("juryStates", jury);
+			getElement().setPropertyJson("decisionPayload", payload);
+			setEnabled(false);
+		});
+	}
+
+	@Override
 	public void showDownSignal(UIEvent.DownSignal event, boolean silent) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, event, () -> {
 			uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),

@@ -25,6 +25,7 @@ import org.junit.Test;
 import com.google.common.eventbus.Subscribe;
 
 import app.owlcms.Main;
+import app.owlcms.components.elements.DecisionElementState;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -331,6 +332,31 @@ public class SevenPersonAdjudicationTest {
 		assertTrue(this.fop.isPanelVoteOpen());
 	}
 
+	@Test
+	public void boardsShowTheSevenVotesTogether() {
+		PanelRenderer boards = new PanelRenderer();
+		DecisionElementState boardState = new DecisionElementState(boards);
+		boardState.setFop(this.fop);
+		this.fop.getUiEventBus().register(boardState);
+
+		reviewAfterLift(W, W, W);
+		callForVotes();
+		assertTrue("cells cleared when the vote is called", boards.await(
+		        p -> p.referees().equals(List.of("empty", "empty", "empty"))
+		                && p.jury().equals(List.of("empty", "empty", "empty", "empty"))));
+		reviewVotes(R, R, R);
+		juryVotes(R, R, R);
+		assertTrue("who has voted, values hidden", boards.await(
+		        p -> p.referees().equals(List.of("voted", "voted", "voted"))
+		                && p.jury().equals(List.of("voted", "voted", "voted", "empty"))));
+		assertFalse(boards.panels.stream().anyMatch(p -> p.referees().contains("red")));
+
+		juryVote(3, W);
+		assertTrue("the seven votes revealed together", boards.await(
+		        p -> p.referees().equals(List.of("red", "red", "red"))
+		                && p.jury().equals(List.of("red", "red", "red", "white"))));
+	}
+
 	// ---------------------------------------------------------------- scenario helpers
 
 	/** the referees' initial decision on the current athlete's attempt */
@@ -429,6 +455,53 @@ public class SevenPersonAdjudicationTest {
 		Config config = Config.getCurrent();
 		config.setFeatureSwitchValue(featureSwitch, enabled);
 		Config.setCurrent(config);
+	}
+
+	/** records what the boards are asked to draw for the review vote */
+	public static final class PanelRenderer implements DecisionElementState.IDecisionRenderer {
+		record Panel(List<String> referees, List<String> jury) {
+		}
+
+		final List<Panel> panels = new CopyOnWriteArrayList<>();
+
+		@Override
+		public void showPanelVote(UIEvent event, List<String> refereeStates, List<String> juryStates,
+		        long generation) {
+			this.panels.add(new Panel(refereeStates, juryStates));
+		}
+
+		@Override
+		public void setEnabled(UIEvent event, boolean enabled) {
+		}
+
+		@Override
+		public void resetDecisionDisplay(UIEvent event, long generation) {
+		}
+
+		@Override
+		public void showDecisionLights(UIEvent event, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3,
+		        boolean singleLight, boolean announcerForced) {
+		}
+
+		@Override
+		public void showDownSignal(UIEvent.DownSignal event, boolean silent) {
+		}
+
+		boolean await(Predicate<Panel> condition) {
+			long deadline = System.currentTimeMillis() + 2_000;
+			while (System.currentTimeMillis() < deadline) {
+				if (this.panels.stream().anyMatch(condition)) {
+					return true;
+				}
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					return false;
+				}
+			}
+			return false;
+		}
 	}
 
 	/** records the UI events that devices, consoles and MQTT react to */

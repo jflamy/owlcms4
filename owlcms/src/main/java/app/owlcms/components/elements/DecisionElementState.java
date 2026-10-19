@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.eventbus.Subscribe;
 
+import app.owlcms.fieldofplay.AdjudicationPanel;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.InputKind;
 import app.owlcms.uievents.UIEvent;
@@ -29,6 +30,16 @@ public class DecisionElementState {
 		void showDownSignal(UIEvent.DownSignal event, boolean silent);
 
 		default void showJuryLights(UIEvent event, List<String> lights, long generation) {
+		}
+
+		/**
+		 * Seven-person Adjudication Panel review vote. States are "empty", "voted", "white" or "red".
+		 *
+		 * @param refereeStates referees 1..3
+		 * @param juryStates    jury members 1..4
+		 */
+		default void showPanelVote(UIEvent event, List<String> refereeStates, List<String> juryStates,
+		        long generation) {
 		}
 	}
 
@@ -182,6 +193,40 @@ public class DecisionElementState {
 		// InitialDecision is an early notification for consumers such as video
 		// animations. The FOP decides when the decision becomes visible and emits
 		// UIEvent.Decision at that time; the decision element does not render this event.
+	}
+
+	/** A new review vote: the seven cells are cleared. */
+	@Subscribe
+	public void slavePanelVoteCalled(UIEvent.PanelVoteCalled e) {
+		if (e.getRef() != 0) {
+			return;
+		}
+		boolean[] voted = new boolean[AdjudicationPanel.PANEL_SIZE];
+		publishPanelVote(e, voted, null);
+	}
+
+	/** Who has voted, then the seven votes revealed together. */
+	@Subscribe
+	public void slavePanelVoteUpdate(UIEvent.PanelVoteUpdate e) {
+		if (!e.isOpen() && !e.isComplete()) {
+			// the vote was cancelled or abandoned
+			long generation = nextGeneration();
+			setResetSnapshot(generation);
+			this.renderer.resetDecisionDisplay(e, generation);
+			return;
+		}
+		publishPanelVote(e, e.getVoted(), e.getVotes());
+	}
+
+	private void publishPanelVote(UIEvent e, boolean[] voted, Boolean[] votes) {
+		List<String> states = new ArrayList<>(AdjudicationPanel.PANEL_SIZE);
+		for (int i = 0; i < AdjudicationPanel.PANEL_SIZE; i++) {
+			Boolean vote = votes != null ? votes[i] : null;
+			states.add(vote != null ? (vote ? "white" : "red") : (voted[i] ? "voted" : "empty"));
+		}
+		this.renderer.showPanelVote(e, List.copyOf(states.subList(0, AdjudicationPanel.NB_REFEREES)),
+		        List.copyOf(states.subList(AdjudicationPanel.NB_REFEREES, AdjudicationPanel.PANEL_SIZE)),
+		        nextGeneration());
 	}
 
 	@Subscribe

@@ -1666,6 +1666,13 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
+	 * @return true once all seven officials have voted (the votes and the majority can be shown)
+	 */
+	public boolean isPanelVoteComplete() {
+		return this.panelVoteMajority != null;
+	}
+
+	/**
 	 * @return true when the Jury Chair can call the review vote: panel procedure, jury or challenge break, a lift
 	 *         under review
 	 */

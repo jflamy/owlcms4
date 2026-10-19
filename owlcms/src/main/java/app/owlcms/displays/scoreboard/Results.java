@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.displays.scoreboard;
 
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -33,6 +34,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.fieldofplay.AdjudicationPanel;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.InputKind;
@@ -540,6 +542,25 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 			if (isDecisionSectionEnabled()) {
 				this.decisionBlock.onResetOnNewClock();
 			}
+		});
+	}
+
+	/** Seven-person Adjudication Panel review vote: hidden while in progress, then the seven votes together. */
+	@Subscribe
+	public void slavePanelVoteUpdate(UIEvent.PanelVoteUpdate e) {
+		if (!isDecisionSectionEnabled() || (!e.isOpen() && !e.isComplete())) {
+			return;
+		}
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			Boolean[] votes = e.getVotes();
+			if (votes == null) {
+				this.decisionBlock.onPanelVote(null, null);
+				return;
+			}
+			DecisionBlockState.RefLights reviewLights = new DecisionBlockState.RefLights(e.getMajority(), votes[0],
+			        votes[1], votes[2], false, false);
+			this.decisionBlock.onPanelVote(reviewLights, Arrays.copyOfRange(votes, AdjudicationPanel.NB_REFEREES,
+			        AdjudicationPanel.PANEL_SIZE));
 		});
 	}
 

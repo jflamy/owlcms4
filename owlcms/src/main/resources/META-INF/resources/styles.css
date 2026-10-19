@@ -275,6 +275,13 @@ vaadin-dialog-overlay[theme~="jury-notification-dialog"]::part(overlay) {
     opacity: 0.92;
 }
 
+/* seven-person Adjudication Panel: technical rule relied upon for a No Lift */
+.jury-notification-rule {
+    font-size: clamp(1.3rem, 2.4vw, 2.1rem);
+    line-height: 1.15;
+    font-weight: 700;
+}
+
 .jury-notification-chip {
     display: inline-flex;
     align-items: center;
@@ -344,6 +351,10 @@ vaadin-dialog-overlay[theme~="jury-notification-dialog"]::part(overlay) {
     }
 
     .jury-notification-attempt {
+        font-size: clamp(2.8rem, 3.4vh, 5rem);
+    }
+
+    .jury-notification-rule {
         font-size: clamp(2.8rem, 3.4vh, 5rem);
     }
 

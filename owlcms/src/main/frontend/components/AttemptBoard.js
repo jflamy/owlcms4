@@ -310,7 +310,10 @@ class CurrentAttempt extends LitElement {
   }
 
   decisionStyles() {
-  const style = "display: " + ((this.board.mode === "CURRENT_ATHLETE" && this.board.decisionVisible) ? "grid" : "none");
+  // the seven-person panel review vote is also shown during the jury / challenge break
+  const reviewVote = this.board.mode === "INTERRUPTION"
+      && (this.board.breakType === "JURY" || this.board.breakType === "CHALLENGE");
+  const style = "display: " + (((this.board.mode === "CURRENT_ATHLETE" || reviewVote) && this.board.decisionVisible) ? "grid" : "none");
     return style;
   }
 

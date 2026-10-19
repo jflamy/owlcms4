@@ -275,6 +275,10 @@ public class JuryDecisions extends BaseResults {
 				break;
 			}
 		}
+		if (allVoted && getFop().isPanelVoteOpen() && !getFop().isPanelVoteComplete()) {
+			// seven-person panel review vote: the jury votes are revealed with the referees'
+			allVoted = false;
+		}
 
 		ArrayNode decisions = JsonUtils.array();
 		if (allVoted) {

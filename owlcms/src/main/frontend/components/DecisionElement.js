@@ -26,8 +26,8 @@ class DecisionElement extends LitElement {
         </div>
         ${this.showJuryRow() ? html`
           <div class="juryDecisions">
-            ${this.juryDecisions.map(decision => html`
-              <span class="juryLightSlot">
+            ${this.juryDecisions.map((decision, index) => html`
+              <span class="juryLightSlot juror-${index + 1}">
                 <vaadin-icon class="juryLight ${decision}"
                   icon="${this.juryIcon(decision)}"></vaadin-icon>
               </span>
@@ -101,6 +101,7 @@ class DecisionElement extends LitElement {
       },
       showJuryDecisions: { type: Boolean },
       juryDecisions: { type: Array },
+      _panelRefStates: { type: Array, state: true },
     };
   }
 
@@ -125,6 +126,7 @@ class DecisionElement extends LitElement {
     this.decisionPayload = null;
     this.showJuryDecisions = false;
     this.juryDecisions = [];
+    this._panelRefStates = null;
     // sequence of the last decisionPayload applied; drops stale/out-of-order payloads.
     this._lastDecisionSequence = 0;
     this._localDownSoundPlayed = false;
@@ -258,7 +260,18 @@ class DecisionElement extends LitElement {
     if (payload.singleRef !== undefined && payload.singleRef !== null) {
       this.singleRef = Boolean(payload.singleRef);
     }
+    if (payload.mode !== "panel") {
+      this._panelRefStates = null;
+    }
     switch (payload.mode) {
+      case "panel":
+        // seven-person panel review vote: 3 referee boxes and 4 jury circles, revealed together
+        this._panelRefStates = payload.refStates || ["empty", "empty", "empty"];
+        this.juryDecisions = payload.juryStates || [];
+        this._downShown = false;
+        this._showDecision = true;
+        this._localDownSoundPlayed = false;
+        break;
       case "down":
         this._downShown = true;
         this._showDecision = false;
@@ -323,6 +336,13 @@ class DecisionElement extends LitElement {
   decisionClasses(position) {
     var mainClass = "decision ";
 
+    if (this._panelRefStates) {
+      // athlete facing boards show the referees right to left
+      const index = this.publicFacing ? position - 1 : 3 - position;
+      const state = this._panelRefStates[index];
+      return mainClass + (state === "white" || state === "red" || state === "voted" ? state : "none");
+    }
+
     var single = this.singleRef;
     if (single) {
       mainClass = "soloDecision "
@@ -370,7 +390,8 @@ class DecisionElement extends LitElement {
   }
 
   showJuryRow() {
-    return this.showJuryDecisions && this.juryDecisions.length > 0 && this._showDecision;
+    // the seven-person panel review vote is always shown with its jury circles
+    return (this.showJuryDecisions || this._panelRefStates) && this.juryDecisions.length > 0 && this._showDecision;
   }
 
   juryIcon(decision) {

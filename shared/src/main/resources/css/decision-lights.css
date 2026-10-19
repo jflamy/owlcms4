@@ -72,6 +72,11 @@
   border: var(--decision-border-width, 2px) dashed var(--decision-border-color, white);
 }
 
+/* seven-person panel review vote: the referee has voted, the vote is hidden until all seven are in */
+.decision.voted {
+  background-color: gray;
+}
+
 .invisible {
   visibility: hidden;
 }

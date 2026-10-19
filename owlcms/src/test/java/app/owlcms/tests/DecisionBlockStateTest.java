@@ -121,6 +121,38 @@ public class DecisionBlockStateTest {
 	}
 
 	@Test
+	public void panelReviewVoteIsHiddenThenRevealedTogether() {
+		this.state.setJurySize(4);
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.renderer.clear();
+
+		// vote called: the initial referee lights are cleared, nothing else is shown
+		this.state.onPanelVote(null, null);
+		assertTrue(this.renderer.calls.contains("emptyRefLights"));
+		assertTrue(this.renderer.calls.contains("noJuryCircles"));
+		assertFalse(this.renderer.calls.contains("refLights"));
+
+		// jury votes arriving during the vote are not shown on their own
+		this.renderer.clear();
+		this.state.onJuryUpdate(new Boolean[] { false, false, false, false }, 4);
+		assertFalse(this.renderer.calls.contains("juryCircles"));
+
+		// all seven in: referee lights and jury circles together, even when the second vote is not public
+		this.renderer.clear();
+		this.state.onPanelVote(lights(false), new Boolean[] { false, false, false, true });
+		assertTrue(this.renderer.calls.contains("refLights"));
+		assertTrue(this.renderer.calls.contains("juryCircles"));
+		assertEquals(State.DELIBERATION, this.state.getState());
+	}
+
+	@Test
+	public void panelVoteOutsideADeliberationIsIgnored() {
+		this.state.onPanelVote(null, null);
+		assertEquals(State.READY, this.state.getState());
+		assertTrue(this.renderer.calls.isEmpty());
+	}
+
+	@Test
 	public void refereeDecisionEntersDecisionState() {
 		this.state.onRefereeDecision(null, lights(true));
 		assertEquals(State.DECISION, this.state.getState());
