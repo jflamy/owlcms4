@@ -310,8 +310,13 @@ So a manual deliberation (switch on, VPT on) ends in one of:
   presses **Deliberation**, the Jury and the Technical Controller settle the
   matter verbally, the Competition Supervisor (or Speaker in PIN mode) edits
   the athlete card (void the attempt, change the recorded weight, or mark the
-  attempt No Lift), and the Chair presses **Resume**. No votes are called and
-  the review vote machinery is bypassed.
+  attempt No Lift) and then resumes the competition from the same screen. No
+  votes are called and the review vote machinery is bypassed. Both screens
+  already have this: the jury-break notification on `AnnouncerContent`
+  (inherited by `CompetitionDirectorContent`) has an **End jury break** button
+  that posts `StartLifting`. This must keep working with the switch on, even
+  though no vote was called and the Chair never pressed **Resume** on Jury
+  Control.
 
 The Chair override on the Waiting for Votes screen (section 6) is **only** the
 recovery path for a vote that cannot complete; it is not a way to decide a
@@ -716,7 +721,8 @@ Decided:
 - Loading errors and interference: no new Jury Control action. The Chair
   presses Deliberation, everything is settled verbally with the Technical
   Controller, the Competition Supervisor (Speaker in PIN mode) corrects the
-  athlete card, and the Chair presses Resume without calling for votes.
+  athlete card and resumes the competition from that screen, without calling
+  for votes.
 
 Still open:
 
