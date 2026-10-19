@@ -400,6 +400,15 @@ Step B2, the Chair calls for the vote (second, explicit referee recall):
   Chair decides on the "Waiting for Votes" screen (section 6). The override
   posts `JuryDecision` directly, as the Good/No Lift buttons do today. The vote
   is then closed and later votes are ignored.
+- **Throwing the vote out.** As in Phase A, the Competition Supervisor
+  (accounts mode) or Speaker (PIN mode) can abandon whatever is pending: the
+  **End jury break** button on that screen ends the break even if the review
+  vote is incomplete. A confirmation ("Review vote not finished — end break
+  anyway?") is shown in that case. The incomplete votes and
+  `athleteUnderReview` are discarded, and the lift keeps the referees'
+  decision. So in both phases the "throw it out" path is on the
+  Supervisor/Speaker screen, and the "decide the lift" path is the Chair
+  override on Jury Control.
 - **Override is marked.** A decision entered through the Chair override is
   flagged on the attempt and shown as **"Jury Chair Entered Decision"** on the
   announcer / Competition Supervisor notification (and in the jury
@@ -737,5 +746,11 @@ Decided:
 - MQTT timekeeper boxes have no clock-start override. A press while jury votes
   are missing is refused like any other console; the override is only on the
   Competition Supervisor / Speaker screen. See section 3, step 4.
+- When jury votes do not come in, in Phase A or Phase B, the path to abandon
+  what is pending is on the Competition Supervisor screen (accounts mode) or
+  the Speaker screen (PIN mode): "Start clock anyway" in Phase A, "End jury
+  break" with a confirmation in Phase B. Both discard the incomplete votes and
+  the lift keeps the referees' decision. To decide the lift instead, the Chair
+  uses the override on Jury Control (marked "Jury Chair Entered Decision").
 
 No questions are open.
