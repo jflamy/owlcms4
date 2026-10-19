@@ -47,15 +47,6 @@ class DecisionElement extends LitElement {
       ref3: {
         type: Boolean,
       },
-      ref1Time: {
-        type: Number,
-      },
-      ref2Time: {
-        type: Number,
-      },
-      ref3Time: {
-        type: Number,
-      },
       decision: {
         type: Boolean,
       },
@@ -99,9 +90,6 @@ class DecisionElement extends LitElement {
     this.ref1 = null;
     this.ref2 = null;
     this.ref3 = null;
-    this.ref1Time = 0;
-    this.ref2Time = 0;
-    this.ref3Time = 0;
     this.publicFacing = true;
     this.jury = false;
     this.singleRef = false;

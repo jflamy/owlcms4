@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 
-import tools.jackson.databind.node.NullNode;
 
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.BreakType;
@@ -55,7 +54,6 @@ public class DecisionBlockDecisionElement extends AbstractDecisionElement {
 		getElement().setProperty("singleRef", this.isSingleRef());
 		getElement().setProperty("jury", true);
 		clearDecisionProperties(true);
-		setDecisionTimes(0L, 0L, 0L);
 	}
 
 	@Subscribe
@@ -117,7 +115,6 @@ public class DecisionBlockDecisionElement extends AbstractDecisionElement {
 			getElement().setProperty("jury", true);
 			setDecisionProperties(e.isSingleLight() ? e.ref2 : computeGoodLift(e.ref1, e.ref2, e.ref3, false),
 			        e.ref1, e.ref2, e.ref3, e.isSingleLight(), false);
-			setDecisionTimes(e.ref1Time, e.ref2Time, e.ref3Time);
 		});
 	}
 
@@ -136,30 +133,5 @@ public class DecisionBlockDecisionElement extends AbstractDecisionElement {
 			getElement().setProperty("singleRef", this.isSingleRef());
 			doReset();
 		});
-	}
-
-	@Override
-	public void showDecisionLights(UIEvent event, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3,
-	        boolean singleLight, boolean announcerForced) {
-		super.showDecisionLights(event, decision, ref1, ref2, ref3, singleLight, announcerForced);
-		if (event instanceof UIEvent.RefereeUpdate refereeUpdate) {
-			UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, event, this.getOrigin(), () -> {
-				setDecisionTimes(refereeUpdate.ref1Time, refereeUpdate.ref2Time, refereeUpdate.ref3Time);
-			});
-		}
-	}
-
-	private void setDecisionTimes(Long ref1Time, Long ref2Time, Long ref3Time) {
-		setNullableLongProperty("ref1Time", ref1Time);
-		setNullableLongProperty("ref2Time", ref2Time);
-		setNullableLongProperty("ref3Time", ref3Time);
-	}
-
-	private void setNullableLongProperty(String propertyName, Long value) {
-		if (value == null) {
-			getElement().setPropertyJson(propertyName, NullNode.instance);
-		} else {
-			getElement().setProperty(propertyName, value.doubleValue());
-		}
 	}
 }
