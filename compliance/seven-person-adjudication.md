@@ -232,10 +232,18 @@ voted. Until then, only "voted / not voted" is shown.
    `athleteUnderReview` are incomplete (switch on, VPT on, at least one jury
    vote missing).
    - The clock is **not** started at first, and the request is **not** silently
-     dropped. The originating console (timekeeper, announcer) gets a dialog:
-     "Jury has not finished voting on the previous lift" with **Start clock
-     anyway** (override) and **Cancel**. The Jury Chair is notified on Jury
-     Control.
+     dropped. The dialog "Jury has not finished voting on the previous lift"
+     with **Start clock anyway** (override) and **Cancel** is shown on the
+     screen that owns the decision for the access mode in use:
+     - **Accounts mode** (IWF meets, `Config.isAccountsMode()`): the
+       **Competition Supervisor** page
+       ([CompetitionDirectorContent.java](../owlcms/src/main/java/app/owlcms/nui/lifting/CompetitionDirectorContent.java),
+       always enabled in that mode);
+     - **PIN mode**: the **Speaker** (announcer) page
+       ([AnnouncerContent.java](../owlcms/src/main/java/app/owlcms/nui/lifting/AnnouncerContent.java)).
+     The console that sent the `TimeStarted` (timekeeper, or announcer when it
+     is not the deciding screen) gets a notification that the start is pending
+     a decision. The Jury Chair is notified on Jury Control.
    - The override posts `TimeStarted` with an override flag. It is the
      recovery path for a technical mishap (a jury device offline, a juror who
      cannot vote, a vote that never completes). The FOP then clears the whole
