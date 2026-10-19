@@ -593,6 +593,18 @@ public class FOPEvent {
 	}
 
 	/**
+	 * Seven-person Adjudication Panel: the Jury Chair calls the review vote of the seven officials after the video
+	 * review (Call for Votes). Pressing "summon all referees" during a review break has the same effect.
+	 */
+	static public class PanelVoteCalled extends FOPEvent {
+
+		public PanelVoteCalled(Object origin) {
+			super(origin);
+		}
+
+	}
+
+	/**
 	 * The Class StartLifting.
 	 */
 	static public class StartLifting extends FOPEvent {

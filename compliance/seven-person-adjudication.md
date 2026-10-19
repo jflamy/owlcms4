@@ -419,8 +419,14 @@ Step B2, the Chair calls for the vote (second, explicit referee recall):
   For a No Lift, either from the vote or from the override, the reason dialog
   opens on Jury Control (the 17 reasons already exist). The Chair's choice
   posts the `JuryDecision` with the code.
-- `doJuryDecision` is reused as is: reversal/confirmation, records, order,
+- `doJuryDecision` is reused: reversal/confirmation, records, order,
   `setJuryDeliberation` on the attempt, resume after 3.5 s.
+- **Announcing (decided).** The result of the seven-person vote is shown on
+  the boards at once and the break then ends by itself; it does not wait for
+  the Speaker, even when "announcer controlled jury decision" is on. A
+  decision entered by the Jury Chair (override, or Good/No Lift without a
+  completed vote) follows the traditional path: with that setting on, the
+  Speaker must announce it before it is applied.
 
 ### 5. Referee devices
 

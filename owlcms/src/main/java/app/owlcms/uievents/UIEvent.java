@@ -666,6 +666,7 @@ public class UIEvent {
 		private Integer actualLift;
 		private Integer reasonCode;
 		private boolean panelReview;
+		private boolean chairEntered;
 
 		public JuryNotification(Athlete athleteUnderReview, Object origin,
 		        JuryDeliberationEventType deliberationEventType, Boolean reversal, Boolean newRecord,
@@ -766,6 +767,17 @@ public class UIEvent {
 			this.panelReview = panelReview;
 		}
 
+		/**
+		 * @return true if the Jury Chair entered this GOOD_LIFT/BAD_LIFT decision instead of the seven-person panel vote
+		 */
+		public boolean isChairEntered() {
+			return this.chairEntered;
+		}
+
+		public void setChairEntered(boolean chairEntered) {
+			this.chairEntered = chairEntered;
+		}
+
 		private void setNewRecord(Boolean newRecord) {
 			this.newRecord = newRecord;
 		}
@@ -791,6 +803,79 @@ public class UIEvent {
 
 		public boolean isPending() {
 			return this.pending;
+		}
+
+	}
+
+	/**
+	 * Seven-person Adjudication Panel review vote: referee devices must re-arm and request a decision. ref 0 means
+	 * all referees (a new vote, all votes cleared); 1..3 re-calls one referee who has not voted, without clearing.
+	 */
+	static public class PanelVoteCalled extends UIEvent {
+
+		private final int ref;
+
+		public PanelVoteCalled(int ref, Object origin, FieldOfPlay fop) {
+			super(origin, fop);
+			this.ref = ref;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
+		}
+
+		public int getRef() {
+			return this.ref;
+		}
+
+	}
+
+	/**
+	 * Status of the seven-person Adjudication Panel review vote. Until all seven officials have voted, only who has
+	 * voted is published; the votes and the majority are published together when the vote is complete.
+	 */
+	static public class PanelVoteUpdate extends UIEvent {
+
+		private final boolean open;
+		private final boolean[] voted;
+		private final Boolean[] votes;
+		private final Boolean majority;
+
+		/**
+		 * @param open     true while the vote is open
+		 * @param voted    who has voted: referees 1..3 then jury members 1..4
+		 * @param votes    the seven votes in the same order, null until all seven are in
+		 * @param majority the panel majority, null until all seven are in
+		 */
+		public PanelVoteUpdate(boolean open, boolean[] voted, Boolean[] votes, Boolean majority, Object origin,
+		        FieldOfPlay fop) {
+			super(origin, fop);
+			this.open = open;
+			this.voted = voted;
+			this.votes = votes;
+			this.majority = majority;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
+		}
+
+		public Boolean getMajority() {
+			return this.majority;
+		}
+
+		public boolean[] getVoted() {
+			return this.voted;
+		}
+
+		public Boolean[] getVotes() {
+			return this.votes;
+		}
+
+		public boolean isComplete() {
+			return this.votes != null;
+		}
+
+		public boolean isOpen() {
+			return this.open;
 		}
 
 	}

@@ -179,6 +179,17 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	}
 
 	@Subscribe
+	public void slavePanelVoteCalled(UIEvent.PanelVoteCalled e) {
+		// a new review vote: the jury votes again
+		if (e.getRef() == 0) {
+			UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+				resetJuryVoting();
+				updateJuryDecisionActions(getFop());
+			});
+		}
+	}
+
+	@Subscribe
 	public void slaveJuryVotesPending(UIEvent.JuryVotesPending e) {
 		if (!e.isPending()) {
 			return;

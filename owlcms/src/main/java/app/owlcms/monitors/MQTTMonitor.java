@@ -1451,6 +1451,29 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		publishMqttSummonRef(ref);
 	}
 
+	/**
+	 * Adjudication Panel review vote. For a new vote (ref 0): reset the boxes so that boxes that lock after voting
+	 * are re-armed, buzz all referees with the summon signal, then announce the vote. For a re-call: buzz that
+	 * referee only.
+	 */
+	@Subscribe
+	public void slavePanelVoteCalled(UIEvent.PanelVoteCalled e) {
+		if (e.getRef() == 0) {
+			publishMqttResetAllDecisions();
+			publishMqttSummonRef(0);
+			publishMqttPanelReview("vote");
+		} else {
+			publishMqttSummonRef(e.getRef());
+		}
+	}
+
+	@Subscribe
+	public void slavePanelVoteUpdate(UIEvent.PanelVoteUpdate e) {
+		if (!e.isOpen()) {
+			publishMqttPanelReview("end");
+		}
+	}
+
 	@Subscribe
 	public void slaveBreakTimeRemainingSeconds(UIEvent.BreakTimeRemainingSeconds e) {
 		int secondsRemaining = e.getSecondsRemaining();
@@ -1853,6 +1876,16 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 					ref2, ref2Time, ref3, ref3Time);
 		}
 		this.prevRefereeTimeStamp = curRefereeUpdateTimeStamp.isPresent() ? curRefereeUpdateTimeStamp.get() : 0L;
+	}
+
+	private void publishMqttPanelReview(String status) {
+		logger.debug("{}MQTT panelReview {}", FieldOfPlay.getLoggingName(this.getFop()), status);
+		try {
+			publish("owlcms/fop/panelReview/" + this.getFop().getName(),
+			        new MqttMessage(status.getBytes(StandardCharsets.UTF_8)));
+		} catch (MqttException e1) {
+			logger.error("could not publish panelReview {}", e1.getCause());
+		}
 	}
 
 	private void publishMqttResetAllDecisions() {

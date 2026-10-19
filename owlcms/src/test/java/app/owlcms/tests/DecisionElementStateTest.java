@@ -10,6 +10,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -40,6 +41,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.MockFieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 
 public class DecisionElementStateTest {
@@ -707,10 +709,185 @@ public class DecisionElementStateTest {
         }
     }
 
+    @Test
+    public void reviewVoteGoodLiftIsAppliedAutomatically() throws Exception {
+        DecisionScenario scenario = startPanelReview();
+        PanelListener listener = new PanelListener();
+        scenario.fopState.getUiEventBus().register(listener);
+        try {
+            scenario.fopState.fopEventPost(new FOPEvent.PanelVoteCalled(new Object()));
+            assertTrue(scenario.fopState.isPanelVoteOpen());
+            assertEquals("jury votes are cleared for the review vote", null,
+                    scenario.fopState.getJuryMemberDecision()[0]);
+            voteReviewReferees(scenario, true, true, true);
+            voteJury(scenario, true, true, true);
+            assertEquals("six votes: nothing decided", FOPState.BREAK, scenario.fopState.getState());
+            assertTrue("votes stay hidden until all seven are in", listener.awaitUpdate(u -> u.getVoted()[5]));
+            assertFalse(listener.updates.stream().anyMatch(u -> u.isComplete()));
+
+            voteJury(scenario, false, false, false, false);
+            // 3 referees white + 4 jury red: No Lift is the majority, but the last juror changes to white
+            voteJury(scenario, true, true, true, false);
+            assertTrue("all seven votes revealed together", listener.awaitUpdate(UIEvent.PanelVoteUpdate::isComplete));
+            awaitState(scenario, FOPState.DECISION_VISIBLE);
+            assertFalse(scenario.fopState.isPanelVoteOpen());
+            assertTrue(listener.awaitVerdict(true));
+            assertFalse("panel decision is not marked as entered by the Chair", listener.verdicts.get(0).isChairEntered());
+            assertFalse("the panel decision is shown without waiting for the Speaker",
+                    listener.verdicts.get(0).isWaitForAnnouncer());
+            assertTrue(scenario.fopState.getAthleteUnderReview().getActualLift(1) > 0);
+            // then the break ends by itself
+            awaitState(scenario, FOPState.CURRENT_ATHLETE_DISPLAYED);
+        } finally {
+            endPanelScenario();
+        }
+    }
+
+    @Test
+    public void reviewVoteNoLiftWaitsForTheChairRule() throws Exception {
+        DecisionScenario scenario = startPanelReview();
+        PanelListener listener = new PanelListener();
+        scenario.fopState.getUiEventBus().register(listener);
+        try {
+            // the Referee call button of the jury requests the new decision
+            scenario.fopState.fopEventPost(new FOPEvent.SummonReferee(new Object(), 0));
+            assertTrue(scenario.fopState.isPanelVoteOpen());
+            voteReviewReferees(scenario, false, false, true);
+            voteJury(scenario, false, false, false, false);
+            Thread.sleep(2_000);
+            assertEquals("a No Lift needs the rule from the Chair", FOPState.BREAK, scenario.fopState.getState());
+
+            Athlete athlete = scenario.fopState.getAthleteUnderReview();
+            scenario.fopState.fopEventPost(new FOPEvent.JuryDecision(athlete, new Object(), false, true, 1));
+            assertEquals(FOPState.DECISION_VISIBLE, scenario.fopState.getState());
+            assertTrue(athlete.getActualLift(1) < 0);
+            assertTrue(listener.awaitVerdict(false));
+            assertFalse(listener.verdicts.get(0).isChairEntered());
+        } finally {
+            endPanelScenario();
+        }
+    }
+
+    @Test
+    public void chairOverrideIsMarked() throws Exception {
+        DecisionScenario scenario = startPanelReview();
+        PanelListener listener = new PanelListener();
+        scenario.fopState.getUiEventBus().register(listener);
+        try {
+            scenario.fopState.fopEventPost(new FOPEvent.PanelVoteCalled(new Object()));
+            voteReviewReferees(scenario, false);
+            Athlete athlete = scenario.fopState.getAthleteUnderReview();
+            scenario.fopState.fopEventPost(new FOPEvent.JuryDecision(athlete, new Object(), false, true, 2));
+            assertFalse("the vote is closed", scenario.fopState.isPanelVoteOpen());
+            assertTrue(listener.awaitVerdict(false));
+            assertTrue("Jury Chair Entered Decision", listener.verdicts.get(0).isChairEntered());
+            assertTrue("the Speaker must announce a decision entered by the Chair",
+                    listener.verdicts.get(0).isWaitForAnnouncer());
+            assertEquals(FOPState.BREAK, scenario.fopState.getState());
+
+            // the Speaker announces it
+            scenario.fopState.fopEventPost(new FOPEvent.JuryDecision(athlete, new Object(), false, false));
+            assertEquals(FOPState.DECISION_VISIBLE, scenario.fopState.getState());
+            assertTrue(athlete.getActualLift(1) < 0);
+        } finally {
+            endPanelScenario();
+        }
+    }
+
+    @Test
+    public void endingTheBreakDiscardsAnIncompleteReviewVote() throws Exception {
+        DecisionScenario scenario = startPanelReview();
+        try {
+            scenario.fopState.fopEventPost(new FOPEvent.PanelVoteCalled(new Object()));
+            voteReviewReferees(scenario, false, false, false);
+            scenario.fopState.fopEventPost(new FOPEvent.StartLifting(new Object()));
+            assertFalse(scenario.fopState.isPanelVoteOpen());
+            assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, scenario.fopState.getState());
+            assertTrue("the lift keeps the referees' decision",
+                    scenario.fopState.getAthleteUnderReview().getActualLift(1) > 0);
+        } finally {
+            endPanelScenario();
+        }
+    }
+
+    @Test
+    public void refereeVotesInBreakAreRefusedWithoutAReviewVote() throws Exception {
+        DecisionScenario scenario = startPanelReview();
+        try {
+            voteReviewReferees(scenario, false);
+            assertEquals(null, scenario.fopState.getReviewRefereeDecision()[0]);
+            assertEquals(FOPState.BREAK, scenario.fopState.getState());
+        } finally {
+            endPanelScenario();
+        }
+    }
+
+    /** a good lift by the referees, then four red jury votes: automatic Adjudication Panel Review */
+    private DecisionScenario startPanelReview() throws Exception {
+        DecisionScenario scenario = startPanelScenario(false);
+        enterInitialGoodDecision(scenario);
+        assertFinalDecision(scenario, true);
+        assertReset(scenario);
+        voteJury(scenario, false, false, false, false);
+        assertEquals(FOPState.BREAK, scenario.fopState.getState());
+        assertTrue(scenario.fopState.isPanelReview());
+        return scenario;
+    }
+
+    private void voteReviewReferees(DecisionScenario scenario, Boolean... votes) {
+        for (int index = 0; index < votes.length; index++) {
+            scenario.fopState.fopEventPost(new FOPEvent.DecisionUpdate(new Object(), index, votes[index]));
+        }
+    }
+
+    public static final class PanelListener {
+        final List<UIEvent.PanelVoteUpdate> updates = new CopyOnWriteArrayList<>();
+        final List<UIEvent.JuryNotification> verdicts = new CopyOnWriteArrayList<>();
+
+        @Subscribe
+        public void panelVoteUpdate(UIEvent.PanelVoteUpdate e) {
+            this.updates.add(e);
+        }
+
+        @Subscribe
+        public void juryNotification(UIEvent.JuryNotification e) {
+            if (e.getDeliberationEventType() == JuryDeliberationEventType.GOOD_LIFT
+                    || e.getDeliberationEventType() == JuryDeliberationEventType.BAD_LIFT) {
+                this.verdicts.add(e);
+            }
+        }
+
+        boolean awaitUpdate(Predicate<UIEvent.PanelVoteUpdate> condition) throws InterruptedException {
+            long deadline = System.currentTimeMillis() + 2_000;
+            while (System.currentTimeMillis() < deadline) {
+                if (this.updates.stream().anyMatch(condition)) {
+                    return true;
+                }
+                Thread.sleep(20);
+            }
+            return false;
+        }
+
+        boolean awaitVerdict(boolean goodLift) throws InterruptedException {
+            JuryDeliberationEventType expected = goodLift ? JuryDeliberationEventType.GOOD_LIFT
+                    : JuryDeliberationEventType.BAD_LIFT;
+            long deadline = System.currentTimeMillis() + 3_000;
+            while (System.currentTimeMillis() < deadline) {
+                if (!this.verdicts.isEmpty()) {
+                    return this.verdicts.get(0).getDeliberationEventType() == expected;
+                }
+                Thread.sleep(20);
+            }
+            return false;
+        }
+    }
+
     private DecisionScenario startPanelScenario(boolean juryDecisionsOnAttemptBoard) {
         DecisionScenario scenario = startScenario(false);
         setSevenPersonAdjudication(true);
         Competition.getCurrent().setVideoPlaybackTechnology(true);
+        // default: jury decisions entered by the Chair must be announced by the Speaker
+        Competition.getCurrent().setAnnouncerControlledJuryDecision(true);
         setJuryDecisionsOnAttemptBoard(juryDecisionsOnAttemptBoard);
         scenario.fopState.setJuryDecisionTimingForTests(2_000, 800);
         return scenario;
@@ -720,6 +897,7 @@ public class DecisionElementStateTest {
         setSevenPersonAdjudication(false);
         setJuryDecisionsOnAttemptBoard(false);
         Competition.getCurrent().setVideoPlaybackTechnology(false);
+        Competition.getCurrent().setAnnouncerControlledJuryDecision(true);
     }
 
     private void voteJury(DecisionScenario scenario, Boolean... votes) {

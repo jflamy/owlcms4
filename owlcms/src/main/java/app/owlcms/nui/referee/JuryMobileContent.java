@@ -150,6 +150,14 @@ public class JuryMobileContent extends BaseContent implements FOPParametersReade
 		UIEventProcessor.uiAccess(this, this.uiEventBus, this::resetVote);
 	}
 
+	/** Adjudication Panel review vote called: the jury votes again. */
+	@Subscribe
+	public void slavePanelVoteCalled(UIEvent.PanelVoteCalled e) {
+		if (e.getRef() == 0) {
+			UIEventProcessor.uiAccess(this, this.uiEventBus, this::resetVote);
+		}
+	}
+
 	@Subscribe
 	public void slaveJuryUpdate(UIEvent.JuryUpdate e) {
 		if (getJuryMemberNumber() == null) {

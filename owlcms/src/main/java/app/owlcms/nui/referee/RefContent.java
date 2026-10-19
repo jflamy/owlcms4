@@ -294,6 +294,25 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		});
 	}
 
+	/**
+	 * Adjudication Panel review vote: re-arm the buttons and ask for a decision. The banner stays until the referee
+	 * votes.
+	 */
+	@Subscribe
+	public void slavePanelVoteCalled(UIEvent.PanelVoteCalled e) {
+		if (getRef13ix() == null || (e.getRef() != 0 && e.getRef() != getRef13ix())) {
+			return;
+		}
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			if (e.getRef() == 0) {
+				resetRefVote();
+			}
+			this.topWrapper.removeAll();
+			this.topWrapper.add(this.warningRow);
+			this.beeper.beep();
+		});
+	}
+
 	protected ComboBox<FieldOfPlay> createFopSelect() {
 		ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
 		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Role.REFEREE));
