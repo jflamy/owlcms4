@@ -205,8 +205,19 @@ voted. Until then, only "voted / not voted" is shown.
 2. Jury votes arrive as today, in any state, for `athleteUnderReview`. That
    athlete and the referee votes stay in the FOP until the next clock start
    (`restartTimer` → `resetDecisions`). The wait for the jury is therefore
-   **indefinite**: no timeout and no extra hold of `DECISION_VISIBLE`. The
-   `awaitingJuryCompletion` display hold is not needed for this.
+   **indefinite**: no timeout.
+   - **Display hold.** When `juryDecisionsOnAttemptBoard` is on, the decision
+     stays visible (`DECISION_VISIBLE`) **until all 4 jury votes are in**,
+     then the jury circles are revealed and the display is held for the usual
+     `juryDecisionHoldMs` before the reset. This replaces the 10 s cap of
+     `juryDecisionVisibleMaxMs` used by the legacy jury mode
+     (`scheduleDecisionReset` arms no deadline while waiting; only
+     `rescheduleDecisionResetForJury` arms one once the jury is complete).
+     The announcer's clock-start request during this hold goes through the
+     guard of step 4, which is the only way out other than the jury finishing.
+   - When `juryDecisionsOnAttemptBoard` is off, the decision clears after the
+     normal 3.5 s and the jury keeps voting on `athleteUnderReview` with the
+     next athlete displayed; nothing is held.
 3. When the 4th jury vote arrives, evaluate the panel (section 2):
    - Panel majority = referee decision: reveal the jury votes; nothing else
      happens.
@@ -225,9 +236,13 @@ voted. Until then, only "voted / not voted" is shown.
      "Jury has not finished voting on the previous lift" with **Start clock
      anyway** (override) and **Cancel**. The Jury Chair is notified on Jury
      Control.
-   - The override posts `TimeStarted` with an override flag. The FOP then
-     starts the clock as today: `restartTimer` → `resetDecisions` discards the
-     incomplete jury votes, and there is no automatic stop for that lift. The
+   - The override posts `TimeStarted` with an override flag. It is the
+     recovery path for a technical mishap (a jury device offline, a juror who
+     cannot vote, a vote that never completes). The FOP then clears the whole
+     pending state and starts the clock as today: if the decision display is
+     still held for the jury (step 2), it is reset first (`DecisionReset`),
+     then `restartTimer` → `resetDecisions` discards the incomplete jury votes
+     and `athleteUnderReview`. There is no automatic stop for that lift; the
      jury can still deliberate by hand.
    - The existing `JuryDecision.MustAnnounceFirst` refusal in
      `CURRENT_ATHLETE_DISPLAYED` / `TimeStarted` is the pattern to follow,
@@ -613,9 +628,10 @@ Decided:
   See section 11.
 - The Jury Chair picks the Technical Rule for a No Lift.
 - No timeout for the jury votes. The lift under review and its votes are kept
-  until the next clock start. A clock start with incomplete jury votes asks for
-  an override ("Start clock anyway") instead of being blocked. See section 3,
-  step 4.
+  until the next clock start. When jury decisions are shown on the attempt
+  board, the decision display is held until the jury has voted (no 10 s cap).
+  A clock start with incomplete jury votes asks for an override ("Start clock
+  anyway") instead of being blocked. See section 3, steps 2 and 4.
 - The panel result is only evaluated once the jury has voted (all 4 in phase
   A, all 7 in phase B). Jury members must not learn each other's votes. See
   section 2.
