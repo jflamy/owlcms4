@@ -534,11 +534,24 @@ Jury devices do not buzz; the jurors are at the table.
 
 ### 9. Displays and forwarders
 
-- Attempt board and scoreboards: jury circles are rendered from the vote
-  array (`DecisionElement.js` maps `juryDecisions`;
-  `DecisionBlockState.renderJuryCircles(votes, jurySize)`). Check the layout
-  with 4 circles. Decide whether boards show 4 jury circles or 7 panel circles
-  after a review.
+- **Panel layout on the attempt board and scoreboards (decided).** The seven
+  votes are shown as `R1 R2 R3 | J1 J2 J3 J4`: the three referees as the
+  existing **rectangles**, then the four jury members as **circles** in
+  numbered order. The same layout is used in both phases:
+  - Phase A (the lift): the referee rectangles light up as today when the
+    decision is shown; the jury circles follow the existing hidden ("voted")
+    then revealed pattern once all four have voted.
+  - Phase B (the review vote): all seven cells are cleared when the Chair
+    calls for votes, show "voted" as votes arrive, and are revealed **all at
+    once** when the seventh vote is in.
+  - The Jury Chair's circle may need a distinct colour (ring or fill) if the
+    seating practice makes the Chair's position meaningful. Add a CSS hook per
+    juror index now; decide the colour later.
+- Rendering: jury circles come from the vote array (`DecisionElement.js` maps
+  `juryDecisions`; `DecisionBlockState.renderJuryCircles(votes, jurySize)`);
+  the referee rectangles already exist. Check the layout with 4 circles and
+  with the referee rectangles re-cleared and re-revealed in Phase B (today the
+  rectangles are only driven by the live referee decision).
 - Show the technical rule on the attempt board for a panel No Lift
   ([JuryNotificationCard.java](../owlcms/src/main/java/app/owlcms/displays/attemptboard/JuryNotificationCard.java)
   does not show it today). The scoreboard decision area is a candidate too.
@@ -643,20 +656,29 @@ Decided:
 - The panel result is only evaluated once the jury has voted (all 4 in phase
   A, all 7 in phase B). Jury members must not learn each other's votes. See
   section 2.
+- The clock-start override (step 4) is decided on the Competition Supervisor
+  page in accounts mode (IWF meets) and on the Speaker page in PIN mode; the
+  timekeeper only gets a notification. See section 3, step 4.
 - On MQTT refboxes, the second-vote buzzer uses `summon` (`publishMqttSummonRef`),
   matching the TCRR 7.5.7 "Referee call" wording, rather than `decisionRequest`
   (the slow-referee wake-up reminder). Referee boxes also accept votes without
   a running clock as an existing safety measure (in case the timekeeper forgets
   to start the clock). See section 5.
+- Boards show all seven votes, referees as rectangles then jury as circles in
+  numbered order, in both phases; the review vote is revealed all at once. A
+  distinct colour for the Jury Chair's circle is a later decision. See
+  section 9.
 
 Still open:
 
-1. During the review, are the 7 votes shown publicly (attempt board), or only
-   the final outcome and rule?
-2. Manual deliberation about a lift, with the switch and VPT on: is the
+1. Manual deliberation about a lift, with the switch and VPT on: is the
    7-person vote (Call for Votes) the normal path, with the Chair override as a
    fallback only, or can the Chair decide directly without calling for votes?
-3. Should the Jury Chair override be logged or shown, for example a mark on the
+2. Should the Jury Chair override be logged or shown, for example a mark on the
    announcer notification that the decision was not a panel vote?
-4. Clock-start override: who may use it (timekeeper, announcer, Jury Chair),
-   and how does it work for MQTT timekeeper boxes (second press proposed)?
+3. Clock-start override from MQTT timekeeper boxes, which cannot show the
+   dialog: is the "second press within a few seconds" proposal acceptable, or
+   must the override always come from the Competition Supervisor / Speaker
+   screen?
+4. Jury Chair circle: which colour, and is it needed (depends on the seating
+   practice)? See section 9.
