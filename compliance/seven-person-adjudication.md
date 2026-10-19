@@ -398,6 +398,12 @@ Step B2, the Chair calls for the vote (second, explicit referee recall):
   Chair decides on the "Waiting for Votes" screen (section 6). The override
   posts `JuryDecision` directly, as the Good/No Lift buttons do today. The vote
   is then closed and later votes are ignored.
+- **Override is marked.** A decision entered through the Chair override is
+  flagged on the attempt and shown as **"Jury Chair Entered Decision"** on the
+  announcer / Competition Supervisor notification (and in the jury
+  deliberation record), so it is never mistaken for a panel vote. The
+  Technical Controller normally states the reason verbally; OWLCMS does not
+  ask for one beyond the No Lift rule.
 - No Lift needs a technical rule (G5). A Good Lift is posted automatically.
   For a No Lift, either from the vote or from the override, the reason dialog
   opens on Jury Control (the 17 reasons already exist). The Chair's choice
@@ -658,7 +664,7 @@ languages and does not depend on the switch.
 | 3 | Phase B: Call for Votes (buzzer + re-arm), referee review votes in BREAK, phones, MQTT reset/summon/topic, final verdict | M–L |
 | 4 | Jury Control 7-cell row, Call for Votes button and prompt, Waiting for Votes screen with Jury Chair override, Call TC, challenge refusal, reason flow | M |
 | 5 | Drop Console (menu, route), displays with 4/7 circles, rule on attempt board | S–M |
-| 6 | Docs (Jury, MQTT messages), TSV translations including "Jury Chair", device tests | S |
+| 6 | Docs (Jury, MQTT messages), TSV translations including "Jury Chair" and "Jury Chair Entered Decision", device tests | S |
 
 Riskiest parts: the FOP state machine (clock-start guard and override,
 automatic break from `CURRENT_ATHLETE_DISPLAYED` or deferred from
@@ -723,12 +729,13 @@ Decided:
   Controller, the Competition Supervisor (Speaker in PIN mode) corrects the
   athlete card and resumes the competition from that screen, without calling
   for votes.
+- A decision entered through the Jury Chair override is marked "Jury Chair
+  Entered Decision" on the announcer / Competition Supervisor notification and
+  in the deliberation record. See section 3, Phase B.
 
 Still open:
 
-1. Should the Jury Chair override be logged or shown, for example a mark on the
-   announcer notification that the decision was not a panel vote?
-2. Clock-start override from MQTT timekeeper boxes, which cannot show the
+1. Clock-start override from MQTT timekeeper boxes, which cannot show the
    dialog: is the "second press within a few seconds" proposal acceptable, or
    must the override always come from the Competition Supervisor / Speaker
    screen?
