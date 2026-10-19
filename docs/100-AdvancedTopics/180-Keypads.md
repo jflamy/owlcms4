@@ -47,11 +47,11 @@ The same conventions are used as for the refereeing keypads.  You can use the sa
 | 4     | 7    | 8    |
 | 5     | 9    | 0    |
 
-##### Jury President Keypad
+##### Jury Chair Keypad
 
-> If you intend to build a jury president keypad, you might want to consider the Arduino-based [button-only jury box](../060-Refereeing/020-Jury#button-only-jury-box) since you are likely going to use identical hardware and you can avoid having to do the programming yourself.
+> If you intend to build a jury chair keypad, you might want to consider the Arduino-based [button-only jury box](../060-Refereeing/020-Jury#button-only-jury-box) since you are likely going to use identical hardware and you can avoid having to do the programming yourself.
 
-An additional keypad can be connected to the Jury console, which would typically be operated by the Jury president.  This keypad also works using keyboard shortcuts.
+An additional keypad can be connected to the Jury console, which would typically be operated by the Jury chair.  This keypad also works using keyboard shortcuts.
 
 In order to support a jury console keypad, the following shortcuts are bound.  Depending on how your device behaves, you may have to send either the lowercase letter or the uppercase letter, <u>please try both</u> !
 

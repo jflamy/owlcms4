@@ -640,10 +640,17 @@ The TCRR says "Chair of the Jury" (7.5.3, 7.5.7). This change applies to all
 languages and does not depend on the switch.
 
 - Translation key whose text changes: `JuryPresident` ("Jury President").
-- `FeatureSwitch.requireJuryPresidentDecision` is not reworded. The switch is
-  obsolete under the new rules (section 4) and only applies when
-  `7personAdjudication` is off, so it can keep its legacy wording. It can be
-  retired with the legacy jury mode.
+- `FeatureSwitch.requireJuryPresidentDecision`: the English text now says
+  "Jury Chair" (and de/ru/et use their "chair" word); the key is unchanged.
+  The switch is obsolete under the new rules (section 4) and only applies
+  when `7personAdjudication` is off.
+- **Done (in `adjudication_translations.tsv`):** `JuryPresident` en "Jury
+  Chair", de *Jury-Vorsitzender*, ru *Председатель жюри*, et *Žürii
+  esimees*; fo and hy fixed. Languages whose word already means chair, or
+  where the IWF uses "President" (es, fr, pt, sv, da, fi, no, pl, hu, ro, he,
+  ar, el, ja, zh_HANT), are unchanged. The `ia` column holds row ids, not a
+  translation. User docs (020-Jury.md, 180-Keypads.md) updated; the RFP
+  proposals under docs/RFP are left as submitted.
 - **Keep the key names.** `JuryPresident` is also the assignment id in
   [OfficialRole.java](../owlcms/src/main/java/app/owlcms/data/technicalofficial/OfficialRole.java)
   (`JURY_PRESIDENT("JuryPresident", …)`) and

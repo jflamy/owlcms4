@@ -1,4 +1,4 @@
-The jury is operated from the Jury Console page.  In order to use a Jury  you need 3 or 5 keypad devices connected to the computer running the Jury Console.  You may optionally have a separate keypad for the jury president (see below) in order to initiate deliberation and transmit decisions.
+The jury is operated from the Jury Console page.  In order to use a Jury  you need 3 or 5 keypad devices connected to the computer running the Jury Console.  You may optionally have a separate keypad for the jury chair (see below) in order to initiate deliberation and transmit decisions.
 
 The jury console is started from the "run a lifting group" page.
 
@@ -49,7 +49,7 @@ There are two ways to build jury devices.  The first way is to emulate a keyboar
 
 ### Jury Keypads
 
-You can configure programmable keypads for each of the jury members and for the jury president.  Refer to the [Keypads](../100-AdvancedTopics/180-Keypads) Advanced topic documentation for information.
+You can configure programmable keypads for each of the jury members and for the jury chair.  Refer to the [Keypads](../100-AdvancedTopics/180-Keypads) Advanced topic documentation for information.
 
 ### Arduino-based Jury Devices
 
