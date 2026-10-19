@@ -607,6 +607,9 @@ Jury devices do not buzz; the jurors are at the table.
   - Phase B (the review vote): all seven cells are cleared when the Chair
     calls for votes, show "voted" as votes arrive, and are revealed **all at
     once** when the seventh vote is in.
+  - During the review vote the jury circles are shown on every board with
+    decision lights, even where jury decisions are turned off for the lift
+    (decided): the seven-person result is the official decision.
   - The Jury Chair is **jury member 1** (J1) for now, so the first circle is the
     Chair's. Add a CSS hook per juror index so J1 can be given a distinct
     colour (ring or fill) later if the seating practice makes it useful; no
