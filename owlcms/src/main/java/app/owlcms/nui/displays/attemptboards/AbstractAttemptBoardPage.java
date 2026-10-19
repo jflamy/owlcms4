@@ -6,25 +6,34 @@
  *******************************************************************************/
 package app.owlcms.nui.displays.attemptboards;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.DetachEvent;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.ShortcutRegistration;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.Principal;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.displays.DecisionDisplayRules;
 import app.owlcms.displays.attemptboard.AttemptBoard;
+import app.owlcms.fieldofplay.FOPEvent.DecisionUpdate;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.displays.SoundEntries;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
@@ -43,6 +52,7 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage
 	Logger logger = (Logger) LoggerFactory.getLogger(AbstractAttemptBoardPage.class);
 	protected static final String SHOW_JURY_DECISIONS = "showJuryDecisions";
 	private boolean showJuryDecisions;
+	private final List<ShortcutRegistration> shortcutRegistrations = new ArrayList<>();
 
 	public AbstractAttemptBoardPage() {
 		// intentionally empty; subclass will invoke init() as required.
@@ -64,6 +74,23 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage
 	}
 
 	@Override
+	public void addKeyboardShortcuts() {
+		clearShortcutRegistrations();
+		registerShortcut(() -> postRefereeDecision(0, true), digitKey(1));
+		registerShortcut(() -> postRefereeDecision(0, false), digitKey(2));
+		registerShortcut(() -> postRefereeDecision(1, true), digitKey(3));
+		registerShortcut(() -> postRefereeDecision(1, false), digitKey(4));
+		registerShortcut(() -> postRefereeDecision(2, true), digitKey(5));
+		registerShortcut(() -> postRefereeDecision(2, false), digitKey(6));
+	}
+
+	@Override
+	protected void onDetach(DetachEvent detachEvent) {
+		clearShortcutRegistrations();
+		super.onDetach(detachEvent);
+	}
+
+	@Override
 	public Map<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
 		// SHOW_JURY_DECISIONS must not be among the static defaults set in init(), otherwise an
 		// explicit URL value equal to the static default would be stripped before we get here.
@@ -80,6 +107,43 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage
 			}
 		}
 		return params;
+	}
+
+	private void clearShortcutRegistrations() {
+		for (ShortcutRegistration registration : this.shortcutRegistrations) {
+			registration.remove();
+		}
+		this.shortcutRegistrations.clear();
+	}
+
+	/**
+	 * Key.DIGIT_n only matches the top-row key code. Also match the typed character (any layout with
+	 * NumLock on) and the numeric keypad code (NumLock off), as USB keypads are used for decisions.
+	 */
+	private static Key digitKey(int digit) {
+		return Key.of(Integer.toString(digit), "Digit" + digit, "Numpad" + digit);
+	}
+
+	private void registerShortcut(Runnable action, Key key) {
+		UI currentUi = UI.getCurrent();
+		if (currentUi == null || key == Key.UNIDENTIFIED) {
+			return;
+		}
+		this.shortcutRegistrations.add(currentUi.addShortcutListener(action::run, key));
+	}
+
+	private void postRefereeDecision(int refIndex, boolean decision) {
+		FieldOfPlay fop = getFop();
+		if (fop == null) {
+			return;
+		}
+		if (!AccessUi.displayInputAllowed(fop)) {
+			Principal principal = OwlcmsSession.getPrincipal();
+			this.logger.info("{}ignored decision input from read-only display user={}",
+			        FieldOfPlay.getLoggingName(fop), principal != null ? principal.username() : null);
+			return;
+		}
+		fop.fopEventPost(new DecisionUpdate(getBoard(), refIndex, decision));
 	}
 
 	private int getJurySize() {

@@ -70,17 +70,6 @@ class DecisionElement extends LitElement {
         type: Boolean,
         reflect: true,
       },
-      enabled: {
-        type: Boolean,
-        state: true,
-      },
-      inputAllowed: {
-        type: Boolean,
-      },
-      fopName: {
-        type: String,
-        notify: true,
-      },
       silent: {
         type: Boolean,
       },
@@ -116,8 +105,6 @@ class DecisionElement extends LitElement {
     this.publicFacing = true;
     this.jury = false;
     this.singleRef = false;
-    this.enabled = false;
-    this.inputAllowed = false;
     this.silent = false;
     this._downShown = false;
     this._showDecision = false;
@@ -129,9 +116,6 @@ class DecisionElement extends LitElement {
     this._panelRefStates = null;
     // sequence of the last decisionPayload applied; drops stale/out-of-order payloads.
     this._lastDecisionSequence = 0;
-    this._localDownSoundPlayed = false;
-    // important - the handlers must be bound so "this" is the current DecisionElement instance.
-    this._readRef = this._readRef.bind(this);
     this.initSounds = this.initSounds.bind(this)
   }
 
@@ -140,12 +124,10 @@ class DecisionElement extends LitElement {
     // The server (DecisionElement.java) is the single source of truth for the
     // decision state. Never clear ref/decision properties here: on re-attach the
     // server re-syncs them, and self-clearing would race that sync and blank the boxes.
-    document.body.addEventListener('keydown', this._readRef);
     document.addEventListener('initSounds', this.initSounds);
   }
 
   disconnectedCallback() {
-    document.body.removeEventListener('keydown', this._readRef);
     document.removeEventListener('initSounds', this.initSounds);
     super.disconnectedCallback();
   }
@@ -166,71 +148,6 @@ class DecisionElement extends LitElement {
     console.warn("down called");
     this.renderRoot.querySelector('#down').muted = false;
     this.renderRoot?.querySelector('#down').play();
-  }
-
-  _readRef(e) {
-    if (!this.enabled || this.jury || !this.inputAllowed) return;
-
-    switch (e.key) {
-      case "1":
-        this.ref1 = true;
-        this.ref1Time = Date.now();
-        break;
-      case "2":
-        this.ref1 = false;
-        this.ref1Time = Date.now();
-        break;
-      case "3":
-        this.ref2 = true;
-        this.ref2Time = Date.now();
-        break;
-      case "4":
-        this.ref2 = false;
-        this.ref2Time = Date.now();
-        break;
-      case "5":
-        this.ref3 = true;
-        this.ref3Time = Date.now();
-        break;
-      case "6":
-        this.ref3 = false;
-        this.ref3Time = Date.now();
-        break;
-      default:
-        return;
-    }
-    // Keyboard-driven: this device issues the down itself as soon as a majority
-    // agrees, for zero-latency feedback. The server still broadcasts the
-    // authoritative down and the decision lights back through decisionPayload.
-    this._issueLocalDownIfMajority();
-    this.masterRefereeUpdate(this.ref1, this.ref2, this.ref3);
-  }
-
-  /* Local down for keyboard-driven decisions. Sets the down state directly (it does
-     not consume a decisionPayload sequence), so the later server "down" payload is
-     idempotent and the "decision" payload still flips to the lights atomically. */
-  _issueLocalDownIfMajority() {
-    if (this._downShown) {
-      return;
-    }
-    let whites = 0;
-    let reds = 0;
-    for (const ref of [this.ref1, this.ref2, this.ref3]) {
-      if (ref === true) {
-        whites++;
-      } else if (ref === false) {
-        reds++;
-      }
-    }
-    if (whites >= 2 || reds >= 2) {
-      this.singleRef = false;
-      this._downShown = true;
-      this._showDecision = false;
-      if (!this.silent) {
-        this.doDown();
-        this._localDownSoundPlayed = true;
-      }
-    }
   }
 
   updated(changedProperties) {
@@ -270,7 +187,6 @@ class DecisionElement extends LitElement {
         this.juryDecisions = payload.juryStates || [];
         this._downShown = false;
         this._showDecision = true;
-        this._localDownSoundPlayed = false;
         break;
       case "down":
         this._downShown = true;
@@ -282,7 +198,6 @@ class DecisionElement extends LitElement {
         this.ref3 = this._coerceRef(payload.ref3);
         this._downShown = false;
         this._showDecision = true;
-        this._localDownSoundPlayed = false;
         break;
       case "reset":
         this.ref1 = null;
@@ -290,7 +205,6 @@ class DecisionElement extends LitElement {
         this.ref3 = null;
         this._downShown = false;
         this._showDecision = Boolean(payload.showDecision);
-        this._localDownSoundPlayed = false;
         break;
       default:
         break;
@@ -314,22 +228,6 @@ class DecisionElement extends LitElement {
       this._coerceRef(payload.ref1),
       this._coerceRef(payload.ref2),
       this._coerceRef(payload.ref3)
-    );
-  }
-
-  /* the individual values are set in the this.refN properties. this tells the server that the
-     values are are available; the server will call back the slaves operating in jury display
-     mode to update their displays immediately.  the slaves not operating in jury display mode
-     (e.g. the attempt board) will be updated after 3 seconds */
-  masterRefereeUpdate(ref1, ref2, ref3) {
-    this.$server.masterRefereeUpdate(
-      this.fopName,
-      ref1,
-      ref2,
-      ref3,
-      this.ref1Time,
-      this.ref2Time,
-      this.ref3Time
     );
   }
 
@@ -408,10 +306,6 @@ class DecisionElement extends LitElement {
   }
 
   playDownSound() {
-    if (this._localDownSoundPlayed) {
-      this._localDownSoundPlayed = false;
-      return;
-    }
     if (!this.silent) {
       this.doDown();
     }

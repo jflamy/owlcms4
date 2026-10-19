@@ -25,13 +25,7 @@ import com.vaadin.flow.component.littemplate.LitTemplate;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
-import app.owlcms.access.AccessUi;
-import app.owlcms.access.Principal;
-import app.owlcms.data.config.Config;
-import app.owlcms.data.config.FeatureSwitch;
-import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
@@ -78,7 +72,6 @@ public abstract class AbstractDecisionElement extends LitTemplate
 	private boolean busDriven = true;
 	protected boolean downSlave;
 	protected FieldOfPlay fop;
-	private boolean inputAllowed;
 	private final AtomicLong decisionPayloadSequence = new AtomicLong();
 
 	protected AbstractDecisionElement() {
@@ -150,9 +143,6 @@ public abstract class AbstractDecisionElement extends LitTemplate
 		if (this.fop == null) {
 			return;
 		}
-		this.inputAllowed = AccessUi.displayInputAllowed(this.fop);
-		getElement().setProperty("inputAllowed", this.inputAllowed);
-		init(this.fop.getName());
 		this.fopEventBus = this.fop.getFopEventBus();
 		if (this.busDriven) {
 			this.uiEventBus = uiEventBusRegisterNoUI(this.decisionState, this.fop);
@@ -169,66 +159,6 @@ public abstract class AbstractDecisionElement extends LitTemplate
 	 */
 	public boolean isSilenced() {
 		return this.silenced;
-	}
-
-	@ClientCallable
-	/**
-	 * client side only sends after timer has been started until decision reset or
-	 * break
-	 *
-	 * @param ref1
-	 * @param ref2
-	 * @param ref3
-	 * @param ref1Time
-	 * @param ref2Time
-	 * @param ref3Time
-	 */
-	public void masterRefereeUpdate(String fopName, Boolean ref1, Boolean ref2, Boolean ref3, Long ref1Time,
-			Long ref2Time,
-			Long ref3Time) {
-		if (rejectReadOnlyInput()) {
-			return;
-		}
-		Object origin = this.getOrigin();
-		if (this.fop != null && fopName.contentEquals(this.fop.getName())) {
-			if (this.isSingleRef()) {
-				Integer refIndex = ref1 != null ? 0 : (ref2 != null ? 1 : (ref3 != null ? 2 : null));
-				Boolean decision = ref1 != null ? ref1 : (ref2 != null ? ref2 : ref3);
-				if (refIndex != null && decision != null) {
-					if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
-						logger./*playwright*/warn("DecisionElement solo referee update refIndex={} decision={} {}",
-								refIndex, decision, LoggerUtils.whereFrom());
-					}
-					this.fop.fopEventPost(new FOPEvent.DecisionUpdate(origin, refIndex, decision));
-					return;
-				}
-			}
-			// logger.debug("masterRefereeUpdate {} {} {}",ref1, ref2, ref3);
-			this.fop.fopEventPost(
-					new FOPEvent.DecisionFullUpdate(origin, this.fop.getCurAthlete(), ref1, ref2, ref3,
-							ref1Time, ref2Time, ref3Time, false));
-		}
-	}
-
-	@ClientCallable
-	/**
-	 * client side only sends after timer has been started until decision reset or
-	 * break
-	 *
-	 * @param decision
-	 * @param ref1
-	 * @param ref2
-	 * @param ref3
-	 */
-	public void masterShowDown(String fopName, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
-		if (rejectReadOnlyInput()) {
-			return;
-		}
-		Object origin = this.getOrigin();
-		getElement().setProperty("singleRef", this.isSingleRef());
-		if (this.fop != null && this.fop.getName().equals(fopName)) {
-			this.fop.fopEventPost(new FOPEvent.DownSignal(origin));
-		}
 	}
 
 	@ClientCallable
@@ -442,7 +372,6 @@ public abstract class AbstractDecisionElement extends LitTemplate
 
 	protected void setEnabled(boolean enabled) {
 		updateClientSilentProperty();
-		getElement().setProperty("enabled", enabled);
 	}
 
 	/**
@@ -495,20 +424,6 @@ public abstract class AbstractDecisionElement extends LitTemplate
 			return;
 		}
 		bindToFopIfReady();
-	}
-
-	private boolean rejectReadOnlyInput() {
-		if (this.inputAllowed) {
-			return false;
-		}
-		Principal principal = OwlcmsSession.getPrincipal();
-		logger.info("{}ignored decision input from read-only display user={}", FieldOfPlay.getLoggingName(this.fop),
-		        principal != null ? principal.username() : null);
-		return true;
-	}
-
-	private void init(String fopName) {
-		getElement().setProperty("fopName", fopName);
 	}
 
 	private void setJuryMode(boolean juryMode) {
