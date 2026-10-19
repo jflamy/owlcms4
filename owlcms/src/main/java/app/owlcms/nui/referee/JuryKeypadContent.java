@@ -55,6 +55,8 @@ import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.components.elements.PassiveTimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
@@ -434,7 +436,11 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 				URLUtils.replaceState(this.locationUI.getPage().getHistory(), null, location2, this.location);
 			}
 		});
-		toolbar.add(title, fopSelect, createJurySizeSelect());
+		toolbar.add(title, fopSelect);
+		// the jury size is derived (4) when the seven-person adjudication panel is in use
+		if (!Config.getCurrent().featureSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION)) {
+			toolbar.add(createJurySizeSelect());
+		}
 		toolbar.expand(title);
 		toolbar.getStyle().set("grid-column", "1 / -1").set("grid-row", "1");
 

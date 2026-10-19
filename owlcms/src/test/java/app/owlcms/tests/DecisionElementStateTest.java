@@ -90,6 +90,7 @@ public class DecisionElementStateTest {
         AthleteRepository.resetParticipations(false, true);
         this.athletes = AthleteRepository.findAll();
         setJuryDecisionsOnAttemptBoard(false);
+        setSevenPersonAdjudication(false);
     }
 
     @Test
@@ -535,6 +536,56 @@ public class DecisionElementStateTest {
                 scenario.timeline.decisionReset.await(2_400, TimeUnit.MILLISECONDS));
     }
 
+    @Test
+    public void sevenPersonAdjudicationDerivesJurySizeFour() {
+        DecisionScenario scenario = startScenario(false);
+        scenario.fopState.setJurySize(3);
+        assertEquals(3, scenario.fopState.getJurySize());
+        assertFalse(scenario.fopState.isSevenPersonAdjudication());
+
+        setSevenPersonAdjudication(true);
+        try {
+            assertTrue(scenario.fopState.isSevenPersonAdjudication());
+            assertEquals("switch forces a four-member jury", 4, scenario.fopState.getJurySize());
+            scenario.fopState.setJurySize(5);
+            assertEquals("stored size is ignored while the switch is on", 4, scenario.fopState.getJurySize());
+        } finally {
+            setSevenPersonAdjudication(false);
+        }
+        assertEquals("stored size is used again when the switch is off", 5, scenario.fopState.getJurySize());
+    }
+
+    @Test
+    public void juryVotesBeyondJurySizeAreDropped() {
+        DecisionScenario scenario = startScenario(false);
+        scenario.fopState.setJurySize(3);
+        // events with the same origin in the same millisecond are discarded as duplicates, use one origin per vote
+        for (int index : new int[] { -1, 3, 4 }) {
+            scenario.fopState.fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(new Object(), index, false));
+        }
+        Boolean[] votes = scenario.fopState.getJuryMemberDecision();
+        assertEquals("juror 4 does not exist in a 3-member jury", null, votes[3]);
+        assertEquals("juror 5 does not exist in a 3-member jury", null, votes[4]);
+
+        scenario.fopState.fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(new Object(), 2, false));
+        assertEquals(Boolean.FALSE, scenario.fopState.getJuryMemberDecision()[2]);
+    }
+
+    @Test
+    public void fourthJurorVoteIsAcceptedWithSevenPersonAdjudication() {
+        DecisionScenario scenario = startScenario(false);
+        setSevenPersonAdjudication(true);
+        try {
+            scenario.fopState.fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(new Object(), 3, false));
+            scenario.fopState.fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(new Object(), 4, false));
+            assertEquals(Boolean.FALSE, scenario.fopState.getJuryMemberDecision()[3]);
+            assertEquals("a fifth juror does not exist with the seven-person panel", null,
+                    scenario.fopState.getJuryMemberDecision()[4]);
+        } finally {
+            setSevenPersonAdjudication(false);
+        }
+    }
+
     private void configureJuryTiming(DecisionScenario scenario) {
         setJuryDecisionsOnAttemptBoard(true);
         scenario.fopState.setJurySize(3);
@@ -751,6 +802,12 @@ public class DecisionElementStateTest {
     private void setShowDecisionsImmediately(boolean enabled) {
         Config config = Config.getCurrent();
         config.setFeatureSwitchValue(FeatureSwitch.SHOW_DECISIONS_IMMEDIATELY, enabled);
+        Config.setCurrent(config);
+    }
+
+    private void setSevenPersonAdjudication(boolean enabled) {
+        Config config = Config.getCurrent();
+        config.setFeatureSwitchValue(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, enabled);
         Config.setCurrent(config);
     }
 

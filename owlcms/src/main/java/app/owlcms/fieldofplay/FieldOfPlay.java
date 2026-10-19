@@ -1412,7 +1412,21 @@ public class FieldOfPlay implements IUnregister {
 		return this.useCollarsIfAvailable;
 	}
 
+	/**
+	 * @return true if the seven-person Adjudication Panel (3 referees, 4 jury members) is in use
+	 */
+	public boolean isSevenPersonAdjudication() {
+		return Config.getCurrent().featureSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION);
+	}
+
+	/**
+	 * @return the number of jury members; 4 when the seven-person Adjudication Panel is in use (the stored 0/3/5
+	 *         setting is ignored), otherwise the platform or competition setting.
+	 */
 	public int getJurySize() {
+		if (isSevenPersonAdjudication()) {
+			return AdjudicationPanel.NB_JURORS;
+		}
 		Platform p = getPlatform();
 		return p != null ? p.getEffectiveJurySize() : Competition.getCurrent().getJurySize();
 	}
@@ -2292,6 +2306,12 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void doJuryMemberDecisionUpdate(FOPEvent.JuryMemberDecisionUpdate e) {
+		// devices may have more buttons than the current jury has members (e.g. station 5 on a 5-station box)
+		if (e.refIndex < 0 || e.refIndex >= getJurySize()) {
+			this.logger.debug("{}ignoring jury member decision, juror {} is beyond jury size {}",
+			        FieldOfPlay.getLoggingName(this), e.refIndex + 1, getJurySize());
+			return;
+		}
 		getJuryMemberDecision()[e.refIndex] = e.decision;
 		this.juryMemberTime[e.refIndex] = 0;
 		processJuryMemberDecisions(e.origin, e.refIndex);
@@ -2753,25 +2773,16 @@ public class FieldOfPlay implements IUnregister {
 	 * is not available.
 	 */
 	private Boolean refereeMajority(Boolean[] refereeDecisions) {
-		if (refereeDecisions == null) {
-			return null;
-		}
-		int nbRed = 0;
-		int nbWhite = 0;
-		for (Boolean d : refereeDecisions) {
-			if (Boolean.TRUE.equals(d)) {
-				nbWhite++;
-			} else if (Boolean.FALSE.equals(d)) {
-				nbRed++;
-			}
-		}
-		if (nbWhite >= 2) {
-			return Boolean.TRUE;
-		}
-		if (nbRed >= 2) {
-			return Boolean.FALSE;
-		}
-		return null;
+		return AdjudicationPanel.refereeMajority(refereeDecisions);
+	}
+
+	/**
+	 * The majority of the seven-person panel is final under the 2026 rules, so there is no confirmation step and
+	 * the requireJuryPresidentDecision switch is ignored when the panel is in use.
+	 */
+	private boolean isJuryPresidentDecisionRequired() {
+		return !isSevenPersonAdjudication()
+		        && Config.getCurrent().featureSwitch(FeatureSwitch.REQUIRE_JURY_PRESIDENT_DECISION);
 	}
 
 	private boolean juryDeliberationInProgress() {
@@ -2789,6 +2800,8 @@ public class FieldOfPlay implements IUnregister {
 	 *   <li>5-person jury with VPT: simple majority wins.</li>
 	 *   <li>5-person jury without VPT: unanimity required; a non-unanimous result
 	 *       confirms the referee decision (same as 3-person non-unanimous rule).</li>
+	 *   <li>4-person jury without VPT (7.5.8): unanimity required, same as above.</li>
+	 *   <li>4-person jury with VPT: majority of the seven-person Adjudication Panel.</li>
 	 * </ul>
 	 * Returns null if the fallback referee decision is unavailable.
 	 */
@@ -2804,7 +2817,13 @@ public class FieldOfPlay implements IUnregister {
 			// Non-unanimous 3-person jury: original referee decision stands.
 			return refereeMajority(refereeDecisions);
 		}
-		// 5-person jury.
+		if (jurySize == AdjudicationPanel.NB_JURORS && Competition.getCurrent().isVideoPlaybackTechnology()) {
+			// TODO Phase 3 of compliance/seven-person-adjudication.md: the final verdict must come from the
+			// review vote of the seven officials, not from the initial referee votes combined with the jury votes.
+			AdjudicationPanel panel = new AdjudicationPanel(refereeDecisions, getJuryMemberDecision());
+			return panel.isComplete() ? panel.majority() : refereeMajority(refereeDecisions);
+		}
+		// 5-person jury (or 4-person jury without VPT, which always requires unanimity).
 		// With Video Playback Technology, a majority suffices.
 		// Without VPT, unanimity is required; a non-unanimous outcome confirms the
 		// referee decision (same principle as the 3-person non-unanimous rule).
@@ -2861,7 +2880,7 @@ public class FieldOfPlay implements IUnregister {
 	 */
 	private void scheduleAutoJuryDecision(int jurySize) {
 		// If the feature toggle is on, the jury president must press Good/Bad Lift manually.
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.REQUIRE_JURY_PRESIDENT_DECISION)) {
+		if (isJuryPresidentDecisionRequired()) {
 			return;
 		}
 		if (!juryDeliberationInProgress()) {
@@ -2872,7 +2891,7 @@ public class FieldOfPlay implements IUnregister {
 			return;
 		}
 		new DelayTimer(isTestingMode()).schedule(() -> {
-			if (Config.getCurrent().featureSwitch(FeatureSwitch.REQUIRE_JURY_PRESIDENT_DECISION)
+			if (isJuryPresidentDecisionRequired()
 			        || getJurySize() != jurySize
 			        || !juryDeliberationInProgress()
 			        || this.toBeAnnouncedJuryDecision != null) {

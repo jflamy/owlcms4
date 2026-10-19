@@ -1655,7 +1655,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	private int mqttJurySize() {
 		// The config response is published by a FOP monitor; use that FOP's active
 		// jury size. 0 is replaced by 3 because 0 was not a prior option for MQTT
-		// refereeing devices.
+		// refereeing devices. The FOP reports 4 when the seven-person adjudication panel is in use.
 		FieldOfPlay fop = getFop();
 		int jurySize = fop != null ? fop.getJurySize() : Competition.getCurrent().getJurySize();
 		return jurySize == 0 ? 3 : jurySize;

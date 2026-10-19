@@ -71,6 +71,7 @@ public enum FeatureSwitch {
     KEEP_SPANISH_HYPHEN_SHORTCUT("keepSpanishHyphenShortcut", FeatureSwitchSection.SPECIALTY_FEATURES),
     ANNOUNCER_TRIGGERS_INITIAL_DECISION("announcerTriggersInitialDecision", FeatureSwitchSection.SPECIALTY_FEATURES),
     OBS_MONITORS("obsMonitors", FeatureSwitchSection.SPECIALTY_FEATURES),
+    SEVEN_PERSON_ADJUDICATION("7personAdjudication", FeatureSwitchSection.SPECIALTY_FEATURES),
 
     GENDER_INCLUSIVE("genderInclusive", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     RECORD_NAME_IS_CATEGORY("recordNameIsCategory", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
