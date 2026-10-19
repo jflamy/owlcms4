@@ -265,6 +265,15 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		this.singleReferee = b;
 	}
 
+	/**
+	 * In PIN mode the Speaker decides whether the clock may start while the jury is still voting; in accounts mode
+	 * it is the Competition Supervisor.
+	 */
+	@Override
+	protected boolean isClockStartDecider() {
+		return !Config.getCurrent().isAccountsMode();
+	}
+
 	@Override
 	@Subscribe
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
@@ -285,6 +294,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 					return;
 				case START_DELIBERATION:
 				case CHALLENGE:
+					if (e.isPanelReview() && !this.deliberationNotificationSent) {
+						// automatic stop: the Supervisor/Speaker can still end the break (mishap recovery)
+						doStoppageDialog(Translator.translate("JuryNotification.PanelReview"), style);
+					}
 					// Show jury decision dialog immediately with Good Lift/No Lift buttons
 					if (e.isWaitForAnnouncer() && !this.deliberationNotificationSent) {
 						juryDecisionDialog(e, null);

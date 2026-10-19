@@ -33,6 +33,9 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -165,12 +168,25 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			JuryDeliberationEventType deliberationType = e.getDeliberationEventType();
-			if (deliberationType == JuryDeliberationEventType.START_DELIBERATION
+			// an Adjudication Panel Review keeps the jury votes that caused it
+			if ((deliberationType == JuryDeliberationEventType.START_DELIBERATION && !e.isPanelReview())
 			        || deliberationType == JuryDeliberationEventType.CHALLENGE) {
 				resetJuryVoting();
 			}
 			updateJuryDecisionActions(e.getFop());
 			updateReviewHeader(e.getFop());
+		});
+	}
+
+	@Subscribe
+	public void slaveJuryVotesPending(UIEvent.JuryVotesPending e) {
+		if (!e.isPending()) {
+			return;
+		}
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			Notification n = Notification.show(Translator.translate("JuryNotification.ClockStartPending"), 5000,
+			        Position.MIDDLE);
+			n.addThemeVariants(NotificationVariant.LUMO_WARNING);
 		});
 	}
 

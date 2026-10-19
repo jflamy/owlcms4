@@ -138,7 +138,8 @@ public class JuryMobileContent extends BaseContent implements FOPParametersReade
 	@Subscribe
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
 		JuryDeliberationEventType deliberationType = e.getDeliberationEventType();
-		if (deliberationType == JuryDeliberationEventType.START_DELIBERATION
+		// an Adjudication Panel Review keeps the jury votes that caused it
+		if ((deliberationType == JuryDeliberationEventType.START_DELIBERATION && !e.isPanelReview())
 		        || deliberationType == JuryDeliberationEventType.CHALLENGE) {
 			UIEventProcessor.uiAccess(this, this.uiEventBus, this::resetVote);
 		}

@@ -27,6 +27,7 @@ import app.owlcms.components.elements.DecisionElementState.IDecisionRenderer;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
@@ -38,6 +39,7 @@ import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.MockFieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 
 public class DecisionElementStateTest {
@@ -91,6 +93,7 @@ public class DecisionElementStateTest {
         this.athletes = AthleteRepository.findAll();
         setJuryDecisionsOnAttemptBoard(false);
         setSevenPersonAdjudication(false);
+        Competition.getCurrent().setVideoPlaybackTechnology(false);
     }
 
     @Test
@@ -583,6 +586,167 @@ public class DecisionElementStateTest {
                     scenario.fopState.getJuryMemberDecision()[4]);
         } finally {
             setSevenPersonAdjudication(false);
+        }
+    }
+
+    @Test
+    public void panelAgreementDoesNotStopCompetition() throws Exception {
+        DecisionScenario scenario = startPanelScenario(false);
+        try {
+            enterInitialGoodDecision(scenario);
+            assertFinalDecision(scenario, true);
+            assertReset(scenario);
+            assertTrue("jury votes are awaited after the lift", scenario.fopState.isPanelVotePending());
+            // 3 referee whites + 2 jury whites: a 2-2 jury split leaves the referee decision
+            voteJury(scenario, true, true, false, false);
+            assertFalse(scenario.fopState.isPanelVotePending());
+            assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, scenario.fopState.getState());
+            assertFalse(scenario.fopState.isPanelReview());
+        } finally {
+            endPanelScenario();
+        }
+    }
+
+    @Test
+    public void panelMajorityOppositeStartsReviewAtOnce() throws Exception {
+        DecisionScenario scenario = startPanelScenario(false);
+        try {
+            enterInitialGoodDecision(scenario);
+            assertFinalDecision(scenario, true);
+            assertReset(scenario);
+            assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, scenario.fopState.getState());
+            // 3 referee whites, 4 jury reds: the panel majority is No Lift
+            voteJury(scenario, false, false, false, false);
+            assertEquals(FOPState.BREAK, scenario.fopState.getState());
+            assertEquals(BreakType.JURY, scenario.fopState.getBreakType());
+            assertTrue(scenario.fopState.isPanelReview());
+            assertEquals("the jury votes that caused the review are kept", Boolean.FALSE,
+                    scenario.fopState.getJuryMemberDecision()[3]);
+        } finally {
+            endPanelScenario();
+        }
+    }
+
+    @Test
+    public void panelReviewWaitsForTheHeldDecisionToClear() throws Exception {
+        DecisionScenario scenario = startPanelScenario(true);
+        try {
+            enterInitialGoodDecision(scenario);
+            assertFinalDecision(scenario, true);
+            // longer than the legacy jury cap (2 s in these tests): no time limit with the panel
+            Thread.sleep(2_500);
+            assertEquals("decision stays visible until the jury has voted", FOPState.DECISION_VISIBLE,
+                    scenario.fopState.getState());
+            voteJury(scenario, false, false, false, false);
+            assertEquals("the break waits for the decision to clear", FOPState.DECISION_VISIBLE,
+                    scenario.fopState.getState());
+            assertTrue("decision reset UI event was not fired", scenario.timeline.awaitDecisionReset());
+            awaitState(scenario, FOPState.BREAK);
+            assertEquals(BreakType.JURY, scenario.fopState.getBreakType());
+            assertTrue(scenario.fopState.isPanelReview());
+        } finally {
+            endPanelScenario();
+        }
+    }
+
+    @Test
+    public void clockStartRefusedUntilOverrideWhileJuryVotesPending() throws Exception {
+        DecisionScenario scenario = startPanelScenario(false);
+        PendingListener pending = new PendingListener();
+        scenario.fopState.getUiEventBus().register(pending);
+        try {
+            enterInitialGoodDecision(scenario);
+            assertFinalDecision(scenario, true);
+            assertReset(scenario);
+            voteJury(scenario, true, true, true);
+
+            scenario.fopState.fopEventPost(new FOPEvent.TimeStarted(new Object()));
+            assertEquals("clock start refused while a jury vote is missing", FOPState.CURRENT_ATHLETE_DISPLAYED,
+                    scenario.fopState.getState());
+            assertTrue("deciding console is asked to confirm", pending.awaitPending(true));
+
+            scenario.fopState.fopEventPost(new FOPEvent.TimeStarted(new Object(), true));
+            assertEquals(FOPState.TIME_RUNNING, scenario.fopState.getState());
+            assertFalse(scenario.fopState.isPanelVotePending());
+            assertEquals("incomplete jury votes are discarded", null, scenario.fopState.getJuryMemberDecision()[0]);
+            assertTrue("consoles are told the wait is over", pending.awaitPending(false));
+        } finally {
+            endPanelScenario();
+        }
+    }
+
+    @Test
+    public void clockStartOverrideClearsHeldDecision() throws Exception {
+        DecisionScenario scenario = startPanelScenario(true);
+        try {
+            enterInitialGoodDecision(scenario);
+            assertFinalDecision(scenario, true);
+            scenario.fopState.fopEventPost(new FOPEvent.TimeStarted(new Object()));
+            assertEquals(FOPState.DECISION_VISIBLE, scenario.fopState.getState());
+            scenario.fopState.fopEventPost(new FOPEvent.TimeStarted(new Object(), true));
+            assertEquals(FOPState.TIME_RUNNING, scenario.fopState.getState());
+            assertFalse(scenario.fopState.isPanelVotePending());
+        } finally {
+            endPanelScenario();
+        }
+    }
+
+    @Test
+    public void clockStartNotGuardedWithoutVideoPlayback() throws Exception {
+        DecisionScenario scenario = startPanelScenario(false);
+        Competition.getCurrent().setVideoPlaybackTechnology(false);
+        try {
+            enterInitialGoodDecision(scenario);
+            assertFinalDecision(scenario, true);
+            assertReset(scenario);
+            assertFalse(scenario.fopState.isPanelVotePending());
+            scenario.fopState.fopEventPost(new FOPEvent.TimeStarted(new Object()));
+            assertEquals(FOPState.TIME_RUNNING, scenario.fopState.getState());
+        } finally {
+            endPanelScenario();
+        }
+    }
+
+    private DecisionScenario startPanelScenario(boolean juryDecisionsOnAttemptBoard) {
+        DecisionScenario scenario = startScenario(false);
+        setSevenPersonAdjudication(true);
+        Competition.getCurrent().setVideoPlaybackTechnology(true);
+        setJuryDecisionsOnAttemptBoard(juryDecisionsOnAttemptBoard);
+        scenario.fopState.setJuryDecisionTimingForTests(2_000, 800);
+        return scenario;
+    }
+
+    private void endPanelScenario() {
+        setSevenPersonAdjudication(false);
+        setJuryDecisionsOnAttemptBoard(false);
+        Competition.getCurrent().setVideoPlaybackTechnology(false);
+    }
+
+    private void voteJury(DecisionScenario scenario, Boolean... votes) {
+        for (int index = 0; index < votes.length; index++) {
+            scenario.fopState.fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(new Object(), index, votes[index]));
+        }
+    }
+
+    private void awaitState(DecisionScenario scenario, FOPState expected) throws InterruptedException {
+        long deadline = System.currentTimeMillis() + 2_000;
+        while (scenario.fopState.getState() != expected && System.currentTimeMillis() < deadline) {
+            Thread.sleep(20);
+        }
+        assertEquals(expected, scenario.fopState.getState());
+    }
+
+    public static final class PendingListener {
+        private final CountDownLatch pending = new CountDownLatch(1);
+        private final CountDownLatch done = new CountDownLatch(1);
+
+        @Subscribe
+        public void juryVotesPending(UIEvent.JuryVotesPending e) {
+            (e.isPending() ? this.pending : this.done).countDown();
+        }
+
+        boolean awaitPending(boolean isPending) throws InterruptedException {
+            return (isPending ? this.pending : this.done).await(2, TimeUnit.SECONDS);
         }
     }
 

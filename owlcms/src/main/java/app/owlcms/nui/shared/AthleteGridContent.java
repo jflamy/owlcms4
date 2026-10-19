@@ -71,6 +71,7 @@ import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.apputils.queryparameters.SoundParametersReader;
+import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.PassiveDecisionElement;
 import app.owlcms.components.elements.PassiveTimerElement;
@@ -982,6 +983,52 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	@Subscribe
+	public void slaveJuryVotesPending(UIEvent.JuryVotesPending e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			if (!e.isPending()) {
+				closeJuryVotesPendingDialog();
+				return;
+			}
+			if (!isClockStartDecider()) {
+				doNotification(Translator.translate("JuryNotification.ClockStartPending"), "warning",
+				        "juryVotesPending");
+				return;
+			}
+			if (this.juryVotesPendingDialog != null && this.juryVotesPendingDialog.isOpened()) {
+				return;
+			}
+			FieldOfPlay fop = e.getFop();
+			this.juryVotesPendingDialog = new ConfirmationDialog(
+			        Translator.translate("JuryNotification.JuryVotesPendingTitle"),
+			        Translator.translate("JuryNotification.JuryVotesPendingText"),
+			        Translator.translate("JuryNotification.StartClockAnyway"),
+			        null, null,
+			        () -> {
+				        // the jury may have finished in the meantime; a normal start is then enough
+				        if (fop.isPanelVotePending()) {
+					        fop.fopEventPost(new FOPEvent.TimeStarted(this, true));
+				        }
+			        });
+			this.juryVotesPendingDialog.open();
+		});
+	}
+
+	/**
+	 * @return true if this console decides whether the clock may start while the jury has not finished voting on the
+	 *         previous lift (Competition Supervisor in accounts mode, Speaker in PIN mode)
+	 */
+	protected boolean isClockStartDecider() {
+		return false;
+	}
+
+	private void closeJuryVotesPendingDialog() {
+		if (this.juryVotesPendingDialog != null) {
+			this.juryVotesPendingDialog.close();
+			this.juryVotesPendingDialog = null;
+		}
+	}
+
+	@Subscribe
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			JuryDeliberationEventType et = e.getDeliberationEventType();
@@ -1008,7 +1055,8 @@ public abstract class AthleteGridContent extends BaseContent
 					this.summonNotificationSent = true;
 					return;
 				case START_DELIBERATION:
-					text = Translator.translate("JuryNotification." + et.name());
+					text = Translator.translate(e.isPanelReview() ? "JuryNotification.PanelReview"
+					        : "JuryNotification." + et.name());
 					if (!this.deliberationNotificationSent) {
 						doNotification(text, style, "jury[" + et.name() + "]");
 					}
@@ -1635,6 +1683,7 @@ public abstract class AthleteGridContent extends BaseContent
 	
 	protected List<Notification> notifications = new ArrayList<>();
 	protected Notification missingKgNotification;
+	private ConfirmationDialog juryVotesPendingDialog;
 	private boolean publicDisplay;
 	protected void doNotification(String text, String theme) {
 		doNotification(text, theme, "doNotification[" + theme + "]");

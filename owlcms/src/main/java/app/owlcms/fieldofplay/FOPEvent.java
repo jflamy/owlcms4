@@ -698,8 +698,23 @@ public class FOPEvent {
 	 */
 	static public class TimeStarted extends FOPEvent {
 
+		private final boolean override;
+
 		public TimeStarted(Object object) {
+			this(object, false);
+		}
+
+		/**
+		 * @param override true when the Competition Supervisor (or Speaker in PIN mode) confirmed starting the clock
+		 *                 although the jury has not finished voting on the previous lift
+		 */
+		public TimeStarted(Object object, boolean override) {
 			super(object);
+			this.override = override;
+		}
+
+		public boolean isOverride() {
+			return this.override;
 		}
 
 	}

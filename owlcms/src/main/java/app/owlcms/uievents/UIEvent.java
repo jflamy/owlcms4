@@ -665,6 +665,7 @@ public class UIEvent {
 		private boolean waitForAnnouncer = false;
 		private Integer actualLift;
 		private Integer reasonCode;
+		private boolean panelReview;
 
 		public JuryNotification(Athlete athleteUnderReview, Object origin,
 		        JuryDeliberationEventType deliberationEventType, Boolean reversal, Boolean newRecord,
@@ -753,8 +754,43 @@ public class UIEvent {
 			this.waitForAnnouncer = waitForAnnouncer;
 		}
 
+		/**
+		 * @return true if this START_DELIBERATION was started automatically by the seven-person Adjudication Panel
+		 *         (the panel majority differs from the referees' decision)
+		 */
+		public boolean isPanelReview() {
+			return this.panelReview;
+		}
+
+		public void setPanelReview(boolean panelReview) {
+			this.panelReview = panelReview;
+		}
+
 		private void setNewRecord(Boolean newRecord) {
 			this.newRecord = newRecord;
+		}
+
+	}
+
+	/**
+	 * The clock start was refused because the jury has not finished voting on the previous lift (seven-person
+	 * Adjudication Panel). The deciding console offers to start the clock anyway; the other consoles show a
+	 * notification. Sent again with pending == false when the jury votes are complete or abandoned.
+	 */
+	static public class JuryVotesPending extends UIEvent {
+
+		private final boolean pending;
+
+		public JuryVotesPending(Athlete athleteUnderReview, boolean pending, Object origin, FieldOfPlay fop) {
+			super(athleteUnderReview, origin, fop);
+			this.pending = pending;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
+		}
+
+		public boolean isPending() {
+			return this.pending;
 		}
 
 	}
