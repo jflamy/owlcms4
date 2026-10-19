@@ -8,7 +8,6 @@ JuryNotification.StartClockAnyway	Start clock anyway			Iniciar el reloj de todos
 JuryNotification.ClockStartPending	Clock not started: the jury has not finished voting on the previous lift.			Reloj no iniciado: el jurado no ha terminado de votar sobre el levantamiento anterior.					Chrono non démarré : le jury n'a pas fini de voter sur l'essai précédent.					Uhr nicht gestartet: Die Jury hat über den vorherigen Versuch noch nicht fertig abgestimmt.																
 JuryKeypad.AdjudicationPanel	Adjudication Panel			Panel de Adjudicación					Panel d'adjudication					Adjudication Panel																
 JuryKeypad.CallForVotes	Call for Votes			Llamar a votar					Appel au vote					Abstimmung aufrufen																
-JuryKeypad.CallTechnicalController	Call Technical Controller			Llamar al Controlador Técnico					Appeler le contrôleur technique					Technischen Kontrolleur rufen																
 JuryKeypad.WaitingForVotes	Waiting for Votes			Esperando los votos					En attente des votes					Warten auf die Stimmen																
 JuryKeypad.VotesReceived	{0} / 7 votes			{0} / 7 votos					{0} / 7 votes					{0} / 7 Stimmen																
 JuryKeypad.Recall	Call again			Llamar de nuevo					Rappeler					Erneut rufen																

@@ -159,7 +159,7 @@ Already partly present:
 | G5 | Rule shown for No Lift | Announcer and tracker only; auto decision has no reason | Reason required for a panel No Lift; shown on attempt board/scoreboard |
 | G6 | No challenge after panel review | Challenge always allowed | None: the jury applies the rule (decided, section 8) |
 | G7 | Jury Control shows 7 votes | Row 7 shows 3 or 5 jurors | 7-cell row: R1 R2 R3 \| J1 J2 J3 J4 |
-| G8 | Jury Console dropped | Console in lifting menu | Hide/redirect when switch is on; move Call Technical Controller to Control |
+| G8 | Jury Console dropped | Console in lifting menu | Hide/redirect when switch is on |
 
 ## Proposed Design
 
@@ -572,8 +572,8 @@ Jury devices do not buzz; the jurors are at the table.
 - Deliberation, Challenge, Technical and Resume are unchanged.
 - `getNbJurors()`, `registerShortcuts()`, `postJuryMemberDecision()` work with
   4 jurors as is (keys 1–8).
-- Add **Call Technical Controller** (`SummonReferee` with ref number 4), which
-  only the Console has today.
+- No Call Technical Controller button (decided): there is no device to call
+  the Technical Controller, so the Console's button is not carried over.
 
 ### 7. Jury Console (drop)
 
@@ -583,8 +583,8 @@ Jury devices do not buzz; the jurors are at the table.
   notice, when the switch is on. Bookmarked URLs keep working.
 - `JuryContent`, `JuryDialog` and `JuryDecisionDialog` are left unchanged for
   the non-switch mode.
-- Features lost with the Console: athlete grid, sound toggle. Call Technical
-  Controller is moved to Control (section 6).
+- Features lost with the Console: athlete grid, sound toggle, and the Call
+  Technical Controller button (no device to call the TC; section 6).
 - Update [020-Jury.md](../docs/060-Refereeing/020-Jury.md).
 
 ### 8. Challenge after review
@@ -676,7 +676,7 @@ languages and does not depend on the switch.
 | 1 | Switch, derived jury size 4, ignore jury votes beyond the jury size (station 5), panel tally class + unit tests | S |
 | 2 | Phase A: panel evaluation on the 4th jury vote, automatic review break, clock-start guard with override, notifications | M |
 | 3 | Phase B: Call for Votes (buzzer + re-arm), referee review votes in BREAK, phones, MQTT reset/summon/topic, final verdict | M–L |
-| 4 | Jury Control 7-cell row, Call for Votes button and prompt, Waiting for Votes screen with Jury Chair override, Call TC, reason flow | M |
+| 4 | Jury Control 7-cell row, Call for Votes button and prompt, Waiting for Votes screen with Jury Chair override, reason flow | M |
 | 5 | Drop Console (menu, route), displays with 4/7 circles, rule on attempt board | S–M |
 | 6 | Docs (Jury, MQTT messages), TSV translations including "Jury Chair" and "Jury Chair Entered Decision", device tests | S |
 

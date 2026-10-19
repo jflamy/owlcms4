@@ -776,10 +776,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 		this.startLiftingButton = new Button(Translator.translate("startLifting"), new Icon(VaadinIcon.MICROPHONE),
 		        (e) -> {
-			        endBreakConfirmingReviewVote(() -> {
-				        currentUI.access(() -> getRouterLayout().setMenuArea(createTopBar()));
-				        getFop().fopEventPost(new FOPEvent.StartLifting(this));
-			        });
+			        currentUI.access(() -> getRouterLayout().setMenuArea(createTopBar()));
+			        getFop().fopEventPost(new FOPEvent.StartLifting(this));
 		        });
 		this.startLiftingButton.getThemeNames().add("success primary");
 

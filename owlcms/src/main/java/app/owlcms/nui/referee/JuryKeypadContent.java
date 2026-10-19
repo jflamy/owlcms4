@@ -656,13 +656,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			this.goodLiftButton = null;
 			this.callForVotesButton = createKeypadButton(Translator.translate("JuryKeypad.CallForVotes"), "primary",
 			        this::callForVotes);
-			this.callForVotesButton.getStyle().set("grid-column", "3").set("grid-row", "8");
-			Button callTechnicalController = createKeypadButton(
-			        Translator.translate("JuryKeypad.CallTechnicalController"), "contrast", () -> summonReferee(4));
-			styleSummonButton(callTechnicalController);
-			callTechnicalController.getStyle().set("grid-column", "4").set("grid-row", "8");
-			grid.add(buildPanelRow(), this.callForVotesButton, callTechnicalController, deliberate, challenge,
-			        technical);
+			this.callForVotesButton.getStyle().set("grid-column", "3 / 5").set("grid-row", "8");
+			grid.add(buildPanelRow(), this.callForVotesButton, deliberate, challenge, technical);
 			updateJuryDecisionActions(getFop());
 			container.add(grid);
 			container.setFlexGrow(1, grid);
