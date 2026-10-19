@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +22,7 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.ShortcutRegistration;
+import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -127,6 +129,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	private EventBus uiEventBus;
 	private Map<String, List<String>> urlParams;
 	private final List<ShortcutRegistration> registrations = new ArrayList<>();
+	private final List<ShortcutRegistration> dialogRegistrations = new ArrayList<>();
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public JuryKeypadContent() {
@@ -245,12 +248,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
+		// the jury votes are kept when the referee lights are cleared; like the FOP, they are cleared on clock start
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			FieldOfPlay fop = getFop();
-			// Adjudication Panel: the jury keeps voting on the lift after its decision is cleared
-			if (!(this.panelMode && fop != null && fop.isPanelVotePending())) {
-				resetJuryVoting();
-			}
 			updateJuryDecisionActions(getFop());
 			freezeReviewTimer();
 		});
@@ -416,6 +415,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	@Override
 	protected void onDetach(DetachEvent detachEvent) {
 		clearShortcutRegistrations();
+		clearDialogShortcutRegistrations();
 		super.onDetach(detachEvent);
 	}
 
@@ -906,6 +906,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 		dialog.addOpenedChangeListener(e -> {
 			if (!e.isOpened()) {
+				clearDialogShortcutRegistrations();
 				this.waitingCells = null;
 				this.recallButtons = null;
 				this.waitingCounter = null;
@@ -913,6 +914,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			}
 		});
 		this.waitingForVotesDialog = dialog;
+		registerWaitingForVotesShortcuts(dialog);
 		dialog.open();
 		FieldOfPlay fop = getFop();
 		if (fop != null) {
@@ -1026,21 +1028,47 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	private void registerShortcuts() {
 		clearShortcutRegistrations();
-		for (int index = 0; index < getNbJurors(); index++) {
-			final int juryMember = index;
-			registerShortcut(() -> postJuryMemberDecision(juryMember, true), getGoodKey(index));
-			registerShortcut(() -> postJuryMemberDecision(juryMember, false), getBadKey(index));
-		}
+		registerVoteAndSummonShortcuts(this::registerShortcut);
 		registerShortcut(this::startDeliberation, Key.KEY_D);
 		registerShortcut(this::startChallenge, Key.KEY_C);
 		registerShortcut(this::startTechnicalBreak, Key.KEY_T);
-		registerShortcut(() -> summonReferee(1), Key.KEY_H);
-		registerShortcut(() -> summonReferee(2), Key.KEY_I);
-		registerShortcut(() -> summonReferee(3), Key.KEY_J);
-		registerShortcut(() -> summonReferee(0), Key.KEY_K);
 		if (this.panelMode) {
 			registerShortcut(this::callForVotes, Key.KEY_V);
 		}
+	}
+
+	private void registerVoteAndSummonShortcuts(BiConsumer<Runnable, Key> register) {
+		for (int index = 0; index < getNbJurors(); index++) {
+			final int juryMember = index;
+			register.accept(() -> postJuryMemberDecision(juryMember, true), getGoodKey(index));
+			register.accept(() -> postJuryMemberDecision(juryMember, false), getBadKey(index));
+		}
+		register.accept(() -> summonReferee(1), Key.KEY_H);
+		register.accept(() -> summonReferee(2), Key.KEY_I);
+		register.accept(() -> summonReferee(3), Key.KEY_J);
+		register.accept(() -> summonReferee(0), Key.KEY_K);
+	}
+
+	/**
+	 * A modal dialog makes the UI inert, which blocks the UI-level shortcuts; the keys used during the vote must
+	 * also listen on the Waiting for Votes dialog itself.
+	 */
+	private void registerWaitingForVotesShortcuts(Dialog dialog) {
+		clearDialogShortcutRegistrations();
+		BiConsumer<Runnable, Key> register = (action, key) -> {
+			if (key != Key.UNIDENTIFIED) {
+				this.dialogRegistrations.add(Shortcuts.addShortcutListener(dialog, action::run, key).listenOn(dialog));
+			}
+		};
+		registerVoteAndSummonShortcuts(register);
+		register.accept(this::callForVotes, Key.KEY_V);
+	}
+
+	private void clearDialogShortcutRegistrations() {
+		for (ShortcutRegistration registration : this.dialogRegistrations) {
+			registration.remove();
+		}
+		this.dialogRegistrations.clear();
 	}
 
 	private void syncWithFopState(FieldOfPlay fop) {
