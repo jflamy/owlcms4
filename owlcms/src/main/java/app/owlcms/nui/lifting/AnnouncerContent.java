@@ -52,6 +52,7 @@ import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.SoundParameters;
+import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.components.JXLSDownloader;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.elements.PassiveTimerElement;
@@ -310,6 +311,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 				// Don't reopen if announcer gave the decision themselves
 				if (e.isWaitForAnnouncer()) {
 					juryDecisionDialog(e, et);
+				} else if (getFop() != null && getFop().isPanelProcedure()) {
+					// the panel decision is applied without the Speaker; tell what happened
+					doNotification(juryVerdictText(e),
+					        et == JuryDeliberationEventType.GOOD_LIFT ? "primary success" : "primary error",
+					        "jury[" + et.name() + "]");
 				}
 				return;
 				case END_CALL_REFEREES:
@@ -349,6 +355,23 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		});
 	}
 
+	/**
+	 * Ending the break abandons an unfinished Adjudication Panel review vote (the lift keeps the referees' decision),
+	 * so ask for confirmation first.
+	 */
+	private void endBreakConfirmingReviewVote(Runnable endBreak) {
+		FieldOfPlay fop = getFop();
+		if (fop == null || !fop.isPanelVoteOpen()) {
+			endBreak.run();
+			return;
+		}
+		new ConfirmationDialog(
+		        Translator.translate("JuryNotification.ReviewVoteNotFinishedTitle"),
+		        Translator.translate("JuryNotification.ReviewVoteNotFinishedText"),
+		        Translator.translate("JuryNotification.END_JURY_BREAK"),
+		        null, null, endBreak).open();
+	}
+
 	private void doStoppageDialog(String text, String style) {
 
 		if (this.stoppageAckNotification != null) {
@@ -372,7 +395,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		resumeButton.getStyle().set("color", "white");
 		resumeButton.getStyle().set("margin-left", "1em");
 		resumeButton.addClickListener((event) -> {
-			getFop().fopEventPost(new FOPEvent.StartLifting(null));
+			endBreakConfirmingReviewVote(() -> getFop().fopEventPost(new FOPEvent.StartLifting(null)));
 			this.stoppageAckNotification.close();
 			this.stoppageAckNotification = null;
 		});
@@ -753,8 +776,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 		this.startLiftingButton = new Button(Translator.translate("startLifting"), new Icon(VaadinIcon.MICROPHONE),
 		        (e) -> {
-			        currentUI.access(() -> getRouterLayout().setMenuArea(createTopBar()));
-			        getFop().fopEventPost(new FOPEvent.StartLifting(this));
+			        endBreakConfirmingReviewVote(() -> {
+				        currentUI.access(() -> getRouterLayout().setMenuArea(createTopBar()));
+				        getFop().fopEventPost(new FOPEvent.StartLifting(this));
+			        });
 		        });
 		this.startLiftingButton.getThemeNames().add("success primary");
 

@@ -1028,6 +1028,30 @@ public abstract class AthleteGridContent extends BaseContent
 		}
 	}
 
+	/**
+	 * @return the notification text for a GOOD_LIFT / BAD_LIFT jury notification: result, reason for a No Lift, and
+	 *         "Jury Chair Entered Decision" when the seven-person panel did not decide
+	 */
+	protected String juryVerdictText(UIEvent.JuryNotification e) {
+		String reversalText = "";
+		if (e.getReversal() != null) {
+			reversalText = e.getReversal() ? Translator.translate("JuryNotification.Reversal")
+			        : Translator.translate("JuryNotification.Confirmed");
+		}
+		int previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
+		boolean good = e.getDeliberationEventType() == JuryDeliberationEventType.GOOD_LIFT;
+		String text = Translator.translate(good ? "JuryNotification.GoodLift" : "JuryNotification.BadLift",
+		        reversalText, e.getAthlete().getFullName(), previousAttemptNo % 3 + 1);
+		String reason = good ? null : JuryRejectionReasons.label(e.getReasonCode());
+		if (reason != null) {
+			text = text + " \u2014 " + reason;
+		}
+		if (e.isChairEntered()) {
+			text = text + " \u2014 " + Translator.translate("JuryNotification.ChairEnteredDecision");
+		}
+		return text;
+	}
+
 	@Subscribe
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
@@ -1036,13 +1060,7 @@ public abstract class AthleteGridContent extends BaseContent
 				return;
 			}
 			String text = "";
-			String reversalText = "";
-			if (e.getReversal() != null) {
-				reversalText = e.getReversal() ? Translator.translate("JuryNotification.Reversal")
-				        : Translator.translate("JuryNotification.Confirmed");
-			}
 			String style = "warning";
-			int previousAttemptNo;
 
 			// logger.debug("slaveJuryNotification {} {} {}", et,
 			// e.getDeliberationEventType(), e.getTrace());
@@ -1076,22 +1094,14 @@ public abstract class AthleteGridContent extends BaseContent
 					text = Translator.translate("JuryNotification." + et.name());
 					break;
 				case BAD_LIFT:
-					previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
-					text = Translator.translate("JuryNotification.BadLift", reversalText, e.getAthlete().getFullName(),
-					        previousAttemptNo % 3 + 1);
-					String reason = JuryRejectionReasons.label(e.getReasonCode());
-					if (reason != null) {
-						text = text + " \u2014 " + reason;
-					}
+					text = juryVerdictText(e);
 					style = "primary error";
 					break;
 				case CALL_TECHNICAL_CONTROLLER:
 					text = Translator.translate("JuryNotification.CallTechnicalController");
 					break;
 				case GOOD_LIFT:
-					previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
-					text = Translator.translate("JuryNotification.GoodLift", reversalText, e.getAthlete().getFullName(),
-					        previousAttemptNo % 3 + 1);
+					text = juryVerdictText(e);
 					style = "primary success";
 					break;
 				case LOADING_ERROR:

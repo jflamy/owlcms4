@@ -157,7 +157,7 @@ Already partly present:
 | G4b | Chair calls the new decision with the Referee call buttons after the video review | Summon only brings referees to the Jury table | OWLCMS issues the referee recall (`SummonRef`) twice: (1) implicitly when the 7-person vote triggers a review break or the Chair presses Challenge, and (2) explicitly when the Chair presses **Call for Votes** on Jury Control or **Summon Referees (all)** on the keypad/jury box during the break to open the vote |
 | G4c | Jury deliberates for other reasons too | Deliberation button | Keep the manual Deliberation button; Call for Votes is available there when a lift is under review |
 | G5 | Rule shown for No Lift | Announcer and tracker only; auto decision has no reason | Reason required for a panel No Lift; shown on attempt board/scoreboard |
-| G6 | No challenge after panel review | Challenge always allowed | Refuse CHALLENGE when the attempt was reviewed |
+| G6 | No challenge after panel review | Challenge always allowed | None: the jury applies the rule (decided, section 8) |
 | G7 | Jury Control shows 7 votes | Row 7 shows 3 or 5 jurors | 7-cell row: R1 R2 R3 \| J1 J2 J3 J4 |
 | G8 | Jury Console dropped | Console in lifting menu | Hide/redirect when switch is on; move Call Technical Controller to Control |
 
@@ -574,8 +574,6 @@ Jury devices do not buzz; the jurors are at the table.
   4 jurors as is (keys 1–8).
 - Add **Call Technical Controller** (`SummonReferee` with ref number 4), which
   only the Console has today.
-- Challenge button: refuse when the attempt has already been reviewed
-  (section 8).
 
 ### 7. Jury Console (drop)
 
@@ -591,10 +589,9 @@ Jury devices do not buzz; the jurors are at the table.
 
 ### 8. Challenge after review
 
-- In `BreakStarted` handling, when the switch is on and
-  `requestedBreak == CHALLENGE`, refuse if the attempt under review already has
-  a jury deliberation result (`Athlete` jury deliberation for the attempt is
-  non-null), with an error notification (new translation key).
+- **Decided: no refusal in OWLCMS.** The jury knows that a lift already
+  reviewed by the Adjudication Panel cannot be challenged and simply does not
+  press Challenge. OWLCMS does not check it.
 
 ### 9. Displays and forwarders
 
@@ -679,7 +676,7 @@ languages and does not depend on the switch.
 | 1 | Switch, derived jury size 4, ignore jury votes beyond the jury size (station 5), panel tally class + unit tests | S |
 | 2 | Phase A: panel evaluation on the 4th jury vote, automatic review break, clock-start guard with override, notifications | M |
 | 3 | Phase B: Call for Votes (buzzer + re-arm), referee review votes in BREAK, phones, MQTT reset/summon/topic, final verdict | M–L |
-| 4 | Jury Control 7-cell row, Call for Votes button and prompt, Waiting for Votes screen with Jury Chair override, Call TC, challenge refusal, reason flow | M |
+| 4 | Jury Control 7-cell row, Call for Votes button and prompt, Waiting for Votes screen with Jury Chair override, Call TC, reason flow | M |
 | 5 | Drop Console (menu, route), displays with 4/7 circles, rule on attempt board | S–M |
 | 6 | Docs (Jury, MQTT messages), TSV translations including "Jury Chair" and "Jury Chair Entered Decision", device tests | S |
 

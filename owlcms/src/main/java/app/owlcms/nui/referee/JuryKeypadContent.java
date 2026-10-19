@@ -61,6 +61,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.fieldofplay.AdjudicationPanel;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -110,6 +111,17 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	private Div reviewTimerFrozen;
 	private Button noLiftButton;
 	private Button goodLiftButton;
+	/** seven-person Adjudication Panel with VPT: 7-cell panel row, Call for Votes, Waiting for Votes screen */
+	private boolean panelMode;
+	private Div[] panelRefCells;
+	private Button callForVotesButton;
+	private Dialog waitingForVotesDialog;
+	private Dialog noLiftReasonDialog;
+	private Div[] waitingCells;
+	private Button[] recallButtons;
+	private Div waitingCounter;
+	private Div waitingResult;
+	private boolean reasonDialogOpenedForVote;
 	private Location location;
 	private UI locationUI;
 	private EventBus uiEventBus;
@@ -184,9 +196,39 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		if (e.getRef() == 0) {
 			UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 				resetJuryVoting();
+				resetPanelRefCells();
+				this.reasonDialogOpenedForVote = false;
 				updateJuryDecisionActions(getFop());
+				openWaitingForVotes();
 			});
 		}
+	}
+
+	@Subscribe
+	public void slavePanelVoteUpdate(UIEvent.PanelVoteUpdate e) {
+		if (!this.panelMode) {
+			return;
+		}
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			renderPanelVote(e.getVoted(), e.getVotes());
+			updateJuryDecisionActions(getFop());
+			if (!e.isOpen()) {
+				closeWaitingForVotes();
+				return;
+			}
+			openWaitingForVotes();
+			if (this.waitingResult != null) {
+				Boolean majority = e.getMajority();
+				this.waitingResult.setText(majority == null ? ""
+				        : Translator.translate(majority ? "JuryDialog.GoodLiftLabel" : "JuryDialog.BadLiftLabel"));
+				this.waitingResult.getStyle().set("color", Boolean.FALSE.equals(majority) ? "red" : "white");
+			}
+			if (Boolean.FALSE.equals(e.getMajority()) && !this.reasonDialogOpenedForVote) {
+				// a No Lift by the panel needs the technical rule from the Chair
+				this.reasonDialogOpenedForVote = true;
+				openNoLiftReasonDialog();
+			}
+		});
 	}
 
 	@Subscribe
@@ -204,7 +246,11 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			resetJuryVoting();
+			FieldOfPlay fop = getFop();
+			// Adjudication Panel: the jury keeps voting on the lift after its decision is cleared
+			if (!(this.panelMode && fop != null && fop.isPanelVotePending())) {
+				resetJuryVoting();
+			}
 			updateJuryDecisionActions(getFop());
 			freezeReviewTimer();
 		});
@@ -216,7 +262,10 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		// the live timer does not pick up the next athlete's SetTime event
 		// (particularly important for announcer/solo decisions where clockOwner
 		// is cleared before the decision is shown).
-		UIEventProcessor.uiAccess(this, this.uiEventBus, this::freezeReviewTimer);
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			freezeReviewTimer();
+			showInitialRefereeVotes(e.getFop());
+		});
 	}
 
 	@Subscribe
@@ -226,6 +275,11 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	@Subscribe
 	public void slaveJuryMemberDecision(UIEvent.JuryUpdate e) {
+		FieldOfPlay fop = getFop();
+		if (this.panelMode && fop != null && fop.isPanelVoteOpen()) {
+			// the review vote is rendered from PanelVoteUpdate (hidden until all seven are in)
+			return;
+		}
 		Boolean[] decision = e.getJuryMemberDecision();
 		Integer juryMember = e.getJuryMemberUpdated();
 		Boolean goodBad = juryMember != null ? decision[juryMember] : null;
@@ -240,6 +294,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			resetJuryVoting();
+			resetPanelRefCells();
+			closeWaitingForVotes();
 			updateJuryDecisionActions(getFop());
 		});
 	}
@@ -248,6 +304,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	public void slaveTimeStarted(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			resetJuryVoting();
+			resetPanelRefCells();
 			updateJuryDecisionActions(getFop());
 			clearReviewHeader();
 			updateReviewHeader(e.getFop());
@@ -525,8 +582,10 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		spacer.getStyle().set("grid-column", "1 / -1").set("grid-row", "5");
 
 		// --- Row 6: Jury Decisions label ---
+		FieldOfPlay buildFop = getFop();
+		this.panelMode = buildFop != null && buildFop.isPanelProcedure();
 		Div juryLabel = new Div();
-		juryLabel.setText(Translator.translate("JuryDecisions"));
+		juryLabel.setText(Translator.translate(this.panelMode ? "JuryKeypad.AdjudicationPanel" : "JuryDecisions"));
 		juryLabel.getStyle()
 		        .set("grid-column", "1 / -1").set("grid-row", "6")
 		        .set("background", "black")
@@ -578,10 +637,6 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		}
 
 		// --- Row 8: Action buttons ---
-		this.noLiftButton = createKeypadButton(Translator.translate("JuryDialog.BadLiftLabel"), "error primary", this::openNoLiftReasonDialog);
-		this.noLiftButton.getStyle().set("grid-column", "3").set("grid-row", "8");
-		this.goodLiftButton = createKeypadButton(Translator.translate("JuryDialog.GoodLiftLabel"), "success primary", () -> submitJuryDecision(true, null));
-		this.goodLiftButton.getStyle().set("grid-column", "4").set("grid-row", "8");
 		Button deliberate = createKeypadButton(Translator.translate("BreakButton.JuryDeliberation"), "primary contrast", this::startDeliberation);
 		deliberate.getStyle().set("grid-column", "1").set("grid-row", "8")
 		        .set("background-color", "#FFC107").set("color", "#000000");
@@ -595,6 +650,29 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		grid.add(toolbar, refLabel, refDecisionArea,
 		        leftSummon, centerSummon, rightSummon, allSummon, resumeBtn,
 		        spacer, juryLabel);
+		if (this.panelMode) {
+			// the Jury Chair decides only on the Waiting for Votes screen (override)
+			this.noLiftButton = null;
+			this.goodLiftButton = null;
+			this.callForVotesButton = createKeypadButton(Translator.translate("JuryKeypad.CallForVotes"), "primary",
+			        this::callForVotes);
+			this.callForVotesButton.getStyle().set("grid-column", "3").set("grid-row", "8");
+			Button callTechnicalController = createKeypadButton(
+			        Translator.translate("JuryKeypad.CallTechnicalController"), "contrast", () -> summonReferee(4));
+			styleSummonButton(callTechnicalController);
+			callTechnicalController.getStyle().set("grid-column", "4").set("grid-row", "8");
+			grid.add(buildPanelRow(), this.callForVotesButton, callTechnicalController, deliberate, challenge,
+			        technical);
+			updateJuryDecisionActions(getFop());
+			container.add(grid);
+			container.setFlexGrow(1, grid);
+			return;
+		}
+		this.callForVotesButton = null;
+		this.noLiftButton = createKeypadButton(Translator.translate("JuryDialog.BadLiftLabel"), "error primary", this::openNoLiftReasonDialog);
+		this.noLiftButton.getStyle().set("grid-column", "3").set("grid-row", "8");
+		this.goodLiftButton = createKeypadButton(Translator.translate("JuryDialog.GoodLiftLabel"), "success primary", () -> submitJuryDecision(true, null));
+		this.goodLiftButton.getStyle().set("grid-column", "4").set("grid-row", "8");
 		for (Div cell : this.juryVoteCells) {
 			grid.add(cell);
 		}
@@ -609,6 +687,11 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	}
 
 	private void checkAllVoted() {
+		FieldOfPlay fop = getFop();
+		if (fop != null && fop.isPanelVoteOpen()) {
+			// review vote: the jury votes are revealed with the referees' when all seven are in
+			return;
+		}
 		boolean allVoted = true;
 		for (Boolean juryVote : this.juryVotes) {
 			if (juryVote == null) {
@@ -627,6 +710,260 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 				this.juryIcons[i] = fullSizeIcon;
 			}
 		}
+	}
+
+	/**
+	 * Seven-person Adjudication Panel row: R1 R2 R3 | J1 J2 J3 J4. The jury cells are the usual jury vote cells.
+	 * Each jury cell has a per-member class (panel-jury-1 is the Jury Chair) for later styling.
+	 */
+	private Div buildPanelRow() {
+		Div row = new Div();
+		row.getStyle()
+		        .set("grid-column", "1 / -1")
+		        .set("grid-row", "7")
+		        .set("display", "grid")
+		        .set("grid-template-columns", "repeat(3, 1fr) 0.3fr repeat(4, 1fr)")
+		        .set("background", "black");
+		this.panelRefCells = new Div[AdjudicationPanel.NB_REFEREES];
+		for (int i = 0; i < this.panelRefCells.length; i++) {
+			this.panelRefCells[i] = createPanelCell("panel-referee");
+			row.add(this.panelRefCells[i]);
+		}
+		row.add(createPanelSeparator());
+		for (int i = 0; i < this.juryVoteCells.length; i++) {
+			Div cell = this.juryVoteCells[i];
+			cell.getStyle().remove("grid-column").remove("grid-row");
+			cell.addClassNames("panel-jury", "panel-jury-" + (i + 1));
+			row.add(cell);
+		}
+		return row;
+	}
+
+	private Div createPanelCell(String className) {
+		Div cell = new Div();
+		cell.addClassName(className);
+		cell.getStyle()
+		        .set("background", "black")
+		        .set("display", "flex")
+		        .set("align-items", "center")
+		        .set("justify-content", "center");
+		renderPanelCell(cell, false, null);
+		return cell;
+	}
+
+	private Div createPanelSeparator() {
+		Div separator = new Div();
+		separator.getStyle()
+		        .set("justify-self", "center")
+		        .set("width", "0")
+		        .set("border-left", "2px solid #51565c")
+		        .set("margin", "15% 0");
+		return separator;
+	}
+
+	/** not voted: thin ring; voted (hidden): grey dot; revealed: white or red */
+	private void renderPanelCell(Div cell, boolean voted, Boolean vote) {
+		Icon icon;
+		if (vote != null) {
+			icon = vote ? bigIcon(VaadinIcon.CHECK_CIRCLE, "white") : bigIcon(VaadinIcon.CLOSE_CIRCLE, "red");
+		} else {
+			icon = bigIcon(voted ? VaadinIcon.CIRCLE : VaadinIcon.CIRCLE_THIN, "gray");
+		}
+		cell.removeAll();
+		cell.add(icon);
+	}
+
+	/** Phase A: the referee cells show the referees' initial decision once it is shown. */
+	private void showInitialRefereeVotes(FieldOfPlay fop) {
+		if (!this.panelMode || this.panelRefCells == null || fop == null || fop.isPanelVoteOpen()) {
+			return;
+		}
+		Boolean[] votes = fop.getRefereeDecision();
+		for (int i = 0; i < this.panelRefCells.length; i++) {
+			Boolean vote = votes != null && votes.length > i ? votes[i] : null;
+			renderPanelCell(this.panelRefCells[i], vote != null, vote);
+		}
+	}
+
+	private void resetPanelRefCells() {
+		if (this.panelRefCells == null) {
+			return;
+		}
+		for (Div cell : this.panelRefCells) {
+			renderPanelCell(cell, false, null);
+		}
+	}
+
+	/**
+	 * Render the review vote on the panel row and on the Waiting for Votes screen.
+	 *
+	 * @param voted referees 1..3 then jury members 1..4
+	 * @param votes same order, null until all seven are in
+	 */
+	private void renderPanelVote(boolean[] voted, Boolean[] votes) {
+		int nbRefs = AdjudicationPanel.NB_REFEREES;
+		for (int i = 0; i < AdjudicationPanel.PANEL_SIZE; i++) {
+			Boolean vote = votes != null ? votes[i] : null;
+			Div rowCell = i < nbRefs ? (this.panelRefCells != null ? this.panelRefCells[i] : null)
+			        : (this.juryVoteCells != null && i - nbRefs < this.juryVoteCells.length
+			                ? this.juryVoteCells[i - nbRefs]
+			                : null);
+			if (rowCell != null) {
+				renderPanelCell(rowCell, voted[i], vote);
+			}
+			if (this.waitingCells != null) {
+				renderPanelCell(this.waitingCells[i], voted[i], vote);
+			}
+		}
+		if (this.recallButtons != null) {
+			for (int i = 0; i < this.recallButtons.length; i++) {
+				this.recallButtons[i].setVisible(votes == null && !voted[i]);
+			}
+		}
+		if (this.waitingCounter != null) {
+			int received = 0;
+			for (boolean v : voted) {
+				received += v ? 1 : 0;
+			}
+			this.waitingCounter.setText(Translator.translate("JuryKeypad.VotesReceived", received));
+		}
+	}
+
+	private void callForVotes() {
+		OwlcmsSession.withFop(fop -> {
+			if (fop.isPanelVoteCallable()) {
+				fop.fopEventPost(new FOPEvent.PanelVoteCalled(this));
+			}
+		});
+	}
+
+	private void cancelVote() {
+		OwlcmsSession.withFop(fop -> fop.fopEventPost(new FOPEvent.PanelVoteCancelled(this)));
+	}
+
+	/**
+	 * The Waiting for Votes screen: the seven votes, re-call buttons for the referees who have not voted, restart,
+	 * the Jury Chair override and cancel. All Jury Control pages of the platform open it when the vote is called.
+	 */
+	private void openWaitingForVotes() {
+		if (!this.panelMode || (this.waitingForVotesDialog != null && this.waitingForVotesDialog.isOpened())) {
+			return;
+		}
+		Dialog dialog = new Dialog();
+		dialog.getElement().getThemeList().add(Lumo.DARK);
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+		dialog.setWidth("95vw");
+		dialog.setHeaderTitle(Translator.translate("JuryKeypad.WaitingForVotes"));
+
+		Athlete athlete = resolveReviewAthlete(getFop());
+		Div athleteLine = new Div();
+		athleteLine.setText(athlete != null ? athlete.getFullName() + " \u2014 " + formatReviewAttempt(athlete) : "");
+		athleteLine.getStyle().set("font-size", "1.5rem").set("font-weight", "600");
+
+		Div cells = new Div();
+		cells.getStyle()
+		        .set("display", "grid")
+		        .set("grid-template-columns", "repeat(3, 1fr) 0.3fr repeat(4, 1fr)")
+		        .set("height", "22vh");
+		Div recalls = new Div();
+		recalls.getStyle()
+		        .set("display", "grid")
+		        .set("grid-template-columns", "repeat(3, 1fr) 0.3fr repeat(4, 1fr)")
+		        .set("gap", "4px");
+		this.waitingCells = new Div[AdjudicationPanel.PANEL_SIZE];
+		this.recallButtons = new Button[AdjudicationPanel.NB_REFEREES];
+		for (int i = 0; i < AdjudicationPanel.PANEL_SIZE; i++) {
+			if (i == AdjudicationPanel.NB_REFEREES) {
+				cells.add(createPanelSeparator());
+				recalls.add(new Div());
+			}
+			boolean referee = i < AdjudicationPanel.NB_REFEREES;
+			this.waitingCells[i] = createPanelCell(referee ? "panel-referee"
+			        : "panel-jury-" + (i - AdjudicationPanel.NB_REFEREES + 1));
+			cells.add(this.waitingCells[i]);
+			if (referee) {
+				int refNumber = i + 1;
+				Button recall = new Button(Translator.translate("JuryKeypad.Recall"), e -> summonReferee(refNumber));
+				styleSummonButton(recall);
+				this.recallButtons[i] = recall;
+				recalls.add(recall);
+			} else {
+				recalls.add(new Div());
+			}
+		}
+		this.waitingCounter = new Div();
+		this.waitingCounter.getStyle().set("font-size", "1.5rem");
+		this.waitingResult = new Div();
+		this.waitingResult.getStyle().set("font-size", "2rem").set("font-weight", "bold");
+		dialog.add(athleteLine, cells, recalls, this.waitingCounter, this.waitingResult);
+
+		Button restart = new Button(Translator.translate("JuryKeypad.RestartVote"), e -> callForVotes());
+		Span chairLabel = new Span(Translator.translate("JuryKeypad.ChairOverride"));
+		chairLabel.getStyle().set("margin-left", "auto").set("align-self", "center");
+		Button noLift = new Button(Translator.translate("JuryDialog.BadLiftLabel"), e -> openNoLiftReasonDialog());
+		noLift.getElement().setAttribute("theme", "error primary");
+		Button goodLift = new Button(Translator.translate("JuryDialog.GoodLiftLabel"),
+		        e -> submitJuryDecision(true, null));
+		goodLift.getElement().setAttribute("theme", "success primary");
+		Button cancel = new Button(Translator.translate("Cancel"), e -> cancelVote());
+		dialog.getFooter().add(restart, chairLabel, noLift, goodLift, cancel);
+
+		dialog.addOpenedChangeListener(e -> {
+			if (!e.isOpened()) {
+				this.waitingCells = null;
+				this.recallButtons = null;
+				this.waitingCounter = null;
+				this.waitingResult = null;
+			}
+		});
+		this.waitingForVotesDialog = dialog;
+		dialog.open();
+		FieldOfPlay fop = getFop();
+		if (fop != null) {
+			renderPanelVote(currentPanelVoted(fop), null);
+		}
+	}
+
+	private boolean[] currentPanelVoted(FieldOfPlay fop) {
+		boolean[] voted = new boolean[AdjudicationPanel.PANEL_SIZE];
+		Boolean[] refs = fop.getReviewRefereeDecision();
+		Boolean[] jury = fop.getJuryMemberDecision();
+		for (int i = 0; i < AdjudicationPanel.NB_REFEREES; i++) {
+			voted[i] = refs[i] != null;
+		}
+		for (int i = 0; i < AdjudicationPanel.NB_JURORS; i++) {
+			voted[AdjudicationPanel.NB_REFEREES + i] = jury != null && jury.length > i && jury[i] != null;
+		}
+		return voted;
+	}
+
+	private void closeWaitingForVotes() {
+		if (this.waitingForVotesDialog != null) {
+			this.waitingForVotesDialog.close();
+			this.waitingForVotesDialog = null;
+		}
+		// another Jury Control page may have given the decision
+		if (this.noLiftReasonDialog != null) {
+			this.noLiftReasonDialog.close();
+			this.noLiftReasonDialog = null;
+		}
+	}
+
+	private void updateCallForVotesButton(FieldOfPlay fop) {
+		if (this.callForVotesButton == null) {
+			return;
+		}
+		boolean enabled = fop != null && fop.isPanelVoteCallable();
+		// prompt the Chair after an automatic review or a challenge, until the vote is called
+		boolean prompt = enabled && !fop.isPanelVoteOpen()
+		        && (fop.isPanelReview() || fop.getBreakType() == BreakType.CHALLENGE);
+		this.callForVotesButton.setEnabled(enabled);
+		this.callForVotesButton.getStyle()
+		        .set("background-color", prompt ? "#f97316" : (enabled ? "#2563eb" : "#1e293b"))
+		        .set("background-image", "none")
+		        .set("color", enabled ? "#ffffff" : "#64748b")
+		        .set("border", prompt ? "3px solid #ffffff" : "1px solid #51565c");
 	}
 
 	private Button createKeypadButton(String label, String theme, Runnable action) {
@@ -706,6 +1043,9 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		registerShortcut(() -> summonReferee(2), Key.KEY_I);
 		registerShortcut(() -> summonReferee(3), Key.KEY_J);
 		registerShortcut(() -> summonReferee(0), Key.KEY_K);
+		if (this.panelMode) {
+			registerShortcut(this::callForVotes, Key.KEY_V);
+		}
 	}
 
 	private void syncWithFopState(FieldOfPlay fop) {
@@ -727,6 +1067,14 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		}
 
 		syncLiveRefereeDecisions(fop);
+		if (this.panelMode) {
+			if (fop.isPanelVoteOpen()) {
+				openWaitingForVotes();
+				renderPanelVote(currentPanelVoted(fop), null);
+			} else {
+				showInitialRefereeVotes(fop);
+			}
+		}
 	}
 
 	private void syncLiveRefereeDecisions(FieldOfPlay fop) {
@@ -1047,7 +1395,11 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		if (!isJuryDecisionActive(getFop())) {
 			return;
 		}
+		if (this.noLiftReasonDialog != null) {
+			this.noLiftReasonDialog.close();
+		}
 		Dialog dialog = new Dialog();
+		this.noLiftReasonDialog = dialog;
 		dialog.getElement().getThemeList().add(Lumo.DARK);
 		dialog.setHeaderTitle(Translator.translate("JuryDialog.BadLiftLabel"));
 		dialog.setWidth("95vw");
@@ -1103,6 +1455,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	private void updateJuryDecisionActions(FieldOfPlay fop) {
 		boolean enabled = isJuryDecisionActive(fop);
 		setJuryDecisionActionsEnabled(enabled);
+		updateCallForVotesButton(fop);
 	}
 
 	private void setJuryDecisionActionsEnabled(boolean enabled) {
@@ -1128,7 +1481,10 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	private void summonReferee(int refNumber) {
 		OwlcmsSession.withFop(fop -> {
-			if (refNumber > 0) {
+			if (refNumber == 0 && this.panelMode && fop.isPanelVoteCallable()) {
+				// during a review, the Referee call buttons request the new decision (TCRR 7.5.7)
+				fop.fopEventPost(new FOPEvent.PanelVoteCalled(this));
+			} else if (refNumber > 0) {
 				fop.fopEventPost(new FOPEvent.SummonReferee(this, refNumber));
 			} else {
 				for (int i = 1; i <= 3; i++) {

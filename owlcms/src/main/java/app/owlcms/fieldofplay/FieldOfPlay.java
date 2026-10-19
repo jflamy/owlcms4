@@ -904,6 +904,10 @@ public class FieldOfPlay implements IUnregister {
 				unexpectedEventInState(e, getState());
 			}
 			return;
+		} else if (e instanceof FOPEvent.PanelVoteCancelled) {
+			resetJuryDecisions();
+			closePanelVote(e.getOrigin());
+			return;
 		} else if (e instanceof StartLifting) {
 			cancelDecisionReset();
 			// ending the break abandons an unfinished review vote; the lift keeps the referees' decision

@@ -132,6 +132,11 @@ public class JuryDecisionDialog extends Dialog {
 			+ Translator.translate("Announcer.WaitingForJuryDecision") + "</div>";
 		explanationText = Translator.translate("Announcer.WaitingForJuryExplanation");
 	}
+	if (e.isChairEntered() && juryDecision != null) {
+		// seven-person Adjudication Panel: the decision did not come from the panel vote
+		juryDecisionDisplay += "<div style='font-size: x-large; font-weight: bold; text-align: center; margin: 0.5em 0;'>"
+			+ Translator.translate("JuryNotification.ChairEnteredDecision") + "</div>";
+	}
 	
 	message.add(new Html(
 	        """

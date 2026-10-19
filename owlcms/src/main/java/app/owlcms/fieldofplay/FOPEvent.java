@@ -605,6 +605,18 @@ public class FOPEvent {
 	}
 
 	/**
+	 * Seven-person Adjudication Panel: the Jury Chair cancels the review vote; the votes are discarded and the break
+	 * continues (Call for Votes can be pressed again).
+	 */
+	static public class PanelVoteCancelled extends FOPEvent {
+
+		public PanelVoteCancelled(Object origin) {
+			super(origin);
+		}
+
+	}
+
+	/**
 	 * The Class StartLifting.
 	 */
 	static public class StartLifting extends FOPEvent {
