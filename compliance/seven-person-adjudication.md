@@ -400,15 +400,15 @@ Step B2, the Chair calls for the vote (second, explicit referee recall):
   Chair decides on the "Waiting for Votes" screen (section 6). The override
   posts `JuryDecision` directly, as the Good/No Lift buttons do today. The vote
   is then closed and later votes are ignored.
-- **Throwing the vote out.** As in Phase A, the Competition Supervisor
-  (accounts mode) or Speaker (PIN mode) can abandon whatever is pending: the
-  **End jury break** button on that screen ends the break even if the review
-  vote is incomplete. A confirmation ("Review vote not finished — end break
-  anyway?") is shown in that case. The incomplete votes and
-  `athleteUnderReview` are discarded, and the lift keeps the referees'
-  decision. So in both phases the "throw it out" path is on the
-  Supervisor/Speaker screen, and the "decide the lift" path is the Chair
-  override on Jury Control.
+- **Throwing the vote out.** The Chair override may not come in either (Jury
+  Control device or network down, Chair unavailable). As in Phase A, the
+  Competition Supervisor (accounts mode) or Speaker (PIN mode) is then the
+  last resort: the **End jury break** button on that screen ends the break
+  even if the review vote is incomplete. A confirmation ("Review vote not
+  finished — end break anyway?") is shown in that case. The incomplete votes
+  and `athleteUnderReview` are discarded, and the lift keeps the referees'
+  decision. So the order in Phase B is: the 7-person vote, then the Chair
+  override on Jury Control, then the Supervisor/Speaker override.
 - **Override is marked.** A decision entered through the Chair override is
   flagged on the attempt and shown as **"Jury Chair Entered Decision"** on the
   announcer / Competition Supervisor notification (and in the jury
@@ -746,11 +746,13 @@ Decided:
 - MQTT timekeeper boxes have no clock-start override. A press while jury votes
   are missing is refused like any other console; the override is only on the
   Competition Supervisor / Speaker screen. See section 3, step 4.
-- When jury votes do not come in, in Phase A or Phase B, the path to abandon
-  what is pending is on the Competition Supervisor screen (accounts mode) or
-  the Speaker screen (PIN mode): "Start clock anyway" in Phase A, "End jury
-  break" with a confirmation in Phase B. Both discard the incomplete votes and
-  the lift keeps the referees' decision. To decide the lift instead, the Chair
-  uses the override on Jury Control (marked "Jury Chair Entered Decision").
+- When jury votes do not come in, in Phase A or Phase B, the last-resort
+  override is on the Competition Supervisor screen (accounts mode) or the
+  Speaker screen (PIN mode): "Start clock anyway" in Phase A, "End jury break"
+  with a confirmation in Phase B. Both discard the incomplete votes and the
+  lift keeps the referees' decision. In Phase B the Chair override on Jury
+  Control (marked "Jury Chair Entered Decision") comes first; the
+  Supervisor/Speaker override covers the case where the Chair's decision does
+  not come in either.
 
 No questions are open.
