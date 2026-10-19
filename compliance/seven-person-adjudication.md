@@ -646,9 +646,10 @@ languages and does not depend on the switch.
   when `7personAdjudication` is off.
 - **Done (in `adjudication_translations.tsv`):** `JuryPresident` en "Jury
   Chair", de *Jury-Vorsitzender*, ru *Председатель жюри*, et *Žürii
-  esimees*; fo and hy fixed. Languages whose word already means chair, or
-  where the IWF uses "President" (es, fr, pt, sv, da, fi, no, pl, hu, ro, he,
-  ar, el, ja, zh_HANT), are unchanged. The `ia` column holds row ids, not a
+  esimees*, he *יו״ר חבר השופטים*; fo and hy fixed. The IWF says "Jury
+  Chair". Languages that already use their word for chair (sv, da, fi, no,
+  pl, zh_HANT), or whose word for chair is the same as for president (es,
+  fr, pt, ro, el, hu, ar, hy), are unchanged; ja keeps 審判長. The `ia` column holds row ids, not a
   translation. User docs (020-Jury.md, 180-Keypads.md) updated; the RFP
   proposals under docs/RFP are left as submitted.
 - **Keep the key names.** `JuryPresident` is also the assignment id in
@@ -662,7 +663,7 @@ languages and does not depend on the switch.
   `JuryKeypad.ChairOverride`).
 - Not affected: `Books.OfficialPresident` ("President:"), which is a federation
   officer and not the jury.
-- Per language, use the IWF term for "Chair":
+- Per language, use the word for "Chair" (the IWF no longer says "President"):
   - many languages already say chair: sv *Juryordförande*, da *Juryformand*,
     fi *puheenjohtaja*, pl *Przewodniczący*, ja *審判長*, zh_HANT *主席*;
   - others say president (es *Presidente*, fr *Président*, pt *Presidente*,
