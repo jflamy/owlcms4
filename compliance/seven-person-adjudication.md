@@ -304,11 +304,14 @@ So a manual deliberation (switch on, VPT on) ends in one of:
 - **Call for Votes** when the lift itself is in question: the normal path, the
   same 7-person majority as an automatic review;
 - **Resume** with the lift unchanged;
-- an **administrative action** on the attempt that is not an adjudication:
-  additional attempt (loading error, interference) or 20 kg rule No Lift.
-  These are done today on the athlete card by the Technical Controller /
-  announcer; whether Jury Control should offer them directly is a separate
-  decision (see Open Questions).
+- **Resume** after an **administrative correction** that is not an
+  adjudication: additional attempt (loading error, interference) or 20 kg
+  rule No Lift. **Decided:** no new Jury Control action for this. The Chair
+  presses **Deliberation**, the Jury and the Technical Controller settle the
+  matter verbally, the Competition Supervisor (or Speaker in PIN mode) edits
+  the athlete card (void the attempt, change the recorded weight, or mark the
+  attempt No Lift), and the Chair presses **Resume**. No votes are called and
+  the review vote machinery is bypassed.
 
 The Chair override on the Waiting for Votes screen (section 6) is **only** the
 recovery path for a vote that cannot complete; it is not a way to decide a
@@ -710,6 +713,10 @@ Decided:
   interference are handled by granting an additional attempt (7.5.15, 7.5.17,
   Regulation to 7.5), not by a vote. See section 3, "Manual deliberation
   stays".
+- Loading errors and interference: no new Jury Control action. The Chair
+  presses Deliberation, everything is settled verbally with the Technical
+  Controller, the Competition Supervisor (Speaker in PIN mode) corrects the
+  athlete card, and the Chair presses Resume without calling for votes.
 
 Still open:
 
@@ -719,8 +726,3 @@ Still open:
    dialog: is the "second press within a few seconds" proposal acceptable, or
    must the override always come from the Competition Supervisor / Speaker
    screen?
-3. Additional attempt after a loading error or interference (7.5.15, 7.5.17,
-   Regulation to 7.5): should Jury Control offer an **Additional attempt**
-   action (void the attempt, re-queue the athlete at the requested weight, or
-   record the lift at the accepted weight), or does this stay a manual
-   correction on the athlete card as today?
