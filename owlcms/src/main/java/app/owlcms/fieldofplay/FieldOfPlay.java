@@ -3190,6 +3190,8 @@ public class FieldOfPlay implements IUnregister {
 	 *   <li>3-person jury, unanimous: that verdict wins.</li>
 	 *   <li>3-person jury, not unanimous: referee decision stands.</li>
 	 * </ul>
+	 * A No Lift is not sent: the Jury Control pages are asked for the technical rule, and the Jury Chair sends the
+	 * decision with it.
 	 * {@code athleteUnderReview} and {@code refereeDecision[]} are stable for the
 	 * duration of the deliberation break; the delayed callback revalidates the current
 	 * verdict before posting.
@@ -3224,12 +3226,19 @@ public class FieldOfPlay implements IUnregister {
 			if (!verdict.equals(recomputedVerdict)) {
 				return;
 			}
-			logger.info("{}automatic jury decision {}", FieldOfPlay.getLoggingName(this),
-					verdict ? "good lift" : "no lift");
 			Athlete athlete = getAthleteUnderReview();
 			if (athlete == null) {
 				return;
 			}
+			// a No Lift by the jury needs the technical rule from the Jury Chair
+			if (!verdict) {
+				logger.info("{}no lift by the jury, waiting for the Jury Chair to give the rule",
+				        FieldOfPlay.getLoggingName(this));
+				pushOutUIEvent(new UIEvent.JuryRuleRequired(athlete, this, this));
+				return;
+			}
+			logger.info("{}automatic jury decision {}", FieldOfPlay.getLoggingName(this),
+					verdict ? "good lift" : "no lift");
 			fopEventPost(new FOPEvent.JuryDecision(athlete, this, verdict, true));
 		}, 1500);
 	}

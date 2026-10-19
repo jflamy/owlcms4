@@ -188,8 +188,22 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			        || deliberationType == JuryDeliberationEventType.CHALLENGE) {
 				resetJuryVoting();
 			}
+			if (deliberationType == JuryDeliberationEventType.GOOD_LIFT
+			        || deliberationType == JuryDeliberationEventType.BAD_LIFT) {
+				// the decision has been given, possibly from another Jury Control page
+				closeNoLiftReasonDialog();
+			}
 			updateJuryDecisionActions(e.getFop());
 			updateReviewHeader(e.getFop());
+		});
+	}
+
+	@Subscribe
+	public void slaveJuryRuleRequired(UIEvent.JuryRuleRequired e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			if (this.noLiftReasonDialog == null || !this.noLiftReasonDialog.isOpened()) {
+				openNoLiftReasonDialog();
+			}
 		});
 	}
 
@@ -941,10 +955,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			this.waitingForVotesDialog = null;
 		}
 		// another Jury Control page may have given the decision
-		if (this.noLiftReasonDialog != null) {
-			this.noLiftReasonDialog.close();
-			this.noLiftReasonDialog = null;
-		}
+		closeNoLiftReasonDialog();
 	}
 
 	private void updateCallForVotesButton(FieldOfPlay fop) {
@@ -1412,6 +1423,13 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			}
 			fop.fopEventPost(new FOPEvent.JuryDecision(fop.getAthleteUnderReview(), this, success, true, reasonCode));
 		});
+	}
+
+	private void closeNoLiftReasonDialog() {
+		if (this.noLiftReasonDialog != null) {
+			this.noLiftReasonDialog.close();
+			this.noLiftReasonDialog = null;
+		}
 	}
 
 	private void openNoLiftReasonDialog() {

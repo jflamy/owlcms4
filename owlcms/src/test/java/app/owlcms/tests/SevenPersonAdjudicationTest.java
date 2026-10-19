@@ -379,6 +379,101 @@ public class SevenPersonAdjudicationTest {
 		assertTrue(this.recorder.await(this.recorder.errors, n -> "DecisionUpdate".equals(n.getFopEventString())));
 	}
 
+	// ---------------------------------------------------------------- traditional 3 or 5 member jury
+
+	@Test
+	public void unanimousRedJuryReversalWaitsForTheRule() {
+		juryDeliberation(3, W, W, W);
+		juryVotes(R, R, R);
+		assertRuleRequested();
+
+		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), false, true, 1));
+		UIEvent.JuryNotification verdict = awaitVerdict();
+		assertEquals(JuryDeliberationEventType.BAD_LIFT, verdict.getDeliberationEventType());
+		assertEquals(Integer.valueOf(1), verdict.getReasonCode());
+	}
+
+	@Test
+	public void unanimousRedJuryConfirmationWaitsForTheRule() {
+		juryDeliberation(3, R, R, W);
+		juryVotes(R, R, R);
+		assertRuleRequested();
+	}
+
+	@Test
+	public void unanimousWhiteJuryIsSentAutomatically() {
+		juryDeliberation(3, R, R, R);
+		juryVotes(W, W, W);
+		assertSentWithoutRule(JuryDeliberationEventType.GOOD_LIFT);
+	}
+
+	@Test
+	public void splitJuryConfirmingRedRefereesWaitsForTheRule() {
+		juryDeliberation(3, R, R, W);
+		juryVotes(R, W, W);
+		assertRuleRequested();
+	}
+
+	@Test
+	public void splitJuryConfirmingWhiteRefereesIsSentAutomatically() {
+		juryDeliberation(3, W, W, R);
+		juryVotes(R, R, W);
+		assertSentWithoutRule(JuryDeliberationEventType.GOOD_LIFT);
+	}
+
+	@Test
+	public void fiveMemberMajorityReversalWithVideoWaitsForTheRule() {
+		juryDeliberation(5, W, W, R);
+		juryVotes(R, R, R, W, W);
+		assertRuleRequested();
+	}
+
+	@Test
+	public void fiveMemberMajorityConfirmationWithVideoWaitsForTheRule() {
+		juryDeliberation(5, R, R, W);
+		juryVotes(R, R, R, W, W);
+		assertRuleRequested();
+	}
+
+	@Test
+	public void fiveMemberMajorityWithoutVideoLeavesTheRefereesDecision() {
+		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		juryDeliberation(5, W, W, R);
+		juryVotes(R, R, R, W, W);
+		assertSentWithoutRule(JuryDeliberationEventType.GOOD_LIFT);
+	}
+
+	@Test
+	public void fiveMemberUnanimousReversalWithoutVideoWaitsForTheRule() {
+		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		juryDeliberation(5, W, W, R);
+		juryVotes(R, R, R, R, R);
+		assertRuleRequested();
+	}
+
+	/** seven-person procedure off, a lift followed by a manual jury deliberation */
+	private void juryDeliberation(int jurySize, boolean... refereeVotes) {
+		setSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, false);
+		this.fop.setJurySize(jurySize);
+		assertFalse(this.fop.isPanelProcedure());
+		lift(refereeVotes);
+		post(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		assertEquals(FOPState.BREAK, this.fop.getState());
+	}
+
+	private void assertRuleRequested() {
+		assertTrue("the Jury Control pages are asked for the rule",
+		        this.recorder.await(this.recorder.ruleRequests, r -> true));
+		assertFalse("no decision without the rule", this.recorder.notifications.stream()
+		        .anyMatch(n -> n.getDeliberationEventType() == JuryDeliberationEventType.BAD_LIFT
+		                || n.getDeliberationEventType() == JuryDeliberationEventType.GOOD_LIFT));
+	}
+
+	private void assertSentWithoutRule(JuryDeliberationEventType expected) {
+		assertEquals(expected, awaitVerdict().getDeliberationEventType());
+		assertTrue("no rule is asked for", this.recorder.ruleRequests.isEmpty());
+	}
+
 	// ---------------------------------------------------------------- scenario helpers
 
 	/** the referees' initial decision on the current athlete's attempt */
@@ -534,6 +629,12 @@ public class SevenPersonAdjudicationTest {
 		final List<UIEvent.PanelVoteUpdate> updates = new CopyOnWriteArrayList<>();
 		final List<UIEvent.JuryVotesPending> pending = new CopyOnWriteArrayList<>();
 		final List<UIEvent.Notification> errors = new CopyOnWriteArrayList<>();
+		final List<UIEvent.JuryRuleRequired> ruleRequests = new CopyOnWriteArrayList<>();
+
+		@Subscribe
+		public void juryRuleRequired(UIEvent.JuryRuleRequired e) {
+			this.ruleRequests.add(e);
+		}
 
 		@Subscribe
 		public void notification(UIEvent.Notification e) {

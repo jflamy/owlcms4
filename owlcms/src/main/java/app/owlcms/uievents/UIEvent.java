@@ -808,6 +808,21 @@ public class UIEvent {
 	}
 
 	/**
+	 * Traditional 3-5 member jury: the jury decision is a No Lift, so the Jury Chair must give the technical rule
+	 * before the decision is sent.
+	 */
+	static public class JuryRuleRequired extends UIEvent {
+
+		public JuryRuleRequired(Athlete athleteUnderReview, Object origin, FieldOfPlay fop) {
+			super(athleteUnderReview, origin, fop);
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
+		}
+
+	}
+
+	/**
 	 * Seven-person Adjudication Panel review vote: referee devices must re-arm and request a decision. ref 0 means
 	 * all referees (a new vote, all votes cleared); 1..3 re-calls one referee who has not voted, without clearing.
 	 */
