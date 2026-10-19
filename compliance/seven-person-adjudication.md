@@ -544,9 +544,10 @@ Jury devices do not buzz; the jurors are at the table.
   - Phase B (the review vote): all seven cells are cleared when the Chair
     calls for votes, show "voted" as votes arrive, and are revealed **all at
     once** when the seventh vote is in.
-  - The Jury Chair's circle may need a distinct colour (ring or fill) if the
-    seating practice makes the Chair's position meaningful. Add a CSS hook per
-    juror index now; decide the colour later.
+  - The Jury Chair is **jury member 1** (J1) for now, so the first circle is the
+    Chair's. Add a CSS hook per juror index so J1 can be given a distinct
+    colour (ring or fill) later if the seating practice makes it useful; no
+    colour change in the first version.
 - Rendering: jury circles come from the vote array (`DecisionElement.js` maps
   `juryDecisions`; `DecisionBlockState.renderJuryCircles(votes, jurySize)`);
   the referee rectangles already exist. Check the layout with 4 circles and
