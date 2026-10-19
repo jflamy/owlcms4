@@ -53,8 +53,9 @@ decision.
 ## Product Decisions (given)
 
 - Enabled by a feature switch, id `7personAdjudication`.
-- The Jury Console is dropped when the switch is on. Only Jury Control is
-  fixed; its bottom indicator row must show the seven votes.
+- The Jury Console is removed entirely, with or without the switch (decided).
+  Jury Control is the only jury page; its bottom indicator row must show the
+  seven votes.
 - The referee voting changes need only work with phones and MQTT devices.
   USB keypads (keyboard emulation) are not supported in the first version.
 
@@ -62,7 +63,7 @@ decision.
 
 | Term | Code |
 |---|---|
-| Jury Console | [JuryContent.java](../owlcms/src/main/java/app/owlcms/nui/lifting/JuryContent.java), route `lifting/jury`, label `Jury_Console` |
+| Jury Console | removed (was `JuryContent`, route `lifting/jury`, label `Jury_Console`) |
 | Jury Control | [JuryKeypadContent.java](../owlcms/src/main/java/app/owlcms/nui/referee/JuryKeypadContent.java), route `jurykeypad`, label `Jury_Keypad` = "Jury Control" |
 | Jury member phone | [JuryMobileContent.java](../owlcms/src/main/java/app/owlcms/nui/referee/JuryMobileContent.java), route `jury` |
 | Referee phone | [RefContent.java](../owlcms/src/main/java/app/owlcms/nui/referee/RefContent.java), route `ref` |
@@ -575,14 +576,15 @@ Jury devices do not buzz; the jurors are at the table.
 - No Call Technical Controller button (decided): there is no device to call
   the Technical Controller, so the Console's button is not carried over.
 
-### 7. Jury Console (drop)
+### 7. Jury Console (removed)
 
+- **Decided: removed entirely**, with or without the switch. `JuryContent`
+  (route `lifting/jury`) and `JuryDialog` are deleted; `JuryDecisionDialog`
+  stays (it is the Speaker's jury decision dialog).
 - [LiftingNavigationContent.java](../owlcms/src/main/java/app/owlcms/nui/lifting/LiftingNavigationContent.java):
-  do not add the `Jury_Console` button when the switch is on.
-- `lifting/jury` route: redirect to `jurykeypad` (keeping `fop`), or show a
-  notice, when the switch is on. Bookmarked URLs keep working.
-- `JuryContent`, `JuryDialog` and `JuryDecisionDialog` are left unchanged for
-  the non-switch mode.
+  no `Jury_Console` button; the Jury Control button uses the `Jury_Keypad`
+  label ("Jury Control", without "on mobile device").
+- Accounts with the Jury role land on Jury Control (`WorkPage.JURY_CONTROL`).
 - Features lost with the Console: athlete grid, sound toggle, and the Call
   Technical Controller button (no device to call the TC; section 6).
 - Update [020-Jury.md](../docs/060-Refereeing/020-Jury.md).

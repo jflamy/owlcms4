@@ -40,7 +40,7 @@ public class AccountLandingPolicyTest {
 		        Map.entry(Role.MARSHAL, WorkPage.MARSHAL),
 		        Map.entry(Role.TIMEKEEPER, WorkPage.TIMEKEEPER),
 		        Map.entry(Role.TC, WorkPage.TC),
-		        Map.entry(Role.JURY, WorkPage.JURY_CONSOLE),
+		        Map.entry(Role.JURY, WorkPage.JURY_CONTROL),
 		        Map.entry(Role.REFEREE, WorkPage.REFEREE_NAVIGATION),
 		        Map.entry(Role.DISPLAYS, WorkPage.DISPLAY_NAVIGATION),
 		        Map.entry(Role.EXTERNAL, WorkPage.HOME));

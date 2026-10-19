@@ -11,7 +11,6 @@ public final class StationResolver {
 			Map.entry("TimekeeperContent", "TIMEKEEPER"),
 			Map.entry("WodkeeperContent", "TIMEKEEPER"),
 			Map.entry("TCContent", "TC"),
-			Map.entry("JuryContent", "JURY_CONSOLE"),
 			Map.entry("JuryKeypadContent", "JURY_MEMBER"),
 			Map.entry("JuryMobileContent", "JURY_MEMBER"),
 			Map.entry("RefContent", "REFEREE"),

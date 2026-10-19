@@ -9,7 +9,7 @@ public final class AccountLandingPolicy {
 
 	public enum WorkPage {
 		HOME, COMPETITION_DIRECTOR, PREPARATION, REGISTRATION, WEIGHIN, RESULTS,
-		LIFTING, ANNOUNCER, MARSHAL, TIMEKEEPER, TC, JURY_CONSOLE,
+		LIFTING, ANNOUNCER, MARSHAL, TIMEKEEPER, TC, JURY_CONTROL,
 		REFEREE_NAVIGATION, JURY_NAVIGATION, DISPLAY_NAVIGATION
 	}
 
@@ -40,7 +40,7 @@ public final class AccountLandingPolicy {
 			case MARSHAL -> WorkPage.MARSHAL;
 			case TIMEKEEPER -> WorkPage.TIMEKEEPER;
 			case TC -> WorkPage.TC;
-			case JURY -> WorkPage.JURY_CONSOLE;
+			case JURY -> WorkPage.JURY_CONTROL;
 			case REFEREE -> WorkPage.REFEREE_NAVIGATION;
 			case DISPLAYS -> WorkPage.DISPLAY_NAVIGATION;
 		};
