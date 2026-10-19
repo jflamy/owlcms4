@@ -649,7 +649,7 @@ languages and does not depend on the switch.
   esimees*, he *יו״ר חבר השופטים*; fo and hy fixed. The IWF says "Jury
   Chair". Languages that already use their word for chair (sv, da, fi, no,
   pl, zh_HANT), or whose word for chair is the same as for president (es,
-  fr, pt, ro, el, hu, ar, hy), are unchanged; ja keeps 審判長. The `ia` column holds row ids, not a
+  fr, pt, ro, el, hu, ar, hy), are unchanged; ja keeps 審判長 (hand translated). The `ia` column holds row ids, not a
   translation. User docs (020-Jury.md, 180-Keypads.md) updated; the RFP
   proposals under docs/RFP are left as submitted.
 - **Keep the key names.** `JuryPresident` is also the assignment id in
