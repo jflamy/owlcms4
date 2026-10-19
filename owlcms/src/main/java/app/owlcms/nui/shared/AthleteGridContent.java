@@ -595,7 +595,7 @@ public abstract class AthleteGridContent extends BaseContent
 		} else {
 			BreakType breakType = this.fop.getBreakType();
 			if (breakType != null) {
-				this.breakButton.setText(Translator.translate("BreakType." + breakType) + "\u00a0\u00a0");
+				this.breakButton.setText(breakButtonLabel(breakType, this.fop) + "\u00a0\u00a0");
 			} else {
 				// break done. the button will be hidden in a subsequent step.
 				this.breakButton.setText(Translator.translate("BreakButton.Paused") + "\u00a0\u00a0");
@@ -716,10 +716,18 @@ public abstract class AthleteGridContent extends BaseContent
 		if (event instanceof UIEvent.BreakStarted) {
 			UIEvent.BreakStarted e = (UIEvent.BreakStarted) event;
 			if (this.breakButton != null) {
-				this.getUI().get().access(() -> this.breakButton.setText(Translator.translate("BreakType." + e.getBreakType()) + "\u00a0\u00a0"));
+				String label = breakButtonLabel(e.getBreakType(), e.getFop());
+				this.getUI().get().access(() -> this.breakButton.setText(label + "\u00a0\u00a0"));
 			}
 		}
 
+	}
+
+	private String breakButtonLabel(BreakType breakType, FieldOfPlay breakFop) {
+		if (breakType == BreakType.JURY && breakFop != null && breakFop.isPanelReview()) {
+			return Translator.translate("JuryKeypad.AdjudicationPanel");
+		}
+		return Translator.translate("BreakType." + breakType);
 	}
 
 	/**
