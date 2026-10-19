@@ -8,8 +8,9 @@ devices, attempt boards and scoreboards, feature switch, translations
 ## Rule Being Analysed
 
 Source: IWF Technical and Competition Rules & Regulations 2026
-(`IWF-TCRR-2026.pdf`, published 19 October 2026): 7.5.3, 7.5.7, 7.5.8,
-3.3.7.1 and Regulation to 3.3.7 (items 4, 6, 8 and 9).
+([IWF-TCRR-2026.pdf](./IWF-TCRR-2026.pdf), published 19 October 2026): 7.5.3,
+7.5.7, 7.5.8, 7.5.9, 7.5.10, 7.5.15, 7.5.17, 3.3.7.1, Regulation to 3.3.7
+(items 4, 6, 8 and 9) and Regulation to 7.5 (loading errors).
 
 When VPT is in use (7.5.7):
 
@@ -278,8 +279,40 @@ review right after a lift. Examples:
 - the clock was started with the override before the jury finished voting
   (step 4);
 - something is noticed after the decision was cleared;
-- misconduct (7.5.13), Technical Official issues (7.5.5), or other matters
-  that are not about the lift.
+- misconduct (7.5.9), Technical Official issues (7.5.5, 7.5.6), or other
+  matters that are not about the lift.
+
+**What the TCRR lets the Jury decide outside the panel vote.** With VPT in use,
+the validity of a lift can only change through the Adjudication Panel
+procedure: the automatic review (7.5.7, 7.5.10) or a valid Challenge (7.5.7,
+Regulation to 3.3.7 item 9), both ending in the 7-person vote. "There is no
+appeal against the Referees' / Adjudication Panel's decision except for the
+Challenge procedure" (7.5.9). The Chair therefore cannot, in a manual
+deliberation, declare a lift Good or No Lift on their own authority. The
+decisions the Jury *does* take by itself are of a different kind:
+
+| Situation | Rule | Jury decision | Effect in OWLCMS |
+|---|---|---|---|
+| Barbell not equally loaded, platform damaged, barbell disarranged, incursion or external interference | 7.5.15 | grant an **additional attempt** | the attempt is voided and re-taken at the same weight |
+| Loading error (wrong weight, or not a multiple of 1 kg), serious Speaker error | 7.5.17, Regulation to 7.5 | athlete **accepts** the lift (at the loaded weight, or the next lower multiple of 1 kg) or **refuses** it and gets an additional attempt at the requested weight; a failed lift at a heavier weight, or a 0.5 kg short load on a 2nd/3rd attempt, grants the additional attempt automatically | result recorded at the accepted weight, or attempt voided and re-taken |
+| 20 kg rule not respected and noticed after lifts were taken | 6.6.5, Regulation to 6.6.5 item 7 | the non-compliant Clean & Jerk attempts are rendered **No Lift** | administrative correction of recorded attempts, no vote |
+| Footwear touching the barbell after a successful attempt | 2.5.1.11 | warning; a repeat is No Lift | warning only on first occurrence |
+| Misconduct, replacement of a Technical Official | 7.5.9, 7.5.5 | reprimand / sanction / replacement | no effect on the lift |
+
+So a manual deliberation (switch on, VPT on) ends in one of:
+
+- **Call for Votes** when the lift itself is in question: the normal path, the
+  same 7-person majority as an automatic review;
+- **Resume** with the lift unchanged;
+- an **administrative action** on the attempt that is not an adjudication:
+  additional attempt (loading error, interference) or 20 kg rule No Lift.
+  These are done today on the athlete card by the Technical Controller /
+  announcer; whether Jury Control should offer them directly is a separate
+  decision (see Open Questions).
+
+The Chair override on the Waiting for Votes screen (section 6) is **only** the
+recovery path for a vote that cannot complete; it is not a way to decide a
+lift without the panel.
 
 The three kinds of break share the same review machinery:
 
@@ -666,20 +699,28 @@ Decided:
   a running clock as an existing safety measure (in case the timekeeper forgets
   to start the clock). See section 5.
 - Boards show all seven votes, referees as rectangles then jury as circles in
-  numbered order, in both phases; the review vote is revealed all at once. A
-  distinct colour for the Jury Chair's circle is a later decision. See
-  section 9.
+  numbered order, in both phases; the review vote is revealed all at once. The
+  Jury Chair is jury member 1; a distinct colour for that circle is a later
+  decision. See section 9.
+
+- Manual deliberation about a lift (switch on, VPT on): the lift can only be
+  re-adjudicated by the 7-person vote (7.5.9: no appeal except the Challenge
+  procedure). The Chair override is a recovery path for a vote that cannot
+  complete, not a way to decide without the panel. Loading errors and external
+  interference are handled by granting an additional attempt (7.5.15, 7.5.17,
+  Regulation to 7.5), not by a vote. See section 3, "Manual deliberation
+  stays".
 
 Still open:
 
-1. Manual deliberation about a lift, with the switch and VPT on: is the
-   7-person vote (Call for Votes) the normal path, with the Chair override as a
-   fallback only, or can the Chair decide directly without calling for votes?
-2. Should the Jury Chair override be logged or shown, for example a mark on the
+1. Should the Jury Chair override be logged or shown, for example a mark on the
    announcer notification that the decision was not a panel vote?
-3. Clock-start override from MQTT timekeeper boxes, which cannot show the
+2. Clock-start override from MQTT timekeeper boxes, which cannot show the
    dialog: is the "second press within a few seconds" proposal acceptable, or
    must the override always come from the Competition Supervisor / Speaker
    screen?
-4. Jury Chair circle: which colour, and is it needed (depends on the seating
-   practice)? See section 9.
+3. Additional attempt after a loading error or interference (7.5.15, 7.5.17,
+   Regulation to 7.5): should Jury Control offer an **Additional attempt**
+   action (void the attempt, re-queue the athlete at the requested weight, or
+   record the lift at the accepted weight), or does this stay a manual
+   correction on the athlete card as today?
