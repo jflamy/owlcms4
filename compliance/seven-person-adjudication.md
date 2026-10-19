@@ -256,9 +256,11 @@ voted. Until then, only "voted / not voted" is shown.
    - The existing `JuryDecision.MustAnnounceFirst` refusal in
      `CURRENT_ATHLETE_DISPLAYED` / `TimeStarted` is the pattern to follow,
      with an override added.
-   - MQTT timekeeper boxes cannot show a dialog. Proposal: refuse the first
-     press and notify the consoles; a second press within a few seconds counts
-     as the override. To be confirmed.
+   - MQTT timekeeper boxes are treated like any other timekeeper console: the
+     press is refused and the dialog appears on the Supervisor/Speaker screen.
+     The timekeeper never needs to force the start; bypassing the jury is a
+     Supervisor/Speaker decision. There is no override from the box (no
+     "second press" mechanism).
    - The guard does not apply when no lift is under review, for example after
      a group switch or break.
 
@@ -732,10 +734,8 @@ Decided:
 - A decision entered through the Jury Chair override is marked "Jury Chair
   Entered Decision" on the announcer / Competition Supervisor notification and
   in the deliberation record. See section 3, Phase B.
+- MQTT timekeeper boxes have no clock-start override. A press while jury votes
+  are missing is refused like any other console; the override is only on the
+  Competition Supervisor / Speaker screen. See section 3, step 4.
 
-Still open:
-
-1. Clock-start override from MQTT timekeeper boxes, which cannot show the
-   dialog: is the "second press within a few seconds" proposal acceptable, or
-   must the override always come from the Competition Supervisor / Speaker
-   screen?
+No questions are open.
