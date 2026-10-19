@@ -1070,6 +1070,10 @@ public class FieldOfPlay implements IUnregister {
 					doReviewRefereeVote((DecisionUpdate) e);
 				} else if (e instanceof DownSignal && this.panelVoteOpen) {
 					// refboxes may emit a down signal on the second matching vote; meaningless in a review vote
+				} else if ((e instanceof DecisionUpdate || e instanceof DownSignal) && !juryDeliberationInProgress()) {
+					// referee devices or board keys pressed during an ordinary break: refused without notification
+					this.auditEventRefused = true;
+					this.auditRefusedState = BREAK;
 				} else {
 					unexpectedEventInState(e, BREAK);
 				}

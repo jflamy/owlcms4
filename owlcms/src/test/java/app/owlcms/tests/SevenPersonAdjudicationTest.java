@@ -357,6 +357,28 @@ public class SevenPersonAdjudicationTest {
 		                && p.jury().equals(List.of("red", "red", "red", "white"))));
 	}
 
+	// ---------------------------------------------------------------- referee input outside the review vote
+
+	@Test
+	public void refereeInputDuringAnOrdinaryBreakIsRefusedSilently() throws InterruptedException {
+		post(new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		assertEquals(FOPState.BREAK, this.fop.getState());
+		post(new FOPEvent.DecisionUpdate(new Object(), 0, W));
+		post(new FOPEvent.DownSignal(new Object()));
+		assertNull(this.fop.getRefereeDecision()[0]);
+		Thread.sleep(300);
+		assertFalse(this.recorder.errors.stream().anyMatch(n -> "DecisionUpdate".equals(n.getFopEventString())
+		        || "DownSignal".equals(n.getFopEventString())));
+	}
+
+	@Test
+	public void refereeInputDuringAJuryBreakBeforeTheVoteIsSignaled() {
+		reviewAfterLift(W, W, W);
+		assertFalse(this.fop.isPanelVoteOpen());
+		post(new FOPEvent.DecisionUpdate(new Object(), 0, R));
+		assertTrue(this.recorder.await(this.recorder.errors, n -> "DecisionUpdate".equals(n.getFopEventString())));
+	}
+
 	// ---------------------------------------------------------------- scenario helpers
 
 	/** the referees' initial decision on the current athlete's attempt */
@@ -511,6 +533,14 @@ public class SevenPersonAdjudicationTest {
 		final List<UIEvent.PanelVoteCalled> voteCalls = new CopyOnWriteArrayList<>();
 		final List<UIEvent.PanelVoteUpdate> updates = new CopyOnWriteArrayList<>();
 		final List<UIEvent.JuryVotesPending> pending = new CopyOnWriteArrayList<>();
+		final List<UIEvent.Notification> errors = new CopyOnWriteArrayList<>();
+
+		@Subscribe
+		public void notification(UIEvent.Notification e) {
+			if (e.getLevel() == UIEvent.Notification.Level.ERROR) {
+				this.errors.add(e);
+			}
+		}
 
 		@Subscribe
 		public void juryNotification(UIEvent.JuryNotification e) {
