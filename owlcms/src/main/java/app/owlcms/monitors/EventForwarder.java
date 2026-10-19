@@ -511,7 +511,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			case TECHNICAL:
 				return Translator.translate("PublicMsg.CompetitionPaused");
 			case JURY:
-				return Translator.translate("PublicMsg.JuryDeliberation");
+				// TCRR 7.5.7: the automatic stop is shown as "Adjudication Panel Review"
+				return Translator.translate(this.fop != null && this.fop.isPanelReview()
+				        ? "PublicMsg.AdjudicationPanelReview"
+				        : "PublicMsg.JuryDeliberation");
 			case CHALLENGE:
 				return Translator.translate("PublicMsg.CHALLENGE");
 			case GROUP_DONE:

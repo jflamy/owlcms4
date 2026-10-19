@@ -314,6 +314,10 @@ public class ForwarderPayloadBuilder {
 		        || det == JuryDeliberationEventType.CHALLENGE
 		        || det == JuryDeliberationEventType.END_CHALLENGE) {
 			mapPut(sb, "decisionEventType", det.name());
+			if (e.isPanelReview()) {
+				// seven-person panel: automatic "Adjudication Panel Review" (TCRR 7.5.7)
+				mapPut(sb, "panelReview", "true");
+			}
 		}
 
 		return sb;

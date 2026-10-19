@@ -323,7 +323,10 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 	}
 
 	private void setJuryMessage(JuryDeliberationEventType type) {
-		String key = type == JuryDeliberationEventType.CHALLENGE ? "PublicMsg.CHALLENGE" : "PublicMsg.JuryDeliberation";
+		FieldOfPlay fop = getFop();
+		String key = type == JuryDeliberationEventType.CHALLENGE ? "PublicMsg.CHALLENGE"
+		        : (fop != null && fop.isPanelReview() ? "PublicMsg.AdjudicationPanelReview"
+		                : "PublicMsg.JuryDeliberation");
 		this.getElement().setProperty("juryMessage", Translator.translate(key));
 		if (this.decisionSectionStopwatch != null
 		        && Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_STOPWATCH)) {
