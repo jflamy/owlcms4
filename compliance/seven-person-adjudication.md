@@ -39,8 +39,19 @@ When VPT is in use (7.5.7):
    combined procedure (7.5.8, Regulation to 3.3.7 item 9).
 
 When VPT is not in use (7.5.8): the four-member Jury can overturn the Referees
-only when unanimous, the same principle as the current 3- and 5-member juries
-without VPT.
+only when unanimous. OWLCMS uses the **same procedure** as with VPT; only two
+things differ:
+
+- **Majority rule.** The trigger is a unanimous jury opposite to the referees
+  (not a 7-person majority), and the second vote reverses only if the four
+  jurors are again unanimous; otherwise the referees' decision stands.
+- **Who votes.** The referees are not summoned and do not vote again: Call for
+  Votes (or Summon all on the keypad) reopens the four jury votes only. The
+  referees' initial decision is revealed with the jury votes.
+
+The automatic stop is titled "Jury Deliberation" (not "Adjudication Panel
+Review"). The manual fallback, the rule for a No Lift, the automatic sending
+and the Speaker information are identical (section 4).
 
 Jury members vote on each lift on the Jury Control Unit once the athlete has
 replaced the barbell (7.5.8, TCRR 3.3.6).
@@ -217,6 +228,10 @@ voted. Until then, only "voted / not voted" is shown.
      `rescheduleDecisionResetForJury` arms one once the jury is complete).
      The announcer's clock-start request during this hold goes through the
      guard of step 4, which is the only way out other than the jury finishing.
+     The hold applies to every four-member jury (switch on), **with or
+     without VPT**. Without VPT, the clock-start guard applies only while the
+     display is held, and only a unanimous jury opposite to the referees
+     triggers the stop (7.5.8). The 10 s cap remains for 3- and 5-member juries.
    - When `juryDecisionsOnAttemptBoard` is off, the decision clears after the
      normal 3.5 s and the jury keeps voting on `athleteUnderReview` with the
      next athlete displayed; nothing is held.
@@ -422,12 +437,21 @@ Step B2, the Chair calls for the vote (second, explicit referee recall):
   posts the `JuryDecision` with the code.
 - `doJuryDecision` is reused: reversal/confirmation, records, order,
   `setJuryDeliberation` on the attempt, resume after 3.5 s.
-- **Announcing (decided).** The result of the seven-person vote is shown on
-  the boards at once and the break then ends by itself; it does not wait for
-  the Speaker, even when "announcer controlled jury decision" is on. A
-  decision entered by the Jury Chair (override, or Good/No Lift without a
-  completed vote) follows the traditional path: with that setting on, the
-  Speaker must announce it before it is applied.
+- **Announcing (decided).** With a four-member jury (with or without VPT) the
+  Speaker never waits, even when "announcer controlled jury decision" is on;
+  that setting only applies to 3- and 5-member juries. The result of the
+  review vote, or a decision entered by the Jury Chair (manual fallback,
+  marked "Jury Chair Entered Decision"), is applied at once. For a No Lift the
+  Chair first supplies the technical rule; the rule is shown on the attempt
+  board and in the scoreboard decision section ("No Lift – rule").
+- **Speaker information.** During the break the Speaker gets the yellow jury
+  banner. When the decision is applied, the Speaker gets a non-modal pop-up
+  with the result and the rule (the timekeeper shortcuts keep working). It
+  stays until dismissed or until the clock starts.
+- **End of the break.** The break is over once the decision has been shown
+  long enough on the boards (3.5 s), then lifting resumes by itself. Starting
+  the clock while the jury decision is shown also ends the display and starts
+  the clock (it is no longer refused).
 
 ### 5. Referee devices
 
@@ -725,7 +749,8 @@ Decided:
 - The Jury Chair picks the Technical Rule for a No Lift.
 - No timeout for the jury votes. The lift under review and its votes are kept
   until the next clock start. When jury decisions are shown on the attempt
-  board, the decision display is held until the jury has voted (no 10 s cap).
+  board, the decision display is held until the jury has voted (no 10 s cap),
+  for any four-member jury, with or without VPT.
   A clock start with incomplete jury votes asks for an override ("Start clock
   anyway") instead of being blocked. See section 3, steps 2 and 4.
 - The panel result is only evaluated once the jury has voted (all 4 in phase

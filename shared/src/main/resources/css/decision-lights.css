@@ -154,3 +154,28 @@
 .juryDecisions .juryLight.red {
   color: red;
 }
+
+/* seven-person panel review vote: the seven votes have equal weight, so the referees are squares the size of the
+   jury circles, on rows of equal height */
+.decisionWrapper.withJury.panelVote {
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.panelVote > .decisions {
+  justify-content: center;
+  gap: 4%;
+}
+
+.panelVote .decision {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: auto;
+  height: 85%;
+  align-self: center;
+  aspect-ratio: 1;
+  margin: 0;
+}
+
+.panelVote .juryDecisions .juryLight {
+  height: 85%;
+}

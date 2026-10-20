@@ -17,7 +17,7 @@ class DecisionElement extends LitElement {
     return html` 
       <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "decision-lights")}" />
       <audio preload="auto" id="down" src="../local/sounds/down.mp3"></audio>
-      <div class="decisionWrapper ${this.showJuryRow() ? 'withJury' : ''}" style="${this.decisionWrapperStyle()}" >
+      <div class="decisionWrapper ${this.showJuryRow() ? 'withJury' : ''} ${this.showJuryRow() && this._panelRefStates ? 'panelVote' : ''}" style="${this.decisionWrapperStyle()}" >
         <div class="down" style="font-weight: 900; ${this.downStyles()}"><vaadin-icon icon="vaadin:arrow-circle-down"></vaadin-icon></div>
         <div class="decisions" style="${this.decisionsStyles()}">
           <span class="${this.decisionClasses(1)}">&nbsp;</span>

@@ -80,8 +80,12 @@ public class DecisionBlockState {
 		/** Deliberation / challenge label. */
 		void renderJuryMessage(JuryDeliberationEventType type);
 
-		/** Jury verdict label (good / no lift), matching the attempt board wording. */
-		void renderJuryVerdict(boolean good);
+		/**
+		 * Jury verdict label (good / no lift), matching the attempt board wording.
+		 *
+		 * @param rule the technical rule relied upon for a No Lift, or null
+		 */
+		void renderJuryVerdict(boolean good, String rule);
 
 		/** Clear the deliberation / challenge / verdict label. */
 		void renderNoJuryMessage();
@@ -102,6 +106,7 @@ public class DecisionBlockState {
 	private Boolean[] juryVotes;
 	private JuryDeliberationEventType deliberationType;
 	private Boolean juryVerdictGood;
+	private String juryVerdictRule;
 	/** seven-person panel review vote in progress: votes stay hidden until all seven are in */
 	private boolean panelVoting;
 	/** the seven review votes have been revealed (shown even when the second vote is not public) */
@@ -182,6 +187,7 @@ public class DecisionBlockState {
 		this.refLights = reviewedLights;
 		this.juryVotes = null;
 		this.juryVerdictGood = null;
+		this.juryVerdictRule = null;
 		this.panelVoting = false;
 		this.panelRevealed = false;
 		this.state = State.DELIBERATION;
@@ -229,6 +235,14 @@ public class DecisionBlockState {
 	 * through the same path.
 	 */
 	public void onJuryVerdict(boolean good, boolean waitForAnnouncer) {
+		onJuryVerdict(good, waitForAnnouncer, null);
+	}
+
+	/**
+	 * @param rule the technical rule relied upon for a No Lift (TCRR 7.5.7, shown on the scoreboard), or null
+	 * @see #onJuryVerdict(boolean, boolean)
+	 */
+	public void onJuryVerdict(boolean good, boolean waitForAnnouncer, String rule) {
 		if (this.state != State.DELIBERATION) {
 			return;
 		}
@@ -238,6 +252,7 @@ public class DecisionBlockState {
 			return;
 		}
 		this.juryVerdictGood = good;
+		this.juryVerdictRule = good ? null : rule;
 		render();
 	}
 
@@ -300,6 +315,7 @@ public class DecisionBlockState {
 		this.juryVotes = null;
 		this.deliberationType = null;
 		this.juryVerdictGood = null;
+		this.juryVerdictRule = null;
 		this.panelVoting = false;
 		this.panelRevealed = false;
 		render();
@@ -340,7 +356,7 @@ public class DecisionBlockState {
 					this.renderer.renderNoJuryCircles();
 				}
 				if (this.juryVerdictGood != null) {
-					this.renderer.renderJuryVerdict(this.juryVerdictGood);
+					this.renderer.renderJuryVerdict(this.juryVerdictGood, this.juryVerdictRule);
 				} else {
 					this.renderer.renderJuryMessage(this.deliberationType);
 				}

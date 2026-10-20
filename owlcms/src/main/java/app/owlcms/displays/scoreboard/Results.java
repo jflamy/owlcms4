@@ -44,6 +44,7 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
+import app.owlcms.uievents.JuryRejectionReasons;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.StartupUtils;
@@ -451,9 +452,10 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 	}
 
 	@Override
-	public void renderJuryVerdict(boolean good) {
+	public void renderJuryVerdict(boolean good, String rule) {
 		String key = good ? "JuryDialog.GoodLiftLabel" : "JuryDialog.BadLiftLabel";
-		this.getElement().setProperty("juryMessage", Translator.translate(key));
+		String label = Translator.translate(key);
+		this.getElement().setProperty("juryMessage", rule != null ? label + " \u2013 " + rule : label);
 		if (this.decisionSectionStopwatch != null) {
 			this.decisionSectionStopwatch.clearCountUp();
 		}
@@ -589,7 +591,12 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 				if (fop != null && fop.getCurAthlete() != null) {
 					doUpdate(fop.getCurAthlete(), e);
 				}
-				this.decisionBlock.onJuryVerdict(type == JuryDeliberationEventType.GOOD_LIFT, e.isWaitForAnnouncer());
+				// a four-member jury shows the technical rule relied upon for a No Lift (TCRR 7.5.7)
+				String rule = fop != null && fop.isSevenPersonAdjudication()
+				        ? JuryRejectionReasons.label(e.getReasonCode())
+				        : null;
+				this.decisionBlock.onJuryVerdict(type == JuryDeliberationEventType.GOOD_LIFT, e.isWaitForAnnouncer(),
+				        rule);
 				break;
 			case END_JURY_BREAK:
 			case END_CHALLENGE:

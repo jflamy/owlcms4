@@ -9,6 +9,7 @@ import com.google.common.eventbus.Subscribe;
 import app.owlcms.fieldofplay.AdjudicationPanel;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.InputKind;
+import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 
 public class DecisionElementState {
@@ -164,6 +165,40 @@ public class DecisionElementState {
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
 		setEnabledSnapshot(true);
 		this.renderer.setEnabled(e, true);
+	}
+
+	@Subscribe
+	public void slaveJuryNotification(UIEvent.JuryNotification e) {
+		JuryDeliberationEventType type = e.getDeliberationEventType();
+		if (type == JuryDeliberationEventType.START_DELIBERATION || type == JuryDeliberationEventType.CHALLENGE) {
+			showPanelReviewInitialVotes(e);
+		}
+	}
+
+	/**
+	 * Seven-person Adjudication Panel: during the review break, show the Phase A votes that led to the review until
+	 * the Chair calls for votes. Does nothing when there is no such pattern.
+	 *
+	 * @param e the triggering event, null when syncing a newly attached display
+	 */
+	public void showPanelReviewInitialVotes(UIEvent e) {
+		Boolean[] votes = this.fop != null ? this.fop.getPanelReviewInitialVotes() : null;
+		if (votes == null) {
+			return;
+		}
+		boolean juryComplete = true;
+		for (int i = AdjudicationPanel.NB_REFEREES; i < AdjudicationPanel.PANEL_SIZE; i++) {
+			juryComplete = juryComplete && votes[i] != null;
+		}
+		List<String> states = new ArrayList<>(AdjudicationPanel.PANEL_SIZE);
+		for (int i = 0; i < AdjudicationPanel.PANEL_SIZE; i++) {
+			Boolean vote = votes[i];
+			boolean revealed = i < AdjudicationPanel.NB_REFEREES || juryComplete;
+			states.add(vote == null ? "empty" : !revealed ? "voted" : vote ? "white" : "red");
+		}
+		this.renderer.showPanelVote(e, List.copyOf(states.subList(0, AdjudicationPanel.NB_REFEREES)),
+		        List.copyOf(states.subList(AdjudicationPanel.NB_REFEREES, AdjudicationPanel.PANEL_SIZE)),
+		        nextGeneration());
 	}
 
 	@Subscribe

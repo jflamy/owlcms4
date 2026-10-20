@@ -1013,7 +1013,7 @@ public abstract class AthleteGridContent extends BaseContent
 			        null, null,
 			        () -> {
 				        // the jury may have finished in the meantime; a normal start is then enough
-				        if (fop.isPanelVotePending()) {
+				        if (fop.isJuryVotesAwaited()) {
 					        fop.fopEventPost(new FOPEvent.TimeStarted(this, true));
 				        }
 			        });

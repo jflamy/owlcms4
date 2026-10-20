@@ -470,8 +470,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 				case BAD_LIFT:
 					previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
 					FieldOfPlay fop = getFop();
-					// the seven-person Adjudication Panel shows the technical rule relied upon (TCRR 7.5.7)
-					String rule = fop != null && fop.isPanelProcedure()
+					// a four-member jury shows the technical rule relied upon (TCRR 7.5.7), with or without VPT
+					String rule = fop != null && fop.isSevenPersonAdjudication()
 					        ? JuryRejectionReasons.label(e.getReasonCode())
 					        : null;
 					showJuryNotification(reversalText, Translator.translate("JuryDialog.BadLiftLabel"), e.getAthlete(),
@@ -818,10 +818,10 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		}
 
 		if (breakType == BreakType.JURY || breakType == BreakType.CHALLENGE) {
-			// seven-person Adjudication Panel: the review vote is shown during the break
+			// seven-person Adjudication Panel: the votes that led to the review, then the review vote
 			return builder.lastName(inferGroupName(group, null))
 					.firstName(inferMessage(breakType, ceremonyType, true))
-					.decisionVisible(fop.isPanelVoteOpen())
+					.decisionVisible(fop.isPanelVoteOpen() || fop.getPanelReviewInitialVotes() != null)
 					.build();
 		}
 
@@ -1011,6 +1011,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		Athlete currentAthlete = fop.getCurAthlete();
 		if (fop.getState() == FOPState.BREAK || fop.getState() == FOPState.INACTIVE) {
 			publish(buildBreakState(fop));
+			if (this.decisions != null) {
+				this.decisions.getDecisionState().showPanelReviewInitialVotes(null);
+			}
 			return;
 		}
 

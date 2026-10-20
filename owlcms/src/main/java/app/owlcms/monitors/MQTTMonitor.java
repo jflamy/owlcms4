@@ -1443,9 +1443,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 
 	@Subscribe
 	public void slaveSummonRef(UIEvent.SummonRef e) {
-		// e.ref is 0..2
-		// 3 is all
-		// 4 is controller.
+		// e.ref is 1..3 for a single referee, 0 for all, 4 for the technical controller
 		int ref = e.ref;
 
 		publishMqttSummonRef(ref);
@@ -1458,6 +1456,10 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	 */
 	@Subscribe
 	public void slavePanelVoteCalled(UIEvent.PanelVoteCalled e) {
+		if (e.getFop() != null && !e.getFop().isPanelProcedure()) {
+			// without VPT only the jury votes again: the referee devices are not re-armed
+			return;
+		}
 		if (e.getRef() == 0) {
 			publishMqttResetAllDecisions();
 			publishMqttSummonRef(0);

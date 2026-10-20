@@ -8,6 +8,7 @@ package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class DecisionBlockStateTest {
 	private static class FakeRenderer implements DecisionSectionRenderer {
 		final List<String> calls = new ArrayList<>();
 		int scheduleCount;
+		String rule;
 
 		@Override
 		public void renderReadyClock() {
@@ -72,8 +74,9 @@ public class DecisionBlockStateTest {
 		}
 
 		@Override
-		public void renderJuryVerdict(boolean good) {
+		public void renderJuryVerdict(boolean good, String rule) {
 			this.calls.add(good ? "verdictGood" : "verdictBad");
+			this.rule = rule;
 		}
 
 		@Override
@@ -365,6 +368,18 @@ public class DecisionBlockStateTest {
 		// Whatever the announcer does to restart posts StartLifting.
 		this.state.onStartLifting();
 		assertEquals(State.READY, this.state.getState());
+	}
+
+	@Test
+	public void noLiftVerdictShowsTheRule() {
+		this.state.onRefereeDecision(null, lights(true));
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.state.onJuryVerdict(false, false, "3 - rule");
+		assertTrue(this.renderer.calls.contains("verdictBad"));
+		assertEquals("3 - rule", this.renderer.rule);
+		// a Good Lift never carries a rule
+		this.state.onJuryVerdict(true, false, "3 - rule");
+		assertNull(this.renderer.rule);
 	}
 
 	@Test

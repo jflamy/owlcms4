@@ -70,6 +70,7 @@ public abstract class AbstractDecisionElement extends LitTemplate
 	private boolean liveRefereeUpdates;
 	private boolean publicFacing;
 	private boolean busDriven = true;
+	private boolean hidePanelJury;
 	protected boolean downSlave;
 	protected FieldOfPlay fop;
 	private final AtomicLong decisionPayloadSequence = new AtomicLong();
@@ -102,6 +103,14 @@ public abstract class AbstractDecisionElement extends LitTemplate
 	public void setShowJuryDecisions(boolean show) {
 		getElement().setProperty("showJuryDecisions", show);
 		this.decisionState.setShowJuryDecisions(show);
+	}
+
+	/**
+	 * For a page that shows the jury members itself: the review vote of the seven-person panel then shows only the
+	 * referees (no jury states are sent, so no jury circles are drawn).
+	 */
+	public void setHidePanelJury(boolean hide) {
+		this.hidePanelJury = hide;
 	}
 
 	@Override
@@ -330,7 +339,9 @@ public abstract class AbstractDecisionElement extends LitTemplate
 			refereeStates.forEach(refs::add);
 			payload.set("refStates", refs);
 			ArrayNode jury = JsonUtils.array();
-			juryStates.forEach(jury::add);
+			if (!this.hidePanelJury) {
+				juryStates.forEach(jury::add);
+			}
 			payload.set("juryStates", jury);
 			getElement().setPropertyJson("decisionPayload", payload);
 			setEnabled(false);

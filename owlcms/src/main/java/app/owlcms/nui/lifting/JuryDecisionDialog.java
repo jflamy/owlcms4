@@ -38,6 +38,7 @@ public class JuryDecisionDialog extends Dialog {
 	private Athlete athlete;
 	private Object origin;
 	private Runnable onClose;
+	private boolean sent;
 	
 	public JuryDecisionDialog(UIEvent.JuryNotification e, JuryDeliberationEventType juryDecision, Runnable onClose) {
 		this.origin = e.getOrigin();
@@ -165,44 +166,40 @@ public class JuryDecisionDialog extends Dialog {
 			// Display Decision will apply the jury decision, then restart lifting
 			this.resumeButton = new Button(Translator.translate("Announcer.DisplayDecision"));
 			this.resumeButton.getElement().setAttribute("theme", "primary");
-			this.resumeButton.addClickListener(c -> {
+			this.resumeButton.addClickListener(c -> sendOnce(() -> {
 				// First apply the jury decision (reversal or confirmation)
 				if (this.athlete != null) {
 					boolean success = (juryDecision == JuryDeliberationEventType.GOOD_LIFT);
 					OwlcmsSession.getFop().fopEventPost(new FOPEvent.JuryDecision(this.athlete, this.origin, success, false));
 				}
 				// doJuryDecision will handle restarting lifting after the decision is displayed
-				close();
-			});
+			}));
 			buttonContainer.add(this.resumeButton);
 		} else {
 			// Waiting for jury decision - show Good Lift / No Lift buttons and Resume button
 			this.goodLiftButton = new Button(Translator.translate("JuryDialog.GoodLiftLabel"), new Icon(VaadinIcon.CHECK));
 			this.goodLiftButton.setWidth("150px");
 			this.goodLiftButton.getElement().setAttribute("theme", "primary success");
-			this.goodLiftButton.addClickListener(c -> {
+			this.goodLiftButton.addClickListener(c -> sendOnce(() -> {
 				if (this.athlete != null) {
 					OwlcmsSession.getFop().fopEventPost(new FOPEvent.JuryDecision(this.athlete, this.origin, true, false));
 				}
-				close();
-			});
+			}));
 			
 			this.noLiftButton = new Button(Translator.translate("JuryDialog.BadLiftLabel"), new Icon(VaadinIcon.CLOSE));
 			this.noLiftButton.setWidth("150px");
 			this.noLiftButton.getElement().setAttribute("theme", "primary error");
-			this.noLiftButton.addClickListener(c -> {
+			this.noLiftButton.addClickListener(c -> sendOnce(() -> {
 				if (this.athlete != null) {
 					OwlcmsSession.getFop().fopEventPost(new FOPEvent.JuryDecision(this.athlete, this.origin, false, false));
 				}
-				close();
-			});
+			}));
 			
 			this.resumeButton = new Button(Translator.translate("JuryNotification.END_JURY_BREAK"));
 			this.resumeButton.getElement().setAttribute("theme", "secondary");
-			this.resumeButton.addClickListener(c -> {
+			this.resumeButton.addClickListener(c -> sendOnce(() -> {
 				OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this.origin));
-				close();
-			});
+			}));
 			
 			buttonContainer.add(this.goodLiftButton, this.noLiftButton, this.resumeButton);
 		}
@@ -227,5 +224,18 @@ public class JuryDecisionDialog extends Dialog {
 		if (this.onClose != null) {
 			this.onClose.run();
 		}
+	}
+
+	/**
+	 * A focused button with an Enter click shortcut, or a double-click, delivers the click twice; only the first
+	 * one is acted upon.
+	 */
+	private void sendOnce(Runnable action) {
+		if (this.sent) {
+			return;
+		}
+		this.sent = true;
+		action.run();
+		close();
 	}
 }

@@ -106,6 +106,8 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	private UI locationUI;
 	private boolean redTouched;
 	private Integer ref13ix = null; // 1 2 or 3
+	/** the referee call banner is shown until this time (ms) */
+	private long summonedUntil;
 	private IntegerField refField;
 	private HorizontalLayout refVotingButtons;
 	private VerticalLayout refVotingCenterHorizontally;
@@ -193,7 +195,12 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		logger.debug("received decision reset {}", getRef13ix());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			resetRefVote();
+			if (System.currentTimeMillis() < this.summonedUntil) {
+				// the lights are cleared as the competition stops for a review: keep the referee call banner and beep
+				resetRefButtons();
+			} else {
+				resetRefVote();
+			}
 		});
 	}
 
@@ -257,6 +264,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 			return;
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			this.summonedUntil = System.currentTimeMillis() + 9000;
 			this.topWrapper.removeAll();
 			this.topWrapper.add(this.juryRow);
 
@@ -300,6 +308,10 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	 */
 	@Subscribe
 	public void slavePanelVoteCalled(UIEvent.PanelVoteCalled e) {
+		if (e.getFop() != null && !e.getFop().isPanelProcedure()) {
+			// without VPT only the jury votes again
+			return;
+		}
 		if (getRef13ix() == null || (e.getRef() != 0 && e.getRef() != getRef13ix())) {
 			return;
 		}
@@ -523,6 +535,13 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	}
 
 	private void resetRefVote() {
+		resetRefButtons();
+		this.topWrapper.removeAll();
+		this.topWrapper.add(this.topRow);
+		this.beeper.reset();
+	}
+
+	private void resetRefButtons() {
 		this.refVotingButtons.removeAll();
 		this.good = bigIcon(VaadinIcon.CHECK_CIRCLE, "white");
 		this.good.getElement().addEventListener("touchstart", (e) -> whiteTouched(e));
@@ -531,9 +550,6 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		this.bad.getElement().addEventListener("touchstart", (e) -> redTouched(e));
 		this.bad.getElement().addEventListener("click", (e) -> redClicked(e));
 		this.refVotingButtons.add(this.bad, this.good);
-		this.topWrapper.removeAll();
-		this.topWrapper.add(this.topRow);
-		this.beeper.reset();
 	}
 
 	private void setRef13ix(Integer ref13ix) {
