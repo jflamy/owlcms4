@@ -250,7 +250,7 @@ public class DecisionElementState {
 			this.renderer.resetDecisionDisplay(e, generation);
 			return;
 		}
-		publishPanelVote(e, e.getVoted(), e.getVotes());
+		publishPanelVote(e, e.getVoted(), e.isPublicReveal() ? e.getVotes() : null);
 	}
 
 	private void publishPanelVote(UIEvent e, boolean[] voted, Boolean[] votes) {

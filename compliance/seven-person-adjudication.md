@@ -39,19 +39,24 @@ When VPT is in use (7.5.7):
    combined procedure (7.5.8, Regulation to 3.3.7 item 9).
 
 When VPT is not in use (7.5.8): the four-member Jury can overturn the Referees
-only when unanimous. OWLCMS uses the **same procedure** as with VPT; only two
+only when unanimous. OWLCMS uses the **same procedure** as with VPT; only three
 things differ:
 
-- **Majority rule.** The trigger is a unanimous jury opposite to the referees
-  (not a 7-person majority), and the second vote reverses only if the four
-  jurors are again unanimous; otherwise the referees' decision stands.
+- **Trigger.** The TCRR leaves the deliberation to the Jury Chair, so by
+  default the break is started by hand (Jury Deliberation button). With the
+  `automaticBreakNoVPT` switch on, a unanimous jury opposite to the referees
+  stops the competition automatically, like the 7-person majority with VPT.
+- **Majority rule.** The second vote reverses only if the four jurors are
+  unanimous; otherwise the referees' decision stands.
 - **Who votes.** The referees are not summoned and do not vote again: Call for
   Votes (or Summon all on the keypad) reopens the four jury votes only. The
   referees' initial decision is revealed with the jury votes.
 
-The automatic stop is titled "Jury Deliberation" (not "Adjudication Panel
-Review"). The manual fallback, the rule for a No Lift, the automatic sending
-and the Speaker information are identical (section 4).
+The break is titled "Jury Deliberation" (not "Adjudication Panel Review").
+The manual fallback, the rule for a No Lift, the automatic sending and the
+Speaker information are identical (section 4). The jury behaviour switches
+are listed in
+[phase-b-referee-lights-mqtt.md](./phase-b-referee-lights-mqtt.md).
 
 Jury members vote on each lift on the Jury Control Unit once the athlete has
 replaced the barbell (7.5.8, TCRR 3.3.6).
@@ -230,8 +235,9 @@ voted. Until then, only "voted / not voted" is shown.
      guard of step 4, which is the only way out other than the jury finishing.
      The hold applies to every four-member jury (switch on), **with or
      without VPT**. Without VPT, the clock-start guard applies only while the
-     display is held, and only a unanimous jury opposite to the referees
-     triggers the stop (7.5.8). The 10 s cap remains for 3- and 5-member juries.
+     display is held, and a unanimous jury opposite to the referees
+     triggers the stop only with `automaticBreakNoVPT` on (7.5.8 makes the
+     deliberation manual). The 10 s cap remains for 3- and 5-member juries.
    - When `juryDecisionsOnAttemptBoard` is off, the decision clears after the
      normal 3.5 s and the jury keeps voting on `athleteUnderReview` with the
      next athlete displayed; nothing is held.
@@ -400,17 +406,17 @@ Step B2, the Chair calls for the vote (second, explicit referee recall):
   votes cleared, all referees buzzed). The per-referee Re-call buttons on the
   Waiting for Votes screen re-buzz one referee who has not voted, without
   clearing anything.
-- Votes are hidden until all 7 are in. The result is then known but is
-  **revealed together with the decision**, when it is applied: a Good Lift
+- Votes are hidden until all 7 are in. At the last vote, Jury Control and the
+  physical jury box reveal all referee and jury votes red/white so the jury can
+  record them. Public boards remain hidden: a Good Lift is shown publicly
   after the 1.5 s grace (revalidated), a No Lift only once the Jury Chair has
   given the technical rule (reason 17 "Other" is available), so that the rule
-  is shown with the result on the scoreboards. The decision is shown for
-  3.5 s and lifting resumes (the attempt board jury card lasts 5 s), but the
-  revealed referee and jury decisions remain visible on Jury Control and the
-  physical jury box so the jury can write them down. They are cleared by the
-  explicit Resume/clear action or when the next athlete clock starts. A
-  `PanelVoteUpdate` carries the result (`majority`, used by Jury Control to ask
-  for the rule) before the votes themselves (`votes`, null until revealed).
+  is shown with the result on the scoreboards. The decision is shown publicly
+  for 3.5 s and lifting resumes (the attempt board jury card lasts 5 s), but
+  the revealed votes remain visible on Jury Control and the physical jury box
+  until explicit Resume/clear or the next athlete clock starts. A
+  `PanelVoteUpdate` distinguishes the private jury reveal from the later
+  public reveal.
 - Final decision: the panel majority, computed only when all 7 have voted
   (no early result, section 2). Reuse `scheduleAutoJuryDecision` with the
   7-vote tally (1.5 s grace, revalidated) instead of `effectiveJuryVerdict`.

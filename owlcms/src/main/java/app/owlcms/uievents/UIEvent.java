@@ -866,6 +866,8 @@ public class UIEvent {
 		private final boolean[] voted;
 		private final Boolean[] votes;
 		private final Boolean majority;
+		private final boolean publicReveal;
+		private final Integer refereeUpdated;
 
 		/**
 		 * @param open     true while the vote is open
@@ -875,11 +877,22 @@ public class UIEvent {
 		 */
 		public PanelVoteUpdate(boolean open, boolean[] voted, Boolean[] votes, Boolean majority, Object origin,
 		        FieldOfPlay fop) {
+			this(open, voted, votes, majority, false, null, origin, fop);
+		}
+
+		/**
+		 * @param publicReveal  true when the decision may be revealed on public boards
+		 * @param refereeUpdated zero-based referee index whose review vote was just received, null otherwise
+		 */
+		public PanelVoteUpdate(boolean open, boolean[] voted, Boolean[] votes, Boolean majority,
+		        boolean publicReveal, Integer refereeUpdated, Object origin, FieldOfPlay fop) {
 			super(origin, fop);
 			this.open = open;
 			this.voted = voted;
 			this.votes = votes;
 			this.majority = majority;
+			this.publicReveal = publicReveal;
+			this.refereeUpdated = refereeUpdated;
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
@@ -897,6 +910,10 @@ public class UIEvent {
 			return this.votes;
 		}
 
+		public Integer getRefereeUpdated() {
+			return this.refereeUpdated;
+		}
+
 		public boolean isComplete() {
 			return this.votes != null;
 		}
@@ -905,6 +922,9 @@ public class UIEvent {
 			return this.open;
 		}
 
+		public boolean isPublicReveal() {
+			return this.publicReveal;
+		}
 	}
 
 	static public class JuryUpdate extends UIEvent {

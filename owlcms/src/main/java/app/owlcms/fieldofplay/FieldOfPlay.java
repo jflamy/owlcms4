@@ -228,8 +228,10 @@ public class FieldOfPlay implements IUnregister {
 	private Boolean[] reviewRefereeDecision = new Boolean[AdjudicationPanel.NB_REFEREES];
 	/** Phase B: the panel majority once all seven have voted, null before */
 	private Boolean panelVoteMajority;
-	/** Phase B: the votes have been revealed; this happens when the decision is applied, together with it */
+	/** Phase B: the votes have been revealed to the jury displays/devices after the last vote */
 	private boolean panelVoteRevealed;
+	/** Phase B: the vote may be revealed on public boards (after the rule for a No Lift has been supplied) */
+	private boolean panelVotePubliclyRevealed;
 	/**
 	 * Phase A votes (referees 1..3, jury 1..4) that led to the review, shown during the review break until the vote
 	 * is called. Null when there is nothing to show.
@@ -1433,7 +1435,11 @@ public class FieldOfPlay implements IUnregister {
 		endPanelVotePending(this);
 		Boolean refereeMajority = AdjudicationPanel.refereeMajority(refereeVotes);
 		if (!isPanelProcedure()) {
-			// without Video Playback (7.5.8), only a unanimous jury opposite to the referees stops the competition
+			// without Video Playback (7.5.8) the jury deliberates by hand; the automatic stop on a unanimous jury
+			// opposite to the referees is an option
+			if (!Config.getCurrent().featureSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT)) {
+				return;
+			}
 			Boolean juryUnanimous = unanimousJury(getJuryMemberDecision());
 			if (juryUnanimous == null || refereeMajority == null || juryUnanimous.equals(refereeMajority)) {
 				return;
@@ -1489,6 +1495,7 @@ public class FieldOfPlay implements IUnregister {
 		this.panelVoteOpen = true;
 		this.panelVoteMajority = null;
 		this.panelVoteRevealed = false;
+		this.panelVotePubliclyRevealed = false;
 		this.panelReviewInitialVotes = null;
 		this.reviewRefereeDecision = new Boolean[AdjudicationPanel.NB_REFEREES];
 		resetJuryDecisions();
@@ -1504,17 +1511,16 @@ public class FieldOfPlay implements IUnregister {
 			return;
 		}
 		this.reviewRefereeDecision[refIndex] = e.isDecision();
-		checkPanelVoteComplete(e.getOrigin());
+		checkPanelVoteComplete(e.getOrigin(), refIndex);
 	}
 
 	/**
-	 * Publish who has voted. When all have voted the result is known but stays hidden: the votes are revealed
-	 * together with the decision when it is applied (doJuryDecision). With Video Playback the seven officials vote and
-	 * the majority decides; without it the four jury members vote and must be unanimous to reverse (7.5.8), otherwise
-	 * the referees' decision stands. A Good Lift is applied after a grace period (revalidated); a No Lift waits for the
-	 * Jury Chair to give the technical rule, so that the rule is shown with the result.
+	 * Publish who has voted. When all have voted, reveal the votes to Jury Control and the physical jury box. Public
+	 * boards remain hidden until the decision is applied (doJuryDecision), so a No Lift is shown publicly with its
+	 * rule. With Video Playback the seven officials vote and the majority decides; without it the four jury members
+	 * vote and must be unanimous to reverse (7.5.8), otherwise the referees' decision stands.
 	 */
-	private void checkPanelVoteComplete(Object origin) {
+	private void checkPanelVoteComplete(Object origin, Integer refereeUpdated) {
 		Boolean[] jury = getJuryMemberDecision();
 		Boolean majority;
 		String tally;
@@ -1527,7 +1533,14 @@ public class FieldOfPlay implements IUnregister {
 			tally = "jury " + Arrays.toString(jury);
 		}
 		this.panelVoteMajority = majority;
-		pushPanelVoteUpdate(origin);
+		if (majority != null && !this.panelVoteRevealed) {
+			this.panelVoteRevealed = true;
+			if (!isPanelProcedure()) {
+				this.reviewRefereeDecision = getRefereeDecision().clone();
+			}
+			showJuryMemberDecisionsNow(origin, unanimousJury(jury) != null, getJurySize(), jury);
+		}
+		pushPanelVoteUpdate(origin, refereeUpdated);
 		if (majority == null) {
 			return;
 		}
@@ -1559,24 +1572,25 @@ public class FieldOfPlay implements IUnregister {
 		this.panelVoteOpen = false;
 		this.panelVoteMajority = null;
 		this.panelVoteRevealed = false;
+		this.panelVotePubliclyRevealed = false;
 		this.reviewRefereeDecision = new Boolean[AdjudicationPanel.NB_REFEREES];
 		pushPanelVoteUpdate(origin);
 	}
 
 	/**
-	 * The review vote is complete and its decision is being applied: reveal the votes (boards and devices) together
-	 * with the decision. Without VPT the referees did not vote again; their initial decision is shown.
+	 * The review decision is being applied: public boards may now reveal the vote. The jury displays and physical jury
+	 * box already revealed it when the last vote was cast.
 	 */
-	private void revealPanelVote(Object origin) {
-		this.panelVoteRevealed = true;
-		if (!isPanelProcedure()) {
-			this.reviewRefereeDecision = getRefereeDecision().clone();
-		}
-		Boolean[] jury = getJuryMemberDecision();
-		showJuryMemberDecisionsNow(origin, unanimousJury(jury) != null, getJurySize(), jury);
+	private void revealPanelVotePublicly(Object origin) {
+		this.panelVotePubliclyRevealed = true;
+		pushPanelVoteUpdate(origin);
 	}
 
 	private void pushPanelVoteUpdate(Object origin) {
+		pushPanelVoteUpdate(origin, null);
+	}
+
+	private void pushPanelVoteUpdate(Object origin, Integer refereeUpdated) {
 		Boolean[] jury = getJuryMemberDecision();
 		boolean[] voted = new boolean[AdjudicationPanel.PANEL_SIZE];
 		Boolean[] votes = new Boolean[AdjudicationPanel.PANEL_SIZE];
@@ -1590,7 +1604,8 @@ public class FieldOfPlay implements IUnregister {
 			voted[i] = votes[i] != null;
 		}
 		pushOutUIEvent(new UIEvent.PanelVoteUpdate(this.panelVoteOpen, voted,
-		        this.panelVoteRevealed ? votes : null, this.panelVoteMajority, origin, this));
+		        this.panelVoteRevealed ? votes : null, this.panelVoteMajority,
+		        this.panelVotePubliclyRevealed, refereeUpdated, origin, this));
 	}
 
 	private void checkFirstClockForLift() {
@@ -2656,9 +2671,9 @@ public class FieldOfPlay implements IUnregister {
 			boolean chairEntered = isSevenPersonAdjudication()
 			        && !(this.panelVoteMajority != null && this.panelVoteMajority.equals(e.success));
 			if (this.panelVoteOpen) {
-				if (this.panelVoteMajority != null && !this.panelVoteRevealed) {
-					// the complete vote is revealed together with the decision (and its rule for a No Lift)
-					revealPanelVote(e.getOrigin());
+				if (this.panelVoteMajority != null && !this.panelVotePubliclyRevealed) {
+					// public boards reveal the complete vote together with the decision (and rule for a No Lift)
+					revealPanelVotePublicly(e.getOrigin());
 				}
 				// stop collecting votes; later votes are ignored
 				this.panelVoteOpen = false;
@@ -2772,7 +2787,7 @@ public class FieldOfPlay implements IUnregister {
 		rescheduleDecisionResetForJury();
 		evaluatePanel();
 		if (this.panelVoteOpen) {
-			checkPanelVoteComplete(e.origin);
+			checkPanelVoteComplete(e.origin, null);
 		}
 	}
 

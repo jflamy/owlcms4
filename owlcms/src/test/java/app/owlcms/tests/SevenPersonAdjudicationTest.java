@@ -108,6 +108,7 @@ public class SevenPersonAdjudicationTest {
 	public void restoreSettings() {
 		setSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, false);
 		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, false);
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, false);
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
 		Competition.getCurrent().setAnnouncerControlledJuryDecision(true);
 	}
@@ -302,9 +303,12 @@ public class SevenPersonAdjudicationTest {
 		        this.recorder.updates.stream().anyMatch(UIEvent.PanelVoteUpdate::isComplete));
 
 		juryVote(3, R);
-		assertTrue("seven votes revealed together",
-		        this.recorder.await(this.recorder.updates, UIEvent.PanelVoteUpdate::isComplete));
+		assertTrue("jury displays reveal when the seventh vote arrives",
+		        this.recorder.await(this.recorder.updates,
+		                u -> u.isComplete() && !u.isPublicReveal()));
 		UIEvent.JuryNotification verdict = awaitVerdict();
+		assertTrue("public boards reveal when the decision is applied",
+		        this.recorder.await(this.recorder.updates, UIEvent.PanelVoteUpdate::isPublicReveal));
 		assertEquals(JuryDeliberationEventType.GOOD_LIFT, verdict.getDeliberationEventType());
 		assertFalse("decided by the panel", verdict.isChairEntered());
 		assertFalse("shown without waiting for the Speaker", verdict.isWaitForAnnouncer());
@@ -342,12 +346,15 @@ public class SevenPersonAdjudicationTest {
 		reviewVotes(R, R, R);
 		juryVotes(R, R, R, R);
 		assertEquals("a No Lift waits for the technical rule", FOPState.BREAK, this.fop.getState());
-		assertFalse("not revealed before the rule is given",
-		        this.recorder.updates.stream().anyMatch(UIEvent.PanelVoteUpdate::isComplete));
+		assertTrue("jury displays reveal when the last vote arrives",
+		        this.recorder.await(this.recorder.updates,
+		                u -> u.isComplete() && !u.isPublicReveal()));
+		assertFalse("public boards remain hidden before the rule is given",
+		        this.recorder.updates.stream().anyMatch(UIEvent.PanelVoteUpdate::isPublicReveal));
 
 		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 3));
-		assertTrue("revealed with the decision",
-		        this.recorder.await(this.recorder.updates, UIEvent.PanelVoteUpdate::isComplete));
+		assertTrue("public boards reveal with the decision and rule",
+		        this.recorder.await(this.recorder.updates, UIEvent.PanelVoteUpdate::isPublicReveal));
 		UIEvent.JuryNotification verdict = awaitVerdict();
 		assertEquals(JuryDeliberationEventType.BAD_LIFT, verdict.getDeliberationEventType());
 		assertEquals(Integer.valueOf(3), verdict.getReasonCode());
@@ -597,6 +604,7 @@ public class SevenPersonAdjudicationTest {
 	@Test
 	public void withoutVideoPlaybackAUnanimousJuryStopsAndRevotes() {
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, true);
 		lift(W, W, W);
 		juryVotes(R, R, R, R);
 		assertEquals(FOPState.BREAK, this.fop.getState());
@@ -626,8 +634,27 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
+	public void withoutVideoPlaybackAUnanimousJuryDoesNotStopByDefault() {
+		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		lift(W, W, W);
+		juryVotes(R, R, R, R);
+		assertEquals("TCRR 7.5.8: the jury deliberates by hand", FOPState.CURRENT_ATHLETE_DISPLAYED,
+		        this.fop.getState());
+		assertFalse(this.fop.isJuryReview());
+		assertFalse("the jury votes are no longer awaited", this.fop.isJuryVotesAwaited());
+
+		// the Chair starts the deliberation and calls the vote by hand
+		post(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		assertTrue(this.fop.isPanelVoteCallable());
+		callForVotes();
+		juryVotes(R, R, R, R);
+		assertEquals("a No Lift waits for the technical rule", FOPState.BREAK, this.fop.getState());
+	}
+
+	@Test
 	public void withoutVideoPlaybackASplitSecondVoteLeavesTheRefereesDecision() {
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, true);
 		lift(W, W, W);
 		juryVotes(R, R, R, R);
 		callForVotes();
@@ -642,6 +669,7 @@ public class SevenPersonAdjudicationTest {
 	@Test
 	public void withoutVideoPlaybackAUnanimousSecondVoteReversesToGoodLift() {
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, true);
 		lift(R, R, R);
 		juryVotes(W, W, W, W);
 		assertTrue(this.fop.isJuryReview());

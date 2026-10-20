@@ -557,7 +557,7 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 			return;
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			Boolean[] votes = e.getVotes();
+			Boolean[] votes = e.isPublicReveal() ? e.getVotes() : null;
 			if (votes == null) {
 				this.decisionBlock.onPanelVote(null, null);
 				return;

@@ -46,9 +46,11 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.fieldofplay.AdjudicationPanel;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
@@ -1374,6 +1376,11 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	public void slaveJuryUpdate(UIEvent.JuryUpdate e) {
 		if (e.getCollective() == null) {
 			// individual decision hidden
+			FieldOfPlay eventFop = e.getFop();
+			if (eventFop != null && eventFop.isPanelVoteOpen()
+			        && !Config.getCurrent().featureSwitch(FeatureSwitch.PANEL_VOTE_DEVICE_INDICATORS)) {
+				return;
+			}
 			publishMqttJuryMemberDecision(e.getJuryMemberUpdated());
 		} else {
 			Boolean[] decisions = e.getJuryMemberDecision();
@@ -1447,21 +1454,31 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	 */
 	@Subscribe
 	public void slavePanelVoteCalled(UIEvent.PanelVoteCalled e) {
-		if (e.getFop() != null && !e.getFop().isPanelProcedure()) {
-			// without VPT only the jury votes again: the referee devices are not re-armed
-			return;
-		}
 		if (e.getRef() == 0) {
 			publishMqttResetAllDecisions();
-			publishMqttSummonRef(0);
+			if (e.getFop() != null && e.getFop().isPanelProcedure()) {
+				publishMqttSummonRef(0);
+			}
 			publishMqttPanelReview("vote");
-		} else {
+		} else if (e.getFop() != null && e.getFop().isPanelProcedure()) {
 			publishMqttSummonRef(e.getRef());
 		}
 	}
 
 	@Subscribe
 	public void slavePanelVoteUpdate(UIEvent.PanelVoteUpdate e) {
+		FieldOfPlay eventFop = e.getFop();
+		Integer refereeUpdated = e.getRefereeUpdated();
+		if (eventFop != null && eventFop.isPanelProcedure() && e.isOpen() && refereeUpdated != null
+		        && Config.getCurrent().featureSwitch(FeatureSwitch.PANEL_VOTE_DEVICE_INDICATORS)) {
+			publishMqttRefereeLight(refereeUpdated + 1, "hidden");
+		}
+		if (eventFop != null && eventFop.isSevenPersonAdjudication() && e.isComplete() && !e.isPublicReveal()) {
+			Boolean[] votes = e.getVotes();
+			for (int i = 0; i < AdjudicationPanel.NB_REFEREES; i++) {
+				publishMqttRefereeLight(i + 1, Boolean.TRUE.equals(votes[i]) ? "good" : "bad");
+			}
+		}
 		if (!e.isOpen()) {
 			publishMqttPanelReview("end");
 		}
@@ -1824,6 +1841,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			} else if (ref3 != null) {
 				decision = ref3;
 			}
+
 		} else {
 			decision = (ref1 && ref2) || (ref1 && ref3) || (ref2 && ref3);
 		}
@@ -1831,6 +1849,15 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			publish("owlcms/fop/refereesDecision/" + this.getFop().getName(),
 					new MqttMessage((decision ? "good" : "bad").getBytes(StandardCharsets.UTF_8)));
 		} catch (MqttException e) {
+		}
+	}
+
+	private void publishMqttRefereeLight(int ref, String state) {
+		try {
+			publish("owlcms/fop/decision/" + this.getFop().getName(),
+			        new MqttMessage((ref + " " + state).getBytes(StandardCharsets.UTF_8)));
+		} catch (MqttException e) {
+			logger.error("could not publish referee light {} {}", ref, state, e);
 		}
 	}
 
