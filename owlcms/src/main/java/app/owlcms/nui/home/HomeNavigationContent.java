@@ -54,6 +54,7 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.UnorderedList;
+import com.vaadin.flow.component.markdown.Markdown;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -131,6 +132,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	String currentVersionString = "";
 	private Div versionPlaceholder;
+	private Div releaseNoticePlaceholder;
 	private Div motdPlaceholder;
 	private Div controlPanelVersionPlaceholder;
 	private String remoteAddr;
@@ -259,6 +261,8 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		}
 		intro.add(ul);
 		intro.add(this.versionPlaceholder);
+		this.releaseNoticePlaceholder = new Div();
+		intro.add(this.releaseNoticePlaceholder);
 
 		var osName = System.getProperty("os.name");
 		if (osName.startsWith("Windows") || osName.startsWith("windows")) {
@@ -485,11 +489,39 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		return div;
 	}
 	
+	private void showReleaseNotice(String kind, String notice) {
+		boolean danger = kind.equals("snapshot") || kind.equals("alpha");
+		Markdown markdown = new Markdown(notice);
+		this.releaseNoticePlaceholder.removeAll();
+		this.releaseNoticePlaceholder.add(markdown);
+		this.releaseNoticePlaceholder.getStyle()
+		        .set("border-left", "6px solid " + (danger ? "#d32f2f" : "#f57c00"))
+		        .set("padding", "0 1em")
+		        .set("margin-bottom", "1ex");
+	}
+
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
 		UI ui = attachEvent.getUI();
-		Locale locale = ui.getLocale();
+		// the language chosen on the page is kept in the session, not in the UI
+		Locale locale = OwlcmsSession.getLocale();
+		String version = this.currentVersionString;
+		VaadinService.getCurrent().getExecutor().execute(() -> {
+			String notice = ReleaseNotice.read(version, locale);
+			if (notice == null || !ui.isAttached()) {
+				return;
+			}
+			try {
+				ui.access(() -> {
+					if (isAttached()) {
+						showReleaseNotice(ReleaseNotice.kind(version), notice);
+					}
+				});
+			} catch (UIDetachedException ignored) {
+				// The UI detached after the attachment check; discard the notice.
+			}
+		});
 		VaadinService.getCurrent().getExecutor().execute(() -> {
 			VersionCheckResult versionResult = checkVersion();
 			String motd = getMotd(this.motdFileName);
