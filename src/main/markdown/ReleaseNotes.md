@@ -10,13 +10,6 @@
 
 **New in Release 69.0**
 
-- 69.0.0: Named accounts with role-based access control.
-  - Assign officials access to specific platforms and duties; existing PIN-based access remains available.
-  - Login opens the page appropriate to the assigned role; accounts with multiple roles start on Home.
-  - Enabling accounts creates missing role accounts, with platform-specific accounts for platform duties. The account list identifies accounts that still need a password.
-  - Account names preserve the written case of platform names; login names are case-insensitive.
-  - Platform-role accounts omit the platform suffix when there is only one platform. "Reset Platform Accounts" recreates conventional role accounts for the current platforms, clearing their passwords while preserving custom and global accounts.
-
 - 69.0.0: Per-platform tamper-resistant audit trails record competition actions and athlete changes.
   - Includes accepted and refused commands, record changes, session activity, and application start/stop events, with operator and station identification.
 
@@ -72,5 +65,12 @@
 - 69.0.0: Protocol templates updated for TCRR 2026 to include lot and start numbers.
 
 - 69.0.0: The home page shows a caution notice when running a development, alpha, beta or release candidate version.
+
+- 69.0.0: Experimental and untested: Named accounts with role-based access control.
+  - Assign officials access to specific platforms and duties; existing PIN-based access remains available.
+  - Login opens the page appropriate to the assigned role; accounts with multiple roles start on Home.
+  - Enabling accounts creates missing role accounts, with platform-specific accounts for platform duties. The account list identifies accounts that still need a password.
+  - Account names preserve the written case of platform names; login names are case-insensitive.
+  - Platform-role accounts omit the platform suffix when there is only one platform. "Reset Platform Accounts" recreates conventional role accounts for the current platforms, clearing their passwords while preserving custom and global accounts.
 
 -For other recent changes, see [the release repository](https://github.com/jflamy/owlcms4/releases)
