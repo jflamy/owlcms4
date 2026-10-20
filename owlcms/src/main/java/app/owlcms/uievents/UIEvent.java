@@ -808,6 +808,18 @@ public class UIEvent {
 	}
 
 	/**
+	 * An explicit Jury Control Resume command cleared the jury cycle. Jury displays and physical jury devices clear
+	 * their referee and jury decisions immediately.
+	 */
+	static public class JuryDisplayReset extends UIEvent {
+
+		public JuryDisplayReset(Object origin, FieldOfPlay fop) {
+			super(fop != null ? fop.getAthleteUnderReview() : null, origin, fop);
+		}
+
+	}
+
+	/**
 	 * Traditional 3-5 member jury: the jury decision is a No Lift, so the Jury Chair must give the technical rule
 	 * before the decision is sent.
 	 */

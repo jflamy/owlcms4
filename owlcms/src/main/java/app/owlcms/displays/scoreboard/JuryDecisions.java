@@ -172,6 +172,12 @@ public class JuryDecisions extends BaseResults {
 			clear();
 		});
 	}
+
+	@Subscribe
+	public void slaveJuryDisplayReset(UIEvent.JuryDisplayReset e) {
+		uiLog(e);
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, this::clear);
+	}
 	
 	public boolean isKeepInitialDecision() {
 		return keepInitialDecision;

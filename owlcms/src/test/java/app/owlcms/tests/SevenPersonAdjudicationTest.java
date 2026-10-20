@@ -202,6 +202,41 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
+	public void juryResumeEndsANormalBreakLikeBreakManagement() {
+		post(new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		assertEquals(FOPState.BREAK, this.fop.getState());
+
+		post(new FOPEvent.JuryResume(new Object()));
+
+		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+		assertTrue("an ordinary break does not add a jury reset", this.recorder.displayResets.isEmpty());
+	}
+
+	@Test
+	public void juryResumeDuringAnActiveLiftIsANoOp() {
+		post(new FOPEvent.TimeStarted(new Object()));
+		assertEquals(FOPState.TIME_RUNNING, this.fop.getState());
+
+		post(new FOPEvent.JuryResume(new Object()));
+
+		assertEquals(FOPState.TIME_RUNNING, this.fop.getState());
+		assertTrue(this.recorder.displayResets.isEmpty());
+	}
+
+	@Test
+	public void juryResumeAbandonsPendingJuryVotesAndClearsTheDisplays() {
+		lift(W, W, W);
+		assertTrue(this.fop.isJuryVotesAwaited());
+
+		post(new FOPEvent.JuryResume(new Object()));
+
+		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+		assertFalse(this.fop.isJuryVotesAwaited());
+		assertNull(this.fop.getJuryMemberDecision()[0]);
+		assertTrue(this.recorder.await(this.recorder.displayResets, r -> true));
+	}
+
+	@Test
 	public void withoutVideoPlaybackASplitJuryDoesNotStopTheCompetition() {
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
 		lift(W, W, W);
@@ -307,8 +342,12 @@ public class SevenPersonAdjudicationTest {
 		reviewVotes(R, R, R);
 		juryVotes(R, R, R, R);
 		assertEquals("a No Lift waits for the technical rule", FOPState.BREAK, this.fop.getState());
+		assertFalse("not revealed before the rule is given",
+		        this.recorder.updates.stream().anyMatch(UIEvent.PanelVoteUpdate::isComplete));
 
 		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 3));
+		assertTrue("revealed with the decision",
+		        this.recorder.await(this.recorder.updates, UIEvent.PanelVoteUpdate::isComplete));
 		UIEvent.JuryNotification verdict = awaitVerdict();
 		assertEquals(JuryDeliberationEventType.BAD_LIFT, verdict.getDeliberationEventType());
 		assertEquals(Integer.valueOf(3), verdict.getReasonCode());
@@ -411,7 +450,13 @@ public class SevenPersonAdjudicationTest {
 		assertFalse(boards.panels.stream().anyMatch(p -> p.referees().contains("red")));
 
 		juryVote(3, W);
-		assertTrue("the seven votes revealed together", boards.await(
+		assertTrue("the result is known", this.recorder.await(this.recorder.updates,
+		        u -> Boolean.FALSE.equals(u.getMajority())));
+		assertFalse("a No Lift is not revealed before the rule is given",
+		        boards.panels.stream().anyMatch(p -> p.referees().contains("red")));
+
+		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 17));
+		assertTrue("the seven votes revealed together with the decision", boards.await(
 		        p -> p.referees().equals(List.of("red", "red", "red"))
 		                && p.jury().equals(List.of("red", "red", "red", "white"))));
 	}
@@ -818,6 +863,12 @@ public class SevenPersonAdjudicationTest {
 		final List<UIEvent.JuryVotesPending> pending = new CopyOnWriteArrayList<>();
 		final List<UIEvent.Notification> errors = new CopyOnWriteArrayList<>();
 		final List<UIEvent.JuryRuleRequired> ruleRequests = new CopyOnWriteArrayList<>();
+		final List<UIEvent.JuryDisplayReset> displayResets = new CopyOnWriteArrayList<>();
+
+		@Subscribe
+		public void juryDisplayReset(UIEvent.JuryDisplayReset e) {
+			this.displayResets.add(e);
+		}
 
 		@Subscribe
 		public void juryRuleRequired(UIEvent.JuryRuleRequired e) {

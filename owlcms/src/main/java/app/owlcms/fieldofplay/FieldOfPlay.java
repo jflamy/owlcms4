@@ -96,6 +96,7 @@ import app.owlcms.fieldofplay.FOPEvent.DownSignal;
 import app.owlcms.fieldofplay.FOPEvent.ExplicitDecision;
 import app.owlcms.fieldofplay.FOPEvent.ForceTime;
 import app.owlcms.fieldofplay.FOPEvent.JuryDecision;
+import app.owlcms.fieldofplay.FOPEvent.JuryResume;
 import app.owlcms.fieldofplay.FOPEvent.JuryMemberDecisionUpdate;
 import app.owlcms.fieldofplay.FOPEvent.StartLifting;
 import app.owlcms.fieldofplay.FOPEvent.SummonReferee;
@@ -227,6 +228,8 @@ public class FieldOfPlay implements IUnregister {
 	private Boolean[] reviewRefereeDecision = new Boolean[AdjudicationPanel.NB_REFEREES];
 	/** Phase B: the panel majority once all seven have voted, null before */
 	private Boolean panelVoteMajority;
+	/** Phase B: the votes have been revealed; this happens when the decision is applied, together with it */
+	private boolean panelVoteRevealed;
 	/**
 	 * Phase A votes (referees 1..3, jury 1..4) that led to the review, shown during the review break until the vote
 	 * is called. Null when there is nothing to show.
@@ -917,6 +920,9 @@ public class FieldOfPlay implements IUnregister {
 			resetJuryDecisions();
 			closePanelVote(e.getOrigin());
 			return;
+		} else if (e instanceof JuryResume) {
+			doJuryResume(e);
+			return;
 		} else if (e instanceof StartLifting) {
 			cancelDecisionReset();
 			this.juryDecisionShown = false;
@@ -1328,6 +1334,27 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
+	 * Apply the common Resume-button behaviour for Jury Control and the physical jury box.
+	 */
+	private void doJuryResume(FOPEvent e) {
+		boolean normalBreak = this.state == BREAK;
+		boolean juryCycleActive = this.state == DECISION_VISIBLE || isJuryVotesAwaited()
+		        || this.panelVoteOpen || juryDeliberationInProgress();
+		if (juryCycleActive) {
+			endPanelVotePending(e.getOrigin());
+			resetJuryDecisions();
+			pushOutUIEvent(new UIEvent.JuryDisplayReset(e.getOrigin(), this));
+			doHandleFOPEvent(new StartLifting(e.getOrigin()));
+		} else if (normalBreak) {
+			// Match BreakManagement.endBreak exactly: an ordinary break only needs StartLifting.
+			doHandleFOPEvent(new StartLifting(e.getOrigin()));
+		} else {
+			// During an active lift, before referee decisions, Resume is deliberately a no-op.
+			return;
+		}
+	}
+
+	/**
 	 * Clear the decision lights: process the weight changes and the break that were deferred while the decision was
 	 * visible.
 	 */
@@ -1461,6 +1488,7 @@ public class FieldOfPlay implements IUnregister {
 		        isPanelProcedure() ? "adjudication panel" : "jury", this.athleteUnderReview);
 		this.panelVoteOpen = true;
 		this.panelVoteMajority = null;
+		this.panelVoteRevealed = false;
 		this.panelReviewInitialVotes = null;
 		this.reviewRefereeDecision = new Boolean[AdjudicationPanel.NB_REFEREES];
 		resetJuryDecisions();
@@ -1480,10 +1508,11 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * Publish who has voted; when all have voted, reveal the votes together and apply the result. With Video Playback
-	 * the seven officials vote and the majority decides; without it the four jury members vote and must be unanimous
-	 * to reverse (7.5.8), otherwise the referees' decision stands. A Good Lift is applied after a grace period
-	 * (revalidated); a No Lift waits for the Jury Chair to give the technical rule.
+	 * Publish who has voted. When all have voted the result is known but stays hidden: the votes are revealed
+	 * together with the decision when it is applied (doJuryDecision). With Video Playback the seven officials vote and
+	 * the majority decides; without it the four jury members vote and must be unanimous to reverse (7.5.8), otherwise
+	 * the referees' decision stands. A Good Lift is applied after a grace period (revalidated); a No Lift waits for the
+	 * Jury Chair to give the technical rule, so that the rule is shown with the result.
 	 */
 	private void checkPanelVoteComplete(Object origin) {
 		Boolean[] jury = getJuryMemberDecision();
@@ -1495,10 +1524,6 @@ public class FieldOfPlay implements IUnregister {
 			tally = panel.whites() + " white, " + panel.reds() + " red";
 		} else {
 			majority = computeCurrentJuryVerdict(AdjudicationPanel.NB_JURORS);
-			if (majority != null) {
-				// the referees do not vote again: their decision is revealed with the jury votes
-				this.reviewRefereeDecision = getRefereeDecision().clone();
-			}
 			tally = "jury " + Arrays.toString(jury);
 		}
 		this.panelVoteMajority = majority;
@@ -1508,8 +1533,6 @@ public class FieldOfPlay implements IUnregister {
 		}
 		this.logger.info("{}review vote complete: {} ({}) for {}",
 		        FieldOfPlay.getLoggingName(this), majority ? "good lift" : "no lift", tally, this.athleteUnderReview);
-		boolean unanimousJury = unanimousJury(jury) != null;
-		showJuryMemberDecisionsNow(origin, unanimousJury, getJurySize(), jury);
 		if (!majority) {
 			this.logger.info("{}no lift on review, waiting for the Jury Chair to give the rule",
 			        FieldOfPlay.getLoggingName(this));
@@ -1535,8 +1558,22 @@ public class FieldOfPlay implements IUnregister {
 		this.logger.info("{}adjudication panel review vote closed", FieldOfPlay.getLoggingName(this));
 		this.panelVoteOpen = false;
 		this.panelVoteMajority = null;
+		this.panelVoteRevealed = false;
 		this.reviewRefereeDecision = new Boolean[AdjudicationPanel.NB_REFEREES];
 		pushPanelVoteUpdate(origin);
+	}
+
+	/**
+	 * The review vote is complete and its decision is being applied: reveal the votes (boards and devices) together
+	 * with the decision. Without VPT the referees did not vote again; their initial decision is shown.
+	 */
+	private void revealPanelVote(Object origin) {
+		this.panelVoteRevealed = true;
+		if (!isPanelProcedure()) {
+			this.reviewRefereeDecision = getRefereeDecision().clone();
+		}
+		Boolean[] jury = getJuryMemberDecision();
+		showJuryMemberDecisionsNow(origin, unanimousJury(jury) != null, getJurySize(), jury);
 	}
 
 	private void pushPanelVoteUpdate(Object origin) {
@@ -1553,7 +1590,7 @@ public class FieldOfPlay implements IUnregister {
 			voted[i] = votes[i] != null;
 		}
 		pushOutUIEvent(new UIEvent.PanelVoteUpdate(this.panelVoteOpen, voted,
-		        this.panelVoteMajority != null ? votes : null, this.panelVoteMajority, origin, this));
+		        this.panelVoteRevealed ? votes : null, this.panelVoteMajority, origin, this));
 	}
 
 	private void checkFirstClockForLift() {
@@ -2619,6 +2656,10 @@ public class FieldOfPlay implements IUnregister {
 			boolean chairEntered = isSevenPersonAdjudication()
 			        && !(this.panelVoteMajority != null && this.panelVoteMajority.equals(e.success));
 			if (this.panelVoteOpen) {
+				if (this.panelVoteMajority != null && !this.panelVoteRevealed) {
+					// the complete vote is revealed together with the decision (and its rule for a No Lift)
+					revealPanelVote(e.getOrigin());
+				}
 				// stop collecting votes; later votes are ignored
 				this.panelVoteOpen = false;
 				pushPanelVoteUpdate(e.getOrigin());

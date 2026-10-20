@@ -400,9 +400,17 @@ Step B2, the Chair calls for the vote (second, explicit referee recall):
   votes cleared, all referees buzzed). The per-referee Re-call buttons on the
   Waiting for Votes screen re-buzz one referee who has not voted, without
   clearing anything.
-- Votes are hidden until all 7 are in, then revealed together. This follows
-  the existing jury hidden/reveal pattern. A new `UIEvent` (or `JuryUpdate`
-  with a referee part) carries the 7 votes.
+- Votes are hidden until all 7 are in. The result is then known but is
+  **revealed together with the decision**, when it is applied: a Good Lift
+  after the 1.5 s grace (revalidated), a No Lift only once the Jury Chair has
+  given the technical rule (reason 17 "Other" is available), so that the rule
+  is shown with the result on the scoreboards. The decision is shown for
+  3.5 s and lifting resumes (the attempt board jury card lasts 5 s), but the
+  revealed referee and jury decisions remain visible on Jury Control and the
+  physical jury box so the jury can write them down. They are cleared by the
+  explicit Resume/clear action or when the next athlete clock starts. A
+  `PanelVoteUpdate` carries the result (`majority`, used by Jury Control to ask
+  for the rule) before the votes themselves (`votes`, null until revealed).
 - Final decision: the panel majority, computed only when all 7 have voted
   (no early result, section 2). Reuse `scheduleAutoJuryDecision` with the
   7-vote tally (1.5 s grace, revalidated) instead of `effectiveJuryVerdict`.
@@ -594,7 +602,16 @@ Jury devices do not buzz; the jurors are at the table.
   review, **Summon Referees (all)** (`SummonReferee(0)`) acts as **Call for
   Votes**, and individual referee buttons (`1..3`) re-call that referee while
   the vote is open.
-- Deliberation, Challenge, Technical and Resume are unchanged.
+- Deliberation, Challenge and Technical are unchanged. Jury Control and the
+  physical jury box use the same Resume command:
+  - in a normal non-jury break, Resume behaves exactly like Break Management:
+    it posts `StartLifting`, with no additional jury reset;
+  - during an active lift before referee decisions, Resume is a no-op;
+  - once referee decisions are shown or a jury cycle is active, Resume
+    abandons pending jury/review votes, clears all referee/jury decisions and
+    resumes.
+  Automatic `StartLifting` after the 3.5 s decision display does not clear the
+  revealed votes; manual Resume/clear or the next clock start does.
 - `getNbJurors()`, `registerShortcuts()`, `postJuryMemberDecision()` work with
   4 jurors as is (keys 1–8).
 - No Call Technical Controller button (decided): there is no device to call

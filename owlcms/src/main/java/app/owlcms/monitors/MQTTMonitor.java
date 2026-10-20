@@ -507,21 +507,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 				postDeviceEvent(new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null,
 						true, this), "JURY_CONSOLE", null, "jurybox");
 			} else if (messageStr.equalsIgnoreCase("stop")) {
-				var state = MQTTMonitor.this.getFop().getState();
-				// green resume button used to clear the decision lights.
-				if (state == FOPState.CURRENT_ATHLETE_DISPLAYED
-						|| state == FOPState.INACTIVE
-						|| (state == FOPState.BREAK && !MQTTMonitor.this.getFop().getBreakType().isInterruption())) {
-					logger.info("{}MQTT jury resume received in state {}, sending ResetOnNewClock",
-							FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), state);
-					SettingsAudit.event(MQTTMonitor.this.getFop().getName(), "jury.resume",
-							AuditActor.device("JURY_CONSOLE", null, "jurybox"), MQTTMonitor.this.getFop().getCurAthlete(),
-							null, null, null, AuditFormat.kv("state", state));
-					MQTTMonitor.this.getFop().getUiEventBus().post(new UIEvent.ResetOnNewClock(
-							MQTTMonitor.this.getFop().getCurAthlete(), null, MQTTMonitor.this.getFop()));
-				} else {
-					postDeviceEvent(new FOPEvent.StartLifting(this), "JURY_CONSOLE", null, "jurybox");
-				}
+				postDeviceEvent(new FOPEvent.JuryResume(this), "JURY_CONSOLE", null, "jurybox");
 			} else {
 				logger.error("{}Malformed MQTT jury break message topic='{}' message='{}'",
 						FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);
@@ -1430,6 +1416,11 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
 		// we switched lifter, or we switched attempt. reset the decisions.
 		this.prevRefereeTimeStamp = 0L;
+		publishMqttResetAllDecisions();
+	}
+
+	@Subscribe
+	public void slaveJuryDisplayReset(UIEvent.JuryDisplayReset e) {
 		publishMqttResetAllDecisions();
 	}
 

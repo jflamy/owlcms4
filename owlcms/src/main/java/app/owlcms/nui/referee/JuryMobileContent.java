@@ -179,12 +179,12 @@ public class JuryMobileContent extends BaseContent implements FOPParametersReade
 	}
 
 	@Subscribe
-	public void slaveStartLifting(UIEvent.StartLifting e) {
+	public void slaveTimeStarted(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, this::resetVote);
 	}
 
 	@Subscribe
-	public void slaveTimeStarted(UIEvent.StartTime e) {
+	public void slaveJuryDisplayReset(UIEvent.JuryDisplayReset e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, this::resetVote);
 	}
 

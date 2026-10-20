@@ -617,6 +617,18 @@ public class FOPEvent {
 	}
 
 	/**
+	 * The Jury Control Resume command. Its effect depends on the FOP state: match Break Management during an ordinary
+	 * break, resume and clear during a jury cycle, no-op during an active lift before referee decisions.
+	 */
+	static public class JuryResume extends FOPEvent {
+
+		public JuryResume(Object origin) {
+			super(origin);
+		}
+
+	}
+
+	/**
 	 * The Class StartLifting.
 	 */
 	static public class StartLifting extends FOPEvent {

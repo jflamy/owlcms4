@@ -276,6 +276,16 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	}
 
 	@Subscribe
+	public void slaveJuryDisplayReset(UIEvent.JuryDisplayReset e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			resetJuryVoting();
+			closeNoLiftReasonDialog();
+			clearReviewHeader();
+			updateJuryDecisionActions(getFop());
+		});
+	}
+
+	@Subscribe
 	public void slaveJuryMemberDecision(UIEvent.JuryUpdate e) {
 		FieldOfPlay fop = getFop();
 		if (this.panelMode && fop != null && fop.isPanelVoteOpen()) {
@@ -295,7 +305,6 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	@Subscribe
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			resetJuryVoting();
 			closeNoLiftReasonDialog();
 			updateJuryDecisionActions(getFop());
 		});
@@ -989,10 +998,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	private void resumeCompetition() {
 		OwlcmsSession.withFop(fop -> {
-			fop.fopEventPost(new FOPEvent.StartLifting(this));
+			fop.fopEventPost(new FOPEvent.JuryResume(this));
 		});
-		resetJuryVoting();
-		clearReviewHeader();
 	}
 
 	private Div buildReviewHeader() {
