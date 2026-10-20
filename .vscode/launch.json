@@ -21,7 +21,7 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
-        "OWLCMS_FEATURESWITCHES": "attemptTraces",
+        //"OWLCMS_FEATURESWITCHES": "attemptTraces",
         "OWLCMS_ENABLEEVENTFORWARDING": "false",
         //"OWLCMS_VIDEODATA": "ws://owlcms.local:8096/ws",
         //"OWLCMS_REMOTE": "",
@@ -203,7 +203,7 @@
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_ENABLEEVENTFORWARDING": "false",
         "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
-        "OWLCMS_FEATURESWITCHES": "attemptTraces",
+        //"OWLCMS_FEATURESWITCHES": "attemptTraces",
         "OWLCMS_PORT": "8081",
         //"OWLCMS_REMOTE": "http://localhost:8082",
         //"OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws"
