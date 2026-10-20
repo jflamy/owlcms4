@@ -42,10 +42,10 @@ class Results extends LitElement {
             </div>
             <div class="dsProjectedRanksSlot ${this.dsProjectedRanksMode()}" style="${this.dsProjectedRanksStyles()}">${this.projectedRankText}</div>
             <div class="dsDecisions" style="${this.dsDecisionsStyles()}">
+              <div class="dsJuryMessage" style="${this.dsJuryMessageStyles()}">${this.juryMessage}</div>
               <div class="dsRefereeSlot" style="${this.dsRefereeSlotStyles()}">
                 <decision-element id="decisionSectionReferee"></decision-element>
               </div>
-              <div class="dsJuryMessage" style="${this.dsJuryMessageStyles()}">${this.juryMessage}</div>
               <div class="dsJurySlot" style="${this.dsJurySlotStyles()}">
                 ${(this.juryDecisions ?? []).map(d => html`<vaadin-icon class="juryIcon ${d}" icon="${this.juryIcon(d)}"></vaadin-icon>`)}
               </div>

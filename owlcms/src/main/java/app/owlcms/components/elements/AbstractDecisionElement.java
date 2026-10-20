@@ -331,21 +331,31 @@ public abstract class AbstractDecisionElement extends LitTemplate
 			if (!this.decisionState.isCurrentGeneration(generation)) {
 				return;
 			}
-			ObjectNode payload = JsonUtils.object();
-			payload.put("sequence", Long.toString(this.decisionPayloadSequence.incrementAndGet()));
-			payload.put("mode", "panel");
-			payload.put("singleRef", false);
-			ArrayNode refs = JsonUtils.array();
-			refereeStates.forEach(refs::add);
-			payload.set("refStates", refs);
-			ArrayNode jury = JsonUtils.array();
-			if (!this.hidePanelJury) {
-				juryStates.forEach(jury::add);
-			}
-			payload.set("juryStates", jury);
-			getElement().setPropertyJson("decisionPayload", payload);
-			setEnabled(false);
+			sendPanelPayload(refereeStates, this.hidePanelJury ? List.of() : juryStates);
 		});
+	}
+
+	/**
+	 * Show the three referee cells of a review vote ("empty", "voted", "white", "red") without jury cells. For a page
+	 * that drives this element itself (scoreboard decision section); must be called with the UI lock held.
+	 */
+	public void showPanelRefereeStates(List<String> refereeStates) {
+		sendPanelPayload(refereeStates, List.of());
+	}
+
+	private void sendPanelPayload(List<String> refereeStates, List<String> juryStates) {
+		ObjectNode payload = JsonUtils.object();
+		payload.put("sequence", Long.toString(this.decisionPayloadSequence.incrementAndGet()));
+		payload.put("mode", "panel");
+		payload.put("singleRef", false);
+		ArrayNode refs = JsonUtils.array();
+		refereeStates.forEach(refs::add);
+		payload.set("refStates", refs);
+		ArrayNode jury = JsonUtils.array();
+		juryStates.forEach(jury::add);
+		payload.set("juryStates", jury);
+		getElement().setPropertyJson("decisionPayload", payload);
+		setEnabled(false);
 	}
 
 	@Override

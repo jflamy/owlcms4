@@ -239,6 +239,13 @@ public class FieldOfPlay implements IUnregister {
 	private Boolean[] panelReviewInitialVotes;
 	/** a jury decision is being shown (DECISION_VISIBLE after doJuryDecision), until StartLifting */
 	private boolean juryDecisionShown;
+	/**
+	 * Four-member jury: the attempt board shows the jury decision card until this time (ms); the clock cannot be
+	 * started while the card is on, even after the FOP has resumed lifting.
+	 */
+	private long juryDecisionCardVisibleUntil;
+	/** how long the attempt boards show the jury decision card after a four-member jury decision */
+	public static final long JURY_DECISION_CARD_MS = 5000;
 	private boolean decisionCommitScheduled;
 	private boolean decisionDisplayScheduled = false;
 	private FOPEvent deferredBreak;
@@ -1028,12 +1035,12 @@ public class FieldOfPlay implements IUnregister {
 			return;
 		}
 
-		if (e instanceof TimeStarted && this.state == DECISION_VISIBLE && this.juryDecisionShown
-		        && isSevenPersonAdjudication()) {
-			// four-member jury: starting the clock ends the display of the jury decision
-			this.logger.info("{}clock started while the jury decision is shown, resuming",
+		if (e instanceof TimeStarted && isSevenPersonAdjudication() && isJuryDecisionCardShown()) {
+			// four-member jury: the attempt boards still show the jury decision card
+			this.logger.info("{}clock start refused, jury decision is being shown",
 			        FieldOfPlay.getLoggingName(this));
-			doHandleFOPEvent(new StartLifting(e.getOrigin()));
+			unexpectedEventInState(e, DECISION_VISIBLE);
+			return;
 		}
 
 		// ======= state-dependent processing. Depends on the current state.
@@ -1341,15 +1348,22 @@ public class FieldOfPlay implements IUnregister {
 	private void doJuryResume(FOPEvent e) {
 		boolean normalBreak = this.state == BREAK;
 		boolean juryCycleActive = this.state == DECISION_VISIBLE || isJuryVotesAwaited()
-		        || this.panelVoteOpen || juryDeliberationInProgress();
+		        || this.panelVoteOpen || juryDeliberationInProgress() || isJuryDecisionCardShown();
 		if (juryCycleActive) {
 			endPanelVotePending(e.getOrigin());
 			resetJuryDecisions();
+			// an explicit Resume ends the decision cycle: the clock may start at once
+			this.juryDecisionCardVisibleUntil = 0;
 			pushOutUIEvent(new UIEvent.JuryDisplayReset(e.getOrigin(), this));
 			doHandleFOPEvent(new StartLifting(e.getOrigin()));
 		} else if (normalBreak) {
 			// Match BreakManagement.endBreak exactly: an ordinary break only needs StartLifting.
 			doHandleFOPEvent(new StartLifting(e.getOrigin()));
+		} else if (this.state == CURRENT_ATHLETE_DISPLAYED) {
+			// Lifting has already resumed (automatically after the decision) and the clock has not started: the
+			// jury displays and the physical jury box may still show the previous votes; Resume clears them.
+			resetJuryDecisions();
+			pushOutUIEvent(new UIEvent.JuryDisplayReset(e.getOrigin(), this));
 		} else {
 			// During an active lift, before referee decisions, Resume is deliberately a no-op.
 			return;
@@ -1586,6 +1600,28 @@ public class FieldOfPlay implements IUnregister {
 		pushPanelVoteUpdate(origin);
 	}
 
+	/**
+	 * Four-member jury: the Jury Chair entered the decision with the Good Lift / No Lift buttons. The jury votes
+	 * (review vote, jury circles, Phase A pattern, physical jury box) are cleared so that nothing contradicting the
+	 * Chair's decision stays on display; the decision card follows.
+	 */
+	private void clearJuryVotesForChairDecision(Object origin) {
+		boolean voteInProgress = this.panelVoteOpen || this.panelVoteMajority != null;
+		this.panelVoteOpen = false;
+		this.panelVoteMajority = null;
+		this.panelVoteRevealed = false;
+		this.panelVotePubliclyRevealed = false;
+		this.reviewRefereeDecision = new Boolean[AdjudicationPanel.NB_REFEREES];
+		this.panelReviewInitialVotes = null;
+		resetJuryDecisions();
+		if (voteInProgress) {
+			this.logger.info("{}adjudication panel review vote replaced by the Jury Chair's decision",
+			        FieldOfPlay.getLoggingName(this));
+			pushPanelVoteUpdate(origin);
+		}
+		pushOutUIEvent(new UIEvent.JuryDisplayReset(origin, this));
+	}
+
 	private void pushPanelVoteUpdate(Object origin) {
 		pushPanelVoteUpdate(origin, null);
 	}
@@ -1812,6 +1848,13 @@ public class FieldOfPlay implements IUnregister {
 	 */
 	public boolean isPanelVoteComplete() {
 		return this.panelVoteMajority != null;
+	}
+
+	/**
+	 * @return the result of the review vote (true = good lift) once all have voted, null before
+	 */
+	public Boolean getPanelVoteMajority() {
+		return this.panelVoteMajority;
 	}
 
 	/**
@@ -2290,6 +2333,16 @@ public class FieldOfPlay implements IUnregister {
 		this.juryDecisionHoldMs = holdMs;
 	}
 
+	/** Tests: the attempt boards' jury decision card has gone away (the 5 s have elapsed). */
+	public void expireJuryDecisionCardForTests() {
+		this.juryDecisionCardVisibleUntil = 0;
+	}
+
+	/** @return true while the attempt boards show the jury decision card of a four-member jury */
+	public boolean isJuryDecisionCardShown() {
+		return System.currentTimeMillis() < this.juryDecisionCardVisibleUntil;
+	}
+
 	public void setVideoChampionship(Championship videoChampionship) {
 		this.videoChampionship = videoChampionship;
 	}
@@ -2667,10 +2720,15 @@ public class FieldOfPlay implements IUnregister {
 			cancelDecisionReset();
 			Integer curValue = Math.abs(actualLift);
 
-			// Four-member jury: anything other than the result of the review vote was entered by the Jury Chair
-			boolean chairEntered = isSevenPersonAdjudication()
-			        && !(this.panelVoteMajority != null && this.panelVoteMajority.equals(e.success));
-			if (this.panelVoteOpen) {
+			// Four-member jury: the Chair used the Good Lift / No Lift buttons instead of the result of a jury vote.
+			// A button decision equal to the result of a completed vote (e.g. the Chair reopened the rule dialog after
+			// a No Lift vote) is the vote's decision.
+			boolean matchesVote = this.panelVoteMajority != null && this.panelVoteMajority.equals(e.success);
+			boolean chairEntered = isSevenPersonAdjudication() && e.isChairEntered() && !matchesVote;
+			if (chairEntered) {
+				// the Chair's decision replaces whatever the jury had voted: clear the votes everywhere
+				clearJuryVotesForChairDecision(e.getOrigin());
+			} else if (this.panelVoteOpen) {
 				if (this.panelVoteMajority != null && !this.panelVotePubliclyRevealed) {
 					// public boards reveal the complete vote together with the decision (and rule for a No Lift)
 					revealPanelVotePublicly(e.getOrigin());
@@ -2728,6 +2786,9 @@ public class FieldOfPlay implements IUnregister {
 			setGoodLift(e.success);
 			setState(DECISION_VISIBLE);
 			this.juryDecisionShown = true;
+			if (isSevenPersonAdjudication()) {
+				this.juryDecisionCardVisibleUntil = System.currentTimeMillis() + JURY_DECISION_CARD_MS;
+			}
 			if (isSevenPersonAdjudication()) {
 				this.logger.info("{}jury decision {} for {}{}", FieldOfPlay.getLoggingName(this),
 				        e.success ? "good lift" : "no lift", a, chairEntered ? " (entered by the Jury Chair)" : "");
@@ -2926,7 +2987,8 @@ public class FieldOfPlay implements IUnregister {
 					}
 					if (this.juryReview) {
 						// without VPT: a unanimous jury stopped the competition. The jury votes are kept (they are
-						// cleared when the Chair calls for votes); the jury may call the referees itself (7.5.8).
+						// cleared when the Chair calls for votes). Summoning the referees is the Chair's decision
+						// (7.5.8), so no automatic SummonRef here; Jury Control prompts for it.
 						capturePanelReviewInitialVotes();
 						pushOutUIEvent(new UIEvent.JuryNotification(this.athleteUnderReview, this,
 						        JuryDeliberationEventType.START_DELIBERATION, null, null, false, this, null));

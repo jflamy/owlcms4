@@ -431,8 +431,9 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		private void postFopEventJuryDecision(String topic, String messageStr) {
 			messageStr = messageStr.trim();
 			try {
+				// the physical jury box's Good Lift / No Lift buttons are the Jury Chair entering the decision
 				postDeviceEvent(new FOPEvent.JuryDecision(this.athleteUnderReview, this,
-						messageStr.contentEquals("good"), true), "JURY_CONSOLE", null, "jurybox");
+						messageStr.contentEquals("good"), true, null, true), "JURY_CONSOLE", null, "jurybox");
 			} catch (NumberFormatException e) {
 				logger.error("{}Malformed MQTT jury decision message topic='{}' message='{}'",
 						FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);

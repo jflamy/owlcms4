@@ -48,9 +48,17 @@ things differ:
   stops the competition automatically, like the 7-person majority with VPT.
 - **Majority rule.** The second vote reverses only if the four jurors are
   unanimous; otherwise the referees' decision stands.
-- **Who votes.** The referees are not summoned and do not vote again: Call for
-  Votes (or Summon all on the keypad) reopens the four jury votes only. The
-  referees' initial decision is revealed with the jury votes.
+- **Who votes.** The referees do not vote again: Call for Votes (or Summon all
+  on the keypad) reopens the four jury votes only; the referee devices are not
+  re-armed. The referees' initial decision is revealed with the jury votes.
+- **Summoning the referees.** Calling the referees is the Chair's decision
+  (7.5.8): neither the manual nor the automatic (`automaticBreakNoVPT`) break
+  summons them. Jury Control prompts the Chair in Phase A: **Summon Referees**
+  turns orange (same as Call for Votes) when the four jury votes on the lift
+  are unanimously opposite to the referees, and returns to normal once the
+  deliberation has started. During the break, Summon Referees (all) acts as
+  Call for Votes, as with VPT; the individual referee buttons summon one
+  referee.
 
 The break is titled "Jury Deliberation" (not "Adjudication Panel Review").
 The manual fallback, the rule for a No Lift, the automatic sending and the
@@ -406,17 +414,18 @@ Step B2, the Chair calls for the vote (second, explicit referee recall):
   votes cleared, all referees buzzed). The per-referee Re-call buttons on the
   Waiting for Votes screen re-buzz one referee who has not voted, without
   clearing anything.
-- Votes are hidden until all 7 are in. At the last vote, Jury Control and the
-  physical jury box reveal all referee and jury votes red/white so the jury can
-  record them. Public boards remain hidden: a Good Lift is shown publicly
-  after the 1.5 s grace (revalidated), a No Lift only once the Jury Chair has
-  given the technical rule (reason 17 "Other" is available), so that the rule
-  is shown with the result on the scoreboards. The decision is shown publicly
-  for 3.5 s and lifting resumes (the attempt board jury card lasts 5 s), but
-  the revealed votes remain visible on Jury Control and the physical jury box
-  until explicit Resume/clear or the next athlete clock starts. A
-  `PanelVoteUpdate` distinguishes the private jury reveal from the later
-  public reveal.
+- Votes are hidden until all 7 are in (displays show who has voted in gray).
+  At the last vote, Jury Control, the physical jury box, the attempt board
+  and the scoreboards all reveal the referee and jury votes red/white. The
+  decision follows: a Good Lift after the 1.5 s grace (revalidated), a No
+  Lift once the Jury Chair has given the technical rule (reason 17 "Other" is
+  available); the scoreboards then show "No Lift – rule" (TCRR 7.5.7). The
+  decision is shown for 3.5 s and lifting resumes (the attempt board jury
+  card lasts 5 s), but the revealed votes remain visible on Jury Control and
+  the physical jury box until explicit Resume/clear or the next athlete clock
+  starts. `PanelVoteUpdate.isPublicReveal()` marks the update sent when the
+  decision is applied (used by MQTT so that the individual referee lights
+  are not sent twice).
 - Final decision: the panel majority, computed only when all 7 have voted
   (no early result, section 2). Reuse `scheduleAutoJuryDecision` with the
   7-vote tally (1.5 s grace, revalidated) instead of `effectiveJuryVerdict`.
@@ -442,7 +451,15 @@ Step B2, the Chair calls for the vote (second, explicit referee recall):
 - **Override is marked.** A decision entered through the Chair override is
   flagged on the attempt and shown as **"Jury Chair Entered Decision"** on the
   announcer / Competition Supervisor notification (and in the jury
-  deliberation record), so it is never mistaken for a panel vote. The
+  deliberation record), so it is never mistaken for a panel vote. "Chair
+  entered" means exactly that the Chair used the **Good Lift / No Lift**
+  buttons (Jury Control or the physical jury box) instead of a vote; a No Lift
+  that results from a vote, for which the Chair only supplies the rule, is not
+  marked, even if the Chair reopens the rule dialog with the No Lift button. A
+  button decision that contradicts a completed vote is marked. A Chair-entered decision **clears the jury votes everywhere** (review
+  vote cells, jury circles, Phase A pattern, physical jury box) before the
+  decision card, so that nothing contradicting the Chair's decision stays on
+  display. The
   Technical Controller normally states the reason verbally; OWLCMS does not
   ask for one beyond the No Lift rule.
 - No Lift needs a technical rule (G5). A Good Lift is posted automatically.

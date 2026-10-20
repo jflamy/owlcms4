@@ -77,6 +77,21 @@ public class DecisionBlockState {
 		/** Remove the jury circles entirely (not even empty placeholders). */
 		void renderNoJuryCircles();
 
+		/**
+		 * Review vote in progress: the three referee cells show who has voted (gray), never the value.
+		 *
+		 * @param voted one flag per referee
+		 */
+		void renderVotedRefereeLights(boolean[] voted);
+
+		/**
+		 * Review vote in progress: the jury circles show who has voted (gray), never the value, even once all have
+		 * voted.
+		 *
+		 * @param voted one flag per jury member
+		 */
+		void renderVotedJuryCircles(boolean[] voted);
+
 		/** Deliberation / challenge label. */
 		void renderJuryMessage(JuryDeliberationEventType type);
 
@@ -109,8 +124,20 @@ public class DecisionBlockState {
 	private String juryVerdictRule;
 	/** seven-person panel review vote in progress: votes stay hidden until all seven are in */
 	private boolean panelVoting;
+	/** review vote in progress: who has voted (3 referees then the jury members), null when unknown */
+	private boolean[] panelVoted;
+	/**
+	 * Four-member jury: during the review break, until the vote is called, the jury votes that led to the review are
+	 * shown together with the referees' decision (same as the attempt board).
+	 */
+	private boolean initialVotesShown;
 	/** the seven review votes have been revealed (shown even when the second vote is not public) */
 	private boolean panelRevealed;
+	/**
+	 * Four-member jury: lifting resumed automatically after the verdict was shown; the verdict stays visible until the
+	 * review timeout, the clock start, an explicit Resume, a break or the next referee decision.
+	 */
+	private boolean verdictLingering;
 
 	public DecisionBlockState(DecisionSectionRenderer renderer) {
 		this.renderer = renderer;
@@ -138,8 +165,21 @@ public class DecisionBlockState {
 	 * the reviewed decision is controlled by the deliberation itself.
 	 */
 	public void onRefereeDecision(Athlete athlete, RefLights lights) {
-		if (this.state == State.DELIBERATION) {
+		if (this.state == State.DELIBERATION && !this.verdictLingering) {
 			return;
+		}
+		if (this.verdictLingering) {
+			// a new lift replaces the lingering verdict
+			this.verdictLingering = false;
+			this.renderer.cancelReviewTimeout();
+			this.deliberationType = null;
+			this.juryVerdictGood = null;
+			this.juryVerdictRule = null;
+			this.juryVotes = null;
+			this.panelVoting = false;
+			this.panelVoted = null;
+			this.initialVotesShown = false;
+			this.panelRevealed = false;
 		}
 		this.reviewedAthlete = athlete;
 		this.refLights = lights;
@@ -175,21 +215,38 @@ public class DecisionBlockState {
 
 	/** The review timeout expired: keeping the previous athlete visible would confuse the audience. */
 	public void onReviewTimeout() {
-		if (this.state == State.DECISION) {
+		if (this.state == State.DECISION || (this.state == State.DELIBERATION && this.verdictLingering)) {
 			toReady();
 		}
 	}
 
 	/** A jury deliberation or challenge started. Shows the athlete under review and clears circles. */
 	public void onDeliberationStart(JuryDeliberationEventType type, Athlete athleteUnderReview, RefLights reviewedLights) {
+		onDeliberationStart(type, athleteUnderReview, reviewedLights, null);
+	}
+
+	/**
+	 * A jury deliberation or challenge started.
+	 *
+	 * @param initialJuryVotes four-member jury: the jury votes that led to the review, shown with the referees'
+	 *                         decision until the vote is called; null to clear the circles
+	 */
+	public void onDeliberationStart(JuryDeliberationEventType type, Athlete athleteUnderReview, RefLights reviewedLights,
+	        Boolean[] initialJuryVotes) {
 		this.deliberationType = type;
 		this.reviewedAthlete = athleteUnderReview;
 		this.refLights = reviewedLights;
-		this.juryVotes = null;
+		this.initialVotesShown = initialJuryVotes != null;
+		this.juryVotes = copyOf(initialJuryVotes);
+		if (initialJuryVotes != null) {
+			this.jurySize = initialJuryVotes.length;
+		}
 		this.juryVerdictGood = null;
 		this.juryVerdictRule = null;
 		this.panelVoting = false;
+		this.panelVoted = null;
 		this.panelRevealed = false;
+		this.verdictLingering = false;
 		this.state = State.DELIBERATION;
 		render();
 	}
@@ -201,17 +258,32 @@ public class DecisionBlockState {
 	 * @param juryVotes    the four jury votes, null while the vote is in progress
 	 */
 	public void onPanelVote(RefLights reviewLights, Boolean[] juryVotes) {
+		onPanelVote(reviewLights, juryVotes, null);
+	}
+
+	/**
+	 * Seven-person Adjudication Panel review vote (during a deliberation or challenge).
+	 *
+	 * @param reviewLights the referees' review votes and the panel majority, null while the vote is in progress
+	 * @param juryVotes    the four jury votes, null while the vote is in progress
+	 * @param voted        while the vote is in progress, who has voted (3 referees then the jury members): shown as
+	 *                     gray cells; null to show nothing
+	 */
+	public void onPanelVote(RefLights reviewLights, Boolean[] juryVotes, boolean[] voted) {
 		if (this.state != State.DELIBERATION) {
 			return;
 		}
+		this.initialVotesShown = false;
 		if (reviewLights == null) {
-			// vote called or in progress: nothing is shown until the seven votes are revealed together
+			// vote called or in progress: who has voted is shown, the values are revealed together at the end
 			this.panelVoting = true;
 			this.panelRevealed = false;
+			this.panelVoted = voted == null ? null : Arrays.copyOf(voted, voted.length);
 			this.refLights = null;
 			this.juryVotes = null;
 		} else {
 			this.panelVoting = false;
+			this.panelVoted = null;
 			this.panelRevealed = true;
 			this.refLights = reviewLights;
 			this.juryVotes = copyOf(juryVotes);
@@ -230,9 +302,10 @@ public class DecisionBlockState {
 	 * the verdict on the confirming notification ({@code waitForAnnouncer == false}), which the
 	 * announcer's button press — or the automatic outcome — produces.
 	 * <p>
-	 * It returns to ready only when the announcer resumes competition ({@link #onStartLifting()}); in
-	 * the automatic mode the FOP posts start-lifting on its own, which returns the block to ready
-	 * through the same path.
+	 * It returns to ready when the announcer resumes competition ({@link #onStartLifting()}). For a four-member
+	 * jury the FOP posts start-lifting on its own 3.5 s after the decision; the verdict then stays until the review
+	 * timeout or an earlier clock start, explicit Resume, break or referee decision
+	 * ({@link #onStartLifting(boolean)}).
 	 */
 	public void onJuryVerdict(boolean good, boolean waitForAnnouncer) {
 		onJuryVerdict(good, waitForAnnouncer, null);
@@ -263,6 +336,26 @@ public class DecisionBlockState {
 
 	/** The announcer resumed competition (or the automatic mode resumed it). Return to ready. */
 	public void onStartLifting() {
+		onStartLifting(false);
+	}
+
+	/**
+	 * @param keepVerdict four-member jury: if a jury verdict is shown, keep it visible and start the review timeout
+	 *                    instead of returning to ready at once
+	 */
+	public void onStartLifting(boolean keepVerdict) {
+		if (keepVerdict && this.state == State.DELIBERATION && this.juryVerdictGood != null) {
+			if (!this.verdictLingering) {
+				this.verdictLingering = true;
+				this.renderer.scheduleReviewTimeout();
+			}
+			return;
+		}
+		toReady();
+	}
+
+	/** An explicit Resume cleared the jury cycle: return to ready at once. */
+	public void onJuryDisplayReset() {
 		toReady();
 	}
 
@@ -317,7 +410,10 @@ public class DecisionBlockState {
 		this.juryVerdictGood = null;
 		this.juryVerdictRule = null;
 		this.panelVoting = false;
+		this.panelVoted = null;
+		this.initialVotesShown = false;
 		this.panelRevealed = false;
+		this.verdictLingering = false;
 		render();
 	}
 
@@ -347,10 +443,21 @@ public class DecisionBlockState {
 				this.renderer.renderNoJuryMessage();
 				break;
 			case DELIBERATION:
-				this.renderer.cancelReviewTimeout();
+				if (!this.verdictLingering) {
+					this.renderer.cancelReviewTimeout();
+				}
 				this.renderer.renderAthleteUnderReview(this.reviewedAthlete);
-				renderRefereeLightsOrEmpty();
-				if (this.showBothJuryVotes || this.panelRevealed) {
+				if (this.panelVoting && this.panelVoted != null) {
+					int nbRefs = Math.min(3, this.panelVoted.length);
+					this.renderer.renderVotedRefereeLights(Arrays.copyOfRange(this.panelVoted, 0, nbRefs));
+					this.renderer.renderVotedJuryCircles(
+					        Arrays.copyOfRange(this.panelVoted, nbRefs, this.panelVoted.length));
+				} else {
+					renderRefereeLightsOrEmpty();
+				}
+				if (this.panelVoting && this.panelVoted != null) {
+					// already drawn above
+				} else if (this.showBothJuryVotes || this.panelRevealed || this.initialVotesShown) {
 					this.renderer.renderJuryCircles(this.juryVotes, this.jurySize);
 				} else {
 					this.renderer.renderNoJuryCircles();

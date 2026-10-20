@@ -85,7 +85,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	protected final static Logger logger = (Logger) LoggerFactory.getLogger(AbstractAttemptBoard.class);
 	protected final static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-	private static final int JURY_NOTIFICATION_DIALOG_DURATION_MS = 5000;
+	private static final int JURY_NOTIFICATION_DIALOG_DURATION_MS = (int) FieldOfPlay.JURY_DECISION_CARD_MS;
 	private static final DateTimeFormatter CLIENT_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")
 			.withZone(ZoneId.systemDefault());
 

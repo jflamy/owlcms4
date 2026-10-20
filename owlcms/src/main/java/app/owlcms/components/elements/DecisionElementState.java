@@ -240,17 +240,30 @@ public class DecisionElementState {
 		publishPanelVote(e, voted, null);
 	}
 
-	/** Who has voted, then the seven votes revealed together. */
+	/**
+	 * Who has voted, then the seven votes revealed together. The attempt board reveals the vote as soon as it is
+	 * complete, before the Jury Chair gives the rule; only the scoreboards wait for the decision.
+	 */
 	@Subscribe
 	public void slavePanelVoteUpdate(UIEvent.PanelVoteUpdate e) {
 		if (!e.isOpen() && !e.isComplete()) {
 			// the vote was cancelled or abandoned
-			long generation = nextGeneration();
-			setResetSnapshot(generation);
-			this.renderer.resetDecisionDisplay(e, generation);
+			resetForJury(e);
 			return;
 		}
-		publishPanelVote(e, e.getVoted(), e.isPublicReveal() ? e.getVotes() : null);
+		publishPanelVote(e, e.getVoted(), e.getVotes());
+	}
+
+	/** Resume, or a decision entered by the Jury Chair: whatever the jury had voted goes away. */
+	@Subscribe
+	public void slaveJuryDisplayReset(UIEvent.JuryDisplayReset e) {
+		resetForJury(e);
+	}
+
+	private void resetForJury(UIEvent e) {
+		long generation = nextGeneration();
+		setResetSnapshot(generation);
+		this.renderer.resetDecisionDisplay(e, generation);
 	}
 
 	private void publishPanelVote(UIEvent e, boolean[] voted, Boolean[] votes) {

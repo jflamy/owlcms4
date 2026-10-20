@@ -535,17 +535,25 @@ public class FOPEvent {
 		/** if true, the decision comes from the jury box, not from the announcer having been told */
 		private boolean juryButton;
 		private Integer reasonCode;
+		/** true when the Jury Chair used the Good Lift / No Lift buttons instead of the result of a jury vote */
+		private boolean chairEntered;
 
 		public JuryDecision(Athlete athlete, Object origin, boolean decision, boolean juryButton) {
 			this(athlete, origin, decision, juryButton, null);
 		}
 
 		public JuryDecision(Athlete athlete, Object origin, boolean decision, boolean juryButton, Integer reasonCode) {
+			this(athlete, origin, decision, juryButton, reasonCode, false);
+		}
+
+		public JuryDecision(Athlete athlete, Object origin, boolean decision, boolean juryButton, Integer reasonCode,
+		        boolean chairEntered) {
 			super(athlete, origin);
 			logger.trace("jury decision for {}", athlete);
 			this.success = decision;
 			this.juryButton = juryButton;
 			this.reasonCode = reasonCode;
+			this.chairEntered = chairEntered;
 		}
 
 		@Override
@@ -575,6 +583,11 @@ public class FOPEvent {
 		/** @return the jury's No Lift reason code, null if none was given */
 		public Integer getReasonCode() {
 			return this.reasonCode;
+		}
+
+		/** @return true when the Jury Chair entered the decision directly rather than through a jury vote */
+		public boolean isChairEntered() {
+			return this.chairEntered;
 		}
 
 	}

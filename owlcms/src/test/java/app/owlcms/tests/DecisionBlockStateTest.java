@@ -12,6 +12,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
@@ -66,6 +67,21 @@ public class DecisionBlockStateTest {
 		@Override
 		public void renderNoJuryCircles() {
 			this.calls.add("noJuryCircles");
+		}
+
+		boolean[] votedRefs;
+		boolean[] votedJury;
+
+		@Override
+		public void renderVotedRefereeLights(boolean[] voted) {
+			this.calls.add("votedRefLights");
+			this.votedRefs = voted;
+		}
+
+		@Override
+		public void renderVotedJuryCircles(boolean[] voted) {
+			this.calls.add("votedJuryCircles");
+			this.votedJury = voted;
 		}
 
 		@Override
@@ -146,6 +162,62 @@ public class DecisionBlockStateTest {
 		assertTrue(this.renderer.calls.contains("refLights"));
 		assertTrue(this.renderer.calls.contains("juryCircles"));
 		assertEquals(State.DELIBERATION, this.state.getState());
+	}
+
+	@Test
+	public void reviewBreakShowsTheJuryVotesThatLedToItUntilTheVoteIsCalled() {
+		this.state.setJurySize(4);
+		this.state.setShowBothJuryVotes(false);
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true),
+		        new Boolean[] { false, false, false, false });
+		assertTrue("referee lights", this.renderer.calls.contains("refLights"));
+		assertTrue("jury votes shown even when the second vote is not public",
+		        this.renderer.calls.contains("juryCircles"));
+
+		// Call for Votes: the cells are cleared
+		this.renderer.clear();
+		this.state.onPanelVote(null, null, new boolean[7]);
+		assertTrue(this.renderer.calls.contains("votedRefLights"));
+		assertTrue(this.renderer.calls.contains("votedJuryCircles"));
+		assertFalse(this.renderer.calls.contains("juryCircles"));
+		assertFalse(this.renderer.calls.contains("refLights"));
+	}
+
+	@Test
+	public void ordinaryDeliberationStillClearsTheJuryCircles() {
+		this.state.setShowBothJuryVotes(false);
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		assertTrue(this.renderer.calls.contains("noJuryCircles"));
+		assertFalse(this.renderer.calls.contains("juryCircles"));
+	}
+
+	@Test
+	public void panelReviewVoteShowsWhoHasVotedInGray() {
+		this.state.setJurySize(4);
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.renderer.clear();
+
+		boolean[] voted = { true, false, true, true, true, true, true };
+		this.state.onPanelVote(null, null, voted);
+		assertTrue(this.renderer.calls.contains("votedRefLights"));
+		assertTrue(this.renderer.calls.contains("votedJuryCircles"));
+		assertFalse("never the values", this.renderer.calls.contains("refLights"));
+		assertFalse("never the values", this.renderer.calls.contains("juryCircles"));
+		assertTrue(Arrays.equals(new boolean[] { true, false, true }, this.renderer.votedRefs));
+		assertTrue(Arrays.equals(new boolean[] { true, true, true, true }, this.renderer.votedJury));
+		assertTrue("the review label stays", this.renderer.calls.contains("juryMessage"));
+
+		// a jury update during the vote does not disclose anything
+		this.renderer.clear();
+		this.state.onJuryUpdate(new Boolean[] { false, false, false, false }, 4);
+		assertFalse(this.renderer.calls.contains("juryCircles"));
+
+		// the public reveal replaces the gray cells with the values
+		this.renderer.clear();
+		this.state.onPanelVote(lights(false), new Boolean[] { false, false, false, true }, null);
+		assertTrue(this.renderer.calls.contains("refLights"));
+		assertTrue(this.renderer.calls.contains("juryCircles"));
+		assertFalse(this.renderer.calls.contains("votedRefLights"));
 	}
 
 	@Test
@@ -286,6 +358,65 @@ public class DecisionBlockStateTest {
 		assertEquals(State.DELIBERATION, this.state.getState());
 		this.state.onStartLifting();
 		assertEquals(State.READY, this.state.getState());
+	}
+
+	@Test
+	public void fourMemberVerdictLingersAfterAutomaticResumeUntilTimeout() {
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.state.onJuryVerdict(false, false, "3 - rule");
+		int schedules = this.renderer.scheduleCount;
+		this.renderer.clear();
+		this.state.onStartLifting(true);
+		assertEquals("the verdict stays after the automatic resume", State.DELIBERATION, this.state.getState());
+		assertEquals("the review timeout starts", schedules + 1, this.renderer.scheduleCount);
+		assertFalse(this.renderer.calls.contains("readyClock"));
+		this.state.onReviewTimeout();
+		assertEquals(State.READY, this.state.getState());
+	}
+
+	@Test
+	public void lingeringVerdictSurvivesTheResyncsThatFollowTheResume() {
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.state.onJuryVerdict(false, false, "11 - rule");
+		int schedules = this.renderer.scheduleCount;
+		this.renderer.clear();
+		// the scoreboard receives StartLifting then SwitchGroup; each re-syncs with the FOP before the handler runs
+		this.state.onStartLifting(true);
+		this.state.onStartLifting(true);
+		this.state.onStartLifting(true);
+		assertEquals("the verdict stays", State.DELIBERATION, this.state.getState());
+		assertFalse(this.renderer.calls.contains("readyClock"));
+		assertEquals("one review timeout", schedules + 1, this.renderer.scheduleCount);
+	}
+
+	@Test
+	public void lingeringVerdictEndsOnClockStartOrResumeOrNextDecision() {
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.state.onJuryVerdict(true, false);
+		this.state.onStartLifting(true);
+		this.state.onStartTime();
+		assertEquals("clock start", State.READY, this.state.getState());
+
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.state.onJuryVerdict(true, false);
+		this.state.onStartLifting(true);
+		this.state.onJuryDisplayReset();
+		assertEquals("explicit Resume", State.READY, this.state.getState());
+
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.state.onJuryVerdict(true, false);
+		this.state.onStartLifting(true);
+		this.renderer.clear();
+		this.state.onRefereeDecision(null, lights(false));
+		assertEquals("next lift replaces it", State.DECISION, this.state.getState());
+		assertTrue("its timeout is cancelled", this.renderer.calls.contains("cancelTimeout"));
+	}
+
+	@Test
+	public void fourMemberResumeWithoutVerdictReturnsToReady() {
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.state.onStartLifting(true);
+		assertEquals("break ended before a verdict", State.READY, this.state.getState());
 	}
 
 	@Test

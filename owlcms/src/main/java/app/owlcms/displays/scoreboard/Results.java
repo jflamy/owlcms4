@@ -6,7 +6,9 @@
  *******************************************************************************/
 package app.owlcms.displays.scoreboard;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -298,14 +300,57 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 			JuryDeliberationEventType type = breakType == BreakType.CHALLENGE
 			        ? JuryDeliberationEventType.CHALLENGE
 			        : JuryDeliberationEventType.START_DELIBERATION;
-			this.decisionBlock.onDeliberationStart(type, fop.getAthleteUnderReview(), computeRefLights(fop));
-			this.decisionBlock.onJuryUpdate(fop.getJuryMemberDecision(), fop.getJurySize());
+			Boolean[] initialJury = initialJuryVotes(fop);
+			this.decisionBlock.onDeliberationStart(type, fop.getAthleteUnderReview(), computeRefLights(fop),
+			        initialJury);
+			if (fop.isPanelVoteOpen() && fop.isPanelVoteComplete()) {
+				// the vote is complete: the seven votes are shown, the decision follows
+				Boolean[] refs = fop.getReviewRefereeDecision();
+				Boolean[] jury = fop.getJuryMemberDecision();
+				this.decisionBlock.onPanelVote(
+				        new DecisionBlockState.RefLights(fop.getPanelVoteMajority(), refs[0], refs[1], refs[2], false,
+				                false),
+				        Arrays.copyOf(jury, AdjudicationPanel.NB_JURORS));
+			} else if (fop.isPanelVoteOpen()) {
+				this.decisionBlock.onPanelVote(null, null, panelVoted(fop));
+			} else if (initialJury == null) {
+				this.decisionBlock.onJuryUpdate(fop.getJuryMemberDecision(), fop.getJurySize());
+			}
 		} else if (fop.getState() == FOPState.DECISION_VISIBLE) {
 			this.decisionBlock.onRefereeDecision(fop.getAthleteUnderReview(), computeRefLights(fop));
 			this.decisionBlock.onJuryUpdate(fop.getJuryMemberDecision(), fop.getJurySize());
 		} else {
-			this.decisionBlock.onStartLifting();
+			// Same rule as the StartLifting handler: a four-member jury verdict stays until the review timeout. This
+			// re-sync runs on every StartLifting and SwitchGroup, so it must not undo the lingering verdict.
+			this.decisionBlock.onStartLifting(fop.getState() == FOPState.CURRENT_ATHLETE_DISPLAYED
+			        && fop.isSevenPersonAdjudication());
 		}
+	}
+
+	/**
+	 * Four-member jury review break: the jury votes that led to the review, shown with the referees' decision until
+	 * the vote is called (same as the attempt board). Null when there is no such pattern.
+	 */
+	private static Boolean[] initialJuryVotes(FieldOfPlay fop) {
+		Boolean[] votes = fop != null ? fop.getPanelReviewInitialVotes() : null;
+		if (votes == null || votes.length < AdjudicationPanel.PANEL_SIZE) {
+			return null;
+		}
+		return Arrays.copyOfRange(votes, AdjudicationPanel.NB_REFEREES, AdjudicationPanel.PANEL_SIZE);
+	}
+
+	/** who has voted in the review vote in progress (3 referees then the jury members) */
+	private static boolean[] panelVoted(FieldOfPlay fop) {
+		boolean[] voted = new boolean[AdjudicationPanel.PANEL_SIZE];
+		Boolean[] referees = fop.getReviewRefereeDecision();
+		Boolean[] jury = fop.getJuryMemberDecision();
+		for (int i = 0; i < AdjudicationPanel.NB_REFEREES; i++) {
+			voted[i] = referees != null && i < referees.length && referees[i] != null;
+		}
+		for (int i = 0; i < AdjudicationPanel.NB_JURORS; i++) {
+			voted[AdjudicationPanel.NB_REFEREES + i] = jury != null && i < jury.length && jury[i] != null;
+		}
+		return voted;
 	}
 
 	private void setJuryLightsHidden(boolean hidden) {
@@ -441,6 +486,29 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 	}
 
 	@Override
+	public void renderVotedRefereeLights(boolean[] voted) {
+		if (this.dsRefereeDecisions == null) {
+			return;
+		}
+		setRefereeLightsHidden(false);
+		List<String> states = new ArrayList<>(voted.length);
+		for (boolean v : voted) {
+			states.add(v ? "voted" : "empty");
+		}
+		this.dsRefereeDecisions.showPanelRefereeStates(states);
+	}
+
+	@Override
+	public void renderVotedJuryCircles(boolean[] voted) {
+		setJuryLightsHidden(false);
+		ArrayNode jsonDecisions = JsonUtils.array();
+		for (int i = 0; i < voted.length; i++) {
+			JsonUtils.set(jsonDecisions, i, voted[i] ? "voted" : "empty");
+		}
+		this.getElement().setPropertyJson("juryDecisions", jsonDecisions);
+	}
+
+	@Override
 	public void renderNoJuryCircles() {
 		setJuryLightsHidden(true);
 		this.getElement().setPropertyJson("juryDecisions", JsonUtils.array());
@@ -550,16 +618,21 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		});
 	}
 
-	/** Seven-person Adjudication Panel review vote: hidden while in progress, then the seven votes together. */
+	/**
+	 * Seven-person Adjudication Panel review vote: who has voted in gray while in progress, then the seven votes
+	 * together as soon as the last vote is in (same as the attempt board). The verdict label (with the rule for a No
+	 * Lift) follows with the decision.
+	 */
 	@Subscribe
 	public void slavePanelVoteUpdate(UIEvent.PanelVoteUpdate e) {
 		if (!isDecisionSectionEnabled() || (!e.isOpen() && !e.isComplete())) {
 			return;
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			Boolean[] votes = e.isPublicReveal() ? e.getVotes() : null;
+			Boolean[] votes = e.getVotes();
 			if (votes == null) {
-				this.decisionBlock.onPanelVote(null, null);
+				// who has voted is shown in gray, the values wait for the decision
+				this.decisionBlock.onPanelVote(null, null, e.getVoted());
 				return;
 			}
 			DecisionBlockState.RefLights reviewLights = new DecisionBlockState.RefLights(e.getMajority(), votes[0],
@@ -584,7 +657,8 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 			case CHALLENGE:
 				Athlete athleteUnderReview = e.getAthlete() != null ? e.getAthlete()
 				        : (fop != null ? fop.getAthleteUnderReview() : null);
-				this.decisionBlock.onDeliberationStart(type, athleteUnderReview, computeRefLights(fop));
+				this.decisionBlock.onDeliberationStart(type, athleteUnderReview, computeRefLights(fop),
+				        initialJuryVotes(fop));
 				break;
 			case GOOD_LIFT:
 			case BAD_LIFT:
@@ -612,7 +686,19 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		if (!isDecisionSectionEnabled()) {
 			return;
 		}
-		this.decisionBlock.onStartLifting();
+		FieldOfPlay fop = getFop();
+		// four-member jury: the verdict stays until the review timeout (or an earlier clock start, Resume, break)
+		this.decisionBlock.onStartLifting(fop != null && fop.isSevenPersonAdjudication());
+	}
+
+	/** An explicit Resume (Jury Control or jury box) cleared the jury cycle. */
+	@Subscribe
+	public void slaveJuryDisplayReset(UIEvent.JuryDisplayReset e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			if (isDecisionSectionEnabled()) {
+				this.decisionBlock.onJuryDisplayReset();
+			}
+		});
 	}
 
 	/**

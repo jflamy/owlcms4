@@ -937,7 +937,8 @@ public class UIEvent {
 		public JuryUpdate(Object origin, boolean collective, Boolean[] juryMemberDecision, int jurySize, FieldOfPlay fop) {
 			super(origin, fop);
 			this.collective = collective;
-			this.juryMemberDecision = juryMemberDecision;
+			// snapshot: the FOP keeps updating its array while this event is delivered asynchronously
+			this.juryMemberDecision = juryMemberDecision == null ? null : juryMemberDecision.clone();
 			this.jurySize = jurySize;
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
@@ -948,7 +949,7 @@ public class UIEvent {
 			super(origin, fop);
 			this.collective = null;
 			this.juryMemberUpdated = i;
-			this.juryMemberDecision = juryMemberDecision2;
+			this.juryMemberDecision = juryMemberDecision2 == null ? null : juryMemberDecision2.clone();
 			this.jurySize = jurySize;
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());

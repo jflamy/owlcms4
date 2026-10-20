@@ -9,6 +9,7 @@ package app.owlcms.data.config;
 public enum FeatureSwitchSection {
 	USER_INTERFACE_OVERRIDE("FeatureSwitchSection.UserInterfaceOverride"),
 	SCOREBOARD_OPTIONS("FeatureSwitchSection.ScoreboardOptions"),
+	JURY_OPTIONS("FeatureSwitchSection.JuryOptions"),
 	GENERAL_OPTIONS("FeatureSwitchSection.GeneralOptions"),
 	SPECIALTY_FEATURES("FeatureSwitchSection.SpecialtyFeatures"),
 	CURRENT_FEATURES("FeatureSwitchSection.CurrentFeatures"),

@@ -64,6 +64,7 @@ import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.AdjudicationPanel;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.fieldofplay.InputKind;
@@ -119,6 +120,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	 */
 	private boolean panelMode;
 	private Button callForVotesButton;
+	private Button allSummonButton;
 	private Dialog noLiftReasonDialog;
 	private boolean reasonDialogOpenedForVote;
 	private Location location;
@@ -200,7 +202,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	public void slaveJuryRuleRequired(UIEvent.JuryRuleRequired e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			if (this.noLiftReasonDialog == null || !this.noLiftReasonDialog.isOpened()) {
-				openNoLiftReasonDialog();
+				openNoLiftReasonDialog(false);
 			}
 		});
 	}
@@ -233,7 +235,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			if (Boolean.FALSE.equals(e.getMajority()) && !this.reasonDialogOpenedForVote) {
 				// a No Lift by the panel needs the technical rule from the Chair
 				this.reasonDialogOpenedForVote = true;
-				openNoLiftReasonDialog();
+				openNoLiftReasonDialog(false);
 			}
 		});
 	}
@@ -295,6 +297,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		Boolean[] decision = e.getJuryMemberDecision();
 		Integer juryMember = e.getJuryMemberUpdated();
 		Boolean goodBad = juryMember != null ? decision[juryMember] : null;
+		// the summon prompt depends on all the votes, including this page's own
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> updateSummonAllButton(fop));
 		if (juryMember != null && goodBad != null) {
 			UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this, () -> {
 				juryVote(juryMember, goodBad, false);
@@ -576,6 +580,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		// --- Row 4: calls to the officials: referees, and the technical controller (technical issue) ---
 		Button allSummon = createKeypadButton(Translator.translate("JuryKeypad.SummonReferees"), "contrast", () -> summonReferee(0));
 		styleSummonButton(allSummon);
+		this.allSummonButton = allSummon;
 		allSummon.getStyle().set("grid-column", "1").set("grid-row", "4");
 		Button leftSummon = createKeypadButton(Translator.translate("JuryKeypad.LeftRefereeSummon"), "contrast", () -> summonReferee(1));
 		styleSummonButton(leftSummon);
@@ -656,10 +661,11 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		resumeBtn.getStyle().set("grid-column", "5").set("grid-row", "8");
 		this.deliberationButton = deliberate;
 		this.challengeButton = challenge;
+		// the Good Lift / No Lift buttons are the Jury Chair entering the decision instead of a jury vote
 		this.noLiftButton = createKeypadButton(Translator.translate("JuryDialog.BadLiftLabel"), "error primary",
-		        this::openNoLiftReasonDialog);
+		        () -> openNoLiftReasonDialog(true));
 		this.goodLiftButton = createKeypadButton(Translator.translate("JuryDialog.GoodLiftLabel"),
-		        "success primary", () -> submitJuryDecision(true, null));
+		        "success primary", () -> submitJuryDecision(true, null, true));
 
 		// Add all elements to grid
 		grid.add(toolbar, refLabel, refDecisionArea,
@@ -792,6 +798,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	}
 
 	private void updateCallForVotesButton(FieldOfPlay fop) {
+		updateSummonAllButton(fop);
 		if (this.callForVotesButton == null) {
 			return;
 		}
@@ -827,6 +834,41 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		        .set("background-image", "none")
 		        .set("color", "#ffffff")
 		        .set("border", "1px solid #51565c");
+	}
+
+	/**
+	 * Without VPT (TCRR 7.5.8, the referees are called at the Chair's discretion): when the four jury votes on the
+	 * lift are unanimously opposite to the referees, prompt the Chair to summon the referees, in the same orange as
+	 * Call for Votes. Back to normal once the deliberation (Phase B) has started, whether the Chair opened it or the
+	 * automatic break did.
+	 */
+	private void updateSummonAllButton(FieldOfPlay fop) {
+		if (this.allSummonButton == null) {
+			return;
+		}
+		boolean prompt = fop != null && fop.isSevenPersonAdjudication() && !fop.isPanelProcedure()
+		        && fop.getState() != FOPState.BREAK && juryUnanimousAgainstReferees(fop);
+		if (prompt) {
+			this.allSummonButton.getStyle()
+			        .set("background-color", "#f97316")
+			        .set("border", "3px solid #ffffff");
+		} else {
+			styleSummonButton(this.allSummonButton);
+		}
+	}
+
+	private static boolean juryUnanimousAgainstReferees(FieldOfPlay fop) {
+		Boolean juryVote = null;
+		Boolean[] jury = fop.getJuryMemberDecision();
+		for (int i = 0; i < AdjudicationPanel.NB_JURORS; i++) {
+			Boolean vote = jury != null && jury.length > i ? jury[i] : null;
+			if (vote == null || (juryVote != null && !juryVote.equals(vote))) {
+				return false;
+			}
+			juryVote = vote;
+		}
+		Boolean refereeMajority = AdjudicationPanel.refereeMajority(fop.getRefereeDecision());
+		return refereeMajority != null && !refereeMajority.equals(juryVote);
 	}
 
 	private int getNbJurors() {
@@ -1222,12 +1264,17 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		        && fop.getAthleteUnderReview() != null;
 	}
 
-	private void submitJuryDecision(boolean success, Integer reasonCode) {
+	/**
+	 * @param chairEntered true when the Jury Chair used the Good Lift / No Lift buttons, false when the decision is
+	 *                     the result of a jury vote (the Chair only supplied the rule)
+	 */
+	private void submitJuryDecision(boolean success, Integer reasonCode, boolean chairEntered) {
 		OwlcmsSession.withFop(fop -> {
 			if (!isJuryDecisionActive(fop)) {
 				return;
 			}
-			fop.fopEventPost(new FOPEvent.JuryDecision(fop.getAthleteUnderReview(), this, success, true, reasonCode));
+			fop.fopEventPost(new FOPEvent.JuryDecision(fop.getAthleteUnderReview(), this, success, true, reasonCode,
+			        chairEntered));
 		});
 	}
 
@@ -1238,7 +1285,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		}
 	}
 
-	private void openNoLiftReasonDialog() {
+	private void openNoLiftReasonDialog(boolean chairEntered) {
 		if (!isJuryDecisionActive(getFop())) {
 			return;
 		}
@@ -1260,7 +1307,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			Button reasonButton = new Button();
 			reasonButton.addClickListener(e -> {
 				dialog.close();
-				submitJuryDecision(false, reasonCode);
+				submitJuryDecision(false, reasonCode, chairEntered);
 			});
 			// number in a fixed-width column so wrapped lines hang under the reason text
 			Span number = new Span(reasonCode + " -");

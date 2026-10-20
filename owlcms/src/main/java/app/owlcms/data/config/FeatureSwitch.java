@@ -27,7 +27,6 @@ public enum FeatureSwitch {
     SHOW_DECISIONS_IMMEDIATELY("showDecisionsImmediately", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     // "decisionSection" alias keeps existing databases, exports and startup parameters working
     DECISION_SECTION("decisionSectionOnWarmupScoreboard", FeatureSwitchSection.SCOREBOARD_OPTIONS, "decisionSection"),
-    JURY_DECISIONS_ON_ATTEMPT_BOARD("juryDecisionsOnAttemptBoard", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DECISION_SECTION_SHOW_BOTH_JURY_VOTES("decisionSectionShowBothJuryVotes", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DECISION_SECTION_STOPWATCH("decisionSectionStopwatch", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DECISION_SECTION_SHOW_AGE_GROUPS("decisionSectionShowAgeGroups", FeatureSwitchSection.SCOREBOARD_OPTIONS),
@@ -50,6 +49,13 @@ public enum FeatureSwitch {
     DONT_FIX_NAMES("dontFixNames", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     CUSTOM_TEAM_NAME("customTeamName", FeatureSwitchSection.SCOREBOARD_OPTIONS),
 
+    // jury behaviour, grouped on the feature page; see compliance/phase-b-referee-lights-mqtt.md
+    JURY_DECISIONS_ON_ATTEMPT_BOARD("juryDecisionsOnAttemptBoard", FeatureSwitchSection.JURY_OPTIONS),
+    SEVEN_PERSON_ADJUDICATION("7personAdjudication", FeatureSwitchSection.JURY_OPTIONS),
+    AUTOMATIC_BREAK_NO_VPT("automaticBreakNoVPT", FeatureSwitchSection.JURY_OPTIONS),
+    PANEL_VOTE_DEVICE_INDICATORS("panelVoteDeviceIndicators", FeatureSwitchSection.JURY_OPTIONS),
+    REQUIRE_JURY_PRESIDENT_DECISION("requireJuryPresidentDecision", FeatureSwitchSection.JURY_OPTIONS),
+
     MANUAL_START_NUMBERS("manualStartNumbers", FeatureSwitchSection.GENERAL_OPTIONS),
     EXPLICIT_TEAMS("explicitTeams", FeatureSwitchSection.GENERAL_OPTIONS),
     BEST_MATCH_CATEGORIES("bestMatchCategories", FeatureSwitchSection.GENERAL_OPTIONS),
@@ -71,16 +77,12 @@ public enum FeatureSwitch {
     KEEP_SPANISH_HYPHEN_SHORTCUT("keepSpanishHyphenShortcut", FeatureSwitchSection.SPECIALTY_FEATURES),
     ANNOUNCER_TRIGGERS_INITIAL_DECISION("announcerTriggersInitialDecision", FeatureSwitchSection.SPECIALTY_FEATURES),
     OBS_MONITORS("obsMonitors", FeatureSwitchSection.SPECIALTY_FEATURES),
-    SEVEN_PERSON_ADJUDICATION("7personAdjudication", FeatureSwitchSection.SPECIALTY_FEATURES),
 
     GENDER_INCLUSIVE("genderInclusive", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     RECORD_NAME_IS_CATEGORY("recordNameIsCategory", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     SINCLAIR_MEET("SinclairMeet", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     V2_EXPORT("v2Export", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     NO_FORWARDER_KEEP_ALIVE("noForwarderKeepAlive", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
-    REQUIRE_JURY_PRESIDENT_DECISION("requireJuryPresidentDecision", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
-    PANEL_VOTE_DEVICE_INDICATORS("panelVoteDeviceIndicators", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
-    AUTOMATIC_BREAK_NO_VPT("automaticBreakNoVPT", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     IWF_LOOK("iwfLook", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
 
     ATTEMPT_TRACES("attemptTraces", FeatureSwitchSection.OBSERVABILITY),
