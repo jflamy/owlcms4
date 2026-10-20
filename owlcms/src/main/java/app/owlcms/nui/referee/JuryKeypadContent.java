@@ -919,6 +919,11 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			registerShortcut(() -> postJuryMemberDecision(juryMember, true), getGoodKey(index));
 			registerShortcut(() -> postJuryMemberDecision(juryMember, false), getBadKey(index));
 		}
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.NO_JURY_ALPHABETICAL_SHORTCUTS)) {
+			// a stray letter typed on the Jury Control computer must not start a break or summon the referees;
+			// the digit shortcuts used by USB jury keypads remain
+			return;
+		}
 		registerShortcut(this::startDeliberation, Key.KEY_D);
 		registerShortcut(this::startChallenge, Key.KEY_C);
 		registerShortcut(this::startTechnicalBreak, Key.KEY_T);

@@ -298,9 +298,20 @@ A distinct notification type (new `JuryDeliberationEventType.PANEL_REVIEW`, or
 a flag on `START_DELIBERATION`) lets boards and the announcer show
 "Adjudication Panel Review" instead of "Jury deliberation".
 
-A valid challenge (Challenge button) enters the same review (7.5.8) and also
-issues the implicit referee recall (`SummonRef(0)`) when the break starts.
-After that, the flow is the same as for an automatic review.
+A valid challenge (Challenge button) follows exactly the procedure of the
+corresponding jury break; only the trigger (the Chair, after a Challenge
+Card) and the label ("Challenge") differ:
+
+- **With VPT:** same as the automatic Adjudication Panel Review. The lift's
+  referee and jury votes are kept and shown until Call for Votes, all
+  referees are recalled (`SummonRef(0)`), and the 7-person majority decides.
+- **Without VPT:** same as a jury deliberation opened by the Chair. No
+  automatic summon (Chair's decision), the four jurors vote again and must be
+  unanimous to reverse. (The TCRR describes challenges only with VPT;
+  OWLCMS allows it and applies the no-VPT jury procedure.)
+
+Validity (once per athlete, timing, lift not already reviewed) is checked by
+the Jury, not by OWLCMS (section 8).
 
 #### Manual deliberation stays
 
@@ -520,19 +531,21 @@ MQTT ([MQTTMonitor.java](../owlcms/src/main/java/app/owlcms/monitors/MQTTMonitor
   2. `owlcms/fop/summon/<fop>` (`1`, `2`, `3` via `publishMqttSummonRef(0)`,
      or a single referee number on re-call), matching the TCRR 7.5.7 "Referee
      call" signal so the refbox buzzer sounds as for a summon (`decisionRequest`
-     is not used; it is the wake-up reminder when a referee is slow to vote);
-  3. new `owlcms/fop/panelReview/<fop>` `vote` (and `end` when the decision is
-     made), for devices that want to tell "come to the jury" from "vote now".
+     is not used; it is the wake-up reminder when a referee is slow to vote).
+  No new topic: the existing messages already clear and re-arm the devices.
+- When the review break starts (automatic stop, or a challenge with VPT), the
+  Phase A votes are kept for display, so `owlcms/fop/juryDeliberation/<fop>` /
+  `owlcms/fop/challenge/<fop>` are **not** published: the devices clear their
+  jury lights on those topics. They are published as before when the jury
+  votes are cleared (manual deliberation, challenge without VPT).
 - Document the sequence in
   [200-MQTTMessages.md](../docs/100-AdvancedTopics/200-MQTTMessages.md).
-- Config: `mqttJurySize()` will publish 4. Blue Owl declares
-  `type JurySize = 3 | 5` (`blue-owl-electron/src/common.ts`), but the value
-  is not checked at runtime and the jury size is taken from the owlcms config
-  (there is no Blue Owl setting). 4 falls into the 5-member wiring branch in
-  `initializer/jury.ts`: stations 1–5 are created. owlcms drives the box with
-  4-member behaviour, so **no Blue Owl change is needed**: the hidden (green)
-  and reveal (white/red) `juryMemberDecision` messages are sent per juror for
-  jurors 1 to `jurySize` only, so the station 5 LED stays dark.
+- Config: `mqttJurySize()` publishes 4. Blue Owl takes the jury size from this
+  message (there is no Blue Owl setting); `type JurySize` is widened to
+  `3 | 4 | 5` in `blue-owl-electron/src/common.ts` and `initializer/jury.ts`
+  creates stations 1–4 only (station 5 is not instantiated). owlcms also
+  ignores a vote from a station beyond the jury size
+  (`FieldOfPlay.doJuryMemberDecisionUpdate`).
   owlcms-firmata support for 4 is unverified.
 - **Ignore jury votes beyond the jury size.** The station 5 buttons stay live
   on a 5-station box. Today a `5 good|bad` vote is stored in

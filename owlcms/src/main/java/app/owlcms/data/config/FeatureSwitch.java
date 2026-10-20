@@ -55,6 +55,7 @@ public enum FeatureSwitch {
     AUTOMATIC_BREAK_NO_VPT("automaticBreakNoVPT", FeatureSwitchSection.JURY_OPTIONS),
     PANEL_VOTE_DEVICE_INDICATORS("panelVoteDeviceIndicators", FeatureSwitchSection.JURY_OPTIONS),
     REQUIRE_JURY_PRESIDENT_DECISION("requireJuryPresidentDecision", FeatureSwitchSection.JURY_OPTIONS),
+    NO_JURY_ALPHABETICAL_SHORTCUTS("noJuryAlphabeticalShortcuts", FeatureSwitchSection.JURY_OPTIONS),
 
     MANUAL_START_NUMBERS("manualStartNumbers", FeatureSwitchSection.GENERAL_OPTIONS),
     EXPLICIT_TEAMS("explicitTeams", FeatureSwitchSection.GENERAL_OPTIONS),

@@ -3011,19 +3011,23 @@ public class FieldOfPlay implements IUnregister {
 							JuryDeliberationEventType.TECHNICAL_PAUSE, null, null, false, this, null));
 					break;
 				case CHALLENGE:
-					if (isPanelProcedure()) {
-						// shown until the Chair calls for votes
-						capturePanelReviewInitialVotes();
-					}
+					// a challenge follows the same procedure as the corresponding jury break; only the trigger and
+					// the label differ
 					endPanelVotePending(this);
-					resetJuryDecisions();
-					pushOutUIEvent(new UIEvent.JuryNotification(null, this,
-							JuryDeliberationEventType.CHALLENGE, null, null, false, this, null));
 					if (isPanelProcedure()) {
-						// a valid challenge enters the panel review: call all referees to the video review
+						// with VPT: same as the Adjudication Panel Review. The lift's votes are kept and shown until
+						// the Chair calls for votes, and all referees are called to the video review.
+						capturePanelReviewInitialVotes();
+						pushOutUIEvent(new UIEvent.JuryNotification(null, this,
+								JuryDeliberationEventType.CHALLENGE, null, null, false, this, null));
 						pushOutUIEvent(new UIEvent.JuryNotification(null, this,
 						        JuryDeliberationEventType.CALL_REFEREES, null, null, false, this, null));
 						pushOutUIEvent(new UIEvent.SummonRef(0, true, this, this));
+					} else {
+						// without VPT: same as a jury deliberation opened by the Chair
+						resetJuryDecisions();
+						pushOutUIEvent(new UIEvent.JuryNotification(null, this,
+								JuryDeliberationEventType.CHALLENGE, null, null, false, this, null));
 					}
 					break;
 				default:

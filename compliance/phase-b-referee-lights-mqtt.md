@@ -10,25 +10,27 @@ procedure itself.
 
 No new MQTT topic is introduced. Referee lights use the existing
 `owlcms/fop/decision` topic with the same `hidden` convention already used by
-`owlcms/fop/juryMemberDecision`.
+`owlcms/fop/juryMemberDecision`. The clear at Call for Votes is the existing
+`owlcms/fop/resetDecisions`.
 
 ## Timeline (VPT on)
 
-"Current box" = a blue-owl-core 1.4.0 or legacy-spreadsheet firmata jury box
-receiving the owlcms messages of the working tree, with the switch
-`panelVoteDeviceIndicators` **off** (the only safe setting for such a box).
-"Planned box" = after the firmata `-4` workbooks and the updated blue-owl-core
-are deployed and the switch is **on**. Where the two columns are identical the
-behaviour does not depend on the device update.
+"Current box" = a blue-owl-core 1.4.0 or firmata jury box receiving the
+owlcms messages of the working tree, with the switch
+`panelVoteDeviceIndicators` **off** (the only safe setting for a blue-owl-core
+1.4.0 box; a firmata box ignores `hidden` on `fop/decision` and is safe either
+way). "Planned box" = after the updated blue-owl-core or the updated firmata jury
+workbooks are deployed and the switch is **on**. Where the two
+columns are identical the behaviour does not depend on the device update.
 
 | Step | owlcms MQTT messages | Physical jury box: current | Physical jury box: planned | Referee boxes | Jury Control page | Attempt board | Scoreboard decision block |
 |---|---|---|---|---|---|---|---|
 | Phase A: referee decision | `fop/decision N good/bad` live | referee LEDs white/red | same | normal confirmation | referee boxes white/red | referee lights, 4 grey jury circles | same as attempt board |
 | Phase A: each jury vote | `juryMemberDecision N hidden` | juror LED green | same | — | juror circle grey "voted" | juror circle grey "voted" | same |
 | Phase A: 4th jury vote | `juryMemberDecision N good/bad` ×4 | 4 juror LEDs white/red | same | — | 4 circles revealed | 4 circles revealed | same |
-| 7-person majority opposes referees → automatic "Adjudication Panel Review" break | `juryDeliberation`, `summon 1,2,3` | **juror LEDs go off** (devices clear on `juryDeliberation`); referee LEDs stay white/red | **all 7 LEDs keep the Phase A pattern** until Call for Votes | summon beep | Phase A pattern kept; Call for Votes highlighted | "Adjudication Panel Review" + Phase A pattern | same |
-| Chair presses Call for Votes (or Summon all) | `resetDecisions`, `summon 1,2,3`, `panelReview vote` | all 7 LEDs off | same | re-armed, buzz, "enter decision" | 7 cells empty; Waiting for Votes | 7 cells empty | same |
-| Each referee review vote | switch off: nothing. Switch on: `fop/decision N hidden` | **stays off** | referee LED **green** | current: no confirmation. Planned: same feedback as the initial vote | referee cell grey "voted" | referee cell grey "voted" | same |
+| 7-person majority opposes referees → automatic "Adjudication Panel Review" break | `summon 1,2,3` only (**no** `juryDeliberation`: the Phase A votes are kept) | all 7 LEDs keep the Phase A pattern until Call for Votes | same | summon beep | Phase A pattern kept; Call for Votes highlighted | "Adjudication Panel Review" + Phase A pattern | same |
+| Chair presses Call for Votes (or Summon all) | `resetDecisions`, `summon 1,2,3` | all 7 LEDs off | same | re-armed, buzz, "enter decision" | 7 cells empty; Waiting for Votes | 7 cells empty | same |
+| Each referee review vote | switch off: nothing. Switch on: `fop/decision N hidden` | **stays off** (firmata: ignored; blue-owl-core 1.4.0: wrong, see Compatibility) | referee LED **green** | current: no confirmation. Planned: same feedback as the initial vote | referee cell grey "voted" | referee cell grey "voted" | same |
 | Each jury review vote | switch off: nothing. Switch on: `juryMemberDecision N hidden` | **stays off** | juror LED **green** | — | juror cell grey "voted" | juror cell grey "voted" | same |
 | 7th vote cast (result known) | `fop/decision N good/bad` ×3, `juryMemberDecision N good/bad` ×4 | **all 7 LEDs white/red** (jury-private reveal, works on current devices) | same | own vote shown; no second confirmation | all 7 revealed; No Lift: rule dialog opens | **all 7 revealed** (white/red) | **all 7 revealed** (white/red) |
 | Good Lift: 1.5 s grace, decision applied | `refereesDecision good` | unchanged | same | lights off (decision displayed) | result shown | 7 white/red + Good Lift card (5 s) | 7 white/red + "Good Lift" |
@@ -39,11 +41,11 @@ behaviour does not depend on the device update.
 | Resume in an ordinary break | `startLifting` only (same as Break Management) | unchanged | same | — | — | — | — |
 | Resume during a lift before referee decisions | nothing | nothing | same | nothing | nothing | nothing | nothing |
 
-The two rows where current and planned boxes differ are the review-break start
-(juror LEDs cleared today, kept after the update) and the review votes (dark
-today, green after the update). Everything else, including the private reveal
-at the 7th vote and the clear on Resume / clock start, already works on the
-current devices with the owlcms code of the working tree.
+The only rows where current and planned boxes differ are the review votes
+(dark today, green after the update). Everything else, including keeping the
+Phase A pattern through the review break, the private reveal at the 7th vote
+and the clear on Resume / clock start, already works on the current devices
+with the owlcms code of the working tree.
 
 Notes:
 
@@ -73,9 +75,10 @@ Translation rows for the new switches and the section are in
 |---|---|---|---|
 | `7personAdjudication` | off | Four-member jury. With VPT: the seven-person Adjudication Panel (7-person majority stops the competition, 7-person review vote). Without VPT: 4-member jury, unanimity rules (7.5.8), Call for Votes reopens the 4 jury votes only. Decision display held for the jury, Speaker never waits, rule shown with a No Lift. | implemented |
 | `automaticBreakNoVPT` | **off** | Without VPT only. When on, a unanimous jury opposite to the referees stops the competition automatically for a "Jury Deliberation" (same mechanics as the VPT automatic break, without summoning the referees). When off (TCRR 7.5.8: the deliberation is manual), the jury votes on the lift are only recorded; the Chair presses Jury Deliberation and Call for Votes by hand. Changes nothing else: the second vote, the rule, the reveal and the Resume behaviour are the same. | implemented |
-| `panelVoteDeviceIndicators` | **off** | Temporary. Gates only the physical green "vote received" LEDs during a Phase B vote: referee `fop/decision N hidden` and jury `juryMemberDecision N hidden`. Off: physical LEDs stay dark from Call for Votes to the 7th vote; Jury Control is the progress display. The red/white reveal at the 7th vote is not gated. Enable only after the firmata `-4` workbooks and the updated blue-owl-core are deployed (blue-owl-core 1.4.0 misreads `hidden`). | implemented |
+| `panelVoteDeviceIndicators` | **off** | Temporary. Gates only the physical green "vote received" LEDs during a Phase B vote: referee `fop/decision N hidden` and jury `juryMemberDecision N hidden`. Off: physical LEDs stay dark from Call for Votes to the 7th vote; Jury Control is the progress display. The red/white reveal at the 7th vote is not gated. Enable only after the updated blue-owl-core is deployed (blue-owl-core 1.4.0 misreads `hidden`; firmata ignores it harmlessly). | implemented |
 | `juryDecisionsOnAttemptBoard` | off | Existing. Shows the jury circles on the attempt board and holds the decision display until the jury has voted (no time limit for a four-member jury). | existing |
 | `requireJuryPresidentDecision` | off | Existing, 3/5-member juries. Ignored with `7personAdjudication`: the vote result is applied automatically. | existing |
+| `noJuryAlphabeticalShortcuts` | off | Jury Control: when on, the letter shortcuts are not registered (D deliberation, C challenge, T technical, H/I/J/K summon, V Call for Votes), so a stray key on the Jury Control computer cannot start a break or summon the referees. The digit shortcuts used by USB jury keypads remain. Takes effect when the Jury Control page is (re)loaded. | implemented |
 
 Competition setting (not a switch): **Video Playback Technology** selects between the two four-member procedures.
 
@@ -102,7 +105,8 @@ Status of the owlcms side (all in the working tree, not yet committed):
 | 3 | Reveal at the 7th vote on all displays: `DecisionElementState` (attempt boards) and `Results` (scoreboard decision block) use `getVotes()` as soon as it is non-null. `doJuryDecision` sets `panelVotePubliclyRevealed` (`isPublicReveal()`), used by MQTT to avoid sending the referee lights twice | `FieldOfPlay`, `DecisionElementState`, `Results` | implemented |
 | 4 | MQTT reveal of the 3 referee lights at the last vote: `fop/decision N good/bad` via `publishMqttRefereeLight` (individual lights, not the collective `fop/refereesDecision`) | `MQTTMonitor.slavePanelVoteUpdate` | implemented |
 | 5 | MQTT green indicators, gated by `panelVoteDeviceIndicators`: `fop/decision N hidden` per referee review vote (VPT only); `juryMemberDecision N hidden` suppressed during a Phase B vote when the switch is off | `MQTTMonitor.slavePanelVoteUpdate`, `slaveJuryUpdate` | implemented, switch default off |
-| 6 | Call for Votes publishes `resetDecisions` + `panelReview vote` in both 4-member modes; `summon` only with VPT | `MQTTMonitor.slavePanelVoteCalled` | implemented |
+| 6 | Call for Votes publishes `resetDecisions` in both 4-member modes (clears and re-arms every device); `summon` only with VPT. No new topic | `MQTTMonitor.slavePanelVoteCalled` | implemented |
+| 6b | `juryDeliberation` / `challenge` are not published when the Phase A votes are kept for the review (`getPanelReviewInitialVotes() != null`): the devices clear their jury lights on those topics. Published as before for a manual deliberation or a challenge without VPT, where owlcms clears the votes too | `MQTTMonitor.slaveJuryNotification` | implemented |
 | 7 | Automatic `StartLifting` after the 3.5 s display does not clear the jury box; explicit Resume or the next clock start does (`JuryResume` → `JuryDisplayReset` → `resetDecisions`) | `FieldOfPlay.doJuryResume`, `MQTTMonitor` | implemented (committed in `530297387`) |
 | 8 | Feature switches `panelVoteDeviceIndicators` and `automaticBreakNoVPT` (USE_AT_YOUR_OWN_RISK) and their translation rows; see "Jury behaviour toggle switches" | `FeatureSwitch`, `shared/.../jury_behaviour_switches_translations.tsv` | implemented; TSV awaits import |
 | 8b | Without VPT, the automatic stop on a unanimous jury is gated by `automaticBreakNoVPT` (default off); otherwise the Chair starts the deliberation by hand | `FieldOfPlay.evaluatePanel` | implemented |
@@ -112,32 +116,15 @@ Status of the owlcms side (all in the working tree, not yet committed):
 
 ## firmata changes
 
-Create two new four-member profiles:
+Spreadsheet rows only, no Java change. firmata matches topic and message
+exactly (`OutputEventHandler.handle`), so a message with no row is ignored.
 
-- `config/BlueOwl-Jury-4.xlsx`, copied from `BlueOwl-Jury.xlsx` (legacy Blue
-  Owl jury box used for testing);
-- `config/JuryFull-4.xlsx`, copied from `JuryFull.xlsx`.
-
-Keep the existing `BlueOwl-Jury.xlsx` and `JuryFull.xlsx` unchanged as the
-legacy 3/5-member profiles. A firmata spreadsheet cannot condition its output
-rows on the jury size.
-
-Spreadsheet only, no Java change: firmata matches topic and message exactly,
-so an unknown message is ignored.
-
-In both new `-4` workbooks:
-
-1. remove the `Jury N Off (R/G/B)` rows triggered by
-   `juryDeliberation` / `challenge`. The Phase A decisions must remain visible
-   while the officials review the lift;
-2. keep the existing `fop/resetDecisions` rows. Call for Votes sends that
-   message and clears all referee and jury LEDs for the second vote;
-3. jury position 5 remains inactive. OWLCMS sends jury-member messages only
-   for positions 1–4 in four-member mode, so LED 5 is never lit;
-4. add the referee `hidden` rows below.
-
-Add, for each referee, three output rows copied from the "Jury N Hidden" rows
-(green channel on, red and blue off):
+Done in the two jury workbooks, `BlueOwl-Jury.xlsx` (legacy Blue Owl jury box
+driven by firmata) and `JuryFull.xlsx` (sources in `diagrams/juryFull/`,
+synced to `src/main/resources/devices/`): for each referee, three
+`Ref N Hidden (R/G/B)` rows inserted after `Ref N Good (B)`, copied from the
+"Jury N Hidden" pattern (green channel on, red and blue off). `hidden` is never
+sent on `fop/decision` to a 3/5-member jury, so the rows are inert there.
 
 | description | pin (BlueOwl-Jury) | pin (JuryFull) | topic trigger | message | pin action |
 |---|---|---|---|---|---|
@@ -151,9 +138,19 @@ Add, for each referee, three output rows copied from the "Jury N Hidden" rows
 | Ref 3 Hidden (G) | 3 | 4 | fop/decision | 3 hidden | ON |
 | Ref 3 Hidden (B) | 2 | 3 | fop/decision | 3 hidden | OFF |
 
-The existing "Ref N Reset" (`fop/resetDecisions`) and "Ref N Good/Bad"
-(`fop/decision`) rows in the new copies handle the clear at Call for Votes and
-the reveal. The firmata referee spreadsheets (`Referees.xlsx`,
+Nothing else to change in the workbooks:
+
+- the Phase A pattern is kept through the review break because owlcms does
+  not publish `juryDeliberation` / `challenge` in that case, so the existing
+  "Jury N Off" rows triggered by those topics are not an issue;
+- the existing `fop/resetDecisions` rows clear all referee and jury LEDs at
+  Call for Votes;
+- jury position 5 stays dark because owlcms never addresses it with a
+  four-member jury, and ignores a vote coming from it.
+
+A firmata jury box with the previous workbooks ignores the referee `hidden`
+message (LED stays dark until the reveal), so the switch is safe with firmata
+either way. The firmata referee spreadsheets (`Referees.xlsx`,
 `RefereesDown.xlsx`, `RefereeSolo.xlsx`) have no `fop/decision` rows, so
 referee boxes are not affected.
 
@@ -163,75 +160,63 @@ Repository: `blue-owl-core` (1.4.0, maintained by Scott González) — proposed 
 a pull request, then picked up by `blue-owl-electron`
 (`"blue-owl-core": "^1.4.0"`).
 
-Today `fop/decision` is parsed without checking the value, and every consumer
-treats anything other than `good` as `bad`. The change makes `hidden` a valid
-value and handles it everywhere a referee decision is consumed.
+The jury box and the referee box are driven by owlcms messages; the only thing
+blue-owl-core 1.4.0 cannot do is show a `hidden` referee decision: `fop/decision`
+is parsed without checking the value, and every consumer treats anything other
+than `good` as `bad`. The change makes `hidden` a valid value and handles it
+everywhere a referee decision is consumed. Nothing else changes: jury-member
+reset timing, `resetDecisions`, summon and reveal behave as today.
 
-1. Four-member configuration:
-   - widen `OwlcmsConfigEvent.jurySize` in blue-owl-core and `JurySize` in
-     blue-owl-electron from `3 | 5` to `3 | 4 | 5`;
-   - add an explicit four-member branch in the blue-owl-electron jury
-     initializer;
-   - use jury button / LED positions **1, 2, 3 and 4**. Do not instantiate
-     jury member 5. OWLCMS addresses jury LEDs individually, so LED 5 remains
-     off unless a member-5 message is explicitly sent.
-2. Jury decision reset timing:
-   - existing 3- and 5-member operation is unchanged: `juryDeliberation` and
-     `challenge` immediately clear the jury-member LEDs;
-   - in four-member mode, keep the Phase A referee and jury decisions visible
-     when deliberation / challenge starts;
-   - clear them on the `resetDecisions` sent by OWLCMS when the Chair presses
-     Call for Votes. This requires a four-member option on `JuryMember` (for
-     example `resetOnDeliberation: false`, default `true`) so that 3- and
-     5-member devices retain their current behaviour;
-   - `resetDecisions` still clears all referee and jury LEDs and resets each
-     refbox. Without VPT the referees do not vote again and are summoned only
-     if the Chair decides to (individual summon buttons); they are not re-armed.
-3. Types (`src/lib/model/referee/index.ts`): keep `Decision = 'bad' | 'good'`
-   for what a referee publishes, and add a received type, e.g.
+1. Types (`src/lib/model/referee/index.ts`): keep `Decision = 'bad' | 'good'`
+   for what a referee publishes, and add a received type
    `RefereeDecisionState = Decision | 'hidden'`, used by the `decision` event
-   in `src/lib/owlcms.ts` (`OwlcmsDecisionEvent.decision`). Export the new
-   type from the package root (`src/index.ts`) and widen
-   `JuryRefereeDecisionEvent.decision` to the received type.
-4. `src/lib/owlcms.ts`: accept `good`, `bad` and `hidden` for `decision`;
+   in `src/lib/owlcms.ts` (`OwlcmsDecisionEvent.decision`) and by
+   `JuryRefereeDecisionEvent.decision`. Exported from the package root
+   (`src/index.ts`). `OwlcmsConfigEvent.jurySize` is widened to `3 | 4 | 5`
+   (type only; the value is not used by the core).
+2. `src/lib/owlcms.ts`: accept `good`, `bad` and `hidden` for `decision`;
    ignore any other value (defensive: an unexpected word must never light a
    red LED or throw).
-5. Jury box, RGB referee LEDs (`src/lib/model/jury/referee-rgb-leds.ts`,
-   used by blue-owl-electron): on `refereeDecision` with `hidden` →
-   `color('green').on()`; `good` → white, `bad` → red as today. The reveal
-   then switches the LED to white or red, `resetRefereeDecisions` turns it off.
-6. Jury box, separate good/bad LEDs (`src/lib/model/jury/referee-leds.ts`):
-   no green LED; on `hidden` leave both LEDs off (today it would look up
+3. Jury box, RGB referee LEDs (`src/lib/model/jury/referee-rgb-leds.ts`,
+   used by blue-owl-electron): `hidden` → green, `good` → white, `bad` → red.
+   The reveal then switches the LED to white or red, `resetRefereeDecisions`
+   turns it off.
+4. Jury box, separate good/bad LEDs (`src/lib/model/jury/referee-leds.ts`):
+   no green LED; on `hidden` both LEDs are turned off (today it would look up
    `referee1HiddenLiftLed` and throw).
-7. Jury model (`src/lib/model/jury/index.ts`): pass `hidden` through in the
-   `refereeDecision` event (type widened as in 3).
-8. Referee box (`src/lib/model/referee/index.ts`): pressing the button in the
+5. Jury model (`src/lib/model/jury/index.ts`): passes `hidden` through in the
+   `refereeDecision` event (type widened as in 1).
+6. Referee box (`src/lib/model/referee/index.ts`): pressing the button in the
    Phase B vote gives **the same feedback as the initial vote** (LED flash
    and vibration for good / bad). The box knows what its referee pressed:
    - `publishDecision(decision)` stores the decision it published
-     (`this.publishedDecision = decision`, it already clears `confirmed`);
-   - on `decision` "N hidden" for its own number, call
-     `decisionConfirmed(this.publishedDecision)`: the existing `rgb-led.ts`,
+     (`publishedDecision`, it already clears `confirmed`);
+   - on `decision` "N hidden" for its own number, it calls
+     `decisionConfirmed(publishedDecision)`: the existing `rgb-led.ts`,
      `confirmation-leds.ts` and `vibration.ts` handlers then run exactly as
-     for the initial vote. If nothing was published (unexpected), ignore the
-     message (no LED, no throw);
+     for the initial vote. If nothing was published (unexpected), the message
+     is ignored (no LED, no throw);
    - the `confirmed` flag already limits this to one confirmation per press:
      a changed vote clears it in `publishDecision` and gets its own
      confirmation, and the `good/bad` sent at the reveal does not re-trigger
-     the feedback.
-   - `resetDecision()` must clear both `confirmed` and `publishedDecision`, so
-     a late `hidden` message cannot confirm a vote from the previous phase.
-9. Jury members (`src/lib/model/jury-member/*`): their feedback behaviour is
-   unchanged. The jury buttons
-   have no LED or vibration motor; the only feedback is the per-member RGB LED
-   on the jury box (`rgb-led.ts`: green for `hidden`, white / red at the
-   reveal), and it already behaves the same in Phase A and Phase B.
-10. Release and integration:
-    - publish a new blue-owl-core version;
-    - update blue-owl-electron's dependency and `package-lock.json` (the
-      current lockfile pins the 1.4.0 tarball);
-    - run `npm run build` and `npm test` in blue-owl-core and the normal
-      blue-owl-electron build / type check.
+     the feedback;
+   - `resetDecision()` clears `publishedDecision`, so a late `hidden` message
+     cannot confirm a vote from the previous phase.
+7. Release and integration:
+   - publish a new blue-owl-core version;
+   - update blue-owl-electron's dependency and `package-lock.json` (the
+     current lockfile pins the 1.4.0 tarball);
+   - `npm run lint` in blue-owl-core (type check + eslint) and the normal
+     blue-owl-electron build / type check.
+
+## blue-owl-electron changes
+
+- `src/common.ts`: `JurySize = 3 | 4 | 5`.
+- `src/main/initializer/jury.ts`: explicit four-member branch creating jury
+  members 1–4 on buttons/LEDs 1–4; station 5 is not instantiated (owlcms
+  ignores it anyway).
+- `src/renderer/src/components/JurySettings.svelte`: "Four Member Jury" label
+  and cabling note (ports 1 to 4, port 5 unused; no fixed seat for the Chair).
 
 ## Compatibility
 
@@ -242,8 +227,8 @@ devices are updated:
 | Switch | Device | Result during Phase B |
 |---|---|---|
 | off | any | physical LEDs remain off while voting; Jury Control shows progress; physical red/white reveal occurs at the last vote |
-| on | firmata with new `-4` spreadsheet | green per referee/juror during the vote; red/white reveal at the last vote |
-| on | firmata with legacy spreadsheet | `hidden` ignored; red/white reveal at the last vote |
+| on | firmata with the updated jury workbooks | green per referee/juror during the vote; red/white reveal at the last vote |
+| on | firmata with the previous jury workbooks | referee `hidden` ignored (LED dark), juror LEDs green; red/white reveal at the last vote |
 | on | blue-owl-core with the change | jury positions 1–4; green referee/jury LEDs; referee box feedback identical to the initial vote; red/white reveal at the last vote |
 | on | blue-owl-core 1.4.0 | **wrong**: jury box RGB referee LED red, separate-LED jury box throws, refbox shows a red / "bad" confirmation or throws (`confirmation-leds.ts`) |
 

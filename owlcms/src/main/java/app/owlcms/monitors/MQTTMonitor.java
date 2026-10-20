@@ -1313,6 +1313,13 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	@Subscribe
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
 		JuryDeliberationEventType type = e.getDeliberationEventType();
+		FieldOfPlay eventFop = e.getFop();
+		if ((type == JuryDeliberationEventType.START_DELIBERATION || type == JuryDeliberationEventType.CHALLENGE)
+		        && eventFop != null && eventFop.getPanelReviewInitialVotes() != null) {
+			// four-member jury review: the Phase A decisions stay on the jury box until the Chair calls for
+			// votes (resetDecisions); the devices clear their jury lights on juryDeliberation/challenge.
+			return;
+		}
 		if (type == JuryDeliberationEventType.START_DELIBERATION) {
 			try {
 				publishMqttJuryDeliberation();
@@ -1450,8 +1457,8 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 
 	/**
 	 * Adjudication Panel review vote. For a new vote (ref 0): reset the boxes so that boxes that lock after voting
-	 * are re-armed, buzz all referees with the summon signal, then announce the vote. For a re-call: buzz that
-	 * referee only.
+	 * are re-armed (this also clears the referee and jury lights on the jury box), then buzz all referees with the
+	 * summon signal. For a re-call: buzz that referee only.
 	 */
 	@Subscribe
 	public void slavePanelVoteCalled(UIEvent.PanelVoteCalled e) {
@@ -1460,7 +1467,6 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			if (e.getFop() != null && e.getFop().isPanelProcedure()) {
 				publishMqttSummonRef(0);
 			}
-			publishMqttPanelReview("vote");
 		} else if (e.getFop() != null && e.getFop().isPanelProcedure()) {
 			publishMqttSummonRef(e.getRef());
 		}
@@ -1479,9 +1485,6 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			for (int i = 0; i < AdjudicationPanel.NB_REFEREES; i++) {
 				publishMqttRefereeLight(i + 1, Boolean.TRUE.equals(votes[i]) ? "good" : "bad");
 			}
-		}
-		if (!e.isOpen()) {
-			publishMqttPanelReview("end");
 		}
 	}
 
@@ -1897,16 +1900,6 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 					ref2, ref2Time, ref3, ref3Time);
 		}
 		this.prevRefereeTimeStamp = curRefereeUpdateTimeStamp.isPresent() ? curRefereeUpdateTimeStamp.get() : 0L;
-	}
-
-	private void publishMqttPanelReview(String status) {
-		logger.debug("{}MQTT panelReview {}", FieldOfPlay.getLoggingName(this.getFop()), status);
-		try {
-			publish("owlcms/fop/panelReview/" + this.getFop().getName(),
-			        new MqttMessage(status.getBytes(StandardCharsets.UTF_8)));
-		} catch (MqttException e1) {
-			logger.error("could not publish panelReview {}", e1.getCause());
-		}
 	}
 
 	private void publishMqttResetAllDecisions() {
