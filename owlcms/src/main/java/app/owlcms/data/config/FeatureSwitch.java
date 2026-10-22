@@ -49,7 +49,6 @@ public enum FeatureSwitch {
     DONT_FIX_NAMES("dontFixNames", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     CUSTOM_TEAM_NAME("customTeamName", FeatureSwitchSection.SCOREBOARD_OPTIONS),
 
-    // jury behaviour, grouped on the feature page; see compliance/phase-b-referee-lights-mqtt.md
     JURY_DECISIONS_ON_ATTEMPT_BOARD("juryDecisionsOnAttemptBoard", FeatureSwitchSection.JURY_OPTIONS),
     SEVEN_PERSON_ADJUDICATION("7personAdjudication", FeatureSwitchSection.JURY_OPTIONS),
     AUTOMATIC_BREAK_NO_VPT("automaticBreakNoVPT", FeatureSwitchSection.JURY_OPTIONS),

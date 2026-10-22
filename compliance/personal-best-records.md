@@ -5,7 +5,7 @@ tracker or tracker-core migration remains.
 
 Target repository: `owlcms_68`.
 
-Tracker acceptance: [integration criteria](personal-best-records-tracker.md).
+Tracker acceptance: [integration criteria](done/personal-best-records-tracker.md).
 
 ## 0. Repository Boundary
 

@@ -1,6 +1,6 @@
 # Periodic CPU / Memory / GC Log (Resource Monitor) — Spec
 
-Status: implemented; production RSS comparison and live feature-switch checks pending
+Status: implemented and accepted as shipped (2026-10-22); the remaining runtime checks and the full-GC escalation idea are not pursued.
 Scope: owlcms server process, observability only (no UI, no data model change)
 Owner files: `app.owlcms.monitors.ResourceMonitor`, `ResourceSample`,
 `ResourceTableEncoder`, `FeatureSwitch`, `Main`

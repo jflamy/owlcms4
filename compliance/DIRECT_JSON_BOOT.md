@@ -2,6 +2,7 @@
 
 Status: implementation plan; not implemented or runtime-tested.
 Revised 2026-10-17: standby mode, folder resolution and ZIP input.
+Revised 2026-10-22: split into Phase 1 (launch with a file) and Phase 2 (standby); see Phasing.
 
 Related: [SCHEDULED_CHECKPOINTS.md](SCHEDULED_CHECKPOINTS.md) produces the
 checkpoint files consumed here;
@@ -62,6 +63,60 @@ Resolution rules:
 - If `OWLCMS_LOADJSON` is set, `OWLCMS_INITIALDATA` and `OWLCMS_RESETMODE` are
   irrelevant because the import replaces the competition.
 
+## Phasing
+
+Two deliveries. Phase 1 is complete on its own and is what the development and
+support use case and automated browser acceptance need; Phase 2 adds the
+standby wait and page without touching Phase 1 code.
+
+| Phase | Sections | Delivers |
+| --- | --- | --- |
+| 1 — launch with a file | §1, §2, §3 (except the standby wait), §5, §6 exit code, §7 | `OWLCMS_LOADJSON` = file or folder, imported immediately at startup |
+| 2 — standby | §3 standby wait, §4, §6 label and `env.properties` carry-over | `OWLCMS_STANDBY=true`, `/standby` page, operator picks the file |
+
+To avoid rework, Phase 1 must establish the following seams; Phase 2 only
+fills them in.
+
+1. **One seam for "which file".** `EmbeddedJetty.run(port, …)` already runs
+   `start()` (Jetty listening), then `initConfig`, then `initData`. Insert a
+   single step between `start()` and `initConfig`: obtain the startup source.
+   Phase 1 implements it as an immediate resolution
+   (`StartupImportSource.resolve()` → `Optional<Path>`). Phase 2 replaces the
+   immediate resolution with `standbySelectionFuture.get()` when
+   `OWLCMS_STANDBY=true`; nothing after the seam changes. Do **not** read
+   `OWLCMS_LOADJSON` inside `initConfig()` or `initData()`: standby needs the
+   whole database initialization, not just the data load, to wait for the
+   choice.
+2. **Single-pass initialization takes a `Path`.** Factor the imported-startup
+   branch as `Main.initFromImport(Path)` (steps 1–5 of §3), and keep the
+   existing `initConfig()` + `initData()` as the no-import branch. The caller
+   picks the branch from the seam's result. Phase 2 calls the same method.
+3. **Folder resolution is a reusable helper.** Put candidate listing in the
+   same helper used by the seam: `candidates(Path folder)` returns the local
+   `*.json` and `*.zip` files newest-first with name, modification time and
+   size, ignoring temporary names; `latest(folder)` is `candidates(...).first()`.
+   Phase 1 uses `latest`; Phase 2's `/standby` page renders `candidates` and
+   validates the posted filename against the same list (so "strictly inside
+   the folder" is enforced in one place).
+4. **Readiness stays on the existing latch.** Phase 1 relies on
+   `OwlcmsFactory.waitDBInitialized()` unchanged, which the Vaadin servlet
+   already blocks on. Phase 2 adds `StandbyFilter`/`StandbyServlet` in front of
+   it; the latch semantics do not change.
+5. **Failure path is terminal from Phase 1.** Exit code 78, the audit line
+   (source filename + SHA-256), `MainWrapper` and control-panel
+   non-restartable handling are Phase 1 work; launch-with-file fails the same
+   way standby does.
+6. **Access mode / PEM forcing is mode-independent.** The `forcedByKey()` →
+   `AccessMode.ACCOUNTS` rule in §3 belongs to Phase 1 so an imported
+   accounts-bearing export behaves identically whether loaded at launch or
+   from standby.
+7. **Browser opening.** Phase 1 leaves `BrowserUtils.startBrowserIfAppropriate`
+   where it is (after readiness). Phase 2 moves the call earlier only when
+   standby is on, and §3 already notes that the duplicate launch is skipped.
+
+Not in Phase 1: `StandbyServlet`, `StandbyFilter`, `standbyWaiting`,
+`standbySelectionFuture`, the `/standby` page, the control-panel button label.
+
 ## 1. Fix V2 Error Propagation
 
 In [CompetitionDataV2.java](../owlcms/src/main/java/app/owlcms/data/export/v2/CompetitionDataV2.java):
@@ -100,7 +155,7 @@ and [Config.java](../owlcms/src/main/java/app/owlcms/data/config/Config.java):
 - Read `OWLCMS_STANDBY` and `OWLCMS_LOADJSON` in `Main.parseConfig()`.
 - Jetty starts and listens before `initConfig` and `initData` run
    (`EmbeddedJetty.run`).
-- **Standby wait:** When `OWLCMS_STANDBY=true`, open the browser to the server
+- **Standby wait (Phase 2):** When `OWLCMS_STANDBY=true`, open the browser to the server
    URL (`BrowserUtils.startBrowserIfAppropriate`, which redirects `/` to
    `/standby`) and block the startup thread on a `CompletableFuture<Path>`
    (`standbySelectionFuture.get()`) before initializing the database or
@@ -141,7 +196,7 @@ and [Config.java](../owlcms/src/main/java/app/owlcms/data/config/Config.java):
 - Keep readiness closed until startup completes (`OwlcmsFactory` latch). Never
    expose partial data.
 
-## 4. Standby Page and Routing
+## 4. Standby Page and Routing (Phase 2)
 
 - Because `VaadinServlet` is mapped to `/*` and blocks on
    `OwlcmsFactory.waitDBInitialized()`, register `StandbyServlet` on `/standby`
@@ -187,10 +242,10 @@ Use [launch.go](../../controlpanel/owlcms/launch.go),
    immediately, the control panel's existing `CheckPortReady` probe succeeds as
    soon as Jetty is up (~3 seconds) and displays the browser link
    (`http://localhost:<port>`), which opens `/standby`.
-- When `OWLCMS_STANDBY=true` in `env.properties`, label the launch button
+- (Phase 2) When `OWLCMS_STANDBY=true` in `env.properties`, label the launch button
    **Launch as standby**.
 - Treat exit code 78 as non-restartable.
-- `env.properties` is per installed version; carry `OWLCMS_STANDBY` and
+- (Phase 2) `env.properties` is per installed version; carry `OWLCMS_STANDBY` and
    `OWLCMS_LOADJSON` over when a new version is installed on the spare.
 
 Typical spare configuration:
@@ -222,7 +277,7 @@ In VS Code launch configurations:
    exceptions retain their cause; validation flags are restored.
 - Commit or final-processing failure prevents readiness. UI imports show errors,
    not success. Failure never retries or starts an empty competition.
-- The standby page lists candidate files with per-row **Load** buttons, rejects
+- (Phase 2) The standby page lists candidate files with per-row **Load** buttons, rejects
    arbitrary paths, duplicate submissions and unauthorized clients, and
    redirects to `/` which waits on the readiness latch and opens when ready.
 - When a PEM signing key is present (`forcedByKey()`), `AccessMode.ACCOUNTS` is

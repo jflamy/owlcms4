@@ -2,7 +2,7 @@
 
 Status: analysis and proposal, 2026-10-14; design decision recorded 2026-10-17 (section 1.1). No implementation changes are authorized by this document.
 
-Related: [AUDIT_INTEGRITY_SPECIFICATION.md](AUDIT_INTEGRITY_SPECIFICATION.md), [EXTERNAL_CONNECTION_EXPORT_PROTECTION_PROPOSAL.md](EXTERNAL_CONNECTION_EXPORT_PROTECTION_PROPOSAL.md), [DIRECT_JSON_BOOT.md](DIRECT_JSON_BOOT.md) (loads the checkpoints on the spare).
+Related: [AUDIT_INTEGRITY_SPECIFICATION.md](done/AUDIT_INTEGRITY_SPECIFICATION.md), [EXTERNAL_CONNECTION_EXPORT_PROTECTION_PROPOSAL.md](EXTERNAL_CONNECTION_EXPORT_PROTECTION_PROPOSAL.md), [DIRECT_JSON_BOOT.md](DIRECT_JSON_BOOT.md) (loads the checkpoints on the spare).
 
 ## 1. Purpose and Context
 

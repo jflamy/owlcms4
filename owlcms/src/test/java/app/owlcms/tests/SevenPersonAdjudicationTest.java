@@ -55,7 +55,7 @@ import app.owlcms.uievents.UIEvent;
  * the referee and jury devices send. The FOP runs in testing mode, so its delays run at once and the scenarios are
  * deterministic; only the UI events (published asynchronously) are awaited.
  *
- * See compliance/seven-person-adjudication.md.
+ * See compliance/done/seven-person-adjudication.md (design); compliance/seven-person-adjudication.md lists remaining work.
  */
 public class SevenPersonAdjudicationTest {
 
