@@ -71,7 +71,7 @@ standby wait and page without touching Phase 1 code.
 
 | Phase | Sections | Delivers |
 | --- | --- | --- |
-| 1 — launch with a file | §1, §2, §3 (except the standby wait), §5, §6 exit code, §7 | `OWLCMS_LOADJSON` = file or folder, imported immediately at startup |
+| 1 — launch with a file | §1, §2, §3 (except the standby wait), §5, §6 restart rule, §7 | `OWLCMS_LOADJSON` = file or folder, imported immediately at startup |
 | 2 — standby | §3 standby wait, §4, §6 label and `env.properties` carry-over | `OWLCMS_STANDBY=true`, `/standby` page, operator picks the file |
 
 To avoid rework, Phase 1 must establish the following seams; Phase 2 only
@@ -102,10 +102,10 @@ fills them in.
    `OwlcmsFactory.waitDBInitialized()` unchanged, which the Vaadin servlet
    already blocks on. Phase 2 adds `StandbyFilter`/`StandbyServlet` in front of
    it; the latch semantics do not change.
-5. **Failure path is terminal from Phase 1.** Exit code 78, the audit line
-   (source filename + SHA-256), `MainWrapper` and control-panel
-   non-restartable handling are Phase 1 work; launch-with-file fails the same
-   way standby does.
+5. **Failure path is terminal from Phase 1.** The terminal exit, the audit line
+   (source filename + SHA-256) and the "no automatic restart when
+   `OWLCMS_LOADJSON` is set" rule in `MainWrapper` and the control panel are
+   Phase 1 work; launch-with-file fails the same way standby does.
 6. **Access mode / PEM forcing is mode-independent.** The `forcedByKey()` →
    `AccessMode.ACCOUNTS` rule in §3 belongs to Phase 1 so an imported
    accounts-bearing export behaves identically whether loaded at launch or
@@ -224,11 +224,27 @@ and [Config.java](../owlcms/src/main/java/app/owlcms/data/config/Config.java):
 
 ## 5. Stop on Failure
 
-- Log the actual cause and exit with a named terminal code (proposed: 78). Do
-   not merely stop Jetty or continue startup with partial state.
-- Handle that code in control-panel supervision and
-   [MainWrapper.java](../owlcms/src/main/java/app/owlcms/MainWrapper.java), which
-   currently restarts every code from 1 to 127.
+- Log the actual cause and exit with a non-zero code (78, `EX_CONFIG`, used
+   only as a diagnostic). Do not merely stop Jetty or continue startup with
+   partial state.
+- **A launch with `OWLCMS_LOADJSON` set is never restarted automatically; any
+   non-zero exit is final.** The decision is made by the supervisor from the
+   environment it launched with, not from the exit code. A restart would rerun
+   the scorched-earth import and replace whatever happened since the first
+   load, whether the first load failed or OWLCMS crashed hours later.
+  - Control panel: in the restart decision (`logRestartDecision` /
+    `shared.ShouldRestartProcess` callers in `owlcms/launch.go`), do not
+    restart when the launch environment contains `OWLCMS_LOADJSON`.
+  - [MainWrapper.java](../owlcms/src/main/java/app/owlcms/MainWrapper.java),
+    which currently restarts every code from 1 to 127: it receives the same
+    environment (or `-D` property, read as `StartupUtils.getStringParam("loadJson")`
+    does), so treat any exit as terminal when `OWLCMS_LOADJSON` is set. It needs
+    no exit-code or readiness knowledge.
+  - The restart after a UI JSON import (`OWLCMS_CONTROLPANEL`) is unaffected:
+    `OWLCMS_LOADJSON` is not set then.
+  - Docker and systemd restart policies cannot see the variable and are not
+    launch targets for this feature; systemd can use
+    `RestartPreventExitStatus=78` if wanted.
 
 ## 6. Control Panel
 
@@ -244,7 +260,7 @@ Use [launch.go](../../controlpanel/owlcms/launch.go),
    (`http://localhost:<port>`), which opens `/standby`.
 - (Phase 2) When `OWLCMS_STANDBY=true` in `env.properties`, label the launch button
    **Launch as standby**.
-- Treat exit code 78 as non-restartable.
+- Do not restart a launch whose environment contains `OWLCMS_LOADJSON` (§5).
 - (Phase 2) `env.properties` is per installed version; carry `OWLCMS_STANDBY` and
    `OWLCMS_LOADJSON` over when a new version is installed on the spare.
 
@@ -283,7 +299,9 @@ In VS Code launch configurations:
 - When a PEM signing key is present (`forcedByKey()`), `AccessMode.ACCOUNTS` is
    forced alongside `IWF_COMPLIANCE`; without a PEM key, the imported database
    starts in `PIN` mode and can be switched to `ACCOUNTS` mode in the UI.
-- Terminal failure works on macOS, Windows and Linux, including the wrapper.
+- Terminal failure works on macOS, Windows and Linux. Neither the control panel
+   nor `MainWrapper` restarts a launch with `OWLCMS_LOADJSON` set, after an
+   import failure or after a later crash; a launch without it restarts as before.
 - Imported locale, resources, timing, accounts, rankings, platforms and tracker
    data match a normal restart. No partial data is served during the load.
 - Rehearse takeover with the primary inactive and the spare's access mode,

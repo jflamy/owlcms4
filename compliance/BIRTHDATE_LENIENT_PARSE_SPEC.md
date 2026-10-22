@@ -46,6 +46,7 @@ The whole design reduces to voting on the field order for the file.
 | No votes (every date has both parts ≤ 12) | **Locale order** + **warning**, no rejection |
 | ISO rows (`yyyy-…`) | Always accepted, exempt from the single-format rule |
 | Mixed delimiters (`/ . -`), order consistent | Tolerated |
+| Unparseable or non-existent date in the resolved order (month 15, Feb 30, garbage text) | **Reject sheet**; every offending cell is reported, not just the first |
 
 Notes:
 
@@ -77,6 +78,8 @@ Notes:
 3. **Application pass** (existing per-row loop): parse each birth date against the
    resolved order, accepting any delimiter; construct the `LocalDate` to validate
    calendar correctness (e.g. reject month 15 or day 31 in a 30-day month).
+   Errors are collected for the whole column and reported together; if there is
+   any, the sheet is rejected and no athlete is imported.
 
 ## Architecture / placement
 
@@ -92,6 +95,7 @@ Notes:
 ## Open / decided items
 
 - Conflicting votes → reject sheet. **Decided.**
+- Invalid calendar date or unparseable text → reject sheet, listing all offending cells. **Decided** (no row is ever skipped for a birth-date problem).
 - No-evidence ambiguous → locale order + warning, no reject. **Decided.**
 - 2-digit year anywhere → reject sheet. **Decided.**
 - Mixed delimiters with consistent order → tolerated. **Decided.**
@@ -107,5 +111,8 @@ Unit tests should cover each branch:
 - 2-digit year anywhere → reject.
 - Mixed delimiters, consistent order → accepted.
 - ISO mixed with delimited dates → ISO accepted, order from delimited votes.
-- Calendar validation (month 15, Feb 30) → rejected per row / per sheet as
-  appropriate.
+- Calendar validation (month 15, Feb 30) and unparseable text → sheet rejected,
+  all offending cells reported together.
+- Cells that are accepted today keep working unchanged: bare year (`1990`),
+  Excel serial number, genuine Excel date cell, ISO text; a blank birth cell is
+  not an error here (it is reported by the existing missing-birth-date check).

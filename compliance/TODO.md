@@ -11,11 +11,14 @@ the rest await confirmation. 2026-10-22.
    `OWLCMS_LOADJSON=<file or folder>` imports a V2/V1 JSON or ZIP at startup:
    §1 V2 error propagation, §2 ZIP input, §3 single-pass import behind the
    `EmbeddedJetty.run` seam (`Main.initFromImport(Path)`, folder helper with
-   `candidates`/`latest`), §5 exit code 78 in `MainWrapper` and the control
-   panel, §7 VS Code launch configs. Standby (Phase 2) is deliberately excluded.
+   `candidates`/`latest`), §5 no automatic restart when `OWLCMS_LOADJSON` is set (control panel
+   and `MainWrapper`; exit 78 is diagnostic only), §7 VS Code launch configs. Standby (Phase 2) is deliberately excluded.
    Unblocks launching owlcms from a JSON fixture for browser acceptance.
-2. [BIRTHDATE_LENIENT_PARSE_SPEC.md](BIRTHDATE_LENIENT_PARSE_SPEC.md) — kept,
-   low risk (see below).
+2. **BIRTHDATE_LENIENT_PARSE_SPEC** — file-wide DMY/MDY detection on
+   registration import ([BIRTHDATE_LENIENT_PARSE_SPEC.md](BIRTHDATE_LENIENT_PARSE_SPEC.md)).
+   Low risk; must not break any registration sheet that imports correctly
+   today (ISO, Excel date cells, bare year and Excel serials keep their
+   current path).
 
 ## Confirmed
 
@@ -24,23 +27,14 @@ the rest await confirmation. 2026-10-22.
   Follow-up: `ConcurrentEditDialog.confirm` currently gives primary style and
   focus to "Keep editing" (`ConcurrentEdit.Back`); "Reload card" is "Discard my
   changes" (`ConcurrentEdit.Discard`), which should become the default.
-- [x] **Medal and best-athlete ranks: current state accepted**; Parts 2 (scoreboard medal columns) and 3 (tracker) will not be done.
-  ([done/medal-and-best-athlete-ranks.md](done/medal-and-best-athlete-ranks.md))
-- [x] **Resource monitor: accepted as shipped**; no further runtime acceptance, no full-GC escalation.
-  ([done/RESOURCE_MONITOR_SPEC.md](done/RESOURCE_MONITOR_SPEC.md))
-- [x] **No presence tracking / warning-on-open** for athlete and registration
-  cards; the save-time check is the retained protection.
-  ([done/ATHLETE_CARD_CONCURRENT_EDITING_ANALYSIS.md](done/ATHLETE_CARD_CONCURRENT_EDITING_ANALYSIS.md))
 
 ## Keep or drop (document level)
 
 Each remaining document is either backlog or will never be done.
 
-- [ ] [PLAN-agegroup-edit-confirmation.md](../PLAN-agegroup-edit-confirmation.md) — age-group edit confirmation and safe category save (not started)
-- [ ] [PLAN-scoped-dark-dialogs.md](../PLAN-scoped-dark-dialogs.md) — scoped dark theme on display dialogs (not started)
-- [x] **Keep** — [BIRTHDATE_LENIENT_PARSE_SPEC.md](BIRTHDATE_LENIENT_PARSE_SPEC.md) — file-wide DMY/MDY detection on registration import (not started). Low risk; constraint: must not break any registration sheet that imports correctly today (ISO and Excel date cells keep their current path).
+- [ ] [PLAN-agegroup-edit-confirmation.md](PLAN-agegroup-edit-confirmation.md) — age-group edit confirmation and safe category save (not started)
+- [ ] [PLAN-scoped-dark-dialogs.md](PLAN-scoped-dark-dialogs.md) — scoped dark theme on display dialogs (not started)
 - [ ] [MEDAL_ELIGIBILITY.md](MEDAL_ELIGIBILITY.md) — per-championship QT-not-met policy, entry-total rule, team-point scale (medal and team-points policies done; the three new settings still global)
-- [x] **Keep, Phase 1 first** — [DIRECT_JSON_BOOT.md](DIRECT_JSON_BOOT.md) — `OWLCMS_LOADJSON` / `OWLCMS_STANDBY` startup import (not started). Phase 1 (launch with a file) is next up; Phase 2 (standby) later. Also unblocks automated browser acceptance (launch owlcms from a JSON fixture with accounts and switches), e.g. the Competition Director checks
 - [ ] [SCHEDULED_CHECKPOINTS.md](SCHEDULED_CHECKPOINTS.md) — tracker plugin 5-minute checkpoints, Path A1 (decided, not started)
 - [ ] [EXTERNAL_CONNECTION_EXPORT_PROTECTION_PROPOSAL.md](EXTERNAL_CONNECTION_EXPORT_PROTECTION_PROPOSAL.md) — encrypted forwarding keys in exports, export endpoint authorization (proposal, not started)
 - [ ] [personal-best-records.md](personal-best-records.md) — Personal records as a record federation in owlcms (tracker side done, owlcms not started)
@@ -52,7 +46,7 @@ Each remaining document is either backlog or will never be done.
 
 ## Decisions inside the documents
 
-### Age-group editing ([PLAN-agegroup-edit-confirmation.md](../PLAN-agegroup-edit-confirmation.md) §8)
+### Age-group editing ([PLAN-agegroup-edit-confirmation.md](PLAN-agegroup-edit-confirmation.md) §8)
 
 - [ ] When an athlete gains eligibility, preserve a valid current registration or re-infer it?
 - [ ] How do missing age/bodyweight and manual registration choices affect reassignment?
@@ -61,24 +55,20 @@ Each remaining document is either backlog or will never be done.
 - [ ] During save: which controls/dialogs stay visible and disabled; how are failure and retry presented?
 - [ ] Active checkbox: show the proposed or the original value while a decision is pending?
 
-### Scoped dark dialogs ([PLAN-scoped-dark-dialogs.md](../PLAN-scoped-dark-dialogs.md))
+### Scoped dark dialogs ([PLAN-scoped-dark-dialogs.md](PLAN-scoped-dark-dialogs.md))
 
 - [ ] Give display-page `Notification`s component-level dark styling, or accept that they render light?
 - [ ] Delete the unused `.referee-jury-home-displays` CSS block?
 
 ### Birth-date lenient parsing ([BIRTHDATE_LENIENT_PARSE_SPEC.md](BIRTHDATE_LENIENT_PARSE_SPEC.md))
 
-- [ ] Invalid calendar dates (month 15, Feb 30): reject the row or the whole sheet?
+- [x] Invalid calendar dates (month 15, Feb 30) and unparseable text: **reject the whole sheet**, reporting all offending cells together (decided 2026-10-22).
 
 ### Championship qualification policies ([MEDAL_ELIGIBILITY.md](MEDAL_ELIGIBILITY.md), Legacy Migration)
 
 - [ ] How to identify Masters championships in legacy data (inferred from age-group count and minimum age, as suggested)?
 - [ ] How to identify Kids championships that should get entry rule `NONE` (explicit configuration after migration, or a migration rule)?
 - [ ] Confirm the non-Masters, non-IMWA defaults: entry-total enforcement off → `NONE` else `20_kg`; standard 28/25/23 → `IWF` else `CUSTOM`.
-
-### Direct JSON boot ([DIRECT_JSON_BOOT.md](DIRECT_JSON_BOOT.md) §5)
-
-- [ ] Terminal exit code on import failure: 78 as proposed? (`MainWrapper` and the control panel must stop restarting on that code.)
 
 ### Export protection ([EXTERNAL_CONNECTION_EXPORT_PROTECTION_PROPOSAL.md](EXTERNAL_CONNECTION_EXPORT_PROTECTION_PROPOSAL.md) §1)
 
