@@ -1,6 +1,6 @@
 # Concurrent Opening of Athlete and Registration Cards — Compliance Analysis
 
-Status: historical proposal, with implementation updates below. Presence tracking and warning-on-open are not implemented.
+Status: historical proposal, with implementation updates below. Presence tracking and warning-on-open will not be done (decision 2026-10-22).
 
 ## Implementation update (2026-10-06)
 
@@ -19,8 +19,8 @@ This section is the current decision record and takes precedence over the histor
 
 **Fix:** use `ModalityMode.STRICT` for both card-hosting paths:
 
-- [OwlcmsGridLayout.showDialog](../owlcms/src/main/java/app/owlcms/nui/crudui/OwlcmsGridLayout.java), the shared CRUD dialog host.
-- [RegistrationContent.openAthleteCard](../owlcms/src/main/java/app/owlcms/nui/preparation/RegistrationContent.java), the standalone card host.
+- [OwlcmsGridLayout.showDialog](../../owlcms/src/main/java/app/owlcms/nui/crudui/OwlcmsGridLayout.java), the shared CRUD dialog host.
+- [RegistrationContent.openAthleteCard](../../owlcms/src/main/java/app/owlcms/nui/preparation/RegistrationContent.java), the standalone card host.
 
 Vaadin attaches subsequently opened overlays to the active modal parent. Closing the parent detaches the dependent overlay tree, including stale-save and delete confirmations, and their controls can no longer submit an operation. This applies to every parent-close path, not just lift events. It does not add lift-event subscriptions to hosts that do not already have them.
 
@@ -45,19 +45,19 @@ That check alone does not protect a form opened before lifting and left open unt
 
 This behavior applies to registration, weigh-in, and the registration form reached through team selection; team selection delegates construction and operation buttons to the registration factory. The fields displayed at opening now come from the same freshly loaded athlete as the reference snapshot, rather than a potentially older grid row.
 
-[RegistrationEditCheck](../owlcms/src/main/java/app/owlcms/data/athlete/RegistrationEditCheck.java) compares identity, registration/eligibility data, session and category IDs, participation membership, all declaration/change/result fields, custom score, and hidden referee/jury/challenge/time metadata. Snapshots copy mutable decision lists and participation values; computed progressions and ranking changes do not invalidate them.
+[RegistrationEditCheck](../../owlcms/src/main/java/app/owlcms/data/athlete/RegistrationEditCheck.java) compares identity, registration/eligibility data, session and category IDs, participation membership, all declaration/change/result fields, custom score, and hidden referee/jury/challenge/time metadata. Snapshots copy mutable decision lists and participation values; computed progressions and ranking changes do not invalidate them.
 
-UI wording is delivered in [registration_stale_translations.tsv](../shared/src/main/resources/i18n/registration_stale_translations.tsv); the canonical translation CSV is unchanged. Registration check and write are not a global concurrency guarantee against arbitrary other registration writers. Item 2's serialization is scoped to cards and event processing on the same FOP, as agreed.
+UI wording is delivered in [registration_stale_translations.tsv](../../shared/src/main/resources/i18n/registration_stale_translations.tsv); the canonical translation CSV is unchanged. Registration check and write are not a global concurrency guarantee against arbitrary other registration writers. Item 2's serialization is scoped to cards and event processing on the same FOP, as agreed.
 
 ### Item 2: guarded card saves and recheck on confirmation — implemented
 
 **Agreed scope:** the marshal and competition director use the same singleton FOP. No distributed editing lock, per-athlete lock registry, JPA `@Version`, or pessimistic database locking was added.
 
-- **A:** [ConcurrentEditCheck.trySave](../owlcms/src/main/java/app/owlcms/data/athlete/ConcurrentEditCheck.java) acquires that FOP's existing Java monitor and keeps it across the current database read, comparison, copying of card values, persistence through commit, and the WeightChange event. FOP event handling is already synchronized on the same instance. A second participating save therefore checks only after the first has committed.
+- **A:** [ConcurrentEditCheck.trySave](../../owlcms/src/main/java/app/owlcms/data/athlete/ConcurrentEditCheck.java) acquires that FOP's existing Java monitor and keeps it across the current database read, comparison, copying of card values, persistence through commit, and the WeightChange event. FOP event handling is already synchronized on the same instance. A second participating save therefore checks only after the first has committed.
 - **B:** every Save anyway click repeats the guarded operation using the exact stored snapshot captured for the displayed confirmation. Further conflicting changes produce an updated confirmation, not a write. Changes already matching the proposed values need no confirmation.
 - A renewed confirmation shows the complete set of still-pending overwrites, not just fields changed since the last confirmation. For example, it shows both Change 1 (stored 65, proposed 63) and Change 2 (stored 67, proposed blank). Previously accepted conflicts remain visible when another change requires renewed consent.
 - Normal Save, the direct card update entry point, and both withdrawals use the same operation. No monitor is held while displaying a dialog or waiting for a user.
-- [FormSaveTask](../owlcms/src/main/java/app/owlcms/nui/shared/FormSaveTask.java) executes persistence/monitor acquisition in a virtual-thread worker. It captures the UI and audit actor on the UI thread, prevents duplicate submission, and applies completed UI work separately. Closing/detaching the form cancels pending work before it saves; exceptions are logged and shown through the standard operation-error UI.
+- [FormSaveTask](../../owlcms/src/main/java/app/owlcms/nui/shared/FormSaveTask.java) executes persistence/monitor acquisition in a virtual-thread worker. It captures the UI and audit actor on the UI thread, prevents duplicate submission, and applies completed UI work separately. Closing/detaching the form cancels pending work before it saves; exceptions are logged and shown through the standard operation-error UI.
 - The WeightChange event is constructed on the UI thread so its audit identity is retained. Strict modality continues to remove dependent confirmations when the parent closes.
 - The existing off-platform card host is retained for compatibility and uses a common fallback monitor for off-platform cards. It is outside the agreed same-FOP concurrency guarantee; that fallback does not serialize it with a platform.
 
@@ -106,7 +106,7 @@ Maven compilation and 37 focused tests passed: 18 card-conflict/guarded-save tes
 - **Heartbeat**: see §3.5. Recommendation: keep the default interval.
 - **People who already have the card open are told**, on every platform and on Registration and Weigh-in, through a targeted event on the application-wide bus (§4.4).
 
-Related: [ACCESS_CONTROL_DESIGN.md](ACCESS_CONTROL_DESIGN.md) (identity), [AUDIT_TRAIL_SPECIFICATION.md](AUDIT_TRAIL_SPECIFICATION.md) (stations, change records).
+Related: [ACCESS_CONTROL_DESIGN.md](../ACCESS_CONTROL_DESIGN.md) (identity), [AUDIT_TRAIL_SPECIFICATION.md](AUDIT_TRAIL_SPECIFICATION.md) (stations, change records).
 
 ## 1. Question
 

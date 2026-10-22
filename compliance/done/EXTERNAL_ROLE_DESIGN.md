@@ -1,7 +1,7 @@
 # EXTERNAL Role — Read-Only Display Access for Broadcasters
 
 Status: design approved (decisions in §10 resolved), not implemented.
-Audience: the implementing agent. Extends [ACCESS_CONTROL_DESIGN.md](ACCESS_CONTROL_DESIGN.md); its §18 (repository constraints) applies.
+Audience: the implementing agent. Extends [ACCESS_CONTROL_DESIGN.md](../ACCESS_CONTROL_DESIGN.md); its §18 (repository constraints) applies.
 
 Line numbers are approximate; search by method name.
 

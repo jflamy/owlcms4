@@ -88,10 +88,10 @@ decision.
 | Term | Code |
 |---|---|
 | Jury Console | removed (was `JuryContent`, route `lifting/jury`, label `Jury_Console`) |
-| Jury Control | [JuryKeypadContent.java](../owlcms/src/main/java/app/owlcms/nui/referee/JuryKeypadContent.java), route `jurykeypad`, label `Jury_Keypad` = "Jury Control" |
-| Jury member phone | [JuryMobileContent.java](../owlcms/src/main/java/app/owlcms/nui/referee/JuryMobileContent.java), route `jury` |
-| Referee phone | [RefContent.java](../owlcms/src/main/java/app/owlcms/nui/referee/RefContent.java), route `ref` |
-| USB keypads | keyboard events in [DecisionElement.js](../owlcms/src/main/frontend/components/DecisionElement.js) `_readRef` (keys 1–6) |
+| Jury Control | [JuryKeypadContent.java](../../owlcms/src/main/java/app/owlcms/nui/referee/JuryKeypadContent.java), route `jurykeypad`, label `Jury_Keypad` = "Jury Control" |
+| Jury member phone | [JuryMobileContent.java](../../owlcms/src/main/java/app/owlcms/nui/referee/JuryMobileContent.java), route `jury` |
+| Referee phone | [RefContent.java](../../owlcms/src/main/java/app/owlcms/nui/referee/RefContent.java), route `ref` |
+| USB keypads | keyboard events in [DecisionElement.js](../../owlcms/src/main/frontend/components/DecisionElement.js) `_readRef` (keys 1–6) |
 | Initial decision | the 3 referee votes, committed by `commitCurrentDecision()` |
 | Review vote | the second vote of the 7 officials during the review (new) |
 
@@ -99,7 +99,7 @@ decision.
 
 ### Referee decisions
 
-[FieldOfPlay.java](../owlcms/src/main/java/app/owlcms/fieldofplay/FieldOfPlay.java)
+[FieldOfPlay.java](../../owlcms/src/main/java/app/owlcms/fieldofplay/FieldOfPlay.java)
 
 - `refereeDecision[3]` holds the votes. `processRefereeDecisions` emits the
   down signal at 2 matching votes, and on the third vote schedules the
@@ -146,14 +146,14 @@ decision.
 
 Already partly present:
 
-- [JuryRejectionReasons.java](../owlcms/src/main/java/app/owlcms/uievents/JuryRejectionReasons.java)
+- [JuryRejectionReasons.java](../../owlcms/src/main/java/app/owlcms/uievents/JuryRejectionReasons.java)
   lists 17 reasons (`Jury.incorrect.1..17`).
 - Jury Control opens a reason dialog for No Lift
   (`openNoLiftReasonDialog`) and sends the code in `JuryDecision`.
 - The code reaches the announcer notification
-  ([AthleteGridContent.java](../owlcms/src/main/java/app/owlcms/nui/shared/AthleteGridContent.java)),
+  ([AthleteGridContent.java](../../owlcms/src/main/java/app/owlcms/nui/shared/AthleteGridContent.java)),
   `JuryDecisionDialog`, and the tracker (`juryReasonCode` in
-  [WebSocketEventForwarder.java](../owlcms/src/main/java/app/owlcms/monitors/WebSocketEventForwarder.java)).
+  [WebSocketEventForwarder.java](../../owlcms/src/main/java/app/owlcms/monitors/WebSocketEventForwarder.java)).
 - It is **not** shown on the owlcms attempt board or scoreboards.
 - The automatic jury decision (`scheduleAutoJuryDecision`) sends **no** reason.
 
@@ -191,7 +191,7 @@ Already partly present:
 ### 1. Feature switch and configuration
 
 - Add `SEVEN_PERSON_ADJUDICATION("7personAdjudication", …)` to
-  [FeatureSwitch.java](../owlcms/src/main/java/app/owlcms/data/config/FeatureSwitch.java).
+  [FeatureSwitch.java](../../owlcms/src/main/java/app/owlcms/data/config/FeatureSwitch.java).
   The Java constant cannot start with a digit; the string id can. Section:
   `SPECIALTY_FEATURES` (or `USE_AT_YOUR_OWN_RISK` while experimental).
   Translation key `FeatureSwitch.7personAdjudication` goes in a TSV file.
@@ -268,10 +268,10 @@ voted. Until then, only "voted / not voted" is shown.
      screen that owns the decision for the access mode in use:
      - **Accounts mode** (IWF meets, `Config.isAccountsMode()`): the
        **Competition Supervisor** page
-       ([CompetitionDirectorContent.java](../owlcms/src/main/java/app/owlcms/nui/lifting/CompetitionDirectorContent.java),
+       ([CompetitionDirectorContent.java](../../owlcms/src/main/java/app/owlcms/nui/lifting/CompetitionDirectorContent.java),
        always enabled in that mode);
      - **PIN mode**: the **Speaker** (announcer) page
-       ([AnnouncerContent.java](../owlcms/src/main/java/app/owlcms/nui/lifting/AnnouncerContent.java)).
+       ([AnnouncerContent.java](../../owlcms/src/main/java/app/owlcms/nui/lifting/AnnouncerContent.java)).
      The console that sent the `TimeStarted` (timekeeper, or announcer when it
      is not the deciding screen) gets a notification that the start is pending
      a decision. The Jury Chair is notified on Jury Control.
@@ -510,7 +510,7 @@ OWLCMS issues the referee recall signal (`SummonRef`) **twice** during a review:
    break), OWLCMS re-arms the referee devices and sends the recall signal a
    second time to request their votes.
 
-Phones ([RefContent.java](../owlcms/src/main/java/app/owlcms/nui/referee/RefContent.java)):
+Phones ([RefContent.java](../../owlcms/src/main/java/app/owlcms/nui/referee/RefContent.java)):
 
 - On the review-vote call: `resetRefVote()` (re-enables the white button,
   which `slaveDecision` disables), then the same beep as `slaveSummonRef`. Show
@@ -522,7 +522,7 @@ Phones ([RefContent.java](../owlcms/src/main/java/app/owlcms/nui/referee/RefCont
 - `doRed`/`doWhite` already post `DecisionUpdate`; FOP routing (section 4) does
   the rest.
 
-MQTT ([MQTTMonitor.java](../owlcms/src/main/java/app/owlcms/monitors/MQTTMonitor.java)):
+MQTT ([MQTTMonitor.java](../../owlcms/src/main/java/app/owlcms/monitors/MQTTMonitor.java)):
 
 - Incoming: reuse `owlcms/refbox/decision/<fop>` (`"n good|bad"`), no change.
 - Outgoing on the call, in this order:
@@ -539,7 +539,7 @@ MQTT ([MQTTMonitor.java](../owlcms/src/main/java/app/owlcms/monitors/MQTTMonitor
   jury lights on those topics. They are published as before when the jury
   votes are cleared (manual deliberation, challenge without VPT).
 - Document the sequence in
-  [200-MQTTMessages.md](../docs/100-AdvancedTopics/200-MQTTMessages.md).
+  [200-MQTTMessages.md](../../docs/100-AdvancedTopics/200-MQTTMessages.md).
 - Config: `mqttJurySize()` publishes 4. Blue Owl takes the jury size from this
   message (there is no Blue Owl setting); `type JurySize` is widened to
   `3 | 4 | 5` in `blue-owl-electron/src/common.ts` and `initializer/jury.ts`
@@ -571,13 +571,13 @@ Chair uses the override on the Waiting for Votes screen.
 
 Jury member devices: the jurors vote again after the same call. The call
 clears the jury votes and pushes a `JuryUpdate` reset. Jury phones
-([JuryMobileContent.java](../owlcms/src/main/java/app/owlcms/nui/referee/JuryMobileContent.java))
+([JuryMobileContent.java](../../owlcms/src/main/java/app/owlcms/nui/referee/JuryMobileContent.java))
 and MQTT jury boxes re-arm, as they do today at the start of a deliberation.
 Jury devices do not buzz; the jurors are at the table.
 
 ### 6. Jury Control (fix)
 
-[JuryKeypadContent.java](../owlcms/src/main/java/app/owlcms/nui/referee/JuryKeypadContent.java)
+[JuryKeypadContent.java](../../owlcms/src/main/java/app/owlcms/nui/referee/JuryKeypadContent.java)
 
 - Row 7 (the bottom indicator row, "Jury Decisions") becomes the panel row:
   seven cells `R1 R2 R3 | J1 J2 J3 J4`, with a visual separator and a label
@@ -658,13 +658,13 @@ Jury devices do not buzz; the jurors are at the table.
 - **Decided: removed entirely**, with or without the switch. `JuryContent`
   (route `lifting/jury`) and `JuryDialog` are deleted; `JuryDecisionDialog`
   stays (it is the Speaker's jury decision dialog).
-- [LiftingNavigationContent.java](../owlcms/src/main/java/app/owlcms/nui/lifting/LiftingNavigationContent.java):
+- [LiftingNavigationContent.java](../../owlcms/src/main/java/app/owlcms/nui/lifting/LiftingNavigationContent.java):
   no `Jury_Console` button; the Jury Control button uses the `Jury_Keypad`
   label ("Jury Control", without "on mobile device").
 - Accounts with the Jury role land on Jury Control (`WorkPage.JURY_CONTROL`).
 - Features lost with the Console: athlete grid, sound toggle, and the Call
   Technical Controller button (no device to call the TC; section 6).
-- Update [020-Jury.md](../docs/060-Refereeing/020-Jury.md).
+- Update [020-Jury.md](../../docs/060-Refereeing/020-Jury.md).
 
 ### 8. Challenge after review
 
@@ -697,10 +697,10 @@ Jury devices do not buzz; the jurors are at the table.
   with the referee rectangles re-cleared and re-revealed in Phase B (today the
   rectangles are only driven by the live referee decision).
 - Show the technical rule on the attempt board for a panel No Lift
-  ([JuryNotificationCard.java](../owlcms/src/main/java/app/owlcms/displays/attemptboard/JuryNotificationCard.java)
+  ([JuryNotificationCard.java](../../owlcms/src/main/java/app/owlcms/displays/attemptboard/JuryNotificationCard.java)
   does not show it today). The scoreboard decision area is a candidate too.
 - Jury scoreboard page
-  ([JuryDecisions.java](../owlcms/src/main/java/app/owlcms/displays/scoreboard/JuryDecisions.java)):
+  ([JuryDecisions.java](../../owlcms/src/main/java/app/owlcms/displays/scoreboard/JuryDecisions.java)):
   check with 4 jurors.
 - Tracker: `juryReasonCode` is already sent. Add the panel review event and the
   7 votes if the tracker should show them (`tracker-core/src/competition-hub.js`).
@@ -733,9 +733,9 @@ languages and does not depend on the switch.
   translation. User docs (020-Jury.md, 180-Keypads.md) updated; the RFP
   proposals under docs/RFP are left as submitted.
 - **Keep the key names.** `JuryPresident` is also the assignment id in
-  [OfficialRole.java](../owlcms/src/main/java/app/owlcms/data/technicalofficial/OfficialRole.java)
+  [OfficialRole.java](../../owlcms/src/main/java/app/owlcms/data/technicalofficial/OfficialRole.java)
   (`JURY_PRESIDENT("JuryPresident", …)`) and
-  [TeamRole.java](../owlcms/src/main/java/app/owlcms/data/technicalofficial/TeamRole.java),
+  [TeamRole.java](../../owlcms/src/main/java/app/owlcms/data/technicalofficial/TeamRole.java),
   used by session officials and timetables. Renaming it would break existing
   data. Change only the displayed text; `Java` identifiers can stay too.
 - New keys from this analysis should use "Chair" (for example
@@ -756,8 +756,8 @@ languages and does not depend on the switch.
   `translation4.csv`) for the external translation tool. `translation4.csv`
   is not edited.
 - Docs: replace "jury president" in
-  [020-Jury.md](../docs/060-Refereeing/020-Jury.md) and
-  [180-Keypads.md](../docs/100-AdvancedTopics/180-Keypads.md).
+  [020-Jury.md](../../docs/060-Refereeing/020-Jury.md) and
+  [180-Keypads.md](../../docs/100-AdvancedTopics/180-Keypads.md).
 
 ## Effort and Phasing
 

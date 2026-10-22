@@ -673,7 +673,7 @@ The JSON schema remains unchanged and no separate JSON signature or checksum sid
 Remove the external H2 server capability globally while preserving the application's process-local connection pool. This is not gated by `iwfCompliance`:
 
 1. Remove `startH2EmbeddedServer()`, its call sites, the `embeddedH2Server` flag and the `org.h2.tools.Server` import.
-2. Remove `H2ServerPort` / `OWLCMS_H2SERVERPORT` support and its row in [docs/100-AdvancedTopics/140-Configuration.md](../docs/100-AdvancedTopics/140-Configuration.md).
+2. Remove `H2ServerPort` / `OWLCMS_H2SERVERPORT` support and its row in [docs/100-AdvancedTopics/140-Configuration.md](../../docs/100-AdvancedTopics/140-Configuration.md).
 3. Before creating the pool, allow only embedded `jdbc:h2:file:` and named `jdbc:h2:mem:` URLs for H2 deployments.
 4. Reject TCP and SSL H2 URLs, `AUTO_SERVER=TRUE`, `FILE_LOCK=NO`, `INIT`, duplicate options and unsupported options.
 5. Let H2 enforce its normal file lock. If another process owns the database, startup fails visibly without fallback.
@@ -802,7 +802,7 @@ Key generation and file I/O run in a background worker, not on the Vaadin UI thr
 
 ### 8.2 About Page
 
-The About page ([InfoNavigationContent.java](../owlcms/src/main/java/app/owlcms/nui/home/InfoNavigationContent.java)) displays audit-integrity status under the version number. When the configured switch is off but key presence forces integrity on, it says so. With effective `iwfCompliance` off it shows `audit integrity — off`. With integrity mode on it displays the fingerprint of the key OWLCMS actually loaded, in groups of four. When the built-in key is in use, it also shows `builtin key — no protection`. Nothing else about the key is shown.
+The About page ([InfoNavigationContent.java](../../owlcms/src/main/java/app/owlcms/nui/home/InfoNavigationContent.java)) displays audit-integrity status under the version number. When the configured switch is off but key presence forces integrity on, it says so. With effective `iwfCompliance` off it shows `audit integrity — off`. With integrity mode on it displays the fingerprint of the key OWLCMS actually loaded, in groups of four. When the built-in key is in use, it also shows `builtin key — no protection`. Nothing else about the key is shown.
 
 ### 8.3 Procedure
 
