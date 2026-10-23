@@ -444,18 +444,17 @@ public class DecisionElementStateTest {
     }
 
     @Test
-    public void incompleteJuryWaitsForSafeDeadline() throws Exception {
+    public void incompleteJuryWaitsWithoutDeadline() throws Exception {
         DecisionScenario scenario = startScenario(false);
         configureJuryTiming(scenario);
         scenario.decisionState.setShowJuryDecisions(true);
         enterInitialGoodDecision(scenario);
         assertFinalDecision(scenario, true);
         assertEquals(List.of("empty", "empty", "empty"), scenario.renderer.juryLights);
+        assertFalse("unfinished jury must remain on display without a timeout",
+                scenario.timeline.decisionReset.await(2_400, TimeUnit.MILLISECONDS));
+        completeJury(scenario);
         assertReset(scenario);
-        scenario.timeline.assertElapsedAtLeast("UI Decision", "UI DecisionReset", 2_000,
-                "unfinished jury must use the safe deadline");
-        scenario.timeline.assertElapsedAtMost("UI Decision", "UI DecisionReset", 2_000,
-                "unfinished jury must not block indefinitely");
     }
 
     @Test

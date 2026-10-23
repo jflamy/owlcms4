@@ -124,9 +124,9 @@ decision.
   referee votes (`Athlete.setDecisions`), updates records and sets
   `athleteUnderReview`.
 - The decision stays visible (`DECISION_VISIBLE`) for 3.5 s. When the
-  `juryDecisionsOnAttemptBoard` switch is on, the reset waits up to 10 s for the
-  jury votes (`scheduleDecisionReset`, `awaitingJuryCompletion`,
-  `rescheduleDecisionResetForJury`).
+  `juryDecisionsOnAttemptBoard` switch is on, the reset waits indefinitely for
+  all configured jurors to vote (`scheduleDecisionReset`,
+  `awaitingJuryCompletion`, `rescheduleDecisionResetForJury`).
 - `DecisionUpdate` in `BREAK` is rejected (`unexpectedEventInState`). Referees
   cannot vote during a jury break.
 - Referee phones disable the white button once the decision is shown
@@ -249,11 +249,10 @@ voted. Until then, only "voted / not voted" is shown.
    (`restartTimer` → `resetDecisions`). The wait for the jury is therefore
    **indefinite**: no timeout.
    - **Display hold.** When `juryDecisionsOnAttemptBoard` is on, the decision
-     stays visible (`DECISION_VISIBLE`) **until all 4 jury votes are in**,
+     stays visible (`DECISION_VISIBLE`) **until all configured jury votes are in**,
      then the jury circles are revealed and the display is held for the usual
-     `juryDecisionHoldMs` before the reset. This replaces the 10 s cap of
-     `juryDecisionVisibleMaxMs` used by the legacy jury mode
-     (`scheduleDecisionReset` arms no deadline while waiting; only
+     `juryDecisionHoldMs` before the reset. There is no jury-vote timeout:
+     `scheduleDecisionReset` arms no deadline while waiting; only
      `rescheduleDecisionResetForJury` arms one once the jury is complete).
      The announcer's clock-start request during this hold goes through the
      guard of step 4. A review started by the Chair (Jury Deliberation or
@@ -263,14 +262,17 @@ voted. Until then, only "voted / not voted" is shown.
      break starts with the votes on the lift kept; the vote called in that
      review cannot complete either, so the Chair gives the decision with the
      Good Lift / No Lift buttons (marked "Jury Chair Entered Decision").
-     The hold applies to every four-member jury (switch on), **with or
-     without VPT**. Without VPT, the clock-start guard applies only while the
-     display is held, and a unanimous jury opposite to the referees
-     triggers the stop only with `automaticBreakNoVPT` on (7.5.8 makes the
-     deliberation manual). The 10 s cap remains for 3- and 5-member juries.
+     The hold applies to every configured jury (3, 4 or 5 members), with or
+     without VPT. A four-member jury without VPT triggers the stop only with
+     `automaticBreakNoVPT` on (7.5.8 makes the deliberation manual); 3- and
+     5-member juries never trigger a review automatically.
    - When `juryDecisionsOnAttemptBoard` is off, the decision clears after the
      normal 3.5 s and the jury keeps voting on `athleteUnderReview` with the
-     next athlete displayed; nothing is held.
+     next athlete displayed; nothing is held. The next clock is nevertheless
+     refused until every juror has voted, the Chair/Speaker enters the jury
+     decision, or the Speaker/Competition Director chooses **Start Clock
+     Anyway** (which discards the incomplete jury votes and leaves the
+     referees' decision in place).
 3. When the 4th jury vote arrives, evaluate the panel (section 2):
    - Panel majority = referee decision: reveal the jury votes; nothing else
      happens.
@@ -750,7 +752,7 @@ Jury devices do not buzz; the jurors are at the table.
   - The TCRR does not require the jury votes to be shown. Two switches, each
     covering the vote on the lift and the review vote, for every jury size
     (decided 2026-10-23): `juryDecisionsOnAttemptBoard` for attempt boards (it
-    also keeps the 10 s wait for the jury votes on the lift; the per-board URL
+    also holds the decision indefinitely for the jury votes on the lift; the per-board URL
     parameter `showJuryDecisions` still overrides it) and
     `juryDecisionsOnScoreboard` (new, off by default) for the scoreboard
     decision section. `decisionSectionShowBothJuryVotes` is removed. When a
@@ -854,9 +856,11 @@ Otherwise the referees' decision stands. This is the counting of
 - **Phase A.** The jurors vote on the lift as today. Automatic stop only for the
   four-member jury with `automaticBreakNoVPT` on; none for 3- and 5-member
   juries (for now). Summon Referees turns orange as the cue when the jury vote
-  on the lift would reverse the referees. The decision display waits at most
-  10 s for 3- and 5-member juries, and the clock start is never refused for
-  missing jury votes (unchanged).
+  on the lift would reverse the referees. With jury votes shown on the attempt
+  board, the decision display waits indefinitely for every configured juror.
+  With them hidden, the display clears normally but the next clock is refused
+  until all jurors vote, the jury decision is entered, or Start Clock Anyway
+  discards the incomplete vote.
 - **Review starts** (Deliberation, Challenge, or the automatic stop):
   - Jury Control: No Lift · Good Lift · Call for Votes · Resume, the yellow
     buttons hidden (section 6);
@@ -1034,9 +1038,10 @@ Decided:
 - No timeout for the jury votes. The lift under review and its votes are kept
   until the next clock start. When jury decisions are shown on the attempt
   board, the decision display is held until the jury has voted (no 10 s cap),
-  for any four-member jury, with or without VPT.
-  A clock start with incomplete jury votes asks for an override ("Start clock
-  anyway") instead of being blocked. See section 3, steps 2 and 4.
+  for every configured jury (3, 4 or 5 members), with or without VPT.
+  A clock start with incomplete jury votes is refused; the deciding console
+  may choose "Start clock anyway" to discard the incomplete votes and leave
+  the referees' decision in place. See section 3, steps 2 and 4.
 - The panel result is only evaluated once the jury has voted (all 4 in phase
   A, all 7 in phase B). Jury members must not learn each other's votes. See
   section 2.
@@ -1086,8 +1091,9 @@ Decided:
   required for a No Lift on Jury Control), or the Speaker enters it as relayed
   by the Technical Controller. `requireJuryPresidentDecision` and the
   "announcer controlled jury decision" setting are removed. "Jury Chair Entered Decision" is marked
-  with VPT only. No automatic stop for 3/5 juries for now; their 10 s cap
-  stays. A 5-member jury keeps majority with VPT and unanimity without. See
+  with VPT only. No automatic stop for 3/5 juries; the next clock waits for
+  all jury votes or an explicit resolution. A 5-member jury keeps majority
+  with VPT and unanimity without. See
   section 12 (2026-10-23).
 
 - Speaker dialogs, for every jury: "Waiting for decision" when a review

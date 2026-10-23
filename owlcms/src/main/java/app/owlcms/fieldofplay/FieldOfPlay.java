@@ -1392,11 +1392,9 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * Four-member jury (seven-person switch): the clock is not started for the next attempt while the jury has not
-	 * finished voting on the previous lift. With Video Playback this is phase A step 4 of the Adjudication Panel;
-	 * without it, this applies only while the attempt board holds the decision for the jury. The Competition
-	 * Supervisor (Speaker in PIN mode) may start it anyway, which abandons the incomplete jury votes (technical mishap
-	 * recovery).
+	 * The clock is not started for the next attempt while the configured jury has not finished voting on the previous
+	 * lift. The Competition Supervisor (Speaker in PIN mode) may start it anyway, which abandons the incomplete jury
+	 * votes and leaves the referees' decision in place (technical mishap recovery).
 	 *
 	 * @return true if the event has been fully handled (refused)
 	 */
@@ -1405,9 +1403,6 @@ public class FieldOfPlay implements IUnregister {
 			return false;
 		}
 		boolean displayHeldForJury = this.state == DECISION_VISIBLE && this.awaitingJuryCompletion;
-		if (!isPanelProcedure() && !displayHeldForJury) {
-			return false;
-		}
 		if (this.state != CURRENT_ATHLETE_DISPLAYED && !displayHeldForJury) {
 			// other states keep their usual handling (e.g. "wait until the decision has been shown")
 			return false;
@@ -1433,20 +1428,22 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * Phase A step 3: once the four jury votes are in, compare the panel majority with the referees' decision. When
-	 * they differ, the competition is stopped automatically for an Adjudication Panel Review (deferred until the
-	 * decision lights are cleared if they are still shown).
+	 * Once all configured jurors have voted, release the next-clock gate. For the four-member jury, also evaluate the
+	 * automatic review rules.
 	 */
 	private void evaluatePanel() {
 		if (!isJuryVotesAwaited() || juryDeliberationInProgress()) {
 			return;
 		}
-		Boolean[] refereeVotes = this.panelPendingRefereeVotes;
-		AdjudicationPanel panel = new AdjudicationPanel(refereeVotes, getJuryMemberDecision());
-		if (!panel.isJuryComplete()) {
+		if (!allJurorsVoted(getJurySize())) {
 			return;
 		}
+		Boolean[] refereeVotes = this.panelPendingRefereeVotes;
 		endPanelVotePending(this);
+		if (getJurySize() != AdjudicationPanel.NB_JURORS) {
+			// 3- and 5-member juries do not trigger a review automatically.
+			return;
+		}
 		Boolean refereeMajority = AdjudicationPanel.refereeMajority(refereeVotes);
 		if (!isPanelProcedure()) {
 			// without Video Playback (7.5.8) the jury deliberates by hand; the automatic stop on a unanimous jury
@@ -1464,6 +1461,7 @@ public class FieldOfPlay implements IUnregister {
 			fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, null, null, true, this));
 			return;
 		}
+		AdjudicationPanel panel = new AdjudicationPanel(refereeVotes, getJuryMemberDecision());
 		if (!panel.differsFrom(refereeMajority)) {
 			this.logger.info("{}adjudication panel confirms the referee decision ({} white, {} red) for {}",
 			        FieldOfPlay.getLoggingName(this), panel.whites(), panel.reds(), this.athleteUnderReview);
@@ -1890,12 +1888,9 @@ public class FieldOfPlay implements IUnregister {
 		return this.panelPendingRefereeVotes != null && isPanelProcedure();
 	}
 
-	/**
-	 * @return true while the votes of the four-member jury (seven-person switch) on the last lift are awaited, with or
-	 *         without Video Playback Technology
-	 */
+	/** @return true while the configured jury's votes on the last lift are awaited */
 	public boolean isJuryVotesAwaited() {
-		return this.panelPendingRefereeVotes != null && isSevenPersonAdjudication();
+		return this.panelPendingRefereeVotes != null;
 	}
 
 	/**
@@ -2820,6 +2815,8 @@ public class FieldOfPlay implements IUnregister {
 		Integer actualLift = a.getActualLift(a.getAttemptsDone());
 		if (actualLift != null) {
 			cancelDecisionReset();
+			// The Chair or Speaker supplied the jury decision; individual jury votes are no longer required.
+			endPanelVotePending(e.getOrigin());
 			Integer curValue = Math.abs(actualLift);
 
 			// The Chair used the Good Lift / No Lift buttons (Jury Control or jury box) instead of the result of a jury
@@ -4756,9 +4753,8 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * Four-member jury (seven-person switch): keep the decision visible with no time limit, the jury must vote on every
-	 * lift. The reset is armed by rescheduleDecisionResetForJury when the fourth jury vote arrives; the clock-start
-	 * override also clears the display. Other jury sizes use the juryDecisionVisibleMaxMs time limit.
+	 * Keep the decision visible with no time limit while the configured jury votes. The reset is armed by
+	 * rescheduleDecisionResetForJury when the last jury vote arrives; the clock-start override also clears the display.
 	 */
 	private void holdDecisionForJury() {
 		this.decisionResetGeneration++;
@@ -4770,11 +4766,15 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private boolean allDecisionJurorsVoted() {
+		return allJurorsVoted(this.decisionJurySize);
+	}
+
+	private boolean allJurorsVoted(int jurySize) {
 		Boolean[] votes = getJuryMemberDecision();
-		if (this.decisionJurySize <= 0 || votes == null || votes.length < this.decisionJurySize) {
+		if (jurySize <= 0 || votes == null || votes.length < jurySize) {
 			return false;
 		}
-		for (int index = 0; index < this.decisionJurySize; index++) {
+		for (int index = 0; index < jurySize; index++) {
 			if (votes[index] == null) {
 				return false;
 			}
@@ -4838,8 +4838,9 @@ public class FieldOfPlay implements IUnregister {
 					&& this.currentInputKind != InputKind.SOLO_INPUT) {
 				getCurAthlete().setDecisions(attempt, Arrays.asList(getRefereeDecision().clone()));
 			}
-			// four-member jury: the jury votes on this lift are now awaited (only with three referee votes)
-			this.panelPendingRefereeVotes = isSevenPersonAdjudication()
+			// the configured jury votes on this lift; the next clock waits for all jurors, a jury decision, or an
+			// explicit clock-start override
+			this.panelPendingRefereeVotes = hasJuryReviewVote()
 			        && AdjudicationPanel.refereeMajority(getRefereeDecision()) != null
 			        && this.currentInputKind != InputKind.ANNOUNCER_ENTRY
 			        && this.currentInputKind != InputKind.SOLO_INPUT

@@ -21,11 +21,13 @@ The page has two parts.
 - The top part shows the **referee decisions** <u>as soon as they are made</u>, with the buttons to summon the referees to the jury table (all, or one of them) and to start a technical break.
 - The bottom part shows the **jury members' decisions**.  A grey circle shows that a jury member has voted; the votes are shown in red or white only <u>after all the jury members have voted</u>.  The bottom row has the jury actions: **Jury Deliberation**, **Challenge**, **Call for Votes** and **Resume Competition**.
 
+With any configured jury (3, 4 or 5 members), the next athlete's clock cannot start until every juror has voted on the previous lift.  If a jury device does not work, the Jury Chair can enter the jury's decision with **Good Lift** / **No Lift**, or the Speaker can choose **Start clock anyway** to discard the incomplete jury votes and let the referees' decision stand.  If jury decisions are not shown on the attempt board, the next athlete may be announced while the jury finishes voting, but their clock is still blocked.
+
 ![100_JuryControl_voting](img/020-Jury/100_JuryControl_voting.png)
 
 ## Seven-Person Adjudication Panel (TCRR 2026)
 
-With `7personAdjudication` and video playback, the four jury members vote on every lift, as the referees do.  The decision stays on the attempt board until the four jury votes are in.
+With `7personAdjudication` and video playback, the four jury members vote on every lift, as the referees do.  When jury decisions are enabled on the attempt board, the decision stays there until the four jury votes are in.
 
 - If the combined majority of the seven officials agrees with the referees, the competition goes on.  A 2-2 jury leaves the referees' decision in place.
 - If the combined majority is opposite to the referees, the competition **stops automatically** with an "Adjudication Panel Review".  The referees are called to the jury table to watch the video replay, and the votes on the lift stay displayed on Jury Control and on the boards.

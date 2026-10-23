@@ -237,6 +237,92 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
+	public void threeMemberJuryWithVideoBlocksTheNextClockUntilAllHaveVoted() {
+		setSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, false);
+		this.fop.setJurySize(3);
+		assertTrue(Competition.getCurrent().isVideoPlaybackTechnology());
+		lift(W, W, R);
+		juryVotes(W, W);
+		assertTrue(this.fop.isJuryVotesAwaited());
+
+		post(new FOPEvent.TimeStarted(new Object()));
+		assertEquals("the next clock is refused", FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+		assertTrue(this.recorder.await(this.recorder.pending, UIEvent.JuryVotesPending::isPending));
+
+		juryVote(2, W);
+		assertFalse(this.fop.isJuryVotesAwaited());
+		post(new FOPEvent.TimeStarted(new Object()));
+		assertEquals(FOPState.TIME_RUNNING, this.fop.getState());
+	}
+
+	@Test
+	public void fiveMemberJuryStartClockAnywayLeavesTheRefereesDecision() {
+		setSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, false);
+		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		this.fop.setJurySize(5);
+		lift(W, W, R);
+		juryVotes(R, R, R, R);
+		assertTrue(this.fop.isJuryVotesAwaited());
+
+		post(new FOPEvent.TimeStarted(new Object()));
+		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+		post(new FOPEvent.TimeStarted(new Object(), true));
+
+		assertEquals(FOPState.TIME_RUNNING, this.fop.getState());
+		assertFalse(this.fop.isJuryVotesAwaited());
+		assertNull("incomplete jury votes are discarded", this.fop.getJuryMemberDecision()[0]);
+		assertGoodLift(true);
+	}
+
+	@Test
+	public void fiveMemberJuryReleasesTheNextClockWhenTheLastJurorVotes() {
+		setSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, false);
+		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		this.fop.setJurySize(5);
+		lift(W, W, R);
+		juryVotes(W, W, W, W);
+		assertTrue(this.fop.isJuryVotesAwaited());
+
+		juryVote(4, W);
+
+		assertFalse(this.fop.isJuryVotesAwaited());
+		assertEquals("a 5-member jury does not trigger an automatic review", FOPState.CURRENT_ATHLETE_DISPLAYED,
+		        this.fop.getState());
+		post(new FOPEvent.TimeStarted(new Object()));
+		assertEquals(FOPState.TIME_RUNNING, this.fop.getState());
+	}
+
+	@Test
+	public void chairDecisionReleasesAnIncompleteThreeMemberJuryVote() {
+		setSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, false);
+		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		this.fop.setJurySize(3);
+		lift(W, W, R);
+		juryVotes(R, R);
+		assertTrue(this.fop.isJuryVotesAwaited());
+
+		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 1, true));
+
+		assertFalse(this.fop.isJuryVotesAwaited());
+		assertEquals(JuryDeliberationEventType.BAD_LIFT, awaitVerdict().getDeliberationEventType());
+		assertGoodLift(false);
+	}
+
+	@Test
+	public void threeMemberJuryDecisionStaysVisibleWhenJuryVotesAreShown() {
+		setSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, false);
+		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, true);
+		this.fop.setJurySize(3);
+		lift(W, W, R);
+		assertEquals("no time limit while the jury is voting", FOPState.DECISION_VISIBLE, this.fop.getState());
+
+		juryVotes(W, W, W);
+
+		assertFalse(this.fop.isJuryVotesAwaited());
+		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+	}
+
+	@Test
 	public void juryResumeEndsANormalBreakLikeBreakManagement() {
 		post(new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null, true, new Object()));
 		assertEquals(FOPState.BREAK, this.fop.getState());
@@ -311,12 +397,18 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
-	public void withoutVideoPlaybackTheClockIsFreeWhenTheDecisionIsNotHeld() {
+	public void withoutVideoPlaybackTheClockWaitsWhenTheDecisionIsNotHeld() {
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
 		lift(W, W, W);
 		juryVotes(W, W, W);
 		post(new FOPEvent.TimeStarted(new Object()));
+		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+		assertTrue(this.recorder.await(this.recorder.pending, UIEvent.JuryVotesPending::isPending));
+
+		post(new FOPEvent.TimeStarted(new Object(), true));
 		assertEquals(FOPState.TIME_RUNNING, this.fop.getState());
+		assertFalse(this.fop.isJuryVotesAwaited());
+		assertGoodLift(true);
 	}
 
 	// ---------------------------------------------------------------- phase B: the review vote
