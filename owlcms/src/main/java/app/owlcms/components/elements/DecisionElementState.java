@@ -116,6 +116,10 @@ public class DecisionElementState {
 
 	@Subscribe
 	public void slaveJuryUpdate(UIEvent.JuryUpdate e) {
+		if (e.isReviewVote() && !this.liveReferee) {
+			// public boards show the review vote from PanelVoteUpdate, revealed with the decision
+			return;
+		}
 		if (this.showJuryDecisions) {
 			publishJuryLights(e, juryLights(e.getJuryMemberDecision(), e.getJurySize()));
 		}
@@ -176,8 +180,9 @@ public class DecisionElementState {
 	}
 
 	/**
-	 * Seven-person Adjudication Panel: during the review break, show the Phase A votes that led to the review until
-	 * the Chair calls for votes. Does nothing when there is no such pattern.
+	 * During the review break, show the votes on the lift that led to the review (seven-person panel, or after an automatic
+	 * stop) until the Chair calls for votes. Does nothing when there is no such pattern. A public board whose jury
+	 * votes are hidden shows the referees' decision only.
 	 *
 	 * @param e the triggering event, null when syncing a newly attached display
 	 */
@@ -186,19 +191,28 @@ public class DecisionElementState {
 		if (votes == null) {
 			return;
 		}
+		int nbRefs = AdjudicationPanel.NB_REFEREES;
 		boolean juryComplete = true;
-		for (int i = AdjudicationPanel.NB_REFEREES; i < AdjudicationPanel.PANEL_SIZE; i++) {
+		for (int i = nbRefs; i < votes.length; i++) {
 			juryComplete = juryComplete && votes[i] != null;
 		}
-		List<String> states = new ArrayList<>(AdjudicationPanel.PANEL_SIZE);
-		for (int i = 0; i < AdjudicationPanel.PANEL_SIZE; i++) {
+		List<String> states = new ArrayList<>(votes.length);
+		for (int i = 0; i < votes.length; i++) {
 			Boolean vote = votes[i];
-			boolean revealed = i < AdjudicationPanel.NB_REFEREES || juryComplete;
+			boolean revealed = i < nbRefs || juryComplete;
 			states.add(vote == null ? "empty" : !revealed ? "voted" : vote ? "white" : "red");
 		}
-		this.renderer.showPanelVote(e, List.copyOf(states.subList(0, AdjudicationPanel.NB_REFEREES)),
-		        List.copyOf(states.subList(AdjudicationPanel.NB_REFEREES, AdjudicationPanel.PANEL_SIZE)),
+		this.renderer.showPanelVote(e, List.copyOf(states.subList(0, nbRefs)),
+		        showsReviewJury() ? List.copyOf(states.subList(nbRefs, states.size())) : List.of(),
 		        nextGeneration());
+	}
+
+	/**
+	 * @return true when this display shows the jury votes: the jury displays always, public boards when their jury
+	 *         votes are shown (attempt board switch or URL parameter)
+	 */
+	private boolean showsReviewJury() {
+		return this.liveReferee || this.showJuryDecisions;
 	}
 
 	@Subscribe
@@ -230,25 +244,34 @@ public class DecisionElementState {
 		// UIEvent.Decision at that time; the decision element does not render this event.
 	}
 
-	/** A new review vote: the seven cells are cleared. */
+	/** A new review vote: the cells are cleared. */
 	@Subscribe
 	public void slavePanelVoteCalled(UIEvent.PanelVoteCalled e) {
 		if (e.getRef() != 0) {
 			return;
 		}
-		boolean[] voted = new boolean[AdjudicationPanel.PANEL_SIZE];
+		if (!showsReviewJury()) {
+			// jury votes hidden: the review vote is not shown, only its decision
+			resetForJury(e);
+			return;
+		}
+		boolean[] voted = new boolean[this.fop != null ? this.fop.getReviewVoteSize() : AdjudicationPanel.PANEL_SIZE];
 		publishPanelVote(e, voted, null);
 	}
 
 	/**
-	 * Who has voted, then the seven votes revealed together. The attempt board reveals the vote as soon as it is
-	 * complete, before the Jury Chair gives the rule; only the scoreboards wait for the decision.
+	 * Who has voted, then the votes revealed together as soon as the last one is in, on every display that shows the
+	 * jury votes. The decision (and rule for a No Lift) pops over them when the Jury Chair confirms it.
 	 */
 	@Subscribe
 	public void slavePanelVoteUpdate(UIEvent.PanelVoteUpdate e) {
 		if (!e.isOpen() && !e.isComplete()) {
 			// the vote was cancelled or abandoned
 			resetForJury(e);
+			return;
+		}
+		if (!showsReviewJury()) {
+			// jury votes hidden: the review vote is not shown, only its decision
 			return;
 		}
 		publishPanelVote(e, e.getVoted(), e.getVotes());
@@ -267,14 +290,20 @@ public class DecisionElementState {
 	}
 
 	private void publishPanelVote(UIEvent e, boolean[] voted, Boolean[] votes) {
-		List<String> states = new ArrayList<>(AdjudicationPanel.PANEL_SIZE);
-		for (int i = 0; i < AdjudicationPanel.PANEL_SIZE; i++) {
-			Boolean vote = votes != null ? votes[i] : null;
+		// a jury vote (anything but the seven-person panel): the referees do not vote again, their decision stays shown
+		Boolean[] keptReferees = this.fop != null && !this.fop.isPanelProcedure() ? this.fop.getRefereeDecision()
+		        : null;
+		List<String> states = new ArrayList<>(voted.length);
+		for (int i = 0; i < voted.length; i++) {
+			Boolean vote = votes != null && i < votes.length ? votes[i] : null;
+			if (vote == null && keptReferees != null && i < AdjudicationPanel.NB_REFEREES && i < keptReferees.length) {
+				vote = keptReferees[i];
+			}
 			states.add(vote != null ? (vote ? "white" : "red") : (voted[i] ? "voted" : "empty"));
 		}
-		this.renderer.showPanelVote(e, List.copyOf(states.subList(0, AdjudicationPanel.NB_REFEREES)),
-		        List.copyOf(states.subList(AdjudicationPanel.NB_REFEREES, AdjudicationPanel.PANEL_SIZE)),
-		        nextGeneration());
+		int nbRefs = AdjudicationPanel.NB_REFEREES;
+		this.renderer.showPanelVote(e, List.copyOf(states.subList(0, nbRefs)),
+		        List.copyOf(states.subList(nbRefs, states.size())), nextGeneration());
 	}
 
 	@Subscribe

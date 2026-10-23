@@ -170,7 +170,7 @@ class DecisionElement extends LitElement {
     }
     switch (payload.mode) {
       case "panel":
-        // seven-person panel review vote: 3 referee boxes and 4 jury circles, revealed together
+        // review vote: 3 referee boxes and the jury circles (none when the jury votes are hidden), revealed together
         this._panelRefStates = payload.refStates || ["empty", "empty", "empty"];
         this.juryDecisions = payload.juryStates || [];
         this._downShown = false;
@@ -276,7 +276,7 @@ class DecisionElement extends LitElement {
   }
 
   showJuryRow() {
-    // the seven-person panel review vote is always shown with its jury circles
+    // in a review vote the server sends the jury circles only when the jury votes are shown
     return (this.showJuryDecisions || this._panelRefStates) && this.juryDecisions.length > 0 && this._showDecision;
   }
 

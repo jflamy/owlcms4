@@ -543,11 +543,6 @@ public class CompetitionEditingFormFactory
 			}
 		});
 
-		Checkbox announcerControlledJuryField = new Checkbox();
-		layout.addFormItem(announcerControlledJuryField, Translator.translate("Competition.announcerControlledJury"));
-		this.binder.forField(announcerControlledJuryField)
-		        .bind(Competition::isAnnouncerControlledJuryDecision, Competition::setAnnouncerControlledJuryDecision);
-
 		Checkbox videoPlaybackTechnologyField = new Checkbox();
 		layout.addFormItem(videoPlaybackTechnologyField, Translator.translate("Competition.videoPlaybackTechnology"));
 		this.binder.forField(videoPlaybackTechnologyField)

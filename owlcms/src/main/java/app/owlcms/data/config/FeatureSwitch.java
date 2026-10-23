@@ -27,7 +27,6 @@ public enum FeatureSwitch {
     SHOW_DECISIONS_IMMEDIATELY("showDecisionsImmediately", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     // "decisionSection" alias keeps existing databases, exports and startup parameters working
     DECISION_SECTION("decisionSectionOnWarmupScoreboard", FeatureSwitchSection.SCOREBOARD_OPTIONS, "decisionSection"),
-    DECISION_SECTION_SHOW_BOTH_JURY_VOTES("decisionSectionShowBothJuryVotes", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DECISION_SECTION_STOPWATCH("decisionSectionStopwatch", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DECISION_SECTION_SHOW_AGE_GROUPS("decisionSectionShowAgeGroups", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DECISION_SECTION_PROJECTED_RANKS("decisionSectionProjectedRanks", FeatureSwitchSection.SCOREBOARD_OPTIONS,
@@ -50,10 +49,10 @@ public enum FeatureSwitch {
     CUSTOM_TEAM_NAME("customTeamName", FeatureSwitchSection.SCOREBOARD_OPTIONS),
 
     JURY_DECISIONS_ON_ATTEMPT_BOARD("juryDecisionsOnAttemptBoard", FeatureSwitchSection.JURY_OPTIONS),
+    JURY_DECISIONS_ON_SCOREBOARD("juryDecisionsOnScoreboard", FeatureSwitchSection.JURY_OPTIONS),
     SEVEN_PERSON_ADJUDICATION("7personAdjudication", FeatureSwitchSection.JURY_OPTIONS),
     AUTOMATIC_BREAK_NO_VPT("automaticBreakNoVPT", FeatureSwitchSection.JURY_OPTIONS),
     PANEL_VOTE_DEVICE_INDICATORS("panelVoteDeviceIndicators", FeatureSwitchSection.JURY_OPTIONS),
-    REQUIRE_JURY_PRESIDENT_DECISION("requireJuryPresidentDecision", FeatureSwitchSection.JURY_OPTIONS),
     NO_JURY_ALPHABETICAL_SHORTCUTS("noJuryAlphabeticalShortcuts", FeatureSwitchSection.JURY_OPTIONS),
 
     MANUAL_START_NUMBERS("manualStartNumbers", FeatureSwitchSection.GENERAL_OPTIONS),

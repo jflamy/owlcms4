@@ -630,6 +630,25 @@ public class FOPEvent {
 	}
 
 	/**
+	 * The Jury Chair pressed No Lift (Jury Control or jury box): the Jury Control pages are asked for the technical
+	 * rule, and the decision is posted when it is chosen. With {@code cancelled}, the request is withdrawn.
+	 */
+	static public class JuryRuleRequest extends FOPEvent {
+
+		private final boolean cancelled;
+
+		public JuryRuleRequest(Object origin, boolean cancelled) {
+			super(origin);
+			this.cancelled = cancelled;
+		}
+
+		public boolean isCancelled() {
+			return this.cancelled;
+		}
+
+	}
+
+	/**
 	 * The Jury Control Resume command. Its effect depends on the FOP state: match Break Management during an ordinary
 	 * break, resume and clear during a jury cycle, no-op during an active lift before referee decisions.
 	 */

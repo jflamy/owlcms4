@@ -469,11 +469,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			switch (e.getDeliberationEventType()) {
 				case BAD_LIFT:
 					previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
-					FieldOfPlay fop = getFop();
-					// a four-member jury shows the technical rule relied upon (TCRR 7.5.7), with or without VPT
-					String rule = fop != null && fop.isSevenPersonAdjudication()
-					        ? JuryRejectionReasons.label(e.getReasonCode())
-					        : null;
+					// the technical rule relied upon, when the Jury Chair gave it (TCRR 7.5.7)
+					String rule = JuryRejectionReasons.label(e.getReasonCode());
 					showJuryNotification(reversalText, Translator.translate("JuryDialog.BadLiftLabel"), e.getAthlete(),
 					        formatAttemptByIndex(previousAttemptNo), false, "failNotification",
 						        JURY_NOTIFICATION_DIALOG_DURATION_MS, rule);

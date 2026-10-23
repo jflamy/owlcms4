@@ -114,7 +114,11 @@ public class DecisionBlockState {
 
 	private final DecisionSectionRenderer renderer;
 	private State state = State.READY;
-	private boolean showBothJuryVotes;
+	/**
+	 * the jury votes are shown, on the lift and in the review (switch {@code juryDecisionsOnScoreboard}); when false,
+	 * nothing of the review vote is shown, only the decision
+	 */
+	private boolean showJuryVotes = true;
 	private int jurySize;
 	private Athlete reviewedAthlete;
 	private RefLights refLights;
@@ -126,13 +130,10 @@ public class DecisionBlockState {
 	private boolean panelVoting;
 	/** review vote in progress: who has voted (3 referees then the jury members), null when unknown */
 	private boolean[] panelVoted;
-	/**
-	 * Four-member jury: during the review break, until the vote is called, the jury votes that led to the review are
-	 * shown together with the referees' decision (same as the attempt board).
-	 */
-	private boolean initialVotesShown;
-	/** the seven review votes have been revealed (shown even when the second vote is not public) */
-	private boolean panelRevealed;
+	/** jury vote in progress: the referee cells show the referees' decision, not who has voted */
+	private boolean keptReferees;
+	/** the referees' decision under review, as shown when the deliberation started */
+	private RefLights reviewedRefLights;
 	/**
 	 * Four-member jury: lifting resumed automatically after the verdict was shown; the verdict stays visible until the
 	 * review timeout, the clock start, an explicit Resume, a break or the next referee decision.
@@ -147,8 +148,8 @@ public class DecisionBlockState {
 		return this.state;
 	}
 
-	public void setShowBothJuryVotes(boolean showBothJuryVotes) {
-		this.showBothJuryVotes = showBothJuryVotes;
+	public void setShowJuryVotes(boolean showJuryVotes) {
+		this.showJuryVotes = showJuryVotes;
 	}
 
 	public void setJurySize(int jurySize) {
@@ -178,8 +179,7 @@ public class DecisionBlockState {
 			this.juryVotes = null;
 			this.panelVoting = false;
 			this.panelVoted = null;
-			this.initialVotesShown = false;
-			this.panelRevealed = false;
+			this.keptReferees = false;
 		}
 		this.reviewedAthlete = athlete;
 		this.refLights = lights;
@@ -189,7 +189,7 @@ public class DecisionBlockState {
 
 	/**
 	 * A jury member vote arrived. Circles update in place (they do not restart the review timeout).
-	 * Ignored in READY, and ignored during deliberation unless the second vote is public.
+	 * Ignored in READY, and not drawn when the jury votes are hidden.
 	 */
 	public void onJuryUpdate(Boolean[] votes, int jurySize) {
 		if (this.panelVoting) {
@@ -198,14 +198,13 @@ public class DecisionBlockState {
 		}
 		this.juryVotes = copyOf(votes);
 		this.jurySize = jurySize;
+		if (!this.showJuryVotes) {
+			return;
+		}
 		switch (this.state) {
 			case DECISION:
-				this.renderer.renderJuryCircles(this.juryVotes, this.jurySize);
-				break;
 			case DELIBERATION:
-				if (this.showBothJuryVotes) {
-					this.renderer.renderJuryCircles(this.juryVotes, this.jurySize);
-				}
+				this.renderer.renderJuryCircles(this.juryVotes, this.jurySize);
 				break;
 			case READY:
 			default:
@@ -236,7 +235,10 @@ public class DecisionBlockState {
 		this.deliberationType = type;
 		this.reviewedAthlete = athleteUnderReview;
 		this.refLights = reviewedLights;
-		this.initialVotesShown = initialJuryVotes != null;
+		this.reviewedRefLights = reviewedLights;
+		if (!this.showJuryVotes) {
+			initialJuryVotes = null;
+		}
 		this.juryVotes = copyOf(initialJuryVotes);
 		if (initialJuryVotes != null) {
 			this.jurySize = initialJuryVotes.length;
@@ -245,46 +247,57 @@ public class DecisionBlockState {
 		this.juryVerdictRule = null;
 		this.panelVoting = false;
 		this.panelVoted = null;
-		this.panelRevealed = false;
+		this.keptReferees = false;
 		this.verdictLingering = false;
 		this.state = State.DELIBERATION;
 		render();
 	}
 
 	/**
-	 * Seven-person Adjudication Panel review vote (during a deliberation or challenge).
+	 * Review vote (during a deliberation or challenge): the seven-person panel, or the jury alone (the referee cells
+	 * then show the referees' decision under review).
 	 *
-	 * @param reviewLights the referees' review votes and the panel majority, null while the vote is in progress
-	 * @param juryVotes    the four jury votes, null while the vote is in progress
+	 * @param reviewLights the referees' review votes and the majority, null while the vote is in progress
+	 * @param juryVotes    the jury votes, null while the vote is in progress
 	 */
 	public void onPanelVote(RefLights reviewLights, Boolean[] juryVotes) {
 		onPanelVote(reviewLights, juryVotes, null);
 	}
 
 	/**
-	 * Seven-person Adjudication Panel review vote (during a deliberation or challenge).
+	 * Review vote (during a deliberation or challenge): the seven-person panel, or the jury alone (the referee cells
+	 * then show the referees' decision under review).
 	 *
-	 * @param reviewLights the referees' review votes and the panel majority, null while the vote is in progress
-	 * @param juryVotes    the four jury votes, null while the vote is in progress
+	 * @param reviewLights the referees' review votes and the majority, null while the vote is in progress
+	 * @param juryVotes    the jury votes, null while the vote is in progress
 	 * @param voted        while the vote is in progress, who has voted (3 referees then the jury members): shown as
 	 *                     gray cells; null to show nothing
 	 */
 	public void onPanelVote(RefLights reviewLights, Boolean[] juryVotes, boolean[] voted) {
-		if (this.state != State.DELIBERATION) {
+		onPanelVote(reviewLights, juryVotes, voted, null);
+	}
+
+	/**
+	 * @param keptRefLights for a jury vote (anything but the seven-person panel), the referees' decision under review:
+	 *                      the referees do not vote again and their decision stays shown while the jury votes. Null
+	 *                      for the seven-person panel, whose referee cells show who has voted.
+	 */
+	public void onPanelVote(RefLights reviewLights, Boolean[] juryVotes, boolean[] voted, RefLights keptRefLights) {
+		if (this.state != State.DELIBERATION || !this.showJuryVotes) {
+			// jury votes hidden: nothing of the review vote is shown, only the decision
 			return;
 		}
-		this.initialVotesShown = false;
 		if (reviewLights == null) {
 			// vote called or in progress: who has voted is shown, the values are revealed together at the end
 			this.panelVoting = true;
-			this.panelRevealed = false;
 			this.panelVoted = voted == null ? null : Arrays.copyOf(voted, voted.length);
-			this.refLights = null;
+			this.keptReferees = keptRefLights != null;
+			this.refLights = keptRefLights;
 			this.juryVotes = null;
 		} else {
 			this.panelVoting = false;
 			this.panelVoted = null;
-			this.panelRevealed = true;
+			this.keptReferees = false;
 			this.refLights = reviewLights;
 			this.juryVotes = copyOf(juryVotes);
 			this.jurySize = juryVotes != null ? juryVotes.length : this.jurySize;
@@ -356,6 +369,17 @@ public class DecisionBlockState {
 
 	/** An explicit Resume cleared the jury cycle: return to ready at once. */
 	public void onJuryDisplayReset() {
+		if (this.state == State.DELIBERATION && !this.verdictLingering && this.juryVerdictGood == null) {
+			// a decision entered by the Jury Chair, or Cancel vote result: the votes go away but the review goes on,
+			// so that the verdict that follows is shown (Resume returns to ready through start-lifting)
+			this.juryVotes = null;
+			this.panelVoting = false;
+			this.panelVoted = null;
+			this.keptReferees = false;
+			this.refLights = this.reviewedRefLights;
+			render();
+			return;
+		}
 		toReady();
 	}
 
@@ -411,8 +435,7 @@ public class DecisionBlockState {
 		this.juryVerdictRule = null;
 		this.panelVoting = false;
 		this.panelVoted = null;
-		this.initialVotesShown = false;
-		this.panelRevealed = false;
+		this.keptReferees = false;
 		this.verdictLingering = false;
 		render();
 	}
@@ -434,7 +457,11 @@ public class DecisionBlockState {
 					// A jury must vote, so we wait: never start a review timeout. The section is
 					// closed by the announcer starting the next clock, a break, a deliberation, or
 					// start-lifting.
-					this.renderer.renderJuryCircles(this.juryVotes, this.jurySize);
+					if (this.showJuryVotes) {
+						this.renderer.renderJuryCircles(this.juryVotes, this.jurySize);
+					} else {
+						this.renderer.renderNoJuryCircles();
+					}
 				} else {
 					// No jury: nobody has to vote, so bound the display with the review timeout.
 					this.renderer.renderNoJuryCircles();
@@ -449,7 +476,11 @@ public class DecisionBlockState {
 				this.renderer.renderAthleteUnderReview(this.reviewedAthlete);
 				if (this.panelVoting && this.panelVoted != null) {
 					int nbRefs = Math.min(3, this.panelVoted.length);
-					this.renderer.renderVotedRefereeLights(Arrays.copyOfRange(this.panelVoted, 0, nbRefs));
+					if (this.keptReferees) {
+						renderRefereeLightsOrEmpty();
+					} else {
+						this.renderer.renderVotedRefereeLights(Arrays.copyOfRange(this.panelVoted, 0, nbRefs));
+					}
 					this.renderer.renderVotedJuryCircles(
 					        Arrays.copyOfRange(this.panelVoted, nbRefs, this.panelVoted.length));
 				} else {
@@ -457,7 +488,7 @@ public class DecisionBlockState {
 				}
 				if (this.panelVoting && this.panelVoted != null) {
 					// already drawn above
-				} else if (this.showBothJuryVotes || this.panelRevealed || this.initialVotesShown) {
+				} else if (this.showJuryVotes && !this.panelVoting) {
 					this.renderer.renderJuryCircles(this.juryVotes, this.jurySize);
 				} else {
 					this.renderer.renderNoJuryCircles();

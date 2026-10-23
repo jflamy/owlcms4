@@ -309,7 +309,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	@Subscribe
 	public void slavePanelVoteCalled(UIEvent.PanelVoteCalled e) {
 		if (e.getFop() != null && !e.getFop().isPanelProcedure()) {
-			// without VPT only the jury votes again
+			// jury vote: only the jurors vote again
 			return;
 		}
 		if (getRef13ix() == null || (e.getRef() != 0 && e.getRef() != getRef13ix())) {

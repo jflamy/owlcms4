@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 
 import org.junit.After;
@@ -96,8 +97,6 @@ public class SevenPersonAdjudicationTest {
 		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, false);
 		setSwitch(FeatureSwitch.SHOW_DECISIONS_IMMEDIATELY, false);
 		Competition.getCurrent().setVideoPlaybackTechnology(true);
-		// default: a decision entered by the Jury Chair must be announced by the Speaker
-		Competition.getCurrent().setAnnouncerControlledJuryDecision(true);
 
 		this.fop = MockFieldOfPlay.create(AthleteRepository.findAll(), new MockCountdownTimer(),
 		        new MockCountdownTimer());
@@ -114,7 +113,6 @@ public class SevenPersonAdjudicationTest {
 		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, false);
 		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, false);
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
-		Competition.getCurrent().setAnnouncerControlledJuryDecision(true);
 	}
 
 	// ---------------------------------------------------------------- configuration
@@ -178,6 +176,38 @@ public class SevenPersonAdjudicationTest {
 		lift(W, W, W);
 		juryVotes(R, R, R, R);
 		assertPanelReviewBreak();
+	}
+
+	@Test
+	public void chairDeliberationEndsADecisionHeldForABrokenJuryBox() {
+		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, true);
+		lift(W, W, R);
+		// jury box 1 does not work
+		juryVote(1, R);
+		juryVote(2, R);
+		juryVote(3, R);
+		assertEquals("held for the missing jury vote", FOPState.DECISION_VISIBLE, this.fop.getState());
+		post(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		assertTrue("the Chair's deliberation starts", this.recorder.await(this.recorder.notifications,
+		        n -> n.getDeliberationEventType() == JuryDeliberationEventType.START_DELIBERATION));
+		assertEquals(FOPState.BREAK, this.fop.getState());
+		assertEquals(BreakType.JURY, this.fop.getBreakType());
+		assertEquals("the votes on the lift are kept", Boolean.FALSE, this.fop.getJuryMemberDecision()[1]);
+
+		// the vote never completes without jury box 1: the Chair gives the decision
+		callForVotes();
+		reviewVotes(R, R, R);
+		juryVote(1, R);
+		juryVote(2, R);
+		juryVote(3, R);
+		assertNull("no result: the vote is incomplete", this.fop.getPanelVoteMajority());
+		post(new FOPEvent.JuryRuleRequest(new Object(), false));
+		assertTrue(this.recorder.await(this.recorder.ruleRequests, r -> !r.isCancelled() && !r.isForVote()));
+		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 1, true));
+		UIEvent.JuryNotification verdict = awaitVerdict();
+		assertEquals(JuryDeliberationEventType.BAD_LIFT, verdict.getDeliberationEventType());
+		assertTrue("not the result of a vote", verdict.isChairEntered());
+		assertGoodLift(false);
 	}
 
 	@Test
@@ -310,6 +340,8 @@ public class SevenPersonAdjudicationTest {
 		assertTrue("jury displays reveal when the seventh vote arrives",
 		        this.recorder.await(this.recorder.updates,
 		                u -> u.isComplete() && !u.isPublicReveal()));
+		assertResultWaitsForTheChair();
+		confirmGoodLift();
 		UIEvent.JuryNotification verdict = awaitVerdict();
 		assertTrue("the decision is flagged as revealed when applied",
 		        this.recorder.await(this.recorder.updates, UIEvent.PanelVoteUpdate::isPublicReveal));
@@ -326,6 +358,7 @@ public class SevenPersonAdjudicationTest {
 		callForVotes();
 		reviewVotes(W, W, W);
 		juryVotes(W, W, W, W);
+		confirmGoodLift();
 		awaitVerdict();
 		// the test timers fire at once: the FOP has already resumed lifting, but the attempt boards still show
 		// the jury decision card for 5 s
@@ -397,6 +430,7 @@ public class SevenPersonAdjudicationTest {
 		callForVotes();
 		reviewVotes(W, W, W);
 		juryVotes(W, W, W, W);
+		confirmGoodLift();
 		awaitVerdict();
 		assertTrue(this.fop.isJuryDecisionCardShown());
 		this.fop.expireJuryDecisionCardForTests();
@@ -420,6 +454,7 @@ public class SevenPersonAdjudicationTest {
 		callForVotes();
 		reviewVotes(W, W, W);
 		juryVotes(W, W, W, W);
+		confirmGoodLift();
 		awaitVerdict();
 		assertEquals("the break ends by itself", FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
 		assertFalse("the review is over", this.fop.isPanelReview());
@@ -546,6 +581,73 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
+	public void completedVoteIsLocked() {
+		reviewAfterLift(W, W, W);
+		callForVotes();
+		reviewVotes(W, W, W);
+		juryVotes(W, W, W, W);
+		assertResultWaitsForTheChair();
+		juryVote(0, R);
+		reviewVotes(R);
+		assertEquals("a changed jury vote is ignored", Boolean.TRUE, this.fop.getJuryMemberDecision()[0]);
+		assertEquals("a changed referee vote is ignored", Boolean.TRUE, this.fop.getReviewRefereeDecision()[0]);
+		assertEquals(Boolean.TRUE, this.fop.getPanelVoteMajority());
+	}
+
+	@Test
+	public void cancelVoteResultClearsEverythingAndAllowsANewVote() {
+		reviewAfterLift(W, W, W);
+		callForVotes();
+		reviewVotes(R, R, R);
+		juryVotes(R, R, R, R);
+		assertTrue(this.recorder.await(this.recorder.ruleRequests, r -> r.isForVote() && !r.isCancelled()));
+		int resetsBefore = this.recorder.displayResets.size();
+
+		// the jury says a vote was entered by mistake
+		post(new FOPEvent.PanelVoteCancelled(new Object()));
+		assertFalse(this.fop.isPanelVoteOpen());
+		assertNull(this.fop.getPanelVoteMajority());
+		assertEquals(FOPState.BREAK, this.fop.getState());
+		assertTrue("the rule dialog is withdrawn", this.recorder.await(this.recorder.ruleRequests,
+		        UIEvent.JuryRuleRequired::isCancelled));
+		assertTrue("the displays and devices are cleared",
+		        this.recorder.await(this.recorder.displayResets, r -> this.recorder.displayResets.size() > resetsBefore));
+		assertNoDecision();
+
+		// the new vote gives the other result
+		callForVotes();
+		reviewVotes(W, W, W);
+		juryVotes(W, W, W, W);
+		assertResultWaitsForTheChair();
+		confirmGoodLift();
+		assertFalse(awaitVerdict().isChairEntered());
+		assertGoodLift(true);
+	}
+
+	@Test
+	public void summonAllMeansSummonInAReviewStartedByTheChairWithoutVideo() {
+		fourMemberDeliberationWithoutVideo(W, W, W);
+		assertFalse(this.fop.isSummonAllVote());
+		juryVotes(R, R);
+		post(new FOPEvent.SummonReferee(new Object(), 0));
+		assertTrue("the referees are summoned", this.recorder.await(this.recorder.summons, r -> r.ref == 0));
+		assertEquals("the votes are not cleared", Boolean.FALSE, this.fop.getJuryMemberDecision()[0]);
+	}
+
+	@Test
+	public void summonAllMeansVoteAfterAnAutomaticStopWithoutVideo() {
+		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, true);
+		lift(W, W, W);
+		juryVotes(R, R, R, R);
+		assertTrue(this.fop.isJuryReview());
+		assertTrue(this.fop.isSummonAllVote());
+		post(new FOPEvent.SummonReferee(new Object(), 0));
+		assertTrue("the vote is called", this.fop.isPanelVoteOpen());
+		assertNull("the jury votes are cleared", this.fop.getJuryMemberDecision()[0]);
+	}
+
+	@Test
 	public void endingTheBreakDiscardsAnUnfinishedVote() {
 		reviewAfterLift(W, W, W);
 		callForVotes();
@@ -620,7 +722,9 @@ public class SevenPersonAdjudicationTest {
 		reviewVotes(R);
 		assertNull("the referees do not vote again", this.fop.getReviewRefereeDecision()[0]);
 		juryVotes(R, R, R, W);
-		// not unanimous: the referees' decision stands and is posted automatically
+		// not unanimous: the referees' decision stands, once the Chair confirms it
+		assertResultWaitsForTheChair();
+		confirmGoodLift();
 		UIEvent.JuryNotification verdict = awaitVerdict();
 		assertEquals(JuryDeliberationEventType.GOOD_LIFT, verdict.getDeliberationEventType());
 		assertFalse(verdict.isChairEntered());
@@ -631,6 +735,7 @@ public class SevenPersonAdjudicationTest {
 	public void boardsShowTheSevenVotesTogether() {
 		PanelRenderer boards = new PanelRenderer();
 		DecisionElementState boardState = new DecisionElementState(boards);
+		boardState.setShowJuryDecisions(true);
 		boardState.setFop(this.fop);
 		this.fop.getUiEventBus().register(boardState);
 
@@ -649,20 +754,23 @@ public class SevenPersonAdjudicationTest {
 		juryVote(3, W);
 		assertTrue("the result is known", this.recorder.await(this.recorder.updates,
 		        u -> Boolean.FALSE.equals(u.getMajority())));
-		assertTrue("the attempt board reveals the seven votes at the last vote, before the rule is given",
+		assertTrue("the boards reveal the seven votes as soon as the last one is in, before the rule",
 		        boards.await(p -> p.referees().equals(List.of("red", "red", "red"))
 		                && p.jury().equals(List.of("red", "red", "red", "white"))));
 
+		int shown = boards.panels.size();
 		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 17));
-		assertTrue("the votes stay revealed with the decision", boards.await(
-		        p -> p.referees().equals(List.of("red", "red", "red"))
-		                && p.jury().equals(List.of("red", "red", "red", "white"))));
+		awaitVerdict();
+		settledEvents();
+		assertTrue("the votes stay revealed under the decision", boards.panels.subList(shown, boards.panels.size())
+		        .stream().allMatch(p -> p.referees().equals(List.of("red", "red", "red"))));
 	}
 
 	@Test
 	public void boardsClearTheVotesWhenTheChairEntersTheDecision() {
 		PanelRenderer boards = new PanelRenderer();
 		DecisionElementState boardState = new DecisionElementState(boards);
+		boardState.setShowJuryDecisions(true);
 		boardState.setFop(this.fop);
 		this.fop.getUiEventBus().register(boardState);
 
@@ -690,6 +798,7 @@ public class SevenPersonAdjudicationTest {
 	public void boardsShowTheVotesThatLedToTheReview() {
 		PanelRenderer boards = new PanelRenderer();
 		DecisionElementState boardState = new DecisionElementState(boards);
+		boardState.setShowJuryDecisions(true);
 		boardState.setFop(this.fop);
 		this.fop.getUiEventBus().register(boardState);
 
@@ -711,6 +820,7 @@ public class SevenPersonAdjudicationTest {
 	public void challengeShowsTheVotesOfTheLift() {
 		PanelRenderer boards = new PanelRenderer();
 		DecisionElementState boardState = new DecisionElementState(boards);
+		boardState.setShowJuryDecisions(true);
 		boardState.setFop(this.fop);
 		this.fop.getUiEventBus().register(boardState);
 
@@ -750,73 +860,146 @@ public class SevenPersonAdjudicationTest {
 	// ---------------------------------------------------------------- traditional 3 or 5 member jury
 
 	@Test
-	public void unanimousRedJuryReversalWaitsForTheRule() {
+	public void threeOrFiveMemberJuryVotesDoNotDecide() {
 		juryDeliberation(3, W, W, W);
 		juryVotes(R, R, R);
-		assertRuleRequested();
-
-		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), false, true, 1));
-		UIEvent.JuryNotification verdict = awaitVerdict();
-		assertEquals(JuryDeliberationEventType.BAD_LIFT, verdict.getDeliberationEventType());
-		assertEquals(Integer.valueOf(1), verdict.getReasonCode());
+		assertResultWaitsForTheChair();
+		assertTrue("the No Lift waits for the Chair's rule", this.recorder.await(this.recorder.ruleRequests,
+		        r -> r.isForVote() && !r.isCancelled()));
 	}
 
 	@Test
-	public void unanimousRedJuryConfirmationWaitsForTheRule() {
-		juryDeliberation(3, R, R, W);
-		juryVotes(R, R, R);
-		assertRuleRequested();
-	}
-
-	@Test
-	public void unanimousWhiteJuryIsSentAutomatically() {
-		juryDeliberation(3, R, R, R);
-		juryVotes(W, W, W);
-		assertSentWithoutRule(JuryDeliberationEventType.GOOD_LIFT);
-	}
-
-	@Test
-	public void splitJuryConfirmingRedRefereesWaitsForTheRule() {
-		juryDeliberation(3, R, R, W);
-		juryVotes(R, W, W);
-		assertRuleRequested();
-	}
-
-	@Test
-	public void splitJuryConfirmingWhiteRefereesIsSentAutomatically() {
-		juryDeliberation(3, W, W, R);
-		juryVotes(R, R, W);
-		assertSentWithoutRule(JuryDeliberationEventType.GOOD_LIFT);
-	}
-
-	@Test
-	public void fiveMemberMajorityReversalWithVideoWaitsForTheRule() {
-		juryDeliberation(5, W, W, R);
-		juryVotes(R, R, R, W, W);
-		assertRuleRequested();
-	}
-
-	@Test
-	public void fiveMemberMajorityConfirmationWithVideoWaitsForTheRule() {
-		juryDeliberation(5, R, R, W);
-		juryVotes(R, R, R, W, W);
-		assertRuleRequested();
-	}
-
-	@Test
-	public void fiveMemberMajorityWithoutVideoLeavesTheRefereesDecision() {
-		Competition.getCurrent().setVideoPlaybackTechnology(false);
-		juryDeliberation(5, W, W, R);
-		juryVotes(R, R, R, W, W);
-		assertSentWithoutRule(JuryDeliberationEventType.GOOD_LIFT);
-	}
-
-	@Test
-	public void fiveMemberUnanimousReversalWithoutVideoWaitsForTheRule() {
+	public void fiveMemberJuryVotesDoNotDecide() {
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
 		juryDeliberation(5, W, W, R);
 		juryVotes(R, R, R, R, R);
-		assertRuleRequested();
+		assertNoDecision();
+	}
+
+	@Test
+	public void chairNoLiftAsksForTheRuleThenApplies() {
+		juryDeliberation(3, W, W, W);
+		// the jury vote is optional: No Lift on Jury Control or on the jury box, the same request
+		post(new FOPEvent.JuryRuleRequest(new Object(), false));
+		assertTrue("the Jury Control pages are asked for the rule", this.recorder.await(this.recorder.ruleRequests,
+		        r -> !r.isCancelled() && !r.isForVote()));
+		assertTrue(this.fop.isJuryRuleRequested());
+		assertNoDecision();
+
+		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 1, true));
+		UIEvent.JuryNotification verdict = awaitVerdict();
+		assertEquals(JuryDeliberationEventType.BAD_LIFT, verdict.getDeliberationEventType());
+		assertEquals(Integer.valueOf(1), verdict.getReasonCode());
+		assertFalse("not marked without the seven-person panel", verdict.isChairEntered());
+		assertFalse(verdict.isWaitForAnnouncer());
+		assertFalse(this.fop.isJuryRuleRequested());
+		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+		assertGoodLift(false);
+	}
+
+	@Test
+	public void cancelledRuleRequestIsWithdrawnEverywhere() {
+		juryDeliberation(3, W, W, W);
+		post(new FOPEvent.JuryRuleRequest(new Object(), false));
+		post(new FOPEvent.JuryRuleRequest(new Object(), true));
+		assertTrue(this.recorder.await(this.recorder.ruleRequests, UIEvent.JuryRuleRequired::isCancelled));
+		assertFalse(this.fop.isJuryRuleRequested());
+		assertEquals(FOPState.BREAK, this.fop.getState());
+	}
+
+	@Test
+	public void speakerEnteredDecisionIsFlagged() {
+		juryDeliberation(3, W, W, W);
+		// relayed by the Technical Controller and entered in the Speaker's dialog
+		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, false));
+		UIEvent.JuryNotification verdict = awaitVerdict();
+		assertTrue(verdict.isSpeakerEntered());
+		assertFalse(verdict.isChairEntered());
+		assertGoodLift(false);
+	}
+
+	@Test
+	public void threeMemberJuryWithVideoVotesAsWithout() {
+		// VPT in use: a 3-member jury has no automatic trigger, the Chair starts the review as without VPT
+		assertTrue(Competition.getCurrent().isVideoPlaybackTechnology());
+		juryDeliberation(3, W, W, W);
+		assertNull("the votes on the lift are not kept", this.fop.getPanelReviewInitialVotes());
+		assertTrue("the jury vote is open at once", this.fop.isPanelVoteOpen());
+		assertNull("the jury votes are cleared", this.fop.getJuryMemberDecision()[0]);
+		assertEquals("the referees' decision stays", Boolean.TRUE, this.fop.getRefereeDecision()[0]);
+		assertFalse("Summon All is not a vote", this.fop.isSummonAllVote());
+		post(new FOPEvent.SummonReferee(new Object(), 0));
+		assertTrue("Summon All summons the referees", this.recorder.await(this.recorder.summons, r -> r.ref == 0));
+		reviewVotes(R);
+		assertNull("the referees do not vote again", this.fop.getReviewRefereeDecision()[0]);
+		juryVotes(R, R, R);
+		assertTrue(this.recorder.await(this.recorder.updates,
+		        u -> u.isComplete() && u.getVotes() != null && u.getVotes().length == 6));
+		assertTrue("unanimous: the No Lift waits for the rule", this.recorder.await(this.recorder.ruleRequests,
+		        r -> r.isForVote() && !r.isCancelled()));
+		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 4, true));
+		UIEvent.JuryNotification verdict = awaitVerdict();
+		assertEquals(Integer.valueOf(4), verdict.getReasonCode());
+		assertFalse("the result of the vote", verdict.isChairEntered());
+		assertGoodLift(false);
+	}
+
+	@Test
+	public void threeMemberJurySplitVoteLeavesTheRefereesDecision() {
+		juryDeliberation(3, W, W, W);
+		juryVotes(R, R, W);
+		assertResultWaitsForTheChair();
+		assertEquals("not unanimous: the referees' decision", Boolean.TRUE, this.fop.getPanelVoteMajority());
+		confirmGoodLift();
+		assertEquals(JuryDeliberationEventType.GOOD_LIFT, awaitVerdict().getDeliberationEventType());
+	}
+
+	@Test
+	public void fiveMemberJuryWithVideoReversesByMajority() {
+		juryDeliberation(5, W, W, R);
+		juryVotes(R, R, R, W, W);
+		assertResultWaitsForTheChair();
+		assertEquals(Boolean.FALSE, this.fop.getPanelVoteMajority());
+	}
+
+	@Test
+	public void fiveMemberJuryWithoutVideoNeedsUnanimity() {
+		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		juryDeliberation(5, W, W, R);
+		assertTrue("without VPT the jurors may vote at once", this.fop.isPanelVoteOpen());
+		assertFalse(this.fop.isSummonAllVote());
+		juryVotes(R, R, R, R, W);
+		assertResultWaitsForTheChair();
+		assertEquals("not unanimous: the referees' decision", Boolean.TRUE, this.fop.getPanelVoteMajority());
+	}
+
+	@Test
+	public void threeMemberJuryWithoutVideoSummonAllSummons() {
+		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		juryDeliberation(3, W, W, W);
+		juryVotes(R);
+		post(new FOPEvent.SummonReferee(new Object(), 0));
+		assertTrue("the referees are summoned", this.recorder.await(this.recorder.summons, r -> r.ref == 0));
+		assertEquals("the vote goes on", Boolean.FALSE, this.fop.getJuryMemberDecision()[0]);
+	}
+
+	@Test
+	public void publicBoardsWithHiddenJuryVotesShowNothingOfTheReviewVote() {
+		PanelRenderer boards = new PanelRenderer();
+		DecisionElementState boardState = new DecisionElementState(boards);
+		boardState.setFop(this.fop);
+		this.fop.getUiEventBus().register(boardState);
+		reviewAfterLift(W, W, W);
+		callForVotes();
+		assertTrue("the board is cleared when the vote is called", awaitCondition(() -> boards.resets.get() > 0));
+		reviewVotes(R, R, R);
+		juryVotes(R, R, R, R);
+		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 2));
+		awaitVerdict();
+		settledEvents();
+		assertTrue("no jury circles, no review vote", boards.panels.stream()
+		        .noneMatch(p -> !p.jury().isEmpty() || p.referees().contains("voted")
+		                || p.referees().contains("red")));
 	}
 
 	@Test
@@ -878,6 +1061,8 @@ public class SevenPersonAdjudicationTest {
 		juryVotes(R, R, R, R);
 		callForVotes();
 		juryVotes(R, R, R, W);
+		assertResultWaitsForTheChair();
+		confirmGoodLift();
 		UIEvent.JuryNotification verdict = awaitVerdict();
 		assertEquals("decision stands", JuryDeliberationEventType.GOOD_LIFT, verdict.getDeliberationEventType());
 		assertFalse(verdict.isChairEntered());
@@ -894,6 +1079,7 @@ public class SevenPersonAdjudicationTest {
 		assertTrue(this.fop.isJuryReview());
 		callForVotes();
 		juryVotes(W, W, W, W);
+		confirmGoodLift();
 		UIEvent.JuryNotification verdict = awaitVerdict();
 		assertEquals(JuryDeliberationEventType.GOOD_LIFT, verdict.getDeliberationEventType());
 		assertFalse(verdict.isWaitForAnnouncer());
@@ -904,22 +1090,23 @@ public class SevenPersonAdjudicationTest {
 	@Test
 	public void fourMemberChairDecisionWithoutVideoIsAppliedWithoutTheSpeaker() {
 		fourMemberDeliberationWithoutVideo(W, W, W);
+		assertTrue("the jurors may vote at once", this.fop.isPanelVoteOpen());
 		juryVotes(R, R);
 		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 2, true));
 		UIEvent.JuryNotification verdict = awaitVerdict();
-		assertTrue("Jury Chair Entered Decision", verdict.isChairEntered());
+		assertFalse("without VPT the Chair's decision is the normal path, not marked", verdict.isChairEntered());
 		assertFalse("the Speaker is only informed", verdict.isWaitForAnnouncer());
 		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
 		assertGoodLift(false);
 	}
 
 	@Test
-	public void threeMemberChairDecisionStillWaitsForTheSpeaker() {
+	public void threeMemberChairDecisionIsAppliedWithoutTheSpeaker() {
 		juryDeliberation(3, W, W, W);
 		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 1));
 		UIEvent.JuryNotification verdict = awaitVerdict();
-		assertTrue("announcer controlled jury decision", verdict.isWaitForAnnouncer());
-		assertEquals(FOPState.BREAK, this.fop.getState());
+		assertFalse("the Speaker announces after the decision is shown", verdict.isWaitForAnnouncer());
+		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
 	}
 
 	/** four-member jury without VPT: a lift followed by a manual jury deliberation */
@@ -941,17 +1128,23 @@ public class SevenPersonAdjudicationTest {
 		assertEquals(FOPState.BREAK, this.fop.getState());
 	}
 
-	private void assertRuleRequested() {
-		assertTrue("the Jury Control pages are asked for the rule",
-		        this.recorder.await(this.recorder.ruleRequests, r -> true));
-		assertFalse("no decision without the rule", this.recorder.notifications.stream()
+	private void assertNoDecision() {
+		assertEquals("the jury votes alone do not decide", FOPState.BREAK, this.fop.getState());
+		assertFalse("no decision", this.recorder.notifications.stream()
 		        .anyMatch(n -> n.getDeliberationEventType() == JuryDeliberationEventType.BAD_LIFT
 		                || n.getDeliberationEventType() == JuryDeliberationEventType.GOOD_LIFT));
 	}
 
-	private void assertSentWithoutRule(JuryDeliberationEventType expected) {
-		assertEquals(expected, awaitVerdict().getDeliberationEventType());
-		assertTrue("no rule is asked for", this.recorder.ruleRequests.isEmpty());
+	/** the review vote is complete: its result is locked and waits for the Jury Chair */
+	private void assertResultWaitsForTheChair() {
+		assertTrue(this.recorder.await(this.recorder.updates, u -> u.isOpen() && u.isComplete()));
+		assertNoDecision();
+		assertTrue("the result stays open for the Chair", this.fop.isPanelVoteOpen());
+	}
+
+	/** the Jury Chair's Confirm Good Lift on the result screen (or Good Lift on the jury box) */
+	private void confirmGoodLift() {
+		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), W, true, null, true));
 	}
 
 	// ---------------------------------------------------------------- full review, UI events in order
@@ -974,6 +1167,7 @@ public class SevenPersonAdjudicationTest {
 	private void fullReview(boolean[] refereeReview, boolean[] juryReview, boolean good) {
 		PanelRenderer board = new PanelRenderer();
 		DecisionElementState boardState = new DecisionElementState(board);
+		boardState.setShowJuryDecisions(true);
 		boardState.setFop(this.fop);
 		this.fop.getUiEventBus().register(boardState);
 		Boolean[] expectedVotes = new Boolean[7];
@@ -992,16 +1186,21 @@ public class SevenPersonAdjudicationTest {
 		assertPanelReviewBreak();
 		// phase B: the review vote
 		callForVotes();
+		assertTrue(board.await(p -> p.referees().equals(List.of("empty", "empty", "empty"))));
 		reviewVotes(refereeReview);
 		juryVotes(juryReview);
+		assertResultWaitsForTheChair();
+		assertTrue("the attempt board reveals the votes as soon as the last one is in, before the decision",
+		        board.await(p -> p.referees().equals(expectedRefs) && p.jury().equals(expectedJury)));
+		assertFalse("the decision is not flagged as applied before the Chair",
+		        this.recorder.updates.stream().anyMatch(UIEvent.PanelVoteUpdate::isPublicReveal));
 		if (!good) {
-			assertEquals("a No Lift waits for the rule", FOPState.BREAK, this.fop.getState());
-			assertTrue("the attempt board reveals at the last vote, before the rule", board.await(
-			        p -> p.referees().equals(expectedRefs) && p.jury().equals(expectedJury)));
-			assertFalse("the decision is not flagged as revealed before the rule",
-			        this.recorder.updates.stream().anyMatch(UIEvent.PanelVoteUpdate::isPublicReveal));
+			assertTrue("the vote asks the Jury Control pages for the rule",
+			        this.recorder.await(this.recorder.ruleRequests, r -> r.isForVote() && !r.isCancelled()));
 			// the Chair gives the rule in the dialog opened by the vote
 			post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 3));
+		} else {
+			confirmGoodLift();
 		}
 		UIEvent.JuryNotification verdict = awaitVerdict();
 		assertGoodLift(good);
@@ -1010,7 +1209,7 @@ public class SevenPersonAdjudicationTest {
 		int boardResets = board.resets.get();
 		post(new FOPEvent.JuryResume(new Object()));
 		assertTrue("Resume clears the jury displays", this.recorder.await(this.recorder.displayResets, r -> true));
-		assertTrue("Resume clears the attempt board", board.resets.get() > boardResets);
+		assertTrue("Resume clears the attempt board", awaitCondition(() -> board.resets.get() > boardResets));
 		for (Boolean vote : this.fop.getJuryMemberDecision()) {
 			assertNull("Resume clears the jury votes", vote);
 		}
@@ -1078,7 +1277,7 @@ public class SevenPersonAdjudicationTest {
 		        .anyMatch(e -> e instanceof UIEvent.PanelVoteUpdate u && u.getVotes() != null));
 		assertTrue(trace, events.stream().noneMatch(e -> e instanceof UIEvent.Notification n
 		        && n.getLevel() == UIEvent.Notification.Level.ERROR));
-		assertTrue("the panel vote opens the rule dialog itself", this.recorder.ruleRequests.isEmpty());
+		assertEquals("the rule is asked only for a No Lift", good ? 0 : 1, this.recorder.ruleRequests.size());
 		assertEquals("the referees are summoned once", 1, this.recorder.summons.size());
 
 		// the attempt board: who has voted in gray, then the seven votes revealed together
@@ -1087,6 +1286,23 @@ public class SevenPersonAdjudicationTest {
 		                && p.jury().equals(List.of("voted", "voted", "voted", "empty"))));
 		assertTrue(board.panels.stream()
 		        .anyMatch(p -> p.referees().equals(expectedRefs) && p.jury().equals(expectedJury)));
+	}
+
+	/** UI events are delivered asynchronously: wait up to 2 s for the condition */
+	private static boolean awaitCondition(BooleanSupplier condition) {
+		long deadline = System.currentTimeMillis() + 2000;
+		while (!condition.getAsBoolean()) {
+			if (System.currentTimeMillis() > deadline) {
+				return false;
+			}
+			try {
+				Thread.sleep(20);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private record Step(String label, Predicate<UIEvent> matcher) {

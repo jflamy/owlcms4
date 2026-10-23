@@ -5,7 +5,7 @@ says what the **physical jury box / referee boxes**, the **Jury Control page**,
 the **attempt board** and the **scoreboard decision block** show, and whether
 that behaviour is **implemented** (owlcms, uncommitted) or **planned** (needs
 the firmata / blue-owl-core changes below). See
-[seven-person-adjudication.md](./seven-person-adjudication.md) for the
+[seven-person-adjudication.md](../seven-person-adjudication.md) for the
 procedure itself.
 
 No new MQTT topic is introduced. Referee lights use the existing
@@ -29,12 +29,13 @@ columns are identical the behaviour does not depend on the device update.
 | Phase A: each jury vote | `juryMemberDecision N hidden` | juror LED green | same | — | juror circle grey "voted" | juror circle grey "voted" | same |
 | Phase A: 4th jury vote | `juryMemberDecision N good/bad` ×4 | 4 juror LEDs white/red | same | — | 4 circles revealed | 4 circles revealed | same |
 | 7-person majority opposes referees → automatic "Adjudication Panel Review" break | `summon 1,2,3` only (**no** `juryDeliberation`: the Phase A votes are kept) | all 7 LEDs keep the Phase A pattern until Call for Votes | same | summon beep | Phase A pattern kept; Call for Votes highlighted | "Adjudication Panel Review" + Phase A pattern | same |
-| Chair presses Call for Votes (or Summon all) | `resetDecisions`, `summon 1,2,3` | all 7 LEDs off | same | re-armed, buzz, "enter decision" | 7 cells empty; Waiting for Votes | 7 cells empty | same |
+| Chair presses Call for Votes (or Summon all) | `resetDecisions`, `summon 1,2,3` | all 7 LEDs off | same | re-armed, buzz, "enter decision" | 7 cells empty; Call for Votes blue (restart) | 7 cells empty | same |
 | Each referee review vote | switch off: nothing. Switch on: `fop/decision N hidden` | **stays off** (firmata: ignored; blue-owl-core 1.4.0: wrong, see Compatibility) | referee LED **green** | current: no confirmation. Planned: same feedback as the initial vote | referee cell grey "voted" | referee cell grey "voted" | same |
 | Each jury review vote | switch off: nothing. Switch on: `juryMemberDecision N hidden` | **stays off** | juror LED **green** | — | juror cell grey "voted" | juror cell grey "voted" | same |
-| 7th vote cast (result known) | `fop/decision N good/bad` ×3, `juryMemberDecision N good/bad` ×4 | **all 7 LEDs white/red** (jury-private reveal, works on current devices) | same | own vote shown; no second confirmation | all 7 revealed; No Lift: rule dialog opens | **all 7 revealed** (white/red) | **all 7 revealed** (white/red) |
-| Good Lift: 1.5 s grace, decision applied | `refereesDecision good` | unchanged | same | lights off (decision displayed) | result shown | 7 white/red + Good Lift card (5 s) | 7 white/red + "Good Lift" |
+| 7th vote cast (result known) | `fop/decision N good/bad` ×3, `juryMemberDecision N good/bad` ×4 | **all 7 LEDs white/red** (jury-private reveal, works on current devices) | same | own vote shown; no second confirmation | all 7 revealed, votes locked; result screen opens (Confirm Good Lift, or the rule dialog for a No Lift; Cancel vote result) | 7 grey "voted" until the Chair confirms (decided 2026-10-22; today all 7 are revealed here) | same as attempt board |
+| Good Lift: Chair confirms (Confirm Good Lift, or Good Lift on the jury box), decision applied (decided 2026-10-22; today automatic after 1.5 s) | `refereesDecision good` | unchanged | same | lights off (decision displayed) | result shown | 7 white/red + Good Lift card (5 s) | 7 white/red + "Good Lift" |
 | No Lift: Chair selects the rule, decision applied | `refereesDecision bad` | unchanged | same | lights off | result shown | 7 white/red + No Lift card with rule (5 s) | 7 white/red + "No Lift – rule" |
+| Chair presses Cancel vote result (decided 2026-10-22, not implemented) | `resetDecisions` | all 7 LEDs off | same | reset | 7 cells empty; Call for Votes orange (state A) | 7 cells empty | same |
 | 3.5 s later: lifting resumes automatically | `startLifting` | **unchanged**, 7 LEDs stay white/red | same | — | votes still shown | next athlete | decision block returns to ready |
 | Resume (Jury Control or jury box) while the jury cycle is active, or next clock start | `resetDecisions` | all off | same | reset | cleared | — | — |
 | Resume after lifting has resumed (clock not started) | `resetDecisions` | all off | same | reset | cleared | cleared | lingering verdict cleared |
@@ -49,9 +50,13 @@ with the owlcms code of the working tree.
 
 Notes:
 
-- At the 7th vote all displays reveal the votes (jury box, Jury Control,
-  attempt board, scoreboards). The decision follows; for a No Lift the
-  scoreboards then show the rule (TCRR 7.5.7 "Rule Identification").
+- At the 7th vote the jury box and Jury Control reveal the votes and the votes
+  are locked. The Chair confirms the result (Confirm Good Lift, or the rule
+  for a No Lift) or throws it out with Cancel vote result. The attempt board
+  and scoreboards reveal the votes with the decision; for a No Lift the
+  scoreboards show the rule (TCRR 7.5.7 "Rule Identification"). Decided
+  2026-10-22, not implemented: today the boards reveal at the 7th vote and a
+  Good Lift is applied after 1.5 s.
 - The revealed votes stay on the jury box and Jury Control until an explicit
   Resume or the next clock start; the automatic resume after 3.5 s does not
   clear them. This is the same lifecycle as the 3/5-member jury.

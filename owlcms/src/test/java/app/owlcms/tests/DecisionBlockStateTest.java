@@ -167,12 +167,10 @@ public class DecisionBlockStateTest {
 	@Test
 	public void reviewBreakShowsTheJuryVotesThatLedToItUntilTheVoteIsCalled() {
 		this.state.setJurySize(4);
-		this.state.setShowBothJuryVotes(false);
 		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true),
 		        new Boolean[] { false, false, false, false });
 		assertTrue("referee lights", this.renderer.calls.contains("refLights"));
-		assertTrue("jury votes shown even when the second vote is not public",
-		        this.renderer.calls.contains("juryCircles"));
+		assertTrue("jury votes shown", this.renderer.calls.contains("juryCircles"));
 
 		// Call for Votes: the cells are cleared
 		this.renderer.clear();
@@ -184,11 +182,30 @@ public class DecisionBlockStateTest {
 	}
 
 	@Test
-	public void ordinaryDeliberationStillClearsTheJuryCircles() {
-		this.state.setShowBothJuryVotes(false);
-		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+	public void hiddenJuryVotesShowNothingOfTheReview() {
+		this.state.setShowJuryVotes(false);
+		this.state.setJurySize(4);
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true),
+		        new Boolean[] { false, false, false, false });
 		assertTrue(this.renderer.calls.contains("noJuryCircles"));
 		assertFalse(this.renderer.calls.contains("juryCircles"));
+		this.renderer.clear();
+		this.state.onPanelVote(null, null, new boolean[7]);
+		this.state.onPanelVote(lights(false), new Boolean[] { false, false, false, true });
+		assertFalse("the review vote is not shown", this.renderer.calls.contains("votedJuryCircles")
+		        || this.renderer.calls.contains("juryCircles"));
+		this.state.onJuryVerdict(false, false, "rule");
+		assertTrue("only the decision", this.renderer.calls.contains("verdictBad"));
+	}
+
+	@Test
+	public void hiddenJuryVotesAreNotShownOnTheLift() {
+		this.state.setShowJuryVotes(false);
+		this.state.setJurySize(3);
+		this.state.onRefereeDecision(null, lights(true));
+		this.state.onJuryUpdate(votes(true, true, true), 3);
+		assertFalse(this.renderer.calls.contains("juryCircles"));
+		assertFalse("a jury must vote: no review timeout", this.renderer.calls.contains("scheduleTimeout"));
 	}
 
 	@Test
@@ -218,6 +235,22 @@ public class DecisionBlockStateTest {
 		assertTrue(this.renderer.calls.contains("refLights"));
 		assertTrue(this.renderer.calls.contains("juryCircles"));
 		assertFalse(this.renderer.calls.contains("votedRefLights"));
+	}
+
+	@Test
+	public void juryVoteKeepsTheRefereesDecisionShown() {
+		this.state.setJurySize(3);
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.renderer.clear();
+
+		// a jury vote (no seven-person panel): the referees do not vote again
+		boolean[] voted = { false, false, false, true, true, false };
+		this.state.onPanelVote(null, null, voted, lights(true));
+		assertTrue("the referees' decision stays shown", this.renderer.calls.contains("refLights"));
+		assertFalse(this.renderer.calls.contains("votedRefLights"));
+		assertTrue("who has voted in the jury", this.renderer.calls.contains("votedJuryCircles"));
+		assertTrue(Arrays.equals(new boolean[] { true, true, false }, this.renderer.votedJury));
+		assertFalse("never the jury values", this.renderer.calls.contains("juryCircles"));
 	}
 
 	@Test
@@ -313,7 +346,8 @@ public class DecisionBlockStateTest {
 	}
 
 	@Test
-	public void deliberationStartShowsMessageAndNoCirclesByDefault() {
+	public void deliberationStartShowsMessageAndNoCirclesWhenJuryVotesHidden() {
+		this.state.setShowJuryVotes(false);
 		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
 		assertEquals(State.DELIBERATION, this.state.getState());
 		assertTrue(this.renderer.calls.contains("athlete"));
@@ -323,8 +357,8 @@ public class DecisionBlockStateTest {
 	}
 
 	@Test
-	public void deliberationShowsCirclesWhenSecondVotePublic() {
-		this.state.setShowBothJuryVotes(true);
+	public void deliberationShowsCirclesWhenJuryVotesShown() {
+		this.state.setShowJuryVotes(true);
 		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
 		assertEquals(State.DELIBERATION, this.state.getState());
 		assertTrue(this.renderer.calls.contains("juryCircles"));
@@ -334,8 +368,8 @@ public class DecisionBlockStateTest {
 	}
 
 	@Test
-	public void deliberationIgnoresJuryUpdateWhenSecondVoteHidden() {
-		this.state.setShowBothJuryVotes(false);
+	public void deliberationIgnoresJuryUpdateWhenJuryVotesHidden() {
+		this.state.setShowJuryVotes(false);
 		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
 		this.renderer.clear();
 		this.state.onJuryUpdate(votes(true, true, true), 3);
@@ -387,6 +421,19 @@ public class DecisionBlockStateTest {
 		assertEquals("the verdict stays", State.DELIBERATION, this.state.getState());
 		assertFalse(this.renderer.calls.contains("readyClock"));
 		assertEquals("one review timeout", schedules + 1, this.renderer.scheduleCount);
+	}
+
+	@Test
+	public void chairDecisionDuringTheVoteShowsTheVerdict() {
+		this.state.setJurySize(4);
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.state.onPanelVote(null, null, new boolean[] { true, true, true, false, true, true, true });
+		// the Jury Chair enters the decision: the votes are cleared, the review goes on
+		this.state.onJuryDisplayReset();
+		assertEquals(State.DELIBERATION, this.state.getState());
+		this.renderer.clear();
+		this.state.onJuryVerdict(false, false, "1 - Bending and extending of the arms");
+		assertTrue("the verdict is shown", this.renderer.calls.contains("verdictBad"));
 	}
 
 	@Test
@@ -470,7 +517,7 @@ public class DecisionBlockStateTest {
 	 */
 	@Test
 	public void deliberationRevoteWaitsForAnnouncerRestart() {
-		this.state.setShowBothJuryVotes(true);
+		this.state.setShowJuryVotes(true);
 		this.state.onRefereeDecision(null, lights(true));
 		this.state.onJuryUpdate(votes(true, true, true), 3);
 		// Jury opens a deliberation.

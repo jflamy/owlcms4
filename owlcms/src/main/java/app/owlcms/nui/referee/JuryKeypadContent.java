@@ -90,6 +90,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(JuryKeypadContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	private static final String BOX_MODE = "box";
 
 	static {
 		logger.setLevel(Level.INFO);
@@ -122,7 +123,15 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	private Button callForVotesButton;
 	private Button allSummonButton;
 	private Dialog noLiftReasonDialog;
-	private boolean reasonDialogOpenedForVote;
+	/** true when the open rule dialog is for the No Lift result of a vote (its Cancel cancels the vote result) */
+	private boolean noLiftReasonForVote;
+	private Dialog confirmGoodLiftDialog;
+	/**
+	 * Testing aid ({@code ?box=true}): the page acts as the physical jury box. Good Lift / No Lift post the same events
+	 * as the box (No Lift asks the other Jury Control pages for the rule), no jury dialog is shown, Call for Votes is
+	 * disabled and Summon Referees (all) keeps the box's meaning.
+	 */
+	private boolean boxMode;
 	private Location location;
 	private UI locationUI;
 	private EventBus uiEventBus;
@@ -151,6 +160,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		this.locationUI = event.getUI();
 		QueryParameters queryParameters = this.location.getQueryParameters();
 		Map<String, List<String>> parametersMap = queryParameters.getParameters();
+		List<String> boxValues = parametersMap.get(BOX_MODE);
+		this.boxMode = boxValues != null && !boxValues.isEmpty() && Boolean.parseBoolean(boxValues.get(0));
 		this.urlParams = readParams(this.location, parametersMap);
 		rebuild();
 	}
@@ -181,30 +192,23 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			JuryDeliberationEventType deliberationType = e.getDeliberationEventType();
-			// an automatic review (Adjudication Panel, or a unanimous jury without VPT) keeps the jury votes that caused it
+			// with the seven-person panel, or after an automatic stop, the review keeps the jury votes on the lift
 			FieldOfPlay notificationFop = e.getFop();
-			boolean votesKept = e.isPanelReview() || (notificationFop != null && notificationFop.isJuryReview());
-			if ((deliberationType == JuryDeliberationEventType.START_DELIBERATION && !votesKept)
-			        || deliberationType == JuryDeliberationEventType.CHALLENGE) {
+			boolean votesKept = notificationFop != null && notificationFop.getPanelReviewInitialVotes() != null;
+			if ((deliberationType == JuryDeliberationEventType.START_DELIBERATION
+			        || deliberationType == JuryDeliberationEventType.CHALLENGE) && !votesKept) {
 				resetJuryVoting();
-			}
-			if (deliberationType == JuryDeliberationEventType.GOOD_LIFT
-			        || deliberationType == JuryDeliberationEventType.BAD_LIFT) {
-				// the decision has been given, possibly from another Jury Control page
-				closeNoLiftReasonDialog();
 			}
 			updateJuryDecisionActions(e.getFop());
 			updateReviewHeader(e.getFop());
+			// the decision has been given, possibly from another Jury Control page or the jury box
+			syncJuryDialogs(e.getFop());
 		});
 	}
 
 	@Subscribe
 	public void slaveJuryRuleRequired(UIEvent.JuryRuleRequired e) {
-		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			if (this.noLiftReasonDialog == null || !this.noLiftReasonDialog.isOpened()) {
-				openNoLiftReasonDialog(false);
-			}
-		});
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> syncJuryDialogs(e.getFop()));
 	}
 
 	@Subscribe
@@ -213,8 +217,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		if (e.getRef() == 0) {
 			UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 				resetJuryVoting();
-				this.reasonDialogOpenedForVote = false;
 				updateJuryDecisionActions(getFop());
+				syncJuryDialogs(getFop());
 			});
 		}
 	}
@@ -227,16 +231,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			renderPanelVote(e.getVoted(), e.getVotes());
 			updateJuryDecisionActions(getFop());
-			if (!e.isOpen()) {
-				// another Jury Control page may have given the decision
-				closeNoLiftReasonDialog();
-				return;
-			}
-			if (Boolean.FALSE.equals(e.getMajority()) && !this.reasonDialogOpenedForVote) {
-				// a No Lift by the panel needs the technical rule from the Chair
-				this.reasonDialogOpenedForVote = true;
-				openNoLiftReasonDialog(false);
-			}
+			// the result of the vote waits for the Chair: Confirm Good Lift, or the rule for a No Lift
+			syncJuryDialogs(getFop());
 		});
 	}
 
@@ -281,9 +277,11 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	public void slaveJuryDisplayReset(UIEvent.JuryDisplayReset e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			resetJuryVoting();
-			closeNoLiftReasonDialog();
 			clearReviewHeader();
+			// Cancel vote result clears the displays while the review goes on
+			updateReviewHeader(getFop());
 			updateJuryDecisionActions(getFop());
+			syncJuryDialogs(getFop());
 		});
 	}
 
@@ -309,7 +307,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	@Subscribe
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			closeNoLiftReasonDialog();
+			closeJuryDialogs();
 			updateJuryDecisionActions(getFop());
 		});
 	}
@@ -600,7 +598,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 		// --- Row 6: Jury Decisions label ---
 		FieldOfPlay buildFop = getFop();
-		this.panelMode = buildFop != null && buildFop.isSevenPersonAdjudication();
+		// review vote, Call for Votes and the Chair's confirmation for any jury (3, 4 or 5 members)
+		this.panelMode = buildFop != null && buildFop.hasJuryReviewVote();
 		Div juryLabel = new Div();
 		juryLabel.setText(Translator.translate("JuryDecisions"));
 		juryLabel.getStyle()
@@ -663,7 +662,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		this.challengeButton = challenge;
 		// the Good Lift / No Lift buttons are the Jury Chair entering the decision instead of a jury vote
 		this.noLiftButton = createKeypadButton(Translator.translate("JuryDialog.BadLiftLabel"), "error primary",
-		        () -> openNoLiftReasonDialog(true));
+		        this::chairNoLift);
 		this.goodLiftButton = createKeypadButton(Translator.translate("JuryDialog.GoodLiftLabel"),
 		        "success primary", () -> submitJuryDecision(true, null, true));
 
@@ -785,13 +784,14 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	}
 
 	private boolean[] currentPanelVoted(FieldOfPlay fop) {
-		boolean[] voted = new boolean[AdjudicationPanel.PANEL_SIZE];
+		int jurySize = fop.getJurySize();
+		boolean[] voted = new boolean[AdjudicationPanel.NB_REFEREES + jurySize];
 		Boolean[] refs = fop.getReviewRefereeDecision();
 		Boolean[] jury = fop.getJuryMemberDecision();
 		for (int i = 0; i < AdjudicationPanel.NB_REFEREES; i++) {
 			voted[i] = refs[i] != null;
 		}
-		for (int i = 0; i < AdjudicationPanel.NB_JURORS; i++) {
+		for (int i = 0; i < jurySize; i++) {
 			voted[AdjudicationPanel.NB_REFEREES + i] = jury != null && jury.length > i && jury[i] != null;
 		}
 		return voted;
@@ -802,10 +802,10 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		if (this.callForVotesButton == null) {
 			return;
 		}
-		boolean enabled = fop != null && fop.isPanelVoteCallable();
-		// prompt the Chair after an automatic review or a challenge, until the vote is called
-		boolean prompt = enabled && !fop.isPanelVoteOpen()
-		        && (fop.isPanelReview() || fop.isJuryReview() || fop.getBreakType() == BreakType.CHALLENGE);
+		// the physical jury box has no Call for Votes button (its Summon All key calls the vote)
+		boolean enabled = !this.boxMode && fop != null && fop.isPanelVoteCallable();
+		// prompt the Chair in every review until the vote is called, and again after Cancel vote result
+		boolean prompt = enabled && !fop.isPanelVoteOpen();
 		this.callForVotesButton.setEnabled(enabled);
 		this.callForVotesButton.getStyle()
 		        .set("background-color", prompt ? "#f97316" : (enabled ? "#2563eb" : "#1e293b"))
@@ -830,24 +830,26 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	private void styleSummonButton(Button button) {
 		button.getStyle()
-		        .set("background-color", "#2f343a")
+		        .set("background-color", button.isEnabled() ? "#2f343a" : "#1e293b")
 		        .set("background-image", "none")
-		        .set("color", "#ffffff")
+		        .set("color", button.isEnabled() ? "#ffffff" : "#64748b")
 		        .set("border", "1px solid #51565c");
 	}
 
 	/**
-	 * Without VPT (TCRR 7.5.8, the referees are called at the Chair's discretion): when the four jury votes on the
-	 * lift are unanimously opposite to the referees, prompt the Chair to summon the referees, in the same orange as
-	 * Call for Votes. Back to normal once the deliberation (Phase B) has started, whether the Chair opened it or the
-	 * automatic break did.
+	 * Without the seven-person panel (the referees are called at the Chair's discretion): when the jury votes on the
+	 * lift, counted with the jury's rule, would reverse the referees, prompt the Chair to summon the referees, in the
+	 * same orange as Call for Votes. Back to normal once the deliberation has started, whether the Chair opened it or
+	 * the automatic break did.
 	 */
 	private void updateSummonAllButton(FieldOfPlay fop) {
 		if (this.allSummonButton == null) {
 			return;
 		}
-		boolean prompt = fop != null && fop.isSevenPersonAdjudication() && !fop.isPanelProcedure()
-		        && fop.getState() != FOPState.BREAK && juryUnanimousAgainstReferees(fop);
+		// on the screen, Summon Referees (all) always means summon: when the keypad's Summon All means Vote, the button
+		// is disabled and the orange Call for Votes is used instead (the box page keeps the box's meaning)
+		this.allSummonButton.setEnabled(this.boxMode || fop == null || !fop.isSummonAllVote());
+		boolean prompt = fop != null && fop.getState() != FOPState.BREAK && fop.isJuryVoteAgainstReferees();
 		if (prompt) {
 			this.allSummonButton.getStyle()
 			        .set("background-color", "#f97316")
@@ -855,20 +857,6 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		} else {
 			styleSummonButton(this.allSummonButton);
 		}
-	}
-
-	private static boolean juryUnanimousAgainstReferees(FieldOfPlay fop) {
-		Boolean juryVote = null;
-		Boolean[] jury = fop.getJuryMemberDecision();
-		for (int i = 0; i < AdjudicationPanel.NB_JURORS; i++) {
-			Boolean vote = jury != null && jury.length > i ? jury[i] : null;
-			if (vote == null || (juryVote != null && !juryVote.equals(vote))) {
-				return false;
-			}
-			juryVote = vote;
-		}
-		Boolean refereeMajority = AdjudicationPanel.refereeMajority(fop.getRefereeDecision());
-		return refereeMajority != null && !refereeMajority.equals(juryVote);
 	}
 
 	private int getNbJurors() {
@@ -931,7 +919,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		registerShortcut(() -> summonReferee(2), Key.KEY_I);
 		registerShortcut(() -> summonReferee(3), Key.KEY_J);
 		registerShortcut(() -> summonReferee(0), Key.KEY_K);
-		if (this.panelMode) {
+		if (this.panelMode && !this.boxMode) {
 			registerShortcut(this::callForVotes, Key.KEY_V);
 		}
 	}
@@ -955,6 +943,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		}
 
 		syncLiveRefereeDecisions(fop);
+		syncJuryDialogs(fop);
 		if (this.panelMode && fop.isPanelVoteOpen()) {
 			boolean[] voted = currentPanelVoted(fop);
 			renderPanelVote(voted, null);
@@ -1283,6 +1272,43 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		});
 	}
 
+	/**
+	 * No Lift on Jury Control, like the jury box's No Lift: the FOP asks the Jury Control pages for the technical rule.
+	 */
+	private void chairNoLift() {
+		OwlcmsSession.withFop(fop -> fop.fopEventPost(new FOPEvent.JuryRuleRequest(this, false)));
+	}
+
+	/**
+	 * Show the dialog that matches the FOP state, so that every Jury Control page on the platform shows the same one:
+	 * the rule dialog for the No Lift result of a vote or for a No Lift pressed by the Chair, Confirm Good Lift for the
+	 * Good Lift result of a vote, nothing otherwise. The box page (testing) never shows them.
+	 */
+	private void syncJuryDialogs(FieldOfPlay fop) {
+		if (this.boxMode || !isJuryDecisionActive(fop)) {
+			closeJuryDialogs();
+			return;
+		}
+		Boolean majority = fop.isPanelVoteOpen() ? fop.getPanelVoteMajority() : null;
+		if (Boolean.FALSE.equals(majority)) {
+			closeConfirmGoodLiftDialog();
+			openNoLiftReasonDialog(true);
+		} else if (fop.isJuryRuleRequested()) {
+			closeConfirmGoodLiftDialog();
+			openNoLiftReasonDialog(false);
+		} else if (Boolean.TRUE.equals(majority)) {
+			closeNoLiftReasonDialog();
+			openConfirmGoodLiftDialog();
+		} else {
+			closeJuryDialogs();
+		}
+	}
+
+	private void closeJuryDialogs() {
+		closeNoLiftReasonDialog();
+		closeConfirmGoodLiftDialog();
+	}
+
 	private void closeNoLiftReasonDialog() {
 		if (this.noLiftReasonDialog != null) {
 			this.noLiftReasonDialog.close();
@@ -1290,18 +1316,63 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		}
 	}
 
-	private void openNoLiftReasonDialog(boolean chairEntered) {
-		if (!isJuryDecisionActive(getFop())) {
+	private void closeConfirmGoodLiftDialog() {
+		if (this.confirmGoodLiftDialog != null) {
+			this.confirmGoodLiftDialog.close();
+			this.confirmGoodLiftDialog = null;
+		}
+	}
+
+	private void cancelVoteResult() {
+		OwlcmsSession.withFop(fop -> fop.fopEventPost(new FOPEvent.PanelVoteCancelled(this)));
+	}
+
+	/**
+	 * The Good Lift result of a vote waits for the Chair: Confirm Good Lift applies it, Cancel vote result clears the
+	 * votes so that a new vote can be called.
+	 */
+	private void openConfirmGoodLiftDialog() {
+		if (this.confirmGoodLiftDialog != null && this.confirmGoodLiftDialog.isOpened()) {
 			return;
 		}
-		if (this.noLiftReasonDialog != null) {
-			this.noLiftReasonDialog.close();
+		Dialog dialog = new Dialog();
+		this.confirmGoodLiftDialog = dialog;
+		dialog.getElement().getThemeList().add(Lumo.DARK);
+		dialog.setHeaderTitle(Translator.translate("JuryDialog.GoodLiftLabel"));
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+		Button confirm = new Button(Translator.translate("JuryKeypad.ConfirmGoodLift"), e -> {
+			closeConfirmGoodLiftDialog();
+			submitJuryDecision(true, null, true);
+		});
+		confirm.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_LARGE);
+		Button cancelResult = new Button(Translator.translate("JuryKeypad.CancelVoteResult"), e -> {
+			closeConfirmGoodLiftDialog();
+			cancelVoteResult();
+		});
+		cancelResult.addThemeVariants(ButtonVariant.LUMO_LARGE);
+		dialog.getFooter().add(cancelResult, confirm);
+		dialog.open();
+	}
+
+	/**
+	 * @param forVote true for the No Lift result of a vote (Cancel cancels the vote result), false for a No Lift
+	 *                pressed by the Chair (Cancel withdraws the request)
+	 */
+	private void openNoLiftReasonDialog(boolean forVote) {
+		if (this.noLiftReasonDialog != null && this.noLiftReasonDialog.isOpened()
+		        && this.noLiftReasonForVote == forVote) {
+			return;
 		}
+		closeNoLiftReasonDialog();
+		this.noLiftReasonForVote = forVote;
 		Dialog dialog = new Dialog();
 		this.noLiftReasonDialog = dialog;
 		dialog.getElement().getThemeList().add(Lumo.DARK);
 		dialog.setHeaderTitle(Translator.translate("JuryDialog.BadLiftLabel"));
 		dialog.setWidth("95vw");
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
 
 		Div reasons = new Div();
 		// columns fill top to bottom; at most 3 of at least 17rem, so 3 columns from 1024px-wide tablets up
@@ -1311,8 +1382,9 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		for (Integer reasonCode : JuryRejectionReasons.REASONS.keySet()) {
 			Button reasonButton = new Button();
 			reasonButton.addClickListener(e -> {
-				dialog.close();
-				submitJuryDecision(false, reasonCode, chairEntered);
+				closeNoLiftReasonDialog();
+				// the FOP decides whether this is the result of the vote or the Chair's own decision
+				submitJuryDecision(false, reasonCode, true);
 			});
 			// number in a fixed-width column so wrapped lines hang under the reason text
 			Span number = new Span(reasonCode + " -");
@@ -1346,7 +1418,18 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		}
 		dialog.add(reasons);
 
-		Button cancel = new Button(Translator.translate("Cancel"), e -> dialog.close());
+		Button cancel;
+		if (forVote) {
+			cancel = new Button(Translator.translate("JuryKeypad.CancelVoteResult"), e -> {
+				closeNoLiftReasonDialog();
+				cancelVoteResult();
+			});
+		} else {
+			cancel = new Button(Translator.translate("Cancel"), e -> {
+				closeNoLiftReasonDialog();
+				OwlcmsSession.withFop(fop -> fop.fopEventPost(new FOPEvent.JuryRuleRequest(this, true)));
+			});
+		}
 		dialog.getFooter().add(cancel);
 		dialog.open();
 	}
@@ -1393,13 +1476,9 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	private void summonReferee(int refNumber) {
 		OwlcmsSession.withFop(fop -> {
-			if (refNumber == 0 && this.panelMode && fop.isPanelVoteCallable()) {
-				// during a review, the Referee call buttons request the new decision (TCRR 7.5.7)
-				fop.fopEventPost(new FOPEvent.PanelVoteCalled(this));
-			} else {
-				// 0 summons all referees as a single event, same as the hardware jury box
-				fop.fopEventPost(new FOPEvent.SummonReferee(this, refNumber));
-			}
+			// 0 summons all referees as a single event, same as the hardware jury box; the FOP decides whether it
+			// means Call for Votes (TCRR 7.5.7, the Referee call buttons request the new decision)
+			fop.fopEventPost(new FOPEvent.SummonReferee(this, refNumber));
 		});
 	}
 }

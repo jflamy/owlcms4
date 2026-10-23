@@ -266,8 +266,8 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		if (fop == null) {
 			return;
 		}
-		this.decisionBlock.setShowBothJuryVotes(
-		        Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_SHOW_BOTH_JURY_VOTES));
+		this.decisionBlock.setShowJuryVotes(
+		        Config.getCurrent().featureSwitch(FeatureSwitch.JURY_DECISIONS_ON_SCOREBOARD));
 		this.decisionBlock.setJurySize(fop.getJurySize());
 		this.getElement().setProperty("dsShowStopwatch",
 		        Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_STOPWATCH));
@@ -310,7 +310,7 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 				this.decisionBlock.onPanelVote(
 				        new DecisionBlockState.RefLights(fop.getPanelVoteMajority(), refs[0], refs[1], refs[2], false,
 				                false),
-				        Arrays.copyOf(jury, AdjudicationPanel.NB_JURORS));
+				        Arrays.copyOf(jury, fop.getJurySize()));
 			} else if (fop.isPanelVoteOpen()) {
 				this.decisionBlock.onPanelVote(null, null, panelVoted(fop));
 			} else if (initialJury == null) {
@@ -328,26 +328,26 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 	}
 
 	/**
-	 * Four-member jury review break: the jury votes that led to the review, shown with the referees' decision until
-	 * the vote is called (same as the attempt board). Null when there is no such pattern.
+	 * Review break (seven-person panel, or after an automatic stop): the jury votes that led to the review, shown with the
+	 * referees' decision until the vote is called (same as the attempt board). Null when there is no such pattern.
 	 */
 	private static Boolean[] initialJuryVotes(FieldOfPlay fop) {
 		Boolean[] votes = fop != null ? fop.getPanelReviewInitialVotes() : null;
-		if (votes == null || votes.length < AdjudicationPanel.PANEL_SIZE) {
+		if (votes == null || votes.length <= AdjudicationPanel.NB_REFEREES) {
 			return null;
 		}
-		return Arrays.copyOfRange(votes, AdjudicationPanel.NB_REFEREES, AdjudicationPanel.PANEL_SIZE);
+		return Arrays.copyOfRange(votes, AdjudicationPanel.NB_REFEREES, votes.length);
 	}
 
 	/** who has voted in the review vote in progress (3 referees then the jury members) */
 	private static boolean[] panelVoted(FieldOfPlay fop) {
-		boolean[] voted = new boolean[AdjudicationPanel.PANEL_SIZE];
+		boolean[] voted = new boolean[fop.getReviewVoteSize()];
 		Boolean[] referees = fop.getReviewRefereeDecision();
 		Boolean[] jury = fop.getJuryMemberDecision();
 		for (int i = 0; i < AdjudicationPanel.NB_REFEREES; i++) {
 			voted[i] = referees != null && i < referees.length && referees[i] != null;
 		}
-		for (int i = 0; i < AdjudicationPanel.NB_JURORS; i++) {
+		for (int i = 0; i < fop.getJurySize(); i++) {
 			voted[AdjudicationPanel.NB_REFEREES + i] = jury != null && i < jury.length && jury[i] != null;
 		}
 		return voted;
@@ -603,6 +603,10 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		if (!isDecisionSectionEnabled()) {
 			return;
 		}
+		if (e.isReviewVote()) {
+			// the review vote is shown from PanelVoteUpdate, revealed with the decision
+			return;
+		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			this.decisionBlock.onJuryUpdate(e.getJuryMemberDecision(), e.getJurySize());
 		});
@@ -619,9 +623,8 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 	}
 
 	/**
-	 * Seven-person Adjudication Panel review vote: who has voted in gray while in progress, then the seven votes
-	 * together as soon as the last vote is in (same as the attempt board). The verdict label (with the rule for a No
-	 * Lift) follows with the decision.
+	 * Review vote: who has voted in gray while in progress, then the votes together as soon as the last one is in. The
+	 * verdict label (with the rule for a No Lift) follows when the Jury Chair confirms the decision.
 	 */
 	@Subscribe
 	public void slavePanelVoteUpdate(UIEvent.PanelVoteUpdate e) {
@@ -631,14 +634,24 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			Boolean[] votes = e.getVotes();
 			if (votes == null) {
-				// who has voted is shown in gray, the values wait for the decision
-				this.decisionBlock.onPanelVote(null, null, e.getVoted());
+				// who has voted is shown in gray, the values wait for the decision; in a jury vote (anything but the
+				// seven-person panel) the referees do not vote again and their decision stays shown
+				FieldOfPlay fop = e.getFop();
+				DecisionBlockState.RefLights kept = null;
+				if (fop != null && !fop.isPanelProcedure()) {
+					Boolean[] refs = fop.getRefereeDecision();
+					if (refs != null && refs.length >= AdjudicationPanel.NB_REFEREES) {
+						kept = new DecisionBlockState.RefLights(AdjudicationPanel.refereeMajority(refs), refs[0],
+						        refs[1], refs[2], false, false);
+					}
+				}
+				this.decisionBlock.onPanelVote(null, null, e.getVoted(), kept);
 				return;
 			}
 			DecisionBlockState.RefLights reviewLights = new DecisionBlockState.RefLights(e.getMajority(), votes[0],
 			        votes[1], votes[2], false, false);
 			this.decisionBlock.onPanelVote(reviewLights, Arrays.copyOfRange(votes, AdjudicationPanel.NB_REFEREES,
-			        AdjudicationPanel.PANEL_SIZE));
+			        votes.length));
 		});
 	}
 
@@ -665,10 +678,8 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 				if (fop != null && fop.getCurAthlete() != null) {
 					doUpdate(fop.getCurAthlete(), e);
 				}
-				// a four-member jury shows the technical rule relied upon for a No Lift (TCRR 7.5.7)
-				String rule = fop != null && fop.isSevenPersonAdjudication()
-				        ? JuryRejectionReasons.label(e.getReasonCode())
-				        : null;
+				// the technical rule relied upon for a No Lift, when the Jury Chair gave it (TCRR 7.5.7)
+				String rule = JuryRejectionReasons.label(e.getReasonCode());
 				this.decisionBlock.onJuryVerdict(type == JuryDeliberationEventType.GOOD_LIFT, e.isWaitForAnnouncer(),
 				        rule);
 				break;

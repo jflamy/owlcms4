@@ -430,11 +430,14 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 
 		private void postFopEventJuryDecision(String topic, String messageStr) {
 			messageStr = messageStr.trim();
-			try {
-				// the physical jury box's Good Lift / No Lift buttons are the Jury Chair entering the decision
-				postDeviceEvent(new FOPEvent.JuryDecision(this.athleteUnderReview, this,
-						messageStr.contentEquals("good"), true, null, true), "JURY_CONSOLE", null, "jurybox");
-			} catch (NumberFormatException e) {
+			// the physical jury box's Good Lift / No Lift buttons are the same as Jury Control's: Good Lift is the Jury
+			// Chair's decision; No Lift asks the Jury Control pages for the technical rule
+			if (messageStr.contentEquals("good")) {
+				postDeviceEvent(new FOPEvent.JuryDecision(this.athleteUnderReview, this, true, true, null, true),
+				        "JURY_CONSOLE", null, "jurybox");
+			} else if (messageStr.contentEquals("bad")) {
+				postDeviceEvent(new FOPEvent.JuryRuleRequest(this, false), "JURY_CONSOLE", null, "jurybox");
+			} else {
 				logger.error("{}Malformed MQTT jury decision message topic='{}' message='{}'",
 						FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);
 				auditRejected(topic, messageStr, "malformed");
@@ -1456,9 +1459,10 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	}
 
 	/**
-	 * Adjudication Panel review vote. For a new vote (ref 0): reset the boxes so that boxes that lock after voting
-	 * are re-armed (this also clears the referee and jury lights on the jury box), then buzz all referees with the
-	 * summon signal. For a re-call: buzz that referee only.
+	 * Review vote (seven-person panel or jury vote). For a new vote (ref 0): reset the boxes so that boxes that lock
+	 * after voting are re-armed (this also clears the referee and jury lights on the jury box). Seven-person panel:
+	 * buzz all referees with the summon signal; jury vote: show the referees' decision again. For a re-call: buzz that
+	 * referee only.
 	 */
 	@Subscribe
 	public void slavePanelVoteCalled(UIEvent.PanelVoteCalled e) {
@@ -1466,6 +1470,14 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			publishMqttResetAllDecisions();
 			if (e.getFop() != null && e.getFop().isPanelProcedure()) {
 				publishMqttSummonRef(0);
+			} else if (e.getFop() != null) {
+				// jury vote: the referees do not vote again, their decision stays shown on the jury box
+				Boolean[] refs = e.getFop().getRefereeDecision();
+				for (int i = 0; refs != null && i < Math.min(refs.length, AdjudicationPanel.NB_REFEREES); i++) {
+					if (refs[i] != null) {
+						publishMqttRefereeLight(i + 1, refs[i] ? "good" : "bad");
+					}
+				}
 			}
 		} else if (e.getFop() != null && e.getFop().isPanelProcedure()) {
 			publishMqttSummonRef(e.getRef());
@@ -1480,7 +1492,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		        && Config.getCurrent().featureSwitch(FeatureSwitch.PANEL_VOTE_DEVICE_INDICATORS)) {
 			publishMqttRefereeLight(refereeUpdated + 1, "hidden");
 		}
-		if (eventFop != null && eventFop.isSevenPersonAdjudication() && e.isComplete() && !e.isPublicReveal()) {
+		if (eventFop != null && eventFop.hasJuryReviewVote() && e.isComplete() && !e.isPublicReveal()) {
 			Boolean[] votes = e.getVotes();
 			for (int i = 0; i < AdjudicationPanel.NB_REFEREES; i++) {
 				publishMqttRefereeLight(i + 1, Boolean.TRUE.equals(votes[i]) ? "good" : "bad");

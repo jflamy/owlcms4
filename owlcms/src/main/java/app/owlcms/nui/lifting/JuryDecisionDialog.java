@@ -27,7 +27,9 @@ import app.owlcms.uievents.JuryRejectionReasons;
 import app.owlcms.uievents.UIEvent;
 
 /**
- * Custom dialog for jury decisions with proper footer containing Good Lift and No Lift buttons.
+ * The Speaker's jury dialog. While the jury reviews a lift it shows "Waiting for decision" with Good Lift / No Lift /
+ * End jury break, so that the Speaker can enter a decision relayed by the Technical Controller. Once the jury's
+ * decision has been applied, it shows the decision and the rule for the Speaker to announce, with a Close button.
  */
 @SuppressWarnings("serial")
 public class JuryDecisionDialog extends Dialog {
@@ -39,10 +41,12 @@ public class JuryDecisionDialog extends Dialog {
 	private Object origin;
 	private Runnable onClose;
 	private boolean sent;
+	private final boolean decisionShown;
 	
 	public JuryDecisionDialog(UIEvent.JuryNotification e, JuryDeliberationEventType juryDecision, Runnable onClose) {
 		this.origin = e.getOrigin();
 		this.onClose = onClose;
+		this.decisionShown = juryDecision != null;
 		
 		// Get athlete - either from event or from current FOP state
 		this.athlete = e.getAthlete();
@@ -85,6 +89,8 @@ public class JuryDecisionDialog extends Dialog {
 			JuryDeliberationEventType et = e.getDeliberationEventType();
 			if (et == JuryDeliberationEventType.CHALLENGE) {
 				headerText = Translator.translate("JuryNotification.CHALLENGE");
+			} else if (e.isPanelReview()) {
+				headerText = Translator.translate("JuryNotification.PanelReview");
 			} else {
 				headerText = Translator.translate("JuryNotification.START_DELIBERATION");
 			}
@@ -114,19 +120,16 @@ public class JuryDecisionDialog extends Dialog {
 	if (juryDecision == JuryDeliberationEventType.GOOD_LIFT) {
 		juryDecisionDisplay = "<div style='color: green; font-size: xx-large; font-weight: bold; text-align: center; margin: 0.5em 0;'>" 
 			+ Translator.translate("JuryDialog.GoodLiftLabel").toUpperCase() + " " + reversalText + "</div>";
-		explanationText = Translator.translate("Announcer.DisplayDecisionAndAnnounce");
+		explanationText = Translator.translate("Announcer.AnnounceGoodLift");
 	} else if (juryDecision == JuryDeliberationEventType.BAD_LIFT) {
 		juryDecisionDisplay = "<div style='color: red; font-size: xx-large; font-weight: bold; text-align: center; margin: 0.5em 0;'>" 
 			+ Translator.translate("JuryDialog.BadLiftLabel").toUpperCase() + " " + reversalText + "</div>";
 		String reason = JuryRejectionReasons.label(e.getReasonCode());
-		if (reason == null) {
-			reason = Translator.translate("Announcer.JuryDecisionExplanation");
-			explanationText = "";
-		} else {
-			explanationText = Translator.translate("Announcer.DisplayDecisionAndAnnounce");
+		explanationText = Translator.translate("Announcer.AnnounceJuryDecision");
+		if (reason != null) {
+			juryDecisionDisplay += "<div style='color: red; font-size: xx-large; font-weight: bold; text-align: center; margin: 0.5em 0;'>"
+				+ reason + "</div>";
 		}
-		juryDecisionDisplay += "<div style='color: red; font-size: xx-large; font-weight: bold; text-align: center; margin: 0.5em 0;'>"
-			+ reason + "</div>";
 	} else {
 		// Show waiting status when jury is deliberating
 		waitingStatus = "<div style='color: #666; font-size: x-large; font-style: italic; text-align: center; margin: 0.5em 0;'>" 
@@ -162,18 +165,10 @@ public class JuryDecisionDialog extends Dialog {
 		buttonContainer.setSpacing(true);
 		
 		if (juryDecision != null) {
-			// Jury has made a decision - only show Display Decision button with primary theme
-			// Display Decision will apply the jury decision, then restart lifting
-			this.resumeButton = new Button(Translator.translate("Announcer.DisplayDecision"));
+			// the jury's decision has already been applied and displayed: the Speaker announces it
+			this.resumeButton = new Button(Translator.translate("Close"));
 			this.resumeButton.getElement().setAttribute("theme", "primary");
-			this.resumeButton.addClickListener(c -> sendOnce(() -> {
-				// First apply the jury decision (reversal or confirmation)
-				if (this.athlete != null) {
-					boolean success = (juryDecision == JuryDeliberationEventType.GOOD_LIFT);
-					OwlcmsSession.getFop().fopEventPost(new FOPEvent.JuryDecision(this.athlete, this.origin, success, false));
-				}
-				// doJuryDecision will handle restarting lifting after the decision is displayed
-			}));
+			this.resumeButton.addClickListener(c -> close());
 			buttonContainer.add(this.resumeButton);
 		} else {
 			// Waiting for jury decision - show Good Lift / No Lift buttons and Resume button
@@ -218,6 +213,11 @@ public class JuryDecisionDialog extends Dialog {
 		setWidth("600px");
 	}
 	
+	/** @return true when the dialog shows a decision already applied, false while it waits for the decision */
+	public boolean isDecisionShown() {
+		return this.decisionShown;
+	}
+
 	@Override
 	public void close() {
 		super.close();

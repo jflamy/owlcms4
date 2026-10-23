@@ -470,6 +470,11 @@ public class Competition {
 	private String checkInTemplateFileName;
 	@Column(columnDefinition = "boolean default false")
 	private boolean displayByAgeGroup;
+	/**
+	 * No longer used: no jury decision waits for the Speaker. Kept so that the database column and existing exports
+	 * still load.
+	 */
+	@Deprecated
 	@Column(columnDefinition = "boolean default true")
 	private boolean announcerControlledJuryDecision = true;
 	@Column(columnDefinition = "boolean default false")
@@ -1619,6 +1624,8 @@ public class Competition {
 		return 31;
 	}
 
+	/** @deprecated no longer used, see the field */
+	@Deprecated
 	public boolean isAnnouncerControlledJuryDecision() {
 		return this.announcerControlledJuryDecision;
 	}
@@ -1819,6 +1826,8 @@ public class Competition {
 		this.ageGroupsFileName = localizedName;
 	}
 
+	/** @deprecated no longer used, see the field */
+	@Deprecated
 	public void setAnnouncerControlledJuryDecision(boolean announcerControlledJuryDecision) {
 		this.announcerControlledJuryDecision = announcerControlledJuryDecision;
 	}

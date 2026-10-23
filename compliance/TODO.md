@@ -21,6 +21,16 @@ the rest await confirmation. 2026-10-22.
    today (ISO, Excel date cells, bare year and Excel serials keep their
    current path).
 
+## To review
+
+- [x] **Repeated "Ignoring unknown feature switch" warnings.** After a switch is
+  removed (`decisionSectionShowBothJuryVotes`, `requireJuryPresidentDecision`),
+  the stored configuration and the `OWLCMS_FEATURESWITCHES` startup value
+  were re-parsed on every `featureSwitch()` call. **Done:** unknown ids are
+  dropped from the stored configuration when it is loaded or imported, so a
+  later export does not carry them. The startup value is parsed once, and
+  parsed again only if it changes.
+
 ## Confirmed
 
 - [x] **Stale-save confirmation default button: Reload card**, not Overwrite.
@@ -40,9 +50,10 @@ Each remaining document is either backlog or will never be done.
 - [ ] [EXTERNAL_CONNECTION_EXPORT_PROTECTION_PROPOSAL.md](EXTERNAL_CONNECTION_EXPORT_PROTECTION_PROPOSAL.md) — encrypted forwarding keys in exports, export endpoint authorization (proposal, not started)
 - [ ] [personal-best-records.md](personal-best-records.md) — Personal records as a record federation in owlcms (tracker side done, owlcms not started)
 - [ ] [tracker-jury-votes.md](tracker-jury-votes.md) — seven-person votes in the tracker decision block (proposal, not started)
+- [ ] [STORE_PANEL_DECISIONS.md](STORE_PANEL_DECISIONS.md) — store the jury and panel votes, trigger, rule and who entered the decision with the attempt (note, not started)
 - [ ] [ACCESS_CONTROL_DESIGN.md](ACCESS_CONTROL_DESIGN.md) — one-off opener gating, break capability, non-Vaadin entry-point review
 - [ ] [COMPETITION_DIRECTOR_PAGE_IMPLEMENTATION_PLAN.md](COMPETITION_DIRECTOR_PAGE_IMPLEMENTATION_PLAN.md) — browser acceptance as a `playwright`-module check (after DIRECT_JSON_BOOT), config-tab permissions
-- [ ] [seven-person-adjudication.md](seven-person-adjudication.md) — feature done; left: Jury/Keypads/MQTT docs, `MQTTMonitor` tests, device tests and `panelVoteDeviceIndicators` default, four unused translation keys
+- [ ] [seven-person-adjudication.md](seven-person-adjudication.md) — review procedure done for every jury size; left: Jury/Keypads/MQTT docs, `MQTTMonitor` tests, device tests and `panelVoteDeviceIndicators` default, four unused translation keys
 - [ ] [ATHLETE_CARD_CONCURRENT_EDITING_ANALYSIS.md](ATHLETE_CARD_CONCURRENT_EDITING_ANALYSIS.md) — §6.4 write-only-changed-fields follow-up, `BreakManagement` unregistration
 
 ## Decisions inside the documents

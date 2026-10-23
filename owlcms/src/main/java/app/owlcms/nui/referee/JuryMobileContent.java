@@ -138,10 +138,10 @@ public class JuryMobileContent extends BaseContent implements FOPParametersReade
 	@Subscribe
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
 		JuryDeliberationEventType deliberationType = e.getDeliberationEventType();
-		// an automatic review (Adjudication Panel, or a unanimous jury without VPT) keeps the jury votes that caused it
-		boolean votesKept = e.isPanelReview() || (e.getFop() != null && e.getFop().isJuryReview());
-		if ((deliberationType == JuryDeliberationEventType.START_DELIBERATION && !votesKept)
-		        || deliberationType == JuryDeliberationEventType.CHALLENGE) {
+		// with the seven-person panel, or after an automatic stop, the review keeps the jury votes on the lift
+		boolean votesKept = e.getFop() != null && e.getFop().getPanelReviewInitialVotes() != null;
+		if ((deliberationType == JuryDeliberationEventType.START_DELIBERATION
+		        || deliberationType == JuryDeliberationEventType.CHALLENGE) && !votesKept) {
 			UIEventProcessor.uiAccess(this, this.uiEventBus, this::resetVote);
 		}
 	}
@@ -151,7 +151,7 @@ public class JuryMobileContent extends BaseContent implements FOPParametersReade
 		UIEventProcessor.uiAccess(this, this.uiEventBus, this::resetVote);
 	}
 
-	/** Adjudication Panel review vote called: the jury votes again. */
+	/** Review vote called (seven-person panel or jury vote): the jury votes again. */
 	@Subscribe
 	public void slavePanelVoteCalled(UIEvent.PanelVoteCalled e) {
 		if (e.getRef() == 0) {

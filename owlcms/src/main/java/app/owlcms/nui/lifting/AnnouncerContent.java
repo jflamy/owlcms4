@@ -24,11 +24,9 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyModifier;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
@@ -106,9 +104,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	private HorizontalLayout timerButtons;
 	private boolean singleReferee;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
-	private Dialog juryConfirmationDialog;
-	/** four-member jury: the jury result with its rule, until dismissed or the clock starts */
-	private Notification juryVerdictNotification;
+	private JuryDecisionDialog juryConfirmationDialog;
 	private boolean liveLights;
 	private boolean declarations;
 	private boolean centerNotifications;
@@ -298,31 +294,28 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 					return;
 				case START_DELIBERATION:
 				case CHALLENGE:
-					if (e.isPanelReview() && !this.deliberationNotificationSent) {
-						// automatic stop: the Supervisor/Speaker can still end the break (mishap recovery)
-						doStoppageDialog(Translator.translate("JuryNotification.PanelReview"), style);
-					} else if (!e.isWaitForAnnouncer() && getFop() != null && getFop().isSevenPersonAdjudication()
-					        && !this.deliberationNotificationSent) {
-						// four-member jury: the Speaker does not decide, the result will be sent to the boards
-						doStoppageDialog(Translator.translate("JuryNotification." + et.name()), style);
-					}
-					// Show jury decision dialog immediately with Good Lift/No Lift buttons
-					if (e.isWaitForAnnouncer() && !this.deliberationNotificationSent) {
-						juryDecisionDialog(e, null);
+					// every review of a lift (automatic, Challenge, Deliberation) waits for the decision: it may come
+					// from the jury, or be relayed by the Technical Controller and entered by the Speaker
+					if (!this.deliberationNotificationSent) {
+						FieldOfPlay fop = getFop();
+						if (e.getAthlete() != null || (fop != null && fop.getAthleteUnderReview() != null)) {
+							juryDecisionDialog(e, null);
+						} else {
+							doStoppageDialog(Translator.translate(e.isPanelReview() ? "JuryNotification.PanelReview"
+							        : "JuryNotification." + et.name()), style);
+						}
 					}
 					this.deliberationNotificationSent = true;
 					return;
 			case GOOD_LIFT:
 			case BAD_LIFT:
-				// Only update dialog if waiting for announcer (decision from jury)
-				// Don't reopen if announcer gave the decision themselves
-				if (e.isWaitForAnnouncer()) {
-					juryDecisionDialog(e, et);
-				} else if (getFop() != null && getFop().isSevenPersonAdjudication()) {
-					// four-member jury: the decision is applied without the Speaker, who is told the result and rule
+				if (e.isSpeakerEntered()) {
+					// the Speaker entered the decision in the dialog, which has closed
 					closeJuryConfirmationDialog();
-					showJuryVerdictNotification(juryVerdictText(e),
-					        et == JuryDeliberationEventType.GOOD_LIFT ? "primary success" : "primary error");
+				} else {
+					// the jury's decision has been applied: the dialog shows it, with the rule, for the Speaker to
+					// announce
+					juryDecisionDialog(e, et);
 				}
 				return;
 				case END_CALL_REFEREES:
@@ -460,32 +453,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		}
 	}
 
-	/**
-	 * Informational, not modal (the timekeeper shortcuts keep working). Stays until the Speaker dismisses it or the
-	 * clock is started.
-	 */
-	private void showJuryVerdictNotification(String text, String theme) {
-		closeJuryVerdictNotification();
-		Notification n = new Notification();
-		n.getElement().getThemeList().add(theme);
-		n.setDuration(0);
-		n.setPosition(this.centerNotifications ? Position.MIDDLE : Position.TOP_START);
-		Div label = new Div();
-		label.getElement().setProperty("innerHTML", text);
-		label.getStyle().set("font-size", this.centerNotifications ? "x-large" : "large");
-		Button close = new Button(new Icon(VaadinIcon.CLOSE_SMALL), event -> closeJuryVerdictNotification());
-		close.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-		HorizontalLayout content = new HorizontalLayout(label, close);
-		content.setAlignItems(FlexComponent.Alignment.CENTER);
-		n.add(content);
-		this.juryVerdictNotification = n;
-		n.open();
-	}
-
-	private void closeJuryVerdictNotification() {
-		if (this.juryVerdictNotification != null) {
-			this.juryVerdictNotification.close();
-			this.juryVerdictNotification = null;
+	private void closeJuryWaitingDialog() {
+		if (this.juryConfirmationDialog != null && !this.juryConfirmationDialog.isDecisionShown()) {
+			closeJuryConfirmationDialog();
 		}
 	}
 
@@ -553,7 +523,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	public void slaveStartLifting(UIEvent.StartLifting s) {
 		currentUI.access(() -> {
 			clearWaitingForDecisionReminder();
-			closeJuryConfirmationDialog();
+			// the decision dialog stays when lifting resumes after the decision, until closed or the clock starts
+			closeJuryWaitingDialog();
 			super.slaveStartLifting(s);
 			if (this.stoppageAckNotification != null) {
 				this.stoppageAckNotification.close();
@@ -670,7 +641,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	public void slaveStartTime(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			closeJuryConfirmationDialog();
-			closeJuryVerdictNotification();
 			buttonsTimeStarted();
 			displayLiveDecisions();
 		});

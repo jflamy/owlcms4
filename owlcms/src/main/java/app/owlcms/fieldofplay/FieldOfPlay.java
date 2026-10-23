@@ -317,7 +317,8 @@ public class FieldOfPlay implements IUnregister {
 	private Long missingKgWarnedAthleteId;
 	private EventForwarder eventForwarder;
 	private WebSocketEventForwarder webSocketEventForwarder;
-	private JuryDecision toBeAnnouncedJuryDecision;
+	/** the Jury Chair pressed No Lift and the Jury Control pages are asked for the technical rule */
+	private boolean juryRuleRequested;
 	private FieldOfPlay existingFOP;
 	private Queue<FOPEvent.WeightChange> deferredWeightChanges = new LinkedList<>();
 	private Athlete nextAthlete;
@@ -888,11 +889,23 @@ public class FieldOfPlay implements IUnregister {
 			} else {
 				this.deferredBreak = e;
 				this.logger.info("{}Deferred break", FieldOfPlay.getLoggingName(this));
+				if (this.state == DECISION_VISIBLE && this.awaitingJuryCompletion
+				        && (requestedBreak == BreakType.JURY || requestedBreak == BreakType.CHALLENGE)) {
+					// the decision is held until the four jurors have voted on the lift, which may never happen (a
+					// jury box that does not work): a review started by the Chair ends the hold, the display ends
+					// after its usual minimum and the break starts
+					this.logger.info("{}review started while the jury votes are incomplete, ending the decision display",
+					        FieldOfPlay.getLoggingName(this));
+					this.awaitingJuryCompletion = false;
+					this.decisionResetDeadline = Math.max(this.decisionVisibleSince + this.decisionVisibleDuration,
+					        System.nanoTime() / 1_000_000);
+					armDecisionReset();
+				}
 			}
 			return;
 		} else if (e instanceof SummonReferee) {
 			SummonReferee e2 = (SummonReferee) e;
-			if (e2.getRefNumber() == 0 && isPanelVoteCallable()) {
+			if (e2.getRefNumber() == 0 && isSummonAllVote()) {
 				// TCRR 7.5.7: the Chair presses the Referee call buttons to request the new decision
 				doPanelVoteCalled(e.getOrigin());
 				return;
@@ -926,8 +939,10 @@ public class FieldOfPlay implements IUnregister {
 			}
 			return;
 		} else if (e instanceof FOPEvent.PanelVoteCancelled) {
-			resetJuryDecisions();
-			closePanelVote(e.getOrigin());
+			doPanelVoteCancelled(e.getOrigin());
+			return;
+		} else if (e instanceof FOPEvent.JuryRuleRequest) {
+			doJuryRuleRequest((FOPEvent.JuryRuleRequest) e);
 			return;
 		} else if (e instanceof JuryResume) {
 			doJuryResume(e);
@@ -940,19 +955,13 @@ public class FieldOfPlay implements IUnregister {
 			this.panelReviewInitialVotes = null;
 			this.panelReview = false;
 			this.juryReview = false;
+			this.juryRuleRequested = false;
 			if (this.state == BREAK && (this.breakType == BreakType.JURY || this.breakType == BreakType.CHALLENGE)) {
 				// the jury has dealt with the lift: its votes are no longer awaited
 				endPanelVotePending(e.getOrigin());
 			}
 			endMedalCeremony(e.getOrigin());
 			this.setCeremonyType(null);
-			// Clear pending jury decision when forcefully exiting via StartLifting
-			// This is the escape route when announcer cancels or system needs to resume
-			if (this.toBeAnnouncedJuryDecision != null) {
-				this.logger.info("{}Clearing pending jury decision due to StartLifting",
-						FieldOfPlay.getLoggingName(this));
-				this.toBeAnnouncedJuryDecision = null;
-			}
 			if (this.state == BREAK && (this.breakType == BreakType.JURY || this.breakType == BreakType.TECHNICAL
 					|| this.breakType == BreakType.MARSHAL)) {
 				if (getGroup() == null) {
@@ -1123,20 +1132,11 @@ public class FieldOfPlay implements IUnregister {
 			case CURRENT_ATHLETE_DISPLAYED:
 				checkDeferredWeightChanges();
 				if (e instanceof TimeStarted) {
-					// Block clock start if there's a pending jury decision waiting for announcer
-					if (this.toBeAnnouncedJuryDecision != null) {
-						pushOutUIEvent(new UIEvent.Notification(null, e.getOrigin(),
-								UIEvent.Notification.Level.ERROR,
-								"JuryDecision.MustAnnounceFirst",
-								3000, this));
-						return;
-					}
 					transitionToTimeRunning();
 				} else if (e instanceof WeightChange) {
 					doWeightChange((WeightChange) e);
 				} else if (e instanceof JuryDecision) {
-					// Handle jury decision reversals that are confirmed by announcer after
-					// the break has already been exited (e.g., via jury keypad resume)
+					// a jury decision arriving after the break has already been exited (e.g., via jury keypad resume)
 					doJuryDecision((JuryDecision) e);
 				} else if (e instanceof ForceTime) {
 					doForceTime((ForceTime) e);
@@ -1499,15 +1499,16 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * Phase B step B2: the Chair calls for the review vote. The votes are cleared; with Video Playback the referee
-	 * devices are re-armed and buzzed (seven-person vote), without it only the four jury members vote again. Calling
-	 * again restarts the vote.
+	 * Phase B step B2: the review vote is called. The votes are cleared; with the seven-person panel the referee
+	 * devices are re-armed and buzzed; for a jury vote (any other jury) only the jurors vote again and the referees'
+	 * decision stays. Calling again restarts the vote.
 	 */
 	private void doPanelVoteCalled(Object origin) {
 		this.logger.info("{}{} review vote called for {}", FieldOfPlay.getLoggingName(this),
 		        isPanelProcedure() ? "adjudication panel" : "jury", this.athleteUnderReview);
 		this.panelVoteOpen = true;
 		this.panelVoteMajority = null;
+		this.juryRuleRequested = false;
 		this.panelVoteRevealed = false;
 		this.panelVotePubliclyRevealed = false;
 		this.panelReviewInitialVotes = null;
@@ -1517,11 +1518,50 @@ public class FieldOfPlay implements IUnregister {
 		pushPanelVoteUpdate(origin);
 	}
 
+	/**
+	 * Review started by the Chair (Deliberation or Challenge) without the seven-person panel (3- or 5-member jury with
+	 * or without VPT, four-member jury without VPT): the jury lights have been cleared and the jurors may vote at once;
+	 * the Chair asks for the vote verbally (Summon All summons the referees). The votes on the lift are kept, and the
+	 * vote has to be called, only after an automatic trigger, or with the seven-person panel whose referees vote again.
+	 */
+	private void openJuryVoteAtReviewStart() {
+		if (hasJuryReviewVote() && !isPanelProcedure() && !this.juryReview && this.athleteUnderReview != null) {
+			doPanelVoteCalled(this);
+		}
+	}
+
+	/**
+	 * @return true when Summon All (keypad, jury box, `K`) means Call for Votes: during a review of the seven-person
+	 *         panel (the referees vote again), or after the automatic stop of a four-member jury without VPT.
+	 *         Otherwise it summons the referees (TCRR 7.5.7, "the Jury may call the Referees in question").
+	 */
+	public boolean isSummonAllVote() {
+		return isPanelVoteCallable() && (isPanelProcedure() || this.juryReview);
+	}
+
+	/**
+	 * Without the seven-person panel: the jury votes on the lift, counted with the jury's rule (unanimity, or majority
+	 * for a 5-member jury with VPT), would reverse the referees. Jury Control uses it to prompt the Chair.
+	 */
+	public boolean isJuryVoteAgainstReferees() {
+		if (isPanelProcedure() || !hasJuryReviewVote()) {
+			return false;
+		}
+		Boolean verdict = computeCurrentJuryVerdict(getJurySize());
+		Boolean refereeMajority = refereeMajority(getRefereeDecision());
+		return verdict != null && refereeMajority != null && !verdict.equals(refereeMajority);
+	}
+
 	private void doReviewRefereeVote(DecisionUpdate e) {
 		int refIndex = e.getRefIndex();
 		if (refIndex < 0 || refIndex >= AdjudicationPanel.NB_REFEREES) {
 			this.logger.debug("{}ignoring review vote from referee index {}", FieldOfPlay.getLoggingName(this),
 			        refIndex);
+			return;
+		}
+		if (this.panelVoteMajority != null) {
+			this.logger.info("{}review vote already complete, referee {} vote ignored",
+			        FieldOfPlay.getLoggingName(this), refIndex + 1);
 			return;
 		}
 		this.reviewRefereeDecision[refIndex] = e.isDecision();
@@ -1543,7 +1583,7 @@ public class FieldOfPlay implements IUnregister {
 			majority = panel.majority();
 			tally = panel.whites() + " white, " + panel.reds() + " red";
 		} else {
-			majority = computeCurrentJuryVerdict(AdjudicationPanel.NB_JURORS);
+			majority = computeCurrentJuryVerdict(getJurySize());
 			tally = "jury " + Arrays.toString(jury);
 		}
 		this.panelVoteMajority = majority;
@@ -1560,19 +1600,13 @@ public class FieldOfPlay implements IUnregister {
 		}
 		this.logger.info("{}review vote complete: {} ({}) for {}",
 		        FieldOfPlay.getLoggingName(this), majority ? "good lift" : "no lift", tally, this.athleteUnderReview);
+		// the result waits for the Jury Chair: Confirm Good Lift, or the technical rule for a No Lift, or Cancel vote
+		// result
 		if (!majority) {
 			this.logger.info("{}no lift on review, waiting for the Jury Chair to give the rule",
 			        FieldOfPlay.getLoggingName(this));
-			return;
+			pushOutUIEvent(new UIEvent.JuryRuleRequired(this.athleteUnderReview, true, false, origin, this));
 		}
-		Athlete athlete = this.athleteUnderReview;
-		new DelayTimer(isTestingMode()).schedule(() -> {
-			if (!this.panelVoteOpen || !Boolean.TRUE.equals(this.panelVoteMajority)
-			        || athlete == null || athlete != this.athleteUnderReview) {
-				return;
-			}
-			fopEventPost(new FOPEvent.JuryDecision(athlete, this, true, true));
-		}, 1500);
 	}
 
 	/**
@@ -1589,6 +1623,47 @@ public class FieldOfPlay implements IUnregister {
 		this.panelVotePubliclyRevealed = false;
 		this.reviewRefereeDecision = new Boolean[AdjudicationPanel.NB_REFEREES];
 		pushPanelVoteUpdate(origin);
+	}
+
+	/**
+	 * Cancel vote result: the votes are cleared on every display and device, and the break continues. The Chair calls
+	 * a new vote; after a review started by the Chair without VPT, the jurors may vote again at once.
+	 */
+	private void doPanelVoteCancelled(Object origin) {
+		boolean ruleRequested = this.juryRuleRequested || Boolean.FALSE.equals(this.panelVoteMajority);
+		this.juryRuleRequested = false;
+		resetJuryDecisions();
+		this.panelReviewInitialVotes = null;
+		closePanelVote(origin);
+		if (ruleRequested) {
+			pushOutUIEvent(new UIEvent.JuryRuleRequired(this.athleteUnderReview, true, true, origin, this));
+		}
+		pushOutUIEvent(new UIEvent.JuryDisplayReset(origin, this));
+		if (juryDeliberationInProgress() && !this.juryReview) {
+			openJuryVoteAtReviewStart();
+		}
+	}
+
+	/**
+	 * The Jury Chair pressed No Lift (Jury Control or jury box, same event): the Jury Control pages are asked for the
+	 * technical rule; the decision is posted with it. If no Jury Control page answers, the Technical Controller relays
+	 * the decision to the Speaker. A cancelled request is withdrawn on every page.
+	 */
+	private void doJuryRuleRequest(FOPEvent.JuryRuleRequest e) {
+		if (e.isCancelled()) {
+			this.juryRuleRequested = false;
+			pushOutUIEvent(new UIEvent.JuryRuleRequired(this.athleteUnderReview, false, true, e.getOrigin(), this));
+			return;
+		}
+		if (this.state != BREAK || !juryDeliberationInProgress() || this.athleteUnderReview == null) {
+			this.logger.info("{}No Lift rule request ignored outside a jury review", FieldOfPlay.getLoggingName(this));
+			this.auditEventRefused = true;
+			this.auditRefusedState = this.state;
+			return;
+		}
+		this.juryRuleRequested = true;
+		boolean forVote = Boolean.FALSE.equals(this.panelVoteMajority);
+		pushOutUIEvent(new UIEvent.JuryRuleRequired(this.athleteUnderReview, forVote, false, e.getOrigin(), this));
 	}
 
 	/**
@@ -1628,12 +1703,13 @@ public class FieldOfPlay implements IUnregister {
 
 	private void pushPanelVoteUpdate(Object origin, Integer refereeUpdated) {
 		Boolean[] jury = getJuryMemberDecision();
-		boolean[] voted = new boolean[AdjudicationPanel.PANEL_SIZE];
-		Boolean[] votes = new Boolean[AdjudicationPanel.PANEL_SIZE];
+		int jurySize = getJurySize();
+		boolean[] voted = new boolean[AdjudicationPanel.NB_REFEREES + jurySize];
+		Boolean[] votes = new Boolean[AdjudicationPanel.NB_REFEREES + jurySize];
 		for (int i = 0; i < AdjudicationPanel.NB_REFEREES; i++) {
 			votes[i] = this.reviewRefereeDecision[i];
 		}
-		for (int i = 0; i < AdjudicationPanel.NB_JURORS; i++) {
+		for (int i = 0; i < jurySize; i++) {
 			votes[AdjudicationPanel.NB_REFEREES + i] = jury != null && jury.length > i ? jury[i] : null;
 		}
 		for (int i = 0; i < votes.length; i++) {
@@ -1837,6 +1913,14 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
+	 * @return true while the Jury Control pages are asked for the technical rule of a No Lift pressed by the Jury
+	 *         Chair
+	 */
+	public boolean isJuryRuleRequested() {
+		return this.juryRuleRequested;
+	}
+
+	/**
 	 * @return true while the review vote of the seven officials is open
 	 */
 	public boolean isPanelVoteOpen() {
@@ -1862,8 +1946,24 @@ public class FieldOfPlay implements IUnregister {
 	 *         challenge break, a lift under review
 	 */
 	public boolean isPanelVoteCallable() {
-		return isSevenPersonAdjudication() && this.state == BREAK && juryDeliberationInProgress()
+		return hasJuryReviewVote() && this.state == BREAK && juryDeliberationInProgress()
 		        && this.athleteUnderReview != null;
+	}
+
+	/**
+	 * @return true when a jury is present: a review is decided by a review vote (the seven-person panel, or the jury
+	 *         alone with 3, 4 or 5 members) confirmed by the Jury Chair
+	 */
+	public boolean hasJuryReviewVote() {
+		return getJurySize() > 0;
+	}
+
+	/**
+	 * @return the number of votes in the review vote: 3 referees then the jury members (the referees only vote with
+	 *         the seven-person panel)
+	 */
+	public int getReviewVoteSize() {
+		return AdjudicationPanel.NB_REFEREES + getJurySize();
 	}
 
 	/**
@@ -1874,8 +1974,8 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * @return the Phase A votes that led to the review (referees 1..3 then jury 1..4), shown during the review break
-	 *         until the Chair calls for votes; null otherwise
+	 * @return the votes on the lift (referees 1..3 then the jury members), kept during the review break until the Chair
+	 *         calls for votes (seven-person panel, or after an automatic stop); null otherwise
 	 */
 	public Boolean[] getPanelReviewInitialVotes() {
 		Boolean[] votes = this.panelReviewInitialVotes;
@@ -1889,13 +1989,14 @@ public class FieldOfPlay implements IUnregister {
 		}
 		Boolean[] referees = getRefereeDecision();
 		Boolean[] jury = getJuryMemberDecision();
-		Boolean[] votes = new Boolean[AdjudicationPanel.PANEL_SIZE];
+		int jurySize = getJurySize();
+		Boolean[] votes = new Boolean[AdjudicationPanel.NB_REFEREES + jurySize];
 		boolean any = false;
 		for (int i = 0; i < AdjudicationPanel.NB_REFEREES; i++) {
 			votes[i] = referees != null && referees.length > i ? referees[i] : null;
 			any = any || votes[i] != null;
 		}
-		for (int i = 0; i < AdjudicationPanel.NB_JURORS; i++) {
+		for (int i = 0; i < jurySize; i++) {
 			Boolean vote = jury != null && jury.length > i ? jury[i] : null;
 			votes[AdjudicationPanel.NB_REFEREES + i] = vote;
 			any = any || vote != null;
@@ -2720,12 +2821,16 @@ public class FieldOfPlay implements IUnregister {
 			cancelDecisionReset();
 			Integer curValue = Math.abs(actualLift);
 
-			// Four-member jury: the Chair used the Good Lift / No Lift buttons instead of the result of a jury vote.
-			// A button decision equal to the result of a completed vote (e.g. the Chair reopened the rule dialog after
-			// a No Lift vote) is the vote's decision.
+			// The Chair used the Good Lift / No Lift buttons (Jury Control or jury box) instead of the result of a jury
+			// vote. A button decision equal to the result of a completed vote (Confirm Good Lift, or the rule given
+			// for a No Lift result) is the vote's decision.
 			boolean matchesVote = this.panelVoteMajority != null && this.panelVoteMajority.equals(e.success);
-			boolean chairEntered = isSevenPersonAdjudication() && e.isChairEntered() && !matchesVote;
-			if (chairEntered) {
+			boolean overridesVote = hasJuryReviewVote() && e.isJuryButton() && e.isChairEntered()
+			        && !matchesVote;
+			// only with the seven-person panel must the decision come from the vote (TCRR 7.5.7): mark the override
+			boolean chairEntered = overridesVote && isPanelProcedure();
+			this.juryRuleRequested = false;
+			if (overridesVote) {
 				// the Chair's decision replaces whatever the jury had voted: clear the votes everywhere
 				clearJuryVotesForChairDecision(e.getOrigin());
 			} else if (this.panelVoteOpen) {
@@ -2743,41 +2848,15 @@ public class FieldOfPlay implements IUnregister {
 			boolean newRecord = e.success && getLastChallengedRecords() != null
 					&& !getLastChallengedRecords().isEmpty();
 
-			// A four-member jury never waits for the Speaker: the decision is applied at once and the Speaker is
-			// informed (the reason comes with it). Other jury sizes follow the "announcer controlled" setting.
-			boolean waitForAnnouncer = Competition.getCurrent().isAnnouncerControlledJuryDecision() && e.isJuryButton()
-			        && !isSevenPersonAdjudication();
-			logger.debug("waitForAnnouncer={} isJuryButton={}", waitForAnnouncer, e.isJuryButton());
+			// No jury decision waits for the Speaker: it is applied at once, and the Speaker announces it
+			// (section 13 of the seven-person adjudication design).
 			JuryNotification juryNotificationEvent = new UIEvent.JuryNotification(a, e.getOrigin(),
 					e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
 					reversalToGood || reversalToBad, newRecord,
-					waitForAnnouncer, this, (e.success ? 1 : -1) * Math.abs(actualLift));
+					false, this, (e.success ? 1 : -1) * Math.abs(actualLift));
 			juryNotificationEvent.setReasonCode(e.getReasonCode());
 			juryNotificationEvent.setChairEntered(chairEntered);
-
-			if (waitForAnnouncer) {
-				// we will get a second JuryDecision event, coming this time from the announcer
-				// we postpone processing until then
-				this.toBeAnnouncedJuryDecision = e;
-				pushOutUIEvent(juryNotificationEvent);
-				return;
-			}
-
-			if (this.toBeAnnouncedJuryDecision != null) {
-				// we are in announcer-controlled mode, and when the jury pressed the button,
-				// we stored their decision.
-				// now we have received a second jurydecision event, this time from the
-				// announcer
-				// that indicates that the stored decision has been announced and must be
-				// processed.
-				e = this.toBeAnnouncedJuryDecision;
-				this.toBeAnnouncedJuryDecision = null;
-				// the reason came with the jury's stored decision, not the announcer's confirmation
-				juryNotificationEvent.setReasonCode(e.getReasonCode());
-			} else {
-				// we are in immediate mode. e is the jury decision to be processed.
-				// nothing to do.
-			}
+			juryNotificationEvent.setSpeakerEntered(!e.isJuryButton());
 
 			// must set state before recomputing order so that scoreboards stop blinking the
 			// current athlete
@@ -2789,11 +2868,10 @@ public class FieldOfPlay implements IUnregister {
 			if (isSevenPersonAdjudication()) {
 				this.juryDecisionCardVisibleUntil = System.currentTimeMillis() + JURY_DECISION_CARD_MS;
 			}
-			if (isSevenPersonAdjudication()) {
-				this.logger.info("{}jury decision {} for {}{}", FieldOfPlay.getLoggingName(this),
-				        e.success ? "good lift" : "no lift", a, chairEntered ? " (entered by the Jury Chair)" : "");
-				this.panelVoteMajority = null;
-			}
+			this.logger.info("{}jury decision {} for {}{}", FieldOfPlay.getLoggingName(this),
+			        e.success ? "good lift" : "no lift", a, chairEntered ? " (entered by the Jury Chair)"
+			                : (e.isJuryButton() ? "" : " (entered by the Speaker)"));
+			this.panelVoteMajority = null;
 
 			// Apply the reversal/confirmation to the athlete BEFORE sending the
 			// notification
@@ -2840,6 +2918,12 @@ public class FieldOfPlay implements IUnregister {
 		if (e.refIndex < 0 || e.refIndex >= getJurySize()) {
 			this.logger.debug("{}ignoring jury member decision, juror {} is beyond jury size {}",
 			        FieldOfPlay.getLoggingName(this), e.refIndex + 1, getJurySize());
+			return;
+		}
+		if (this.panelVoteOpen && this.panelVoteMajority != null) {
+			// the result of the review vote is locked: only Cancel vote result or a new call reopens the voting
+			this.logger.info("{}review vote already complete, juror {} vote ignored",
+			        FieldOfPlay.getLoggingName(this), e.refIndex + 1);
 			return;
 		}
 		getJuryMemberDecision()[e.refIndex] = e.decision;
@@ -2994,13 +3078,18 @@ public class FieldOfPlay implements IUnregister {
 						        JuryDeliberationEventType.START_DELIBERATION, null, null, false, this, null));
 						break;
 					}
-					// manual deliberation: the jury deliberates by hand, no automatic panel evaluation
+					// deliberation started by the Chair: no automatic panel evaluation
 					endPanelVotePending(this);
-					resetJuryDecisions();
+					if (isPanelProcedure()) {
+						// seven-person panel: the votes on the lift stay displayed until the Chair calls the vote
+						// (Summon All), which re-arms the referees
+						capturePanelReviewInitialVotes();
+					} else {
+						resetJuryDecisions();
+					}
 					pushOutUIEvent(new UIEvent.JuryNotification(this.athleteUnderReview, this,
-							JuryDeliberationEventType.START_DELIBERATION, null, null,
-							Competition.getCurrent().isAnnouncerControlledJuryDecision() && !isSevenPersonAdjudication(),
-							this, null));
+							JuryDeliberationEventType.START_DELIBERATION, null, null, false, this, null));
+					openJuryVoteAtReviewStart();
 					break;
 				case MARSHAL:
 					pushOutUIEvent(new UIEvent.JuryNotification(this.athleteUnderReview, this,
@@ -3018,16 +3107,18 @@ public class FieldOfPlay implements IUnregister {
 						// with VPT: same as the Adjudication Panel Review. The lift's votes are kept and shown until
 						// the Chair calls for votes, and all referees are called to the video review.
 						capturePanelReviewInitialVotes();
-						pushOutUIEvent(new UIEvent.JuryNotification(null, this,
+						pushOutUIEvent(new UIEvent.JuryNotification(this.athleteUnderReview, this,
 								JuryDeliberationEventType.CHALLENGE, null, null, false, this, null));
 						pushOutUIEvent(new UIEvent.JuryNotification(null, this,
 						        JuryDeliberationEventType.CALL_REFEREES, null, null, false, this, null));
 						pushOutUIEvent(new UIEvent.SummonRef(0, true, this, this));
 					} else {
-						// without VPT: same as a jury deliberation opened by the Chair
+						// without the seven-person panel (with or without VPT): same as a jury deliberation opened
+						// by the Chair
 						resetJuryDecisions();
-						pushOutUIEvent(new UIEvent.JuryNotification(null, this,
+						pushOutUIEvent(new UIEvent.JuryNotification(this.athleteUnderReview, this,
 								JuryDeliberationEventType.CHALLENGE, null, null, false, this, null));
+						openJuryVoteAtReviewStart();
 					}
 					break;
 				default:
@@ -3223,6 +3314,10 @@ public class FieldOfPlay implements IUnregister {
 		if (this.decisionCommitScheduled) {
 			return false;
 		}
+		if (this.panelVoteOpen) {
+			// the Jury Chair has called the review vote: the referees are asked for a new decision
+			return false;
+		}
 		long now = System.currentTimeMillis();
 		if (now >= this.ignoreDecisionInputsUntil) {
 			return false;
@@ -3336,7 +3431,6 @@ public class FieldOfPlay implements IUnregister {
 				showJuryMemberDecisionsNow(origin, (reds == jurySize || whites == jurySize), jurySize,
 						getJuryMemberDecision());
 			}).start();
-			scheduleAutoJuryDecision(jurySize);
 		}
 	}
 
@@ -3359,15 +3453,6 @@ public class FieldOfPlay implements IUnregister {
 	 */
 	private Boolean refereeMajority(Boolean[] refereeDecisions) {
 		return AdjudicationPanel.refereeMajority(refereeDecisions);
-	}
-
-	/**
-	 * The majority of the seven-person panel is final under the 2026 rules, so there is no confirmation step and
-	 * the requireJuryPresidentDecision switch is ignored when the panel is in use.
-	 */
-	private boolean isJuryPresidentDecisionRequired() {
-		return !isSevenPersonAdjudication()
-		        && Config.getCurrent().featureSwitch(FeatureSwitch.REQUIRE_JURY_PRESIDENT_DECISION);
 	}
 
 	private boolean juryDeliberationInProgress() {
@@ -3403,8 +3488,7 @@ public class FieldOfPlay implements IUnregister {
 			return refereeMajority(refereeDecisions);
 		}
 		// 5-person jury (or 4-person jury without VPT, which always requires unanimity). A 4-person jury with VPT
-		// is the seven-person Adjudication Panel: its decision comes from the review vote (checkPanelVoteComplete)
-		// and scheduleAutoJuryDecision does not get here.
+		// is the seven-person Adjudication Panel, counted by AdjudicationPanel instead.
 		// With Video Playback Technology, a majority suffices.
 		// Without VPT, unanimity is required; a non-unanimous outcome confirms the
 		// referee decision (same principle as the 3-person non-unanimous rule).
@@ -3443,69 +3527,6 @@ public class FieldOfPlay implements IUnregister {
 			return null; // not all voted yet
 		}
 		return effectiveJuryVerdict(reds, whites, jurySize, getRefereeDecision());
-	}
-
-	/**
-	 * When the jury votes are complete, send the effective decision as if the jury Good
-	 * Lift / Bad Lift button had been pressed, after a 1.5s grace period during which a
-	 * juror can still change their vote.
-	 * <ul>
-	 *   <li>5-person jury with VPT: majority wins.</li>
-	 *   <li>5-person jury without VPT: unanimous required, otherwise referee decision stands.</li>
-	 *   <li>3-person jury, unanimous: that verdict wins.</li>
-	 *   <li>3-person jury, not unanimous: referee decision stands.</li>
-	 * </ul>
-	 * A No Lift is not sent: the Jury Control pages are asked for the technical rule, and the Jury Chair sends the
-	 * decision with it.
-	 * {@code athleteUnderReview} and {@code refereeDecision[]} are stable for the
-	 * duration of the deliberation break; the delayed callback revalidates the current
-	 * verdict before posting.
-	 */
-	private void scheduleAutoJuryDecision(int jurySize) {
-		// If the feature toggle is on, the jury president must press Good/Bad Lift manually.
-		if (isJuryPresidentDecisionRequired()) {
-			return;
-		}
-		if (isSevenPersonAdjudication()) {
-			// four-member jury: the decision comes from the review vote called by the Chair (checkPanelVoteComplete)
-			// or from the Jury Chair; there is no automatic decision on the jury votes alone.
-			return;
-		}
-		if (!juryDeliberationInProgress()) {
-			return;
-		}
-		final Boolean verdict = computeCurrentJuryVerdict(jurySize);
-		if (verdict == null) {
-			return;
-		}
-		new DelayTimer(isTestingMode()).schedule(() -> {
-			if (isJuryPresidentDecisionRequired()
-			        || getJurySize() != jurySize
-			        || !juryDeliberationInProgress()
-			        || this.toBeAnnouncedJuryDecision != null) {
-				return;
-			}
-			// Re-validate using the exact same computation: all jurors must still have
-			// voted and the verdict must be unchanged (a juror may have changed their vote).
-			Boolean recomputedVerdict = computeCurrentJuryVerdict(jurySize);
-			if (!verdict.equals(recomputedVerdict)) {
-				return;
-			}
-			Athlete athlete = getAthleteUnderReview();
-			if (athlete == null) {
-				return;
-			}
-			// a No Lift by the jury needs the technical rule from the Jury Chair
-			if (!verdict) {
-				logger.info("{}no lift by the jury, waiting for the Jury Chair to give the rule",
-				        FieldOfPlay.getLoggingName(this));
-				pushOutUIEvent(new UIEvent.JuryRuleRequired(athlete, this, this));
-				return;
-			}
-			logger.info("{}automatic jury decision {}", FieldOfPlay.getLoggingName(this),
-					verdict ? "good lift" : "no lift");
-			fopEventPost(new FOPEvent.JuryDecision(athlete, this, verdict, true));
-		}, 1500);
 	}
 
 	/**
@@ -4878,14 +4899,18 @@ public class FieldOfPlay implements IUnregister {
 	private void showJuryMemberDecisionReceived(Object origin, int i, Boolean[] juryMemberDecision2, int jurySize) {
 		// show that one jury decision has been received (green LED)
 		// logger.debug("{}updating jury member {}", getLoggingName(), i);
-		pushOutUIEvent(new UIEvent.JuryUpdate(origin, i, juryMemberDecision2, jurySize, this));
+		UIEvent.JuryUpdate update = new UIEvent.JuryUpdate(origin, i, juryMemberDecision2, jurySize, this);
+		update.setReviewVote(this.panelVoteOpen);
+		pushOutUIEvent(update);
 	}
 
 	private void showJuryMemberDecisionsNow(Object origin, boolean unanimous, int jurySize,
 			Boolean[] juryMemberDecision2) {
 		// logger.debug("{}reveal jury member decisions {}", getLoggingName(),
 		// juryMemberDecision2);
-		pushOutUIEvent(new UIEvent.JuryUpdate(origin, unanimous, juryMemberDecision2, jurySize, this));
+		UIEvent.JuryUpdate update = new UIEvent.JuryUpdate(origin, unanimous, juryMemberDecision2, jurySize, this);
+		update.setReviewVote(this.panelVoteOpen);
+		pushOutUIEvent(update);
 	}
 
 	/**
@@ -5282,11 +5307,10 @@ public class FieldOfPlay implements IUnregister {
 		if (e instanceof JuryDecision) {
 			JuryDecision jd = (JuryDecision) e;
 			this.logger./**/warn(
-					"{}JuryDecision event refused in state {}: isJuryButton={}, toBeAnnounced={}, athlete={}",
+					"{}JuryDecision event refused in state {}: isJuryButton={}, athlete={}",
 					FieldOfPlay.getLoggingName(this),
 					state,
 					jd.isJuryButton(),
-					this.toBeAnnouncedJuryDecision != null,
 					jd.getAthlete() != null ? jd.getAthlete().getShortName() : "null");
 		}
 

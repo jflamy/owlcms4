@@ -667,6 +667,7 @@ public class UIEvent {
 		private Integer reasonCode;
 		private boolean panelReview;
 		private boolean chairEntered;
+		private boolean speakerEntered;
 
 		public JuryNotification(Athlete athleteUnderReview, Object origin,
 		        JuryDeliberationEventType deliberationEventType, Boolean reversal, Boolean newRecord,
@@ -778,6 +779,18 @@ public class UIEvent {
 			this.chairEntered = chairEntered;
 		}
 
+		/**
+		 * @return true if this GOOD_LIFT/BAD_LIFT decision was entered by the Speaker (as relayed by the Technical
+		 *         Controller), not by the jury
+		 */
+		public boolean isSpeakerEntered() {
+			return this.speakerEntered;
+		}
+
+		public void setSpeakerEntered(boolean speakerEntered) {
+			this.speakerEntered = speakerEntered;
+		}
+
 		private void setNewRecord(Boolean newRecord) {
 			this.newRecord = newRecord;
 		}
@@ -825,11 +838,34 @@ public class UIEvent {
 	 */
 	static public class JuryRuleRequired extends UIEvent {
 
+		private boolean forVote;
+		private boolean cancelled;
+
 		public JuryRuleRequired(Athlete athleteUnderReview, Object origin, FieldOfPlay fop) {
 			super(athleteUnderReview, origin, fop);
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
+		}
+
+		/**
+		 * @param forVote   true when the rule is asked for the No Lift result of a jury vote (cancelling then
+		 *                  cancels the vote result), false when the Jury Chair pressed No Lift
+		 * @param cancelled true when the request is withdrawn
+		 */
+		public JuryRuleRequired(Athlete athleteUnderReview, boolean forVote, boolean cancelled, Object origin,
+		        FieldOfPlay fop) {
+			this(athleteUnderReview, origin, fop);
+			this.forVote = forVote;
+			this.cancelled = cancelled;
+		}
+
+		public boolean isForVote() {
+			return this.forVote;
+		}
+
+		public boolean isCancelled() {
+			return this.cancelled;
 		}
 
 	}
@@ -933,6 +969,7 @@ public class UIEvent {
 		private Boolean[] juryMemberDecision;
 		private int jurySize;
 		private Integer juryMemberUpdated;
+		private boolean reviewVote;
 
 		public JuryUpdate(Object origin, boolean collective, Boolean[] juryMemberDecision, int jurySize, FieldOfPlay fop) {
 			super(origin, fop);
@@ -975,6 +1012,18 @@ public class UIEvent {
 		 */
 		public Integer getJuryMemberUpdated() {
 			return this.juryMemberUpdated;
+		}
+
+		/**
+		 * @return true for a vote of the review vote: for the jury displays and devices only, public boards show the
+		 *         review vote from {@link PanelVoteUpdate} (revealed with the decision)
+		 */
+		public boolean isReviewVote() {
+			return this.reviewVote;
+		}
+
+		public void setReviewVote(boolean reviewVote) {
+			this.reviewVote = reviewVote;
 		}
 
 		/**
