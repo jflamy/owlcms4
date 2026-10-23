@@ -659,8 +659,8 @@ Jury devices do not buzz; the jurors are at the table.
     Once a review has started, whether automatically or with Deliberation or
     Challenge, the yellow buttons are hidden: starting another review makes
     no sense. They come back when the break ends.
-- **Call for Votes** (`V`; the keypad and jury box use their Summon All key,
-  see row 4). Enabled during a review, disabled otherwise.
+- **Call for Votes** (the keypad and jury box use their Summon All key, `K`,
+  see row 4; there is no separate key, keypads are not reprogrammed). Enabled during a review, disabled otherwise.
   In a jury vote started by the Chair (no seven-person panel, with or
   without VPT) the jury lights are already cleared and the vote is open, so
   Call for Votes only clears the votes and restarts it. If Jury Control is not used, the Chair decides with the jury
@@ -1206,31 +1206,28 @@ Left:
 - `Announcer.DisplayDecisionAndAnnounce` and `Announcer.JuryDecisionExplanation`
   are no longer used.
 
-### 4. User documentation
+### 4. User documentation (done 2026-10-23)
 
-- [020-Jury.md](../docs/060-Refereeing/020-Jury.md) still describes the Jury
-  Console ("The jury is operated from the Jury Console page", "## Jury
-  Console"), which was removed. Rewrite for Jury Control: 3/5-member jury as
-  before, the `7personAdjudication` switch and the derived four-member jury,
-  Phase A (automatic stop on a jury majority against the referees), Phase B
-  (video review, Call for Votes, seven votes revealed together), the Chair
-  confirmation and Cancel vote result, the Chair override and the reason
-  dialog, Resume behaviour. No page under `docs/`
-  mentions the Adjudication Panel or Call for Votes today.
-- [180-Keypads.md](../docs/100-AdvancedTopics/180-Keypads.md): add `V` (Call
-  for Votes) and the meaning of `K` during a review with the seven-person
-  panel (Call for Votes); without VPT it stays Summon all.
+[020-Jury.md](../docs/060-Refereeing/020-Jury.md) rewritten for Jury Control
+with screenshots taken from the Playwright scenario reports: jury sizes and
+settings, the seven-person panel (automatic review, Call for Votes, result
+waiting for the Chair, Cancel vote result, decision without a vote), the
+3/4/5-member jury review, the Speaker dialogs, Resume.
+[180-Keypads.md](../docs/100-AdvancedTopics/180-Keypads.md): the Jury Chair
+keypad keys are unchanged from the Jury Console (`d c t h i j k g b Escape`);
+what `c`, `k`, `g`, `b` and `Escape` do depends on whether a review is in
+progress (`k` is Call for Votes during a panel review). The `V` shortcut
+added during development is removed: keypads are not reprogrammed.
 
-### 5. MQTT documentation
+### 5. MQTT documentation (done 2026-10-23)
 
-[200-MQTTMessages.md](../docs/100-AdvancedTopics/200-MQTTMessages.md) lists
-`owlcms/fop/decision/A :ref :decision` with `decision` as `good` or `bad` only.
-Document `hidden`: sent per referee review vote during a Phase B vote, only
-with VPT and `panelVoteDeviceIndicators` on; devices show it as the green
-"voted" indicator; the actual `good` / `bad` follows at the last vote. Also
-note that `resetDecisions` is published on Call for Votes in both four-member
-modes and that `juryDeliberation` / `challenge` are not published when the
-Phase A votes are kept for the review.
+[200-MQTTMessages.md](../docs/100-AdvancedTopics/200-MQTTMessages.md):
+`hidden` decision state and the `panelVoteDeviceIndicators` switch;
+`resetDecisions` on Call for Votes, Chair decision, Cancel vote result and
+Resume, with the referees' decisions republished for a jury vote;
+`juryDeliberation` / `challenge` not published when the votes on the lift are
+kept; `jurybox/summon all` as Call for Votes during a panel review;
+`jurybox/decision bad` as a rule request.
 
 ### 6. MQTT tests
 

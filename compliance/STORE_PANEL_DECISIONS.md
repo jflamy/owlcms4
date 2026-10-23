@@ -1,7 +1,7 @@
 # Store Panel Decisions
 
 Status: note, not started (2026-10-23).
-Related: [seven-person-adjudication.md](seven-person-adjudication.md) (section 10,
+Related: [SEVEN_PERSON_ADJUDICATION.md](SEVEN_PERSON_ADJUDICATION.md) (section 10,
 "Data and reports").
 
 ## Problem

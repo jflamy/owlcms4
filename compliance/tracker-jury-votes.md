@@ -3,7 +3,7 @@
 Plan for giving the tracker ("video data" consumer, `tracker-core` + `tracker`) the
 same decision block as the owlcms scoreboard for all jury sizes (0/3/4/5), in both
 phases of the seven-person Adjudication Panel procedure. Procedure:
-[seven-person-adjudication.md](./seven-person-adjudication.md). Timeline of the
+[SEVEN_PERSON_ADJUDICATION.md](./SEVEN_PERSON_ADJUDICATION.md). Timeline of the
 owlcms displays: [phase-b-referee-lights-mqtt.md](./phase-b-referee-lights-mqtt.md)
 (MQTT / physical devices are out of scope here).
 

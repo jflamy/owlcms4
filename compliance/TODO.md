@@ -12,49 +12,6 @@ the rest await confirmation. 2026-10-23.
    today (ISO, Excel date cells, bare year and Excel serials keep their
    current path).
 
-## Done
-
-- [x] **DIRECT_JSON_BOOT Phase 1 — launch with a file**
-  ([DIRECT_JSON_BOOT.md](DIRECT_JSON_BOOT.md)) — done 2026-10-23 (commit
-  `c529acfe9`): startup import driven by `OWLCMS_LOADJSON` (JSON or ZIP, V1
-  and V2), `MainWrapper` no-restart rule, prompting launch configurations,
-  runtime-tested in memory and persistent H2 modes; release note added.
-  Follow-ups kept in the document: PEM-forced `ACCOUNTS` access mode (§3),
-  control panel no-restart rule (controlpanel repository, Go), `${file}` /
-  Downloads launch configurations, remaining §8 runtime checks (failure cases,
-  Postgres). Standby (Phase 2) is not started.
-- [x] **Jury review procedure** ([seven-person-adjudication.md](seven-person-adjudication.md))
-  — done 2026-10-23 (commits `e42ba531a`, `41ad8024a`). Seven-person
-  Adjudication Panel (four-member jury with VPT) and jury votes for every
-  other jury (3 members with or without VPT, 4 without VPT, 5): Jury Control
-  buttons, Chair confirmation and Cancel vote result, rule request, Speaker
-  dialogs, board reveal, broken jury box recovery. Unit tests
-  (`SevenPersonAdjudicationTest`, `DecisionBlockStateTest`) and Playwright
-  scenarios 1-16 (`playwright/scripts/run-jury-scenario.sh`) pass.
-  Not code, left as follow-ups in the document's Remaining Work (§4-8):
-  user documentation (Jury, Keypads), MQTT documentation and tests, device
-  tests and the `panelVoteDeviceIndicators` default, unused translation keys.
-  `Announcer.AnnounceGoodLift` is still to be imported from
-  `shared/src/main/resources/i18n/jury_speaker_dialog_translations.tsv`.
-
-## To review
-
-- [x] **Repeated "Ignoring unknown feature switch" warnings.** After a switch is
-  removed (`decisionSectionShowBothJuryVotes`, `requireJuryPresidentDecision`),
-  the stored configuration and the `OWLCMS_FEATURESWITCHES` startup value
-  were re-parsed on every `featureSwitch()` call. **Done:** unknown ids are
-  dropped from the stored configuration when it is loaded or imported, so a
-  later export does not carry them. The startup value is parsed once, and
-  parsed again only if it changes.
-
-## Confirmed
-
-- [x] **Stale-save confirmation default button: Reload card**, not Overwrite.
-  ([ATHLETE_CARD_CONCURRENT_EDITING_ANALYSIS.md](ATHLETE_CARD_CONCURRENT_EDITING_ANALYSIS.md) §9)
-  Follow-up: `ConcurrentEditDialog.confirm` currently gives primary style and
-  focus to "Keep editing" (`ConcurrentEdit.Back`); "Reload card" is "Discard my
-  changes" (`ConcurrentEdit.Discard`), which should become the default.
-
 ## Keep or drop (document level)
 
 Each remaining document is either backlog or will never be done.
@@ -69,7 +26,8 @@ Each remaining document is either backlog or will never be done.
 - [ ] [STORE_PANEL_DECISIONS.md](STORE_PANEL_DECISIONS.md) — store the jury and panel votes, trigger, rule and who entered the decision with the attempt (note, not started)
 - [ ] [ACCESS_CONTROL_DESIGN.md](ACCESS_CONTROL_DESIGN.md) — one-off opener gating, break capability, non-Vaadin entry-point review
 - [ ] [COMPETITION_DIRECTOR_PAGE_IMPLEMENTATION_PLAN.md](COMPETITION_DIRECTOR_PAGE_IMPLEMENTATION_PLAN.md) — browser acceptance as a `playwright`-module check (after DIRECT_JSON_BOOT), config-tab permissions
-- [x] [seven-person-adjudication.md](seven-person-adjudication.md) — done (see Done above); documentation, MQTT tests and device tests are follow-ups
+- [ ] [SEVEN_PERSON_ADJUDICATION.md](SEVEN_PERSON_ADJUDICATION.md) — procedure and documentation done; left (Remaining Work §6-8): `MQTTMonitor` tests, device tests before `panelVoteDeviceIndicators` defaults to on, unused translation keys
+- [ ] [DIRECT_JSON_BOOT.md](DIRECT_JSON_BOOT.md) — Phase 1 done; left: PEM-forced `ACCOUNTS` access mode, control panel no-restart rule (controlpanel repository), `${file}` launch configurations, remaining runtime checks; Phase 2 (standby) not started
 - [ ] [ATHLETE_CARD_CONCURRENT_EDITING_ANALYSIS.md](ATHLETE_CARD_CONCURRENT_EDITING_ANALYSIS.md) — §6.4 write-only-changed-fields follow-up, `BreakManagement` unregistration
 
 ## Decisions inside the documents
