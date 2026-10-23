@@ -43,7 +43,10 @@ import com.microsoft.playwright.options.LoadState;
  * <li>four-member jury with VPT (1-5). The review starts automatically (the jury votes against the referees) or with
  * the Challenge button of Jury Control (split jury); Summon All from the jury box calls the vote; the seven officials
  * vote.</li>
- * <li>three-member jury without VPT (6-10). No automatic stop: the Jury Chair starts the review with Jury Deliberation
+ * <li>jury vote, no seven-person panel: three-member jury without VPT (6-10), four-member jury without VPT (11-15),
+ * a three-member jury with VPT behaves exactly as without VPT, so it has no scenarios of its own.
+ * <li>16: four-member jury with VPT, a jury box that does not work: the vote never completes and the Chair gives the
+ * decision with the No Lift button and the rule. No automatic stop: the Jury Chair starts the review with Jury Deliberation
  * (unanimous jury against the referees) or Challenge (split jury). The vote is open at once and called verbally; the
  * three jurors punch in their votes; the referees do not vote; unanimity is needed to reverse.</li>
  * </ul>
@@ -88,17 +91,24 @@ public class JuryScenario {
 
 	/** the jury in use, applied through the settings screens before the scenario */
 	enum Setup {
-		VPT4("four-member jury with VPT (seven-person Adjudication Panel)", true, 4),
-		JURY3("three-member jury, no VPT", false, 3);
+		VPT4("four-member jury with VPT (seven-person Adjudication Panel)", true, true, 4),
+		JURY3("three-member jury, no VPT", false, false, 3),
+		JURY4("four-member jury, no VPT (7personAdjudication on, unanimity, manual trigger)", true, false, 4);
 
 		final String description;
-		final boolean panel;
+		/** the 7personAdjudication switch: four-member jury */
+		final boolean sevenPerson;
+		final boolean vpt;
 		final int jurors;
+		/** the seven-person Adjudication Panel procedure: switch on and VPT */
+		final boolean panel;
 
-		Setup(String description, boolean panel, int jurors) {
+		Setup(String description, boolean sevenPerson, boolean vpt, int jurors) {
 			this.description = description;
-			this.panel = panel;
+			this.sevenPerson = sevenPerson;
+			this.vpt = vpt;
 			this.jurors = jurors;
+			this.panel = sevenPerson && vpt;
 		}
 	}
 
@@ -115,9 +125,15 @@ public class JuryScenario {
 	 * @param reviewRefs the referees' votes in the review vote (null: the referees do not vote)
 	 * @param reviewJury the jury votes in the review vote
 	 * @param goodResult the result of the review vote
+	 * @param brokenJuror a jury box that never sends a vote (1..4), 0 if none: the votes of that juror are ignored
 	 */
 	record Scenario(String id, String title, Setup setup, String[] refs, String[] liftJury, boolean challenge,
-	        String[] reviewRefs, String[] reviewJury, boolean goodResult) {
+	        String[] reviewRefs, String[] reviewJury, boolean goodResult, int brokenJuror) {
+
+		Scenario(String id, String title, Setup setup, String[] refs, String[] liftJury, boolean challenge,
+		        String[] reviewRefs, String[] reviewJury, boolean goodResult) {
+			this(id, title, setup, refs, liftJury, challenge, reviewRefs, reviewJury, goodResult, 0);
+		}
 	}
 
 	private static String[] votes(String... v) {
@@ -171,6 +187,36 @@ public class JuryScenario {
 		                + "confirmed by the unanimous review vote, the Jury Chair gives the rule",
 		        Setup.JURY3, votes("bad", "bad", "good"), votes("good", "good", "good"), false,
 		        null, votes("bad", "bad", "bad"), false));
+		add(new Scenario("11-jury4-reversal-nolift",
+		        "11. 4-member jury, no VPT: unanimous jury against a Good Lift, the Chair starts a deliberation, "
+		                + "reversed to No Lift, the Jury Chair gives the rule",
+		        Setup.JURY4, votes("good", "good", "bad"), votes("bad", "bad", "bad", "bad"), false,
+		        null, votes("bad", "bad", "bad", "bad"), false));
+		add(new Scenario("12-jury4-reversal-goodlift",
+		        "12. 4-member jury, no VPT: unanimous jury against a No Lift, the Chair starts a deliberation, "
+		                + "reversed to Good Lift, the Jury Chair confirms",
+		        Setup.JURY4, votes("bad", "bad", "good"), votes("good", "good", "good", "good"), false,
+		        null, votes("good", "good", "good", "good"), true));
+		add(new Scenario("13-jury4-challenge-success",
+		        "13. 4-member jury, no VPT: successful challenge, split jury, unanimous review vote, No Lift reversed "
+		                + "to Good Lift, the Jury Chair confirms",
+		        Setup.JURY4, votes("bad", "bad", "good"), votes("good", "good", "bad", "bad"), true,
+		        null, votes("good", "good", "good", "good"), true));
+		add(new Scenario("14-jury4-challenge-fail",
+		        "14. 4-member jury, no VPT: unsuccessful challenge, review vote not unanimous (3 to 1), No Lift "
+		                + "stands, the Jury Chair gives the rule",
+		        Setup.JURY4, votes("bad", "bad", "good"), votes("good", "good", "bad", "bad"), true,
+		        null, votes("good", "good", "good", "bad"), false));
+		add(new Scenario("15-jury4-confirmation-nolift",
+		        "15. 4-member jury, no VPT: unanimous jury against a No Lift, the Chair starts a deliberation, No Lift "
+		                + "confirmed by the unanimous review vote, the Jury Chair gives the rule",
+		        Setup.JURY4, votes("bad", "bad", "good"), votes("good", "good", "good", "good"), false,
+		        null, votes("bad", "bad", "bad", "bad"), false));
+		add(new Scenario("16-vpt-broken-juror-nolift",
+		        "16. VPT: jury box 1 does not work, the Chair starts a deliberation and calls the vote, which never "
+		                + "completes; the Chair gives No Lift with the button, then the rule",
+		        Setup.VPT4, votes("good", "good", "bad"), votes("bad", "bad", "bad", "bad"), false,
+		        votes("bad", "bad", "bad"), votes("bad", "bad", "bad", "bad"), false, 1));
 	}
 
 	private static void add(Scenario sc) {
@@ -319,7 +365,9 @@ public class JuryScenario {
 	// ------------------------------------------------------------------ scenario
 
 	private void runReview(String athlete) throws Exception {
-		if (this.scenario.setup().panel) {
+		if (this.scenario.brokenJuror() > 0) {
+			runBrokenJurorReview(athlete);
+		} else if (this.scenario.setup().panel) {
 			runPanelReview(athlete);
 		} else {
 			runJuryReview(athlete);
@@ -430,12 +478,21 @@ public class JuryScenario {
 		        + describe(reviewJury) + ")", outcomeWord, reviewResult);
 	}
 
+	private static final String[] COUNT = { "zero", "one", "two", "three", "four", "five" };
+	private static final String[] ORDINAL = { "", "First", "Second", "Third", "Fourth", "Fifth" };
+
 	/**
-	 * Three-member jury without VPT: no automatic stop; the Chair starts the review; the vote is called verbally and
-	 * the three jurors punch in their votes; the referees do not vote; unanimity reverses the referees.
+	 * Jury vote (no seven-person panel: 3 members with or without VPT, 4 members without VPT): no automatic trigger;
+	 * the Chair starts the review; the referees' decision stays shown and the referees do not vote again; the jury
+	 * lights are cleared, the vote is called verbally and the jurors punch in their votes; unanimity reverses the
+	 * referees. A four-member jury holds the decision on the boards until its four votes are in.
 	 */
 	private void runJuryReview(String athlete) throws Exception {
 		Scenario sc = this.scenario;
+		int n = sc.setup().jurors;
+		String all = COUNT[n];
+		String last = ORDINAL[n];
+		String allButLast = COUNT[n - 1];
 		String[] refs = sc.refs();
 		String[] liftJury = sc.liftJury();
 		String liftDecision = Arrays.stream(refs).filter("good"::equals).count() >= 2 ? "Good Lift" : "No Lift";
@@ -456,26 +513,29 @@ public class JuryScenario {
 			referee(r + 1, refs[r]);
 		}
 		pause(4000);
-		step("Referees: " + refsText, liftDecision + " (" + refsText + ") on all boards; 3 empty jury circles on "
-		        + "the boards.", List.of());
+		step("Referees: " + refsText, liftDecision + " (" + refsText + ") on all boards; " + n + " empty jury "
+		        + "circles on the boards." + (sc.setup().sevenPerson ? " The four-member jury holds the decision on the "
+		                + "boards until its votes are in." : ""), List.of());
 
-		juror(1, liftJury[0]);
-		juror(2, liftJury[1]);
+		for (int j = 1; j < n; j++) {
+			juror(j, liftJury[j - 1]);
+		}
 		pause(1000);
-		step("Two of three jurors have voted on the lift",
-		        "Jury Control: Deliberation / Challenge offered; 2 grey \"voted\" jury circles, values hidden. "
-		                + "Boards: the referees' " + liftDecision + ", 2 grey jury circles. Speaker: no dialog.",
+		step(capitalize(allButLast) + " of " + all + " jurors have voted on the lift",
+		        "Jury Control: Deliberation / Challenge offered; " + (n - 1) + " grey \"voted\" jury circles, values "
+		                + "hidden. Boards: the referees' " + liftDecision + ", " + (n - 1) + " grey jury circles. "
+		                + "Speaker: no dialog.",
 		        List.of(new Check("jury", "Deliberation and Challenge still offered", buttonVisible("Jury Deliberation")),
 		                new Check("speaker", "no jury dialog", "!(" + dialogContains("Waiting for") + ")")));
 
-		juror(3, liftJury[2]);
+		juror(n, liftJury[n - 1]);
 		pause(1500);
 		Page juryPage = this.pages.get("jury");
 		String reviewName;
 		if (sc.challenge()) {
-			step("Third juror: split jury, the referees' decision stands",
+			step(last + " juror: split jury, the referees' decision stands",
 			        "Jury " + describe(liftJury) + ": not unanimous, the referees' " + liftDecision + " stands. The "
-			                + "three jury votes are revealed. Jury Control: Deliberation / Challenge offered, Summon "
+			                + all + " jury votes are revealed. Jury Control: Deliberation / Challenge offered, Summon "
 			                + "Referees (all) not orange. Speaker: no dialog.",
 			        List.of(new Check("jury", "Deliberation and Challenge still offered",
 			                buttonVisible("Jury Deliberation") + " && " + buttonVisible("Challenge")),
@@ -488,10 +548,10 @@ public class JuryScenario {
 			click(juryPage, "vaadin-button:has-text('Challenge')", "Jury Chair clicks Challenge on Jury Control");
 			reviewName = "Challenge";
 		} else {
-			step("Third juror: the jury is unanimous against the referees",
-			        "Jury " + describe(liftJury) + " against the referees' " + liftDecision + ". Without VPT there is "
-			                + "no automatic stop: the competition goes on until the Chair acts. The three jury votes "
-			                + "are revealed. Jury Control: Summon Referees (all) orange (prompt), Deliberation / "
+			step(last + " juror: the jury is unanimous against the referees",
+			        "Jury " + describe(liftJury) + " against the referees' " + liftDecision + ". There is no "
+			                + "automatic trigger" + (sc.setup().vpt ? "" : " (automaticBreakNoVPT off)") + ": the "
+			                + "competition goes on until the Chair acts. The " + all + " jury votes are revealed. Jury Control: Summon Referees (all) orange (prompt), Deliberation / "
 			                + "Challenge offered. Speaker: no dialog.",
 			        List.of(new Check("jury", "Summon Referees (all) is orange", buttonColor("Summon Referees", ORANGE)),
 			                new Check("jury", "Deliberation still offered", buttonVisible("Jury Deliberation")),
@@ -503,10 +563,11 @@ public class JuryScenario {
 		}
 		pause(1500);
 		step(reviewName + ": the review starts",
-		        "Jury break. Without VPT the jury lights are cleared and the vote is open at once (called "
-		                + "verbally). Jury Control: No Lift / Good Lift / Call for Votes (not orange, the vote is "
+		        "Jury break started by the Chair: the referees' decision stays shown (they do not vote again), "
+		                + "the jury lights are cleared and the jury vote is open at once (called verbally). Jury Control: No Lift / Good Lift / Call for Votes (not orange, the vote is "
 		                + "open) / Resume; Summon Referees (all) enabled: it summons the referees. Speaker: "
-		                + "\"Waiting for decision\" dialog. Boards: " + reviewName + " message, empty jury cells.",
+		                + "\"Waiting for decision\" dialog. Boards: " + reviewName + " message, the referees' "
+		                + liftDecision + ", empty jury cells.",
 		        List.of(new Check("jury", "No Lift and Good Lift replace Deliberation and Challenge",
 		                buttonVisible("No Lift") + " && " + buttonVisible("Good Lift") + " && !"
 		                        + buttonVisible("Jury Deliberation")),
@@ -519,18 +580,122 @@ public class JuryScenario {
 		// the Chair calls the vote verbally; the jurors vote a moment later
 		pause(1000);
 		String[] reviewJury = sc.reviewJury();
-		juror(1, reviewJury[0]);
-		juror(2, reviewJury[1]);
+		for (int j = 1; j < n; j++) {
+			juror(j, reviewJury[j - 1]);
+		}
 		pause(1500);
-		step("Verbal vote: two of three jurors have punched in",
+		step("Verbal vote: " + allButLast + " of " + all + " jurors have punched in",
 		        "Grey \"voted\" jury cells, values hidden. The referees do not vote.", List.of());
 
-		juror(3, reviewJury[2]);
+		juror(n, reviewJury[n - 1]);
 		pause(1500);
 		String unanimity = Arrays.stream(reviewJury).distinct().count() == 1 ? "unanimous"
 		        : "not unanimous, the referees' " + liftDecision + " stands";
-		finishReview("Third juror", "the three jury votes (" + describe(reviewJury) + ", " + unanimity + ")",
+		finishReview(last + " juror", "the " + all + " jury votes (" + describe(reviewJury) + ", " + unanimity + ")",
 		        outcomeWord, reviewResult);
+	}
+
+	/**
+	 * Seven-person panel with a jury box that never sends a vote: its votes are simply not sent. The jury vote on the
+	 * lift is incomplete, so there is no automatic review; the Chair starts a deliberation and calls the vote, which
+	 * never completes, so no result screen opens; after a second the Chair gives the decision with the No Lift button,
+	 * then the rule. The decision is marked "Jury Chair Entered Decision" (it is not the result of a vote).
+	 */
+	private void runBrokenJurorReview(String athlete) throws Exception {
+		Scenario sc = this.scenario;
+		int broken = sc.brokenJuror();
+		String[] refs = sc.refs();
+		String liftDecision = Arrays.stream(refs).filter("good"::equals).count() >= 2 ? "Good Lift" : "No Lift";
+		String reviewResult = sc.goodResult() ? "Good Lift" : "No Lift";
+		String outcomeWord = liftDecision.equals(reviewResult) ? "confirmed" : "reversal";
+		String refsText = describe(refs);
+		Page juryPage = this.pages.get("jury");
+
+		step("Starting point", "Current athlete " + athlete + "; " + sc.setup().description + ". Jury box " + broken
+		        + " does not work: its votes are never sent.", startingChecks());
+
+		clock("start");
+		pause(1000);
+		clock("stop");
+		pause(500);
+		step("Clock started, stopped after 1 second",
+		        "The athlete lifts: the clock ran for 1 s and is stopped. No decision yet.", List.of());
+		for (int r = 0; r < 3; r++) {
+			referee(r + 1, refs[r]);
+		}
+		pause(4000);
+		step("Referees: " + refsText, liftDecision + " (" + refsText + ") on all boards; 4 empty jury circles; the "
+		        + "decision is held on the boards until the jury has voted.", List.of());
+
+		for (int j = 1; j <= 4; j++) {
+			if (j != broken) {
+				juror(j, sc.liftJury()[j - 1]);
+			}
+		}
+		pause(1500);
+		step("Three of four jurors vote on the lift; jury box " + broken + " sends nothing",
+		        "The jury vote on the lift is incomplete, so there is no automatic Adjudication Panel Review. Jury "
+		                + "Control: Deliberation / Challenge offered, 3 grey \"voted\" circles. Speaker: no dialog.",
+		        List.of(new Check("jury", "Deliberation and Challenge offered",
+		                buttonVisible("Jury Deliberation") + " && " + buttonVisible("Challenge")),
+		                new Check("speaker", "no jury dialog", "!(" + dialogContains("Waiting for") + ")")));
+
+		click(juryPage, "vaadin-button:has-text('Jury Deliberation')",
+		        "Jury Chair clicks Jury Deliberation on Jury Control");
+		pause(1500);
+		step("Deliberation: the review starts",
+		        "Same procedure as the automatic review: the votes on the lift stay displayed until the vote is "
+		                + "called. Jury Control: No Lift / Good Lift / Call for Votes (orange) / Resume; Summon "
+		                + "Referees (all) disabled. Speaker: \"Waiting for decision\" dialog.",
+		        List.of(new Check("jury", "Call for Votes is orange", buttonColor("Call for Votes", ORANGE)),
+		                new Check("jury", "No Lift and Good Lift replace Deliberation and Challenge",
+		                        buttonVisible("No Lift") + " && " + buttonVisible("Good Lift") + " && !"
+		                                + buttonVisible("Jury Deliberation")),
+		                new Check("jury", "Summon Referees (all) is disabled", buttonDisabled("Summon Referees")),
+		                new Check("speaker", "the Speaker waits for the decision", dialogContains("Waiting for"))));
+
+		click(juryPage, "vaadin-button:has-text('Call for Votes')", "Jury Chair clicks Call for Votes on Jury Control");
+		pause(1500);
+		step("Call for Votes", "All cells cleared, referees buzzed. Call for Votes no longer orange.",
+		        List.of(new Check("jury", "Call for Votes no longer orange",
+		                "!(" + buttonColor("Call for Votes", ORANGE) + ")")));
+
+		for (int r = 0; r < 3; r++) {
+			referee(r + 1, sc.reviewRefs()[r]);
+		}
+		for (int j = 1; j <= 4; j++) {
+			if (j != broken) {
+				juror(j, sc.reviewJury()[j - 1]);
+			}
+		}
+		// we know jury box 1 will not vote: wait one second
+		pause(1000);
+		step("Six of seven have voted; jury box " + broken + " never does",
+		        "The vote never completes: the votes stay hidden (grey cells), no result screen and no rule dialog "
+		                + "open on Jury Control. Speaker still waiting.",
+		        List.of(new Check("jury", "no rule dialog", "!(" + dialogContains("Bending") + ")"),
+		                new Check("jury", "no result screen", "!(" + dialogContains("Cancel vote result") + ")"),
+		                new Check("speaker", "the Speaker still waits", dialogContains("Waiting for"))));
+
+		click(juryPage, "vaadin-button:has-text('No Lift')", "Jury Chair clicks No Lift on Jury Control");
+		pause(1500);
+		step("The Chair gives No Lift with the button",
+		        "Jury Control opens the rule dialog. Nothing is applied until the rule is chosen. Speaker still "
+		                + "waiting.",
+		        List.of(new Check("jury", "the rule dialog is open", dialogContains("Bending")),
+		                new Check("speaker", "the Speaker still waits", dialogContains("Waiting for"))));
+
+		click(juryPage, "vaadin-button[aria-label^='1 - ']", "Jury Chair picks rule 1 on Jury Control");
+		pause(1500);
+		step("The Jury Chair gives the rule",
+		        "Decision applied at once: No Lift (" + outcomeWord + ") with rule 1 on the boards. Speaker dialog: "
+		                + "No Lift with the rule, marked Jury Chair Entered Decision (not the result of a vote), "
+		                + "Close button.",
+		        List.of(new Check("speaker", "the Speaker sees the decision with a Close button",
+		                dialogContains("NO LIFT") + " && " + buttonVisible("Close")),
+		                new Check("speaker", "marked as entered by the Jury Chair", dialogContains("Jury Chair Entered"))));
+
+		closeAndResume(reviewResult);
 	}
 
 	/**
@@ -584,6 +749,13 @@ public class JuryScenario {
 			                        "!(" + dialogContains("Jury Chair Entered") + ")")));
 		}
 
+		closeAndResume(reviewResult);
+	}
+
+	/** the Speaker closes the decision dialog, lifting resumes, the Chair presses Resume */
+	private void closeAndResume(String reviewResult) throws Exception {
+		Page juryPage = this.pages.get("jury");
+		Page speaker = this.pages.get("speaker");
 		click(speaker, "vaadin-button:has-text('Close')", "Speaker clicks Close");
 		pause(5000);
 		step("Speaker closes the dialog; lifting resumes",
@@ -597,6 +769,10 @@ public class JuryScenario {
 		        "Jury Chair clicks Resume Competition on Jury Control");
 		pause(1500);
 		step("Jury Chair: Resume", "The jury votes are cleared on Jury Control and on the jury box.", List.of());
+	}
+
+	private static String capitalize(String s) {
+		return s.isEmpty() ? s : Character.toUpperCase(s.charAt(0)) + s.substring(1);
 	}
 
 	private List<Check> startingChecks() {
@@ -621,7 +797,8 @@ public class JuryScenario {
 		// nothing is assumed about the database: every setting the scenario depends on is set, then read back
 		List<Check> checks = new ArrayList<>();
 		Map<String, Boolean> switches = new LinkedHashMap<>();
-		switches.put("7personAdjudication", setup.panel);
+		switches.put("7personAdjudication", setup.sevenPerson);
+		switches.put("automaticBreakNoVPT", false);
 		switches.put("juryDecisionsOnAttemptBoard", true);
 		switches.put("juryDecisionsOnScoreboard", true);
 		String configPage = this.options.base() + "/preparation/config/3";
@@ -637,25 +814,26 @@ public class JuryScenario {
 		String competitionPage = this.options.base() + "/preparation/competition/1";
 		page.navigate(competitionPage);
 		page.waitForLoadState(LoadState.NETWORKIDLE);
-		setChecked(vptBox(page), setup.panel);
+		setChecked(vptBox(page), setup.vpt);
 		clickUpdate(page);
 		page.navigate(competitionPage);
 		page.waitForLoadState(LoadState.NETWORKIDLE);
-		checks.add(readBack("Competition Rules: Video Playback Technology " + (setup.panel ? "in use" : "not in use"),
-		        isChecked(vptBox(page)) == setup.panel));
-		action("Features: 7personAdjudication " + (setup.panel ? "on" : "off")
-		        + ", juryDecisionsOnAttemptBoard on, juryDecisionsOnScoreboard on");
-		action("Competition Rules: Video Playback Technology " + (setup.panel ? "in use" : "not in use"));
+		checks.add(readBack("Competition Rules: Video Playback Technology " + (setup.vpt ? "in use" : "not in use"),
+		        isChecked(vptBox(page)) == setup.vpt));
+		action("Features: 7personAdjudication " + (setup.sevenPerson ? "on" : "off")
+		        + ", automaticBreakNoVPT off, juryDecisionsOnAttemptBoard on, juryDecisionsOnScoreboard on");
+		action("Competition Rules: Video Playback Technology " + (setup.vpt ? "in use" : "not in use"));
 
 		Page jury = this.pages.get("jury");
 		jury.reload();
 		jury.waitForLoadState(LoadState.NETWORKIDLE);
-		if (!setup.panel) {
+		if (!setup.sevenPerson) {
 			setJurySize(jury, setup.jurors);
 		}
 		// what Jury Control shows also reflects the startup feature switches (OWLCMS_FEATURESWITCHES)
-		if (setup.panel) {
-			checks.add(new Check("jury", "seven-person panel in effect: Jury Control has no jury size selection",
+		if (setup.sevenPerson) {
+			checks.add(new Check("jury", "7personAdjudication in effect (four jurors): Jury Control has no jury size "
+			        + "selection",
 			        "!document.querySelector('vaadin-select')"));
 		} else {
 			String shown = jurySizeShown(jury);

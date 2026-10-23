@@ -7,7 +7,12 @@
 #                                 4-vpt-challenge-fail 5-vpt-confirmation-nolift
 #     three-member jury, no VPT:  6-jury3-reversal-nolift 7-jury3-reversal-goodlift 8-jury3-challenge-success
 #                                 9-jury3-challenge-fail 10-jury3-confirmation-nolift
-# Each scenario applies its own settings (7personAdjudication, Video Playback Technology, jury size on Jury Control).
+#     four-member jury, no VPT:   11-jury4-reversal-nolift 12-jury4-reversal-goodlift 13-jury4-challenge-success
+#                                 14-jury4-challenge-fail 15-jury4-confirmation-nolift
+#     four-member jury with VPT, jury box 1 broken: 16-vpt-broken-juror-nolift
+#     (a three-member jury with VPT behaves exactly as without VPT: no separate scenarios)
+# Each scenario applies its own settings (7personAdjudication,
+# automaticBreakNoVPT, Video Playback Technology, jury size on Jury Control).
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
