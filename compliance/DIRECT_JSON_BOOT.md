@@ -22,11 +22,11 @@ Phase 1 progress (2026-10-22):
   4.5 s, of which the import is about 1 s.
 - [ ] §3 access mode forced to `ACCOUNTS` when a PEM key is present
   (`Config.getAccessMode()`); not implemented.
-- [ ] §5/§6 control panel restart rule in `owlcms/launch.go` (Go).
+- [ ] §5/§6 control panel restart rule (controlpanel repository, Go).
 - [ ] §7 `${file}` and Downloads-folder launch configurations.
 - [ ] §8 runtime checks still open: V2 exports, ZIP and tracker checkpoint,
   failure cases, Postgres.
-- [ ] Release notes.
+- [x] Release notes (2026-10-23).
 
 Related: [SCHEDULED_CHECKPOINTS.md](SCHEDULED_CHECKPOINTS.md) produces the
 checkpoint files consumed here;

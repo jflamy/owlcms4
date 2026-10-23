@@ -6,16 +6,7 @@ the rest await confirmation. 2026-10-23.
 
 ## Next up
 
-1. **DIRECT_JSON_BOOT Phase 1 — launch with a file**
-   ([DIRECT_JSON_BOOT.md](DIRECT_JSON_BOOT.md), Phase 1 progress list).
-   Done: startup import driven by `OWLCMS_LOADJSON` (§1, §2, §3 without
-   standby), `MainWrapper` no-restart rule, prompting launch configurations;
-   V1 exports runtime-tested in memory and persistent H2 modes. Left: PEM-forced
-   `ACCOUNTS` access mode (§3), control panel no-restart rule in
-   `owlcms/launch.go` (Go), other §7 launch configurations, remaining §8 runtime
-   checks (V2, ZIP, failures, Postgres), release notes. Standby (Phase 2) is
-   excluded.
-2. **BIRTHDATE_LENIENT_PARSE_SPEC** — file-wide DMY/MDY detection on
+1. **BIRTHDATE_LENIENT_PARSE_SPEC** — file-wide DMY/MDY detection on
    registration import ([BIRTHDATE_LENIENT_PARSE_SPEC.md](BIRTHDATE_LENIENT_PARSE_SPEC.md)).
    Low risk; must not break any registration sheet that imports correctly
    today (ISO, Excel date cells, bare year and Excel serials keep their
@@ -23,6 +14,15 @@ the rest await confirmation. 2026-10-23.
 
 ## Done
 
+- [x] **DIRECT_JSON_BOOT Phase 1 — launch with a file**
+  ([DIRECT_JSON_BOOT.md](DIRECT_JSON_BOOT.md)) — done 2026-10-23 (commit
+  `c529acfe9`): startup import driven by `OWLCMS_LOADJSON` (JSON or ZIP, V1
+  and V2), `MainWrapper` no-restart rule, prompting launch configurations,
+  runtime-tested in memory and persistent H2 modes; release note added.
+  Follow-ups kept in the document: PEM-forced `ACCOUNTS` access mode (§3),
+  control panel no-restart rule (controlpanel repository, Go), `${file}` /
+  Downloads launch configurations, remaining §8 runtime checks (failure cases,
+  Postgres). Standby (Phase 2) is not started.
 - [x] **Jury review procedure** ([seven-person-adjudication.md](seven-person-adjudication.md))
   — done 2026-10-23 (commits `e42ba531a`, `41ad8024a`). Seven-person
   Adjudication Panel (four-member jury with VPT) and jury votes for every
