@@ -31,4 +31,4 @@ Adding `@Version` (optimistic locking) is **not** recommended in this iteration.
 
 ## 9. Remaining decisions
 
-1. Default button of the stale-save confirmation: **Reload card** (decided 2026-10-22; verify the dialog's default focus matches).
+1. Default button of the stale-save confirmation: **Reload card** (decided 2026-10-22; implemented 2026-10-23: "Discard my changes" has the primary style and the focus, placed last).

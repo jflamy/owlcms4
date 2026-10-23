@@ -120,18 +120,19 @@ public final class ConcurrentEditDialog {
 			attemptSave(task, check, monitor, formValues, athleteName, attempt.current(), valid, save, saved, discard, failed);
 		});
 		saveAnyway.addThemeVariants(ButtonVariant.LUMO_ERROR);
+		// the default is to reload the card (decided 2026-10-22): the stale values are discarded
 		Button discardChanges = new Button(Translator.translate("ConcurrentEdit.Discard"), e -> {
 			dialog.close();
 			discard.run();
 		});
+		discardChanges.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		Button back = new Button(Translator.translate("ConcurrentEdit.Back"), e -> dialog.close());
-		back.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		HorizontalLayout buttons = new HorizontalLayout(saveAnyway, discardChanges, back);
+		HorizontalLayout buttons = new HorizontalLayout(saveAnyway, back, discardChanges);
 		buttons.setWidthFull();
 		buttons.setJustifyContentMode(JustifyContentMode.END);
 		dialog.getFooter().add(buttons);
 		dialog.open();
-		back.focus();
+		discardChanges.focus();
 	}
 
 	public static void refuseRegistration(String athleteName, Runnable closeForm) {
