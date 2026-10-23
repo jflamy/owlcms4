@@ -2,7 +2,7 @@
 
 Work order and decisions on the documents left in `compliance/` (completed and
 superseded documents are in [done/](done/)). Confirmed decisions are marked;
-the rest await confirmation. 2026-10-22.
+the rest await confirmation. 2026-10-23.
 
 ## Next up
 
@@ -20,6 +20,22 @@ the rest await confirmation. 2026-10-22.
    Low risk; must not break any registration sheet that imports correctly
    today (ISO, Excel date cells, bare year and Excel serials keep their
    current path).
+
+## Done
+
+- [x] **Jury review procedure** ([seven-person-adjudication.md](seven-person-adjudication.md))
+  — done 2026-10-23 (commits `e42ba531a`, `41ad8024a`). Seven-person
+  Adjudication Panel (four-member jury with VPT) and jury votes for every
+  other jury (3 members with or without VPT, 4 without VPT, 5): Jury Control
+  buttons, Chair confirmation and Cancel vote result, rule request, Speaker
+  dialogs, board reveal, broken jury box recovery. Unit tests
+  (`SevenPersonAdjudicationTest`, `DecisionBlockStateTest`) and Playwright
+  scenarios 1-16 (`playwright/scripts/run-jury-scenario.sh`) pass.
+  Not code, left as follow-ups in the document's Remaining Work (§4-8):
+  user documentation (Jury, Keypads), MQTT documentation and tests, device
+  tests and the `panelVoteDeviceIndicators` default, unused translation keys.
+  `Announcer.AnnounceGoodLift` is still to be imported from
+  `shared/src/main/resources/i18n/jury_speaker_dialog_translations.tsv`.
 
 ## To review
 
@@ -53,7 +69,7 @@ Each remaining document is either backlog or will never be done.
 - [ ] [STORE_PANEL_DECISIONS.md](STORE_PANEL_DECISIONS.md) — store the jury and panel votes, trigger, rule and who entered the decision with the attempt (note, not started)
 - [ ] [ACCESS_CONTROL_DESIGN.md](ACCESS_CONTROL_DESIGN.md) — one-off opener gating, break capability, non-Vaadin entry-point review
 - [ ] [COMPETITION_DIRECTOR_PAGE_IMPLEMENTATION_PLAN.md](COMPETITION_DIRECTOR_PAGE_IMPLEMENTATION_PLAN.md) — browser acceptance as a `playwright`-module check (after DIRECT_JSON_BOOT), config-tab permissions
-- [ ] [seven-person-adjudication.md](seven-person-adjudication.md) — review procedure done for every jury size; left: Jury/Keypads/MQTT docs, `MQTTMonitor` tests, device tests and `panelVoteDeviceIndicators` default, four unused translation keys
+- [x] [seven-person-adjudication.md](seven-person-adjudication.md) — done (see Done above); documentation, MQTT tests and device tests are follow-ups
 - [ ] [ATHLETE_CARD_CONCURRENT_EDITING_ANALYSIS.md](ATHLETE_CARD_CONCURRENT_EDITING_ANALYSIS.md) — §6.4 write-only-changed-fields follow-up, `BreakManagement` unregistration
 
 ## Decisions inside the documents
@@ -96,7 +112,7 @@ Each remaining document is either backlog or will never be done.
 ### Tracker jury votes ([tracker-jury-votes.md](tracker-jury-votes.md) §0.9, §9)
 
 - [ ] Option A (raw events) or Option B (forward rendered `DecisionBlockState`)?
-- [ ] Deliberation without a panel pattern: no jury circles, or honour `DECISION_SECTION_SHOW_BOTH_JURY_VOTES`? (proposed: honour the switch)
+- [ ] Deliberation without a panel pattern: no jury circles, or honour `DECISION_SECTION_SHOW_BOTH_JURY_VOTES`? (proposed: honour the switch) — that switch was removed 2026-10-23; follow `juryDecisionsOnScoreboard` instead
 - [ ] Athlete under review: replace the break message with `fullName`, or keep the break message and add the name to the decision label? (proposed: keep the break message)
 - [ ] Include the HTTP forwarder / publicresults payload in the same change? (proposed: yes)
 - [ ] Forwarder keeps a `lastCells` snapshot for `JURY_DECISION`? (proposed: yes)

@@ -1,9 +1,10 @@
 # Seven-Person Adjudication Panel
 
-Status: implemented and tested for the four-member jury, with or without VPT,
-including the Chair confirmation, **Cancel vote result**, the No Lift rule
-request and the Speaker dialogs (2026-10-23), and for 3- and 5-member juries
-(section 12). What is left is listed under
+Status: **done** (2026-10-23). Implemented and tested for the four-member
+jury, with or without VPT, including the Chair confirmation, **Cancel vote
+result**, the No Lift rule request and the Speaker dialogs, and for 3- and
+5-member juries (section 12); Playwright scenarios 1-16 pass. The follow-ups
+(documentation, MQTT tests, device tests, translation keys) are listed under
 [Remaining Work](#remaining-work). The device timeline is in
 [done/phase-b-referee-lights-mqtt.md](done/phase-b-referee-lights-mqtt.md).
 Scope: field of play decision engine, Jury Control, referee phones, MQTT
