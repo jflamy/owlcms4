@@ -292,7 +292,16 @@ public class Config {
 
 	boolean migrateFeatureSwitchesToJson() {
 		if (this.featureSwitchJson != null && !this.featureSwitchJson.isBlank()) {
-			return false;
+			// drop the switches that no longer exist, so that they are not read again (with a warning) on every check
+			// and not carried over by an export
+			String known = writeFeatureSwitchJson(readFeatureSwitchJson(this.featureSwitchJson));
+			if (Objects.equals(known, this.featureSwitchJson)) {
+				return false;
+			}
+			logger.info("removed unknown feature switches from the stored configuration");
+			this.featureSwitchJson = known;
+			this.featureSwitches = known != null ? toLegacyFeatureSwitchString(readFeatureSwitchJson(known)) : null;
+			return true;
 		}
 		LinkedHashMap<String, Boolean> switches = parseLegacyFeatureSwitches(this.featureSwitches);
 		if (switches.isEmpty()) {
@@ -449,8 +458,24 @@ public class Config {
 
 	private LinkedHashMap<String, Boolean> getEffectiveFeatureSwitches() {
 		LinkedHashMap<String, Boolean> effectiveSwitches = new LinkedHashMap<>(getConfiguredFeatureSwitches());
-		effectiveSwitches.putAll(parseLegacyFeatureSwitches(StartupUtils.getStringParam("featureSwitches")));
+		effectiveSwitches.putAll(startupFeatureSwitches());
 		return effectiveSwitches;
+	}
+
+	private static volatile String startupFeatureSwitchParam;
+	private static volatile Map<String, Boolean> startupFeatureSwitches = Map.of();
+
+	/**
+	 * The featureSwitches startup parameter (OWLCMS_FEATURESWITCHES), parsed once: an unknown switch name is reported
+	 * once, not on every feature switch check.
+	 */
+	private static Map<String, Boolean> startupFeatureSwitches() {
+		String param = StartupUtils.getStringParam("featureSwitches");
+		if (!Objects.equals(param, startupFeatureSwitchParam)) {
+			startupFeatureSwitches = Map.copyOf(parseLegacyFeatureSwitches(param));
+			startupFeatureSwitchParam = param;
+		}
+		return startupFeatureSwitches;
 	}
 
 	private LinkedHashMap<String, Boolean> getConfiguredFeatureSwitches() {

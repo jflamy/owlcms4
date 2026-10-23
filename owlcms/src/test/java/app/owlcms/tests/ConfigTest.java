@@ -83,6 +83,30 @@ public class ConfigTest {
     }
 
     @Test
+    public void unknownStoredFeatureSwitchesAreDroppedWhenLoaded() throws Exception {
+        // a configuration saved by a version that had a switch that no longer exists
+        Config config = new Config();
+        Field featureSwitchJson = Config.class.getDeclaredField("featureSwitchJson");
+        featureSwitchJson.setAccessible(true);
+        featureSwitchJson.set(config, "{\"noLiveLights\":true,\"decisionSectionShowBothJuryVotes\":true}");
+
+        // loading (or importing) the configuration cleans it, so that an export no longer carries the old switch
+        assertEquals("{\"noLiveLights\":true}", config.getFeatureSwitchJson());
+        assertEquals("noLiveLights", config.getFeatureSwitches());
+        assertTrue(config.featureSwitch(FeatureSwitch.NO_LIVE_LIGHTS));
+    }
+
+    @Test
+    public void environmentSwitchesAreReadAgainWhenChanged() {
+        System.setProperty("featureSwitches", "decisionSectionShowBothJuryVotes," + FeatureSwitch.NO_LIVE_LIGHTS.getId());
+        Config config = new Config();
+        assertTrue("unknown names are ignored, known ones apply", config.featureSwitch(FeatureSwitch.NO_LIVE_LIGHTS));
+
+        System.setProperty("featureSwitches", "-" + FeatureSwitch.NO_LIVE_LIGHTS.getId());
+        assertFalse("a changed startup value is parsed again", config.featureSwitch(FeatureSwitch.NO_LIVE_LIGHTS));
+    }
+
+    @Test
     public void environmentSwitchOverridesJsonFeatureSwitch() {
         // env enables the switch; JSON stored in DB says disabled — env wins at runtime
         System.setProperty("featureSwitches", FeatureSwitch.NO_LIVE_LIGHTS.getId());
