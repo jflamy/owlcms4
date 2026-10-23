@@ -61,7 +61,7 @@ class ResultsStartList extends LitElement {
           <div class="attemptBar" style="${this.attemptBarStyles()}">
             <div class="athleteInfo" style="${this.athleteInfoStyles()}">
               <div class="startNumber" style="${this.startNumberStyles()}"><span>${this.startNumber}</span></div>
-              <div class="fullName ellipsis" style="${this.fullNameStyles()}" .innerHTML="${this.fullName}"></div>
+              <div class="fullName ellipsis" style="${this.fullNameStyles()}" .innerHTML="${this.fullName ?? ""}"></div>
               <div class="clubName ellipsis" style="${this.teamNameStyles()}">${this.teamName}</div>
               <div class="attempt" style="${this.attemptStyles()}"><span .innerHTML="${this.attempt}"></span></div>
               <div class="weight" style="${this.weightStyles()}">${this.weight}<span style="font-size: 75%">&hairsp;${this.t?.KgSymbol}</span></div>
