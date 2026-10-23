@@ -7,7 +7,13 @@
 package app.owlcms.data.export;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +40,8 @@ public class FormatDetector {
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(FormatDetector.class);
 
+	private static final byte[] ZIP_SIGNATURE = { 'P', 'K', 3, 4 };
+
 	/**
 	 * Detect the format version and import the data using the appropriate importer.
 	 * 
@@ -44,12 +52,52 @@ public class FormatDetector {
 		AuditContext.suppressedChecked(() -> doImportData(inputStream));
 	}
 
+	/**
+	 * Reads the JSON bytes of an export. A ZIP archive (for example a tracker checkpoint or an Admin Backup)
+	 * yields its first {@code .json} entry; anything else is returned as is.
+	 *
+	 * @throws IOException if the archive is truncated or contains no {@code .json} entry
+	 */
+	public static byte[] readJsonBytes(InputStream inputStream) throws IOException {
+		InputStream in = inputStream.markSupported() ? inputStream : new BufferedInputStream(inputStream);
+		if (isZip(in)) {
+			return readFirstJsonEntry(in);
+		}
+		return in.readAllBytes();
+	}
+
+	private static boolean isZip(InputStream in) throws IOException {
+		in.mark(ZIP_SIGNATURE.length);
+		try {
+			byte[] head = in.readNBytes(ZIP_SIGNATURE.length);
+			return Arrays.equals(head, ZIP_SIGNATURE);
+		} finally {
+			in.reset();
+		}
+	}
+
+	private static byte[] readFirstJsonEntry(InputStream in) throws IOException {
+		try (ZipInputStream zip = new ZipInputStream(in)) {
+			ZipEntry entry;
+			while ((entry = zip.getNextEntry()) != null) {
+				if (!entry.isDirectory() && entry.getName().toLowerCase(Locale.ROOT).endsWith(".json")) {
+					logger.info("Importing ZIP entry {}", entry.getName());
+					return zip.readAllBytes();
+				}
+			}
+		}
+		throw new IOException("The ZIP archive contains no .json file");
+	}
+
 	private static void doImportData(InputStream inputStream) throws Exception {
 		OwlcmsFactory.setImportInProgress(true);
 		try {
 			// Ensure stream supports mark/reset
 			if (!inputStream.markSupported()) {
 				inputStream = new BufferedInputStream(inputStream);
+			}
+			if (isZip(inputStream)) {
+				inputStream = new ByteArrayInputStream(readFirstJsonEntry(inputStream));
 			}
 			
 			// Mark position - we'll read a small portion to detect format, then reset

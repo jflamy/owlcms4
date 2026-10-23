@@ -7,13 +7,14 @@ the rest await confirmation. 2026-10-22.
 ## Next up
 
 1. **DIRECT_JSON_BOOT Phase 1 — launch with a file**
-   ([DIRECT_JSON_BOOT.md](DIRECT_JSON_BOOT.md), Phasing section).
-   `OWLCMS_LOADJSON=<file or folder>` imports a V2/V1 JSON or ZIP at startup:
-   §1 V2 error propagation, §2 ZIP input, §3 single-pass import behind the
-   `EmbeddedJetty.run` seam (`Main.initFromImport(Path)`, folder helper with
-   `candidates`/`latest`), §5 no automatic restart when `OWLCMS_LOADJSON` is set (control panel
-   and `MainWrapper`; exit 78 is diagnostic only), §7 VS Code launch configs. Standby (Phase 2) is deliberately excluded.
-   Unblocks launching owlcms from a JSON fixture for browser acceptance.
+   ([DIRECT_JSON_BOOT.md](DIRECT_JSON_BOOT.md), Phase 1 progress list).
+   Done: startup import driven by `OWLCMS_LOADJSON` (§1, §2, §3 without
+   standby), `MainWrapper` no-restart rule, prompting launch configurations;
+   V1 exports runtime-tested in memory and persistent H2 modes. Left: PEM-forced
+   `ACCOUNTS` access mode (§3), control panel no-restart rule in
+   `owlcms/launch.go` (Go), other §7 launch configurations, remaining §8 runtime
+   checks (V2, ZIP, failures, Postgres), release notes. Standby (Phase 2) is
+   excluded.
 2. **BIRTHDATE_LENIENT_PARSE_SPEC** — file-wide DMY/MDY detection on
    registration import ([BIRTHDATE_LENIENT_PARSE_SPEC.md](BIRTHDATE_LENIENT_PARSE_SPEC.md)).
    Low risk; must not break any registration sheet that imports correctly

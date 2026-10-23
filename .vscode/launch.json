@@ -131,6 +131,32 @@
     },
     {
       "type": "java",
+      "name": "🟥 load JSON owlcms reset",
+      "request": "launch",
+      "preLaunchTask": "clear owlcms file logs",
+      "mainClass": "${config:owlcms.mainClass}",
+      "projectName": "owlcms",
+      "cwd": "${workspaceFolder}/owlcms",
+      "vmArgs": "${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
+      "windows": {
+        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
+      },
+      "linux": {
+        "envFile": "${workspaceFolder}/.vscode/.env.linux"
+      },
+      "osx": {
+        "envFile": "${workspaceFolder}/.vscode/.env.mac"
+      },
+      "env": {
+        // The export replaces the whole competition in the development database, on every launch.
+        "OWLCMS_MEMORYMODE": "false",
+        "OWLCMS_LOADJSON": "${input:loadJson}",
+        "OWLCMS_ENABLEEVENTFORWARDING": "false",
+        //"OWLCMS_ACCESSMODE": "ACCOUNTS",
+      }
+    },
+    {
+      "type": "java",
       "name": "🟩 small demo owlcms memory",
       "request": "launch",
       "preLaunchTask": "clear owlcms file logs",
@@ -153,6 +179,32 @@
         "OWLCMS_ENABLEEVENTFORWARDING": "false",
         "OWLCMS_INITIALDATA": "SINGLE_ATHLETE_GROUPS",
         "OWLCMS_PORT": "8081",
+      }
+    },
+    {
+      "type": "java",
+      "name": "🟩 load JSON owlcms memory",
+      "request": "launch",
+      "preLaunchTask": "clear owlcms file logs",
+      "mainClass": "${config:owlcms.mainClass}",
+      "projectName": "owlcms",
+      "cwd": "${workspaceFolder}/owlcms",
+      "vmArgs": "${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
+      "windows": {
+        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
+      },
+      "linux": {
+        "envFile": "${workspaceFolder}/.vscode/.env.linux"
+      },
+      "osx": {
+        "envFile": "${workspaceFolder}/.vscode/.env.mac"
+      },
+      "env": {
+        // The export replaces the whole competition in memory; the development database is untouched.
+        "OWLCMS_MEMORYMODE": "true",
+        "OWLCMS_LOADJSON": "${input:loadJson}",
+        "OWLCMS_ENABLEEVENTFORWARDING": "false",
+        //"OWLCMS_ACCESSMODE": "ACCOUNTS",
       }
     },
     {
@@ -336,6 +388,14 @@
         "🟨 owlcms → tracker",
         "🔳 tracker learning"
       ]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "loadJson",
+      "type": "promptString",
+      "description": "Export to load: a .json or .zip file, or a folder (its newest .json/.zip is used). Leave empty for a normal start.",
+      "default": ""
     }
   ]
 }

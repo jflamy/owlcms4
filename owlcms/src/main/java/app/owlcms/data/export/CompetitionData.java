@@ -449,47 +449,14 @@ public class CompetitionData {
 
 	private void removeAll() {
 		JPAService.runInTransaction(em -> {
+			// bulk-deletes athletes, sessions, age groups, platforms, config and competition
 			CompetitionRepository.doRemoveAll(em);
-			try {
-				this.fromDatabase();
-				for (Athlete a : this.getAthletes()) {
-					Athlete aX = em.find(Athlete.class, a.getId());
-					if (aX != null) {
-						em.remove(aX);
-					}
-				}
-				for (Group g : this.getGroups()) {
-					Group gX = em.find(Group.class, g.getId());
-					if (gX != null) {
-						em.remove(gX);
-					}
-				}
-				for (AgeGroup ag : this.getAgeGroups()) {
-					AgeGroup agX = em.find(AgeGroup.class, ag.getId());
-					if (agX != null) {
-						em.remove(agX);
-					}
-				}
-				for (Championship c : ChampionshipRepository.findAllIncludingTemplate()) {
-					Championship cX = em.find(Championship.class, c.getId());
-					if (cX != null) {
-						em.remove(cX);
-					}
-				}
-				for (Platform p : this.getPlatforms()) {
-					Platform pX = em.find(Platform.class, p.getId());
-					if (pX != null) {
-						em.remove(pX);
-					}
-				}
-				for (TechnicalOfficial p : this.getTechnicalOfficials()) {
-					TechnicalOfficial pX = em.find(TechnicalOfficial.class, p.getId());
-					if (pX != null) {
-						em.remove(pX);
-					}
-				}
-			} catch (Exception e) {
-				LoggerUtils.logError(logger, e);
+			for (Championship c : em.createQuery("select c from Championship c", Championship.class).getResultList()) {
+				em.remove(c);
+			}
+			for (TechnicalOfficial to : em.createQuery("select t from TechnicalOfficial t", TechnicalOfficial.class)
+			        .getResultList()) {
+				em.remove(to);
 			}
 			return null;
 		});

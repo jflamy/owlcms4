@@ -238,7 +238,7 @@ public class CompetitionDataV2 {
 			return newData;
 		} catch (Exception e) {
 			LoggerUtils.logError(logger, e);
-			return null;
+			throw new IllegalStateException("V2 import failed: " + LoggerUtils.exceptionMessage(e), e);
 		}
 	}
 
@@ -416,6 +416,7 @@ public class CompetitionDataV2 {
 		em.flush();
 		} catch (Exception e) {
 			LoggerUtils.logError(logger, e);
+			throw e instanceof RuntimeException re ? re : new IllegalStateException(e);
 		} finally {
 			Athlete.setSkipValidationsDuringImport(false);
 		}

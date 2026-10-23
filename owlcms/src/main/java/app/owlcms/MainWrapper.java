@@ -30,6 +30,8 @@ public class MainWrapper {
     private static final int MAX_RESTARTS = 3;
     private static final String DAEMON_MODE_ENV = "CONTROLPANEL_RUN_AS_DAEMON";
     private static final String WRAPPER_PID_ENV = "OWLCMS_WRAPPER_PID";
+    private static final String LOAD_JSON_ENV = "OWLCMS_LOADJSON";
+    private static final String LOAD_JSON_PROPERTY = "loadJson";
     private static volatile Process currentProcess;
     private static volatile boolean shuttingDown = false;
 
@@ -42,6 +44,18 @@ public class MainWrapper {
         case "1", "true", "yes", "on" -> true;
         default -> false;
         };
+    }
+
+    /**
+     * A launch that loads an export is never restarted: a restart would load the file again and replace whatever
+     * happened since, whether the first load failed or OWLCMS stopped later.
+     */
+    private static boolean isLoadJsonLaunch(Map<String, String> environment) {
+        String value = environment.get(LOAD_JSON_ENV);
+        if (value == null || value.isBlank()) {
+            value = System.getProperty(LOAD_JSON_PROPERTY);
+        }
+        return value != null && !value.isBlank();
     }
 
     private static boolean isWindows() {
@@ -151,6 +165,13 @@ public class MainWrapper {
                     break;
                 }
                 
+                if (isLoadJsonLaunch(env)) {
+                    logger.info("app.owlcms.Main exited with code {} and {} is set, not restarting", exitCode,
+                            LOAD_JSON_ENV);
+                    wrapperExitCode = exitCode;
+                    break;
+                }
+
                 if (exitCode == 0 || exitCode >= 128) {
                     logger.info("app.owlcms.Main exited with terminal code {}, wrapper exiting", exitCode);
                     wrapperExitCode = exitCode;

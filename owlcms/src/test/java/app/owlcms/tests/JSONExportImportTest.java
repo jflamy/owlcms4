@@ -49,6 +49,8 @@ import app.owlcms.data.export.v2.ChampionshipDTO;
 import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.data.technicalofficial.TechnicalOfficial;
+import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
 import app.owlcms.utils.InstallationSecret;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -428,6 +430,22 @@ public class JSONExportImportTest {
         } catch (Exception e) {
             fail(e.getMessage());
         }
+    }
+
+    @Test
+    public void legacyRestoreReplacesChampionshipsAndTechnicalOfficials() throws Exception {
+        TechnicalOfficial official = new TechnicalOfficial();
+        official.setLastName("Restore");
+        official.setFirstName("Fixture");
+        TechnicalOfficialRepository.save(official);
+        String export = new CompetitionData().exportDataAsString();
+        int championshipCount = Championship.findAllIncludingTemplate().size();
+        int officialCount = TechnicalOfficialRepository.findAll().size();
+
+        new CompetitionData().restore(new ByteArrayInputStream(export.getBytes(StandardCharsets.UTF_8)));
+
+        assertEquals(championshipCount, ChampionshipRepository.findAllIncludingTemplate().size());
+        assertEquals(officialCount, TechnicalOfficialRepository.findAll().size());
     }
 
     @Test

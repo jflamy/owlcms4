@@ -6,16 +6,22 @@
  *******************************************************************************/
 package app.owlcms;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.BindException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 // ...existing imports...
 import java.util.EnumSet;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.TimeZone;
 
@@ -42,6 +48,8 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
+import app.owlcms.data.export.FormatDetector;
+import app.owlcms.data.export.StartupImportSource;
 import app.owlcms.data.jpa.BenchmarkData;
 import app.owlcms.data.jpa.BirthDateTextMigration;
 import app.owlcms.data.jpa.DemoData;
@@ -143,7 +151,11 @@ public class Main {
     protected static boolean resetMode;
     protected static Integer serverPort;
     protected static boolean smallData;
+    /** Exit code when the export named by OWLCMS_LOADJSON cannot be loaded (sysexits EX_CONFIG). Diagnostic only. */
+    public static final int EXIT_STARTUP_IMPORT_FAILED = 78;
     private static InitialData initialData;
+    /** OWLCMS_LOADJSON is honored once per JVM: an in-process restart must not replace the competition again. */
+    private static boolean startupImportAttempted;
     public static String mqttStartup;
     private static volatile Server mqttBroker;
     private static volatile boolean mqttPortInUse;
@@ -152,8 +164,10 @@ public class Main {
         startMdns();
         EmbeddedJetty embeddedJetty = new EmbeddedJetty(null, "owlcms")
                 .setStartLogger(logger)
-                .setInitConfig(Main::initConfig)
-                .setInitData(Main::initData);
+                // initStartup runs both phases, so that OWLCMS_LOADJSON can replace the competition in a single pass
+                .setInitConfig(Main::initStartup)
+                .setInitData(() -> {
+                });
         Thread server = new Thread(() -> {
             try {
                 embeddedJetty.run(serverPort, "/");
@@ -173,6 +187,79 @@ public class Main {
 
     public static void initConfig() {
         JPAService.init(memoryMode, resetMode);
+        completeConfig();
+    }
+
+    /**
+     * Startup entry point, called once the server is listening. Loads the export named by OWLCMS_LOADJSON, if any,
+     * otherwise initializes normally.
+     */
+    public static void initStartup() {
+        Optional<Path> source = Optional.empty();
+        if (!startupImportAttempted) {
+            startupImportAttempted = true;
+            try {
+                source = StartupImportSource.resolve();
+            } catch (RuntimeException e) {
+                failStartupImport(null, e);
+                return;
+            }
+        }
+        if (source.isPresent()) {
+            initFromImport(source.get());
+        } else {
+            initConfig();
+            initData();
+        }
+    }
+
+    /**
+     * Replaces the competition with the export, then completes startup once on the imported data. The database is
+     * recreated, and the configuration steps that read it (audit integrity, access control) run after the import so
+     * that they see the imported settings.
+     */
+    private static void initFromImport(Path source) {
+        String name = source.getFileName().toString();
+        StartupUtils.getStartupLogger().info("Loading {}.", name);
+        try {
+            JPAService.init(memoryMode, true);
+            // the import replaces this default Config row; translation and resource lookups need one to exist
+            Config.initConfig();
+            OwlcmsSession startupSession = new OwlcmsSession();
+            startupSession.setLocale(Locale.ENGLISH);
+            OwlcmsSessionThreadLocal.set(startupSession);
+            Gender.initPublicGenderCodeMapString(Locale.ENGLISH);
+
+            byte[] json;
+            try (InputStream in = Files.newInputStream(source)) {
+                json = FormatDetector.readJsonBytes(in);
+            }
+            String sha256 = sha256(json);
+            logger.info("Importing {} ({} bytes of JSON, sha256 {})", source.toAbsolutePath(), json.length, sha256);
+            FormatDetector.importData(new ByteArrayInputStream(json));
+
+            completeConfig();
+            ApplicationAudit.startupImport(name, sha256);
+            initData();
+        } catch (Throwable e) {
+            failStartupImport(source, e);
+        }
+    }
+
+    private static String sha256(byte[] bytes) throws NoSuchAlgorithmException {
+        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
+    }
+
+    /** One attempt only: report the cause and stop. Never serve partial data, never fall back to an empty competition. */
+    private static void failStartupImport(Path source, Throwable cause) {
+        String shown = source != null ? source.toString() : StartupUtils.getStringParam("loadJson");
+        logger.error("Cannot start: loading {} failed", shown, cause);
+        StartupUtils.getStartupLogger().error("Loading {} failed: {}", shown, LoggerUtils.exceptionMessage(cause));
+        System.exit(EXIT_STARTUP_IMPORT_FAILED);
+    }
+
+    /** The configuration steps that need the database, shared by normal and import startup. */
+    private static void completeConfig() {
         // check for database override of resource files
         Config.initConfig();
         AuditIntegrity.initialize(Config.getCurrent());

@@ -13,6 +13,12 @@ public final class ApplicationAudit {
 				.actor(AuditActor.system()).build());
 	}
 
+	/** Records the export that replaced the competition at startup; the SHA-256 is of the exact JSON bytes imported. */
+	public static void startupImport(String source, String sha256) {
+		AuditLog.write(AuditEntry.builder("competition", "application.startup-import")
+				.actor(AuditActor.system()).detail(AuditFormat.kvs("source", source, "sha256", sha256)).build());
+	}
+
 	public static void restartRequested(String reason) {
 		AuditLog.write(AuditEntry.builder("competition", "application.restart-requested")
 				.actor(currentActor()).detail(AuditFormat.kv("reason", reason)).build());

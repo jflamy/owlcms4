@@ -1,8 +1,32 @@
 # Direct JSON Boot
 
-Status: implementation plan; not implemented or runtime-tested.
+Status: Phase 1 startup with `OWLCMS_LOADJSON` done and runtime-tested; Phase 2 (standby) not started.
 Revised 2026-10-17: standby mode, folder resolution and ZIP input.
 Revised 2026-10-22: split into Phase 1 (launch with a file) and Phase 2 (standby); see Phasing.
+
+Phase 1 progress (2026-10-22):
+
+- [x] §1 V2 error propagation.
+- [x] §2 ZIP input (`FormatDetector.readJsonBytes`).
+- [x] §3 single-pass startup import driven by `OWLCMS_LOADJSON`, without
+  standby (`Main.initStartup`, `Main.initFromImport`, `StartupImportSource`),
+  including the audit line and the terminal exit 78. V1 restore on an empty
+  database no longer fails silently (`CompetitionData.removeAll`).
+- [x] §5 `MainWrapper` never restarts a launch with `OWLCMS_LOADJSON` set.
+- [x] §7 prompting launch configurations ("🟩 load JSON owlcms memory",
+  "🟥 load JSON owlcms reset").
+- [x] Unit tests: `StartupImportSourceTest`, `FormatDetectorZipTest`,
+  `JSONExportImportTest.legacyRestoreReplacesChampionshipsAndTechnicalOfficials`.
+- [x] Runtime: V1 exports (`scott.json`, 447 KB; cropped PanAm, 945 KB) loaded
+  in memory mode and into the persistent H2 file database; ready in about
+  4.5 s, of which the import is about 1 s.
+- [ ] §3 access mode forced to `ACCOUNTS` when a PEM key is present
+  (`Config.getAccessMode()`); not implemented.
+- [ ] §5/§6 control panel restart rule in `owlcms/launch.go` (Go).
+- [ ] §7 `${file}` and Downloads-folder launch configurations.
+- [ ] §8 runtime checks still open: V2 exports, ZIP and tracker checkpoint,
+  failure cases, Postgres.
+- [ ] Release notes.
 
 Related: [SCHEDULED_CHECKPOINTS.md](SCHEDULED_CHECKPOINTS.md) produces the
 checkpoint files consumed here;
@@ -62,6 +86,10 @@ Resolution rules:
   button.
 - If `OWLCMS_LOADJSON` is set, `OWLCMS_INITIALDATA` and `OWLCMS_RESETMODE` are
   irrelevant because the import replaces the competition.
+- Confirmed: every launch with `OWLCMS_LOADJSON` set reloads the file, also with
+  a persistent database (H2 file or Postgres). After a crash or relaunch, work
+  done since the previous load is replaced; the operator must unset the
+  variable to keep it.
 
 ## Phasing
 
@@ -117,7 +145,7 @@ fills them in.
 Not in Phase 1: `StandbyServlet`, `StandbyFilter`, `standbyWaiting`,
 `standbySelectionFuture`, the `/standby` page, the control-panel button label.
 
-## 1. Fix V2 Error Propagation
+## 1. Fix V2 Error Propagation (done)
 
 In [CompetitionDataV2.java](../owlcms/src/main/java/app/owlcms/data/export/v2/CompetitionDataV2.java):
 
@@ -130,7 +158,7 @@ In [CompetitionDataV2.java](../owlcms/src/main/java/app/owlcms/data/export/v2/Co
 - Reuse these fixes for UI and startup imports. Leave V1 and warning-only
    `FormatDetector` post-processing unchanged. Add no separate importer.
 
-## 2. Accept ZIP Input
+## 2. Accept ZIP Input (done)
 
 In [FormatDetector.java](../owlcms/src/main/java/app/owlcms/data/export/FormatDetector.java),
 `doImportData()`, after wrapping the stream in a `BufferedInputStream`:
@@ -146,7 +174,7 @@ In [FormatDetector.java](../owlcms/src/main/java/app/owlcms/data/export/FormatDe
    checkpoint ZIPs and the `database_v2_*.json` inside an Admin Backup ZIP are
    both accepted.
 
-## 3. Single-Pass Scorched-Earth Startup Import
+## 3. Single-Pass Scorched-Earth Startup Import (done except standby wait and PEM access mode)
 
 In [Main.java](../owlcms/src/main/java/app/owlcms/Main.java),
 [EmbeddedJetty.java](../owlcms/src/main/java/app/owlcms/jetty/EmbeddedJetty.java)
@@ -163,22 +191,28 @@ and [Config.java](../owlcms/src/main/java/app/owlcms/data/config/Config.java):
    resolve the target `Path` immediately.
 - **Single-pass initialization once the `Path` is chosen:**
   1. Call `JPAService.init(memoryMode, true)` to start with a clean schema.
-  2. Set up the startup `OwlcmsSessionThreadLocal` and
+  2. Call `Config.initConfig()` to create the default `Config` row (translation
+     and resource lookups call `Config.getCurrent()`, which fails without a row;
+     the import then replaces it). Set up the startup `OwlcmsSessionThreadLocal` and
      `Gender.initPublicGenderCodeMapString(Locale.ENGLISH)` (required by rank
      and participant-count computations at the end of `restore()`).
   3. Call `FormatDetector.importData()` once on the chosen file. This imports
      `Config`, `Competition`, `Accounts`, `Platforms`, `Athletes`, etc., and
      computes participant counts and athlete ranks.
-  4. Run `Config.initConfig()`, `AuditIntegrity.initialize(Config.getCurrent())`,
+  4. Run `Config.initConfig()` again (idempotent; migrates the imported config), `AuditIntegrity.initialize(Config.getCurrent())`,
      `ResourceMonitor.start()`, `AccessStartup.run()`, and
      `AccessStartup.initializeRoleAccountsAfterDataLoad()` once against the
      imported data.
-  5. Skip `injectData()` and do not recompute participant counts or athlete
-     ranks a second time. Apply `overrideDisplayLanguage()` and
-     `overrideTimeZone()`, then run `startMQTT()`,
-     `OwlcmsFactory.initDefaultFOP()`, `sendStartupDatabaseToWebSocketTrackers()`,
-     and `signalDatabaseReady()` (skipping the duplicate browser launch if it
-     was already opened for `/standby`).
+  5. Run the normal `initData()` unchanged. `injectData()` sees a non-empty
+     database and performs the integrity and migration steps that a restart
+     after a UI import performs today (`fixCategories`, `reconcileFromAgeGroups`,
+     `checkPlatforms`, record definitions), which the import alone does not.
+     This means participant counts and athlete ranks are computed a second time
+     (once at the end of `restore()`, once in `initData()`); skipping the
+     duplicate is a possible later optimization once it has been measured.
+     Then `overrideDisplayLanguage()`, `overrideTimeZone()`, `startMQTT()`,
+     `OwlcmsFactory.initDefaultFOP()`, `sendStartupDatabaseToWebSocketTrackers()`
+     and `signalDatabaseReady()` run as usual.
 - **Access mode and `IWF_COMPLIANCE`:**
   - When a PEM signing key is present (`AuditIntegrity.isInitialized() &&
     AuditIntegrity.current().forcedByKey()`), force `AccessMode.ACCOUNTS` in
@@ -235,8 +269,8 @@ and [Config.java](../owlcms/src/main/java/app/owlcms/data/config/Config.java):
   - Control panel: in the restart decision (`logRestartDecision` /
     `shared.ShouldRestartProcess` callers in `owlcms/launch.go`), do not
     restart when the launch environment contains `OWLCMS_LOADJSON`.
-  - [MainWrapper.java](../owlcms/src/main/java/app/owlcms/MainWrapper.java),
-    which currently restarts every code from 1 to 127: it receives the same
+  - (Done) [MainWrapper.java](../owlcms/src/main/java/app/owlcms/MainWrapper.java),
+    which restarts every code from 1 to 127: it receives the same
     environment (or `-D` property, read as `StartupUtils.getStringParam("loadJson")`
     does), so treat any exit as terminal when `OWLCMS_LOADJSON` is set. It needs
     no exit-code or readiness knowledge.
@@ -276,7 +310,7 @@ OWLCMS_LOADJSON=/path/to/tracker/checkpoints
 In VS Code launch configurations:
 
 - `"OWLCMS_LOADJSON": "${file}"` loads the JSON or ZIP open in the editor.
-- `"OWLCMS_LOADJSON": "${input:jsonFile}"` with a `promptString` input asks for
+- (Done) `"OWLCMS_LOADJSON": "${input:loadJson}"` with a `promptString` input asks for
    a path at launch.
 - `"OWLCMS_LOADJSON": "${env:HOME}/Downloads"` (`${env:USERPROFILE}` on
    Windows) starts from the most recently downloaded export.
