@@ -10,6 +10,8 @@
 
 **Maintenance Log**
 
+- 68.0.3: Fixed scoreboards when the session is unselected during a break or the introduction of athletes: the scoreboard now shows the waiting screen instead of the previous session, or "undefined" when the scoreboard was reloaded.
+
 - 68.0.2: Updated the Spain age group template.
 
 - 68.0.2: Fixed unnecessary delays when starting the next clock after a decision:
