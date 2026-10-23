@@ -11,6 +11,7 @@
 #                                 14-jury4-challenge-fail 15-jury4-confirmation-nolift
 #     four-member jury with VPT, jury box 1 broken: 16-vpt-broken-juror-nolift
 #     jury box only, the Speaker enters the decision: 17-vpt-speaker-enters-nolift 18-jury3-speaker-enters-nolift
+#     jury box 1 broken, Speaker abandons the vote: 19-vpt-broken-juror-start-anyway
 #     (a three-member jury with VPT behaves exactly as without VPT: no separate scenarios)
 # Each scenario applies its own settings (7personAdjudication,
 # automaticBreakNoVPT, Video Playback Technology, jury size on Jury Control).

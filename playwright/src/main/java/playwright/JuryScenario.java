@@ -129,18 +129,28 @@ public class JuryScenario {
 	 * @param brokenJuror a jury box that never sends a vote (1..4), 0 if none: the votes of that juror are ignored
 	 * @param speakerDecides the jury uses only the jury box; the Chair never confirms the result nor gives a rule, the
 	 *                       Speaker enters the decision in the "Waiting for decision" dialog
+	 * @param startClockAnyway a jury device never votes; the Speaker abandons the incomplete vote and starts the next
+	 *                         clock, leaving the referees' decision in place
 	 */
 	record Scenario(String id, String title, Setup setup, String[] refs, String[] liftJury, boolean challenge,
-	        String[] reviewRefs, String[] reviewJury, boolean goodResult, int brokenJuror, boolean speakerDecides) {
+	        String[] reviewRefs, String[] reviewJury, boolean goodResult, int brokenJuror, boolean speakerDecides,
+	        boolean startClockAnyway) {
 
 		Scenario(String id, String title, Setup setup, String[] refs, String[] liftJury, boolean challenge,
 		        String[] reviewRefs, String[] reviewJury, boolean goodResult) {
-			this(id, title, setup, refs, liftJury, challenge, reviewRefs, reviewJury, goodResult, 0, false);
+			this(id, title, setup, refs, liftJury, challenge, reviewRefs, reviewJury, goodResult, 0, false, false);
 		}
 
 		Scenario(String id, String title, Setup setup, String[] refs, String[] liftJury, boolean challenge,
 		        String[] reviewRefs, String[] reviewJury, boolean goodResult, int brokenJuror) {
-			this(id, title, setup, refs, liftJury, challenge, reviewRefs, reviewJury, goodResult, brokenJuror, false);
+			this(id, title, setup, refs, liftJury, challenge, reviewRefs, reviewJury, goodResult, brokenJuror, false,
+			        false);
+		}
+
+		Scenario(String id, String title, Setup setup, String[] refs, String[] liftJury, boolean challenge,
+		        String[] reviewRefs, String[] reviewJury, boolean goodResult, int brokenJuror, boolean speakerDecides) {
+			this(id, title, setup, refs, liftJury, challenge, reviewRefs, reviewJury, goodResult, brokenJuror,
+			        speakerDecides, false);
 		}
 	}
 
@@ -235,6 +245,11 @@ public class JuryScenario {
 		                + "vote; the Jury Chair never confirms nor gives the rule, the Speaker enters No Lift",
 		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"), false,
 		        null, votes("bad", "bad", "bad"), false, 0, true));
+		add(new Scenario("19-vpt-broken-juror-start-anyway",
+		        "19. VPT: jury box 1 does not work; the Speaker starts the next clock anyway, abandoning the "
+		                + "incomplete jury vote and leaving the referees' Good Lift in place",
+		        Setup.VPT4, votes("good", "good", "bad"), votes("bad", "bad", "bad", "bad"), false,
+		        null, null, true, 1, false, true));
 	}
 
 	private static void add(Scenario sc) {
@@ -383,7 +398,9 @@ public class JuryScenario {
 	// ------------------------------------------------------------------ scenario
 
 	private void runReview(String athlete) throws Exception {
-		if (this.scenario.speakerDecides()) {
+		if (this.scenario.startClockAnyway()) {
+			runStartClockAnyway(athlete);
+		} else if (this.scenario.speakerDecides()) {
 			runSpeakerDecidesReview(athlete);
 		} else if (this.scenario.brokenJuror() > 0) {
 			runBrokenJurorReview(athlete);
@@ -392,6 +409,69 @@ public class JuryScenario {
 		} else {
 			runJuryReview(athlete);
 		}
+	}
+
+	/**
+	 * A jury device never votes on the lift. The Speaker attempts to start the next clock, owlcms refuses it and asks
+	 * for confirmation, then Start clock anyway abandons the incomplete jury vote and leaves the referees' decision.
+	 */
+	private void runStartClockAnyway(String athlete) throws Exception {
+		Scenario sc = this.scenario;
+		int broken = sc.brokenJuror();
+		String[] refs = sc.refs();
+		String liftDecision = Arrays.stream(refs).filter("good"::equals).count() >= 2 ? "Good Lift" : "No Lift";
+		String refsText = describe(refs);
+		Page speaker = this.pages.get("speaker");
+
+		step("Starting point", "Current athlete " + athlete + "; " + sc.setup().description + ". Jury box " + broken
+		        + " does not work: its votes are never sent.", startingChecks());
+
+		clock("start");
+		pause(1000);
+		clock("stop");
+		pause(500);
+		step("Clock started, stopped after 1 second",
+		        "The athlete lifts: the clock ran for 1 s and is stopped. No decision yet.", List.of());
+		for (int r = 0; r < 3; r++) {
+			referee(r + 1, refs[r]);
+		}
+		pause(4000);
+		step("Referees: " + refsText, liftDecision + " (" + refsText + ") on all boards; 4 empty jury circles; the "
+		        + "decision is held on the boards until the jury has voted.", List.of());
+
+		for (int j = 1; j <= 4; j++) {
+			if (j != broken) {
+				juror(j, sc.liftJury()[j - 1]);
+			}
+		}
+		pause(1500);
+		step("Three of four jurors vote on the lift; jury box " + broken + " sends nothing",
+		        "The jury vote on the lift is incomplete, so there is no automatic Adjudication Panel Review. Jury "
+		                + "Control shows 3 grey \"voted\" circles. Speaker: no dialog.",
+		        List.of(new Check("speaker", "no jury dialog", "!(" + dialogContains("Waiting for") + ")")));
+
+		clock("start");
+		pause(1500);
+		step("Speaker tries to start the next clock",
+		        "owlcms refuses the clock start. The Speaker sees \"The jury has not finished voting\" with Start "
+		                + "clock anyway. The decision and the three jury votes stay displayed.",
+		        List.of(new Check("speaker", "pending-jury dialog is open",
+		                dialogContains("jury has not finished voting")),
+		                new Check("speaker", "Start clock anyway is offered", buttonVisible("Start clock anyway"))));
+
+		click(speaker, "vaadin-button:has-text('Start clock anyway')", "Speaker clicks Start clock anyway");
+		pause(1500);
+		step("Speaker: Start clock anyway",
+		        "The incomplete jury vote is discarded and no jury decision is entered. The referees' " + liftDecision
+		                + " stands. The next athlete's clock is running; the jury lights are cleared and Jury Control "
+		                + "is back to Deliberation / Challenge.",
+		        List.of(new Check("speaker", "the pending-jury dialog is closed",
+		                "!(" + dialogContains("jury has not finished voting") + ")"),
+		                new Check("jury", "Deliberation and Challenge are offered",
+		                        buttonVisible("Jury Deliberation") + " && " + buttonVisible("Challenge")),
+		                new Check("attempt", "no jury decision was shown",
+		                        "!document.body.innerText.includes('JURY REVERSAL') && "
+		                                + "!document.body.innerText.includes('JURY CONFIRMATION')")));
 	}
 
 	private void runPanelReview(String athlete) throws Exception {
