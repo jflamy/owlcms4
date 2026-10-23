@@ -51,15 +51,17 @@ The same conventions are used as for the refereeing keypads.  You can use the sa
 
 > If you intend to build a jury chair keypad, you might want to consider the Arduino-based [button-only jury box](../060-Refereeing/020-Jury#button-only-jury-box) since you are likely going to use identical hardware and you can avoid having to do the programming yourself.
 
-An additional keypad can be connected to the Jury console, which would typically be operated by the Jury chair.  This keypad also works using keyboard shortcuts.
+An additional keypad can be connected to the Jury Control computer, which would typically be operated by the Jury Chair.  This keypad also works using keyboard shortcuts.
 
-In order to support a jury console keypad, the following shortcuts are bound.  Depending on how your device behaves, you may have to send either the lowercase letter or the uppercase letter, <u>please try both</u> !
+The following shortcuts are bound.  Depending on how your device behaves, you may have to send either the lowercase letter or the uppercase letter, <u>please try both</u> !  The keys are the same as in previous versions; what some of them do depends on whether a review (deliberation or challenge) is in progress.
 
-- "d" opens the deliberation dialog and starts a jury break (`KeyD` event code)
-- "g" to indicate a good lift  (`KeyG` event code)
-- "b" to indicate a bad lift  (`KeyB` event code)
-- "c" to call the technical controller (ex: for a loading error where the athlete will need to make a decision) (`KeyC` event code)
-- "t" to start a technical break if the Jury spots a technical issue (`KeyT` event code.)  The process is the same as for a deliberation. "c" can be used to call the controller, and "Escape" ends the technical pause.
-- "h", "i", "j" and "k".  Call referee 1, referee 2, referee 3 and all referees.
-- "Escape" to close the dialog and ends the jury break (`Escape` event code)
+- "d" starts a jury deliberation (`KeyD` event code)
+- "c" starts a challenge; during a review, calls the technical controller (ex: for a loading error where the athlete will need to make a decision) (`KeyC` event code)
+- "t" starts a technical break if the Jury spots a technical issue (`KeyT` event code.)
+- "h", "i", "j" call referee 1, referee 2, referee 3 to the jury table.
+- "k" calls all referees.  During a seven-person Adjudication Panel review (`7personAdjudication` with video playback), it is **Call for Votes**: the votes are cleared and the seven officials vote again.  In the other reviews it calls the referees to the jury table.
+- "g" and "b", during a review: the Jury Chair gives a good lift or a bad lift (`KeyG`, `KeyB` event codes).  "b" opens the technical rule selection on Jury Control, and the decision is applied once the rule is chosen.
+- "Escape" ends the jury break (`Escape` event code).  It is not needed once a decision has been given: lifting resumes by itself.
+
+Jury Control has no keys for the jury vote confirmation (Confirm Good Lift, the technical rule, Cancel vote result): these are chosen on the screen.
 

@@ -912,16 +912,45 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			// the digit shortcuts used by USB jury keypads remain
 			return;
 		}
+		// the keys of the Jury Chair keypads documented for the Jury Console are kept; what they do depends on the
+		// phase, as the Console's deliberation dialog did: see docs/100-AdvancedTopics/180-Keypads.md
 		registerShortcut(this::startDeliberation, Key.KEY_D);
-		registerShortcut(this::startChallenge, Key.KEY_C);
+		registerShortcut(() -> {
+			if (isReviewInProgress()) {
+				// during a review "c" calls the Technical Controller (loading error...)
+				summonReferee(4);
+			} else {
+				startChallenge();
+			}
+		}, Key.KEY_C);
 		registerShortcut(this::startTechnicalBreak, Key.KEY_T);
 		registerShortcut(() -> summonReferee(1), Key.KEY_H);
 		registerShortcut(() -> summonReferee(2), Key.KEY_I);
 		registerShortcut(() -> summonReferee(3), Key.KEY_J);
+		// Summon All: the FOP makes it Call for Votes when the vote is called that way
 		registerShortcut(() -> summonReferee(0), Key.KEY_K);
-		if (this.panelMode && !this.boxMode) {
-			registerShortcut(this::callForVotes, Key.KEY_V);
-		}
+		// the Chair's decision during a review; "b" asks for the rule like the No Lift button
+		registerShortcut(() -> {
+			if (isReviewInProgress()) {
+				submitJuryDecision(true, null, true);
+			}
+		}, Key.KEY_G);
+		registerShortcut(() -> {
+			if (isReviewInProgress()) {
+				chairNoLift();
+			}
+		}, Key.KEY_B);
+		// Escape ends the jury break, as it closed the Console's deliberation dialog
+		registerShortcut(() -> {
+			if (isReviewInProgress()) {
+				resumeCompetition();
+			}
+		}, Key.ESCAPE);
+	}
+
+	private boolean isReviewInProgress() {
+		FieldOfPlay fop = getFop();
+		return isJuryDecisionActive(fop);
 	}
 
 	private void syncWithFopState(FieldOfPlay fop) {
