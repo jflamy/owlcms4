@@ -1518,7 +1518,9 @@ public class BaseResults extends LitTemplate
 
 	protected void updateDisplay(String liftType, FieldOfPlay fop) {
 		if (fop == null || liftType == null) {
-			this.logger.error("updateDisplay: fop is null or liftType is null");
+			if (fop == null || fop.getGroup() != null) {
+				this.logger.error("updateDisplay: fop is null or liftType is null");
+			}
 			doEmpty();
 			return;
 		}
@@ -1598,8 +1600,14 @@ public class BaseResults extends LitTemplate
 		if (fop == null) {
 			return;
 		}
-		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
 		Group group = fop.getGroup();
+		if (group == null) {
+			// a break can still be running after the session is deselected; nothing to show
+			this.getElement().setProperty("mode", BoardMode.WAIT.name());
+			this.getElement().setProperty("breakType", (String) null);
+		} else {
+			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
+		}
 		String description = null;
 		if (group != null) {
 			description = getNormalizedGroupDescription(group);
