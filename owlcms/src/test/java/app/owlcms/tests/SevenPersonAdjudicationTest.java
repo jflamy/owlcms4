@@ -945,6 +945,23 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
+	public void summonCueEndsOnceTheJuryHasDecided() {
+		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		setSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, false);
+		this.fop.setJurySize(3);
+		lift(W, W, R);
+		juryVotes(R, R, R);
+		assertTrue("unanimous jury against the referees: Jury Control prompts the Chair",
+		        this.fop.isJuryVoteAgainstReferees());
+		post(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		juryVotes(R, R, R);
+		// the Speaker enters the decision relayed by the Technical Controller
+		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, false));
+		awaitVerdict();
+		assertFalse("the jury has decided: no more prompt", this.fop.isJuryVoteAgainstReferees());
+	}
+
+	@Test
 	public void threeMemberJurySplitVoteLeavesTheRefereesDecision() {
 		juryDeliberation(3, W, W, W);
 		juryVotes(R, R, W);

@@ -1541,15 +1541,16 @@ public class FieldOfPlay implements IUnregister {
 
 	/**
 	 * Without the seven-person panel: the jury votes on the lift, counted with the jury's rule (unanimity, or majority
-	 * for a 5-member jury with VPT), would reverse the referees. Jury Control uses it to prompt the Chair.
+	 * for a 5-member jury with VPT), would reverse the current decision on the lift (the referees', or the jury's once
+	 * it has decided, so the cue ends with the decision). Jury Control uses it to prompt the Chair.
 	 */
 	public boolean isJuryVoteAgainstReferees() {
 		if (isPanelProcedure() || !hasJuryReviewVote()) {
 			return false;
 		}
 		Boolean verdict = computeCurrentJuryVerdict(getJurySize());
-		Boolean refereeMajority = refereeMajority(getRefereeDecision());
-		return verdict != null && refereeMajority != null && !verdict.equals(refereeMajority);
+		Boolean current = getGoodLift();
+		return verdict != null && current != null && !verdict.equals(current);
 	}
 
 	private void doReviewRefereeVote(DecisionUpdate e) {
