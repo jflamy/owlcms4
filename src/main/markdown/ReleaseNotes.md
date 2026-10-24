@@ -10,9 +10,16 @@
 
 **Maintenance Log**
 
+- 68.0.4: Fixed decisions being ignored after reloading the session while a decision was shown: the platform stayed stuck and refused to start the clock until the session was unloaded.
+  - Reloading the session while the clock is running or a decision is in progress now asks for confirmation (Cancel is the default). Confirming stops the clock, clears the decision, and lifting must be restarted.
+  - Editing a platform no longer reloads its current session
+
 - 68.0.4: Updated the age groups files included in the distribution to use the 2026 bodyweight categories
   - Official source for RU
   - Computed mapping for DE, FFH and FHQ. For categories lower than U17, check with federation values before using.
+  - FHQ: U13 is now U12 (ages 11–12), qualifying totals were removed, and age-only masters groups A30 to A85 (single 999 category, QMasters scoring) were added.
+
+- 68.0.4: Fixed selecting a session immediately after unselecting one, which was sometimes ignored.
 
 - 68.0.3: Fixed scoreboards when the session is unselected during a break or the introduction of athletes: the scoreboard now shows the waiting screen instead of the previous session, or "undefined" when the scoreboard was reloaded.
 
