@@ -532,7 +532,7 @@ public class CompetitionEditingFormFactory
 		layout.setColspan(title, 2);
 
 		ComboBox<Integer> jurySizeField = new ComboBox<>();
-		jurySizeField.setItems(0, 3, 5);
+		jurySizeField.setItems(0, 3, 4, 5);
 		layout.addFormItem(jurySizeField,
 		        Translator.translate("Competition.jurySize"));
 		this.binder.forField(jurySizeField)

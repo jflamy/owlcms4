@@ -10,10 +10,13 @@
 
 **New in Release 69.0**
 
-- 69.0.0: IWF TCRR 2026 seven-person Adjudication Panel (3 referees + 4 jury members), enabled by the `7personAdjudication` feature switch with Video Playback Technology in use.
+- 69.0.0: owlcms can start directly from a database export with the `OWLCMS_LOADJSON` environment variable (a JSON or ZIP export, in either export format).
+  - The database is replaced by the export before the server opens; a failed import stops the application rather than starting with an empty or partial database.
+
+- 69.0.0: IWF TCRR 2026 seven-person Adjudication Panel (3 referees + 4 jury members), selected with jury size 4 and Video Playback Technology in use.
   - When the combined majority is opposite to the referees, the competition stops automatically with "Adjudication Panel Review"; a 2-2 jury leaves the referees' decision in place. A Challenge follows the same procedure.
   - The Jury Chair uses Call for Votes (Jury Control, or Summon All on the jury box) to have the seven officials vote again. The result waits for the Jury Chair: Confirm Good Lift, the technical rule for a No Lift, or Cancel vote result to vote again.
-  - Without video playback, the four-member jury deliberates at the Chair's request and overturns the referees only when unanimous (`automaticBreakNoVPT` stops the competition automatically instead).
+  - With jury size 4 and no video playback, the jury deliberates at the Chair's request and overturns the referees only when unanimous (`automaticBreakNoVPT` stops the competition automatically instead).
 
 - 69.0.0: Jury deliberations with 3- and 5-member juries follow prior TCRR.
 
@@ -29,17 +32,12 @@
 
 - 69.0.0: Event forwarding keys are securely encrypted in JSON database exports.
 
-- 69.0.0: owlcms can start directly from a database export with the `OWLCMS_LOADJSON` environment variable (a JSON or ZIP export, in either export format).
-  - The database is replaced by the export before the server opens; a failed import stops the application rather than starting with an empty or partial database.
-
 - 69.0.0: The H2 database can no longer be opened by other programs while owlcms is running.
   - The `H2ServerPort` / `OWLCMS_H2SERVERPORT` setting is removed. H2 database URLs must be `jdbc:h2:file:` or named `jdbc:h2:mem:`; server URLs and options such as `AUTO_SERVER`, `FILE_LOCK` and `INIT` are rejected at startup.
 
 - 69.0.0: VFE team reports flag category and team-size violations.
 
 - 69.0.0: Session selectors distinguish completed and upcoming sessions, with ordering appropriate to registration, weigh-in, and results.
-
-- 69.0.0: Speaker dialogs during a jury review: "Waiting for decision" when the review starts, then the decision with its technical rule to announce; a decision given with the Good Lift / No Lift buttons rather than by the vote is marked "Jury Chair Entered Decision". Lifting resumes by itself once the decision is shown.
 
 - 69.0.0: Attempt boards and scoreboards show the referee decisions as rectangles and the jury votes as circles during a jury review.
   - Jury votes appear on the attempt boards with the `juryDecisionsOnAttemptBoard` feature switch (or the `showJuryDecisions` page parameter) and on the scoreboards with the new `juryDecisionsOnScoreboard` feature switch; the `decisionSectionShowBothJuryVotes` switch is removed. When off, only the decision is shown.

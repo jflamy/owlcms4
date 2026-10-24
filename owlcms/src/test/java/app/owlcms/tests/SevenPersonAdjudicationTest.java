@@ -93,7 +93,6 @@ public class SevenPersonAdjudicationTest {
 			return null;
 		});
 		AthleteRepository.resetParticipations(false, true);
-		setSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, true);
 		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, false);
 		setSwitch(FeatureSwitch.SHOW_DECISIONS_IMMEDIATELY, false);
 		Competition.getCurrent().setVideoPlaybackTechnology(true);
@@ -102,6 +101,7 @@ public class SevenPersonAdjudicationTest {
 		        new MockCountdownTimer());
 		OwlcmsSession.setFop(this.fop);
 		this.fop.setPlatform(new Platform());
+		this.fop.setJurySize(4);
 		startSessionWithOneAthlete();
 		this.recorder = new Recorder();
 		this.fop.getUiEventBus().register(this.recorder);
@@ -109,7 +109,6 @@ public class SevenPersonAdjudicationTest {
 
 	@After
 	public void restoreSettings() {
-		setSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, false);
 		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, false);
 		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, false);
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
@@ -118,11 +117,27 @@ public class SevenPersonAdjudicationTest {
 	// ---------------------------------------------------------------- configuration
 
 	@Test
-	public void switchGivesAFourMemberJury() {
+	public void jurySizeFourWithVideoUsesThePanelProcedure() {
 		assertEquals(4, this.fop.getJurySize());
+		assertTrue(this.fop.isFourMemberJury());
 		assertTrue(this.fop.isPanelProcedure());
-		setSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, false);
+		this.fop.setJurySize(3);
+		assertFalse(this.fop.isFourMemberJury());
 		assertFalse(this.fop.isPanelProcedure());
+	}
+
+	@Test
+	public void competitionAndPlatformAcceptJurySizeFour() {
+		Integer original = Competition.getCurrent().getJurySize();
+		try {
+			Competition.getCurrent().setJurySize(4);
+			assertEquals(Integer.valueOf(4), Competition.getCurrent().getJurySize());
+			Platform platform = new Platform();
+			platform.setJurySize(4);
+			assertEquals(Integer.valueOf(4), platform.getJurySize());
+		} finally {
+			Competition.getCurrent().setJurySize(original);
+		}
 	}
 
 	@Test
@@ -238,7 +253,6 @@ public class SevenPersonAdjudicationTest {
 
 	@Test
 	public void threeMemberJuryWithVideoBlocksTheNextClockUntilAllHaveVoted() {
-		setSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, false);
 		this.fop.setJurySize(3);
 		assertTrue(Competition.getCurrent().isVideoPlaybackTechnology());
 		lift(W, W, R);
@@ -257,7 +271,6 @@ public class SevenPersonAdjudicationTest {
 
 	@Test
 	public void fiveMemberJuryStartClockAnywayLeavesTheRefereesDecision() {
-		setSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, false);
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
 		this.fop.setJurySize(5);
 		lift(W, W, R);
@@ -276,7 +289,6 @@ public class SevenPersonAdjudicationTest {
 
 	@Test
 	public void fiveMemberJuryReleasesTheNextClockWhenTheLastJurorVotes() {
-		setSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, false);
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
 		this.fop.setJurySize(5);
 		lift(W, W, R);
@@ -294,7 +306,6 @@ public class SevenPersonAdjudicationTest {
 
 	@Test
 	public void chairDecisionReleasesAnIncompleteThreeMemberJuryVote() {
-		setSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, false);
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
 		this.fop.setJurySize(3);
 		lift(W, W, R);
@@ -310,7 +321,6 @@ public class SevenPersonAdjudicationTest {
 
 	@Test
 	public void threeMemberJuryDecisionStaysVisibleWhenJuryVotesAreShown() {
-		setSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, false);
 		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, true);
 		this.fop.setJurySize(3);
 		lift(W, W, R);
@@ -1039,7 +1049,6 @@ public class SevenPersonAdjudicationTest {
 	@Test
 	public void summonCueEndsOnceTheJuryHasDecided() {
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
-		setSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, false);
 		this.fop.setJurySize(3);
 		lift(W, W, R);
 		juryVotes(R, R, R);
@@ -1229,7 +1238,6 @@ public class SevenPersonAdjudicationTest {
 
 	/** seven-person procedure off, a lift followed by a manual jury deliberation */
 	private void juryDeliberation(int jurySize, boolean... refereeVotes) {
-		setSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, false);
 		this.fop.setJurySize(jurySize);
 		assertFalse(this.fop.isPanelProcedure());
 		lift(refereeVotes);

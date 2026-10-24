@@ -1,6 +1,6 @@
 The jury is operated from the **Jury Control** page.  The jury members vote with keypads or with MQTT devices (see [Jury Devices](#jury-devices) below); the Jury Chair uses the Jury Control page, or a jury box, to start a deliberation, call the referees, and give the decision.
 
-Jury Control is started from the "Run Lifting Group" page (or from the "Referees and Jury" page).
+Jury Control is started from the "Run Lifting Session" page.
 
 ![010_Ref](img/020-Jury/010_Ref.png)
 
@@ -10,9 +10,9 @@ owlcms supports the jury of the IWF 2026 Technical and Competition Rules and Reg
 
 | Jury | Setting | Review |
 | ---- | ------- | ------ |
-| **4 members, Video Playback Technology** (TCRR 2026) | Feature switch `7personAdjudication` on, "Video Playback Technology" checked in the Competition Rules | The seven-person **Adjudication Panel**: the 3 referees and the 4 jury members vote again on the video replay; the majority of the seven decides. |
-| **4 members, no video playback** | `7personAdjudication` on, Video Playback Technology not checked | The jury deliberates at the Chair's request, and overturns the referees only when the 4 jury members are unanimous. |
-| **3 or 5 members** (prior TCRR) | `7personAdjudication` off; the number of jury members is selected at the top right of Jury Control (the competition default is set in the Competition Rules) | The jury deliberates at the Chair's request, and overturns the referees only when unanimous (a 5-member jury with video playback uses the majority). |
+| **4 members, Video Playback Technology** (TCRR 2026) | Jury size 4; "Video Playback Technology" checked in the Competition Rules | The seven-person **Adjudication Panel**: the 3 referees and the 4 jury members vote again on the video replay; the majority of the seven decides. |
+| **4 members, no video playback** | Jury size 4; Video Playback Technology not checked | The jury deliberates at the Chair's request, and overturns the referees only when the 4 jury members are unanimous. |
+| **3 or 5 members** (prior TCRR) | Jury size 3 or 5 | The jury deliberates at the Chair's request, and overturns the referees only when unanimous (a 5-member jury with video playback uses the majority). |
 
 ## Jury Control
 
@@ -27,7 +27,7 @@ With any configured jury (3, 4 or 5 members), the next athlete's clock cannot st
 
 ## Seven-Person Adjudication Panel (TCRR 2026)
 
-With `7personAdjudication` and video playback, the four jury members vote on every lift, as the referees do.  When jury decisions are enabled on the attempt board, the decision stays there until the four jury votes are in.
+With jury size 4 and video playback, the four jury members vote on every lift, as the referees do.  When jury decisions are enabled on the attempt board, the decision stays there until the four jury votes are in.
 
 - If the combined majority of the seven officials agrees with the referees, the competition goes on.  A 2-2 jury leaves the referees' decision in place.
 - If the combined majority is opposite to the referees, the competition **stops automatically** with an "Adjudication Panel Review".  The referees are called to the jury table to watch the video replay, and the votes on the lift stay displayed on Jury Control and on the boards.
@@ -64,9 +64,9 @@ If the vote cannot take place (for example, a jury device does not work), the Ju
 
 ![300_Speaker_chairEntered](img/020-Jury/300_Speaker_chairEntered.png)
 
-## Juries of 3, 4 (no video) and 5 Members
+## Juries of 4 (no VPT), 3 and 5 Members
 
-There is no automatic stop.  When the jury's votes on the lift would overturn the referees, the **Summon Referees** button turns orange to prompt the Chair.
+There is no automatic stop.  When the jury's votes on the lift would overturn the referees, the **Summon Referees** button turns orange to remind the chair to call the referees for discussion.
 
 ![200_Jury3_prompt](img/020-Jury/200_Jury3_prompt.png)
 

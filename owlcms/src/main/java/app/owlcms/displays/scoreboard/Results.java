@@ -323,7 +323,7 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 			// Same rule as the StartLifting handler: a four-member jury verdict stays until the review timeout. This
 			// re-sync runs on every StartLifting and SwitchGroup, so it must not undo the lingering verdict.
 			this.decisionBlock.onStartLifting(fop.getState() == FOPState.CURRENT_ATHLETE_DISPLAYED
-			        && fop.isSevenPersonAdjudication());
+			        && fop.isFourMemberJury());
 		}
 	}
 
@@ -699,7 +699,7 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		}
 		FieldOfPlay fop = getFop();
 		// four-member jury: the verdict stays until the review timeout (or an earlier clock start, Resume, break)
-		this.decisionBlock.onStartLifting(fop != null && fop.isSevenPersonAdjudication());
+		this.decisionBlock.onStartLifting(fop != null && fop.isFourMemberJury());
 	}
 
 	/** An explicit Resume (Jury Control or jury box) cleared the jury cycle. */

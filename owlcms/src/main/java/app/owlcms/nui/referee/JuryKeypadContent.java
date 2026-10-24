@@ -366,10 +366,10 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		return fopSelect;
 	}
 
-	/** Default / 0 / 3 / 5 jury member selection; rebuilds the keypad when changed. */
+	/** Default / 0 / 3 / 4 / 5 jury member selection; rebuilds the keypad when changed. */
 	private Select<Integer> createJurySizeSelect() {
 		Select<Integer> jurySizeSelect = new Select<>();
-		jurySizeSelect.setItems(0, 3, 5);
+		jurySizeSelect.setItems(0, 3, 4, 5);
 		jurySizeSelect.setEmptySelectionAllowed(true);
 		jurySizeSelect.setEmptySelectionCaption(
 		        Translator.translate("Competition") + " (" + Competition.getCurrent().getJurySize() + ")");
@@ -535,10 +535,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			}
 		});
 		toolbar.add(title, fopSelect);
-		// the jury size is derived (4) when the seven-person adjudication panel is in use
-		if (!Config.getCurrent().featureSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION)) {
-			toolbar.add(createJurySizeSelect());
-		}
+		toolbar.add(createJurySizeSelect());
 		toolbar.expand(title);
 		toolbar.getStyle().set("grid-column", "1 / -1").set("grid-row", "1");
 

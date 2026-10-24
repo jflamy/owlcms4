@@ -59,9 +59,8 @@ The following shortcuts are bound.  Depending on how your device behaves, you ma
 - "c" starts a challenge; during a review, calls the technical controller (ex: for a loading error where the athlete will need to make a decision) (`KeyC` event code)
 - "t" starts a technical break if the Jury spots a technical issue (`KeyT` event code.)
 - "h", "i", "j" call referee 1, referee 2, referee 3 to the jury table.
-- "k" calls all referees.  During a seven-person Adjudication Panel review (`7personAdjudication` with video playback), it is **Call for Votes**: the votes are cleared and the seven officials vote again.  In the other reviews it calls the referees to the jury table.
+- "k" calls all referees.  During a seven-person Adjudication Panel review (jury size 4 with video playback), it is **Call for Votes**: the votes are cleared and the seven officials vote again.  In the other reviews it calls the referees to the jury table.
 - "g" and "b", during a review: the Jury Chair gives a good lift or a bad lift (`KeyG`, `KeyB` event codes).  "b" opens the technical rule selection on Jury Control, and the decision is applied once the rule is chosen.
 - "Escape" ends the jury break (`Escape` event code).  It is not needed once a decision has been given: lifting resumes by itself.
 
 Jury Control has no keys for the jury vote confirmation (Confirm Good Lift, the technical rule, Cancel vote result): these are chosen on the screen.
-

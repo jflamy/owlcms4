@@ -92,24 +92,21 @@ public class JuryScenario {
 
 	/** the jury in use, applied through the settings screens before the scenario */
 	enum Setup {
-		VPT4("four-member jury with VPT (seven-person Adjudication Panel)", true, true, 4),
-		JURY3("three-member jury, no VPT", false, false, 3),
-		JURY4("four-member jury, no VPT (7personAdjudication on, unanimity, manual trigger)", true, false, 4);
+		VPT4("four-member jury with VPT (seven-person Adjudication Panel)", true, 4),
+		JURY3("three-member jury, no VPT", false, 3),
+		JURY4("four-member jury, no VPT (unanimity, manual trigger)", false, 4);
 
 		final String description;
-		/** the 7personAdjudication switch: four-member jury */
-		final boolean sevenPerson;
 		final boolean vpt;
 		final int jurors;
-		/** the seven-person Adjudication Panel procedure: switch on and VPT */
+		/** the seven-person Adjudication Panel procedure: four-member jury and VPT */
 		final boolean panel;
 
-		Setup(String description, boolean sevenPerson, boolean vpt, int jurors) {
+		Setup(String description, boolean vpt, int jurors) {
 			this.description = description;
-			this.sevenPerson = sevenPerson;
 			this.vpt = vpt;
 			this.jurors = jurors;
-			this.panel = sevenPerson && vpt;
+			this.panel = jurors == 4 && vpt;
 		}
 	}
 
@@ -614,7 +611,7 @@ public class JuryScenario {
 		}
 		pause(4000);
 		step("Referees: " + refsText, liftDecision + " (" + refsText + ") on all boards; " + n + " empty jury "
-		        + "circles on the boards." + (sc.setup().sevenPerson ? " The four-member jury holds the decision on the "
+		        + "circles on the boards." + (n == 4 ? " The four-member jury holds the decision on the "
 		                + "boards until its votes are in." : ""), List.of());
 
 		for (int j = 1; j < n; j++) {
@@ -988,13 +985,12 @@ public class JuryScenario {
 
 	/**
 	 * Apply the jury setup through the settings screens, then reload the pages (the Jury Control layout depends on the
-	 * jury). Without the seven-person panel the number of jurors is chosen on Jury Control.
+	 * jury). The jury size is always selected on Jury Control.
 	 */
 	private void configure(Page page, Setup setup) {
 		// nothing is assumed about the database: every setting the scenario depends on is set, then read back
 		List<Check> checks = new ArrayList<>();
 		Map<String, Boolean> switches = new LinkedHashMap<>();
-		switches.put("7personAdjudication", setup.sevenPerson);
 		switches.put("automaticBreakNoVPT", false);
 		switches.put("juryDecisionsOnAttemptBoard", true);
 		switches.put("juryDecisionsOnScoreboard", true);
@@ -1017,26 +1013,16 @@ public class JuryScenario {
 		page.waitForLoadState(LoadState.NETWORKIDLE);
 		checks.add(readBack("Competition Rules: Video Playback Technology " + (setup.vpt ? "in use" : "not in use"),
 		        isChecked(vptBox(page)) == setup.vpt));
-		action("Features: 7personAdjudication " + (setup.sevenPerson ? "on" : "off")
-		        + ", automaticBreakNoVPT off, juryDecisionsOnAttemptBoard on, juryDecisionsOnScoreboard on");
+		action("Features: automaticBreakNoVPT off, juryDecisionsOnAttemptBoard on, juryDecisionsOnScoreboard on");
 		action("Competition Rules: Video Playback Technology " + (setup.vpt ? "in use" : "not in use"));
 
 		Page jury = this.pages.get("jury");
 		jury.reload();
 		jury.waitForLoadState(LoadState.NETWORKIDLE);
-		if (!setup.sevenPerson) {
-			setJurySize(jury, setup.jurors);
-		}
-		// what Jury Control shows also reflects the startup feature switches (OWLCMS_FEATURESWITCHES)
-		if (setup.sevenPerson) {
-			checks.add(new Check("jury", "7personAdjudication in effect (four jurors): Jury Control has no jury size "
-			        + "selection",
-			        "!document.querySelector('vaadin-select')"));
-		} else {
-			String shown = jurySizeShown(jury);
-			checks.add(readBack(setup.jurors + " jurors selected on Jury Control (shows \"" + shown + "\")",
-			        shown.equals(String.valueOf(setup.jurors))));
-		}
+		setJurySize(jury, setup.jurors);
+		String shown = jurySizeShown(jury);
+		checks.add(readBack(setup.jurors + " jurors selected on Jury Control (shows \"" + shown + "\")",
+		        shown.equals(String.valueOf(setup.jurors))));
 		this.setupChecks = List.copyOf(checks);
 		// the boards read the number of jurors when they load
 		for (Page p : this.pages.values()) {

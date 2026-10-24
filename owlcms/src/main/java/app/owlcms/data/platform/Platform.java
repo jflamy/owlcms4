@@ -681,7 +681,9 @@ public class Platform implements Serializable, Comparable<Platform> {
 	}
 
 	public void setJurySize(Integer jurySize) {
-		this.jurySize = jurySize != null && (jurySize == 0 || jurySize == 3 || jurySize == 5) ? jurySize : null;
+		this.jurySize = jurySize != null && (jurySize == 0 || jurySize == 3 || jurySize == 4 || jurySize == 5)
+		        ? jurySize
+		        : null;
 	}
 
 	/**

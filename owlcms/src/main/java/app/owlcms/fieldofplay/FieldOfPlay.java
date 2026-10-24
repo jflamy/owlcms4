@@ -1044,7 +1044,7 @@ public class FieldOfPlay implements IUnregister {
 			return;
 		}
 
-		if (e instanceof TimeStarted && isSevenPersonAdjudication() && isJuryDecisionCardShown()) {
+		if (e instanceof TimeStarted && isFourMemberJury() && isJuryDecisionCardShown()) {
 			// four-member jury: the attempt boards still show the jury decision card
 			this.logger.info("{}clock start refused, jury decision is being shown",
 			        FieldOfPlay.getLoggingName(this));
@@ -1865,20 +1865,17 @@ public class FieldOfPlay implements IUnregister {
 		return this.useCollarsIfAvailable;
 	}
 
-	/**
-	 * @return true if the seven-person Adjudication Panel (3 referees, 4 jury members) is in use
-	 */
-	public boolean isSevenPersonAdjudication() {
-		return Config.getCurrent().featureSwitch(FeatureSwitch.SEVEN_PERSON_ADJUDICATION);
+	/** @return true when the configured jury has four members */
+	public boolean isFourMemberJury() {
+		return getJurySize() == AdjudicationPanel.NB_JURORS;
 	}
 
 	/**
-	 * @return true when the seven-person Adjudication Panel procedure applies (switch on and Video Playback
-	 *         Technology in use). With the switch on and no VPT, the four-member jury needs unanimity (7.5.8) and
-	 *         the legacy jury behaviour applies.
+	 * @return true when the seven-person Adjudication Panel procedure applies (four-member jury and Video Playback
+	 *         Technology in use). Without VPT, the four-member jury needs unanimity (7.5.8).
 	 */
 	public boolean isPanelProcedure() {
-		return isSevenPersonAdjudication() && Competition.getCurrent().isVideoPlaybackTechnology();
+		return isFourMemberJury() && Competition.getCurrent().isVideoPlaybackTechnology();
 	}
 
 	/**
@@ -2000,19 +1997,13 @@ public class FieldOfPlay implements IUnregister {
 		this.panelReviewInitialVotes = any ? votes : null;
 	}
 
-	/**
-	 * @return the number of jury members; 4 when the seven-person Adjudication Panel is in use (the stored 0/3/5
-	 *         setting is ignored), otherwise the platform or competition setting.
-	 */
+	/** @return the configured number of jury members */
 	public int getJurySize() {
-		if (isSevenPersonAdjudication()) {
-			return AdjudicationPanel.NB_JURORS;
-		}
 		Platform p = getPlatform();
 		return p != null ? p.getEffectiveJurySize() : Competition.getCurrent().getJurySize();
 	}
 
-	/** @param jurySize 0, 3 or 5; null to use the competition default */
+	/** @param jurySize 0, 3, 4 or 5; null to use the competition default */
 	public void setJurySize(Integer jurySize) {
 		Platform p = getPlatform();
 		if (p == null) {
@@ -2863,7 +2854,7 @@ public class FieldOfPlay implements IUnregister {
 			setGoodLift(e.success);
 			setState(DECISION_VISIBLE);
 			this.juryDecisionShown = true;
-			if (isSevenPersonAdjudication()) {
+			if (isFourMemberJury()) {
 				this.juryDecisionCardVisibleUntil = System.currentTimeMillis() + JURY_DECISION_CARD_MS;
 			}
 			this.logger.info("{}jury decision {} for {}{}", FieldOfPlay.getLoggingName(this),

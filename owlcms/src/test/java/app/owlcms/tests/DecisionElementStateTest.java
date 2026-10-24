@@ -90,7 +90,6 @@ public class DecisionElementStateTest {
         AthleteRepository.resetParticipations(false, true);
         this.athletes = AthleteRepository.findAll();
         setJuryDecisionsOnAttemptBoard(false);
-        setSevenPersonAdjudication(false);
     }
 
     @Test
@@ -536,22 +535,19 @@ public class DecisionElementStateTest {
     }
 
     @Test
-    public void sevenPersonAdjudicationDerivesJurySizeFour() {
+    public void jurySizeFourSelectsTheFourMemberJury() {
         DecisionScenario scenario = startScenario(false);
         scenario.fopState.setJurySize(3);
         assertEquals(3, scenario.fopState.getJurySize());
-        assertFalse(scenario.fopState.isSevenPersonAdjudication());
+        assertFalse(scenario.fopState.isFourMemberJury());
 
-        setSevenPersonAdjudication(true);
-        try {
-            assertTrue(scenario.fopState.isSevenPersonAdjudication());
-            assertEquals("switch forces a four-member jury", 4, scenario.fopState.getJurySize());
-            scenario.fopState.setJurySize(5);
-            assertEquals("stored size is ignored while the switch is on", 4, scenario.fopState.getJurySize());
-        } finally {
-            setSevenPersonAdjudication(false);
-        }
-        assertEquals("stored size is used again when the switch is off", 5, scenario.fopState.getJurySize());
+        scenario.fopState.setJurySize(4);
+        assertTrue(scenario.fopState.isFourMemberJury());
+        assertEquals(4, scenario.fopState.getJurySize());
+
+        scenario.fopState.setJurySize(5);
+        assertFalse(scenario.fopState.isFourMemberJury());
+        assertEquals(5, scenario.fopState.getJurySize());
     }
 
     @Test
@@ -786,12 +782,6 @@ public class DecisionElementStateTest {
     private void setShowDecisionsImmediately(boolean enabled) {
         Config config = Config.getCurrent();
         config.setFeatureSwitchValue(FeatureSwitch.SHOW_DECISIONS_IMMEDIATELY, enabled);
-        Config.setCurrent(config);
-    }
-
-    private void setSevenPersonAdjudication(boolean enabled) {
-        Config config = Config.getCurrent();
-        config.setFeatureSwitchValue(FeatureSwitch.SEVEN_PERSON_ADJUDICATION, enabled);
         Config.setCurrent(config);
     }
 

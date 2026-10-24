@@ -1224,7 +1224,7 @@ public class Competition {
 
 	public Integer getJurySize() {
 		if (this.jurySize == null || (this.jurySize != 0 && this.jurySize != 3
-		        && this.jurySize != 5)) {
+		        && this.jurySize != 4 && this.jurySize != 5)) {
 			return 0;
 		}
 		return this.jurySize;
@@ -2001,7 +2001,7 @@ public class Competition {
 	}
 
 	public void setJurySize(Integer jurySize) {
-		this.jurySize = jurySize != null && (jurySize == 0 || jurySize == 3 || jurySize == 5)
+		this.jurySize = jurySize != null && (jurySize == 0 || jurySize == 3 || jurySize == 4 || jurySize == 5)
 		        ? jurySize
 		        : 0;
 		FieldOfPlay fop = OwlcmsSession.getFop();

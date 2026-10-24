@@ -90,8 +90,9 @@ decision.
 
 ## Product Decisions (given)
 
-- Enabled by a feature switch, id `7personAdjudication`.
-- The Jury Console is removed entirely, with or without the switch (decided).
+- Selected by jury size 4; Video Playback Technology selects the seven-person panel procedure (on) or the
+  four-member unanimity procedure (off).
+- The Jury Console is removed entirely (decided).
   Jury Control is the only jury page; its bottom indicator row must show the
   seven votes.
 - The referee voting changes need only work with phones and MQTT devices.
@@ -107,7 +108,7 @@ decision.
 | Referee phone | [RefContent.java](../owlcms/src/main/java/app/owlcms/nui/referee/RefContent.java), route `ref` |
 | USB keypads | keyboard events in [DecisionElement.js](../owlcms/src/main/frontend/components/DecisionElement.js) `_readRef` (keys 1–6) |
 | Initial decision | the 3 referee votes, committed by `commitCurrentDecision()` |
-| Adjudication Panel, panel | only the seven-person panel: 3 referees and 4 jurors, `7personAdjudication` on and VPT in use (`FieldOfPlay.isPanelProcedure`). "Panel" is used for nothing else |
+| Adjudication Panel, panel | only the seven-person panel: 3 referees and jury size 4, with VPT in use (`FieldOfPlay.isPanelProcedure`). "Panel" is used for nothing else |
 | Review vote | the vote during a review: the panel vote (7 officials) or the jury vote |
 | Jury vote | the review vote of the jury alone, for every jury that is not the panel (3 members with or without VPT, 4 members without VPT, 5 members). The referees do not vote again; their decision on the lift stays shown on every display while the jurors vote. Code names (`PanelVoteUpdate`, `panelVoteOpen`...) cover both kinds of review vote |
 
@@ -185,13 +186,13 @@ Already partly present:
 | Good/No Lift with reason | dialog | buttons + reason dialog |
 | Athlete grid / lift list | yes | no |
 | Jury keyboard shortcuts (1–0, D, C, T, H–K) | yes | yes |
-| Jury size selector | menu | select `0/3/5` |
+| Jury size selector | menu | select `0/3/4/5` |
 
 ## Gap Analysis
 
 | # | Rule item | Today | Gap |
 |---|---|---|---|
-| G1 | Panel of 3 referees + 4 jurors | Jury size 0/3/5 only | Allow a 4-member jury when the switch is on |
+| G1 | Panel of 3 referees + 4 jurors | Jury size 0/3/5 only | Allow jury size 4 |
 | G2 | 4-of-7 majority | Jury verdict computed on jury votes only | New panel tally combining `refereeDecision` and jury votes |
 | G3 | Automatic stop when panel ≠ referees | Jury must press Deliberation | Automatic review break after the initial decision |
 | G4 | Review: majority of 7 is final | Only the jury votes again | Referees must vote again during the break (phones, MQTT) |
@@ -204,17 +205,12 @@ Already partly present:
 
 ## Proposed Design
 
-### 1. Feature switch and configuration
+### 1. Configuration
 
-- Add `SEVEN_PERSON_ADJUDICATION("7personAdjudication", …)` to
-  [FeatureSwitch.java](../owlcms/src/main/java/app/owlcms/data/config/FeatureSwitch.java).
-  The Java constant cannot start with a digit; the string id can. Section:
-  `SPECIALTY_FEATURES` (or `USE_AT_YOUR_OWN_RISK` while experimental).
-  Translation key `FeatureSwitch.7personAdjudication` goes in a TSV file.
-- Derive the jury size instead of persisting 4: `FieldOfPlay.getJurySize()`
-  returns 4 when the switch is on. This avoids changing the `0/3/5`
-  validators in `Competition` and `Platform` and the database.
-- Jury Control hides the jury size selector when the switch is on.
+- Jury size 4 is persisted like sizes 0, 3 and 5 and is available in the Competition Rules and Jury Control
+  selectors.
+- `FieldOfPlay.isPanelProcedure()` is true when jury size is 4 and Video Playback Technology is in use.
+- The obsolete `7personAdjudication` feature switch is removed.
 - `requireJuryPresidentDecision` is removed (decided 2026-10-22): the Chair
   confirmation of the vote result is always on, for every jury size (sections
   4 and 12).
@@ -594,8 +590,7 @@ MQTT ([MQTTMonitor.java](../owlcms/src/main/java/app/owlcms/monitors/MQTTMonitor
   receives an update for a juror it does not show. Fix in
   `FieldOfPlay.doJuryMemberDecisionUpdate`: drop the event (debug log, no
   state change, no UI event) when `refIndex < 0 || refIndex >= getJurySize()`.
-  This applies to all sources (MQTT, phones, keypads) and to any jury size,
-  not only when `7personAdjudication` is on.
+  This applies to all sources (MQTT, phones, keypads) and to any jury size.
 - Referee voting without a running clock works by design: accepting referee
   decisions when the clock has not been started is an existing safety measure
   (in case the timekeeper forgets to start the clock), so refboxes do not gate
@@ -1261,9 +1256,8 @@ No `MQTTMonitor` test exists. Add one with a stub publisher covering:
 ### 8. Unused translation keys
 
 The design's "Waiting for Votes" screen was not built (the Chair override
-reuses the Deliberation / Challenge buttons instead). Four keys from that
-design are unused in Java but present in `translation4.csv`:
+reuses the Deliberation / Challenge buttons instead). These keys are unused
+in Java but present in `translation4.csv`:
 `JuryKeypad.WaitingForVotes`, `JuryKeypad.ChairOverride`, `JuryKeypad.Recall`,
-`JuryKeypad.RestartVote`. Remove them in the translation tool and from
-[adjudication_translations.tsv](../shared/src/main/resources/i18n/adjudication_translations.tsv)
-if that file is still awaiting import.
+`JuryKeypad.RestartVote`, `FeatureSwitch.7personAdjudication`. Remove them in
+the translation tool.

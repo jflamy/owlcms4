@@ -56,7 +56,7 @@
 - `owlcms/fop/challenge/A`: 
   A challenge has been issued (the application is in BreakType.CHALLENGE mode.)  There is no argument. The device should clear the jury member decision lights in order to allow a secret vote to be taken on a video replay.
 
-- These two messages are **not** published when the votes on the lift are kept displayed for the review: the seven-person Adjudication Panel review (automatic, or a challenge with `7personAdjudication` and video playback), and the automatic stop of a four-member jury without video playback (`automaticBreakNoVPT`).  In these cases the lights are cleared by `resetDecisions` when the Jury Chair calls the vote.
+- These two messages are **not** published when the votes on the lift are kept displayed for the review: the seven-person Adjudication Panel review (automatic, or a challenge with jury size 4 and video playback), and the automatic stop of a four-member jury without video playback (`automaticBreakNoVPT`).  In these cases the lights are cleared by `resetDecisions` when the Jury Chair calls the vote.
   
 
 #### Subscribed by the referee device:
