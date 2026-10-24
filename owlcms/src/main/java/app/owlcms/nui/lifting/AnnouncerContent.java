@@ -50,6 +50,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.SoundParameters;
+import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.components.JXLSDownloader;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.elements.PassiveTimerElement;
@@ -815,17 +816,29 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        (e) -> {
 			        var fop = getFop();
 			        Group group = fop.getGroup();
-			        logger.info("resetting {} from database", group);
-			        // fop.loadGroup(group, this, true);
-			        fop.fopEventPost(new FOPEvent.SwitchGroup(group, this));
-			        syncWithFop(true, fop); // loadgroup does not refresh grid, true=ask for refresh
-			        fop.forceResendCurrentStateToLegacyDisplay();
+			        FOPState state = fop.getState();
+			        if (state == FOPState.INACTIVE || state == FOPState.BREAK
+			                || state == FOPState.CURRENT_ATHLETE_DISPLAYED) {
+				        reloadGroup(fop, group, false);
+			        } else {
+				        new ConfirmationDialog(Translator.translate("ForcedReload.Title"),
+				                Translator.translate("ForcedReload.Question"),
+				                Translator.translate("Announcer.ReloadGroup"), null,
+				                () -> reloadGroup(fop, group, true)).open();
+			        }
 		        });
 		this.reset.getElement().setProperty("title", Translator.translate("Announcer.ReloadGroupTooltip"));
 
 		this.reset.getElement().setAttribute("title", Translator.translate("Reload_group"));
 		this.reset.getElement().setAttribute("theme", "secondary contrast small icon");
 		return this.reset;
+	}
+
+	private void reloadGroup(FieldOfPlay fop, Group group, boolean forced) {
+		logger.info("resetting {} from database (forced={})", group, forced);
+		fop.fopEventPost(new FOPEvent.SwitchGroup(group, this, forced));
+		syncWithFop(true, fop); // loadgroup does not refresh grid, true=ask for refresh
+		fop.forceResendCurrentStateToLegacyDisplay();
 	}
 
 	/**

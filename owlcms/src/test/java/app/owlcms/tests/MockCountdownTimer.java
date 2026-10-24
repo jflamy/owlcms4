@@ -25,6 +25,8 @@ public class MockCountdownTimer implements IBreakTimer, IProxyTimer {
 
     private boolean indefinite;
 
+    private boolean running;
+
     private int timeRemaining;
 
     private int timeRemainingAtLastStop;
@@ -73,7 +75,7 @@ public class MockCountdownTimer implements IBreakTimer, IProxyTimer {
 
     @Override
     public boolean isRunning() {
-        return timeRemaining != 0;
+        return this.running;
     }
 
     @Override
@@ -123,6 +125,7 @@ public class MockCountdownTimer implements IBreakTimer, IProxyTimer {
     public void start() {
         logger.debug("starting Time -- timeRemaining = {} \t[{}]", timeRemaining, LoggerUtils.whereFrom());
         timeRemainingAtLastStop = timeRemaining;
+        this.running = true;
     }
 
     /*
@@ -135,6 +138,7 @@ public class MockCountdownTimer implements IBreakTimer, IProxyTimer {
         logger.debug("starting Time with duration -- timeRemaining = {} \t[{}]", timeRemaining, LoggerUtils.whereFrom());
         this.timeRemaining = timeRemaining;
         this.timeRemainingAtLastStop = timeRemaining;
+        this.running = true;
     }
 
     /*
@@ -147,6 +151,7 @@ public class MockCountdownTimer implements IBreakTimer, IProxyTimer {
         logger.debug("stopping Time -- timeRemaining = {} \t[{}]", timeRemaining, LoggerUtils.whereFrom());
         timeRemaining = (getTimeRemaining() - 2000);
         timeRemainingAtLastStop = timeRemaining;
+        this.running = false;
     }
 
     /*

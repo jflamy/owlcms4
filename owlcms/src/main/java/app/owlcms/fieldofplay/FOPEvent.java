@@ -643,11 +643,17 @@ public class FOPEvent {
 
 	static public class SwitchGroup extends FOPEvent {
 
+		private boolean forced;
 		private Group group;
 
 		public SwitchGroup(Group g, Object origin) {
+			this(g, origin, false);
+		}
+
+		public SwitchGroup(Group g, Object origin, boolean forced) {
 			super(origin);
 			this.group = g;
+			this.forced = forced;
 		}
 
 		@Override
@@ -659,7 +665,7 @@ public class FOPEvent {
 				return false;
 			}
 			SwitchGroup other = (SwitchGroup) obj;
-			return Objects.equals(this.group, other.group);
+			return this.forced == other.forced && Objects.equals(this.group, other.group);
 		}
 
 		public Group getGroup() {
@@ -678,8 +684,15 @@ public class FOPEvent {
 		public int hashCode() {
 			final int prime = 31;
 			int result = super.hashCode();
-			result = prime * result + Objects.hash(this.group);
+			result = prime * result + Objects.hash(this.group, this.forced);
 			return result;
+		}
+
+		/**
+		 * @return true if the reload must unconditionally reset the field of play, even when the group is unchanged.
+		 */
+		public boolean isForced() {
+			return this.forced;
 		}
 
 	}
