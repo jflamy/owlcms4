@@ -28,9 +28,6 @@ import com.vaadin.flow.data.binder.ValidationResult;
 
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
-import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.fieldofplay.FOPEvent;
-import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.i18n.Translator;
 import app.owlcms.monitors.WebSocketEventForwarder;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
@@ -69,12 +66,6 @@ class PlatformEditingFormFactory extends OwlcmsCrudFormFactory<Platform> {
 		// Platform configuration changed (plates, weights) - send updated database to trackers
 		// Always send compressed binary ZIP (70-80% smaller than JSON)
 		WebSocketEventForwarder.sendDatabaseToAll();
-		// Reload session on the FOP to ensure consistency after plate configuration changes
-		// This triggers a full refresh of lifting order with new constraints
-		FieldOfPlay fop = OwlcmsFactory.getFOPByName(saved.getName());
-		if (fop != null && fop.getGroup() != null) {
-			fop.fopEventPost(new FOPEvent.SwitchGroup(fop.getGroup(), this));
-		}
 		return saved;
 	}
 

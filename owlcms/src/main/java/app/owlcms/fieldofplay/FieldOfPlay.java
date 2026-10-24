@@ -323,6 +323,7 @@ public class FieldOfPlay implements IUnregister {
 	private Queue<FOPEvent.WeightChange> deferredWeightChanges = new LinkedList<>();
 	private Athlete nextAthlete;
 	private TimerTask decisionDisplayTimer;
+	private long decisionTaskGeneration;
 	private volatile boolean singleReferee;
 	private Sound finalWarningSound;
 	private Sound initialWarningSound;
@@ -1012,7 +1013,16 @@ public class FieldOfPlay implements IUnregister {
 					newGroup != null ? newGroup.getName() : "null");
 			var orig = e.getOrigin();
 			boolean inBreak = this.state == BREAK || this.state == INACTIVE;
-			if (Objects.equals(oldGroup, newGroup)) {
+			if (Objects.equals(oldGroup, newGroup) && switchGroup.isForced()) {
+				this.logger.info("{}forced reload of group {} from state {}", FieldOfPlay.getLoggingName(this),
+						newGroup != null ? newGroup.getName() : "null", this.state);
+				this.athleteTimer.stop();
+				setState(INACTIVE);
+				invalidatePendingDecisionTasks();
+				loadGroup(newGroup, this, true);
+				pushOutSwitchGroup(orig);
+				uiDisplayCurrentAthleteAndTime(true, e, false);
+			} else if (Objects.equals(oldGroup, newGroup)) {
 				// this.logger.trace("{}reloading", FieldOfPlay.getLoggingName(this));
 				loadGroup(newGroup, this, true);
 				pushOutSwitchGroup(orig);
@@ -4662,23 +4672,61 @@ public class FieldOfPlay implements IUnregister {
 		setDecisionDisplayScheduled(true); // so there are never two scheduled...
 		AuditActor actor = AuditContext.actor();
 		String cause = AuditContext.cause();
+		long generation = this.decisionTaskGeneration;
 		this.decisionDisplayTimer = new DelayTimer(isTestingMode()).schedule(
-				() -> AuditContext.run(actor, cause, () -> showDecisionNow(origin2)), reversalDelay);
+				() -> AuditContext.run(actor, cause, () -> {
+					synchronized (FieldOfPlay.this) {
+						if (generation == this.decisionTaskGeneration) {
+							showDecisionNow(origin2);
+						}
+					}
+				}), reversalDelay);
 	}
 
 	private synchronized void showDecisionVisibleAfterDelay(Object origin2, int displayDelay) {
 		assert !isDecisionDisplayScheduled();
 		setDecisionDisplayScheduled(true);
-		this.decisionDisplayTimer = new DelayTimer(isTestingMode()).schedule(() -> showDecisionVisibleNow(origin2),
-				displayDelay);
+		long generation = this.decisionTaskGeneration;
+		this.decisionDisplayTimer = new DelayTimer(isTestingMode()).schedule(() -> {
+			synchronized (FieldOfPlay.this) {
+				if (generation == this.decisionTaskGeneration) {
+					showDecisionVisibleNow(origin2);
+				}
+			}
+		}, displayDelay);
 	}
 
 	private synchronized void commitDecisionAfterDelay(Object origin2, int reversalDelay) {
 		this.decisionCommitScheduled = true;
 		AuditActor actor = AuditContext.actor();
 		String cause = AuditContext.cause();
+		long generation = this.decisionTaskGeneration;
 		new DelayTimer(isTestingMode()).schedule(
-				() -> AuditContext.run(actor, cause, () -> commitDecisionNow(origin2)), reversalDelay);
+				() -> AuditContext.run(actor, cause, () -> {
+					synchronized (FieldOfPlay.this) {
+						if (generation == this.decisionTaskGeneration) {
+							commitDecisionNow(origin2);
+						}
+					}
+				}), reversalDelay);
+	}
+
+	/**
+	 * Neutralize every scheduled decision-related task so that nothing scheduled before a forced reload can
+	 * show, commit or reset a decision on the reloaded session. Results already saved are kept.
+	 */
+	private synchronized void invalidatePendingDecisionTasks() {
+		this.decisionTaskGeneration++;
+		cancelDecisionReset();
+		if (this.decisionDisplayTimer != null) {
+			this.decisionDisplayTimer.cancel();
+			this.decisionDisplayTimer = null;
+		}
+		cancelWakeUpRef();
+		resetEmittedFlags();
+		this.ignoreDecisionInputsUntil = 0;
+		this.deferredWeightChanges.clear();
+		this.deferredBreak = null;
 	}
 
 	private synchronized void showDecisionVisibleNow(Object origin) {
