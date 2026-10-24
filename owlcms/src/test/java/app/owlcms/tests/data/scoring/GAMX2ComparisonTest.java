@@ -4,8 +4,9 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.data.scoring;
+package app.owlcms.tests.data.scoring;
 
+import app.owlcms.data.scoring.GAMX2;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;

@@ -1,5 +1,6 @@
-package app.owlcms.data.scoring;
+package app.owlcms.tests.data.scoring;
 
+import app.owlcms.data.scoring.GAMX2;
 import static org.junit.Assert.*;
 
 import java.time.LocalDate;

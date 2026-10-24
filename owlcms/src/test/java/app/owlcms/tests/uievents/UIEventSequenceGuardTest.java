@@ -1,5 +1,6 @@
-package app.owlcms.uievents;
+package app.owlcms.tests.uievents;
 
+import app.owlcms.uievents.UIEventSequenceGuard;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
