@@ -1,5 +1,7 @@
-package app.owlcms.data.agegroup;
+package app.owlcms.tests.data.agegroup;
 
+import app.owlcms.data.agegroup.MedalPolicy;
+import app.owlcms.data.agegroup.TeamPointsPolicy;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

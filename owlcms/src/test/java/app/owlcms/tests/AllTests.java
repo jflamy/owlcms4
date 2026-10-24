@@ -24,7 +24,8 @@ import com.googlecode.junittoolbox.WildcardPatternSuite;
 import ch.qos.logback.classic.Logger;
 
 @RunWith(WildcardPatternSuite.class)
-@SuiteClasses({ "**/*Test.class" })
+// tests of package-private code must stay in the package under test, outside app.owlcms.tests
+@SuiteClasses({ "../**/*Test.class" })
 public class AllTests {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AllTests.class);
