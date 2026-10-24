@@ -273,7 +273,7 @@ public class FieldOfPlay implements IUnregister {
 	private String name;
 	private Platform platform = null;
 	private EventBus eventForwardingBus = null;
-	private Integer prevHash;
+	private FOPEvent prevEvent;
 	private boolean auditEventRefused;
 	private int auditEventDepth;
 	private boolean auditLiftBoundary;
@@ -830,8 +830,7 @@ public class FieldOfPlay implements IUnregister {
 			return;
 			// throw new RuntimeException("wrong event subscription");
 		}
-		int newHash = e.hashCode();
-		if (this.prevHash != null && newHash == this.prevHash) {
+		if (e.isDuplicateOf(this.prevEvent)) {
 			this.auditEventSkipped = true;
 			this.logger.debug("{}state {}, DUPLICATE event received {} {} {}", FieldOfPlay.getLoggingName(this),
 					stateName(this.getState()),
@@ -841,7 +840,7 @@ public class FieldOfPlay implements IUnregister {
 			this.logger.info("{}state {}, event received {} from {}", FieldOfPlay.getLoggingName(this),
 					stateName(this.getState()),
 				e.getClass().getSimpleName(), getWhereFrom(stackTrace));
-			this.prevHash = newHash;
+			this.prevEvent = e;
 		}
 
 		if (getState() == BREAK && getBreakType() == BreakType.TEST_BUTTONS) {

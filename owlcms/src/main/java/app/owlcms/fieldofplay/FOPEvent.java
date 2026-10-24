@@ -914,6 +914,21 @@ public class FOPEvent {
 		return Objects.hash(this.athlete, this.origin, this.timestamp, this.getClass());
 	}
 
+	/**
+	 * Hash codes must not be compared for this: the timestamp is folded into the hash, so distinct events created one
+	 * millisecond apart can collide (e.g. unselecting the session and then selecting one).
+	 *
+	 * @return true if this is the previous event, or an equal event created in the same millisecond
+	 */
+	boolean isDuplicateOf(FOPEvent previous) {
+		return previous != null
+		        && (this == previous || (this.timestamp == previous.timestamp && this.equals(previous)));
+	}
+
+	void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
+	}
+
 	public void setAthlete(Athlete athlete) {
 		this.athlete = athlete;
 	}
