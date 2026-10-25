@@ -2,7 +2,7 @@
 
 Status: tracker and plugin implementation complete.
 
-Companion: [Personal Best Records implementation plan](../personal-best-records.md).
+Companion: [Personal Best Records implementation plan](../130-PERSONAL_BEST_RECORDS.md).
 
 No tracker or tracker-core migration remains. Validate these criteria after OWLCMS
 implements Personal `RecordEvent` tracking:

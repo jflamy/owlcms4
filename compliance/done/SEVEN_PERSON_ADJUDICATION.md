@@ -1,12 +1,15 @@
 # Seven-Person Adjudication Panel
 
-Status: **done** (2026-10-23). Implemented and tested for the four-member
+Status: **done** (2026-10-23), archived 2026-10-25. Implemented and tested for the four-member
 jury, with or without VPT, including the Chair confirmation, **Cancel vote
 result**, the No Lift rule request and the Speaker dialogs, and for 3- and
-5-member juries (section 12); Playwright scenarios 1-16 pass. The follow-ups
-(documentation, MQTT tests, device tests, translation keys) are listed under
-[Remaining Work](#remaining-work). The device timeline is in
-[done/phase-b-referee-lights-mqtt.md](done/phase-b-referee-lights-mqtt.md).
+5-member juries (section 12); the recorded Playwright scenarios 1-16 pass.
+Existing Surefire reports checked on 2026-10-25 show 71 adjudication tests and
+10 panel-tally tests passing; no tests were rerun for this documentation cleanup.
+This is a historical design, not an active work list. Earlier descriptions of
+missing behavior and open questions below record the development sequence.
+Optional follow-ups are noted at the end. The device timeline is in
+[phase-b-referee-lights-mqtt.md](phase-b-referee-lights-mqtt.md).
 Scope: field of play decision engine, Jury Control, referee phones, MQTT
 devices, attempt boards and scoreboards, feature switch, translations
 ("Jury Chair"), documentation
@@ -14,7 +17,7 @@ devices, attempt boards and scoreboards, feature switch, translations
 ## Rule Being Analysed
 
 Source: IWF Technical and Competition Rules & Regulations 2026
-([IWF-TCRR-2026.pdf](./IWF-TCRR-2026.pdf), published 19 October 2026): 7.5.3,
+([IWF-TCRR-2026.pdf](../IWF-TCRR-2026.pdf), published 19 October 2026): 7.5.3,
 7.5.7, 7.5.8, 7.5.9, 7.5.10, 7.5.15, 7.5.17, 3.3.7.1, Regulation to 3.3.7
 (items 4, 6, 8 and 9) and Regulation to 7.5 (loading errors).
 
@@ -78,7 +81,7 @@ section 12, shared with 3- and 5-member juries:
 
 The break is titled "Jury Deliberation" (not "Adjudication Panel Review"). The jury behaviour switches
 are listed in
-[phase-b-referee-lights-mqtt.md](done/phase-b-referee-lights-mqtt.md).
+[phase-b-referee-lights-mqtt.md](phase-b-referee-lights-mqtt.md).
 
 Jury members vote on each lift on the Jury Control Unit once the athlete has
 replaced the barbell (7.5.8, TCRR 3.3.6).
@@ -103,10 +106,10 @@ decision.
 | Term | Code |
 |---|---|
 | Jury Console | removed (was `JuryContent`, route `lifting/jury`, label `Jury_Console`) |
-| Jury Control | [JuryKeypadContent.java](../owlcms/src/main/java/app/owlcms/nui/referee/JuryKeypadContent.java), route `jurykeypad`, label `Jury_Keypad` = "Jury Control" |
-| Jury member phone | [JuryMobileContent.java](../owlcms/src/main/java/app/owlcms/nui/referee/JuryMobileContent.java), route `jury` |
-| Referee phone | [RefContent.java](../owlcms/src/main/java/app/owlcms/nui/referee/RefContent.java), route `ref` |
-| USB keypads | keyboard events in [DecisionElement.js](../owlcms/src/main/frontend/components/DecisionElement.js) `_readRef` (keys 1–6) |
+| Jury Control | [JuryKeypadContent.java](../../owlcms/src/main/java/app/owlcms/nui/referee/JuryKeypadContent.java), route `jurykeypad`, label `Jury_Keypad` = "Jury Control" |
+| Jury member phone | [JuryMobileContent.java](../../owlcms/src/main/java/app/owlcms/nui/referee/JuryMobileContent.java), route `jury` |
+| Referee phone | [RefContent.java](../../owlcms/src/main/java/app/owlcms/nui/referee/RefContent.java), route `ref` |
+| USB keypads | keyboard events in [DecisionElement.js](../../owlcms/src/main/frontend/components/DecisionElement.js) `_readRef` (keys 1–6) |
 | Initial decision | the 3 referee votes, committed by `commitCurrentDecision()` |
 | Adjudication Panel, panel | only the seven-person panel: 3 referees and jury size 4, with VPT in use (`FieldOfPlay.isPanelProcedure`). "Panel" is used for nothing else |
 | Review vote | the vote during a review: the panel vote (7 officials) or the jury vote |
@@ -116,7 +119,7 @@ decision.
 
 ### Referee decisions
 
-[FieldOfPlay.java](../owlcms/src/main/java/app/owlcms/fieldofplay/FieldOfPlay.java)
+[FieldOfPlay.java](../../owlcms/src/main/java/app/owlcms/fieldofplay/FieldOfPlay.java)
 
 - `refereeDecision[3]` holds the votes. `processRefereeDecisions` emits the
   down signal at 2 matching votes, and on the third vote schedules the
@@ -163,14 +166,14 @@ decision.
 
 Already partly present:
 
-- [JuryRejectionReasons.java](../owlcms/src/main/java/app/owlcms/uievents/JuryRejectionReasons.java)
+- [JuryRejectionReasons.java](../../owlcms/src/main/java/app/owlcms/uievents/JuryRejectionReasons.java)
   lists 17 reasons (`Jury.incorrect.1..17`).
 - Jury Control opens a reason dialog for No Lift
   (`openNoLiftReasonDialog`) and sends the code in `JuryDecision`.
 - The code reaches the announcer notification
-  ([AthleteGridContent.java](../owlcms/src/main/java/app/owlcms/nui/shared/AthleteGridContent.java)),
+  ([AthleteGridContent.java](../../owlcms/src/main/java/app/owlcms/nui/shared/AthleteGridContent.java)),
   `JuryDecisionDialog`, and the tracker (`juryReasonCode` in
-  [WebSocketEventForwarder.java](../owlcms/src/main/java/app/owlcms/monitors/WebSocketEventForwarder.java)).
+  [WebSocketEventForwarder.java](../../owlcms/src/main/java/app/owlcms/monitors/WebSocketEventForwarder.java)).
 - It is **not** shown on the owlcms attempt board or scoreboards.
 - The automatic jury decision (`scheduleAutoJuryDecision`) sends **no** reason.
 
@@ -288,10 +291,10 @@ voted. Until then, only "voted / not voted" is shown.
      screen that owns the decision for the access mode in use:
      - **Accounts mode** (IWF meets, `Config.isAccountsMode()`): the
        **Competition Supervisor** page
-       ([CompetitionDirectorContent.java](../owlcms/src/main/java/app/owlcms/nui/lifting/CompetitionDirectorContent.java),
+       ([CompetitionDirectorContent.java](../../owlcms/src/main/java/app/owlcms/nui/lifting/CompetitionDirectorContent.java),
        always enabled in that mode);
      - **PIN mode**: the **Speaker** (announcer) page
-       ([AnnouncerContent.java](../owlcms/src/main/java/app/owlcms/nui/lifting/AnnouncerContent.java)).
+       ([AnnouncerContent.java](../../owlcms/src/main/java/app/owlcms/nui/lifting/AnnouncerContent.java)).
      The console that sent the `TimeStarted` (timekeeper, or announcer when it
      is not the deciding screen) gets a notification that the start is pending
      a decision. The Jury Chair is notified on Jury Control.
@@ -545,7 +548,7 @@ OWLCMS issues the referee recall signal (`SummonRef`) **twice** during a review:
    break), OWLCMS re-arms the referee devices and sends the recall signal a
    second time to request their votes.
 
-Phones ([RefContent.java](../owlcms/src/main/java/app/owlcms/nui/referee/RefContent.java)):
+Phones ([RefContent.java](../../owlcms/src/main/java/app/owlcms/nui/referee/RefContent.java)):
 
 - On the review-vote call: `resetRefVote()` (re-enables the white button,
   which `slaveDecision` disables), then the same beep as `slaveSummonRef`. Show
@@ -557,7 +560,7 @@ Phones ([RefContent.java](../owlcms/src/main/java/app/owlcms/nui/referee/RefCont
 - `doRed`/`doWhite` already post `DecisionUpdate`; FOP routing (section 4) does
   the rest.
 
-MQTT ([MQTTMonitor.java](../owlcms/src/main/java/app/owlcms/monitors/MQTTMonitor.java)):
+MQTT ([MQTTMonitor.java](../../owlcms/src/main/java/app/owlcms/monitors/MQTTMonitor.java)):
 
 - Incoming: reuse `owlcms/refbox/decision/<fop>` (`"n good|bad"`), no change.
 - Outgoing on the call, in this order:
@@ -574,7 +577,7 @@ MQTT ([MQTTMonitor.java](../owlcms/src/main/java/app/owlcms/monitors/MQTTMonitor
   jury lights on those topics. They are published as before when the jury
   votes are cleared (manual deliberation, challenge without VPT).
 - Document the sequence in
-  [200-MQTTMessages.md](../docs/100-AdvancedTopics/200-MQTTMessages.md).
+  [200-MQTTMessages.md](../../docs/100-AdvancedTopics/200-MQTTMessages.md).
 - Config: `mqttJurySize()` publishes 4. Blue Owl takes the jury size from this
   message (there is no Blue Owl setting); `type JurySize` is widened to
   `3 | 4 | 5` in `blue-owl-electron/src/common.ts` and `initializer/jury.ts`
@@ -605,13 +608,13 @@ Chair uses the No Lift / Good Lift override (section 6).
 
 Jury member devices: the jurors vote again after the same call. The call
 clears the jury votes and pushes a `JuryUpdate` reset. Jury phones
-([JuryMobileContent.java](../owlcms/src/main/java/app/owlcms/nui/referee/JuryMobileContent.java))
+([JuryMobileContent.java](../../owlcms/src/main/java/app/owlcms/nui/referee/JuryMobileContent.java))
 and MQTT jury boxes re-arm, as they do today at the start of a deliberation.
 Jury devices do not buzz; the jurors are at the table.
 
 ### 6. Jury Control (fix)
 
-[JuryKeypadContent.java](../owlcms/src/main/java/app/owlcms/nui/referee/JuryKeypadContent.java)
+[JuryKeypadContent.java](../../owlcms/src/main/java/app/owlcms/nui/referee/JuryKeypadContent.java)
 
 - Row 7 (the bottom indicator row, "Jury Decisions") becomes the panel row:
   seven cells `R1 R2 R3 | J1 J2 J3 J4`, with a visual separator and a label
@@ -718,13 +721,13 @@ Jury devices do not buzz; the jurors are at the table.
 - **Decided: removed entirely**, with or without the switch. `JuryContent`
   (route `lifting/jury`) and `JuryDialog` are deleted; `JuryDecisionDialog`
   stays (it is the Speaker's jury decision dialog).
-- [LiftingNavigationContent.java](../owlcms/src/main/java/app/owlcms/nui/lifting/LiftingNavigationContent.java):
+- [LiftingNavigationContent.java](../../owlcms/src/main/java/app/owlcms/nui/lifting/LiftingNavigationContent.java):
   no `Jury_Console` button; the Jury Control button uses the `Jury_Keypad`
   label ("Jury Control", without "on mobile device").
 - Accounts with the Jury role land on Jury Control (`WorkPage.JURY_CONTROL`).
 - Features lost with the Console: athlete grid, sound toggle, and the Call
   Technical Controller button (no device to call the TC; section 6).
-- Update [020-Jury.md](../docs/060-Refereeing/020-Jury.md).
+- Update [020-Jury.md](../../docs/060-Refereeing/020-Jury.md).
 
 ### 8. Challenge after review
 
@@ -763,10 +766,10 @@ Jury devices do not buzz; the jurors are at the table.
   with the referee rectangles re-cleared and re-revealed in Phase B (today the
   rectangles are only driven by the live referee decision).
 - Show the technical rule on the attempt board for a panel No Lift
-  ([JuryNotificationCard.java](../owlcms/src/main/java/app/owlcms/displays/attemptboard/JuryNotificationCard.java)
+  ([JuryNotificationCard.java](../../owlcms/src/main/java/app/owlcms/displays/attemptboard/JuryNotificationCard.java)
   does not show it today). The scoreboard decision area is a candidate too.
 - Jury scoreboard page
-  ([JuryDecisions.java](../owlcms/src/main/java/app/owlcms/displays/scoreboard/JuryDecisions.java)):
+  ([JuryDecisions.java](../../owlcms/src/main/java/app/owlcms/displays/scoreboard/JuryDecisions.java)):
   check with 4 jurors.
 - Tracker: `juryReasonCode` is already sent. Add the panel review event and the
   7 votes if the tracker should show them (`tracker-core/src/competition-hub.js`).
@@ -798,9 +801,9 @@ languages and does not depend on the switch.
   translation. User docs (020-Jury.md, 180-Keypads.md) updated; the RFP
   proposals under docs/RFP are left as submitted.
 - **Keep the key names.** `JuryPresident` is also the assignment id in
-  [OfficialRole.java](../owlcms/src/main/java/app/owlcms/data/technicalofficial/OfficialRole.java)
+  [OfficialRole.java](../../owlcms/src/main/java/app/owlcms/data/technicalofficial/OfficialRole.java)
   (`JURY_PRESIDENT("JuryPresident", …)`) and
-  [TeamRole.java](../owlcms/src/main/java/app/owlcms/data/technicalofficial/TeamRole.java),
+  [TeamRole.java](../../owlcms/src/main/java/app/owlcms/data/technicalofficial/TeamRole.java),
   used by session officials and timetables. Renaming it would break existing
   data. Change only the displayed text; `Java` identifiers can stay too.
 - New keys from this analysis should use "Chair" (for example
@@ -821,8 +824,8 @@ languages and does not depend on the switch.
   `translation4.csv`) for the external translation tool. `translation4.csv`
   is not edited.
 - Docs: replace "jury president" in
-  [020-Jury.md](../docs/060-Refereeing/020-Jury.md) and
-  [180-Keypads.md](../docs/100-AdvancedTopics/180-Keypads.md).
+  [020-Jury.md](../../docs/060-Refereeing/020-Jury.md) and
+  [180-Keypads.md](../../docs/100-AdvancedTopics/180-Keypads.md).
 
 ### 12. Juries without the seven-person panel (decided 2026-10-23)
 
@@ -1121,7 +1124,7 @@ Open:
 
 None.
 
-## Remaining Work
+## Completion record and optional follow-ups
 
 ### 1. Chair confirmation and Cancel vote result (implemented 2026-10-23)
 
@@ -1149,7 +1152,7 @@ athlete and showed a stale break timer (scenario 16).
 
 Left:
 
-- Device timeline: [done/phase-b-referee-lights-mqtt.md](done/phase-b-referee-lights-mqtt.md)
+- Device timeline: [phase-b-referee-lights-mqtt.md](phase-b-referee-lights-mqtt.md)
   is updated for the confirmation.
 
 ### 2. Juries without the panel: one procedure (implemented)
@@ -1209,12 +1212,12 @@ Left:
 
 ### 4. User documentation (done 2026-10-23)
 
-[020-Jury.md](../docs/060-Refereeing/020-Jury.md) rewritten for Jury Control
+[020-Jury.md](../../docs/060-Refereeing/020-Jury.md) rewritten for Jury Control
 with screenshots taken from the Playwright scenario reports: jury sizes and
 settings, the seven-person panel (automatic review, Call for Votes, result
 waiting for the Chair, Cancel vote result, decision without a vote), the
 3/4/5-member jury review, the Speaker dialogs, Resume.
-[180-Keypads.md](../docs/100-AdvancedTopics/180-Keypads.md): the Jury Chair
+[180-Keypads.md](../../docs/100-AdvancedTopics/180-Keypads.md): the Jury Chair
 keypad keys are unchanged from the Jury Console (`d c t h i j k g b Escape`);
 what `c`, `k`, `g`, `b` and `Escape` do depends on whether a review is in
 progress (`k` is Call for Votes during a panel review). The `V` shortcut
@@ -1222,7 +1225,7 @@ added during development is removed: keypads are not reprogrammed.
 
 ### 5. MQTT documentation (done 2026-10-23)
 
-[200-MQTTMessages.md](../docs/100-AdvancedTopics/200-MQTTMessages.md):
+[200-MQTTMessages.md](../../docs/100-AdvancedTopics/200-MQTTMessages.md):
 `hidden` decision state and the `panelVoteDeviceIndicators` switch;
 `resetDecisions` on Call for Votes, Chair decision, Cancel vote result and
 Resume, with the referees' decisions republished for a jury vote;
@@ -1230,9 +1233,10 @@ Resume, with the referees' decisions republished for a jury vote;
 kept; `jurybox/summon all` as Call for Votes during a panel review;
 `jurybox/decision bad` as a rule request.
 
-### 6. MQTT tests
+### 6. Optional MQTT test coverage
 
-No `MQTTMonitor` test exists. Add one with a stub publisher covering:
+No dedicated `MQTTMonitor` test was found on 2026-10-25. Additional coverage
+could use a stub publisher for:
 
 - `fop/decision N hidden` only when `panelVoteDeviceIndicators` is on;
 - individual `fop/decision N good/bad` at the last vote, not the collective
@@ -1242,7 +1246,12 @@ No `MQTTMonitor` test exists. Add one with a stub publisher covering:
 - `juryDeliberation` / `challenge` suppressed when
   `getPanelReviewInitialVotes() != null`.
 
-### 7. Device tests and release coordination
+### 7. Deployment checks (not an unfinished OWLCMS feature)
+
+The Blue Owl `hidden`-decision handling and Firmata support are present in
+their repositories. Physical-device testing and deployed firmware versions
+were not independently verified in this cleanup. Keep the compatibility
+switch; enabling it by default is a separate release decision.
 
 - Test on firmata with the updated jury workbooks, and on Blue Owl devices with
   the updated blue-owl-core (positions 1–4, green referee / jury LEDs, red /
@@ -1253,7 +1262,7 @@ No `MQTTMonitor` test exists. Add one with a stub publisher covering:
   devices need the updated blue-owl-core before `panelVoteDeviceIndicators`
   is enabled.
 
-### 8. Unused translation keys
+### 8. Optional external translation cleanup
 
 The design's "Waiting for Votes" screen was not built (the Chair override
 reuses the Deliberation / Challenge buttons instead). These keys are unused

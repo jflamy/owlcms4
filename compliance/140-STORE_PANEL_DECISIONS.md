@@ -1,7 +1,7 @@
 # Store Panel Decisions
 
 Status: note, not started (2026-10-23).
-Related: [SEVEN_PERSON_ADJUDICATION.md](SEVEN_PERSON_ADJUDICATION.md) (section 10,
+Related: [SEVEN_PERSON_ADJUDICATION.md](done/SEVEN_PERSON_ADJUDICATION.md) (section 10,
 "Data and reports").
 
 ## Problem
@@ -75,4 +75,4 @@ One record per reviewed attempt, linked to the athlete and attempt number:
 - Audit trail: add named actions for `PanelVoteCalled`, `PanelVoteCancelled`
   and `JuryRuleRequest`, and the markers in `jury.decision`.
 - Tracker forwarding: send the stored record with the decision
-  ([tracker-jury-votes.md](tracker-jury-votes.md)).
+  ([tracker-jury-votes.md](150-TRACKER_JURY_VOTES.md)).

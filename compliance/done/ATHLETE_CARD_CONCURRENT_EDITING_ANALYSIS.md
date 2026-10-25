@@ -106,7 +106,7 @@ Maven compilation and 37 focused tests passed: 18 card-conflict/guarded-save tes
 - **Heartbeat**: see §3.5. Recommendation: keep the default interval.
 - **People who already have the card open are told**, on every platform and on Registration and Weigh-in, through a targeted event on the application-wide bus (§4.4).
 
-Related: [ACCESS_CONTROL_DESIGN.md](../ACCESS_CONTROL_DESIGN.md) (identity), [AUDIT_TRAIL_SPECIFICATION.md](AUDIT_TRAIL_SPECIFICATION.md) (stations, change records).
+Related: [ACCESS_CONTROL_DESIGN.md](../030-ACCESS_CONTROL_REMAINING.md) (identity), [AUDIT_TRAIL_SPECIFICATION.md](AUDIT_TRAIL_SPECIFICATION.md) (stations, change records).
 
 ## 1. Question
 

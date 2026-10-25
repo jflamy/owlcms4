@@ -5,7 +5,7 @@ says what the **physical jury box / referee boxes**, the **Jury Control page**,
 the **attempt board** and the **scoreboard decision block** show, and whether
 that behaviour is **implemented** (owlcms, uncommitted) or **planned** (needs
 the firmata / blue-owl-core changes below). See
-[SEVEN_PERSON_ADJUDICATION.md](../SEVEN_PERSON_ADJUDICATION.md) for the
+[SEVEN_PERSON_ADJUDICATION.md](SEVEN_PERSON_ADJUDICATION.md) for the
 procedure itself.
 
 No new MQTT topic is introduced. Referee lights use the existing
