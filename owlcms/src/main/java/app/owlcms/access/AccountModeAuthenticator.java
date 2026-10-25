@@ -25,10 +25,10 @@ public final class AccountModeAuthenticator {
 		Principal existing = OwlcmsSession.getPrincipal();
 		if (existing != null && existing.source() == AuthSource.ACCOUNT) {
 			UserAccount account = UserAccountRepository.findById(existing.accountId());
-			if (account != null && account.isEnabled()) {
+			if (account != null && account.isEnabled() && account.hasPassword()) {
 				return Principal.of(account, existing.loginPlatform());
 			}
-			logout(existing, "account disabled or deleted");
+			logout(existing, "account disabled, deleted or password cleared");
 		}
 
 		if (AccessUtils.isBackdoorAccess()) {

@@ -51,6 +51,7 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.admin.AdminView;
 import app.owlcms.nui.displays.DisplayNavigationContent;
+import app.owlcms.nui.home.AccountView;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.home.InfoNavigationContent;
 import app.owlcms.nui.lifting.LiftingNavigationContent;
@@ -84,6 +85,7 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 	private Tabs drawerTabs;
 	private Tab colorSchemeToggle;
 	private Tab logoutEntry;
+	private boolean accountEntryShown;
 	private Icon colorSchemeIcon;
 	private Span colorSchemeLabel;
 	private boolean darkMode;
@@ -461,6 +463,10 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 		addTabIfAllowed(tabs, new Icon(VaadinIcon.TROPHY), Translator.translate("RecordEvent.PageTitle"), RecordContent.class);
 		tabs.add(createTab(new Icon(VaadinIcon.QUESTION_CIRCLE), Translator.translate("Documentation_Menu"), docOpener));
 		addTabIfAllowed(tabs, new Icon(VaadinIcon.INFO_CIRCLE_O), Translator.translate("About"), InfoNavigationContent.class);
+		this.accountEntryShown = isAccountEntryAvailable();
+		if (this.accountEntryShown) {
+			tabs.add(createTab(new Icon(VaadinIcon.USER), Translator.translate("Access.Account"), AccountView.class));
+		}
 		if (AdminView.isMenuEntryAvailable()) {
 			tabs.add(createTab(new Icon(VaadinIcon.TOOLS), Translator.translate("Admin.Menu"), AdminView.class));
 		}
@@ -468,6 +474,13 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 		Translator.translate("RunLiftingGroup");
 		tabs.setOrientation(Tabs.Orientation.VERTICAL);
 		return tabs;
+	}
+
+	/** Only a named account has a page of its own; PIN and backdoor sessions do not. */
+	private static boolean isAccountEntryAvailable() {
+		Principal principal = OwlcmsSession.getPrincipal();
+		return Config.getCurrent().isAccountsMode() && principal != null
+		        && principal.source() == Principal.AuthSource.ACCOUNT;
 	}
 
 	private void addTabIfAllowed(Tabs tabs, Icon icon, String label, Class<? extends Component> viewClass) {
@@ -509,11 +522,13 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 	}
 
 	private void refreshDrawerIfNeeded() {
+		boolean accountEntryWasShown = this.accountEntryShown;
 		Tabs newTabs = getTabs();
 		// the drawer also holds the color scheme and logout entries, which getTabs() does not produce
 		int extraEntries = (this.colorSchemeToggle != null ? 1 : 0) + (this.logoutEntry != null ? 1 : 0);
 		if (this.drawerTabs != null
-		        && newTabs.getComponentCount() != this.drawerTabs.getComponentCount() - extraEntries) {
+		        && (newTabs.getComponentCount() != this.drawerTabs.getComponentCount() - extraEntries
+		                || accountEntryWasShown != this.accountEntryShown)) {
 			this.drawerTabs.removeFromParent();
 			this.drawerTabs = newTabs;
 			// keep the color scheme entry at the bottom of the drawer. It is normally created

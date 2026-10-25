@@ -2,6 +2,7 @@ package app.owlcms.data.account;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -116,26 +117,32 @@ public final class UserAccountRepository {
 		initializeRoleAccounts(false);
 	}
 
-	public static synchronized List<UserAccount> resetPlatformAccounts() {
+	/**
+	 * Brings the generic accounts in line with the current platforms, keeping passwords: an account that still
+	 * fits a role and platform is kept and renamed if needed, missing accounts are created, and generic accounts
+	 * that fit nothing are deleted. The built-in admin and user accounts are never touched.
+	 */
+	public static synchronized List<UserAccount> recomputeGenericAccounts() {
 		initializeRoleAccounts(true);
 		return findAll();
 	}
 
-	private static void initializeRoleAccounts(boolean resetPlatforms) {
+	private static void initializeRoleAccounts(boolean removeUnmatched) {
 		JPAService.runInTransaction(em -> {
 			List<UserAccount> existing = em.createQuery("select a from UserAccount a", UserAccount.class).getResultList();
 			List<String> platforms = em.createQuery("select p from Platform p order by p.id", Platform.class)
 			        .getResultList().stream().map(Platform::getName).toList();
-			if (resetPlatforms) {
-				for (UserAccount account : existing.stream()
-				        .filter(UserAccountRepository::isConventionalPlatformAccount).toList()) {
-					em.remove(account);
-					logger.info("platform role account reset username={}", account.getUsername());
-				}
-				em.flush();
-				existing = existing.stream().filter(a -> !isConventionalPlatformAccount(a)).toList();
+			List<UserAccount> unmatched = removeUnmatched ? unmatchedGenericAccounts(existing, platforms) : List.of();
+			for (UserAccount account : unmatched) {
+				em.remove(account);
+				logger.info("generic account removed username={}", account.getUsername());
 			}
-			for (UserAccount account : missingRoleAccounts(existing, platforms)) {
+			em.flush();
+			List<UserAccount> remaining = existing.stream().filter(a -> !unmatched.contains(a)).toList();
+			List<UserAccount> missing = missingRoleAccounts(remaining, platforms);
+			// renames first, so that a new account may take a name an existing one just gave up
+			em.flush();
+			for (UserAccount account : missing) {
 				em.persist(account);
 				logger.info("role account created username={} (password required)", account.getUsername());
 			}
@@ -144,47 +151,88 @@ public final class UserAccountRepository {
 		invalidate();
 	}
 
-	static boolean isConventionalPlatformAccount(UserAccount account) {
-		if (account.isBuiltInAdmin() || account.getGrants().size() != 1) {
-			return false;
-		}
-		RoleGrant grant = account.getGrants().get(0);
-		if (!grant.getRole().isPlatformScopable() || grant.getPlatformName() == null) {
-			return false;
-		}
-		String roleName = grant.getRole().name().toLowerCase(Locale.ROOT);
-		String username = UserAccount.normalizeUsername(account.getUsername());
-		return roleName.equals(username)
-		        || UserAccount.normalizeUsername(roleName + "-" + grant.getPlatformName()).equals(username);
+	/** One generic account per role and platform scope; generated names depend on the number of platforms. */
+	private record ExpectedAccount(RoleGrant grant, String username) {
 	}
 
-	static List<UserAccount> missingRoleAccounts(List<UserAccount> existing, List<String> platforms) {
-		Map<String, UserAccount> byUsername = accountsByUsername(existing);
-		List<UserAccount> missing = new ArrayList<>();
+	private static List<ExpectedAccount> expectedAccounts(List<String> platforms) {
+		List<ExpectedAccount> expected = new ArrayList<>();
 		for (Role role : Role.values()) {
-			if (!role.isGrantable()) {
+			// the rules-defined Competition Director often does not use the system; grant it by hand when needed
+			if (!role.isGrantable() || role == Role.COMPETITION_DIRECTOR) {
 				continue;
 			}
 			List<String> scopes = role.isPlatformScopable() ? platforms : Collections.singletonList(null);
 			for (String platform : scopes) {
 				String username = role.name().toLowerCase(Locale.ROOT)
 				        + (platform == null || platforms.size() == 1 ? "" : "-" + platform);
-				String key = UserAccount.normalizeUsername(username);
-				if (byUsername.containsKey(key)) {
-					UserAccount account = byUsername.get(key);
-					if (!account.getGrants().contains(new RoleGrant(role, platform))) {
-						logger./**/warn("role account username={} already exists with different grants; left unchanged",
+				expected.add(new ExpectedAccount(new RoleGrant(role, platform), username));
+			}
+		}
+		return expected;
+	}
+
+	/** Generic accounts (other than the admin) whose single grant matches the expected role and platform. */
+	private static Map<RoleGrant, UserAccount> genericByGrant(List<UserAccount> accounts) {
+		Map<RoleGrant, UserAccount> result = new HashMap<>();
+		for (UserAccount account : accounts) {
+			if (account.isGeneric() && !account.isBuiltInAdmin() && account.getGrants().size() == 1) {
+				result.putIfAbsent(account.getGrants().get(0), account);
+			}
+		}
+		return result;
+	}
+
+	static List<UserAccount> unmatchedGenericAccounts(List<UserAccount> existing, List<String> platforms) {
+		Map<RoleGrant, UserAccount> byGrant = genericByGrant(existing);
+		List<UserAccount> matched = expectedAccounts(platforms).stream().map(e -> byGrant.get(e.grant()))
+		        .filter(Objects::nonNull).toList();
+		return existing.stream()
+		        .filter(a -> a.isGeneric() && !a.isBuiltInAdmin() && !matched.contains(a))
+		        .toList();
+	}
+
+	/**
+	 * Renames the generic accounts whose generated name changed (a platform was added, removed or renamed), keeping
+	 * their password, and returns the accounts to create.
+	 */
+	static List<UserAccount> missingRoleAccounts(List<UserAccount> existing, List<String> platforms) {
+		Map<String, UserAccount> byUsername = accountsByUsername(existing);
+		Map<RoleGrant, UserAccount> byGrant = genericByGrant(existing);
+		List<UserAccount> missing = new ArrayList<>();
+		for (ExpectedAccount expected : expectedAccounts(platforms)) {
+			String username = expected.username();
+			String key = UserAccount.normalizeUsername(username);
+			UserAccount holder = byUsername.get(key);
+			UserAccount generic = byGrant.get(expected.grant());
+			if (generic != null) {
+				String oldKey = UserAccount.normalizeUsername(generic.getUsername());
+				if (!oldKey.equals(key)) {
+					if (holder == null) {
+						logger.info("generic account renamed {} -> {}", generic.getUsername(), username);
+						byUsername.remove(oldKey);
+						generic.setUsername(username);
+						byUsername.put(key, generic);
+					} else {
+						logger./**/warn("generic account {} not renamed: username {} is taken", generic.getUsername(),
 						        username);
 					}
-					continue;
 				}
-				UserAccount account = new UserAccount();
-				account.setUsername(username);
-				account.setDisplayName(username);
-				account.getGrants().add(new RoleGrant(role, platform));
-				missing.add(account);
-				byUsername.put(key, account);
+				continue;
 			}
+			if (holder != null) {
+				if (!holder.getGrants().contains(expected.grant())) {
+					logger./**/warn("role account username={} already exists with different grants; left unchanged",
+					        username);
+				}
+				continue;
+			}
+			UserAccount account = new UserAccount();
+			account.setUsername(username);
+			account.setGeneric(true);
+			account.getGrants().add(expected.grant());
+			missing.add(account);
+			byUsername.put(key, account);
 		}
 		return missing;
 	}
@@ -203,7 +251,7 @@ public final class UserAccountRepository {
 		if (admin == null) {
 			UserAccount created = new UserAccount();
 			created.setUsername(UserAccount.BUILT_IN_ADMIN);
-			created.setDisplayName(UserAccount.BUILT_IN_ADMIN);
+			created.setGeneric(true);
 			created.getGrants().add(new RoleGrant(Role.ADMIN, null));
 			save(created);
 			logger.info("built-in admin account created (no password)");

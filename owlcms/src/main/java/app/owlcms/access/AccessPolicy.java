@@ -105,7 +105,7 @@ public final class AccessPolicy {
 
 	private static boolean hasUnrestrictedPlatforms(Principal principal) {
 		return isAdmin(principal) || principal != null
-		        && principal.grants().stream().anyMatch(grant -> grant.getRole() == Role.COMPETITION_DIRECTOR);
+		        && principal.grants().stream().anyMatch(grant -> grant.getRole() == Role.COMPETITION_SUPERVISOR);
 	}
 
 	public static boolean isLocked(Principal principal) {

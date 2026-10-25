@@ -12,7 +12,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.nui.shared.OwlcmsLayout;
 
 @SuppressWarnings("serial")
-@RequiresRole(value = Role.COMPETITION_DIRECTOR, platformBound = true)
+@RequiresRole(value = Role.COMPETITION_SUPERVISOR, platformBound = true)
 @RequiresFeature(FeatureSwitch.COMPETITION_DIRECTOR_PAGE)
 @Route(value = "lifting/competition-director", layout = OwlcmsLayout.class)
 public class CompetitionDirectorContent extends AnnouncerContent {

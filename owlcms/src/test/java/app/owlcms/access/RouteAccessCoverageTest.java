@@ -118,12 +118,15 @@ public class RouteAccessCoverageTest {
 			assertFalse(AccessPolicy.canOpen(Principal.displays(), rule, "A"));
 		}
 		PageRule directorRule = PageRule.of(CompetitionDirectorContent.class);
-		assertEquals(Set.of(Role.COMPETITION_DIRECTOR), directorRule.roles());
+		assertEquals(Set.of(Role.COMPETITION_SUPERVISOR), directorRule.roles());
 		assertTrue(directorRule.platformBound());
 		assertFalse(AccessPolicy.canOpen(speakerA, directorRule, "A"));
-		Principal director = new Principal(AuthSource.ACCOUNT, 2L, "director",
+		Principal supervisor = new Principal(AuthSource.ACCOUNT, 2L, "supervisor",
+		        List.of(new RoleGrant(Role.COMPETITION_SUPERVISOR, null)), null);
+		assertTrue(AccessPolicy.canOpen(supervisor, directorRule, "B"));
+		Principal director = new Principal(AuthSource.ACCOUNT, 3L, "director",
 		        List.of(new RoleGrant(Role.COMPETITION_DIRECTOR, null)), null);
-		assertTrue(AccessPolicy.canOpen(director, directorRule, "B"));
+		assertFalse(AccessPolicy.canOpen(director, directorRule, "A"));
 		assertTrue(AccessPolicy.canOpen(Principal.admin(AuthSource.ACCOUNT), directorRule, "A"));
 	}
 

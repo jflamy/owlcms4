@@ -26,6 +26,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.ValidationResult;
 
+import app.owlcms.access.AccessStartup;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
@@ -46,6 +47,7 @@ class PlatformEditingFormFactory extends OwlcmsCrudFormFactory<Platform> {
 		Platform saved = PlatformRepository.save(platform);
 		platforms.add(saved);
 		PlatformRepository.updateDisplayOrder(platforms);
+		AccessStartup.platformsChanged();
 		return saved;
 	}
 

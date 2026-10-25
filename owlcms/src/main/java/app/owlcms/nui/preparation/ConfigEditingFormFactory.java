@@ -157,7 +157,7 @@ public class ConfigEditingFormFactory
 		// bean. The grid edits Config.getCurrent() in place, so once the binder runs there is no
 		// longer an unmodified copy to compare against.
 		this.forwardingDestinationsBeforeEdit = ForwardingDestination.fromConfig(config);
-		this.accessModeBeforeEdit = config.getAccessMode();
+		this.accessModeBeforeEdit = config.getParamAccessMode();
 
 		this.binder = buildBinder(operation, config);
 
@@ -268,7 +268,7 @@ public class ConfigEditingFormFactory
 			boolean childrenEquipmentAdded = !hadChildrenEquipment && willHaveChildrenEquipment;
 			
 			Config saved = Config.setCurrent(config);
-			if (this.accessModeBeforeEdit != saved.getAccessMode()) {
+			if (this.accessModeBeforeEdit != saved.getParamAccessMode()) {
 				Principal principal = OwlcmsSession.getPrincipal();
 				if (principal != null && principal.source() == Principal.AuthSource.ACCOUNT) {
 					AccountModeAuthenticator.logout(principal, "access mode changed");
@@ -357,9 +357,15 @@ public class ConfigEditingFormFactory
 		configLayout.addFormItem(accessModeField, Translator.translate("Access.Mode"));
 		this.binder.forField(accessModeField)
 		        .asRequired()
-		        .withValidator(mode -> mode != AccessMode.ACCOUNTS || UserAccountRepository.adminHasPassword(),
+		        .withValidator(mode -> mode == this.accessModeBeforeEdit || mode != AccessMode.ACCOUNTS
+		                || UserAccountRepository.adminHasPassword(),
 		                Translator.translate("Access.Error.AdminPasswordRequired"))
-		        .bind(Config::getAccessMode, Config::setAccessMode);
+		        // shows the mode in force; a choice is recorded only when the displayed value is changed
+		        .bind(Config::getParamAccessMode, (c, mode) -> {
+			        if (mode != this.accessModeBeforeEdit) {
+				        c.chooseAccessMode(mode);
+			        }
+		        });
 
 		RouterLink accountsLink = new RouterLink(Translator.translate("Access.Accounts.Title"),
 		        AccountsContent.class);

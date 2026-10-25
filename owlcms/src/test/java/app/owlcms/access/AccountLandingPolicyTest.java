@@ -30,7 +30,8 @@ public class AccountLandingPolicyTest {
 	public void everyGrantableRoleHasItsOwnDefault() {
 		Map<Role, WorkPage> defaults = Map.ofEntries(
 		        Map.entry(Role.ADMIN, WorkPage.HOME),
-		        Map.entry(Role.COMPETITION_DIRECTOR, WorkPage.COMPETITION_DIRECTOR),
+		        Map.entry(Role.COMPETITION_SUPERVISOR, WorkPage.COMPETITION_SUPERVISOR),
+		        Map.entry(Role.COMPETITION_DIRECTOR, WorkPage.HOME),
 		        Map.entry(Role.PREPARATION, WorkPage.PREPARATION),
 		        Map.entry(Role.REGISTRATION, WorkPage.REGISTRATION),
 		        Map.entry(Role.WEIGHIN, WorkPage.WEIGHIN),
@@ -58,11 +59,11 @@ public class AccountLandingPolicyTest {
 		assertTrue(AccountLandingPolicy.singleWorkPage(account(new RoleGrant(Role.ANNOUNCER, "A"),
 		        new RoleGrant(Role.TIMEKEEPER, "A"))).isEmpty());
 		assertTrue(AccountLandingPolicy.singleWorkPage(account(new RoleGrant(Role.ADMIN, null),
-		        new RoleGrant(Role.COMPETITION_DIRECTOR, null))).isEmpty());
+		        new RoleGrant(Role.COMPETITION_SUPERVISOR, null))).isEmpty());
 		assertEquals(WorkPage.LIFTING,
 		        AccountLandingPolicy.singleWorkPage(account(new RoleGrant(Role.PLATFORM, "A"))).orElseThrow());
-		assertEquals(WorkPage.COMPETITION_DIRECTOR,
-		        AccountLandingPolicy.singleWorkPage(account(new RoleGrant(Role.COMPETITION_DIRECTOR, null))).orElseThrow());
+		assertEquals(WorkPage.COMPETITION_SUPERVISOR,
+		        AccountLandingPolicy.singleWorkPage(account(new RoleGrant(Role.COMPETITION_SUPERVISOR, null))).orElseThrow());
 	}
 
 	@Test

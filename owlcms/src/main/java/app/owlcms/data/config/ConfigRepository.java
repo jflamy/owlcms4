@@ -14,6 +14,7 @@ import javax.persistence.Query;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.access.AccessMode;
 import app.owlcms.access.AccessStartup;
 import app.owlcms.data.jpa.JPAService;
 import ch.qos.logback.classic.Level;
@@ -100,24 +101,29 @@ public class ConfigRepository {
 		}
 		
 		SaveResult result = JPAService.runInTransaction(em -> {
+			// raw values only: the effective mode needs the account cache, which must not be read in here
 			Config previous = em.find(Config.class, config.getId());
-			boolean initializeAccounts = config.isAccountsMode()
-			        && (previous == null || !previous.isAccountsMode());
+			AccessMode previousStored = previous != null ? previous.getAccessMode() : null;
+			Boolean previousPinChosen = previous != null ? previous.getPinModeChosen() : null;
 			Config nc = em.merge(config);
 			TimeZone tz = nc.getTimeZone();
 			if (tz != null) {
 				logger.info("setting time zone to {}", tz);
 				TimeZone.setDefault(tz);
 			}
-			return new SaveResult(nc, initializeAccounts);
+			return new SaveResult(nc, previous != null, previousStored, previousPinChosen);
 		});
-		if (result.initializeAccounts()) {
+		boolean initializeAccounts = result.config().isAccountsMode()
+		        && (!result.hadPrevious() || Config.effectiveAccessMode(result.previousStored(),
+		                result.previousPinChosen()) != AccessMode.ACCOUNTS);
+		if (initializeAccounts) {
 			AccessStartup.initializeRoleAccountsInBackground();
 		}
 		return result.config();
 	}
 
-	private record SaveResult(Config config, boolean initializeAccounts) {
+	private record SaveResult(Config config, boolean hadPrevious, AccessMode previousStored,
+	        Boolean previousPinChosen) {
 	}
 
 }

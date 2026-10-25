@@ -120,8 +120,8 @@ public class AccessPolicyTest {
 
 	@Test
 	public void competitionDirectorAccessIsNotGrantedToOrdinaryOfficials() {
-		PageRule directorPage = page(true, Role.COMPETITION_DIRECTOR);
-		Principal director = account("A", new RoleGrant(Role.COMPETITION_DIRECTOR, null));
+		PageRule directorPage = page(true, Role.COMPETITION_SUPERVISOR);
+		Principal director = account("A", new RoleGrant(Role.COMPETITION_SUPERVISOR, null));
 		Principal admin = account(null, new RoleGrant(Role.ADMIN, null));
 		Principal announcer = account("A", new RoleGrant(Role.ANNOUNCER, "A"));
 		Principal platform = account("A", new RoleGrant(Role.PLATFORM, null));
@@ -137,6 +137,20 @@ public class AccessPolicyTest {
 		assertFalse(AccessPolicy.isAdmin(director));
 		assertEquals(PLATFORMS, AccessPolicy.allowedSessionPlatforms(director, PLATFORMS));
 		assertTrue(AccessPolicy.canOpen(director, page(true, Role.ANNOUNCER), "C"));
+		assertFalse(AccessPolicy.canOpen(director, page(false, Role.ADMIN_PAGES), null));
+	}
+
+	@Test
+	public void competitionDirectorHasPreparationAndResultsOnly() {
+		Principal director = account(null, new RoleGrant(Role.COMPETITION_DIRECTOR, null));
+
+		assertTrue(AccessPolicy.canOpen(director, page(false, Role.PREPARATION), null));
+		assertTrue(AccessPolicy.canOpen(director, page(false, Role.RESULTS), null));
+		assertTrue(AccessPolicy.canOpen(director, page(true, Role.DISPLAYS), "B"));
+		assertFalse(AccessPolicy.canOpen(director, page(true, Role.COMPETITION_SUPERVISOR), "A"));
+		assertFalse(AccessPolicy.canOpen(director, page(false, Role.REGISTRATION), null));
+		assertFalse(AccessPolicy.canOpen(director, page(false, Role.WEIGHIN), null));
+		assertFalse(AccessPolicy.canOpen(director, page(true, Role.ANNOUNCER), "A"));
 		assertFalse(AccessPolicy.canOpen(director, page(false, Role.ADMIN_PAGES), null));
 	}
 

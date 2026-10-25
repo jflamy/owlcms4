@@ -370,6 +370,8 @@ public class CompetitionData {
 			}
 			return null;
 		});
+		// the account cache may have been refilled with the old accounts before the import committed
+		UserAccountRepository.invalidate();
 		ChampionshipRepository.reconcileImportedAgeGroups();
 		Competition.setCurrent(CompetitionRepository.findAll().stream().findFirst().orElse(null));
 		Championship.reset();

@@ -21,6 +21,7 @@ import app.owlcms.data.account.RoleGrant;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 
@@ -163,6 +164,66 @@ public class AccountPersistenceTest {
 	}
 
 	@Test
+	public void pinModeChoicePersistsAndChoosingAccountsClearsIt() {
+		Config config = Config.getCurrent();
+		try {
+			config.setAccessMode(AccessMode.PIN);
+			config.setPinModeChosen(null);
+			Config.setCurrent(config);
+			assertNull(ConfigRepository.findAll().get(0).getPinModeChosen());
+
+			config = Config.getCurrent();
+			config.chooseAccessMode(AccessMode.PIN);
+			Config.setCurrent(config);
+			Config stored = ConfigRepository.findAll().get(0);
+			assertEquals(AccessMode.PIN, stored.getAccessMode());
+			assertEquals(Boolean.TRUE, stored.getPinModeChosen());
+
+			config = Config.getCurrent();
+			config.chooseAccessMode(AccessMode.ACCOUNTS);
+			Config.setCurrent(config);
+			AccessStartup.roleAccountInitialization().join();
+			stored = ConfigRepository.findAll().get(0);
+			assertEquals(AccessMode.ACCOUNTS, stored.getAccessMode());
+			assertEquals(Boolean.FALSE, stored.getPinModeChosen());
+		} finally {
+			Config restored = Config.getCurrent();
+			restored.setAccessMode(AccessMode.PIN);
+			restored.setPinModeChosen(null);
+			Config.setCurrent(restored);
+		}
+	}
+
+	@Test
+	public void importedConfigKeepsTheRunningPinModeChoiceUnlessItCarriesOne() {
+		Config current = Config.getCurrent();
+		current.setPinModeChosen(Boolean.TRUE);
+		Config.setCurrent(current);
+		try {
+			Config oldExport = new Config();
+			assertNull(oldExport.getPinModeChosen());
+			Config saved = Config.setCurrent(oldExport);
+			assertEquals(Boolean.TRUE, saved.getPinModeChosen());
+			assertEquals(Boolean.TRUE, ConfigRepository.findAll().get(0).getPinModeChosen());
+
+			Config explicitFalse = new Config();
+			explicitFalse.setPinModeChosen(Boolean.FALSE);
+			saved = Config.setCurrent(explicitFalse);
+			assertEquals(Boolean.FALSE, saved.getPinModeChosen());
+			assertEquals(Boolean.FALSE, Config.getCurrent().getPinModeChosen());
+
+			Config explicitTrue = new Config();
+			explicitTrue.setPinModeChosen(Boolean.TRUE);
+			saved = Config.setCurrent(explicitTrue);
+			assertEquals(Boolean.TRUE, saved.getPinModeChosen());
+		} finally {
+			Config restored = Config.getCurrent();
+			restored.setPinModeChosen(null);
+			Config.setCurrent(restored);
+		}
+	}
+
+	@Test
 	public void enablingAccountsPersistsMissingRolesWithPasswordsRequired() {
 		JPAService.runInTransaction(em -> {
 			em.persist(new Platform("Seed A"));
@@ -198,44 +259,33 @@ public class AccountPersistenceTest {
 	}
 
 	@Test
-	public void resetPlatformAccountsReplacesConventionalAccountsAndPreservesOthers() {
+	public void recomputeKeepsPasswordsAndRemovesAccountsOfDeletedPlatforms() {
 		JPAService.runInTransaction(em -> {
-			em.persist(new Platform("Reset A"));
-			em.persist(new Platform("Reset B"));
+			em.persist(new Platform("Recompute A"));
 			return null;
 		});
-		UserAccount single = newAccount("announcer", new RoleGrant(Role.ANNOUNCER, "Reset A"));
-		UserAccount suffixed = newAccount("announcer-Reset A", new RoleGrant(Role.ANNOUNCER, "Reset A"));
-		suffixed.setPasswordHash(PasswordHasher.hash("old platform password"));
-		UserAccountRepository.save(suffixed);
-		UserAccount custom = newAccount("custom-reset-speaker", new RoleGrant(Role.ANNOUNCER, "Reset A"));
-		custom.setPasswordHash(PasswordHasher.hash("custom password"));
-		UserAccountRepository.save(custom);
-		UserAccount global = newAccount("global-reset-results", new RoleGrant(Role.RESULTS, null));
-		global.setPasswordHash(PasswordHasher.hash("global password"));
-		UserAccountRepository.save(global);
+		AccessStartup.recomputeGenericAccountsInBackground().join();
+		UserAccount kept = UserAccountRepository.findAll().stream()
+		        .filter(a -> a.isGeneric() && a.getGrants().equals(List.of(new RoleGrant(Role.ANNOUNCER, "Recompute A"))))
+		        .findFirst().orElseThrow();
+		kept.setPasswordHash(PasswordHasher.hash("kept password"));
+		UserAccountRepository.save(kept);
+		UserAccount orphan = newAccount("announcer-Gone", new RoleGrant(Role.ANNOUNCER, "Gone"));
+		orphan.setGeneric(true);
+		UserAccountRepository.save(orphan);
+		UserAccount person = newAccount("speaker-gone", new RoleGrant(Role.ANNOUNCER, "Gone"));
 		UserAccountRepository.ensureBuiltInAdmin();
 		UserAccount admin = UserAccountRepository.findByUsername("admin");
 
-		List<UserAccount> reset = AccessStartup.resetPlatformAccountsInBackground().join();
+		List<UserAccount> recomputed = AccessStartup.recomputeGenericAccountsInBackground().join();
 		UserAccountRepository.invalidate();
 
-		assertNull(UserAccountRepository.findById(single.getId()));
-		assertNull(UserAccountRepository.findById(suffixed.getId()));
-		assertNull(UserAccountRepository.findByUsername("announcer"));
-		UserAccount recreated = UserAccountRepository.findByUsername("announcer-reset a");
-		assertNotNull(recreated);
-		assertTrue(recreated.isPasswordChangeRequired());
-		assertEquals(List.of(new RoleGrant(Role.ANNOUNCER, "Reset A")), recreated.getGrants());
-		assertNotNull(UserAccountRepository.findByUsername("announcer-reset b"));
-		assertEquals(custom.getId(), UserAccountRepository.findByUsername("custom-reset-speaker").getId());
-		assertTrue(PasswordHasher.verify("custom password",
-		        UserAccountRepository.findByUsername("custom-reset-speaker").getPasswordHash()));
-		assertEquals(global.getId(), UserAccountRepository.findByUsername("global-reset-results").getId());
-		assertTrue(PasswordHasher.verify("global password",
-		        UserAccountRepository.findByUsername("global-reset-results").getPasswordHash()));
+		assertNull(UserAccountRepository.findById(orphan.getId()));
+		assertNotNull(UserAccountRepository.findById(person.getId()));
 		assertEquals(admin.getId(), UserAccountRepository.findByUsername("admin").getId());
-		assertEquals(admin.getPasswordHash(), UserAccountRepository.findByUsername("admin").getPasswordHash());
-		assertEquals(reset.size(), UserAccountRepository.findAll().size());
+		UserAccount afterRecompute = UserAccountRepository.findById(kept.getId());
+		assertNotNull(afterRecompute);
+		assertTrue(PasswordHasher.verify("kept password", afterRecompute.getPasswordHash()));
+		assertEquals(recomputed.size(), UserAccountRepository.findAll().size());
 	}
 }

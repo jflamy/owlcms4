@@ -18,6 +18,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -30,6 +31,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 import app.owlcms.access.AccountAuthenticator;
+import app.owlcms.access.AccountPasswords;
 import app.owlcms.access.AccountLandingPolicy;
 import app.owlcms.access.AccessPolicy;
 import app.owlcms.access.LoginThrottle;
@@ -170,7 +172,14 @@ public class LoginView extends Composite<VerticalLayout>
 		button.getThemeNames().add("icon");
 
 		VerticalLayout form = new VerticalLayout();
-		form.add(createTitle(), this.usernameField, this.passwordField, this.errorMessage, button);
+		form.add(createTitle());
+		if (AccountPasswords.isTemporaryAdminPasswordPending()) {
+			Paragraph notice = new Paragraph(Translator.translate("Access.Login.TemporaryAdminPassword"));
+			notice.getStyle().set("font-size", "var(--lumo-font-size-s)");
+			notice.getStyle().set("color", "var(--lumo-secondary-text-color)");
+			form.add(notice);
+		}
+		form.add(this.usernameField, this.passwordField, this.errorMessage, button);
 		form.setWidth("20em");
 		form.setAlignSelf(Alignment.CENTER, button);
 		getContent().add(form);
@@ -386,7 +395,7 @@ public class LoginView extends Composite<VerticalLayout>
 			        ? QueryParameters.simple(Map.of("fop", principal.loginPlatform())) : QueryParameters.empty();
 			switch (page) {
 				case HOME -> UI.getCurrent().navigate(HomeNavigationContent.class);
-				case COMPETITION_DIRECTOR -> UI.getCurrent().navigate(CompetitionDirectorContent.class, parameters);
+				case COMPETITION_SUPERVISOR -> UI.getCurrent().navigate(CompetitionDirectorContent.class, parameters);
 				case PREPARATION -> UI.getCurrent().navigate(PreparationNavigationContent.class, parameters);
 				case REGISTRATION -> UI.getCurrent().navigate(RegistrationContent.class, parameters);
 				case WEIGHIN -> UI.getCurrent().navigate(WeighinContent.class, parameters);

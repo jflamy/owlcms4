@@ -32,6 +32,21 @@ public final class AuthAudit {
 		write("auth.logout", mode, user, AuditFormat.kv("reason", reason), loginPlatform);
 	}
 
+	/** Never pass the password itself. */
+	public static void temporaryPasswordGenerated(String user) {
+		write("auth.temporary-password", "ACCOUNTS", user, AuditFormat.kv("disclosed", "owlcms.log"), null);
+	}
+
+	/** @param how "self" when users change their own password */
+	public static void passwordChanged(String user, String how) {
+		write("auth.password-changed", "ACCOUNTS", user, AuditFormat.kv("how", how), null);
+	}
+
+	public static void passwordsCleared(String byUser, String accounts, int count) {
+		write("auth.passwords-cleared", "ACCOUNTS", byUser, AuditFormat.kvs("accounts", accounts, "count", count),
+		        null);
+	}
+
 	private static void write(String action, String mode, String user, String detail, String platform) {
 		AuditActor actor = AuditActor.login(mode, clean(user));
 		AuditLog.write(AuditEntry.builder(COMPETITION, action).actor(actor).detail(detail).build());

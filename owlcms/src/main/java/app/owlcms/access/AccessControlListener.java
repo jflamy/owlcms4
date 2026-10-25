@@ -70,6 +70,11 @@ public class AccessControlListener implements BeforeEnterListener {
 		}
 		OwlcmsSession.setPrincipal(principal);
 
+		if (AccountPasswords.mustChangePassword(principal) && !AccountPasswords.ACCOUNT_ROUTE.equals(path)) {
+			event.forwardTo(AccountPasswords.ACCOUNT_ROUTE);
+			return;
+		}
+
 		String platform = rule.platformBound() ? targetPlatform(queryParameters) : null;
 		if (!AccessPolicy.canOpen(principal, rule, platform)) {
 			logger.info("access denied user={} path={} platform={}", principal.username(), path, platform);

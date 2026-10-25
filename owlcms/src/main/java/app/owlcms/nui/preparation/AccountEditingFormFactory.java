@@ -10,6 +10,7 @@ import org.vaadin.crudui.crud.CrudOperationException;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -19,12 +20,16 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder.Binding;
 
+import app.owlcms.access.AccessStartup;
+import app.owlcms.access.AccountModeAuthenticator;
 import app.owlcms.access.PasswordHasher;
 import app.owlcms.access.Principal;
 import app.owlcms.access.Role;
+import app.owlcms.access.SessionLogout;
 import app.owlcms.data.account.RoleGrant;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
@@ -34,18 +39,49 @@ import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 @SuppressWarnings("serial")
 class AccountEditingFormFactory extends OwlcmsCrudFormFactory<UserAccount> {
 
-	AccountEditingFormFactory(Class<UserAccount> domainType) {
+	private final boolean generic;
+
+	/** @param generic whether accounts added through this form are generic (role) accounts */
+	AccountEditingFormFactory(Class<UserAccount> domainType, boolean generic) {
 		super(domainType);
+		this.generic = generic;
 	}
 
 	@Override
 	public UserAccount add(UserAccount account) {
-		return UserAccountRepository.save(account);
+		account.setGeneric(this.generic);
+		return saveAndApplyModeChange(account);
 	}
 
 	@Override
 	public UserAccount update(UserAccount account) {
-		return UserAccountRepository.save(account);
+		return saveAndApplyModeChange(account);
+	}
+
+	/**
+	 * Setting the admin password can bring accounts mode into force (audit key present); the role accounts
+	 * are then initialized and every session is sent to the login page. Called on the UI thread.
+	 */
+	private UserAccount saveAndApplyModeChange(UserAccount account) {
+		Config config = Config.getCurrent();
+		boolean wasAccountsMode = config.isAccountsMode();
+		UserAccount saved = UserAccountRepository.save(account);
+		boolean isAccountsMode = config.isAccountsMode();
+		if (wasAccountsMode == isAccountsMode) {
+			return saved;
+		}
+		if (isAccountsMode) {
+			AccessStartup.initializeRoleAccountsInBackground();
+		}
+		Principal principal = OwlcmsSession.getPrincipal();
+		if (principal != null && principal.source() == Principal.AuthSource.ACCOUNT) {
+			AccountModeAuthenticator.logout(principal, "access mode changed");
+		}
+		UI ui = UI.getCurrent();
+		if (ui != null) {
+			SessionLogout.redirectAllAndInvalidate(ui.getSession());
+		}
+		return saved;
 	}
 
 	@Override
@@ -105,12 +141,6 @@ class AccountEditingFormFactory extends OwlcmsCrudFormFactory<UserAccount> {
 		        .withValidator(name -> isUnique(name, account), Translator.translate("Access.Error.DuplicateUsername"))
 		        .bind(UserAccount::getUsername, UserAccount::setUsername);
 
-		TextField displayNameField = new TextField(Translator.translate("Access.Account.DisplayName"));
-		layout.add(displayNameField);
-		this.binder.forField(displayNameField)
-		        .withNullRepresentation("")
-		        .bind(UserAccount::getDisplayName, UserAccount::setDisplayName);
-
 		Checkbox enabledField = new Checkbox(Translator.translate("Access.Account.Enabled"));
 		enabledField.setReadOnly(account.isBuiltInAdmin());
 		layout.add(enabledField);
@@ -133,6 +163,15 @@ class AccountEditingFormFactory extends OwlcmsCrudFormFactory<UserAccount> {
 		this.binder.forField(confirmField).bind(a -> "", (a, v) -> {
 		});
 		confirmField.addValueChangeListener(e -> passwordBinding.validate());
+
+		// the flag is only meaningful if the account has a password once saved: the existing one or a new one
+		Checkbox mustChangeField = new Checkbox(Translator.translate("Access.Account.MustChangePassword"));
+		layout.add(mustChangeField);
+		Binding<UserAccount, Boolean> mustChangeBinding = this.binder.forField(mustChangeField)
+		        .withValidator(checked -> !checked || account.hasPassword() || !isBlank(newPasswordField.getValue()),
+		                Translator.translate("Access.Error.MustChangeNeedsPassword"))
+		        .bind(UserAccount::isMustChangePassword, UserAccount::setMustChangePassword);
+		newPasswordField.addValueChangeListener(e -> mustChangeBinding.validate());
 
 		List<String> platformNames = PlatformRepository.findAll().stream().map(Platform::getName)
 		        .collect(Collectors.toList());

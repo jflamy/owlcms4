@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.audit.AuditIntegrity;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.config.Config;
@@ -29,16 +30,26 @@ public final class AccessStartup {
 
 	public static void run() {
 		UserAccountRepository.ensureBuiltInAdmin();
-		if (!Config.getCurrent().isAccountsMode()) {
+		Config config = Config.getCurrent();
+		if (!config.isAccountsMode()) {
+			AccountPasswords.ensureAdminPassword(false);
 			return;
+		}
+		if (selectedByAuditKey(config)) {
+			logger.info("accounts mode selected because an audit signing key is configured and the admin account has a password; the administrator can choose PIN mode instead");
 		}
 		if (StartupUtils.getStringParam("pin") != null) {
 			logger./**/warn("OWLCMS_PIN is ignored because accounts mode is active");
 		}
-		if (!UserAccountRepository.adminHasPassword()) {
-			logger./**/error(
-			        "accounts mode is active but the admin account has no password: only backdoor access works. Set OWLCMS_BACKDOOR to the addresses that may administer.");
-		}
+		AccountPasswords.ensureAdminPassword(true);
+	}
+
+	private static boolean selectedByAuditKey(Config config) {
+		String override = StartupUtils.getStringParam("accessMode");
+		return AuditIntegrity.isInitialized() && AuditIntegrity.current().forcedByKey()
+		        && config.getAccessMode() != AccessMode.ACCOUNTS
+		        && !Boolean.TRUE.equals(config.getPinModeChosen())
+		        && (override == null || !"ACCOUNTS".equalsIgnoreCase(override.trim()));
 	}
 
 	public static synchronized CompletableFuture<Void> initializeRoleAccountsInBackground() {
@@ -55,16 +66,35 @@ public final class AccessStartup {
 		return initialization;
 	}
 
-	public static synchronized CompletableFuture<List<UserAccount>> resetPlatformAccountsInBackground() {
+	public static synchronized CompletableFuture<List<UserAccount>> recomputeGenericAccountsInBackground() {
 		CompletableFuture<List<UserAccount>> reset = CompletableFuture.supplyAsync(
-		        UserAccountRepository::resetPlatformAccounts, ACCOUNT_INITIALIZER)
+		        UserAccountRepository::recomputeGenericAccounts, ACCOUNT_INITIALIZER)
 		        .whenComplete((accounts, failure) -> {
 			        if (failure != null) {
-				        logger./**/warn("Unable to reset platform accounts", failure);
+				        logger./**/warn("Unable to recompute generic accounts", failure);
 			        }
 		        });
 		initialization = reset.thenApply(accounts -> null);
 		return reset;
+	}
+
+	/** After a platform is added or renamed, generic accounts are created or renamed at once in accounts mode. */
+	public static void platformsChanged() {
+		if (Config.getCurrent().isAccountsMode()) {
+			initializeRoleAccountsInBackground();
+		}
+	}
+
+	/** Clears the passwords of one group of accounts but the built-in admin and the acting account; completes with the count. */
+	public static CompletableFuture<Integer> clearPasswordsInBackground(boolean generic, Long actingAccountId,
+	        String actingUser) {
+		return CompletableFuture.supplyAsync(
+		        () -> AccountPasswords.clearPasswords(generic, actingAccountId, actingUser), ACCOUNT_INITIALIZER)
+		        .whenComplete((count, failure) -> {
+			        if (failure != null) {
+				        logger./**/warn("Unable to clear account passwords", failure);
+			        }
+		        });
 	}
 
 	public static void initializeRoleAccountsAfterDataLoad() {

@@ -13,6 +13,7 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import app.owlcms.utils.IdUtils;
 
@@ -20,6 +21,8 @@ import app.owlcms.utils.IdUtils;
 @SuppressWarnings("serial")
 @Entity
 @Cacheable
+// exports from earlier versions carry a displayName that is no longer used
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserAccount implements Serializable {
 
 	public static final String BUILT_IN_ADMIN = "admin";
@@ -30,11 +33,16 @@ public class UserAccount implements Serializable {
 	@Column(unique = true, nullable = false)
 	private String username;
 
-	private String displayName;
-
 	private String passwordHash;
 
 	private boolean enabled = true;
+
+	@Column(columnDefinition = "boolean default false")
+	private boolean mustChangePassword;
+
+	/** Created by OWLCMS for a role (and platform) rather than for a person; the built-in admin is always generic. */
+	@Column(columnDefinition = "boolean default false")
+	private boolean generic;
 
 	@ElementCollection(fetch = FetchType.EAGER)
 	private List<RoleGrant> grants = new ArrayList<>();
@@ -48,9 +56,10 @@ public class UserAccount implements Serializable {
 		UserAccount copy = new UserAccount();
 		copy.id = this.id;
 		copy.username = this.username;
-		copy.displayName = this.displayName;
 		copy.passwordHash = this.passwordHash;
 		copy.enabled = this.enabled;
+		copy.mustChangePassword = this.mustChangePassword;
+		copy.generic = this.generic;
 		for (RoleGrant grant : this.grants) {
 			copy.grants.add(new RoleGrant(grant.getRole(), grant.getPlatformName()));
 		}
@@ -106,14 +115,6 @@ public class UserAccount implements Serializable {
 		this.username = username == null ? null : username.trim();
 	}
 
-	public String getDisplayName() {
-		return this.displayName;
-	}
-
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
-
 	public String getPasswordHash() {
 		return this.passwordHash;
 	}
@@ -130,17 +131,29 @@ public class UserAccount implements Serializable {
 		this.enabled = enabled;
 	}
 
+	/** The user must replace the current password before opening any other page. */
+	public boolean isMustChangePassword() {
+		return this.mustChangePassword;
+	}
+
+	public void setMustChangePassword(boolean mustChangePassword) {
+		this.mustChangePassword = mustChangePassword;
+	}
+
+	public boolean isGeneric() {
+		return this.generic || isBuiltInAdmin();
+	}
+
+	public void setGeneric(boolean generic) {
+		this.generic = generic;
+	}
+
 	public List<RoleGrant> getGrants() {
 		return this.grants;
 	}
 
 	public void setGrants(List<RoleGrant> grants) {
 		this.grants = grants != null ? grants : new ArrayList<>();
-	}
-
-	/** Name shown to people; falls back to the login name. */
-	public String getShownName() {
-		return this.displayName != null && !this.displayName.isBlank() ? this.displayName : this.username;
 	}
 
 	@Override

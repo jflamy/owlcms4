@@ -49,8 +49,10 @@ import tools.jackson.databind.json.JsonMapper;
 
 import app.owlcms.Main;
 import app.owlcms.access.AccessMode;
+import app.owlcms.access.AccessModeResolver;
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.audit.AuditIntegrity;
+import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
@@ -153,6 +155,10 @@ public class Config {
 		if (config.accessMode == null && current != null) {
 			config.accessMode = current.accessMode;
 		}
+		// an export from an older version carries no explicit choice; keep the running one
+		if (config.pinModeChosen == null && current != null) {
+			config.pinModeChosen = current.pinModeChosen;
+		}
 		config.migrateFeatureSwitchesToJson();
 		config.prepareForwardingConnections();
 		Config saved = ConfigRepository.save(config);
@@ -175,6 +181,9 @@ public class Config {
 	@Enumerated(EnumType.STRING)
 	@JsonIgnore
 	private AccessMode accessMode;
+	/** true when the administrator deliberately chose PIN mode; exported, unlike accessMode. */
+	@Column(name = "pinModeChosen")
+	private Boolean pinModeChosen;
 	private String mqttPort;
 	private String mqttUserName;
 	private String mqttPassword;
@@ -635,18 +644,39 @@ public class Config {
 		this.accessMode = accessMode;
 	}
 
-	/** The mode in force: OWLCMS_ACCESSMODE overrides the database value. */
+	/** @return true if the administrator deliberately chose PIN mode, null if there was no explicit choice */
+	public Boolean getPinModeChosen() {
+		return this.pinModeChosen;
+	}
+
+	public void setPinModeChosen(Boolean pinModeChosen) {
+		this.pinModeChosen = pinModeChosen;
+	}
+
+	/**
+	 * Records an explicit administrator choice: choosing PIN is remembered so that an audit key does not undo
+	 * it, choosing ACCOUNTS clears it.
+	 */
+	@JsonIgnore
+	public void chooseAccessMode(AccessMode mode) {
+		this.accessMode = mode;
+		this.pinModeChosen = mode == AccessMode.PIN;
+	}
+
+	/** The mode in force: OWLCMS_ACCESSMODE, an explicit PIN choice, or the audit key with an admin password. */
 	@JsonIgnore
 	public AccessMode getParamAccessMode() {
-		String override = StartupUtils.getStringParam("accessMode");
-		if (override != null && !override.isBlank()) {
-			try {
-				return AccessMode.valueOf(override.trim().toUpperCase(Locale.ROOT));
-			} catch (IllegalArgumentException e) {
-				logger.warn("OWLCMS_ACCESSMODE '{}' ignored, expected PIN or ACCOUNTS", override);
-			}
-		}
-		return getAccessMode();
+		return effectiveAccessMode(getAccessMode(), this.pinModeChosen);
+	}
+
+	/** @return the mode in force for the given stored values, using the live environment and admin account */
+	public static AccessMode effectiveAccessMode(AccessMode stored, Boolean pinChosen) {
+		boolean pemForced = AuditIntegrity.isInitialized() && AuditIntegrity.current().forcedByKey();
+		// the account lookup is only needed when the audit key could decide
+		boolean adminHasPassword = pemForced && !Boolean.TRUE.equals(pinChosen)
+		        && UserAccountRepository.adminHasPassword();
+		return AccessModeResolver.resolve(StartupUtils.getStringParam("accessMode"), stored, pinChosen, pemForced,
+		        adminHasPassword);
 	}
 
 	@JsonIgnore

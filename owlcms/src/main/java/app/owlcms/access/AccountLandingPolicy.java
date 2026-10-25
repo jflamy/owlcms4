@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 public final class AccountLandingPolicy {
 
 	public enum WorkPage {
-		HOME, COMPETITION_DIRECTOR, PREPARATION, REGISTRATION, WEIGHIN, RESULTS,
+		HOME, COMPETITION_SUPERVISOR, PREPARATION, REGISTRATION, WEIGHIN, RESULTS,
 		LIFTING, ANNOUNCER, MARSHAL, TIMEKEEPER, TC, JURY_CONTROL,
 		REFEREE_NAVIGATION, JURY_NAVIGATION, DISPLAY_NAVIGATION
 	}
@@ -29,8 +29,8 @@ public final class AccountLandingPolicy {
 
 	private static WorkPage defaultWorkPage(Role role) {
 		return switch (role) {
-			case ADMIN, ADMIN_PAGES, EXTERNAL -> WorkPage.HOME;
-			case COMPETITION_DIRECTOR -> WorkPage.COMPETITION_DIRECTOR;
+			case ADMIN, ADMIN_PAGES, EXTERNAL, COMPETITION_DIRECTOR -> WorkPage.HOME;
+			case COMPETITION_SUPERVISOR -> WorkPage.COMPETITION_SUPERVISOR;
 			case PREPARATION -> WorkPage.PREPARATION;
 			case REGISTRATION -> WorkPage.REGISTRATION;
 			case WEIGHIN -> WorkPage.WEIGHIN;

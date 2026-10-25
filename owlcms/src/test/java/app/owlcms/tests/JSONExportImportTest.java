@@ -126,6 +126,145 @@ public class JSONExportImportTest {
     }
 
     @Test
+    public void mustChangePasswordRoundTripsThroughBothJsonFormats() throws Exception {
+        String username = "mustchangeuser";
+        UserAccount account = new UserAccount();
+        account.setUsername(username);
+        account.setPasswordHash(PasswordHasher.hash("mustchangeuser"));
+        account.setMustChangePassword(true);
+        UserAccountRepository.save(account);
+
+        String legacyJson = new CompetitionData().exportDataAsString();
+        String v2Json = new String(new CompetitionDataV2().fromDatabase().exportData().readAllBytes(),
+                StandardCharsets.UTF_8);
+        assertTrue(legacyJson.contains("\"mustChangePassword\""));
+        assertTrue(v2Json.contains("\"mustChangePassword\""));
+
+        CompetitionData legacyImported = new CompetitionData().importDataFromString(legacyJson);
+        assertTrue(findAccount(legacyImported.getAccounts(), username).isMustChangePassword());
+        CompetitionDataV2 v2Imported = new CompetitionDataV2().importData(
+                new ByteArrayInputStream(v2Json.getBytes(StandardCharsets.UTF_8)));
+        assertTrue(findAccount(v2Imported.getAccounts(), username).isMustChangePassword());
+    }
+
+    @Test
+    public void genericFlagRoundTripsThroughBothJsonFormats() throws Exception {
+        UserAccount generic = new UserAccount();
+        generic.setUsername("genericroundtrip");
+        generic.setGeneric(true);
+        UserAccountRepository.save(generic);
+        UserAccount person = new UserAccount();
+        person.setUsername("personroundtrip");
+        UserAccountRepository.save(person);
+
+        String legacyJson = new CompetitionData().exportDataAsString();
+        String v2Json = new String(new CompetitionDataV2().fromDatabase().exportData().readAllBytes(),
+                StandardCharsets.UTF_8);
+
+        CompetitionData legacyImported = new CompetitionData().importDataFromString(legacyJson);
+        assertTrue(findAccount(legacyImported.getAccounts(), "genericroundtrip").isGeneric());
+        assertFalse(findAccount(legacyImported.getAccounts(), "personroundtrip").isGeneric());
+        CompetitionDataV2 v2Imported = new CompetitionDataV2().importData(
+                new ByteArrayInputStream(v2Json.getBytes(StandardCharsets.UTF_8)));
+        assertTrue(findAccount(v2Imported.getAccounts(), "genericroundtrip").isGeneric());
+        assertFalse(findAccount(v2Imported.getAccounts(), "personroundtrip").isGeneric());
+    }
+
+    @Test
+    public void jsonWithoutMustChangePasswordImportsAsFalse() throws Exception {
+        String username = "legacyjsonuser";
+        UserAccount account = new UserAccount();
+        account.setUsername(username);
+        account.setPasswordHash(PasswordHasher.hash("legacyjsonuser"));
+        account.setMustChangePassword(true);
+        UserAccountRepository.save(account);
+
+        ObjectMapper mapper = JsonMapper.builder().build();
+        JsonNode legacyTree = mapper.readTree(new CompetitionData().exportDataAsString());
+        removeMustChangePassword(legacyTree.get("accounts"));
+        JsonNode v2Tree = mapper.readTree(new String(
+                new CompetitionDataV2().fromDatabase().exportData().readAllBytes(), StandardCharsets.UTF_8));
+        removeMustChangePassword(v2Tree.get("accounts"));
+
+        CompetitionData legacyImported = new CompetitionData().importDataFromString(mapper.writeValueAsString(legacyTree));
+        assertFalse(findAccount(legacyImported.getAccounts(), username).isMustChangePassword());
+        CompetitionDataV2 v2Imported = new CompetitionDataV2().importData(new ByteArrayInputStream(
+                mapper.writeValueAsString(v2Tree).getBytes(StandardCharsets.UTF_8)));
+        assertFalse(findAccount(v2Imported.getAccounts(), username).isMustChangePassword());
+    }
+
+    private static UserAccount findAccount(List<UserAccount> accounts, String username) {
+        return accounts.stream().filter(a -> username.equals(a.getUsername())).findFirst().orElseThrow();
+    }
+
+    private static void removeMustChangePassword(JsonNode accounts) {
+        assertNotNull("exported JSON should contain accounts", accounts);
+        for (JsonNode node : accounts) {
+            ((ObjectNode) node).remove("mustChangePassword");
+        }
+    }
+
+    @Test
+    public void pinModeChoiceRoundTripsThroughBothJsonFormats() throws Exception {
+        Config config = Config.getCurrent();
+        ObjectMapper mapper = JsonMapper.builder().build();
+        try {
+            config.setPinModeChosen(Boolean.TRUE);
+            Config.setCurrent(config);
+            String legacyJson = new CompetitionData().exportDataAsString();
+            String v2Json = new String(new CompetitionDataV2().fromDatabase().exportData().readAllBytes(),
+                    StandardCharsets.UTF_8);
+            assertTrue(mapper.readTree(legacyJson).get("config").get("pinModeChosen").asBoolean());
+            assertTrue(mapper.readTree(v2Json).get("config").get("pinModeChosen").asBoolean());
+
+            config = Config.getCurrent();
+            config.setPinModeChosen(Boolean.FALSE);
+            Config.setCurrent(config);
+            CompetitionData legacyImported = new CompetitionData().importDataFromString(legacyJson);
+            assertEquals(Boolean.TRUE, legacyImported.getConfig().getPinModeChosen());
+            assertEquals(Boolean.TRUE, Config.getCurrent().getPinModeChosen());
+
+            config = Config.getCurrent();
+            config.setPinModeChosen(Boolean.FALSE);
+            Config.setCurrent(config);
+            CompetitionDataV2 v2Imported = new CompetitionDataV2().importData(
+                    new ByteArrayInputStream(v2Json.getBytes(StandardCharsets.UTF_8)));
+            assertEquals(Boolean.TRUE, v2Imported.getConfig().getPinModeChosen());
+            assertEquals(Boolean.TRUE, Config.getCurrent().getPinModeChosen());
+        } finally {
+            Config restored = Config.getCurrent();
+            restored.setPinModeChosen(null);
+            Config.setCurrent(restored);
+        }
+    }
+
+    @Test
+    public void jsonWithoutPinModeChoiceKeepsTheRunningChoice() throws Exception {
+        ObjectMapper mapper = JsonMapper.builder().build();
+        try {
+            Config config = Config.getCurrent();
+            config.setPinModeChosen(Boolean.TRUE);
+            Config.setCurrent(config);
+            JsonNode legacyTree = mapper.readTree(new CompetitionData().exportDataAsString());
+            ((ObjectNode) legacyTree.get("config")).remove("pinModeChosen");
+            JsonNode v2Tree = mapper.readTree(new String(
+                    new CompetitionDataV2().fromDatabase().exportData().readAllBytes(), StandardCharsets.UTF_8));
+            ((ObjectNode) v2Tree.get("config")).remove("pinModeChosen");
+
+            new CompetitionData().importDataFromString(mapper.writeValueAsString(legacyTree));
+            assertEquals(Boolean.TRUE, Config.getCurrent().getPinModeChosen());
+
+            new CompetitionDataV2().importData(
+                    new ByteArrayInputStream(mapper.writeValueAsString(v2Tree).getBytes(StandardCharsets.UTF_8)));
+            assertEquals(Boolean.TRUE, Config.getCurrent().getPinModeChosen());
+        } finally {
+            Config restored = Config.getCurrent();
+            restored.setPinModeChosen(null);
+            Config.setCurrent(restored);
+        }
+    }
+
+    @Test
     public void forwardingUpdateKeysRoundTripThroughBothJsonFormats() throws Exception {
         Config config = Config.getCurrent();
         List<ForwardingConnection> originalConnections = config.getForwardingDestinations();

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -21,8 +22,8 @@ public class RoleAccountInitializationTest {
 		List<UserAccount> accounts = UserAccountRepository.missingRoleAccounts(List.of(), List.of("A", "B"));
 		assertEquals(23, accounts.size());
 		for (Role role : Role.values()) {
-			if (!role.isGrantable()) {
-				assertFalse(accounts.stream().anyMatch(a -> a.getGrants().stream()
+			if (!role.isGrantable() || role == Role.COMPETITION_DIRECTOR) {
+				assertFalse(role.name(), accounts.stream().anyMatch(a -> a.getGrants().stream()
 				        .anyMatch(g -> g.getRole() == role)));
 				continue;
 			}
@@ -35,12 +36,20 @@ public class RoleAccountInitializationTest {
 		}
 		assertTrue(accounts.stream().allMatch(UserAccount::isEnabled));
 		assertTrue(accounts.stream().allMatch(UserAccount::isPasswordChangeRequired));
+		assertTrue(accounts.stream().allMatch(UserAccount::isGeneric));
 		assertTrue(accounts.stream().anyMatch(a -> a.getUsername().equals("announcer-A")));
 		assertTrue(accounts.stream().anyMatch(a -> a.getUsername().equals("platform-B")));
+		assertTrue(accounts.stream().anyMatch(a -> a.getUsername().equals("competition_supervisor")));
 	}
 
 	@Test
-	public void repeatedInitializationPreservesExistingAccountsAndAddsNewPlatforms() {
+	public void builtInAdminIsAlwaysGenericAndOtherAccountsOnlyWhenMarked() {
+		assertTrue(account("ADMIN", new RoleGrant(Role.ADMIN, null)).isGeneric());
+		assertFalse(account("speaker-rm", new RoleGrant(Role.ANNOUNCER, "A")).isGeneric());
+	}
+
+	@Test
+	public void addingASecondPlatformRenamesTheExistingAccountsAndKeepsTheirPasswords() {
 		List<UserAccount> existing = UserAccountRepository.missingRoleAccounts(List.of(), List.of("A"));
 		UserAccount announcer = existing.stream().filter(a -> a.getUsername().equals("announcer"))
 		        .findFirst().orElseThrow();
@@ -48,13 +57,56 @@ public class RoleAccountInitializationTest {
 		announcer.setPasswordHash(PasswordHasher.hash("existing password"));
 		assertTrue(UserAccountRepository.missingRoleAccounts(existing, List.of("A")).isEmpty());
 		List<UserAccount> added = UserAccountRepository.missingRoleAccounts(existing, List.of("A", "B"));
-		assertEquals(16, added.size());
-		assertTrue(added.stream().allMatch(a -> a.getUsername().endsWith("-A") || a.getUsername().endsWith("-B")));
+		assertEquals(8, added.size());
+		assertTrue(added.stream().allMatch(a -> a.getUsername().endsWith("-B")));
+		assertEquals("announcer-A", announcer.getUsername());
 		assertFalse(announcer.isEnabled());
-		assertFalse(announcer.isPasswordChangeRequired());
 		assertTrue(PasswordHasher.verify("existing password", announcer.getPasswordHash()));
 		assertTrue(UserAccountRepository.missingRoleAccounts(
 		        Stream.concat(existing.stream(), added.stream()).toList(), List.of("A", "B")).isEmpty());
+	}
+
+	@Test
+	public void recomputeFollowsPlatformsBeingAddedAndRemoved() {
+		List<UserAccount> accounts = new ArrayList<>();
+		UserAccount admin = account("admin", new RoleGrant(Role.ADMIN, null));
+		accounts.add(admin);
+		UserAccount person = account("speaker-rm", new RoleGrant(Role.ANNOUNCER, "RED"));
+		accounts.add(person);
+		accounts.addAll(UserAccountRepository.missingRoleAccounts(accounts, List.of("RED", "BLUE")));
+		assertEquals(2, platformSets(accounts));
+
+		accounts.addAll(UserAccountRepository.missingRoleAccounts(accounts, List.of("RED", "BLUE", "WHITE")));
+		assertEquals(3, platformSets(accounts));
+
+		// deleting a platform strips its grants, as UserAccountRepository.removePlatform does
+		accounts.forEach(a -> a.getGrants().removeIf(g -> "RED".equals(g.getPlatformName())));
+		List<String> platforms = List.of("BLUE", "WHITE");
+		List<UserAccount> unmatched = UserAccountRepository.unmatchedGenericAccounts(accounts, platforms);
+		assertEquals(8, unmatched.size());
+		assertTrue(unmatched.stream().allMatch(a -> a.getUsername().endsWith("-RED")));
+		accounts.removeAll(unmatched);
+		assertTrue(UserAccountRepository.missingRoleAccounts(accounts, platforms).isEmpty());
+		assertEquals(2, platformSets(accounts));
+		assertTrue("user accounts are never recomputed", accounts.contains(person));
+		assertTrue(accounts.contains(admin));
+
+		accounts.forEach(a -> a.getGrants().removeIf(g -> "BLUE".equals(g.getPlatformName())));
+		List<String> single = List.of("WHITE");
+		accounts.removeAll(UserAccountRepository.unmatchedGenericAccounts(accounts, single));
+		UserAccount whiteAnnouncer = accounts.stream()
+		        .filter(a -> a.getUsername().equals("announcer-WHITE")).findFirst().orElseThrow();
+		whiteAnnouncer.setPasswordHash(PasswordHasher.hash("white password"));
+		assertTrue(UserAccountRepository.missingRoleAccounts(accounts, single).isEmpty());
+		assertEquals("back to one platform, the suffix is dropped", "announcer", whiteAnnouncer.getUsername());
+		assertTrue(PasswordHasher.verify("white password", whiteAnnouncer.getPasswordHash()));
+		assertTrue(accounts.stream().filter(UserAccount::isGeneric).noneMatch(a -> a.getUsername().contains("-")));
+	}
+
+	private static long platformSets(List<UserAccount> accounts) {
+		return accounts.stream().filter(UserAccount::isGeneric)
+		        .filter(a -> a.getGrants().size() == 1 && a.getGrants().get(0).getRole() == Role.ANNOUNCER)
+		        .count();
 	}
 
 	@Test
@@ -100,47 +152,6 @@ public class RoleAccountInitializationTest {
 		UserAccount announcer = accounts.stream().filter(a -> a.getUsername().equals("announcer"))
 		        .findFirst().orElseThrow();
 		assertEquals(List.of(new RoleGrant(Role.ANNOUNCER, "Main")), announcer.getGrants());
-	}
-
-	@Test
-	public void resetRecognizesBothSingleAndMultiPlatformConventionalAccounts() {
-		UserAccount single = account("ANNOUNCER", new RoleGrant(Role.ANNOUNCER, "Main"));
-		UserAccount multiple = account("announcer-Main", new RoleGrant(Role.ANNOUNCER, "Main"));
-		assertTrue(UserAccountRepository.isConventionalPlatformAccount(single));
-		assertTrue(UserAccountRepository.isConventionalPlatformAccount(multiple));
-		assertFalse(UserAccountRepository.isConventionalPlatformAccount(
-		        account("speaker", new RoleGrant(Role.ANNOUNCER, "Main"))));
-		assertFalse(UserAccountRepository.isConventionalPlatformAccount(
-		        account("announcer-Main", new RoleGrant(Role.ANNOUNCER, null))));
-		assertFalse(UserAccountRepository.isConventionalPlatformAccount(
-		        account("results", new RoleGrant(Role.RESULTS, null))));
-		assertFalse(UserAccountRepository.isConventionalPlatformAccount(
-		        account("admin", new RoleGrant(Role.ADMIN, null))));
-		UserAccount custom = account("announcer", new RoleGrant(Role.ANNOUNCER, "Main"));
-		custom.getGrants().add(new RoleGrant(Role.RESULTS, null));
-		assertFalse(UserAccountRepository.isConventionalPlatformAccount(custom));
-	}
-
-	@Test
-	public void resetRegeneratesNamesInBothDirectionsAndPreservesCustomAndGlobalAccounts() {
-		List<UserAccount> singlePlatform = UserAccountRepository.missingRoleAccounts(List.of(), List.of("A"));
-		UserAccount custom = account("custom-speaker", new RoleGrant(Role.ANNOUNCER, "A"));
-		List<UserAccount> retained = Stream.concat(singlePlatform.stream(), Stream.of(custom))
-		        .filter(a -> !UserAccountRepository.isConventionalPlatformAccount(a)).toList();
-		assertEquals(8, retained.size());
-		List<UserAccount> multiplePlatforms = UserAccountRepository.missingRoleAccounts(retained, List.of("A", "B"));
-		assertEquals(16, multiplePlatforms.size());
-		assertTrue(multiplePlatforms.stream().noneMatch(a -> a.getUsername().equals("announcer")));
-		assertTrue(multiplePlatforms.stream().anyMatch(a -> a.getUsername().equals("announcer-A")));
-		assertTrue(multiplePlatforms.stream().anyMatch(a -> a.getUsername().equals("announcer-B")));
-		assertTrue(retained.contains(custom));
-		List<UserAccount> all = Stream.concat(retained.stream(), multiplePlatforms.stream()).toList();
-		List<UserAccount> backToSingle = all.stream()
-		        .filter(a -> !UserAccountRepository.isConventionalPlatformAccount(a)).toList();
-		List<UserAccount> recreated = UserAccountRepository.missingRoleAccounts(backToSingle, List.of("A"));
-		assertEquals(8, recreated.size());
-		assertTrue(recreated.stream().allMatch(a -> !a.getUsername().contains("-")));
-		assertTrue(recreated.stream().allMatch(UserAccount::isPasswordChangeRequired));
 	}
 
 	private static UserAccount account(String username, RoleGrant grant) {

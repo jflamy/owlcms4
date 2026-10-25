@@ -10,7 +10,10 @@ import java.util.Set;
 public enum Role {
 	ADMIN(true, false, false, false),
 	ADMIN_PAGES(false, false, false, true),
-	COMPETITION_DIRECTOR(true, false, false, true),
+	/** The TIS operator who supervises the competition from the Competition Supervisor page. */
+	COMPETITION_SUPERVISOR(true, false, false, true),
+	/** The rules-defined official, who often does not use the system: preparation and results only. */
+	COMPETITION_DIRECTOR(true, false, false, false),
 	PREPARATION(true, false, false, true),
 	REGISTRATION(true, false, false, true),
 	WEIGHIN(true, false, false, true),
@@ -58,8 +61,9 @@ public enum Role {
 	public Set<Role> expand() {
 		return switch (this) {
 			case ADMIN -> baseRoles();
-			case COMPETITION_DIRECTOR -> EnumSet.of(COMPETITION_DIRECTOR, PREPARATION, REGISTRATION, WEIGHIN,
+			case COMPETITION_SUPERVISOR -> EnumSet.of(COMPETITION_SUPERVISOR, PREPARATION, REGISTRATION, WEIGHIN,
 			        RESULTS, ANNOUNCER, MARSHAL, TIMEKEEPER, TC, JURY, REFEREE, DISPLAYS);
+			case COMPETITION_DIRECTOR -> EnumSet.of(PREPARATION, RESULTS, DISPLAYS);
 			case RESULTS -> EnumSet.of(RESULTS, DISPLAYS);
 			case PLATFORM -> EnumSet.of(ANNOUNCER, MARSHAL, TIMEKEEPER, TC, DISPLAYS);
 			default -> EnumSet.of(this);

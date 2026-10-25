@@ -422,6 +422,8 @@ public class CompetitionDataV2 {
 		}
 		return null;
 		});
+		// the account cache may have been refilled with the old accounts before the import committed
+		UserAccountRepository.invalidate();
 		ChampionshipRepository.reconcileImportedAgeGroups();
 		Championship.reset();
 		Championship.recomputeParticipantCounts();
