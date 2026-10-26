@@ -386,8 +386,10 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	public Ranking getScoringSystem() {
-		return this.scoringSystem != null ? this.scoringSystem
-		        : (this.championship != null ? this.championship : Championship.of(null)).getBestAthleteScoringSystem();
+		if (this.scoringSystem != null) {
+			return this.scoringSystem;
+		}
+		return this.championship != null ? this.championship.getBestAthleteScoringSystem() : null;
 	}
 
 
@@ -839,7 +841,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	@Override
 	public void onChampionshipChanged(Championship championship) {
 		if (getRankingSelector() != null) {
-			Ranking ranking = championship != null ? championship.getBestAthleteScoringSystem() : getScoringSystem();
+			Ranking ranking = championship != null ? championship.getBestAthleteScoringSystem() : null;
 			getRankingSelector().setRanking(ranking);
 			setScoringSystem(ranking);
 			resetGrid();
