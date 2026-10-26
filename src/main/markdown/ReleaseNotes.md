@@ -10,6 +10,8 @@
 
 **Maintenance Log**
 
+- 68.0.5: Regression fix: The best-athlete selector can again be cleared to use each participation's age-group scoring system in results and exports.
+
 - 68.0.4: Fixed decisions being ignored after reloading the session while a decision was shown: the platform stayed stuck and refused to start the clock until the session was unloaded.
   - Reloading the session while the clock is running or a decision is in progress now asks for confirmation (Cancel is the default). Confirming stops the clock, clears the decision, and lifting must be restarted.
   - Editing a platform no longer reloads its current session
