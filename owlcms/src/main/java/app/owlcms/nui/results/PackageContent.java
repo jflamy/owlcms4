@@ -595,11 +595,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 				if (!event.isFromClient()) {
 					return;
 				}
-				if (event.getValue() == null) {
-					scoringCombo.setRanking(getScoringSystem());
-					return;
-				}
-				bestAthleteScoringSelected(event.getValue().ranking());
+				bestAthleteScoringSelected(event.getValue() != null ? event.getValue().ranking() : null);
 			});
 			// Initialize to current value or global default
 			Ranking initialValue = getScoringSystem();
@@ -682,13 +678,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	private Ranking computeScoringSystem() {
-		Ranking ranking;
-		if (getRankingSelector() != null && getRankingSelector().getRanking() != null) {
-			ranking = getRankingSelector().getRanking();
-		} else {
-			ranking = getScoringSystem();
-		}
-		return ranking;
+		return getRankingSelector() != null
+		        ? getRankingSelector().getRanking()
+		        : getScoringSystem();
 	}
 
 	private Ranking computeScoringSystemForBook() {
@@ -800,7 +792,10 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
 	private void resetGrid() {
 		// Create new grid with updated columns for the new scoring system
-		Grid<Athlete> newGrid = SessionResultsContent.createResultGrid(this.getScoringSystem());
+		Ranking selectedScoringSystem = getRankingSelector() != null
+		        ? getRankingSelector().getRanking()
+		        : getScoringSystem();
+		Grid<Athlete> newGrid = SessionResultsContent.createResultGrid(selectedScoringSystem);
 		
 		// Replace just the grid component, preserving all filters and layout
 		this.getCrudGrid().replaceGrid(newGrid);
