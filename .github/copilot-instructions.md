@@ -13,6 +13,7 @@ primary location assistants should read before taking actions.
     "no_auto_build": true,
     "no_mvn": true,
     "require_human_consent_for_git": true,
+    "forbid_copilot_coauthor_trailer": true,
     "avoid_fully_qualified_class_names": true,
     "require_human_consent_for_build": true,
     "do_not_exfiltrate_secrets": true,
@@ -34,6 +35,7 @@ primary location assistants should read before taking actions.
 ## Quick human summary
 
 - Do not run `mvn` or perform automatic builds without explicit human consent. CI jobs are allowed to run Maven; local/editor automation must not.
+- Never add a Copilot `Co-authored-by` trailer to a commit message.
 - Never exfiltrate secrets — use environment variables or the project's secrets manager.
 - Always format shell commands for `bash`. On Windows, execute via or Git Bash.
 - Never use fully-qualified class names in new or edited Java source files. Prefer adding an import and using the short type name. Only use a fully-qualified name when a collision or other exceptional situation requires it.
