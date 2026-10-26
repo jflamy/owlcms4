@@ -194,7 +194,6 @@ Implemented; the manual checks below remain. Non-UI coverage: `AccountPasswordsT
   accounts, and leaves them unable to log in until an administrator sets a
   password. An existing database shows its role accounts under Generic
   accounts after the first restart.
-
 - Verify PEM startup with and without an admin password and completion of admin
   setup. No-password PEM startup must not force accounts mode or prevent setup
   through the existing access mode.
@@ -204,4 +203,3 @@ Implemented; the manual checks below remain. Non-UI coverage: `AccountPasswordsT
   preserve an explicit admin PIN choice through export and recovery.
 - Verify that audit integrity remains enabled in either access mode with the
   PEM present, and that behavior without a PEM is unchanged.
-- Record access-mode behavior on macOS, Windows and Linux.
