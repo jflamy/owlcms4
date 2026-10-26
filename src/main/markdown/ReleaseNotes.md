@@ -14,7 +14,8 @@
 
 - IWF TCRR 2026 seven-person Adjudication Panel (jury size 4 with video playback).
 - Jury votes shown on attempt boards and scoreboards during a jury review.
-- Tracker forwarding uses protocol 69.0.0 and requires OWLCMS Tracker 3.0.0-beta01 or newer (tracker-core 2.0.0-beta01 or newer); earlier tracker versions are not compatible.
+- Tracker forwarding uses protocol 69.0.0 and requires OWLCMS Tracker 3.0.0-beta01 or newer (tracker-core 2.0.0-beta01 or newer); 
+  earlier tracker versions are not compatible.
 - Jury Control page replaces the Jury Console; "Jury President" is now "Jury Chair".
 - Named accounts with role-based access; new Accounts Management page.
 - Competition Supervisor page and passive speaker view.
