@@ -12,10 +12,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
@@ -47,6 +49,8 @@ import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.MockFieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.monitors.WebSocketEventForwarder;
+import app.owlcms.monitors.websocket.ForwarderDecisionState;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
@@ -1631,6 +1635,215 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	/** records what the boards are asked to draw for the review vote */
+	// ---------------------------------------------------------------- WebSocket forwarder (tracker decision state)
+
+	@Test
+	public void forwarderHandlesEveryEventOfTheAttemptBoardStateMachine() {
+		for (Method method : DecisionElementState.class.getDeclaredMethods()) {
+			if (!method.isAnnotationPresent(Subscribe.class)) {
+				continue;
+			}
+			Class<?> eventType = method.getParameterTypes()[0];
+			assertTrue("WebSocketEventForwarder subscribes to " + eventType.getSimpleName(),
+			        Arrays.stream(WebSocketEventForwarder.class.getDeclaredMethods())
+			                .anyMatch(m -> m.isAnnotationPresent(Subscribe.class) && m.getParameterCount() == 1
+			                        && m.getParameterTypes()[0] == eventType));
+			assertTrue("ForwarderDecisionState handles " + eventType.getSimpleName(),
+			        Arrays.stream(ForwarderDecisionState.class.getMethods())
+			                .anyMatch(m -> m.getParameterCount() == 1 && m.getParameterTypes()[0] == eventType));
+		}
+	}
+
+	@Test
+	public void forwarderReportsThePanelReviewAndItsDecision() {
+		ForwarderDecisionState tracker = forwarderDecisionState();
+
+		reviewAfterLift(W, R, W);
+		assertTrue("the votes that led to the review", awaitState(tracker,
+		        s -> "deliberation".equals(s.get("review"))
+		                && List.of("white", "red", "white").equals(s.get("refs"))
+		                && List.of("red", "red", "red", "red").equals(s.get("jury"))));
+		Map<String, Object> state = tracker.toMap();
+		assertEquals(Boolean.TRUE, state.get("panelReview"));
+		assertEquals(Arrays.asList(true, false, true), state.get("originalRefereeDecisions"));
+		assertNotNull(state.get("reviewStartMillis"));
+
+		callForVotes();
+		assertTrue("cells cleared, vote open", awaitState(tracker,
+		        s -> List.of("empty", "empty", "empty").equals(s.get("refs"))
+		                && List.of("empty", "empty", "empty", "empty").equals(s.get("jury"))
+		                && Boolean.TRUE.equals(s.get("reviewVoteOpen"))));
+		reviewVotes(R, R, R);
+		juryVotes(R, R, R);
+		assertTrue("who has voted", awaitState(tracker,
+		        s -> List.of("voted", "voted", "voted").equals(s.get("refs"))
+		                && List.of("voted", "voted", "voted", "empty").equals(s.get("jury"))));
+		juryVote(3, W);
+		assertTrue("all revealed at the last vote", awaitState(tracker,
+		        s -> List.of("red", "red", "red").equals(s.get("refs"))
+		                && List.of("red", "red", "red", "white").equals(s.get("jury"))));
+
+		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 17));
+		Map<String, Object> decision = ForwarderDecisionState.adjudicationDecision(awaitVerdict(), this.fop);
+		assertEquals(Boolean.FALSE, decision.get("decision"));
+		assertEquals(Boolean.TRUE, decision.get("reversal"));
+		assertEquals(17, decision.get("ruleCode"));
+		assertEquals("Snatch", decision.get("liftTypeKey"));
+		assertEquals(1, decision.get("attemptNumber"));
+		assertEquals(Arrays.asList(true, false, true), decision.get("originalRefereeDecisions"));
+		assertEquals(Arrays.asList(false, false, false), decision.get("refereeVotes"));
+		assertEquals(Arrays.asList(false, false, false, true), decision.get("juryVotes"));
+		assertEquals(Boolean.FALSE, decision.get("chairEntered"));
+		assertEquals(Boolean.FALSE, decision.get("speakerEntered"));
+		assertTrue("StartLifting clears the forwarded decision before the next clock", awaitState(tracker,
+		        s -> Boolean.FALSE.equals(s.get("visible"))
+		                && List.of("empty", "empty", "empty").equals(s.get("refs"))
+		                && List.of("empty", "empty", "empty", "empty").equals(s.get("jury"))));
+	}
+
+	@Test
+	public void forwarderKeepsTheRefereesDecisionDuringAJuryVoteWithoutVideo() {
+		ForwarderDecisionState tracker = forwarderDecisionState();
+
+		fourMemberDeliberationWithoutVideo(W, W, W);
+		juryVotes(R, R, R, R);
+		assertTrue("the referees' decision stays, the jury votes are revealed", awaitState(tracker,
+		        s -> List.of("white", "white", "white").equals(s.get("refs"))
+		                && List.of("red", "red", "red", "red").equals(s.get("jury"))));
+
+		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 5));
+		Map<String, Object> decision = ForwarderDecisionState.adjudicationDecision(awaitVerdict(), this.fop);
+		assertEquals("the referees do not vote again", List.of(), decision.get("refereeVotes"));
+		assertEquals(Arrays.asList(false, false, false, false), decision.get("juryVotes"));
+		assertEquals(Arrays.asList(true, true, true), decision.get("originalRefereeDecisions"));
+		assertEquals(Boolean.TRUE, decision.get("reversal"));
+	}
+
+	@Test
+	public void forwarderReportsNoVotesAfterAChairOverride() {
+		ForwarderDecisionState tracker = forwarderDecisionState();
+
+		reviewAfterLift(W, W, W);
+		callForVotes();
+		reviewVotes(R, R, R);
+		juryVotes(W, W);
+		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 2, true));
+		Map<String, Object> decision = ForwarderDecisionState.adjudicationDecision(awaitVerdict(), this.fop);
+		assertEquals(Boolean.TRUE, decision.get("chairEntered"));
+		assertEquals("the Chair's decision clears the votes", Arrays.asList(null, null, null, null),
+		        decision.get("juryVotes"));
+		assertTrue("the cells are cleared", awaitState(tracker,
+		        s -> Boolean.FALSE.equals(s.get("visible"))
+		                && List.of("empty", "empty", "empty").equals(s.get("refs"))));
+	}
+
+	private ForwarderDecisionState forwarderDecisionState() {
+		ForwarderDecisionState tracker = new ForwarderDecisionState();
+		tracker.setFop(this.fop);
+		this.fop.getUiEventBus().register(new ForwarderAdapter(tracker));
+		return tracker;
+	}
+
+	private boolean awaitState(ForwarderDecisionState tracker, Predicate<Map<String, Object>> condition) {
+		long deadline = System.currentTimeMillis() + 2_000;
+		while (System.currentTimeMillis() < deadline) {
+			if (condition.test(tracker.toMap())) {
+				return true;
+			}
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return false;
+			}
+		}
+		return false;
+	}
+
+	/** Passes the UI events to the forwarder's decision state, as WebSocketEventForwarder does. */
+	public static final class ForwarderAdapter {
+		private final ForwarderDecisionState tracker;
+
+		ForwarderAdapter(ForwarderDecisionState tracker) {
+			this.tracker = tracker;
+		}
+
+		@Subscribe
+		public void decision(UIEvent.Decision e) {
+			this.tracker.onDecision(e);
+		}
+
+		@Subscribe
+		public void initialDecision(UIEvent.InitialDecision e) {
+			this.tracker.onInitialDecision(e);
+		}
+
+		@Subscribe
+		public void downSignal(UIEvent.DownSignal e) {
+			this.tracker.onDownSignal(e);
+		}
+
+		@Subscribe
+		public void decisionReset(UIEvent.DecisionReset e) {
+			this.tracker.onDecisionReset(e);
+		}
+
+		@Subscribe
+		public void refereeUpdate(UIEvent.RefereeUpdate e) {
+			this.tracker.onRefereeUpdate(e);
+		}
+
+		@Subscribe
+		public void resetOnNewClock(UIEvent.ResetOnNewClock e) {
+			this.tracker.onResetOnNewClock(e);
+		}
+
+		@Subscribe
+		public void breakStarted(UIEvent.BreakStarted e) {
+			this.tracker.onBreakStarted(e);
+		}
+
+		@Subscribe
+		public void startTime(UIEvent.StartTime e) {
+			this.tracker.onStartTime(e);
+		}
+
+		@Subscribe
+		public void stopTime(UIEvent.StopTime e) {
+			this.tracker.onStopTime(e);
+		}
+
+		@Subscribe
+		public void juryNotification(UIEvent.JuryNotification e) {
+			this.tracker.onJuryNotification(e);
+		}
+
+		@Subscribe
+		public void juryUpdate(UIEvent.JuryUpdate e) {
+			this.tracker.onJuryUpdate(e);
+		}
+
+		@Subscribe
+		public void panelVoteCalled(UIEvent.PanelVoteCalled e) {
+			this.tracker.onPanelVoteCalled(e);
+		}
+
+		@Subscribe
+		public void panelVoteUpdate(UIEvent.PanelVoteUpdate e) {
+			this.tracker.onPanelVoteUpdate(e);
+		}
+
+		@Subscribe
+		public void juryDisplayReset(UIEvent.JuryDisplayReset e) {
+			this.tracker.onJuryDisplayReset(e);
+		}
+
+		@Subscribe
+		public void startLifting(UIEvent.StartLifting e) {
+			this.tracker.onStartLifting();
+		}
+	}
+
 	public static final class PanelRenderer implements DecisionElementState.IDecisionRenderer {
 		record Panel(List<String> referees, List<String> jury) {
 		}

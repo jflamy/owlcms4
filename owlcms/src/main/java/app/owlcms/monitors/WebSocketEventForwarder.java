@@ -68,6 +68,7 @@ import app.owlcms.uievents.UIEvent.SetTime;
 import app.owlcms.uievents.UIEvent.StartTime;
 import app.owlcms.uievents.UIEvent.StopTime;
 import app.owlcms.monitors.websocket.AthleteExporter;
+import app.owlcms.monitors.websocket.ForwarderDecisionState;
 import app.owlcms.monitors.websocket.ForwarderPayloadBuilder;
 import app.owlcms.monitors.websocket.ForwarderPayloadBuilder.CompetitionDataExport;
 import app.owlcms.monitors.websocket.WebSocketEventSender;
@@ -248,8 +249,10 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	private String boardMode;
 	private String sessionInfo;
 	private Map<String, String> lastTimerMap;
-	private Map<String, String> lastDecisionMap;
+	private Map<String, Object> lastDecisionMap;
 	private Map<String, Object> lastUpdate;
+	/** decision information for the tracker: the attempt board state machine and the jury decision payload */
+	private final ForwarderDecisionState decisionState = new ForwarderDecisionState();
 	Thread keepaliveThread;
 	private boolean showLiftRanks;
 	private boolean showSinclair;
@@ -606,6 +609,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 	@Subscribe
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
+		this.decisionState.onBreakStarted(e);
 		if (!isActive()) return;
 		uiLog(e);
 		setHidden(false);
@@ -635,6 +639,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 	@Subscribe
 	public void slaveDecision(UIEvent.Decision e) {
+		this.decisionState.onDecision(e);
 		if (!isActive()) return;
 		uiLog(e);
 		setDecisionLight1(e.ref1);
@@ -647,6 +652,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 	@Subscribe
 	public void slaveInitialDecision(InitialDecision e) {
+		this.decisionState.onInitialDecision(e);
 		if (!isActive()) return;
 		uiLog(e);
 		setDecisionLight1(e.ref1);
@@ -659,6 +665,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
+		this.decisionState.onDecisionReset(e);
 		if (!isActive()) return;
 		uiLog(e);
 		setDecisionLight1(null);
@@ -671,6 +678,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
+		this.decisionState.onDownSignal(e);
 		if (!isActive()) return;
 		uiLog(e);
 		setDecisionLightsVisible(false);
@@ -732,6 +740,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 	@Subscribe
 	public void slaveStartLifting(UIEvent.StartLifting e) {
+		this.decisionState.onStartLifting();
 		if (!isActive()) return;
 		uiLog(e);
 		setHidden(false);
@@ -740,6 +749,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 	@Subscribe
 	public void slaveStartTime(UIEvent.StartTime e) {
+		this.decisionState.onStartTime(e);
 		if (!isActive()) return;
 		uiLog(e);
 		setHidden(false);
@@ -748,6 +758,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 	@Subscribe
 	public void slaveStopTime(UIEvent.StopTime e) {
+		this.decisionState.onStopTime(e);
 		if (!isActive()) return;
 		uiLog(e);
 		setHidden(false);
@@ -756,6 +767,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 	@Subscribe
 	public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
+		this.decisionState.resync();
 		if (!isActive()) return;
 		logger.debug("slaveSwitchGroup: switching to group {} state {} {}",
 		        e.getGroup() != null ? e.getGroup().getName() : "null",
@@ -863,8 +875,51 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		// e.getNewRecord(),
 		// e.isWaitForAnnouncer(),
 		// e.getTrace());
+		this.decisionState.onJuryNotification(e);
 		uiLog(e);
 		pushDecision(e);
+	}
+
+	/** A juror voted on the lift (review votes are reported by PanelVoteUpdate). */
+	@Subscribe
+	public void slaveJuryUpdate(UIEvent.JuryUpdate e) {
+		this.decisionState.onJuryUpdate(e);
+		pushJuryDisplay("JURY_UPDATE", e);
+	}
+
+	/** The Jury Chair called for votes (all officials). */
+	@Subscribe
+	public void slavePanelVoteCalled(UIEvent.PanelVoteCalled e) {
+		this.decisionState.onPanelVoteCalled(e);
+		if (e.getRef() == 0) {
+			pushJuryDisplay("PANEL_VOTE_CALLED", e);
+		}
+	}
+
+	/** A review vote arrived, the last vote revealed all, or the vote was closed or abandoned. */
+	@Subscribe
+	public void slavePanelVoteUpdate(UIEvent.PanelVoteUpdate e) {
+		this.decisionState.onPanelVoteUpdate(e);
+		pushJuryDisplay("PANEL_VOTE", e);
+	}
+
+	/** Cancel vote result, a decision entered by the Jury Chair, or Resume. */
+	@Subscribe
+	public void slaveJuryDisplayReset(UIEvent.JuryDisplayReset e) {
+		this.decisionState.onJuryDisplayReset(e);
+		pushJuryDisplay("JURY_DISPLAY_RESET", e);
+	}
+
+	/** Kept in step with the attempt board state machine; no message (live referee input is not forwarded). */
+	@Subscribe
+	public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
+		this.decisionState.onRefereeUpdate(e);
+	}
+
+	/** Kept in step with the attempt board state machine; no message. */
+	@Subscribe
+	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
+		this.decisionState.onResetOnNewClock(e);
 	}
 
 	private void computeCurrentGroup(Group g) {
@@ -980,9 +1035,9 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		                : Translator.translate("Snatch")));
 	}
 
-	private synchronized Map<String, String> createDecision(UIEvent event, DecisionEventType det) {
+	private synchronized Map<String, Object> createDecision(UIEvent event, DecisionEventType det) {
 		updateState();
-		Map<String, String> sb = new LinkedHashMap<>();
+		Map<String, Object> sb = new LinkedHashMap<>();
 		mapPut(sb, "decisionEventType", det == DecisionEventType.INITIAL_DECISION ? "initialDecision" : det.toString());
 		mapPut(sb, "updateKey", updateKey);
 		mapPut(sb, "mode", getBoardMode());
@@ -990,7 +1045,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		// competition state
 		mapPut(sb, "competitionName", Competition.getCurrent().getCompetitionName());
 		mapPut(sb, "fop", getFop().getName());
-		setMapFopState(sb);
+		setMapFopStateObject(sb);
 		mapPut(sb, "break", String.valueOf(isBreak())); // current athlete & attempt
 		mapPut(sb, "fullName", this.fullName);
 		mapPut(sb, "attemptNumber", this.attemptNumber != null ? this.attemptNumber.toString() : null); // 1..3
@@ -1024,21 +1079,22 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		mapPut(sb, "decisionsVisible", Boolean.toString(isDecisionLightsVisible()));
 		mapPut(sb, "down", Boolean.toString(isDown()));
 
-		populateRecordInfoStrings(sb);
+		populateRecordInfo(sb);
+		sb.put("decisionState", this.decisionState.toMap());
 		// dumpMap("createDecision", event.getTrace(), sb);
 		return sb;
 	}
 
-	private synchronized Map<String, String> createJuryEvent(UIEvent.JuryNotification e) {
+	private synchronized Map<String, Object> createJuryEvent(UIEvent.JuryNotification e) {
 		updateState();
-		Map<String, String> sb = new LinkedHashMap<>();
+		Map<String, Object> sb = new LinkedHashMap<>();
 
 		mapPut(sb, "updateKey", updateKey);
 		mapPut(sb, "mode", getBoardMode());
 
 		// competition state
 		mapPut(sb, "fop", getFop().getName());
-		setMapFopState(sb);
+		setMapFopStateObject(sb);
 		mapPut(sb, "break", String.valueOf(isBreak()));
 
 		// deliberation on a lift
@@ -1065,6 +1121,11 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			mapPut(sb, "decisionEventType", det.name());
 		}
 
+		sb.put("decisionState", this.decisionState.toMap());
+		Map<String, Object> adjudication = ForwarderDecisionState.adjudicationDecision(e, getFop());
+		if (adjudication != null) {
+			sb.put("adjudicationDecision", adjudication);
+		}
 		dumpMap("*** createJuryDecision", e.getTrace(), sb);
 		return sb;
 	}
@@ -1089,26 +1150,6 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			}
 		} else {
 			mapPut(sb, "records", null);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void populateRecordInfoStrings(Map<String, String> sb) {
-		if (this.records != null) {
-			if (this.fop.getNewRecords() != null && !this.fop.getNewRecords().isEmpty()) {
-				sb.put("recordKind", "new");
-				sb.put("recordMessage", Translator.translate("Scoreboard.NewRecord"));
-			} else if (this.fop.getChallengedRecords() != null && !this.fop.getChallengedRecords().isEmpty()) {
-				sb.put("recordKind", "attempt");
-				sb.put("recordMessage", Translator.translate("Scoreboard.RecordAttempt"));
-			} else {
-				sb.put("recordKind", "none");
-			}
-			sb.put("records", this.records.toString());
-		} else {
-			sb.remove("recordKind");
-			sb.remove("recordMessage");
-			sb.remove("records");
 		}
 	}
 
@@ -1207,12 +1248,13 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			if (e instanceof BreakStarted || e instanceof BreakSetTime) {
 				mapPut(sb, "indefiniteBreak", indefiniteBreak != null ? Boolean.toString(indefiniteBreak) : null);
 			}
+			if (e instanceof BreakStarted || e instanceof BreakSetTime || e instanceof BreakPaused) {
+				breakMillisRemaining = breakMillisRemaining != null ? breakMillisRemaining : 0;
+				mapPut(sb, "breakMillisRemaining", breakMillisRemaining.toString());
+			}
 			if (e instanceof BreakStarted) {
 				breakStartTimeMillis = breakStartTimeMillis != null ? breakStartTimeMillis : System.currentTimeMillis();
-				breakMillisRemaining = breakMillisRemaining != null ? breakMillisRemaining : 0;
 				mapPut(sb, "breakStartTimeMillis", Long.toString(breakStartTimeMillis));
-				mapPut(sb, "breakMillisRemaining",
-				        breakMillisRemaining != null ? breakMillisRemaining.toString() : null);
 				// logger.debug("breaktimer {} {} {} end {} indefinite {}", sb.get("timerEventType"), sb.get("break"),
 				// sb.get("breakType"),
 				// breakStartTimeMillis + breakMillisRemaining, sb.get("indefiniteBreak"));
@@ -1261,8 +1303,6 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 		mapPut(sb, "uiEvent", event != null ? event.getClass().getSimpleName() : "InitialSync");
 		mapPut(sb, "updateKey", updateKey);
-		String paramStylesDir = Config.getCurrent().getParamStylesDir();
-		mapPut(sb, "stylesDir", paramStylesDir);
 
 		if (this.translatorResetTimeStamp != Translator.getResetTimeStamp()) {
 			// translation map has been updated (reload or language change)
@@ -1417,6 +1457,20 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		var activeChampionships = this.fop != null ? this.fop.getScoreboardChampionships() : Collections.singleton(Championship.of(null));
 		mapPut(sb, "sinclairMeet", Boolean.toString(Championship.anyScoreMedalChampionship(activeChampionships)));
 
+		// decision information and the switches used as defaults for the tracker display options
+		sb.put("decisionState", this.decisionState.toMap());
+		Config switches = Config.getCurrent();
+		mapPut(sb, "juryDecisionsOnAttemptBoard",
+		        Boolean.toString(switches.featureSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD)));
+		mapPut(sb, "juryDecisionsOnScoreboard",
+		        Boolean.toString(switches.featureSwitch(FeatureSwitch.JURY_DECISIONS_ON_SCOREBOARD)));
+		mapPut(sb, "decisionSectionOnWarmupScoreboard",
+		        Boolean.toString(switches.featureSwitch(FeatureSwitch.DECISION_SECTION)));
+		mapPut(sb, "decisionSectionStopwatch",
+		        Boolean.toString(switches.featureSwitch(FeatureSwitch.DECISION_SECTION_STOPWATCH)));
+		mapPut(sb, "decisionSectionShowAgeGroups",
+		        Boolean.toString(switches.featureSwitch(FeatureSwitch.DECISION_SECTION_SHOW_AGE_GROUPS)));
+
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
 		mapPut(sb, "mode", getBoardMode());
 
@@ -1549,15 +1603,15 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	}
 
 	@SuppressWarnings("unused")
-	private void dumpMap(String string, String string2, Map<String, String> map) {
+	private void dumpMap(String string, String string2, Map<String, ?> map) {
 		// if (StartupUtils.isDebugSetting()) {
 		Level level = logger.getLevel();
 		try {
 			logger.setLevel(Level.TRACE);
 			logger.trace("{}\n{}", string, string2);
-			for (Entry<String, String> m : map.entrySet()) {
+			for (Entry<String, ?> m : map.entrySet()) {
 				if (m.getKey() == "updateKey") {
-					logger.trace(" {} = {}", m.getKey(), m.getValue() != null ? "masked " + m.getValue().length() : "masked null value");
+					logger.trace(" {} = {}", m.getKey(), m.getValue() != null ? "masked " + String.valueOf(m.getValue()).length() : "masked null value");
 				} else {
 					logger.trace(" {} = {}", m.getKey(), m.getValue());
 				}
@@ -1778,7 +1832,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		return this.forwardedFopName;
 	}
 
-	private Map<String, String> getLastDecisionMap() {
+	private Map<String, Object> getLastDecisionMap() {
 		return this.lastDecisionMap;
 	}
 
@@ -1864,6 +1918,32 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		}
 
 		sendWebSocketMessage(getLastDecisionMap(), "decision");
+	}
+
+	/**
+	 * Jury vote or review vote display change: a decision message carrying only the decision state (the referee
+	 * decision fields are those of the last referee decision and are not repeated).
+	 */
+	private void pushJuryDisplay(String decisionEventType, UIEvent e) {
+		if (!isActive()) {
+			return;
+		}
+		uiLog(e);
+		Map<String, Object> sb = createJuryDisplay(decisionEventType);
+		sendWebSocketMessage(sb, "decision");
+	}
+
+	private synchronized Map<String, Object> createJuryDisplay(String decisionEventType) {
+		updateState();
+		Map<String, Object> sb = new LinkedHashMap<>();
+		mapPut(sb, "decisionEventType", decisionEventType);
+		mapPut(sb, "updateKey", updateKey);
+		mapPut(sb, "mode", getBoardMode());
+		mapPut(sb, "fop", getFop().getName());
+		setMapFopStateObject(sb);
+		mapPut(sb, "break", String.valueOf(isBreak()));
+		sb.put("decisionState", this.decisionState.toMap());
+		return sb;
 	}
 
 	private synchronized void pushTimer(UIEvent e) {
@@ -2349,6 +2429,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		}
 
 		this.fop = newFop;
+		this.decisionState.setFop(newFop);
 		this.postBus = newFop != null ? newFop.getEventForwardingBus() : null;
 		if (this.postBus != null) {
 			try {
@@ -2371,7 +2452,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		this.sessionInfo = computeSecondLine;
 	}
 
-	private void setLastDecisionMap(Map<String, String> lastDecisionMap) {
+	private void setLastDecisionMap(Map<String, Object> lastDecisionMap) {
 		this.lastDecisionMap = lastDecisionMap;
 	}
 

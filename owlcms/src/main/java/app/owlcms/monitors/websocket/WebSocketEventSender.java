@@ -49,7 +49,7 @@ public class WebSocketEventSender {
 	 * We align the protocol version with the OWLCMS producer version, since OWLCMS is the authoritative
 	 * source of message formats.
 	 */
-	public static final String PROTOCOL_VERSION = "64.0.0";
+	public static final String PROTOCOL_VERSION = "69.0.0";
 	
 	private static Map<String, WebSocketEventSender> sendersByUrl = new HashMap<>();
 	private static Runnable refreshDataCallback;
@@ -196,7 +196,8 @@ public class WebSocketEventSender {
 	
 	/**
 	 * Set callback to be invoked when server requests specific missing data type
-	 * @param dataType Type of data ("database", "flags", "styles", "pictures")
+	 * @param dataType Type of data requested in a 428 "missing" list ("database", "translations", "flags",
+	 *                 "logos", "pictures", "gamx"; each is also registered with a "_zip" suffix)
 	 * @param callback Callback to invoke when this data type is requested
 	 */
 	public void setMissingDataCallback(String dataType, Runnable callback) {
