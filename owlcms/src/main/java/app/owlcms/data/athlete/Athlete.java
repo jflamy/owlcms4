@@ -902,6 +902,24 @@ public class Athlete {
 		}
 	}
 
+	/**
+	 * @param liftNo 1..6
+	 * @return the referee decisions recorded for that lift, null when none were recorded (decision entered by the
+	 *         announcer or a single input)
+	 */
+	@JsonIgnore
+	public List<Boolean> getDecisions(int liftNo) {
+		return switch (liftNo) {
+			case 1 -> getSnatch1Decisions();
+			case 2 -> getSnatch2Decisions();
+			case 3 -> getSnatch3Decisions();
+			case 4 -> getCleanJerk1Decisions();
+			case 5 -> getCleanJerk2Decisions();
+			case 6 -> getCleanJerk3Decisions();
+			default -> throw new IllegalArgumentException("Invalid attempt: " + liftNo);
+		};
+	}
+
 	@JsonIgnore
 	public void setJuryDeliberation(int liftNo, Boolean decision) {
 		switch (liftNo) {

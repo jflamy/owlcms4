@@ -668,6 +668,10 @@ public class UIEvent {
 		private boolean panelReview;
 		private boolean chairEntered;
 		private boolean speakerEntered;
+		/** referees' review votes when the decision was applied (null cells when not voted) */
+		private Boolean[] reviewRefereeVotes;
+		/** jurors' votes when the decision was applied (null cells when not voted) */
+		private Boolean[] reviewJuryVotes;
 
 		public JuryNotification(Athlete athleteUnderReview, Object origin,
 		        JuryDeliberationEventType deliberationEventType, Boolean reversal, Boolean newRecord,
@@ -789,6 +793,25 @@ public class UIEvent {
 
 		public void setSpeakerEntered(boolean speakerEntered) {
 			this.speakerEntered = speakerEntered;
+		}
+
+		/** @return the referees' review votes when the decision was applied, null if not recorded */
+		public Boolean[] getReviewRefereeVotes() {
+			return this.reviewRefereeVotes;
+		}
+
+		/** @return the jurors' votes when the decision was applied, null if not recorded */
+		public Boolean[] getReviewJuryVotes() {
+			return this.reviewJuryVotes;
+		}
+
+		/**
+		 * Record the votes as they stand when the decision is applied, so that listeners running later (asynchronous
+		 * buses) do not read votes the FOP has since cleared.
+		 */
+		public void setReviewVotes(Boolean[] refereeVotes, Boolean[] juryVotes) {
+			this.reviewRefereeVotes = refereeVotes != null ? refereeVotes.clone() : null;
+			this.reviewJuryVotes = juryVotes != null ? juryVotes.clone() : null;
 		}
 
 		private void setNewRecord(Boolean newRecord) {
