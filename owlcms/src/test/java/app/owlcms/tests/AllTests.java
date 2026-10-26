@@ -25,7 +25,8 @@ import ch.qos.logback.classic.Logger;
 
 @RunWith(WildcardPatternSuite.class)
 // tests of package-private code must stay in the package under test, outside app.owlcms.tests
-@SuiteClasses({ "../**/*Test.class" })
+// ProtocolRecordingTest runs a real tracker for minutes: run it on its own (-Dtest=ProtocolRecordingTest)
+@SuiteClasses({ "../**/*Test.class", "!ProtocolRecordingTest.class" })
 public class AllTests {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AllTests.class);

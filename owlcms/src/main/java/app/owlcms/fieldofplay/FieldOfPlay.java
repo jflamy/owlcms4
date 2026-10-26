@@ -114,10 +114,8 @@ import app.owlcms.monitors.WebSocketEventForwarder;
 import app.owlcms.monitors.IUnregister;
 import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.nui.lifting.AnnouncerContent;
-import app.owlcms.nui.lifting.TimekeeperContent;
-import app.owlcms.nui.lifting.WodkeeperContent;
-import app.owlcms.nui.shared.BreakManagement;
 import app.owlcms.simulation.CompetitionSimulator;
+import app.owlcms.simulation.ProtocolScenario;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
 import app.owlcms.uievents.BreakType;
@@ -859,10 +857,7 @@ public class FieldOfPlay implements IUnregister {
 		if (e instanceof FOPEvent.BreakStarted) {
 			Object origin = e.getOrigin();
 			BreakType requestedBreak = ((FOPEvent.BreakStarted) e).getBreakType();
-			boolean allAllowed = origin instanceof AnnouncerContent
-					|| origin instanceof TimekeeperContent
-					|| origin instanceof WodkeeperContent
-					|| origin instanceof BreakManagement;
+			boolean allAllowed = origin instanceof BreakController;
 
 			if (getState() == BREAK
 					&& (requestedBreak == BreakType.JURY || requestedBreak == BreakType.CHALLENGE)
@@ -3700,7 +3695,8 @@ public class FieldOfPlay implements IUnregister {
 		}
 
 		int millisRemaining;
-		if (CompetitionSimulator.isRunning()) {
+		if (CompetitionSimulator.isRunning() || ProtocolScenario.isRunning()) {
+			// simulations do not wait the session's clean & jerk break minutes
 			millisRemaining = 10 * 1000;
 		} else {
 			millisRemaining = group.cjBreakDuration();

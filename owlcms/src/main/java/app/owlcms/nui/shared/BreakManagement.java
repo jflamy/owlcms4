@@ -54,6 +54,7 @@ import app.owlcms.audit.FopAudit;
 import app.owlcms.audit.SettingsAudit;
 import app.owlcms.components.fields.DurationField;
 import app.owlcms.data.group.Group;
+import app.owlcms.fieldofplay.BreakController;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
@@ -72,7 +73,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-public class BreakManagement extends BaseContent {
+public class BreakManagement extends BaseContent implements BreakController {
 
 	public class LazyComponent extends Div {
 		public LazyComponent(

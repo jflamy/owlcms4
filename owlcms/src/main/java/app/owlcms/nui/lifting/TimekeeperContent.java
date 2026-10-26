@@ -43,6 +43,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.fieldofplay.BreakController;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
@@ -63,7 +64,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @RequiresRole(value = Role.TIMEKEEPER, platformBound = true)
 @Route(value = "lifting/timekeeper", layout = OwlcmsLayout.class)
-public class TimekeeperContent extends AthleteGridContent implements HasDynamicTitle {
+public class TimekeeperContent extends AthleteGridContent implements HasDynamicTitle, BreakController {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimekeeperContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());

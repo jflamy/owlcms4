@@ -39,6 +39,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.fieldofplay.BreakController;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
@@ -58,7 +59,7 @@ import app.owlcms.utils.LoggerUtils;
 @SuppressWarnings("serial")
 @RequiresRole(value = Role.TIMEKEEPER, platformBound = true)
 @Route(value = "lifting/wodkeeper", layout = OwlcmsLayout.class)
-public class WodkeeperContent extends AthleteGridContent implements HasDynamicTitle {
+public class WodkeeperContent extends AthleteGridContent implements HasDynamicTitle, BreakController {
 
     final private Logger logger;
     // remembered break duration/remaining in milliseconds (set by 30:00 button or remembered on pause)

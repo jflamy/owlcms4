@@ -61,6 +61,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.fieldofplay.BreakController;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
@@ -89,7 +90,7 @@ import ch.qos.logback.classic.Logger;
 @RequiresRole(value = Role.ANNOUNCER, platformBound = true)
 @Route(value = "lifting/announcer", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/shared-styles.css")
-public class AnnouncerContent extends AthleteGridContent implements HasDynamicTitle {
+public class AnnouncerContent extends AthleteGridContent implements HasDynamicTitle, BreakController {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
