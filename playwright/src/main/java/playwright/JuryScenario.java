@@ -423,12 +423,7 @@ public class JuryScenario {
 		step("Starting point", "Current athlete " + athlete + "; " + sc.setup().description + ". Jury box " + broken
 		        + " does not work: its votes are never sent.", startingChecks());
 
-		clock("start");
-		pause(1000);
-		clock("stop");
-		pause(500);
-		step("Clock started, stopped after 1 second",
-		        "The athlete lifts: the clock ran for 1 s and is stopped. No decision yet.", List.of());
+		athleteLifts();
 		for (int r = 0; r < 3; r++) {
 			referee(r + 1, refs[r]);
 		}
@@ -484,14 +479,7 @@ public class JuryScenario {
 		step("Starting point", "Current athlete " + athlete + "; " + sc.setup().description + ".",
 		        startingChecks());
 
-		clock("start");
-		pause(1000);
-		clock("stop");
-		pause(500);
-		step("Clock started, stopped after 1 second",
-		        "The athlete lifts: the clock ran for 1 s and is stopped (1:59 or 0:59 on the clocks). No decision "
-		                + "yet.",
-		        List.of());
+		athleteLifts();
 		for (int r = 0; r < 3; r++) {
 			referee(r + 1, refs[r]);
 		}
@@ -600,12 +588,7 @@ public class JuryScenario {
 		step("Starting point", "Current athlete " + athlete + "; " + sc.setup().description + ".",
 		        startingChecks());
 
-		clock("start");
-		pause(1000);
-		clock("stop");
-		pause(500);
-		step("Clock started, stopped after 1 second",
-		        "The athlete lifts: the clock ran for 1 s and is stopped. No decision yet.", List.of());
+		athleteLifts();
 		for (int r = 0; r < 3; r++) {
 			referee(r + 1, refs[r]);
 		}
@@ -713,12 +696,7 @@ public class JuryScenario {
 		step("Starting point", "Current athlete " + athlete + "; " + sc.setup().description + ". The jury uses only "
 		        + "the jury box; Jury Control is open but nobody touches it.", startingChecks());
 
-		clock("start");
-		pause(1000);
-		clock("stop");
-		pause(500);
-		step("Clock started, stopped after 1 second",
-		        "The athlete lifts: the clock ran for 1 s and is stopped. No decision yet.", List.of());
+		athleteLifts();
 		for (int r = 0; r < 3; r++) {
 			referee(r + 1, refs[r]);
 		}
@@ -808,12 +786,7 @@ public class JuryScenario {
 		step("Starting point", "Current athlete " + athlete + "; " + sc.setup().description + ". Jury box " + broken
 		        + " does not work: its votes are never sent.", startingChecks());
 
-		clock("start");
-		pause(1000);
-		clock("stop");
-		pause(500);
-		step("Clock started, stopped after 1 second",
-		        "The athlete lifts: the clock ran for 1 s and is stopped. No decision yet.", List.of());
+		athleteLifts();
 		for (int r = 0; r < 3; r++) {
 			referee(r + 1, refs[r]);
 		}
@@ -1130,6 +1103,19 @@ public class JuryScenario {
 		this.mqtt.publish(topic, message);
 		action("MQTT " + topic + " " + payload);
 		pause(250);
+	}
+
+	/** the clock is set to 1:00, runs for 2 seconds and is stopped: the athlete lifts */
+	private void athleteLifts() throws Exception {
+		clock("60");
+		pause(1000);
+		clock("start");
+		pause(2000);
+		clock("stop");
+		pause(500);
+		step("Clock set to 1:00, started, stopped after 2 seconds",
+		        "The athlete lifts: the clock was set to 1:00, ran for 2 s and is stopped at 0:58. No decision yet.",
+		        List.of());
 	}
 
 	private void clock(String command) throws Exception {
