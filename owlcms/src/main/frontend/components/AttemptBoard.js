@@ -199,8 +199,8 @@ class CurrentAttempt extends LitElement {
 
   athleteImgClasses() {
     var mainClass = "picture";
+    // the picture ends above the two bottom rows used by the decision lights: it stays during decisions
     return mainClass +
-      (this.board.decisionVisible ? " hideBecauseDecision" : "") +
       ((this.board.recordAttempt || this.board.recordBroken) ? " hideBecauseRecord" : "");
   }
   teamNameClasses() {
@@ -215,8 +215,8 @@ class CurrentAttempt extends LitElement {
 
   teamFlagImgClasses() {
   var mainClass = (this.board.athleteImg || this.athletePictures) ? "flagWithPicture" : "flag";
+    // the decision lights only use the two bottom rows: the flag stays during decisions
     return mainClass +
-      (this.board.decisionVisible ? " hideBecauseDecision" : "") +
       ((this.board.recordAttempt || this.board.recordBroken) ? " hideBecauseRecord" : "");
   }
 

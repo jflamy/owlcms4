@@ -40,9 +40,6 @@ public class JuryNotificationCard extends Div {
 			statusDiv.setText(status);
 			meta.add(statusDiv);
 		}
-		if (newRecord) {
-			meta.add(createJuryNotificationChip(Translator.translate("Scoreboard.NewRecord"), success, false, true));
-		}
 
 		Icon decisionIcon = success
 		        ? VaadinIcon.CHECK_CIRCLE.create()
@@ -51,7 +48,8 @@ public class JuryNotificationCard extends Div {
 
 		Div decisionText = new Div();
 		decisionText.addClassName("jury-notification-decision-text");
-		decisionText.setText(decision);
+		// a reversal to Good Lift that makes a record says so instead of Good Lift
+		decisionText.setText(newRecord ? Translator.translate("Scoreboard.NewRecord") : decision);
 
 		Div decisionDiv = new Div();
 		decisionDiv.addClassName("jury-notification-decision");
@@ -72,19 +70,5 @@ public class JuryNotificationCard extends Div {
 			ruleDiv.setText(rule);
 			add(ruleDiv);
 		}
-	}
-
-	private Div createJuryNotificationChip(String text, boolean success, boolean label, boolean record) {
-		Div chip = new Div();
-		chip.addClassName("jury-notification-chip");
-		chip.addClassName(success ? "jury-notification-chip-success" : "jury-notification-chip-error");
-		if (label) {
-			chip.addClassName("jury-notification-chip-label");
-		}
-		if (record) {
-			chip.addClassName("jury-notification-chip-record");
-		}
-		chip.setText(text);
-		return chip;
 	}
 }
