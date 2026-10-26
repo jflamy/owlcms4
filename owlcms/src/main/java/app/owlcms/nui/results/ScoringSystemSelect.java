@@ -11,8 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.combobox.ComboBox;
 
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.RankingConfig;
@@ -21,11 +20,11 @@ import app.owlcms.data.athleteSort.RankingConfig;
  * Best-athlete scoring system selector for the results pages.
  *
  * Lists the systems required by the active championships first, then every scoring family
- * (GAMX, QPoints, Robi, Sinclair), each group separated by a rule. A ranking may appear in more
- * than one group, so items are wrapped with their section index to keep them distinct.
+ * (GAMX, QPoints, Robi, Sinclair). A ranking may appear in more than one group, so items are
+ * wrapped with their section index to keep them distinct.
  */
 @SuppressWarnings("serial")
-public class ScoringSystemSelect extends Select<ScoringSystemSelect.Choice> {
+public class ScoringSystemSelect extends ComboBox<ScoringSystemSelect.Choice> {
 
 	public record Choice(Ranking ranking, int section) {
 	}
@@ -34,10 +33,10 @@ public class ScoringSystemSelect extends Select<ScoringSystemSelect.Choice> {
 
 	public ScoringSystemSelect(String label) {
 		setLabel(label);
-		setItemLabelGenerator(c -> Ranking.getScoringExplanation(c.ranking()));
+		setItemLabelGenerator(c -> c == null ? "" : Ranking.getScoringExplanation(c.ranking()));
 		setOverlayWidth("30ch");
 		setWidth("30ch");
-		setEmptySelectionAllowed(false);
+		setClearButtonVisible(true);
 		buildItems();
 	}
 
@@ -73,7 +72,6 @@ public class ScoringSystemSelect extends Select<ScoringSystemSelect.Choice> {
 		families.forEach(f -> sections.add(new ArrayList<>(f)));
 
 		this.choices.clear();
-		List<Choice> lastOfSection = new ArrayList<>();
 		for (int i = 0; i < sections.size(); i++) {
 			List<Ranking> section = sections.get(i);
 			if (section.isEmpty()) {
@@ -82,13 +80,7 @@ public class ScoringSystemSelect extends Select<ScoringSystemSelect.Choice> {
 			for (Ranking r : section) {
 				this.choices.add(new Choice(r, i));
 			}
-			lastOfSection.add(this.choices.get(this.choices.size() - 1));
 		}
 		setItems(this.choices);
-
-		// a separator after each group except the last one
-		for (int i = 0; i < lastOfSection.size() - 1; i++) {
-			addComponents(lastOfSection.get(i), new Hr());
-		}
 	}
 }
