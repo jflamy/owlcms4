@@ -54,11 +54,8 @@ public class JuryDecisionDialog extends Dialog {
 			this.athlete = OwlcmsSession.getFop().getAthleteUnderReview();
 		}
 		
-		String reversalText = "";
-		if (e.getReversal() != null) {
-			reversalText = e.getReversal() ? Translator.translate("JuryNotification.Reversal")
-			        : Translator.translate("JuryNotification.Confirmed");
-		}
+		String statusKey = e.getReversalStatusKey();
+		String reversalText = statusKey != null ? Translator.translate(statusKey) : "";
 		
 		// Build athlete description first - needed for all cases
 		String athleteDescription;

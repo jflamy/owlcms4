@@ -460,11 +460,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			return;
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			String reversalText = "";
-			if (e.getReversal() != null) {
-				reversalText = e.getReversal() ? Translator.translate("JuryNotification.Reversal")
-				        : Translator.translate("JuryNotification.Confirmed");
-			}
+			String statusKey = e.getReversalStatusKey();
+			String reversalText = statusKey != null ? Translator.translate(statusKey) : "";
 			int previousAttemptNo;
 			switch (e.getDeliberationEventType()) {
 				case BAD_LIFT:
@@ -1009,7 +1006,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		if (fop.getState() == FOPState.BREAK || fop.getState() == FOPState.INACTIVE) {
 			publish(buildBreakState(fop));
 			if (this.decisions != null) {
-				this.decisions.getDecisionState().showPanelReviewInitialVotes(null);
+				this.decisions.getDecisionState().syncReviewVotes(null);
 			}
 			return;
 		}

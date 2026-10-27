@@ -2850,6 +2850,7 @@ public class FieldOfPlay implements IUnregister {
 			juryNotificationEvent.setReasonCode(e.getReasonCode());
 			juryNotificationEvent.setChairEntered(chairEntered);
 			juryNotificationEvent.setSpeakerEntered(!e.isJuryButton());
+			juryNotificationEvent.setPanelDecision(isPanelProcedure() && !chairEntered);
 			// the votes as they stand now (cleared after a Chair override); listeners may run after they are reset
 			juryNotificationEvent.setReviewVotes(this.reviewRefereeDecision, getJuryMemberDecision());
 

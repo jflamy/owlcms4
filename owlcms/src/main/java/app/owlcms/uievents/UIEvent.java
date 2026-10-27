@@ -668,6 +668,7 @@ public class UIEvent {
 		private boolean panelReview;
 		private boolean chairEntered;
 		private boolean speakerEntered;
+		private boolean panelDecision;
 		/** referees' review votes when the decision was applied (null cells when not voted) */
 		private Boolean[] reviewRefereeVotes;
 		/** jurors' votes when the decision was applied (null cells when not voted) */
@@ -793,6 +794,32 @@ public class UIEvent {
 
 		public void setSpeakerEntered(boolean speakerEntered) {
 			this.speakerEntered = speakerEntered;
+		}
+
+		/**
+		 * @return true if this GOOD_LIFT/BAD_LIFT decision is the seven-person Adjudication Panel's (four-member jury
+		 *         with VPT), false if it is the jury's (including a Jury Chair override of the panel vote)
+		 */
+		public boolean isPanelDecision() {
+			return this.panelDecision;
+		}
+
+		public void setPanelDecision(boolean panelDecision) {
+			this.panelDecision = panelDecision;
+		}
+
+		/**
+		 * @return the translation key for the "reversal" / "confirmation" status, worded for the panel or the jury
+		 *         that decided; null when the decision is neither
+		 */
+		public String getReversalStatusKey() {
+			if (this.reversal == null) {
+				return null;
+			}
+			if (this.panelDecision) {
+				return this.reversal ? "JuryNotification.PanelReversal" : "JuryNotification.PanelConfirmed";
+			}
+			return this.reversal ? "JuryNotification.Reversal" : "JuryNotification.Confirmed";
 		}
 
 		/** @return the referees' review votes when the decision was applied, null if not recorded */

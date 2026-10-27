@@ -283,6 +283,7 @@ public class ForwarderDecisionState implements DecisionElementState.IDecisionRen
 		map.put("waitForAnnouncer", e.isWaitForAnnouncer());
 		map.put("chairEntered", e.isChairEntered());
 		map.put("speakerEntered", e.isSpeakerEntered());
+		map.put("panelDecision", e.isPanelDecision());
 		return map;
 	}
 

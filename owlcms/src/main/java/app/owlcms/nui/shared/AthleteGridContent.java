@@ -1041,11 +1041,8 @@ public abstract class AthleteGridContent extends BaseContent
 	 *         "Jury Chair Entered Decision" when the seven-person panel did not decide
 	 */
 	protected String juryVerdictText(UIEvent.JuryNotification e) {
-		String reversalText = "";
-		if (e.getReversal() != null) {
-			reversalText = e.getReversal() ? Translator.translate("JuryNotification.Reversal")
-			        : Translator.translate("JuryNotification.Confirmed");
-		}
+		String statusKey = e.getReversalStatusKey();
+		String reversalText = statusKey != null ? Translator.translate(statusKey) : "";
 		int previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
 		boolean good = e.getDeliberationEventType() == JuryDeliberationEventType.GOOD_LIFT;
 		String text = Translator.translate(good ? "JuryNotification.GoodLift" : "JuryNotification.BadLift",
