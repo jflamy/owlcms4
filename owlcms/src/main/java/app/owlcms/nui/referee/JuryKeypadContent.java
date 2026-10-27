@@ -33,9 +33,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.Notification.Position;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -60,7 +57,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
-import app.owlcms.data.platform.Platform;
+import app.owlcms.displays.DecisionDisplayRules;
 import app.owlcms.fieldofplay.AdjudicationPanel;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
@@ -102,6 +99,11 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	private Boolean[] juryVotes;
 	private Div[] juryVoteCells;
 	private Div refDecisionHost;
+	/** seven-person panel: the original referee decision, shown in the toolbar once the review vote is revealed */
+	private Div originalRefereeDecisions;
+	/** hidden while the original referee decision is shown in their place */
+	private ComboBox<FieldOfPlay> fopSelect;
+	private Select<Integer> jurySizeSelect;
 	private Div reviewAttempt;
 	private Div reviewWeight;
 	private Div reviewFiller;
@@ -217,6 +219,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		if (e.getRef() == 0) {
 			UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 				resetJuryVoting();
+				hideOriginalRefereeDecisions();
 				updateJuryDecisionActions(getFop());
 				syncJuryDialogs(getFop());
 			});
@@ -230,21 +233,12 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			renderPanelVote(e.getVoted(), e.getVotes());
+			if (e.isComplete()) {
+				showOriginalRefereeDecisions(e.getFop());
+			}
 			updateJuryDecisionActions(getFop());
 			// the result of the vote waits for the Chair: Confirm Good Lift, or the rule for a No Lift
 			syncJuryDialogs(getFop());
-		});
-	}
-
-	@Subscribe
-	public void slaveJuryVotesPending(UIEvent.JuryVotesPending e) {
-		if (!e.isPending()) {
-			return;
-		}
-		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			Notification n = Notification.show(Translator.translate("JuryNotification.ClockStartPending"), 5000,
-			        Position.MIDDLE);
-			n.addThemeVariants(NotificationVariant.LUMO_WARNING);
 		});
 	}
 
@@ -265,6 +259,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		// is cleared before the decision is shown).
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			freezeReviewTimer();
+			// the referees' decision is known: Challenge may become available
+			updateJuryDecisionActions(getFop());
 		});
 	}
 
@@ -274,9 +270,23 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	}
 
 	@Subscribe
+	public void slaveJurySizeChanged(UIEvent.JurySizeChanged e) {
+		// another page (or the competition settings) changed the number of jurors on this platform
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			FieldOfPlay fop = getFop();
+			boolean panelMode = fop != null && fop.hasJuryReviewVote();
+			int shown = this.juryVoteCells != null ? this.juryVoteCells.length : -1;
+			if (shown != getNbJurors() || panelMode != this.panelMode) {
+				rebuild();
+			}
+		});
+	}
+
+	@Subscribe
 	public void slaveJuryDisplayReset(UIEvent.JuryDisplayReset e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			resetJuryVoting();
+			hideOriginalRefereeDecisions();
 			clearReviewHeader();
 			// Cancel vote result clears the displays while the review goes on
 			updateReviewHeader(getFop());
@@ -295,8 +305,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		Boolean[] decision = e.getJuryMemberDecision();
 		Integer juryMember = e.getJuryMemberUpdated();
 		Boolean goodBad = juryMember != null ? decision[juryMember] : null;
-		// the summon prompt depends on all the votes, including this page's own
-		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> updateSummonAllButton(fop));
+		// the summon prompt and Challenge depend on all the votes, including this page's own
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> updateJuryDecisionActions(fop));
 		if (juryMember != null && goodBad != null) {
 			UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this, () -> {
 				juryVote(juryMember, goodBad, false);
@@ -316,6 +326,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	public void slaveTimeStarted(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			resetJuryVoting();
+			hideOriginalRefereeDecisions();
 			updateJuryDecisionActions(getFop());
 			clearReviewHeader();
 			updateReviewHeader(e.getFop());
@@ -366,27 +377,24 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		return fopSelect;
 	}
 
-	/** Default / 0 / 3 / 4 / 5 jury member selection; rebuilds the keypad when changed. */
+	/** 0 / 3 / 4 / 5 jury member selection; rebuilds the keypad when changed. */
 	private Select<Integer> createJurySizeSelect() {
 		Select<Integer> jurySizeSelect = new Select<>();
 		jurySizeSelect.setItems(0, 3, 4, 5);
-		jurySizeSelect.setEmptySelectionAllowed(true);
-		jurySizeSelect.setEmptySelectionCaption(
-		        Translator.translate("Competition") + " (" + Competition.getCurrent().getJurySize() + ")");
 		jurySizeSelect.setAriaLabel(Translator.translate("Jury"));
-		jurySizeSelect.setWidth("12rem");
+		jurySizeSelect.setWidth("5.5rem");
 		FieldOfPlay currentFop = getFop();
-		Platform platform = currentFop != null ? currentFop.getPlatform() : null;
-		jurySizeSelect.setValue(platform != null ? platform.getJurySize() : null);
+		// the platform's own setting, or the competition default when it has none
+		jurySizeSelect.setValue(currentFop != null ? currentFop.getJurySize() : Competition.getCurrent().getJurySize());
 		jurySizeSelect.addValueChangeListener((e) -> {
-			if (!e.isFromClient()) {
+			if (!e.isFromClient() || e.getValue() == null) {
 				return;
 			}
 			FieldOfPlay fop = getFop();
 			if (fop == null) {
 				return;
 			}
-			fop.setJurySize(e.getValue());
+			fop.fopEventPost(new FOPEvent.JurySizeChange(this, e.getValue()));
 			rebuild();
 		});
 		return jurySizeSelect;
@@ -534,8 +542,10 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 				URLUtils.replaceState(this.locationUI.getPage().getHistory(), null, location2, this.location);
 			}
 		});
-		toolbar.add(title, fopSelect);
-		toolbar.add(createJurySizeSelect());
+		toolbar.add(title, buildOriginalRefereeDecisions(), fopSelect);
+		this.fopSelect = fopSelect;
+		this.jurySizeSelect = createJurySizeSelect();
+		toolbar.add(this.jurySizeSelect);
 		toolbar.expand(title);
 		toolbar.getStyle().set("grid-column", "1 / -1").set("grid-row", "1");
 
@@ -612,14 +622,13 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		        .set("letter-spacing", "0.05em");
 
 		// --- Row 7: Jury voting indicators (tall, above action buttons) ---
-		// The jurors have the same width as the button columns and are centered: 3 jurors under columns 2..4,
-		// 5 jurors across the full width. 4 jurors (seven-person switch) are squeezed in the span of columns 2..4,
-		// under the referee boxes, so that they do not line up with the buttons below.
+		// 3 jurors sit under columns 2..4, exactly under the referee boxes. 4 jurors are squeezed in the same span, so
+		// that they do not line up with the buttons below. 5 jurors span the full width.
 		int nbJurors = getNbJurors();
 		this.juryVoteCells = new Div[nbJurors];
 		this.juryIcons = new Icon[nbJurors];
 		this.juryVotes = new Boolean[nbJurors];
-		boolean squeezed = nbJurors == 4;
+		boolean squeezed = nbJurors == 3 || nbJurors == 4;
 		int sideColumns = !this.panelMode && !squeezed && nbJurors < 5 ? 1 : 0;
 		Div juryRow = new Div();
 		juryRow.getStyle()
@@ -778,20 +787,6 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 				fop.fopEventPost(new FOPEvent.PanelVoteCalled(this));
 			}
 		});
-	}
-
-	private boolean[] currentPanelVoted(FieldOfPlay fop) {
-		int jurySize = fop.getJurySize();
-		boolean[] voted = new boolean[AdjudicationPanel.NB_REFEREES + jurySize];
-		Boolean[] refs = fop.getReviewRefereeDecision();
-		Boolean[] jury = fop.getJuryMemberDecision();
-		for (int i = 0; i < AdjudicationPanel.NB_REFEREES; i++) {
-			voted[i] = refs[i] != null;
-		}
-		for (int i = 0; i < jurySize; i++) {
-			voted[AdjudicationPanel.NB_REFEREES + i] = jury != null && jury.length > i && jury[i] != null;
-		}
-		return voted;
 	}
 
 	private void updateCallForVotesButton(FieldOfPlay fop) {
@@ -971,13 +966,75 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		syncLiveRefereeDecisions(fop);
 		syncJuryDialogs(fop);
 		if (this.panelMode && fop.isPanelVoteOpen()) {
-			boolean[] voted = currentPanelVoted(fop);
-			renderPanelVote(voted, null);
-			if (this.liveDecisions != null) {
-				// the referees' part of the open review vote (who has voted, values hidden)
-				this.liveDecisions.getDecisionState()
-				        .slavePanelVoteUpdate(new UIEvent.PanelVoteUpdate(true, voted, null, null, this, fop));
+			UIEvent.PanelVoteUpdate vote = fop.getPanelVoteUpdate(this);
+			renderPanelVote(vote.getVoted(), vote.getVotes());
+		}
+		if (fop.getPanelVoteUpdate(this).isComplete()) {
+			showOriginalRefereeDecisions(fop);
+		} else {
+			hideOriginalRefereeDecisions();
+		}
+	}
+
+	private Div buildOriginalRefereeDecisions() {
+		this.originalRefereeDecisions = new Div();
+		this.originalRefereeDecisions.setId("originalRefereeDecisions");
+		this.originalRefereeDecisions.setTitle(Translator.translate("RefereeDecisions"));
+		this.originalRefereeDecisions.getStyle()
+		        .set("display", "flex")
+		        .set("flex-shrink", "0")
+		        .set("gap", "0.5rem");
+		this.originalRefereeDecisions.setVisible(false);
+		return this.originalRefereeDecisions;
+	}
+
+	private void showOriginalRefereeDecisions(FieldOfPlay fop) {
+		if (this.originalRefereeDecisions == null || fop == null) {
+			return;
+		}
+		if (!fop.isPanelProcedure() && !(DecisionDisplayRules.SHOW_ORIGINAL_DECISIONS && fop.hasJuryReviewVote())) {
+			return;
+		}
+		Boolean[] decisions = fop.getRefereeDecision();
+		if (decisions == null || decisions.length < AdjudicationPanel.NB_REFEREES) {
+			hideOriginalRefereeDecisions();
+			return;
+		}
+		this.originalRefereeDecisions.removeAll();
+		for (int i = 0; i < AdjudicationPanel.NB_REFEREES; i++) {
+			if (decisions[i] == null) {
+				hideOriginalRefereeDecisions();
+				return;
 			}
+			Div light = new Div();
+			light.getElement().setAttribute("data-decision", decisions[i] ? "good" : "bad");
+			light.getStyle()
+			        .set("width", "3.5rem")
+			        .set("height", "2.2rem")
+			        .set("border", "1px solid white")
+			        .set("border-radius", "0.2rem")
+			        .set("box-sizing", "border-box")
+			        .set("background", decisions[i] ? "white" : "red");
+			this.originalRefereeDecisions.add(light);
+		}
+		setPlatformSelectorsVisible(false);
+		this.originalRefereeDecisions.setVisible(true);
+	}
+
+	private void hideOriginalRefereeDecisions() {
+		if (this.originalRefereeDecisions != null) {
+			this.originalRefereeDecisions.removeAll();
+			this.originalRefereeDecisions.setVisible(false);
+		}
+		setPlatformSelectorsVisible(true);
+	}
+
+	private void setPlatformSelectorsVisible(boolean visible) {
+		if (this.fopSelect != null) {
+			this.fopSelect.setVisible(visible);
+		}
+		if (this.jurySizeSelect != null) {
+			this.jurySizeSelect.setVisible(visible);
 		}
 	}
 
@@ -988,6 +1045,10 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 		this.liveDecisions.setFop(fop);
 		this.liveDecisions.doReset();
+		if (fop.isPanelVoteOpen()) {
+			this.liveDecisions.getDecisionState().syncReviewVotes(null);
+			return;
+		}
 
 		Boolean[] curRefDecisions = fop.getRefereeDecision();
 		Long[] curRefTimes = fop.getRefereeTime();
@@ -1089,6 +1150,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		        .set("justify-content", "center")
 		        .set("min-width", "3rem")
 		        .set("height", "3rem")
+		        .set("flex-shrink", "0")
 		        .set("padding", "0 0.5rem")
 		        .set("background", "#b91c1c")
 		        .set("color", "#ffffff")
@@ -1253,6 +1315,10 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	}
 
 	private void startChallenge() {
+		FieldOfPlay fop = getFop();
+		if (fop == null || !fop.isChallengeAllowed()) {
+			return;
+		}
 		startBreak(BreakType.CHALLENGE);
 	}
 
@@ -1367,17 +1433,37 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		dialog.setHeaderTitle(Translator.translate("JuryDialog.GoodLiftLabel"));
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
-		Button confirm = new Button(Translator.translate("JuryKeypad.ConfirmGoodLift"), e -> {
-			closeConfirmGoodLiftDialog();
-			submitJuryDecision(true, null, true);
-		});
-		confirm.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_LARGE);
-		Button cancelResult = new Button(Translator.translate("JuryKeypad.CancelVoteResult"), e -> {
-			closeConfirmGoodLiftDialog();
-			cancelVoteResult();
-		});
-		cancelResult.addThemeVariants(ButtonVariant.LUMO_LARGE);
-		dialog.getFooter().add(cancelResult, confirm);
+		// Confirm Good Lift the size of a keypad button, so that the Jury Chair cannot miss it; Cancel vote result
+		// intentionally smaller, centered in a slot of the same size
+		Button cancelResult = createKeypadButton(Translator.translate("JuryKeypad.CancelVoteResult"), "contrast",
+		        () -> {
+			        closeConfirmGoodLiftDialog();
+			        cancelVoteResult();
+		        });
+		styleSmallDialogButton(cancelResult);
+		Div cancelSlot = new Div(cancelResult);
+		cancelSlot.getStyle()
+		        .set("width", "24vw")
+		        .set("height", "12vh")
+		        .set("display", "flex")
+		        .set("align-items", "center")
+		        .set("justify-content", "center");
+		Button confirm = createKeypadButton(Translator.translate("JuryKeypad.ConfirmGoodLift"), "primary contrast",
+		        () -> {
+			        closeConfirmGoodLiftDialog();
+			        submitJuryDecision(true, null, true);
+		        });
+		confirm.getStyle()
+		        .set("width", "24vw")
+		        .set("height", "12vh")
+		        .set("background-color", "white")
+		        .set("color", "black")
+		        .set("font-weight", "700");
+		Div buttons = new Div(confirm, cancelSlot);
+		buttons.getStyle()
+		        .set("display", "flex")
+		        .set("gap", "var(--lumo-space-m)");
+		dialog.add(buttons);
 		dialog.open();
 	}
 
@@ -1433,7 +1519,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			        .set("margin", "0 0 var(--lumo-space-m) 0")
 			        .set("break-inside", "avoid")
 			        .set("height", "auto")
-			        .set("min-height", "3.25rem")
+			        .set("min-height", "4.5rem")
 			        .set("white-space", "normal")
 			        .set("justify-content", "flex-start")
 			        .set("text-align", "left")
@@ -1446,18 +1532,27 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 		Button cancel;
 		if (forVote) {
-			cancel = new Button(Translator.translate("JuryKeypad.CancelVoteResult"), e -> {
+			cancel = createKeypadButton(Translator.translate("JuryKeypad.CancelVoteResult"), "contrast", () -> {
 				closeNoLiftReasonDialog();
 				cancelVoteResult();
 			});
 		} else {
-			cancel = new Button(Translator.translate("Cancel"), e -> {
+			cancel = createKeypadButton(Translator.translate("Cancel"), "contrast", () -> {
 				closeNoLiftReasonDialog();
 				OwlcmsSession.withFop(fop -> fop.fopEventPost(new FOPEvent.JuryRuleRequest(this, true)));
 			});
 		}
+		styleSmallDialogButton(cancel);
 		dialog.getFooter().add(cancel);
 		dialog.open();
+	}
+
+	/** the cancel button of the jury dialogs: intentionally smaller than a keypad button (60% by 55%) */
+	private void styleSmallDialogButton(Button button) {
+		styleSummonButton(button);
+		button.getStyle()
+		        .set("width", "calc(24vw * 0.6)")
+		        .set("height", "calc(12vh * 0.55)");
 	}
 
 	private void updateJuryDecisionActions(FieldOfPlay fop) {
@@ -1470,7 +1565,20 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			setVisible(this.deliberationButton, !enabled);
 			setVisible(this.challengeButton, !enabled);
 		}
+		updateChallengeButton(fop);
 		updateCallForVotesButton(fop);
+	}
+
+	/** Challenge only against a referees' No Lift that the jury or the panel agreed with */
+	private void updateChallengeButton(FieldOfPlay fop) {
+		if (this.challengeButton == null) {
+			return;
+		}
+		boolean allowed = fop != null && fop.isChallengeAllowed();
+		this.challengeButton.setEnabled(allowed);
+		this.challengeButton.getStyle()
+		        .set("background-color", allowed ? "#FFC107" : "#1e293b")
+		        .set("color", allowed ? "#000000" : "#64748b");
 	}
 
 	private static void setVisible(Button button, boolean visible) {
