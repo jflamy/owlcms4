@@ -851,6 +851,11 @@ public class FieldOfPlay implements IUnregister {
 		// ======= state-independent processing: the reaction does not depend on the
 		// state.
 
+		if (e instanceof FOPEvent.JurySizeChange) {
+			setJurySize(((FOPEvent.JurySizeChange) e).getJurySize(), e.getOrigin());
+			return;
+		}
+
 		// it is always possible to explicitly interrupt competition (break between the
 		// two lifts, technical incident, etc.). Even switching break type is allowed.
 
@@ -2018,6 +2023,10 @@ public class FieldOfPlay implements IUnregister {
 
 	/** @param jurySize 0, 3, 4 or 5; null to use the competition default */
 	public void setJurySize(Integer jurySize) {
+		setJurySize(jurySize, this);
+	}
+
+	private void setJurySize(Integer jurySize, Object origin) {
 		Platform p = getPlatform();
 		if (p == null) {
 			return;
@@ -2028,6 +2037,7 @@ public class FieldOfPlay implements IUnregister {
 		if (mqttMonitor != null) {
 			mqttMonitor.publishMqttConfig();
 		}
+		pushOutUIEvent(new UIEvent.JurySizeChanged(origin, this));
 	}
 
 	/**

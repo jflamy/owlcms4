@@ -51,10 +51,10 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
 import ch.qos.logback.classic.Logger;
@@ -261,9 +261,9 @@ public class CompetitionEditingFormFactory
 		saveStartNumberOrderConfiguration();
 		if (this.jurySizeChanged) {
 			for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
-				MQTTMonitor mqttMonitor = fop.getMqttMonitor();
-				if (fop.getPlatform() != null && fop.getPlatform().getJurySize() == null && mqttMonitor != null) {
-					mqttMonitor.publishMqttConfig();
+				if (fop.getPlatform() != null && fop.getPlatform().getJurySize() == null) {
+					// the platform follows the competition default: the jury box and the jury pages follow too
+					fop.fopEventPost(new FOPEvent.JurySizeChange(this, null));
 				}
 			}
 			this.jurySizeChanged = false;

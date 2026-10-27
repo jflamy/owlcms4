@@ -661,6 +661,26 @@ public class FOPEvent {
 	}
 
 	/**
+	 * The number of jurors on the platform is changed (Jury Control). The platform keeps it, the jury box follows
+	 * through the MQTT configuration, and the jury pages adapt.
+	 */
+	static public class JurySizeChange extends FOPEvent {
+
+		private final Integer jurySize;
+
+		/** @param jurySize 0, 3, 4 or 5; null to use the competition default */
+		public JurySizeChange(Object origin, Integer jurySize) {
+			super(origin);
+			this.jurySize = jurySize;
+		}
+
+		public Integer getJurySize() {
+			return this.jurySize;
+		}
+
+	}
+
+	/**
 	 * The Class StartLifting.
 	 */
 	static public class StartLifting extends FOPEvent {

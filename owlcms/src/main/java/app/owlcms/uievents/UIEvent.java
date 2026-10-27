@@ -882,6 +882,15 @@ public class UIEvent {
 
 	}
 
+	/** The number of jurors on the platform has changed: the jury pages adapt their layout. */
+	static public class JurySizeChanged extends UIEvent {
+
+		public JurySizeChanged(Object origin, FieldOfPlay fop) {
+			super(origin, fop);
+		}
+
+	}
+
 	/**
 	 * Traditional 3-5 member jury: the jury decision is a No Lift, so the Jury Chair must give the technical rule
 	 * before the decision is sent.

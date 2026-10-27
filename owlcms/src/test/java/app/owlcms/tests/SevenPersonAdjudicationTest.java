@@ -127,6 +127,16 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
+	public void jurySizeChangeIsAFopEventThatTheJuryPagesFollow() {
+		Object page = new Object();
+		post(new FOPEvent.JurySizeChange(page, 3));
+		assertEquals(3, this.fop.getJurySize());
+		assertFalse(this.fop.isPanelProcedure());
+		assertTrue("the jury pages are told", this.recorder.await(this.recorder.jurySizeChanges,
+		        e -> e.getOrigin() == page));
+	}
+
+	@Test
 	public void competitionAndPlatformAcceptJurySizeFour() {
 		Integer original = Competition.getCurrent().getJurySize();
 		try {
@@ -1690,6 +1700,7 @@ public class SevenPersonAdjudicationTest {
 		final List<UIEvent.Notification> errors = new CopyOnWriteArrayList<>();
 		final List<UIEvent.JuryRuleRequired> ruleRequests = new CopyOnWriteArrayList<>();
 		final List<UIEvent.JuryDisplayReset> displayResets = new CopyOnWriteArrayList<>();
+		final List<UIEvent.JurySizeChanged> jurySizeChanges = new CopyOnWriteArrayList<>();
 		/** every UI event, in delivery order (sort by sequence for emission order) */
 		final List<UIEvent> all = new CopyOnWriteArrayList<>();
 
@@ -1701,6 +1712,11 @@ public class SevenPersonAdjudicationTest {
 		@Subscribe
 		public void juryDisplayReset(UIEvent.JuryDisplayReset e) {
 			this.displayResets.add(e);
+		}
+
+		@Subscribe
+		public void jurySizeChanged(UIEvent.JurySizeChanged e) {
+			this.jurySizeChanges.add(e);
 		}
 
 		@Subscribe
