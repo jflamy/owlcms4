@@ -50,7 +50,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.i18n.I18NProvider;
 
 import app.owlcms.utils.HtmlSanitizer;
-import app.owlcms.utils.InstallationSecret;
+import app.owlcms.utils.DevApiKeySecret;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.MemTempUtils;
 import app.owlcms.utils.ResourceWalker;
@@ -599,7 +599,7 @@ public class Translator implements I18NProvider {
 		}
 		String plainKey;
 		try {
-			plainKey = InstallationSecret.decrypt(apiKey).strip();
+			plainKey = DevApiKeySecret.decrypt(apiKey).strip();
 		} catch (IOException e) {
 			throw new IOException(GOOGLE_SHEETS_API_KEY + ": " + e.getMessage(), e);
 		}
