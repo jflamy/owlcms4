@@ -755,6 +755,17 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0-M5</version>
+				<configuration>
+					<!-- Live external scenario; an explicit -Dtest=ProtocolRecordingTest overrides this exclusion. -->
+					<excludes>
+						<exclude>**/ProtocolRecordingTest.java</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
 				<artifactId>maven-clean-plugin</artifactId>
 				<version>3.3.2</version>
 				<configuration>
