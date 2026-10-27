@@ -59,7 +59,7 @@ import com.microsoft.playwright.options.LoadState;
  * Each scenario has its own folder {@code <out>/<scenario>/}, cleaned and rewritten each time it runs, with
  * {@code timeline.html} (screens side by side, with header checkboxes to hide/show screen columns) and
  * {@code index.html} (details). After every run,
- * {@code <out>/summary.html} lists the last run of every scenario.
+ * {@code <out>/index.html} lists the last run of every scenario.
  *
  * <pre>
  * Options: --base=http://localhost:8080 --mqtt=tcp://localhost:1883 --fop=A --group=M1 --out=playwright/reports
@@ -352,7 +352,7 @@ public class JuryScenario {
 			this.mqtt.disconnect();
 			this.mqtt.close();
 		}
-		System.out.println("summary: " + out.resolve("summary.html").toAbsolutePath());
+		System.out.println("summary: " + out.resolve("index.html").toAbsolutePath());
 		System.out.println(this.failures == 0 ? "all checks passed" : this.failures + " check(s) failed");
 		return this.failures;
 	}
@@ -364,7 +364,7 @@ public class JuryScenario {
 		        when + "\n" + this.scenarioFailures + "\n" + this.results.size() + "\n", StandardCharsets.UTF_8);
 	}
 
-	/** summary.html: the last run of every scenario, from the status.txt of each scenario folder */
+	/** index.html: the last run of every scenario, from the status.txt of each scenario folder */
 	private void writeSummary(Path out) throws IOException {
 		StringBuilder sb = new StringBuilder("<!DOCTYPE html><html><head><meta charset='utf-8'><title>Jury scenarios"
 		        + "</title><style>body{font-family:sans-serif;margin:1em}table{border-collapse:collapse}"
@@ -390,7 +390,7 @@ public class JuryScenario {
 			sb.append("</tr>");
 		}
 		sb.append("</table></body></html>");
-		Files.writeString(out.resolve("summary.html"), sb.toString(), StandardCharsets.UTF_8);
+		Files.writeString(out.resolve("index.html"), sb.toString(), StandardCharsets.UTF_8);
 	}
 
 	private static void deleteRecursively(Path dir) throws IOException {
