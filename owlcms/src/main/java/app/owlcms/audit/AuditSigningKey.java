@@ -17,6 +17,9 @@ import java.util.HexFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.crypto.KDF;
+import javax.crypto.spec.HKDFParameterSpec;
+
 public final class AuditSigningKey {
 	public static final String BUILTIN_FINGERPRINT =
 			"d8a318725d89bf63d698a09cb3c10684ac6e76c05bda32318da8b8d71775dde6";
@@ -131,6 +134,16 @@ public final class AuditSigningKey {
 		signature.initVerify(this.publicKey);
 		signature.update(bytes);
 		return signature.verify(signatureBytes);
+	}
+
+	/**
+	 * @param label distinguishes the purpose, so that each purpose gets an unrelated key
+	 * @return a 256-bit symmetric key derived from the private key with HKDF-SHA256
+	 */
+	public byte[] deriveSymmetricKey(String label) throws GeneralSecurityException {
+		KDF hkdf = KDF.getInstance("HKDF-SHA256");
+		return hkdf.deriveData(HKDFParameterSpec.ofExtract().addIKM(this.privateKey.getEncoded())
+				.thenExpand(label.getBytes(StandardCharsets.UTF_8), 32));
 	}
 
 	String toPem() {

@@ -2,13 +2,21 @@ package app.owlcms.data.config;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import app.owlcms.utils.InstallationSecret;
+import app.owlcms.audit.AuditIntegrity;
+import ch.qos.logback.classic.Logger;
 
 public class ForwardingConnection {
+
+	private static final Logger logger = (Logger) LoggerFactory.getLogger(ForwardingConnection.class);
+	private static final Set<String> reportedUnusableKeys = ConcurrentHashMap.newKeySet();
 
 	private boolean active = true;
 	private boolean controlPanelManaged;
@@ -53,21 +61,36 @@ public class ForwardingConnection {
 		return controlPanelManaged;
 	}
 
+	/**
+	 * @return the plain key; null if none, or if the stored key cannot be decrypted with this installation's audit key
+	 *         (for example an export from accounts mode with another PEM key), in which case it must be entered again
+	 */
 	@JsonIgnore
 	public String getUpdateKey() {
 		try {
-			return InstallationSecret.decrypt(this.updateKey);
+			return ForwardingKeyCipher.reveal(this.updateKey);
 		} catch (IOException e) {
-			throw new IllegalStateException("Unable to decrypt forwarding update key", e);
+			reportUnusable(e);
+			return null;
 		}
 	}
 
+	/** Plain text in PIN mode, encrypted in accounts mode; see {@link ForwardingKeyCipher}. */
 	@JsonProperty("updateKey")
 	public String getUpdateKeyForJson() {
 		try {
-			return InstallationSecret.encrypt(this.updateKey);
+			return ForwardingKeyCipher.forStorage(this.updateKey);
 		} catch (IOException e) {
-			throw new IllegalStateException("Unable to encrypt forwarding update key", e);
+			reportUnusable(e);
+			return null;
+		}
+	}
+
+	private void reportUnusable(IOException e) {
+		// before the audit key is loaded at startup, a key encrypted with a PEM key cannot be read yet
+		if (AuditIntegrity.isInitialized() && reportedUnusableKeys.add(this.updateKey)) {
+			logger./**/warn("forwarding key for {} treated as unset, enter it again in the settings: {}", this.url,
+			        e.getMessage());
 		}
 	}
 
@@ -84,11 +107,7 @@ public class ForwardingConnection {
 	}
 
 	public void setUpdateKey(String updateKey) {
-		try {
-			this.updateKey = InstallationSecret.encrypt(normalizeKey(updateKey));
-		} catch (IOException e) {
-			throw new IllegalStateException("Unable to encrypt forwarding update key", e);
-		}
+		this.updateKey = normalizeKey(updateKey);
 	}
 
 	@JsonProperty("updateKey")

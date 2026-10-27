@@ -28,7 +28,10 @@
 - Tamper-resistant, machine-readable audit trails for compliance.
 - New Backup page in the Admin section.
 - owlcms can start directly from a database export (`OWLCMS_LOADJSON`).
-- Event forwarding keys are encrypted in JSON exports.
+- Event forwarding keys are encrypted in the database and in JSON exports when using accounts mode.
+  - The encryption key is derived from the audit signing key (PEM). Without a PEM key the built-in key is used, which only hides the values.
+  - A key encrypted with another PEM key cannot be used: it is treated as not set and must be entered again.
+  - In PIN mode the keys are stored as before, so a competition prepared on one computer runs unchanged on another.
 - Conflicting changes to athlete information are clearly signaled.
 - The H2 database can no longer be opened by other programs while owlcms runs (`H2ServerPort` removed).
 - Imported textual data is cleaned of scripts and markup.

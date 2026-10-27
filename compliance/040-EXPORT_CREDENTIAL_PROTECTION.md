@@ -1,6 +1,21 @@
 # Protecting Connection Credentials in Exports
 
-Status: proposal; implementation status has not been re-audited in this cleanup.
+Status: implemented 2026-10-27 with a different key and scope than proposed
+below; the sections that follow are the original proposal.
+
+- PIN mode: forwarding update keys are stored in plain text in the database
+  and in exports, so a competition prepared on one computer runs on another.
+- Accounts mode: they are encrypted (same `enc:v1:` layout, AES-256-GCM) with
+  a key derived by HKDF-SHA256 from the audit signing key
+  (`AuditSigningKey.deriveSymmetricKey`, see `ForwardingKeyCipher`): the
+  configured PEM key, or else the built-in key, whose private part is public,
+  so that only hides the values (demos).
+- Values are read whatever the mode. A value that cannot be decrypted with the
+  current or built-in key is treated as unset, written as null on the next save
+  or export, and must be entered again. Until the audit key is loaded at
+  startup, stored values are kept unchanged.
+- The installation key (`~/.owlcms/key`) is not used for forwarding keys; it
+  only decrypts development API keys (Google Sheets).
 This document concerns **what an export contains**, not who may download it.
 URL authorization is in [020](020-TOKEN_PROTECTED_URLS.md); checkpoint collection
 is in [050](050-SCHEDULED_CHECKPOINTS.md).
