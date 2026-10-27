@@ -137,6 +137,51 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
+	public void challengeIsOnWhenTheRefereesGiveNoLiftAndOffOnceTheLiftIsReviewed() {
+		assertFalse("no lift yet", this.fop.isChallengeAllowed());
+		lift(R, R, W);
+		assertTrue("the referees' majority is red", this.fop.isChallengeAllowed());
+		juryVotes(W, W, R, R);
+		assertTrue("the panel keeps the No Lift: no review", this.fop.isChallengeAllowed());
+
+		post(new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		assertFalse("not during the review", this.fop.isChallengeAllowed());
+		callForVotes();
+		reviewVotes(R, R, W);
+		juryVotes(W, R, W, W);
+		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 1, true));
+		assertFalse("the panel's result cannot be challenged", this.fop.isChallengeAllowed());
+	}
+
+	@Test
+	public void aGoodLiftCannotBeChallenged() {
+		lift(W, W, R);
+		assertFalse(this.fop.isChallengeAllowed());
+	}
+
+	@Test
+	public void theAutomaticReviewTurnsChallengeOff() {
+		lift(R, R, W);
+		assertTrue(this.fop.isChallengeAllowed());
+		juryVotes(W, W, W, W);
+		assertPanelReviewBreak();
+		assertFalse("the automatic review deals with the lift", this.fop.isChallengeAllowed());
+	}
+
+	@Test
+	public void aJuryDeliberationTurnsChallengeOffEvenAfterResume() {
+		this.fop.setJurySize(3);
+		lift(R, R, W);
+		juryVotes(W, W, W);
+		assertTrue("the Chair has not deliberated: the referees' No Lift can be challenged",
+		        this.fop.isChallengeAllowed());
+		post(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		assertFalse("during the deliberation", this.fop.isChallengeAllowed());
+		post(new FOPEvent.JuryResume(new Object()));
+		assertFalse("the lift has been deliberated", this.fop.isChallengeAllowed());
+	}
+
+	@Test
 	public void competitionAndPlatformAcceptJurySizeFour() {
 		Integer original = Competition.getCurrent().getJurySize();
 		try {

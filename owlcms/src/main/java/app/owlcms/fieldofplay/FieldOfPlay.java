@@ -237,6 +237,8 @@ public class FieldOfPlay implements IUnregister {
 	private Boolean[] panelReviewInitialVotes;
 	/** a jury decision is being shown (DECISION_VISIBLE after doJuryDecision), until StartLifting */
 	private boolean juryDecisionShown;
+	/** a deliberation, challenge or jury decision has dealt with the current lift: it cannot be challenged */
+	private boolean liftReviewed;
 	/**
 	 * Four-member jury: the attempt board shows the jury decision card until this time (ms); the clock cannot be
 	 * started while the card is on, even after the FOP has resumed lifting.
@@ -2891,6 +2893,7 @@ public class FieldOfPlay implements IUnregister {
 			setGoodLift(e.success);
 			setState(DECISION_VISIBLE);
 			this.juryDecisionShown = true;
+			this.liftReviewed = true;
 			if (isFourMemberJury()) {
 				this.juryDecisionCardVisibleUntil = System.currentTimeMillis() + JURY_DECISION_CARD_MS;
 			}
@@ -3078,6 +3081,10 @@ public class FieldOfPlay implements IUnregister {
 			}
 			if (newBreak != BreakType.JURY && newBreak != BreakType.CHALLENGE) {
 				closePanelVote(this);
+			}
+			if (newBreak == BreakType.JURY || newBreak == BreakType.CHALLENGE) {
+				// a deliberation or challenge on the lift: it can no longer be challenged
+				this.liftReviewed = true;
 			}
 			switch (newBreak) {
 				case JURY:
@@ -3479,6 +3486,15 @@ public class FieldOfPlay implements IUnregister {
 	 */
 	private Boolean refereeMajority(Boolean[] refereeDecisions) {
 		return AdjudicationPanel.refereeMajority(refereeDecisions);
+	}
+
+	/**
+	 * A challenge is against the referees' No Lift: it is possible as soon as the referees' majority is red, until a
+	 * deliberation, a challenge or a jury decision deals with the lift. A jury or panel result cannot be challenged.
+	 */
+	public boolean isChallengeAllowed() {
+		return this.athleteUnderReview != null && !this.liftReviewed && !juryDeliberationInProgress()
+		        && Boolean.FALSE.equals(refereeMajority(getRefereeDecision()));
 	}
 
 	private boolean juryDeliberationInProgress() {
@@ -4893,6 +4909,7 @@ public class FieldOfPlay implements IUnregister {
 		setPreviousAthlete(this.athleteUnderReview);
 		setLastChallengedRecords(this.challengedRecords);
 		setGoodLift(computeCurrentGoodLift());
+		this.liftReviewed = false;
 		if (getCurAthlete() != null) {
 			this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
 			int attempt = getCurAthlete().getAttemptsDone() + 1;
