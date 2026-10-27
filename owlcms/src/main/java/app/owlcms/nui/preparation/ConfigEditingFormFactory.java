@@ -263,8 +263,9 @@ public class ConfigEditingFormFactory
 			Config oldConfig = Config.getCurrent();
 			
 			// Check if childrenEquipment toggle is being ADDED (wasn't active before, now is)
-			boolean hadChildrenEquipment = oldConfig != null && oldConfig.featureSwitch(FeatureSwitch.CHILDREN_EQUIPMENT);
-			boolean willHaveChildrenEquipment = containsFeatureSwitch(config.getFeatureSwitches(), FeatureSwitch.CHILDREN_EQUIPMENT);
+			boolean hadChildrenEquipment = oldConfig != null
+			        && FeatureSwitch.CHILDREN_EQUIPMENT.isEffective(oldConfig);
+			boolean willHaveChildrenEquipment = config.getFeatureSwitchValue(FeatureSwitch.CHILDREN_EQUIPMENT);
 			boolean childrenEquipmentAdded = !hadChildrenEquipment && willHaveChildrenEquipment;
 			
 			Config saved = Config.setCurrent(config);
@@ -305,22 +306,6 @@ public class ConfigEditingFormFactory
 
 	private String selectedTabLocation() {
 		return CONFIG_ROUTE + "/" + this.tabSheet.getSelectedIndex();
-	}
-	
-	/**
-	 * Check if a feature switch is present in a comma/semicolon/space-separated string.
-	 */
-	private boolean containsFeatureSwitch(String switches, FeatureSwitch toggle) {
-		if (switches == null || switches.trim().isEmpty()) {
-			return false;
-		}
-		String[] parts = switches.toLowerCase().split("[,; ]");
-		for (String part : parts) {
-			if (part.trim().equalsIgnoreCase(toggle.getId())) {
-				return true;
-			}
-		}
-		return false;
 	}
 	
 	/**

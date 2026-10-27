@@ -252,7 +252,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 			}
 		}
 		if (scoringSystem == null) {
-			scoringSystem = Championship.of(null).getBestAthleteScoringSystem();
+			scoringSystem = Championship.of(null).getEffectiveBestAthleteScoringSystem();
 		}
 		return Ranking.getRankingValue(this.a, scoringSystem);
 	}

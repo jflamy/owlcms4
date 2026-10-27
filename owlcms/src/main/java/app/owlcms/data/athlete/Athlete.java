@@ -612,7 +612,7 @@ public class Athlete {
 	}
 
 	protected boolean fixNamesP() {
-		return !Config.getCurrent().featureSwitch(FeatureSwitch.DONT_FIX_NAMES);
+		return !FeatureSwitch.DONT_FIX_NAMES.isEffective();
 	}
 
 	public void addEligibleCategory(Category category) {
@@ -1227,7 +1227,7 @@ public class Athlete {
 	}
 
 	public String computeFixedFirstName(Locale loc, String firstName2) {
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.DONT_FIX_NAMES)
+		if (FeatureSwitch.DONT_FIX_NAMES.isEffective()
 		        || firstName2.matches("\\p{Lu}{2}")) {
 			return firstName2;
 		}
@@ -1581,7 +1581,7 @@ public class Athlete {
 		if (scoringSystem == null) {
 			AgeGroup ageGroup = getAgeGroup();
 			scoringSystem = ageGroup != null ? ageGroup.computedBestAthleteScoringSystem()
-					: Championship.of(null).getBestAthleteScoringSystem();
+					: Championship.of(null).getEffectiveBestAthleteScoringSystem();
 		}
 		return Ranking.getRankingValue(this, scoringSystem);
 	}
@@ -5367,7 +5367,7 @@ public class Athlete {
 	}
 
 	public int startingTotalDelta() {
-		if (!Competition.getCurrent().isEnforce20kgRule()) {
+		if (!Competition.getCurrent().isEffectiveEnforce20kgRule()) {
 			return 0;
 		}
 		return startingTotalDelta(getStartingTotalMargin(getCategory(), getEntryTotal()));
@@ -5387,7 +5387,7 @@ public class Athlete {
 	}
 
 	public int startingDeclarationTotalDelta() {
-		if (!Competition.getCurrent().isEnforce20kgRule()) {
+		if (!Competition.getCurrent().isEffectiveEnforce20kgRule()) {
 			return 0;
 		}
 		return startingDeclarationTotalDelta(getStartingTotalMargin(getCategory(), getEntryTotal()));
@@ -5716,7 +5716,7 @@ public class Athlete {
 	 */
 	public boolean validateStartingTotalsRule(Integer snatch1Request, Integer cleanJerk1Request,
 			int qualTotal) throws RuleViolationException.StartingWeightDeclarationViolation {
-		boolean enforce20kg = Competition.getCurrent().isEnforce20kgRule();
+		boolean enforce20kg = Competition.getCurrent().isEffectiveEnforce20kgRule();
 		// logger.debug("validateStartingTotalsRule {} {} {} {}",
 		// LoggerUtils.whereFrom(),
 		// System.identityHashCode(this), isValidation(),
@@ -5744,7 +5744,7 @@ public class Athlete {
 	 */
 	public boolean validateStartingTotalsRule(String snatch1Declaration, String snatch1Change1, String snatch1Change2,
 			String cleanJerk1Declaration, String cleanJerk1Change1, String cleanJerk1Change2) {
-		boolean enforce20kg = Competition.getCurrent().isEnforce20kgRule();
+		boolean enforce20kg = Competition.getCurrent().isEffectiveEnforce20kgRule();
 		int entryTotal = getEntryTotal();
 		if (!isValidation() || !enforce20kg || (entryTotal == 0)) {
 			return true;
@@ -5899,7 +5899,7 @@ public class Athlete {
 	private void checkChangeVsLiftOrder(int curLift, int newVal) {
 		long start = System.currentTimeMillis();
 		Level prevLoggerLevel = getLogger().getLevel();
-		if (Competition.getCurrent().isGenderOrder()) {
+		if (Competition.getCurrent().isEffectiveGenderOrder()) {
 			return;
 		}
 		try {
@@ -5913,7 +5913,7 @@ public class Athlete {
 	}
 
 	private void checkChangeVsTimer(int curLift, String declaration, String change1, String change2) {
-		if (Competition.getCurrent().isGenderOrder()) {
+		if (Competition.getCurrent().isEffectiveGenderOrder()) {
 			return;
 		}
 		Integer attemptsDone = this.getAttemptsDone(); // 0..5
@@ -6027,7 +6027,7 @@ public class Athlete {
 			int referenceProgression = reference.getProgression();
 
 			if (currentProgression == referenceProgression) {
-				if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
+				if (FeatureSwitch.PLAYWRIGHT.isEffective()) {
 					getLogger()./* playwright */warn("{}progression({}) {} == referenceProgression({}) {}",
 							fopLoggingName, this.getLastName(), currentProgression,
 							reference.getAthlete().getLastName(),
@@ -6040,7 +6040,7 @@ public class Athlete {
 
 			// check again.
 			if (currentProgression == referenceProgression) {
-				if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
+				if (FeatureSwitch.PLAYWRIGHT.isEffective()) {
 					getLogger()./* playwright */warn(
 							"{}cumulativeProgression({}) {} == referenceCumulativeProgression({}) {}",
 							fopLoggingName, this.getLastName(), currentProgression,
@@ -6051,7 +6051,7 @@ public class Athlete {
 			} else
 
 			if (currentProgression > referenceProgression) {
-				if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
+				if (FeatureSwitch.PLAYWRIGHT.isEffective()) {
 					getLogger()./* playwright */warn("{}currentProgression({}) {} > referenceProgression({}) {}",
 							fopLoggingName, this.getLastName(), currentProgression,
 							reference.getAthlete().getLastName(),
@@ -6202,7 +6202,7 @@ public class Athlete {
 			// logger.trace("lifts done at last start {} current lifts done {}",
 			// fop.getLiftsDoneAtLastStart(),
 			// getAttemptsDone());
-			if (!Competition.getCurrent().isRoundRobinOrder()
+			if (!Competition.getCurrent().isEffectiveRoundRobinOrder()
 					&& ((!cjClock && !cjStarted) || (cjStarted && cjClock))) {
 				throw new RuleViolationException.ValueBelowStartedClock(this, newVal, weightAtLastStart);
 			}
@@ -6581,7 +6581,7 @@ public class Athlete {
 	}
 
 	private int startingTotalDelta(Integer snatch1Request, Integer cleanJerk1Request, int qualTotal) {
-		boolean enforce20kg = Competition.getCurrent().isEnforce20kgRule();
+		boolean enforce20kg = Competition.getCurrent().isEffectiveEnforce20kgRule();
 		if (!enforce20kg) {
 			return 0;
 		}

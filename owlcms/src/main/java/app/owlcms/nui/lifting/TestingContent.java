@@ -35,7 +35,6 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
@@ -481,7 +480,7 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 		resumeCompetition.setEnabled(inBreak);
 		
 		HorizontalLayout buttons = new HorizontalLayout();
-		if (fop != null && Config.getCurrent().featureSwitch(FeatureSwitch.MQTT_DOWN_SIGNAL)) {
+		if (fop != null && FeatureSwitch.MQTT_DOWN_SIGNAL.isEffective()) {
 			var testDown = new Button(Translator.translate("TestButtons.TestDownSignal"), new Icon(VaadinIcon.ARROW_DOWN),
 			        (e) -> {
 				        new Thread(() -> {

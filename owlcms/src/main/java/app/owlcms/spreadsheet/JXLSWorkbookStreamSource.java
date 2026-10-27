@@ -60,7 +60,6 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.coach.CoachRepository;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -177,7 +176,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	private Integer verticalBorderStopColumn;
 
 	protected boolean shouldHideInterimScoresInResults() {
-		return this.respectNoInterimScoresInResults && Config.getCurrent().featureSwitch(FeatureSwitch.NO_INTERIM_SCORES_IN_RESULTS);
+		return this.respectNoInterimScoresInResults && FeatureSwitch.NO_INTERIM_SCORES_IN_RESULTS.isEffective();
 	}
 
 	public JXLSWorkbookStreamSource() {

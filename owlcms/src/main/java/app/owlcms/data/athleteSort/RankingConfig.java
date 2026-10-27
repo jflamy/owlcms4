@@ -99,7 +99,7 @@ public class RankingConfig {
 		Championship defaults = Championship.of(null);
 		if (defaults != null) {
 			addRequiredRanking(defaults.getScoringSystem());
-			addRequiredRanking(defaults.getBestAthleteScoringSystem());
+			addRequiredRanking(defaults.getEffectiveBestAthleteScoringSystem());
 		}
 		
 		addRequiredRankingsForActiveAgeGroups(AgeGroupRepository.findAll());
@@ -124,7 +124,7 @@ public class RankingConfig {
 			return;
 		}
 		addRequiredRanking(championship.getScoringSystem());
-		addRequiredRanking(championship.getBestAthleteScoringSystem());
+		addRequiredRanking(championship.getEffectiveBestAthleteScoringSystem());
 		addRequiredRanking(championship.getBestSnatchScoringSystem());
 		addRequiredRanking(championship.getBestCJScoringSystem());
 		if (championship.isGenderedTeamsEnabled()) {

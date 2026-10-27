@@ -26,7 +26,6 @@ import app.owlcms.access.AccessUi;
 import app.owlcms.access.Principal;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.displays.DecisionDisplayRules;
 import app.owlcms.displays.attemptboard.AttemptBoard;
@@ -99,7 +98,7 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage
 			// the FOP is only known after super.readParams
 			setDefaultParamValue(SHOW_JURY_DECISIONS,
 			        Boolean.toString(DecisionDisplayRules.showJuryDecisionsOnAttemptBoard(getJurySize(),
-			                Config.getCurrent().featureSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD))));
+			                FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD.isEffective())));
 			if (getJurySize() > 0) {
 				processBooleanParam(params, SHOW_JURY_DECISIONS, this::setShowJuryDecisions);
 			} else {
@@ -148,7 +147,7 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage
 
 	private int getJurySize() {
 		FieldOfPlay fop = getFop();
-		return fop != null ? fop.getJurySize() : Competition.getCurrent().getJurySize();
+		return fop != null ? fop.getJurySize() : Competition.getCurrent().getEffectiveJurySize();
 	}
 
 	private void setShowJuryDecisions(boolean show) {

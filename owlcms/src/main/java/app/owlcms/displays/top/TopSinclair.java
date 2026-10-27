@@ -633,7 +633,7 @@ public class TopSinclair extends AbstractTop {
 		Championship championship = getAgeGroup() != null && getAgeGroup().getChampionship() != null
 		        ? getAgeGroup().getChampionship()
 		        : getChampionship() != null ? getChampionship() : Championship.of(null);
-		return championship.getBestAthleteScoringSystem();
+		return championship.getEffectiveBestAthleteScoringSystem();
 	}
 
 	private String computeChampionshipSuffix() {

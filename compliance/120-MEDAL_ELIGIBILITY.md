@@ -3,6 +3,13 @@
 Status: design agreement, not implemented (verified 2026-10-22). Original in
 [done/championship-qualification-policies.md](done/championship-qualification-policies.md).
 
+TCRR compliance mode now overrides the effective settings with the IWF values:
+the 20 kg rule, team points 28/25/23 (then decreasing by one), GAMX for Best
+Athlete, no IMWA rules and no alternative lifting order. It also fixes the Jury
+at four members. Stored values are retained but have no effect while the switch
+is enabled. The per-championship configurability below remains 69.1 work for
+mixed-rule competitions.
+
 Already in place per championship, with competition-default inheritance
 (`Championship.medalPolicy`, `Championship.teamPointsPolicy`,
 `ChampionshipDetailsForm`, workbook and JSON V2 import/export):

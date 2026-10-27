@@ -39,7 +39,6 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.elements.PassiveTimerElement;
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -135,7 +134,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
 	@Override
 	public boolean isGroupURLAllowedToMutateFop() {
-		return Config.getCurrent().featureSwitch(FeatureSwitch.ENABLE_TIME_KEEPER_SESSION_SWITCH);
+		return FeatureSwitch.ENABLE_TIME_KEEPER_SESSION_SWITCH.isEffective();
 	}
 
 	@Override
@@ -311,7 +310,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		// there is already all the SQL filtering logic for the group attached
 		// hidden field in the crudGrid part of the page so we just set that
 		// filter.
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.ENABLE_TIME_KEEPER_SESSION_SWITCH)) {
+		if (FeatureSwitch.ENABLE_TIME_KEEPER_SESSION_SWITCH.isEffective()) {
 			List<Group> groups = GroupRepository.findAll();
 			groups.sort(Group.groupSelectionComparator);
 
@@ -469,7 +468,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	private void registerShortcuts() {
 		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
 		boolean notSpanish = !OwlcmsSession.getLocale().getLanguage().startsWith("es");
-		boolean keepSpanishKeypadShortcut = Config.getCurrent().featureSwitch(FeatureSwitch.KEEP_SPANISH_HYPHEN_SHORTCUT);
+		boolean keepSpanishKeypadShortcut = FeatureSwitch.KEEP_SPANISH_HYPHEN_SHORTCUT.isEffective();
 		if (notSpanish || keepSpanishKeypadShortcut) {
 			UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.SLASH);
 		}

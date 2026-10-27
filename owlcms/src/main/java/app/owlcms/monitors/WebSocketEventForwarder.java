@@ -962,10 +962,10 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 		Config displayConfig = Config.getCurrent();
 		var columns = ScoreboardRankData.columns(scoreboardChampionships,
-		        displayConfig.featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE),
-		        displayConfig.featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE_RANK),
-		        displayConfig.featureSwitch(FeatureSwitch.NO_BEST_SCORE_RANK)
-		                || displayConfig.featureSwitch(FeatureSwitch.NO_SINCLAIR_RANK));
+		        FeatureSwitch.DISPLAY_BEST_SCORE.isEffective(displayConfig),
+		        FeatureSwitch.DISPLAY_BEST_SCORE_RANK.isEffective(displayConfig),
+		        FeatureSwitch.NO_BEST_SCORE_RANK.isEffective(displayConfig)
+		                || FeatureSwitch.NO_SINCLAIR_RANK.isEffective(displayConfig));
 		this.showMedalScore = columns.medalScore();
 		setShowSinclair(columns.bestScore());
 		setShowSinclairRank(columns.bestRank());
@@ -1360,7 +1360,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		mapPut(sb, "scoringName", this.bestScoringName);
 		mapPut(sb, "showSinclair", Boolean.toString(isShowSinclair()));
 		mapPut(sb, "showSinclairRank", Boolean.toString(isShowSinclairRank()));
-		mapPut(sb, "showBodyWeight", Boolean.toString(Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT)));
+		mapPut(sb, "showBodyWeight", Boolean.toString(FeatureSwitch.DISPLAY_BODY_WEIGHT.isEffective()));
 
 		// Always use V2 format: send athlete order (with spacers) plus full session athlete data
 		List<Athlete> displayOrder = getFop().getDisplayOrder();
@@ -1461,15 +1461,15 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		sb.put("decisionState", this.decisionState.toMap());
 		Config switches = Config.getCurrent();
 		mapPut(sb, "juryDecisionsOnAttemptBoard",
-		        Boolean.toString(switches.featureSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD)));
+		        Boolean.toString(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD.isEffective(switches)));
 		mapPut(sb, "juryDecisionsOnScoreboard",
-		        Boolean.toString(switches.featureSwitch(FeatureSwitch.JURY_DECISIONS_ON_SCOREBOARD)));
+		        Boolean.toString(FeatureSwitch.JURY_DECISIONS_ON_SCOREBOARD.isEffective(switches)));
 		mapPut(sb, "decisionSectionOnWarmupScoreboard",
-		        Boolean.toString(switches.featureSwitch(FeatureSwitch.DECISION_SECTION)));
+		        Boolean.toString(FeatureSwitch.DECISION_SECTION.isEffective(switches)));
 		mapPut(sb, "decisionSectionStopwatch",
-		        Boolean.toString(switches.featureSwitch(FeatureSwitch.DECISION_SECTION_STOPWATCH)));
+		        Boolean.toString(FeatureSwitch.DECISION_SECTION_STOPWATCH.isEffective(switches)));
 		mapPut(sb, "decisionSectionShowAgeGroups",
-		        Boolean.toString(switches.featureSwitch(FeatureSwitch.DECISION_SECTION_SHOW_AGE_GROUPS)));
+		        Boolean.toString(FeatureSwitch.DECISION_SECTION_SHOW_AGE_GROUPS.isEffective(switches)));
 
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
 		mapPut(sb, "mode", getBoardMode());

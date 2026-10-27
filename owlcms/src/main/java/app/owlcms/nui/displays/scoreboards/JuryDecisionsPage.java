@@ -25,7 +25,6 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.SoundParameters;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.displays.scoreboard.JuryDecisions;
@@ -79,13 +78,13 @@ public class JuryDecisionsPage extends AbstractResultsDisplayPage implements Bef
             DisplayParameters.VIDEO, "false",
             DisplayParameters.PUBLIC, "false",
             SoundParameters.SINGLEREF, "false",
-            DisplayParameters.ABBREVIATED, Boolean.toString(Config.getCurrent().featureSwitch(FeatureSwitch.SHORT_SCOREBOARD_NAMES)),
+            DisplayParameters.ABBREVIATED, Boolean.toString(FeatureSwitch.SHORT_SCOREBOARD_NAMES.isEffective()),
             DisplayParameters.CURRENT_ATTEMPT, "false"
         );
         var additionalMap = Map.of(
-            SoundParameters.LIVE_LIGHTS, Boolean.toString(!Config.getCurrent().featureSwitch(FeatureSwitch.NO_LIVE_LIGHTS)),
+            SoundParameters.LIVE_LIGHTS, Boolean.toString(!FeatureSwitch.NO_LIVE_LIGHTS.isEffective()),
             SoundParameters.SHOW_DECLARATIONS, "false",
-            SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch(FeatureSwitch.CENTER_ANNOUNCER_NOTIFICATIONS)),
+            SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(FeatureSwitch.CENTER_ANNOUNCER_NOTIFICATIONS.isEffective()),
             SoundParameters.START_ORDER, "false",
             DisplayParameters.KEEP_INITIAL_DECISION, "true",
             DisplayParameters.KEEP_FINAL_DECISION, "true",

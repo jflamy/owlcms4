@@ -205,7 +205,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			doGroup(Translator.translate("Jury"), juryGrid, jurySection);
 			tabSheet.add(Translator.translate("Jury"), jurySection);
 
-			Ranking bestAthleteScoring = Championship.of(null).getBestAthleteScoringSystem();
+			Ranking bestAthleteScoring = Championship.of(null).getEffectiveBestAthleteScoringSystem();
 			String bestAthleteTitle = Ranking.getScoringTitle(bestAthleteScoring);
 			Ranking teamScoring = Championship.of(null).getTeamScoringSystem() != null
 			        ? Championship.of(null).getTeamScoringSystem()

@@ -227,10 +227,10 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	public void setScoreRanks(boolean scoreNeeded) {
 		getElement().setProperty("showMedalScore", scoreNeeded);
 		Config config = Config.getCurrent();
-		getElement().setProperty("showSinclair", config.featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE));
-		getElement().setProperty("showSinclairRank", config.featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE_RANK)
-		        && !config.featureSwitch(FeatureSwitch.NO_BEST_SCORE_RANK)
-		        && !config.featureSwitch(FeatureSwitch.NO_SINCLAIR_RANK));
+		getElement().setProperty("showSinclair", FeatureSwitch.DISPLAY_BEST_SCORE.isEffective(config));
+		getElement().setProperty("showSinclairRank", FeatureSwitch.DISPLAY_BEST_SCORE_RANK.isEffective(config)
+		        && !FeatureSwitch.NO_BEST_SCORE_RANK.isEffective(config)
+		        && !FeatureSwitch.NO_SINCLAIR_RANK.isEffective(config));
 	}
 
 
@@ -249,7 +249,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		jMC.put("rankingTitle", Translator.translate("Scoreboard.Rank"));
 		jMC.put("medalScoringTitle", scoringSystem != Ranking.TOTAL ? Ranking.getScoringTitle(scoringSystem) : "");
 		jMC.put("scoreScoringTitle", ageGroup2 != null
-		        ? Ranking.getScoringTitle(ageGroup2.getChampionship().getBestAthleteScoringSystem())
+		        ? Ranking.getScoringTitle(ageGroup2.getChampionship().getEffectiveBestAthleteScoringSystem())
 		        : Translator.translate("Score"));
 		jMC.put("scoreRankingTitle", Translator.translate("Scoreboard.Rank"));
 	}
@@ -466,7 +466,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 
 		String prop = null;
-		if (!Config.getCurrent().featureSwitch(FeatureSwitch.MEDALS_FOR_CATEGORY_ONLY)) {
+		if (!FeatureSwitch.MEDALS_FOR_CATEGORY_ONLY.isEffective()) {
 			// only show flags when medals are for a single category
 			String team = a.getTeam();
 			if (this.teamFlags && !team.isBlank()) {
@@ -518,7 +518,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		this.setUi(attachEvent.getUI());
-		this.getElement().setProperty("showBodyWeight", Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT));
+		this.getElement().setProperty("showBodyWeight", FeatureSwitch.DISPLAY_BODY_WEIGHT.isEffective());
 		// we listen on uiEventBus.
 		FieldOfPlay fop = getFop();
 		this.uiEventBus = uiEventBusRegister(this, fop);

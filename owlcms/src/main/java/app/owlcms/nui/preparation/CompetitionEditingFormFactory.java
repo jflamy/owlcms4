@@ -51,6 +51,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.data.config.TcrrCompliance;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -166,6 +167,9 @@ public class CompetitionEditingFormFactory
 		FormLayout otherRulesLayout = otherRulesForm();
 		FormLayout pointScoresForm = pointScoresForm();
 		EditChampionshipsPanel championshipsPanel = new EditChampionshipsPanel();
+		boolean tcrrCompliance = TcrrCompliance.isEnabled();
+		mastersRulesLayout.setVisible(!tcrrCompliance);
+		liftingOrderLayout.setVisible(!tcrrCompliance);
 
 		Component footer = this.buildFooter(operation, comp, cancelButtonClickListener,
 		        c -> {
@@ -503,8 +507,13 @@ public class CompetitionEditingFormFactory
 		
 		Checkbox enforce20kgRuleField = new Checkbox();
 		layout.addFormItem(enforce20kgRuleField, Translator.translate("Competition.enforce20kgRule"));
-		this.binder.forField(enforce20kgRuleField)
-		        .bind(Competition::isEnforce20kgRule, Competition::setEnforce20kgRule);
+		if (TcrrCompliance.isEnabled()) {
+			enforce20kgRuleField.setValue(true);
+			enforce20kgRuleField.setEnabled(false);
+		} else {
+			this.binder.forField(enforce20kgRuleField)
+			        .bind(Competition::isEnforce20kgRule, Competition::setEnforce20kgRule);
+		}
 		
 		Checkbox deduct250gField = new Checkbox();
 				layout.addFormItem(deduct250gField, Translator.translate("Competition.isDeduct250g"));
@@ -532,11 +541,17 @@ public class CompetitionEditingFormFactory
 		layout.setColspan(title, 2);
 
 		ComboBox<Integer> jurySizeField = new ComboBox<>();
-		jurySizeField.setItems(0, 3, 4, 5);
+		if (TcrrCompliance.isEnabled()) {
+			jurySizeField.setItems(TcrrCompliance.JURY_SIZE);
+			jurySizeField.setValue(TcrrCompliance.JURY_SIZE);
+			jurySizeField.setEnabled(false);
+		} else {
+			jurySizeField.setItems(0, 3, 4, 5);
+			this.binder.forField(jurySizeField)
+			        .bind(Competition::getJurySize, Competition::setJurySize);
+		}
 		layout.addFormItem(jurySizeField,
 		        Translator.translate("Competition.jurySize"));
-		this.binder.forField(jurySizeField)
-		        .bind(Competition::getJurySize, Competition::setJurySize);
 		jurySizeField.addValueChangeListener(e -> {
 			if (e.isFromClient()) {
 				this.jurySizeChanged = true;

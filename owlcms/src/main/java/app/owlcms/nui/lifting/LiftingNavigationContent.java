@@ -140,7 +140,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 		intro.getStyle().set("margin-bottom", "0");
 
 		List<Button> operationalButtons = new ArrayList<>(List.of(announcer, marshall, timekeeper, technical));
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.COMPETITION_DIRECTOR_PAGE)
+		if (FeatureSwitch.COMPETITION_DIRECTOR_PAGE.isEffective()
 		        && AccessUi.canOpen(CompetitionDirectorContent.class, getFop())) {
 			Button director = openInNewTabWithFop(CompetitionDirectorContent.class, Translator.translate("CompetitionDirector"));
 			director.setIcon(new Icon(VaadinIcon.USER_STAR));

@@ -36,7 +36,6 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.IdUtils;
@@ -82,7 +81,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		}
 		
 		// for readability
-		if (!Competition.getCurrent().getDisplayByAgeGroup() && Config.getCurrent().featureSwitch(FeatureSwitch.BW_CLASS_THEN_AGE_GROUP)) {
+		if (!Competition.getCurrent().getDisplayByAgeGroup() && FeatureSwitch.BW_CLASS_THEN_AGE_GROUP.isEffective()) {
 			return ObjectUtils.compare(a.getChampionshipName(), b.getChampionshipName());
 		}
 
@@ -601,12 +600,12 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	@JsonIgnore
 	public Ranking computedBestAthleteScoringSystem() {
 		Championship championship = getChampionship();
-		Ranking championshipBest = championship != null ? championship.getBestAthleteScoringSystem() : null;
+		Ranking championshipBest = championship != null ? championship.getEffectiveBestAthleteScoringSystem() : null;
 		if (championshipBest != null) {
 			return championshipBest;
 		}
 		Championship defaults = Championship.of(null);
-		return defaults != null ? defaults.getBestAthleteScoringSystem() : null;
+		return defaults != null ? defaults.getEffectiveBestAthleteScoringSystem() : null;
 	}
 	
 	public String getBestAthleteScoringSystemTitle() {
@@ -618,7 +617,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		if (computed != null) {
 			return Translator.translate("Ranking." + computed);
 		}
-		return Translator.translate("Ranking." + Championship.of(null).getBestAthleteScoringSystem());
+		return Translator.translate("Ranking." + Championship.of(null).getEffectiveBestAthleteScoringSystem());
 	}
 
 	public Boolean getMedals() {

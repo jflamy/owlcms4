@@ -38,7 +38,7 @@ public class AccessControlListener implements BeforeEnterListener {
 		}
 
 		PageRule rule = PageRule.of(target);
-		if (rule.feature() != null && !Config.getCurrent().featureSwitch(rule.feature())) {
+		if (rule.feature() != null && !rule.feature().isEffective()) {
 			event.rerouteToError(NotFoundException.class, "");
 			return;
 		}

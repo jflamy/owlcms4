@@ -56,7 +56,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.ConcurrentEditCheck;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -250,7 +249,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		Integer startNumber = aFromDb.getStartNumber();
 		Integer entryTotal = aFromDb.getEntryTotal();
 		String entryString = "";
-		if (entryTotal != null && entryTotal > 0 && Config.getCurrent().featureSwitch(FeatureSwitch.ATHLETE_CARD_ENTRY_TOTAL)) {
+		if (entryTotal != null && entryTotal > 0 && FeatureSwitch.ATHLETE_CARD_ENTRY_TOTAL.isEffective()) {
 			entryString = " (" + Translator.translate("Results.Entry_abbrev") + " = " + entryTotal + ")";
 		}
 		return (startNumber != null ? "[" + startNumber + "] " : "") + aFromDb.getFullId() + entryString;

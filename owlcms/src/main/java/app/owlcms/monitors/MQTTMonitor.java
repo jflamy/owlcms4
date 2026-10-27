@@ -1390,7 +1390,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			// individual decision hidden
 			FieldOfPlay eventFop = e.getFop();
 			if (eventFop != null && eventFop.isPanelVoteOpen()
-			        && !Config.getCurrent().featureSwitch(FeatureSwitch.PANEL_VOTE_DEVICE_INDICATORS)) {
+			        && !FeatureSwitch.PANEL_VOTE_DEVICE_INDICATORS.isEffective()) {
 				return;
 			}
 			publishMqttJuryMemberDecision(e.getJuryMemberUpdated());
@@ -1489,7 +1489,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		FieldOfPlay eventFop = e.getFop();
 		Integer refereeUpdated = e.getRefereeUpdated();
 		if (eventFop != null && eventFop.isPanelProcedure() && e.isOpen() && refereeUpdated != null
-		        && Config.getCurrent().featureSwitch(FeatureSwitch.PANEL_VOTE_DEVICE_INDICATORS)) {
+		        && FeatureSwitch.PANEL_VOTE_DEVICE_INDICATORS.isEffective()) {
 			publishMqttRefereeLight(refereeUpdated + 1, "hidden");
 		}
 		if (eventFop != null && eventFop.hasJuryReviewVote() && e.isComplete() && !e.isPublicReveal()) {
@@ -1706,7 +1706,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		// jury size. 0 is replaced by 3 because 0 was not a prior option for MQTT
 		// refereeing devices. The FOP reports 4 when the seven-person adjudication panel is in use.
 		FieldOfPlay fop = getFop();
-		int jurySize = fop != null ? fop.getJurySize() : Competition.getCurrent().getJurySize();
+		int jurySize = fop != null ? fop.getJurySize() : Competition.getCurrent().getEffectiveJurySize();
 		return jurySize == 0 ? 3 : jurySize;
 	}
 

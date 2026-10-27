@@ -140,7 +140,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 	}
 
 	public static String computeScore(Ranking scoringSystem, Athlete a) {
-		var compSS = Championship.of(null).getBestAthleteScoringSystem();
+		var compSS = Championship.of(null).getEffectiveBestAthleteScoringSystem();
 		var ageGroup = a.getAgeGroup();
 
 		Ranking ss;
@@ -354,7 +354,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 			return this.scoringSystem;
 		}
 		Championship effectiveChampionship = Championship.of(null);
-		Ranking championshipScoring = effectiveChampionship.getBestAthleteScoringSystem();
+		Ranking championshipScoring = effectiveChampionship.getEffectiveBestAthleteScoringSystem();
 		return championshipScoring != null ? championshipScoring : effectiveChampionship.getScoringSystem();
 	}
 

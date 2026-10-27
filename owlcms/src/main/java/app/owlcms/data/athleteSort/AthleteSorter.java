@@ -399,7 +399,7 @@ public class AthleteSorter implements Serializable {
 	public static EligibleForIndividualRankingStatus getEffectiveIndividualEligibilityStatus(Athlete athlete, Category category) {
 		EligibleForIndividualRankingStatus status = athlete.getEffectiveIndividualEligibilityStatus();
 		if (status == EligibleForIndividualRankingStatus.ELIGIBLE
-		        && !Competition.getCurrent().isImwa()
+		        && !Competition.getCurrent().isEffectiveImwa()
 		        && isOutOfCompetitionForCategoryQualifyingTotal(athlete, category)) {
 			return EligibleForIndividualRankingStatus.OOC_QUALIFICATION;
 		}
@@ -434,7 +434,7 @@ public class AthleteSorter implements Serializable {
 	 * by {@code OOC_QUALIFICATION}, which clears the rank.
 	 */
 	private static boolean isMedalWithheldByImwaQualifyingTotal(Athlete athlete) {
-		if (!Competition.getCurrent().isImwa()) {
+		if (!Competition.getCurrent().isEffectiveImwa()) {
 			return false;
 		}
 		Category category = athlete.getCategory();
@@ -633,7 +633,7 @@ public class AthleteSorter implements Serializable {
 
 	private static boolean isImwaMastersTeamPoints(Participation p) {
 		Competition competition = Competition.getCurrent();
-		if (p == null || !competition.isImwa()) {
+		if (p == null || !competition.isEffectiveImwa()) {
 			return false;
 		}
 		ChampionshipType championshipType = p.getChampionshipType();
@@ -664,15 +664,15 @@ public class AthleteSorter implements Serializable {
 	}
 
 	private static int firstPlacePoints(Championship championship) {
-		return championship.getTeamPoints1st() != null ? championship.getTeamPoints1st() : 0;
+		return championship.getEffectiveTeamPoints1st();
 	}
 
 	private static int secondPlacePoints(Championship championship) {
-		return championship.getTeamPoints2nd() != null ? championship.getTeamPoints2nd() : 0;
+		return championship.getEffectiveTeamPoints2nd();
 	}
 
 	private static int thirdPlacePoints(Championship championship) {
-		return championship.getTeamPoints3rd() != null ? championship.getTeamPoints3rd() : 0;
+		return championship.getEffectiveTeamPoints3rd();
 	}
 
 	static public List<Athlete> registrationBWCopy(List<Athlete> toBeSorted) {

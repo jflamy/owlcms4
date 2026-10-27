@@ -31,8 +31,8 @@ import tools.jackson.databind.ObjectMapper;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.data.config.TcrrCompliance;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -256,7 +256,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 		// children's equipment (large 2.5/5 plates, 5/10 light bars): 
 		// set them to be available by default when the
 		// childrenEquipment toggle is set, off otherwise
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.CHILDREN_EQUIPMENT)) {
+		if (FeatureSwitch.CHILDREN_EQUIPMENT.isEffective()) {
 			applyChildrenEquipment();
 		} else {
 			this.setNbL_2_5(0);
@@ -277,7 +277,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 *         {@code false} if the toggle is off or the platform is already equipped
 	 */
 	public boolean applyChildrenEquipment() {
-		if (!Config.getCurrent().featureSwitch(FeatureSwitch.CHILDREN_EQUIPMENT)) {
+		if (!FeatureSwitch.CHILDREN_EQUIPMENT.isEffective()) {
 			return false;
 		}
 		// only change if the platform is not already equipped for children, to avoid
@@ -325,7 +325,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 
 	@JsonIgnore
 	public int getEffectiveJurySize() {
-		return this.jurySize != null ? this.jurySize : Competition.getCurrent().getJurySize();
+		return TcrrCompliance.jurySize(this.jurySize != null ? this.jurySize : Competition.getCurrent().getJurySize());
 	}
 
 	/**

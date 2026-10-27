@@ -17,7 +17,8 @@
 
 **New in Release 69.0**
 
-- Complies with the requirements of the October 2026 IWF RFP for TIS Certification
+- Complies with the October 2026 IWF Technical and Competition Rules and Regulations (TCRR).
+  - TCRR compliance mode fixes the Jury at four members, enforces the 20 kg rule and IWF team points, uses GAMX for Best Athlete, and disables IMWA rules, gender-inclusive competition rules and alternative lifting orders.
 - IWF TCRR 2026 seven-person Adjudication Panel (jury size 4 with video playback).
 - Jury votes shown on attempt boards and scoreboards during a jury review.
 - Tracker forwarding uses protocol 69.0.0 and requires OWLCMS Tracker 3.0.0-beta01 or newer (tracker-core 2.0.0-beta01 or newer); 

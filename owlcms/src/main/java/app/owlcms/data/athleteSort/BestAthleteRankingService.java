@@ -118,7 +118,7 @@ public final class BestAthleteRankingService {
 						candidates.add(new PAthlete(participation));
 					}
 				}
-				AthleteSorter.assignBestAthleteRanks(candidates, championship.getBestAthleteScoringSystem());
+				AthleteSorter.assignBestAthleteRanks(candidates, championship.getEffectiveBestAthleteScoringSystem());
 				for (PAthlete candidate : candidates) {
 					candidate._getOriginalParticipation().setBestAthleteRank(candidate.getBestAthleteRank());
 				}

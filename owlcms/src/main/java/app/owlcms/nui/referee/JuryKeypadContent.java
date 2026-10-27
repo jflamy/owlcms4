@@ -55,8 +55,8 @@ import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.components.elements.PassiveTimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.data.config.TcrrCompliance;
 import app.owlcms.displays.DecisionDisplayRules;
 import app.owlcms.fieldofplay.AdjudicationPanel;
 import app.owlcms.fieldofplay.CountdownType;
@@ -385,7 +385,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		jurySizeSelect.setWidth("5.5rem");
 		FieldOfPlay currentFop = getFop();
 		// the platform's own setting, or the competition default when it has none
-		jurySizeSelect.setValue(currentFop != null ? currentFop.getJurySize() : Competition.getCurrent().getJurySize());
+		jurySizeSelect.setValue(
+		        currentFop != null ? currentFop.getJurySize() : Competition.getCurrent().getEffectiveJurySize());
 		jurySizeSelect.addValueChangeListener((e) -> {
 			if (!e.isFromClient() || e.getValue() == null) {
 				return;
@@ -545,6 +546,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		toolbar.add(title, buildOriginalRefereeDecisions(), fopSelect);
 		this.fopSelect = fopSelect;
 		this.jurySizeSelect = createJurySizeSelect();
+		this.jurySizeSelect.setVisible(!TcrrCompliance.isEnabled());
 		toolbar.add(this.jurySizeSelect);
 		toolbar.expand(title);
 		toolbar.getStyle().set("grid-column", "1 / -1").set("grid-row", "1");
@@ -853,7 +855,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	private int getNbJurors() {
 		FieldOfPlay fop = getFop();
-		return fop != null ? fop.getJurySize() : Competition.getCurrent().getJurySize();
+		return fop != null ? fop.getJurySize() : Competition.getCurrent().getEffectiveJurySize();
 	}
 
 	private void clearShortcutRegistrations() {
@@ -899,7 +901,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			registerShortcut(() -> postJuryMemberDecision(juryMember, true), getGoodKey(index));
 			registerShortcut(() -> postJuryMemberDecision(juryMember, false), getBadKey(index));
 		}
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.NO_JURY_ALPHABETICAL_SHORTCUTS)) {
+		if (FeatureSwitch.NO_JURY_ALPHABETICAL_SHORTCUTS.isEffective()) {
 			// a stray letter typed on the Jury Control computer must not start a break or summon the referees;
 			// the digit shortcuts used by USB jury keypads remain
 			return;
@@ -1034,7 +1036,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			this.fopSelect.setVisible(visible);
 		}
 		if (this.jurySizeSelect != null) {
-			this.jurySizeSelect.setVisible(visible);
+			this.jurySizeSelect.setVisible(visible && !TcrrCompliance.isEnabled());
 		}
 	}
 

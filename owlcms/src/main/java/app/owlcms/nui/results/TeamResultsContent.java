@@ -529,7 +529,7 @@ public class TeamResultsContent extends BaseContent
 	private List<Ranking> getRequiredScoreRankings() {
 		Gender genderValue = this.genderFilter != null ? this.genderFilter.getValue() : null;
 		Championship effectiveChampionship = getChampionship() != null ? getChampionship() : Championship.of(null);
-		Ranking bestAthleteScoring = effectiveChampionship.getBestAthleteScoringSystem();
+		Ranking bestAthleteScoring = effectiveChampionship.getEffectiveBestAthleteScoringSystem();
 		return TeamResultsDisplayRules.getRequiredScoreRankings(getChampionship(), genderValue, bestAthleteScoring);
 	}
 

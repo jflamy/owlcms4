@@ -45,7 +45,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.records.RecordEvent;
@@ -393,7 +392,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	public void slaveDownSignal(UIEvent.DownSignal e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
+		if (FeatureSwitch.PLAYWRIGHT.isEffective()) {
 			logger./*playwright*/warn("{}attemptBoard slaveDownSignal received origin={} self={}", FieldOfPlay.getLoggingName(getFop()),
 			        e.getOrigin(), this.getOrigin());
 		}
@@ -409,7 +408,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	public void slaveInitialDecision(UIEvent.InitialDecision e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
+		if (FeatureSwitch.PLAYWRIGHT.isEffective()) {
 			logger./*playwright*/warn("{}attemptBoard slaveInitialDecision received origin={} self={} goodLift={} timingPolicy={}",
 			        FieldOfPlay.getLoggingName(getFop()), e.getOrigin(), this.getOrigin(), e.decision, e.getTimingPolicy());
 		}
@@ -489,7 +488,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+		if (FeatureSwitch.ATTEMPT_TRACES.isEffective()) {
 			logger.warn("{}attemptBoard order received board={} seq={} athlete={} startNumber={} weight={} requested={} changedWeight={} attached={}",
 					FieldOfPlay.getLoggingName(getFop()), traceBoardId(), e.getSequence(), e.getAthlete(),
 					e.getAthlete() != null ? e.getAthlete().getStartNumber() : null,
@@ -508,7 +507,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			if (isStaleOrderEvent(e)) {
 				return;
 			}
-			boolean attemptTraces = Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES);
+			boolean attemptTraces = FeatureSwitch.ATTEMPT_TRACES.isEffective();
 			if (attemptTraces) {
 				if (this.pendingOrderEventSequence != null) {
 					logger.warn("{}attemptBoard order superseded board={} eventSeq={} byEventSeq={}",
@@ -552,7 +551,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	@ClientCallable
 	public void attemptBoardWeightRendered(String sequence, String weightUsedForRendering, Double clientEpochMillis,
 			String renderedStartNumber, String renderedWeight, String mode, boolean weightVisible) {
-		if (!Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+		if (!FeatureSwitch.ATTEMPT_TRACES.isEffective()) {
 			return;
 		}
 		String clientTime = clientEpochMillis == null ? "" : CLIENT_TIME_FORMATTER
@@ -645,7 +644,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			team = "";
 		}
 
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.CUSTOM_TEAM_NAME)) {
+		if (FeatureSwitch.CUSTOM_TEAM_NAME.isEffective()) {
 			var customTeamFormatString = Translator.translateOrElseNull("AttemptBoard.TeamFormat");
 			if (customTeamFormatString != null) {
 				String custom1 = a.getCustom1();
@@ -669,7 +668,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	private void addRecordState(AttemptBoardState.Builder builder, FieldOfPlay fop) {
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.DISABLE_RECORD_HIGHLIGHT)
+		if (FeatureSwitch.DISABLE_RECORD_HIGHLIGHT.isEffective()
 		        || fop.getState() == FOPState.INACTIVE || fop.getState() == FOPState.BREAK) {
 			return;
 		}
@@ -861,7 +860,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	private void setDecisionLightsVisible(boolean visible, UIEvent trigger) {
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+		if (FeatureSwitch.ATTEMPT_TRACES.isEffective()) {
 			logger.warn("{}attemptBoard decisionVisible={} trigger={} {}", FieldOfPlay.getLoggingName(getFop()),
 			        visible, trigger != null ? trigger.getClass().getSimpleName() : "syncWithFOP", LoggerUtils.whereFrom());
 		}
@@ -871,7 +870,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	private boolean isStaleOrderEvent(UIEvent.LiftingOrderUpdated e) {
 		long lastApplied = this.orderGuard.getLastApplied();
 		boolean stale = this.orderGuard.isStale(e.getSequence());
-		if (stale && Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+		if (stale && FeatureSwitch.ATTEMPT_TRACES.isEffective()) {
 			logger.warn("{}attemptBoard dropping out-of-order LiftingOrderUpdated board={} seq={} lastApplied={}",
 			        FieldOfPlay.getLoggingName(getFop()), traceBoardId(), e.getSequence(), lastApplied);
 		}
@@ -880,7 +879,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	private void publish(AttemptBoardState state) {
 		this.lastBoardState = state;
-		boolean traces = Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES);
+		boolean traces = FeatureSwitch.ATTEMPT_TRACES.isEffective();
 		ObjectNode snapshot = state.toJson();
 		snapshot.put("attemptTraces", traces);
 		this.getElement().setPropertyJson("boardState", snapshot);
@@ -893,7 +892,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 					@Override
 					public void run() {
 						if (!CompetitionSimulator.isRunning()
-						        || !Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+						        || !FeatureSwitch.ATTEMPT_TRACES.isEffective()) {
 							renderCheck.clear();
 							return;
 						}
@@ -904,7 +903,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		} else {
 			stopRenderCheck();
 		}
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+		if (FeatureSwitch.ATTEMPT_TRACES.isEffective()) {
 			logger.warn("{}attemptBoard state published board={} seq={}", FieldOfPlay.getLoggingName(getFop()),
 			        traceBoardId(), state.getSequence());
 			// a decision-time record snapshot keeps the athlete frozen; it does not resolve a deferred order event

@@ -158,7 +158,7 @@ public class Group implements Comparable<Group> {
 			return compare;
 		}
 
-		if (config.featureSwitch(FeatureSwitch.USAW_SESSION_BLOCKS)) {
+		if (FeatureSwitch.USAW_SESSION_BLOCKS.isEffective(config)) {
 			var lifter1SessionBlock = lifter1Group.getSessionBlock(config);
 			var lifter2SessionBlock = lifter2Group.getSessionBlock(config);
 			// null sessionBlocks go last.
@@ -1217,7 +1217,7 @@ public class Group implements Comparable<Group> {
 	}
 
 	private Integer getSessionBlock(Config config) {
-		if (config.featureSwitch(FeatureSwitch.USAW_SESSION_BLOCKS)) {
+		if (FeatureSwitch.USAW_SESSION_BLOCKS.isEffective(config)) {
 			Matcher matcher = this.pattern.matcher(this.getName());
 			if (matcher.find()) {
 				String number = matcher.group(1);

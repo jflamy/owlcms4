@@ -24,7 +24,6 @@ import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
@@ -81,7 +80,7 @@ public class RAthlete {
 
 	/** With explicitTeams on, athletes only join a team when the sheet says so (+T / YesTeam). */
 	private static boolean implicitTeamMembership() {
-		return !Config.getCurrent().featureSwitch(FeatureSwitch.EXPLICIT_TEAMS);
+		return !FeatureSwitch.EXPLICIT_TEAMS.isEffective();
 	}
 
 	public static String appendMembershipMarkers(String categoryName, boolean teamMember, boolean mixedTeamMember) {
@@ -479,8 +478,8 @@ public class RAthlete {
 			return;
 		}
 		// create a parts as in the legacy
-		boolean usaw = Config.getCurrent().featureSwitch(FeatureSwitch.USAW_SESSION_BLOCKS);
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.USAW_SESSION_BLOCKS)) {
+		boolean usaw = FeatureSwitch.USAW_SESSION_BLOCKS.isEffective();
+		if (FeatureSwitch.USAW_SESSION_BLOCKS.isEffective()) {
 			s = s.replaceAll("(\\d+)\\s?kg", "$1");
 		}
 

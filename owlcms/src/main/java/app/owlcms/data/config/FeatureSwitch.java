@@ -76,7 +76,12 @@ public enum FeatureSwitch {
     ANNOUNCER_TRIGGERS_INITIAL_DECISION("announcerTriggersInitialDecision", FeatureSwitchSection.SPECIALTY_FEATURES),
     OBS_MONITORS("obsMonitors", FeatureSwitchSection.SPECIALTY_FEATURES),
 
-    GENDER_INCLUSIVE("genderInclusive", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
+    GENDER_INCLUSIVE("genderInclusive", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK) {
+        @Override
+        public boolean isEffective(Config config) {
+            return super.isEffective(config) && !TCRR_COMPLIANCE.isEffective(config);
+        }
+    },
     RECORD_NAME_IS_CATEGORY("recordNameIsCategory", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     SINCLAIR_MEET("SinclairMeet", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     V2_EXPORT("v2Export", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
@@ -107,6 +112,16 @@ public enum FeatureSwitch {
 
     public String getId() {
         return this.id;
+    }
+
+    /** @return the effective runtime value, including startup overrides and startup-fixed compliance modes */
+    public boolean isEffective() {
+        return isEffective(Config.getCurrent());
+    }
+
+    /** @return the effective runtime value from the supplied configuration */
+    public boolean isEffective(Config config) {
+        return config.featureSwitch(this);
     }
 
     public FeatureSwitchSection getSection() {

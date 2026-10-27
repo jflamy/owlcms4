@@ -28,7 +28,6 @@ import tools.jackson.databind.node.ObjectNode;
 
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.Main;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
@@ -430,11 +429,11 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	private boolean isServerTickEnabled() {
-		return Config.getCurrent().featureSwitch(FeatureSwitch.CLOCK_TRACES) && isDisplayAthleteTimer();
+		return FeatureSwitch.CLOCK_TRACES.isEffective() && isDisplayAthleteTimer();
 	}
 
 	private boolean isServerRunningCheckEnabled() {
-		return Config.getCurrent().featureSwitch(FeatureSwitch.CLOCK_TRACES)
+		return FeatureSwitch.CLOCK_TRACES.isEffective()
 				&& (isAthleteTimerOnControlPage() || isAttemptBoardAthleteTimer());
 	}
 
@@ -475,7 +474,7 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	private boolean isClockTraceEnabled() {
-		return Config.getCurrent().featureSwitch(FeatureSwitch.CLOCK_TRACES)
+		return FeatureSwitch.CLOCK_TRACES.isEffective()
 				&& (isAthleteTimerOnControlPage() || isAttemptBoardAthleteTimer());
 	}
 
@@ -606,7 +605,7 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	private void traceClockClientRender(String command, double seconds, long sequence) {
-		if (!Config.getCurrent().featureSwitch(FeatureSwitch.CLOCK_TRACES) || !isDisplayAthleteTimer() || getUI().isEmpty()) {
+		if (!FeatureSwitch.CLOCK_TRACES.isEffective() || !isDisplayAthleteTimer() || getUI().isEmpty()) {
 			return;
 		}
 		final String ctx = FieldOfPlay.getLoggingName(this.fop) + timerDiagnosticRole() + " timer ";
@@ -626,7 +625,7 @@ public abstract class TimerElement extends LitTemplate
 		long parsedSequence = parseTimerCommandSequence(sequence);
 		this.lastClientStoppedSequence = parsedSequence;
 		this.lastClientStoppedMillis = System.currentTimeMillis();
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.CLOCK_TRACES) && isDisplayAthleteTimer()) {
+		if (FeatureSwitch.CLOCK_TRACES.isEffective() && isDisplayAthleteTimer()) {
 			this.logger.warn(
 					"{}{} timer stop client acknowledged seq={} display='{}' running={} currentTime={}",
 					FieldOfPlay.getLoggingName(this.fop), timerDiagnosticRole(), parsedSequence, display, running,
@@ -642,7 +641,7 @@ public abstract class TimerElement extends LitTemplate
 		this.logger.warn("{}{} timer tick display='{}' currentTime={}",
 				FieldOfPlay.getLoggingName(this.fop), timerDiagnosticRole(), display, currentTime);
 		if (("0:56".equals(display) || "1:56".equals(display))
-				&& Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)
+				&& FeatureSwitch.PLAYWRIGHT.isEffective()
 				&& clockTraceTripwireTriggered.compareAndSet(false, true)) {
 			this.logger.warn(
 					"{}TEMPORARY clock trace tripwire display='{}' currentTime={} - stopping OWLCMS",

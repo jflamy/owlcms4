@@ -36,8 +36,8 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.RankingConfig;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.data.config.TcrrCompliance;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
@@ -558,6 +558,11 @@ public class Championship implements Comparable<Championship>, Serializable {
 		return resolveBestAthleteScoringSystem(getCompetitionDefaults());
 	}
 
+	@JsonIgnore
+	public Ranking getEffectiveBestAthleteScoringSystem() {
+		return TcrrCompliance.bestAthleteScoring(getBestAthleteScoringSystem());
+	}
+
 	public Ranking getBestSnatchScoringSystem() {
 		if (computeUsesCompetitionDefaults()) {
 			return getCompetitionDefaults().getBestSnatchScoringSystem();
@@ -577,7 +582,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 	}
 
 	public boolean isAlwaysUseLiftingOrderTieBreaks() {
-		return Config.getCurrent().featureSwitch(FeatureSwitch.ALWAYS_USE_LIFTING_ORDER_TIE_BREAKS);
+		return FeatureSwitch.ALWAYS_USE_LIFTING_ORDER_TIE_BREAKS.isEffective();
 	}
 
 	public MedalPolicy getMedalPolicy() {
@@ -637,6 +642,21 @@ public class Championship implements Comparable<Championship>, Serializable {
 			return getCompetitionDefaults().getTeamPoints3rd();
 		}
 		return this.teamPoints3rd;
+	}
+
+	@JsonIgnore
+	public int getEffectiveTeamPoints1st() {
+		return TcrrCompliance.teamPointsFirst(getTeamPoints1st());
+	}
+
+	@JsonIgnore
+	public int getEffectiveTeamPoints2nd() {
+		return TcrrCompliance.teamPointsSecond(getTeamPoints2nd());
+	}
+
+	@JsonIgnore
+	public int getEffectiveTeamPoints3rd() {
+		return TcrrCompliance.teamPointsThird(getTeamPoints3rd());
 	}
 
 	public Integer getMensBestN() {

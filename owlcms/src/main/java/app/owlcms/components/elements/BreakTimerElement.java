@@ -16,7 +16,6 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
@@ -173,7 +172,7 @@ public class BreakTimerElement extends TimerElement {
 	}
 
 	private boolean isBreakTimerSoundsDisabled() {
-		return !Config.getCurrent().featureSwitch(FeatureSwitch.BREAK_TIMER_SOUNDS);
+		return !FeatureSwitch.BREAK_TIMER_SOUNDS.isEffective();
 	}
 
 	@Override

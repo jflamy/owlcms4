@@ -137,7 +137,7 @@ public class BaseResults extends LitTemplate
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
 		this.getElement().setProperty("scoreboardType", this.getClass().getSimpleName());
 		this.getElement().setProperty("attemptTraces",
-		        Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES));
+		        FeatureSwitch.ATTEMPT_TRACES.isEffective());
 		this.capturedLocale = OwlcmsSession.getLocale();
 
 		overrideColors(this.getElement());
@@ -321,7 +321,7 @@ public class BaseResults extends LitTemplate
 		this.getElement().setProperty("decisionSectionStartNumber", startNumber != null ? startNumber.toString() : "");
 		this.getElement().setProperty("decisionSectionAthleteName", decisionSectionAthleteName(athlete));
 		boolean showAgeGroups = athlete != null
-		        && Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_SHOW_AGE_GROUPS);
+		        && FeatureSwitch.DECISION_SECTION_SHOW_AGE_GROUPS.isEffective();
 		this.getElement().setProperty("decisionSectionAgeGroups",
 		        showAgeGroups ? athlete.getAgeGroupCodesMainFirstAsString() : "");
 	}
@@ -335,7 +335,7 @@ public class BaseResults extends LitTemplate
 		Athlete a = fop != null ? fop.getCurAthlete() : null;
 		boolean show = a != null;
 		boolean showAgeGroups = show
-		        && Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_SHOW_AGE_GROUPS);
+		        && FeatureSwitch.DECISION_SECTION_SHOW_AGE_GROUPS.isEffective();
 		Integer startNumber = show ? a.getStartNumber() : null;
 		this.getElement().setProperty("decisionSectionCurrentActive", show);
 		this.getElement().setProperty("decisionSectionStartNumber",
@@ -711,7 +711,7 @@ public class BaseResults extends LitTemplate
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
 		uiLog(e);
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+		if (FeatureSwitch.ATTEMPT_TRACES.isEffective()) {
 			logger.warn("{}scoreboard order received seq={} athlete={} startNumber={} weight={} requested={} changedWeight={} attached={}",
 					FieldOfPlay.getLoggingName(getFop()), e.getSequence(), e.getAthlete(),
 					e.getAthlete() != null ? e.getAthlete().getStartNumber() : null,
@@ -720,7 +720,7 @@ public class BaseResults extends LitTemplate
 					e.getNewWeight(), getUI().isPresent());
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			if (Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+			if (FeatureSwitch.ATTEMPT_TRACES.isEffective()) {
 				this.getElement().setProperty("scoreboardEventSequence", Long.toString(e.getSequence()));
 			}
 			Athlete a = e.getAthlete();
@@ -733,7 +733,7 @@ public class BaseResults extends LitTemplate
 	@ClientCallable
 	public void scoreboardTopRendered(String sequence, Double clientEpochMillis, String renderedStartNumber,
 	        String renderedName, String renderedWeight, String mode, boolean weightVisible) {
-		if (!Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+		if (!FeatureSwitch.ATTEMPT_TRACES.isEffective()) {
 			return;
 		}
 		String clientTime = clientEpochMillis == null ? ""
@@ -817,7 +817,7 @@ public class BaseResults extends LitTemplate
 			return;
 		}
 		Athlete curAthlete = fop.getCurAthlete();
-		if (curAthlete == null || (Config.getCurrent().featureSwitch(FeatureSwitch.MEDALISTS_AS_LEADERS)
+		if (curAthlete == null || (FeatureSwitch.MEDALISTS_AS_LEADERS.isEffective()
 		        && fop.getState() == FOPState.BREAK
 		        && (fop.getBreakType() == BreakType.BEFORE_INTRODUCTION || fop.getBreakType() == BreakType.FIRST_SNATCH))) {
 			clearProjectedRankText();
@@ -838,7 +838,7 @@ public class BaseResults extends LitTemplate
 			// (when medalistsAsLeaders is false, we show prior group leaders)
 			// in a multi-medal championship, zero-total medal holders remain listed
 			boolean multiMedal = fop.isCurrentCategoryMultiMedal();
-			if (!Config.getCurrent().featureSwitch(FeatureSwitch.MEDALISTS_AS_LEADERS) && leaders != null
+			if (!FeatureSwitch.MEDALISTS_AS_LEADERS.isEffective() && leaders != null
 			        && !multiMedal) {
 				this.displayOrder = leaders.stream()
 					.filter(a -> a.getTotal() > 0)
@@ -871,7 +871,7 @@ public class BaseResults extends LitTemplate
 	}
 
 	private void computeProjectedRankText(FieldOfPlay fop) {
-		if (!Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_PROJECTED_RANKS)) {
+		if (!FeatureSwitch.DECISION_SECTION_PROJECTED_RANKS.isEffective()) {
 			clearProjectedRankText();
 			return;
 		}
@@ -915,12 +915,12 @@ public class BaseResults extends LitTemplate
 			// logger.debug("isPublicDisplay {} {} {} {}",
 			// isPublicDisplay(),
 			// Config.getCurrent().getParamPublicStylesDir().endsWith("grid"),
-			// Config.getCurrent().featureSwitch(FeatureSwitch.STRETCH_PUBLIC),
-			// (isPublicDisplay() && !(Config.getCurrent().getParamPublicStylesDir().endsWith("grid") || Config.getCurrent().featureSwitch(FeatureSwitch.STRETCH_PUBLIC)))
+			// FeatureSwitch.STRETCH_PUBLIC.isEffective(),
+			// (isPublicDisplay() && !(Config.getCurrent().getParamPublicStylesDir().endsWith("grid") || FeatureSwitch.STRETCH_PUBLIC.isEffective()))
 			// );
 			boolean noStretch = (isPublicDisplay()
-			        && !(Config.getCurrent().getParamPublicStylesDir().endsWith("grid") || Config.getCurrent().featureSwitch(FeatureSwitch.STRETCH_PUBLIC)))
-			        || (isVideo() && !(Config.getCurrent().getParamVideoStylesDir().endsWith("grid") || Config.getCurrent().featureSwitch(FeatureSwitch.STRETCH_VIDEO)));
+			        && !(Config.getCurrent().getParamPublicStylesDir().endsWith("grid") || FeatureSwitch.STRETCH_PUBLIC.isEffective()))
+			        || (isVideo() && !(Config.getCurrent().getParamVideoStylesDir().endsWith("grid") || FeatureSwitch.STRETCH_VIDEO.isEffective()));
 			// noStretch = no filler line to push the leaderboard down
 			this.getElement().setProperty("leaderLines", normal - (noStretch ? 1 : 0));
 		} else {
@@ -938,7 +938,7 @@ public class BaseResults extends LitTemplate
 		if (fop == null) {
 			return;
 		}
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.MEDALISTS_AS_LEADERS)
+		if (FeatureSwitch.MEDALISTS_AS_LEADERS.isEffective()
 		        && fop.getState() == FOPState.BREAK
 		        && (fop.getBreakType() == BreakType.BEFORE_INTRODUCTION || fop.getBreakType() == BreakType.FIRST_SNATCH)) {
 			this.getElement().setPropertyJson("records", JsonUtils.nullNode());
@@ -1015,7 +1015,7 @@ public class BaseResults extends LitTemplate
 		this.setDisplay();
 	}
 
-	boolean iwfLook = Config.getCurrent().featureSwitch(FeatureSwitch.IWF_LOOK);
+	boolean iwfLook = FeatureSwitch.IWF_LOOK.isEffective();
 
 	protected void doUpdate(Athlete a, UIEvent e) {
 		// logger.trace("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() :
@@ -1332,7 +1332,7 @@ public class BaseResults extends LitTemplate
 	 */
 	protected BiPredicate<Athlete, Athlete> getSeparatorPredicate() {
 		boolean displayByAgeGroup = Competition.getCurrent().isByAgeGroup();
-		boolean bwClassThenAgeGroup = Config.getCurrent().featureSwitch(FeatureSwitch.BW_CLASS_THEN_AGE_GROUP);
+		boolean bwClassThenAgeGroup = FeatureSwitch.BW_CLASS_THEN_AGE_GROUP.isEffective();
 		// logger.debug("displayByAgeGroup {} bwClassThenAgeGroup {}", displayByAgeGroup, bwClassThenAgeGroup);
 		BiPredicate<Athlete, Athlete> separator = (cur, prev) -> {
 			if (prev == null) {
@@ -1391,7 +1391,7 @@ public class BaseResults extends LitTemplate
 
 		getElement().setProperty("showTotal", true);
 		getElement().setProperty("showBest", true); // overridden by media queries, not a variable
-		getElement().setProperty("showBodyWeight", Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT));
+		getElement().setProperty("showBodyWeight", FeatureSwitch.DISPLAY_BODY_WEIGHT.isEffective());
 		getElement().setProperty("video", this.video);
 		getElement().setProperty("currentAttempt", this.currentAttempt);
 		getElement().setProperty("showMedals", this.showMedals);
@@ -1432,10 +1432,10 @@ public class BaseResults extends LitTemplate
 		        .filter(ageGroup -> ageGroup != null).map(AgeGroup::getChampionship).toList();
 		Config config = Config.getCurrent();
 		var columns = ScoreboardRankData.columns(championships,
-		        config.featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE),
-		        config.featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE_RANK),
-		        config.featureSwitch(FeatureSwitch.NO_BEST_SCORE_RANK)
-		                || config.featureSwitch(FeatureSwitch.NO_SINCLAIR_RANK));
+		        FeatureSwitch.DISPLAY_BEST_SCORE.isEffective(config),
+		        FeatureSwitch.DISPLAY_BEST_SCORE_RANK.isEffective(config),
+		        FeatureSwitch.NO_BEST_SCORE_RANK.isEffective(config)
+		                || FeatureSwitch.NO_SINCLAIR_RANK.isEffective(config));
 		getElement().setProperty("showMedalScore", columns.medalScore());
 		getElement().setProperty("showSinclair", columns.bestScore());
 		getElement().setProperty("showSinclairRank", columns.bestRank());
@@ -1498,7 +1498,7 @@ public class BaseResults extends LitTemplate
 			translations.put("Start", "\u00A0");
 		}
 		translations.put("ScoringTitle", Translator.translate("Score"));
-		if (!Config.getCurrent().featureSwitch(FeatureSwitch.MEDALISTS_AS_LEADERS)) {
+		if (!FeatureSwitch.MEDALISTS_AS_LEADERS.isEffective()) {
 			translations.put("Leaders", Translator.translate("Leaders.PreviousGroups"));
 		}
 		this.getElement().setPropertyJson("t", translations);

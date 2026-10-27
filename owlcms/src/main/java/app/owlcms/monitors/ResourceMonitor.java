@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.management.OperatingSystemMXBean;
 
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import jdk.jfr.FlightRecorder;
 import jdk.jfr.consumer.RecordingStream;
@@ -50,7 +49,7 @@ public final class ResourceMonitor {
 	}
 
 	private ResourceMonitor() {
-		this(() -> Config.getCurrent().featureSwitch(FeatureSwitch.RESOURCE_TRACES),
+		this(() -> FeatureSwitch.RESOURCE_TRACES.isEffective(),
 				LoggerFactory.getLogger(ResourceMonitor.class),
 				LoggerFactory.getLogger(ResourceMonitor.class.getName() + ".table"));
 	}

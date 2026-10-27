@@ -23,7 +23,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -226,7 +225,7 @@ public class ResultsMultiRanks extends Results {
 
 	public boolean isChampionshipRanks() {
 		var group2 = getGroup();
-		return Config.getCurrent().featureSwitch(FeatureSwitch.CHAMPIONSHIP_GROUPING) || (group2 != null && group2.isMasters());
+		return FeatureSwitch.CHAMPIONSHIP_GROUPING.isEffective() || (group2 != null && group2.isMasters());
 	}
 
 	private ArrayNode getChampionshipNamesJson(LinkedHashMap<String, Participation> agMap) {
@@ -260,7 +259,7 @@ public class ResultsMultiRanks extends Results {
 			return "-";
 		}
 		var championshipName = (group2.isMasters()
-		        || Config.getCurrent().featureSwitch(FeatureSwitch.CHAMPIONSHIP_GROUPING)) ? ag.computeChampionshipName() : ag.getCode();
+		        || FeatureSwitch.CHAMPIONSHIP_GROUPING.isEffective()) ? ag.computeChampionshipName() : ag.getCode();
 		return championshipName;
 	}
 

@@ -77,6 +77,7 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.data.config.TcrrCompliance;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
@@ -390,12 +391,12 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public boolean computeShowAllGroupRecords() {
-		boolean forced = Config.getCurrent().featureSwitch(FeatureSwitch.FORCE_ALL_GROUP_RECORDS);
+		boolean forced = FeatureSwitch.FORCE_ALL_GROUP_RECORDS.isEffective();
 		return forced || Boolean.TRUE.equals(RecordConfig.getCurrent().getShowAllCategoryRecords());
 	}
 
 	public boolean computeShowInformationalRecords() {
-		boolean forced = Config.getCurrent().featureSwitch(FeatureSwitch.FORCE_ALL_FEDERATION_RECORDS);
+		boolean forced = FeatureSwitch.FORCE_ALL_FEDERATION_RECORDS.isEffective();
 		return forced || Boolean.TRUE.equals(RecordConfig.getCurrent().getShowAllFederations());
 	}
 
@@ -1470,7 +1471,7 @@ public class FieldOfPlay implements IUnregister {
 		if (!isPanelProcedure()) {
 			// without Video Playback (7.5.8) the jury deliberates by hand; the automatic stop on a unanimous jury
 			// opposite to the referees is an option
-			if (!Config.getCurrent().featureSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT)) {
+			if (!FeatureSwitch.AUTOMATIC_BREAK_NO_VPT.isEffective()) {
 				return;
 			}
 			Boolean juryUnanimous = unanimousJury(getJuryMemberDecision());
@@ -1776,7 +1777,7 @@ public class FieldOfPlay implements IUnregister {
 		this.athleteTimer.setFop(this);
 		this.breakTimer = breakTimer;
 		this.breakTimer.setFop(this);
-		this.showDecisionsImmediately = Config.getCurrent().featureSwitch(FeatureSwitch.SHOW_DECISIONS_IMMEDIATELY);
+		this.showDecisionsImmediately = FeatureSwitch.SHOW_DECISIONS_IMMEDIATELY.isEffective();
 		this.setCurAthlete(null);
 		this.setClockOwner(null);
 		this.setClockOwnerInitialTimeAllowed(0);
@@ -2039,7 +2040,7 @@ public class FieldOfPlay implements IUnregister {
 	/** @return the configured number of jury members */
 	public int getJurySize() {
 		Platform p = getPlatform();
-		return p != null ? p.getEffectiveJurySize() : Competition.getCurrent().getJurySize();
+		return p != null ? p.getEffectiveJurySize() : Competition.getCurrent().getEffectiveJurySize();
 	}
 
 	/** @param jurySize 0, 3, 4 or 5; null to use the competition default */
@@ -2050,6 +2051,9 @@ public class FieldOfPlay implements IUnregister {
 	private void setJurySize(Integer jurySize, Object origin) {
 		Platform p = getPlatform();
 		if (p == null) {
+			return;
+		}
+		if (TcrrCompliance.isEnabled()) {
 			return;
 		}
 		p.setJurySize(jurySize);
@@ -2159,7 +2163,7 @@ public class FieldOfPlay implements IUnregister {
 		// TEMPORARY (display-order) trace: decide whether missed StartTime/StopTime is a
 		// registration gap.
 		if ((event instanceof UIEvent.StartTime || event instanceof UIEvent.StopTime)
-				&& Config.getCurrent().featureSwitch(FeatureSwitch.CLOCK_TRACES)) {
+				&& FeatureSwitch.CLOCK_TRACES.isEffective()) {
 			int athleteTimerSubscribers = SafeEventBusRegistration.registeredSubscriberCount(getUiEventBus(),
 					"AthleteTimerElement");
 			int controlAthleteTimerSubscribers = SafeEventBusRegistration
@@ -2171,7 +2175,7 @@ public class FieldOfPlay implements IUnregister {
 					SafeEventBusRegistration.registeredTimerDetails(getUiEventBus()));
 		}
 		if (event instanceof UIEvent.LiftingOrderUpdated liftingOrderUpdated
-				&& Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+				&& FeatureSwitch.ATTEMPT_TRACES.isEffective()) {
 			Athlete displayAthlete = liftingOrderUpdated.getAthlete();
 			Integer displayWeight = displayAthlete != null ? displayAthlete.getNextAttemptRequestedWeight() : null;
 			this.logger.warn(
@@ -2180,7 +2184,7 @@ public class FieldOfPlay implements IUnregister {
 					displayAthlete != null ? displayAthlete.getStartNumber() : null, displayWeight, displayWeight,
 					liftingOrderUpdated.getNewWeight(), liftingOrderUpdated.isCurrentDisplayAffected(), this.state);
 		}
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
+		if (FeatureSwitch.PLAYWRIGHT.isEffective()) {
 			if (event instanceof UIEvent.LiftingOrderUpdated liftingOrderUpdated) {
 				MQTTMonitor mqttMonitor = getMqttMonitor();
 				if (mqttMonitor != null) {
@@ -2320,7 +2324,7 @@ public class FieldOfPlay implements IUnregister {
 		// breakType,
 		// LoggerUtils.whereFrom());
 		if (breakType == null && this.breakType != null
-		        && Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+		        && FeatureSwitch.ATTEMPT_TRACES.isEffective()) {
 			this.logger.warn("{}attemptTrace clearing breakType previous={} state={} group={} athlete={} from={}",
 					FieldOfPlay.getLoggingName(this), this.breakType, this.state, this.group, this.curAthlete,
 					LoggerUtils.whereFrom());
@@ -2622,7 +2626,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private boolean isBreakTimerSoundsEnabled() {
-		return Config.getCurrent().featureSwitch(FeatureSwitch.BREAK_TIMER_SOUNDS);
+		return FeatureSwitch.BREAK_TIMER_SOUNDS.isEffective();
 	}
 
 	/**
@@ -2689,8 +2693,8 @@ public class FieldOfPlay implements IUnregister {
 		Integer age = a.getAge();
 		int maximumAllowedBarWeight = PlatformEquipmentCalculator.maximumAllowedBarWeight(
 				a.getGender(), ageGroup != null ? ageGroup.getMaxAge() : null,
-				Config.getCurrent().featureSwitch(FeatureSwitch.LIGHT_BAR_U13),
-				Config.getCurrent().featureSwitch(FeatureSwitch.LIGHT_BAR_U15));
+				FeatureSwitch.LIGHT_BAR_U13.isEffective(),
+				FeatureSwitch.LIGHT_BAR_U15.isEffective());
 		PlatformEquipmentCalculator.Inventory inventory = new PlatformEquipmentCalculator.Inventory(
 				getPlatform().getNbB_20() > 0,
 				getPlatform().getNbB_15() > 0,
@@ -2702,8 +2706,8 @@ public class FieldOfPlay implements IUnregister {
 				newWeight,
 				standardBarWeight(a.getGender()),
 				maximumAllowedBarWeight,
-				Config.getCurrent().featureSwitch(FeatureSwitch.USAW_COLLARS) && age != null && age > 13,
-				Config.getCurrent().featureSwitch(FeatureSwitch.NO_COLLARS_5KG_BAR),
+				FeatureSwitch.USAW_COLLARS.isEffective() && age != null && age > 13,
+				FeatureSwitch.NO_COLLARS_5KG_BAR.isEffective(),
 				getPlatform().isUseNonStandardBar(),
 				getPlatform().getNonStandardBarWeight(),
 				getPlatform().getCollarThreshold(),
@@ -2982,7 +2986,7 @@ public class FieldOfPlay implements IUnregister {
 																							// always immediate
 					goodLift, goodLift, goodLift));
 		} else if (isSingleReferee()) {
-			if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
+			if (FeatureSwitch.PLAYWRIGHT.isEffective()) {
 				this.logger./*playwright*/warn("{}solo referee decision path refIndex={} decision={} state={} {}",
 						FieldOfPlay.getLoggingName(this), du.getRefIndex(), du.isDecision(), this.state,
 						LoggerUtils.whereFrom());
@@ -3607,7 +3611,7 @@ public class FieldOfPlay implements IUnregister {
 		// if ANNOUNCER_TRIGGERS_INITIAL_DECISION is set, we go on, so a video processor watching INITIAL_DECISION
 		// events will show good lift/bad lift even on a flag decision
 		if (this.currentInputKind == InputKind.ANNOUNCER_ENTRY
-				&& !Config.getCurrent().featureSwitch(FeatureSwitch.ANNOUNCER_TRIGGERS_INITIAL_DECISION)) {
+				&& !FeatureSwitch.ANNOUNCER_TRIGGERS_INITIAL_DECISION.isEffective()) {
 			setGoodLift(nbWhite >= 1);
 			showDecisionNow(e.getOrigin());
 			return;
@@ -3824,7 +3828,7 @@ public class FieldOfPlay implements IUnregister {
 			Category category = getCurAthlete().getCategory();
 			List<Athlete> scoreMedalists = getMedals().get(category.getCode());
 
-			if (!Config.getCurrent().featureSwitch(FeatureSwitch.MEDALISTS_AS_LEADERS)) {
+			if (!FeatureSwitch.MEDALISTS_AS_LEADERS.isEffective()) {
 				previousGroupScoreLeaders(scoreMedalists);
 			} else {
 				medalistScoreLeaders(scoreMedalists);
@@ -3835,7 +3839,7 @@ public class FieldOfPlay implements IUnregister {
 			logger.info("{}medalists for category {} : {}", FieldOfPlay.getLoggingName(this), category.getCode(),
 			        getMedals().keySet());
 
-			if (!Config.getCurrent().featureSwitch(FeatureSwitch.MEDALISTS_AS_LEADERS)) {
+			if (!FeatureSwitch.MEDALISTS_AS_LEADERS.isEffective()) {
 				previousGroupLeaders(medalists);
 			} else {
 				medalistLeaders(medalists);
@@ -3909,7 +3913,7 @@ public class FieldOfPlay implements IUnregister {
 				.filter(this::hasNonZeroTotal)
 				.toList();
 		List<Athlete> leaders;
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.PREVIOUS_SESSION_MEDALS_ONLY)) {
+		if (FeatureSwitch.PREVIOUS_SESSION_MEDALS_ONLY.isEffective()) {
 			leaders = started.stream()
 					.filter(a -> isRankInRange(a.getTotalRank(), 3))
 					.sorted((a, b) -> Integer.compare(a.getTotalRank(), b.getTotalRank()))
@@ -4830,7 +4834,7 @@ public class FieldOfPlay implements IUnregister {
 		this.decisionVisibleSince = System.nanoTime() / 1_000_000;
 		this.decisionJurySize = getJurySize();
 		this.awaitingJuryCompletion = DecisionDisplayRules.showJuryDecisionsOnAttemptBoard(this.decisionJurySize,
-		        Config.getCurrent().featureSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD))
+		        FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD.isEffective())
 		        && !allDecisionJurorsVoted();
 		if (this.awaitingJuryCompletion && isJuryVotesAwaited()) {
 			holdDecisionForJury();
@@ -5505,7 +5509,7 @@ public class FieldOfPlay implements IUnregister {
 			Boolean firstDecision = ref2 != null ? ref2 : (ref1 != null ? ref1 : ref3);
 			if (firstDecision != null) {
 				Long firstDecisionTime = ref2 != null ? ref2Time : (ref1 != null ? ref1Time : ref3Time);
-				if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
+				if (FeatureSwitch.PLAYWRIGHT.isEffective()) {
 					this.logger./*playwright*/warn(
 							"{}normalizing DecisionFullUpdate to solo input ref1={} ref2={} ref3={} state={} {}",
 							FieldOfPlay.getLoggingName(this), e.ref1, e.ref2, e.ref3, this.state,

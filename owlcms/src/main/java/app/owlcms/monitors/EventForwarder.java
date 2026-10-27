@@ -315,7 +315,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			pushUpdate(null);
 		}
 		
-		this.NO_KEEPALIVE = Config.getCurrent().featureSwitch(FeatureSwitch.NO_FORWARDER_KEEP_ALIVE);
+		this.NO_KEEPALIVE = FeatureSwitch.NO_FORWARDER_KEEP_ALIVE.isEffective();
 		
 	}
 
@@ -929,10 +929,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 		Config displayConfig = Config.getCurrent();
 		var columns = ScoreboardRankData.columns(scoreboardChampionships,
-		        displayConfig.featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE),
-		        displayConfig.featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE_RANK),
-		        displayConfig.featureSwitch(FeatureSwitch.NO_BEST_SCORE_RANK)
-		                || displayConfig.featureSwitch(FeatureSwitch.NO_SINCLAIR_RANK));
+		        FeatureSwitch.DISPLAY_BEST_SCORE.isEffective(displayConfig),
+		        FeatureSwitch.DISPLAY_BEST_SCORE_RANK.isEffective(displayConfig),
+		        FeatureSwitch.NO_BEST_SCORE_RANK.isEffective(displayConfig)
+		                || FeatureSwitch.NO_SINCLAIR_RANK.isEffective(displayConfig));
 		this.showMedalScore = columns.medalScore();
 		setShowSinclair(columns.bestScore());
 		setShowSinclairRank(columns.bestRank());
@@ -1321,7 +1321,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "scoringName", this.bestScoringName);
 		mapPut(sb, "showSinclair", Boolean.toString(isShowSinclair()));
 		mapPut(sb, "showSinclairRank", Boolean.toString(isShowSinclairRank()));
-		mapPut(sb, "showBodyWeight", Boolean.toString(Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT)));
+		mapPut(sb, "showBodyWeight", Boolean.toString(FeatureSwitch.DISPLAY_BODY_WEIGHT.isEffective()));
 
 		if (this.groupAthletes != null) {
 			mapPut(sb, "groupAthletes", this.groupAthletes.toString());
@@ -1828,7 +1828,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private synchronized void pushDecision(DecisionEventType det, UIEvent e) {
 		setLastDecisionMap(createDecision(e, det));
 		if ((det == DecisionEventType.INITIAL_DECISION || det == DecisionEventType.FULL_DECISION)
-				&& Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
+				&& FeatureSwitch.PLAYWRIGHT.isEffective()) {
 			logger./*playwright*/warn("{} forwarding decision event {} d1={} d2={} d3={} destination={} {}",
 					FieldOfPlay.getLoggingName(getFop()),
 					det,

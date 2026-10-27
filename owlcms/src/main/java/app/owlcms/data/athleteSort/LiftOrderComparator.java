@@ -44,21 +44,21 @@ public class LiftOrderComparator extends AbstractLifterComparator implements Com
 			return compare;
 		}
 
-		if (Competition.getCurrent().isRoundRobinOrder()) {
+		if (Competition.getCurrent().isEffectiveRoundRobinOrder()) {
 			compare = compareAttemptsDone(lifter1, lifter2);
 			if (compare != 0) {
 				return compare;
 			}
 		}
 
-		if (Competition.getCurrent().isGenderOrder()) {
+		if (Competition.getCurrent().isEffectiveGenderOrder()) {
 			compare = compareGender(lifter1, lifter2);
 			if (compare != 0) {
 				return compare;
 			}
 		}
 
-		if (Competition.getCurrent().isFixedOrder()) {
+		if (Competition.getCurrent().isEffectiveFixedOrder()) {
 			compare = compareLotNumber(lifter1, lifter2);
 			if (compare != 0) {
 				return compare;
@@ -72,7 +72,7 @@ public class LiftOrderComparator extends AbstractLifterComparator implements Com
 
 		// if round-robin, attempts done has already been taken into account above so
 		// skip.
-		if (!Competition.getCurrent().isRoundRobinOrder()) {
+		if (!Competition.getCurrent().isEffectiveRoundRobinOrder()) {
 			compare = compareAttemptsDone(lifter1, lifter2);
 			if (compare != 0) {
 				return compare;

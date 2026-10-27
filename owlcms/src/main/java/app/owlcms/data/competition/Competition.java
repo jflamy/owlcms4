@@ -65,6 +65,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.data.config.TcrrCompliance;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -1230,6 +1231,11 @@ public class Competition {
 		return this.jurySize;
 	}
 
+	@JsonIgnore
+	public int getEffectiveJurySize() {
+		return TcrrCompliance.jurySize(getJurySize());
+	}
+
 	/**
 	 * @return the juryTemplateFileName
 	 */
@@ -1660,15 +1666,15 @@ public class Competition {
 	}
 
 	public boolean isDisplayScoreRanks() {
-		return this.displayScoreRanks || Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE_RANK);
+		return this.displayScoreRanks || FeatureSwitch.DISPLAY_BEST_SCORE_RANK.isEffective();
 	}
 
 	public boolean isDisplayScores() {
-		return this.displayScores || Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE);
+		return this.displayScores || FeatureSwitch.DISPLAY_BEST_SCORE.isEffective();
 	}
 
 	public boolean isManualStartNumbers() {
-		return this.manualStartNumbers || Config.getCurrent().featureSwitch(FeatureSwitch.MANUAL_START_NUMBERS);
+		return this.manualStartNumbers || FeatureSwitch.MANUAL_START_NUMBERS.isEffective();
 	}
 
 	public void setManualStartNumbers(boolean manualStartNumbers) {
@@ -1684,6 +1690,11 @@ public class Competition {
 		return this.enforce20kgRule;
 	}
 
+	@JsonIgnore
+	public boolean isEffectiveEnforce20kgRule() {
+		return TcrrCompliance.enforce20kgRule(this.enforce20kgRule);
+	}
+
 	public boolean isFixedOrder() {
 		if (StartupUtils.getBooleanParam("fixedOrder")) {
 			setFixedOrder(true);
@@ -1691,8 +1702,13 @@ public class Competition {
 		return this.fixedOrder;
 	}
 
+	@JsonIgnore
+	public boolean isEffectiveFixedOrder() {
+		return TcrrCompliance.alternativeLiftingOrder(isFixedOrder());
+	}
+
 	public boolean isGenderInclusive() {
-		return Config.getCurrent().featureSwitch(FeatureSwitch.GENDER_INCLUSIVE);
+		return FeatureSwitch.GENDER_INCLUSIVE.isEffective();
 	}
 
 	public boolean isGenderOrder() {
@@ -1700,6 +1716,11 @@ public class Competition {
 			setGenderOrder(true);
 		}
 		return this.genderOrder;
+	}
+
+	@JsonIgnore
+	public boolean isEffectiveGenderOrder() {
+		return TcrrCompliance.alternativeLiftingOrder(isGenderOrder());
 	}
 
 	// public boolean isSimulation() {
@@ -1731,6 +1752,11 @@ public class Competition {
 		return this.roundRobinOrder;
 	}
 
+	@JsonIgnore
+	public boolean isEffectiveRoundRobinOrder() {
+		return TcrrCompliance.alternativeLiftingOrder(this.roundRobinOrder);
+	}
+
 	public boolean isScoreMedalChampionship() {
 		if (this.migrated) {
 			Championship template = getCompetitionTemplate();
@@ -1738,7 +1764,7 @@ public class Competition {
 				return template.isScoreMedalChampionship();
 			}
 		}
-		return this.sinclairMeet || Config.getCurrent().featureSwitch(FeatureSwitch.SINCLAIR_MEET);
+		return this.sinclairMeet || FeatureSwitch.SINCLAIR_MEET.isEffective();
 	}
 
 	@Deprecated
@@ -2848,6 +2874,11 @@ public class Competition {
 
 	public boolean isImwa() {
 		return this.imwa;
+	}
+
+	@JsonIgnore
+	public boolean isEffectiveImwa() {
+		return TcrrCompliance.imwaRules(this.imwa);
 	}
 
 	public void setImwa(boolean imwa) {

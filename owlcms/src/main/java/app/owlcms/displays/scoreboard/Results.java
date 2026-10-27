@@ -34,7 +34,6 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.AdjudicationPanel;
 import app.owlcms.fieldofplay.FOPState;
@@ -100,9 +99,9 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		this.getElement().setProperty("scoreboardType", this.getClass().getSimpleName());
 		this.getElement().setProperty("showDecisionSection", isDecisionSectionEnabled());
 		this.getElement().setProperty("showProjectedRanks",
-		        Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_PROJECTED_RANKS));
+		        FeatureSwitch.DECISION_SECTION_PROJECTED_RANKS.isEffective());
 		this.getElement().setProperty("showScoreboardTimers",
-		        Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_SCOREBOARD_TIMERS));
+		        FeatureSwitch.DISPLAY_SCOREBOARD_TIMERS.isEffective());
 		overrideColors(this.getElement());
 	}
 
@@ -267,10 +266,10 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 			return;
 		}
 		this.decisionBlock.setShowJuryVotes(
-		        Config.getCurrent().featureSwitch(FeatureSwitch.JURY_DECISIONS_ON_SCOREBOARD));
+		        FeatureSwitch.JURY_DECISIONS_ON_SCOREBOARD.isEffective());
 		this.decisionBlock.setJurySize(fop.getJurySize());
 		this.getElement().setProperty("dsShowStopwatch",
-		        Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_STOPWATCH));
+		        FeatureSwitch.DECISION_SECTION_STOPWATCH.isEffective());
 	}
 
 	/**
@@ -353,7 +352,7 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		                : "PublicMsg.JuryDeliberation");
 		this.getElement().setProperty("juryMessage", Translator.translate(key));
 		if (this.decisionSectionStopwatch != null
-		        && Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_STOPWATCH)) {
+		        && FeatureSwitch.DECISION_SECTION_STOPWATCH.isEffective()) {
 			this.decisionSectionStopwatch.startCountUp();
 		}
 	}

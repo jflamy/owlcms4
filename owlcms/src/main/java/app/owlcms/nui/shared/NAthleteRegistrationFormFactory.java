@@ -1622,7 +1622,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				if (selectedCategory != null && categoryIsEligible(selectedCategory, this.allEligible) && selectedCategory.getMaximumWeight() < 999) {
 					// current registration category is amongst eligibles. Don't recompute anything.
 					//logger.debug("leave alone");
-					if (Config.getCurrent().featureSwitch(FeatureSwitch.BEST_MATCH_CATEGORIES)) {
+					if (FeatureSwitch.BEST_MATCH_CATEGORIES.isEffective()) {
 						Category bestMatchCategory = bestMatch(this.allEligible);
 						updateCategoryFields(selectedCategory, bestMatchCategory, eligibleField, qualifyingTotalField2,
 						        this.allEligible, this.allEligible, false);

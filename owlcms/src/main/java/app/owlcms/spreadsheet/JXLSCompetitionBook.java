@@ -265,7 +265,8 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		if (getBestLifterScoringSystem() != null) {
 			return getBestLifterScoringSystem();
 		}
-		return (getChampionship() != null ? getChampionship() : Championship.of(null)).getBestAthleteScoringSystem();
+		return (getChampionship() != null ? getChampionship() : Championship.of(null))
+		        .getEffectiveBestAthleteScoringSystem();
 	}
 
 

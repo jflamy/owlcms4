@@ -38,6 +38,7 @@ import app.owlcms.data.agegroup.MedalPolicy;
 import app.owlcms.data.agegroup.TeamPointsPolicy;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.RankingConfig;
+import app.owlcms.data.config.TcrrCompliance;
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
@@ -148,6 +149,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 
 		ComboBox<Ranking> bestAthleteField = createRankingCombo();
 		bestAthleteField.setValue(championship.getBestAthleteScoringSystem());
+		bestAthleteField.setEnabled(!TcrrCompliance.isEnabled());
 		scoringLayout.addFormItem(bestAthleteField, Translator.translate("Championship.bestAthleteScoringSystem"));
 
 		ComboBox<Ranking> bestSnatchField = createRankingCombo();
@@ -184,6 +186,10 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		IntegerField teamPoints3rdField = new IntegerField();
 		teamPoints3rdField.setValue(championship.getTeamPoints3rd() != null ? championship.getTeamPoints3rd() : 0);
 		teamPointsLayout.addFormItem(teamPoints3rdField, Translator.translate("Competition.teamPoints3rd"));
+		boolean tcrrCompliance = TcrrCompliance.isEnabled();
+		teamPoints1stField.setEnabled(!tcrrCompliance);
+		teamPoints2ndField.setEnabled(!tcrrCompliance);
+		teamPoints3rdField.setEnabled(!tcrrCompliance);
 
 		add(teamPointsLayout);
 		add(createSeparator());
@@ -421,7 +427,12 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			String mixedSelectionMode = mixedSelectionField.getValue();
 			championship.setType(templateMode ? ChampionshipType.U : typeField.getValue());
 			championship.setScoringSystem(medalScoringForStorage(scoringSystemField.getValue()));
-			championship.setBestAthleteScoringSystem(bestAthleteField.getValue());
+			if (!TcrrCompliance.isEnabled()) {
+				championship.setBestAthleteScoringSystem(bestAthleteField.getValue());
+				championship.setTeamPoints1st(teamPoints1stField.getValue());
+				championship.setTeamPoints2nd(teamPoints2ndField.getValue());
+				championship.setTeamPoints3rd(teamPoints3rdField.getValue());
+			}
 			championship.setBestSnatchScoringSystem(bestSnatchField.getValue());
 			championship.setBestCJScoringSystem(bestCJField.getValue());
 			championship.setMedalPolicy(medalPolicyField.getValue());
@@ -431,9 +442,6 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			championship.setGenderedTeamsEnabled(genderedEnabled);
 			championship.setTeamScoringSystem(
 			        genderedEnabled && SUM_OF_SCORES.equals(teamMethodField.getValue()) ? teamScoringSystemField.getValue() : null);
-			championship.setTeamPoints1st(teamPoints1stField.getValue());
-			championship.setTeamPoints2nd(teamPoints2ndField.getValue());
-			championship.setTeamPoints3rd(teamPoints3rdField.getValue());
 			championship.setMensBestN(mensBestNField.getValue());
 			championship.setWomensBestN(womensBestNField.getValue());
 			championship.setExplicitMixedTeamMembers(MIXED_SELECTION_EXPLICIT.equals(mixedSelectionMode));

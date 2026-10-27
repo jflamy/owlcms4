@@ -63,7 +63,8 @@ public final class ScoreboardRankData {
 		        : score(participation.getCategoryScore(), locale));
 		fields.put("medalHighlight", highlightMedals && athlete.getMedalPolicy().includesTotal()
 		        && AthleteSorter.isMedalist(athlete, Ranking.CATEGORY_SCORE) ? "medal" + medalRank : "");
-		Ranking bestSystem = participation.getCategory().getAgeGroup().getChampionship().getBestAthleteScoringSystem();
+		Ranking bestSystem = participation.getCategory().getAgeGroup().getChampionship()
+		        .getEffectiveBestAthleteScoringSystem();
 		fields.put("sinclair", score(Ranking.getRankingValue(athlete, bestSystem), locale));
 		fields.put("sinclairRank", rank(athlete.getBestLifterRank(), locale));
 		return fields;

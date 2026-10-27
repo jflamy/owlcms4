@@ -108,7 +108,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 	}
 
 	public void monitoring() {
-		if (!Config.getCurrent().featureSwitch(FeatureSwitch.OBS_MONITORS)) {
+		if (!FeatureSwitch.OBS_MONITORS.isEffective()) {
 			return;
 		}
 		Button obsMonitor = openInNewTab(OBSMonitor.class, Translator.translate("OBS.MonitoringButton"));
@@ -212,7 +212,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 		FlexibleGridLayout grid3;
 		Button attempt = openInNewTabWithFopQueryParameters(PublicFacingAttemptBoardPage.class,
 		        Translator.translate("AttemptBoard"), "video=true");
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.IWF_LOOK)) {
+		if (FeatureSwitch.IWF_LOOK.isEffective()) {
 			Button nCurrentAthlete = openInNewTabWithFopQueryParameters(NCurrentAthletePage.class,
 			        Translator.translate("CurrentAthleteTitle") + " (New)", "video=true");
 			grid3 = HomeNavigationContent.navigationGrid(nCurrentAthlete, attempt);

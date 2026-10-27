@@ -540,7 +540,7 @@ public class ChampionshipRepository {
 	private static TeamPointsPolicy legacyTeamPointsPolicy(EntityManager em) {
 		Config config = em.createQuery("select c from Config c", Config.class)
 		        .getResultList().stream().findFirst().orElse(null);
-		return config != null && config.featureSwitch(FeatureSwitch.TEAM_POINTS_TOTAL_ONLY)
+		return config != null && FeatureSwitch.TEAM_POINTS_TOTAL_ONLY.isEffective(config)
 		        ? TeamPointsPolicy.TOTAL_ONLY : TeamPointsPolicy.ALL_THREE;
 	}
 

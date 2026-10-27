@@ -315,7 +315,7 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 	 */
 	public default boolean isDefaultDecisionSection() {
 		return DecisionDisplayRules.showDecisionSection(isPublicDisplay(), isVideo(),
-		        Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION));
+		        FeatureSwitch.DECISION_SECTION.isEffective());
 	}
 
 	public default void switchShowMedals(String showMedals, boolean updateURL) {

@@ -48,7 +48,6 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -394,7 +393,7 @@ public class NRegistrationFileProcessor {
 		if (sbdeEligibles != null) {
 			RCompetition.putEligibles(existingAthlete.getId(), sbdeEligibles);
 		}
-		boolean explicitTeams = Config.getCurrent().featureSwitch(FeatureSwitch.EXPLICIT_TEAMS);
+		boolean explicitTeams = FeatureSwitch.EXPLICIT_TEAMS.isEffective();
 		if (sbdeTeams != null) {
 			RCompetition.putTeams(existingAthlete.getId(), sbdeTeams);
 		} else if (explicitTeams) {

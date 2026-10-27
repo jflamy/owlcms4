@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
 
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.nui.displays.SoundEntries;
 import app.owlcms.nui.lifting.MarshallContent;
@@ -44,7 +43,7 @@ public interface SoundParameters extends FOPParameters, SoundEntries {
 	}
 
 	public default boolean isLiveLights() {
-		return !Config.getCurrent().featureSwitch(FeatureSwitch.NO_LIVE_LIGHTS);
+		return !FeatureSwitch.NO_LIVE_LIGHTS.isEffective();
 	}
 
 	public default boolean isSilenced() {

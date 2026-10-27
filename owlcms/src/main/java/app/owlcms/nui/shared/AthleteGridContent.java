@@ -81,7 +81,6 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -550,7 +549,7 @@ public abstract class AthleteGridContent extends BaseContent
 	 */
 	public AthleteGridContent() {
 		init();
-		this.stopButtonVariant = Config.getCurrent().featureSwitch(FeatureSwitch.BLACK_STOP_BUTTON) ? "contrast" : "error";
+		this.stopButtonVariant = FeatureSwitch.BLACK_STOP_BUTTON.isEffective() ? "contrast" : "error";
 		this.breakTimerElement = new BreakTimerElement(this.getTopBarTitle() + "_" + this.id);
 		this.recordNotifications = new ArrayList<>();
 	}
@@ -1792,7 +1791,7 @@ public abstract class AthleteGridContent extends BaseContent
 				return;
 			}
 			long base = openStamp[0];
-			if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
+			if (FeatureSwitch.PLAYWRIGHT.isEffective()) {
 				logger./*playwright*/warn("{}notif {} client opened +{}ms", ctx, tag,
 				        base > 0 ? System.currentTimeMillis() - base : -1);
 			}
@@ -1819,7 +1818,7 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	private void traceAnnouncerClientRender(Component component, String tag, String script) {
-		if (!Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT) || !(this instanceof AnnouncerContent)
+		if (!FeatureSwitch.PLAYWRIGHT.isEffective() || !(this instanceof AnnouncerContent)
 		        || component == null || component.getUI().isEmpty()) {
 			return;
 		}
