@@ -1352,6 +1352,17 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
+	 * The StartLifting that follows Resume. It is handled directly, not posted, so it must be attached to this
+	 * platform: the jury box (MQTT) has no session to take it from.
+	 */
+	private StartLifting startLiftingFor(FOPEvent e) {
+		StartLifting startLifting = new StartLifting(e.getOrigin());
+		startLifting.setFop(this);
+		startLifting.setAuditActor(e.getAuditActor());
+		return startLifting;
+	}
+
+	/**
 	 * Apply the common Resume-button behaviour for Jury Control and the physical jury box.
 	 */
 	private void doJuryResume(FOPEvent e) {
@@ -1364,10 +1375,10 @@ public class FieldOfPlay implements IUnregister {
 			// an explicit Resume ends the decision cycle: the clock may start at once
 			this.juryDecisionCardVisibleUntil = 0;
 			pushOutUIEvent(new UIEvent.JuryDisplayReset(e.getOrigin(), this));
-			doHandleFOPEvent(new StartLifting(e.getOrigin()));
+			doHandleFOPEvent(startLiftingFor(e));
 		} else if (normalBreak) {
 			// Match BreakManagement.endBreak exactly: an ordinary break only needs StartLifting.
-			doHandleFOPEvent(new StartLifting(e.getOrigin()));
+			doHandleFOPEvent(startLiftingFor(e));
 		} else if (this.state == CURRENT_ATHLETE_DISPLAYED) {
 			// Lifting has already resumed (automatically after the decision) and the clock has not started: the
 			// jury displays and the physical jury box may still show the previous votes; Resume clears them.

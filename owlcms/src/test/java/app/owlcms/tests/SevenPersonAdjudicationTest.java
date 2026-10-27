@@ -487,6 +487,22 @@ public class SevenPersonAdjudicationTest {
 		assertEquals("the clock starts after the Resume", FOPState.TIME_RUNNING, this.fop.getState());
 	}
 
+	@Test
+	public void juryBoxResumeEndsAReviewWaitingForTheRule() {
+		reviewAfterLift(W, W, R);
+		callForVotes();
+		reviewVotes(W, R, R);
+		juryVotes(W, R, R, R);
+		assertTrue("the No Lift result waits for the rule", this.fop.getPanelVoteUpdate(this).isComplete());
+
+		// the jury box (MQTT) has no session: the StartLifting that follows Resume must still reach this platform
+		OwlcmsSession.setFop(null);
+		post(new FOPEvent.JuryResume(new Object()));
+		assertEquals("the review ends", FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+		assertFalse("the review vote is closed", this.fop.isPanelVoteOpen());
+		assertFalse("the result is cleared", this.fop.getPanelVoteUpdate(this).isComplete());
+	}
+
 	// ---------------------------------------------------------------- clock start in each phase of the review
 
 	@Test
