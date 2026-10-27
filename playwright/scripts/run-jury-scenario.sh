@@ -3,15 +3,17 @@
 # screenshots under playwright/reports/. Options (all optional):
 #   --base=http://localhost:8080 --mqtt=tcp://localhost:1883 --fop=A --group=M1 --out=<dir> --headed
 #   --scenario=<ids, comma-separated; default all>
-#     four-member jury with VPT:  1-vpt-reversal-nolift 2-vpt-reversal-goodlift 3-vpt-challenge-success
-#                                 4-vpt-challenge-fail 5-vpt-confirmation-nolift
-#     three-member jury, no VPT:  6-jury3-reversal-nolift 7-jury3-reversal-goodlift 8-jury3-challenge-success
-#                                 9-jury3-challenge-fail 10-jury3-confirmation-nolift
-#     four-member jury, no VPT:   11-jury4-reversal-nolift 12-jury4-reversal-goodlift 13-jury4-challenge-success
-#                                 14-jury4-challenge-fail 15-jury4-confirmation-nolift
-#     four-member jury with VPT, jury box 1 broken: 16-vpt-broken-juror-nolift
-#     jury box only, the Speaker enters the decision: 17-vpt-speaker-enters-nolift 18-jury3-speaker-enters-nolift
-#     jury box 1 broken, Speaker abandons the vote: 19-vpt-broken-juror-start-anyway
+#     four-member jury with VPT:  010-vpt-reversal-nolift 020-vpt-reversal-goodlift
+#                                 030-vpt-challenge-jury-agreed-nolift 035-vpt-challenge-jury-agreed-goodlift
+#                                 040-vpt-challenge-success
+#                                 050-vpt-challenge-fail 060-vpt-confirmation-nolift
+#     three-member jury, no VPT:  070-jury3-reversal-nolift 080-jury3-reversal-goodlift 090-jury3-challenge-success
+#                                 100-jury3-challenge-fail 110-jury3-confirmation-nolift
+#     four-member jury, no VPT:   120-jury4-reversal-nolift 130-jury4-reversal-goodlift 140-jury4-challenge-success
+#                                 150-jury4-challenge-fail 160-jury4-confirmation-nolift
+#     four-member jury with VPT, jury box 1 broken: 170-vpt-broken-juror-nolift
+#     jury box only, the Speaker enters the decision: 180-vpt-speaker-enters-nolift 190-jury3-speaker-enters-nolift
+#     jury box 1 broken, Speaker abandons the vote: 200-vpt-broken-juror-start-anyway
 #     (a three-member jury with VPT behaves exactly as without VPT: no separate scenarios)
 # Each scenario applies its own settings (automaticBreakNoVPT,
 # Video Playback Technology, jury size on Jury Control).
