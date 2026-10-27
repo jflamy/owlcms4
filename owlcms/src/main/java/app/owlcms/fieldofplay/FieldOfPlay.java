@@ -1705,6 +1705,15 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void pushPanelVoteUpdate(Object origin, Integer refereeUpdated) {
+		pushOutUIEvent(createPanelVoteUpdate(origin, refereeUpdated));
+	}
+
+	/** Current review vote, including its reveal state, for a display that attaches or re-syncs during the review. */
+	public UIEvent.PanelVoteUpdate getPanelVoteUpdate(Object origin) {
+		return createPanelVoteUpdate(origin, null);
+	}
+
+	private UIEvent.PanelVoteUpdate createPanelVoteUpdate(Object origin, Integer refereeUpdated) {
 		Boolean[] jury = getJuryMemberDecision();
 		int jurySize = getJurySize();
 		boolean[] voted = new boolean[AdjudicationPanel.NB_REFEREES + jurySize];
@@ -1718,9 +1727,9 @@ public class FieldOfPlay implements IUnregister {
 		for (int i = 0; i < votes.length; i++) {
 			voted[i] = votes[i] != null;
 		}
-		pushOutUIEvent(new UIEvent.PanelVoteUpdate(this.panelVoteOpen, voted,
+		return new UIEvent.PanelVoteUpdate(this.panelVoteOpen, voted,
 		        this.panelVoteRevealed ? votes : null, this.panelVoteMajority,
-		        this.panelVotePubliclyRevealed, refereeUpdated, origin, this));
+		        this.panelVotePubliclyRevealed, refereeUpdated, origin, this);
 	}
 
 	private void checkFirstClockForLift() {

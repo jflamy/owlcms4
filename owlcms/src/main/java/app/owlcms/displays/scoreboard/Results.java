@@ -303,16 +303,8 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 			Boolean[] initialJury = initialJuryVotes(fop);
 			this.decisionBlock.onDeliberationStart(type, fop.getAthleteUnderReview(), computeRefLights(fop),
 			        initialJury);
-			if (fop.isPanelVoteOpen() && fop.isPanelVoteComplete()) {
-				// the vote is complete: the seven votes are shown, the decision follows
-				Boolean[] refs = fop.getReviewRefereeDecision();
-				Boolean[] jury = fop.getJuryMemberDecision();
-				this.decisionBlock.onPanelVote(
-				        new DecisionBlockState.RefLights(fop.getPanelVoteMajority(), refs[0], refs[1], refs[2], false,
-				                false),
-				        Arrays.copyOf(jury, fop.getJurySize()));
-			} else if (fop.isPanelVoteOpen()) {
-				this.decisionBlock.onPanelVote(null, null, panelVoted(fop));
+			if (fop.isPanelVoteOpen()) {
+				updateReviewVote(fop.getPanelVoteUpdate(this));
 			} else if (initialJury == null) {
 				this.decisionBlock.onJuryUpdate(fop.getJuryMemberDecision(), fop.getJurySize());
 			}
@@ -337,20 +329,6 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 			return null;
 		}
 		return Arrays.copyOfRange(votes, AdjudicationPanel.NB_REFEREES, votes.length);
-	}
-
-	/** who has voted in the review vote in progress (3 referees then the jury members) */
-	private static boolean[] panelVoted(FieldOfPlay fop) {
-		boolean[] voted = new boolean[fop.getReviewVoteSize()];
-		Boolean[] referees = fop.getReviewRefereeDecision();
-		Boolean[] jury = fop.getJuryMemberDecision();
-		for (int i = 0; i < AdjudicationPanel.NB_REFEREES; i++) {
-			voted[i] = referees != null && i < referees.length && referees[i] != null;
-		}
-		for (int i = 0; i < fop.getJurySize(); i++) {
-			voted[AdjudicationPanel.NB_REFEREES + i] = jury != null && i < jury.length && jury[i] != null;
-		}
-		return voted;
 	}
 
 	private void setJuryLightsHidden(boolean hidden) {
@@ -631,28 +609,28 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		if (!isDecisionSectionEnabled() || (!e.isOpen() && !e.isComplete())) {
 			return;
 		}
-		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			Boolean[] votes = e.getVotes();
-			if (votes == null) {
-				// who has voted is shown in gray, the values wait for the decision; in a jury vote (anything but the
-				// seven-person panel) the referees do not vote again and their decision stays shown
-				FieldOfPlay fop = e.getFop();
-				DecisionBlockState.RefLights kept = null;
-				if (fop != null && !fop.isPanelProcedure()) {
-					Boolean[] refs = fop.getRefereeDecision();
-					if (refs != null && refs.length >= AdjudicationPanel.NB_REFEREES) {
-						kept = new DecisionBlockState.RefLights(AdjudicationPanel.refereeMajority(refs), refs[0],
-						        refs[1], refs[2], false, false);
-					}
-				}
-				this.decisionBlock.onPanelVote(null, null, e.getVoted(), kept);
-				return;
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> updateReviewVote(e));
+	}
+
+	private void updateReviewVote(UIEvent.PanelVoteUpdate e) {
+		FieldOfPlay fop = e.getFop();
+		DecisionBlockState.RefLights kept = null;
+		if (fop != null && !fop.isPanelProcedure()) {
+			Boolean[] refs = fop.getRefereeDecision();
+			if (refs != null && refs.length >= AdjudicationPanel.NB_REFEREES) {
+				kept = new DecisionBlockState.RefLights(AdjudicationPanel.refereeMajority(refs), refs[0],
+				        refs[1], refs[2], false, false);
 			}
-			DecisionBlockState.RefLights reviewLights = new DecisionBlockState.RefLights(e.getMajority(), votes[0],
-			        votes[1], votes[2], false, false);
-			this.decisionBlock.onPanelVote(reviewLights, Arrays.copyOfRange(votes, AdjudicationPanel.NB_REFEREES,
-			        votes.length));
-		});
+		}
+		Boolean[] votes = e.getVotes();
+		if (votes == null) {
+			this.decisionBlock.onPanelVote(null, null, e.getVoted(), kept);
+			return;
+		}
+		DecisionBlockState.RefLights reviewLights = new DecisionBlockState.RefLights(e.getMajority(), votes[0],
+		        votes[1], votes[2], false, false);
+		this.decisionBlock.onPanelVote(reviewLights,
+		        Arrays.copyOfRange(votes, AdjudicationPanel.NB_REFEREES, votes.length), e.getVoted(), kept);
 	}
 
 	@Override
@@ -672,6 +650,9 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 				        : (fop != null ? fop.getAthleteUnderReview() : null);
 				this.decisionBlock.onDeliberationStart(type, athleteUnderReview, computeRefLights(fop),
 				        initialJuryVotes(fop));
+				if (fop != null && fop.isPanelVoteOpen()) {
+					updateReviewVote(fop.getPanelVoteUpdate(this));
+				}
 				break;
 			case GOOD_LIFT:
 			case BAD_LIFT:

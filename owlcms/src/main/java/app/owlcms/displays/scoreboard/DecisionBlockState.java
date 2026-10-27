@@ -130,7 +130,7 @@ public class DecisionBlockState {
 	private boolean panelVoting;
 	/** review vote in progress: who has voted (3 referees then the jury members), null when unknown */
 	private boolean[] panelVoted;
-	/** jury vote in progress: the referee cells show the referees' decision, not who has voted */
+	/** Jury-only vote: referee cells are cleared or show the original decision, never "who has voted". */
 	private boolean keptReferees;
 	/** the referees' decision under review, as shown when the deliberation started */
 	private RefLights reviewedRefLights;
@@ -278,12 +278,12 @@ public class DecisionBlockState {
 	}
 
 	/**
-	 * @param keptRefLights for a jury vote (anything but the seven-person panel), the referees' decision under review:
-	 *                      the referees do not vote again and their decision stays shown while the jury votes. Null
-	 *                      for the seven-person panel, whose referee cells show who has voted.
+	 * @param keptRefLights for a jury-only vote, the original referee decision to reveal when the vote is complete,
+	 *                      or to keep visible while voting when HIDE_REFEREES_DISPLAYS is false. Null for the
+	 *                      seven-person panel, whose referees vote again.
 	 */
 	public void onPanelVote(RefLights reviewLights, Boolean[] juryVotes, boolean[] voted, RefLights keptRefLights) {
-		if (this.state != State.DELIBERATION || !this.showJuryVotes) {
+		if (this.state != State.DELIBERATION || (!this.showJuryVotes && keptRefLights == null)) {
 			// jury votes hidden: nothing of the review vote is shown, only the decision
 			return;
 		}
@@ -292,13 +292,13 @@ public class DecisionBlockState {
 			this.panelVoting = true;
 			this.panelVoted = voted == null ? null : Arrays.copyOf(voted, voted.length);
 			this.keptReferees = keptRefLights != null;
-			this.refLights = keptRefLights;
+			this.refLights = DecisionDisplayRules.HIDE_REFEREES_DISPLAYS ? null : keptRefLights;
 			this.juryVotes = null;
 		} else {
 			this.panelVoting = false;
 			this.panelVoted = null;
 			this.keptReferees = false;
-			this.refLights = reviewLights;
+			this.refLights = keptRefLights != null ? keptRefLights : reviewLights;
 			this.juryVotes = copyOf(juryVotes);
 			this.jurySize = juryVotes != null ? juryVotes.length : this.jurySize;
 		}
@@ -481,8 +481,12 @@ public class DecisionBlockState {
 					} else {
 						this.renderer.renderVotedRefereeLights(Arrays.copyOfRange(this.panelVoted, 0, nbRefs));
 					}
-					this.renderer.renderVotedJuryCircles(
-					        Arrays.copyOfRange(this.panelVoted, nbRefs, this.panelVoted.length));
+					if (this.showJuryVotes) {
+						this.renderer.renderVotedJuryCircles(
+						        Arrays.copyOfRange(this.panelVoted, nbRefs, this.panelVoted.length));
+					} else {
+						this.renderer.renderNoJuryCircles();
+					}
 				} else {
 					renderRefereeLightsOrEmpty();
 				}

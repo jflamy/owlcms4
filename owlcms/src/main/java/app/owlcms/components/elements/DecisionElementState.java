@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.eventbus.Subscribe;
 
+import app.owlcms.displays.DecisionDisplayRules;
 import app.owlcms.fieldofplay.AdjudicationPanel;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.InputKind;
@@ -175,6 +176,15 @@ public class DecisionElementState {
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
 		JuryDeliberationEventType type = e.getDeliberationEventType();
 		if (type == JuryDeliberationEventType.START_DELIBERATION || type == JuryDeliberationEventType.CHALLENGE) {
+			syncReviewVotes(e);
+		}
+	}
+
+	/** Restore the current review phase without redisplaying the original decisions during an open vote. */
+	public void syncReviewVotes(UIEvent e) {
+		if (this.fop != null && this.fop.isPanelVoteOpen()) {
+			slavePanelVoteUpdate(this.fop.getPanelVoteUpdate(e != null ? e.getOrigin() : this));
+		} else {
 			showPanelReviewInitialVotes(e);
 		}
 	}
@@ -250,7 +260,7 @@ public class DecisionElementState {
 		if (e.getRef() != 0) {
 			return;
 		}
-		if (!showsReviewJury()) {
+		if (!showsReviewJury() && !isJuryOnlyReview()) {
 			// jury votes hidden: the review vote is not shown, only its decision
 			resetForJury(e);
 			return;
@@ -270,7 +280,7 @@ public class DecisionElementState {
 			resetForJury(e);
 			return;
 		}
-		if (!showsReviewJury()) {
+		if (!showsReviewJury() && !isJuryOnlyReview()) {
 			// jury votes hidden: the review vote is not shown, only its decision
 			return;
 		}
@@ -290,11 +300,19 @@ public class DecisionElementState {
 	}
 
 	private void publishPanelVote(UIEvent e, boolean[] voted, Boolean[] votes) {
-		// a jury vote (anything but the seven-person panel): the referees do not vote again, their decision stays shown
-		Boolean[] keptReferees = this.fop != null && !this.fop.isPanelProcedure() ? this.fop.getRefereeDecision()
-		        : null;
+		boolean hideReferees = this.liveReferee ? DecisionDisplayRules.HIDE_REFEREES_PANEL
+		        : DecisionDisplayRules.HIDE_REFEREES_DISPLAYS;
+		// Jury Control shows the revealed original referee decision at the top right instead
+		boolean refereesElsewhere = this.liveReferee && DecisionDisplayRules.SHOW_ORIGINAL_DECISIONS
+		        && isJuryOnlyReview();
+		Boolean[] keptReferees = isJuryOnlyReview() && !hideReferees && !refereesElsewhere
+		        ? this.fop.getRefereeDecision() : null;
 		List<String> states = new ArrayList<>(voted.length);
 		for (int i = 0; i < voted.length; i++) {
+			if (refereesElsewhere && i < AdjudicationPanel.NB_REFEREES) {
+				states.add("empty");
+				continue;
+			}
 			Boolean vote = votes != null && i < votes.length ? votes[i] : null;
 			if (vote == null && keptReferees != null && i < AdjudicationPanel.NB_REFEREES && i < keptReferees.length) {
 				vote = keptReferees[i];
@@ -303,7 +321,11 @@ public class DecisionElementState {
 		}
 		int nbRefs = AdjudicationPanel.NB_REFEREES;
 		this.renderer.showPanelVote(e, List.copyOf(states.subList(0, nbRefs)),
-		        List.copyOf(states.subList(nbRefs, states.size())), nextGeneration());
+		        showsReviewJury() ? List.copyOf(states.subList(nbRefs, states.size())) : List.of(), nextGeneration());
+	}
+
+	private boolean isJuryOnlyReview() {
+		return this.fop != null && this.fop.hasJuryReviewVote() && !this.fop.isPanelProcedure();
 	}
 
 	@Subscribe

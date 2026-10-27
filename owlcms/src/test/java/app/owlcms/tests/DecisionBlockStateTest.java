@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.displays.DecisionDisplayRules;
 import app.owlcms.displays.scoreboard.DecisionBlockState;
 import app.owlcms.displays.scoreboard.DecisionBlockState.DecisionSectionRenderer;
 import app.owlcms.displays.scoreboard.DecisionBlockState.RefLights;
@@ -238,7 +239,7 @@ public class DecisionBlockStateTest {
 	}
 
 	@Test
-	public void juryVoteKeepsTheRefereesDecisionShown() {
+	public void juryVoteUsesTheRefereesOriginalDecision() {
 		this.state.setJurySize(3);
 		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
 		this.renderer.clear();
@@ -246,11 +247,21 @@ public class DecisionBlockStateTest {
 		// a jury vote (no seven-person panel): the referees do not vote again
 		boolean[] voted = { false, false, false, true, true, false };
 		this.state.onPanelVote(null, null, voted, lights(true));
-		assertTrue("the referees' decision stays shown", this.renderer.calls.contains("refLights"));
+		assertEquals("referee lights while the jury votes",
+		        !DecisionDisplayRules.HIDE_REFEREES_DISPLAYS, this.renderer.calls.contains("refLights"));
+		assertEquals("cleared referee lights while the jury votes",
+		        DecisionDisplayRules.HIDE_REFEREES_DISPLAYS, this.renderer.calls.contains("emptyRefLights"));
 		assertFalse(this.renderer.calls.contains("votedRefLights"));
 		assertTrue("who has voted in the jury", this.renderer.calls.contains("votedJuryCircles"));
 		assertTrue(Arrays.equals(new boolean[] { true, true, false }, this.renderer.votedJury));
 		assertFalse("never the jury values", this.renderer.calls.contains("juryCircles"));
+
+		// the last juror reveals the jury votes and restores the referees' original decision
+		this.renderer.clear();
+		this.state.onPanelVote(lights(false), votes(true, true, true), null, lights(true));
+		assertTrue(this.renderer.calls.contains("refLights"));
+		assertTrue(this.renderer.calls.contains("juryCircles"));
+		assertFalse(this.renderer.calls.contains("emptyRefLights"));
 	}
 
 	@Test

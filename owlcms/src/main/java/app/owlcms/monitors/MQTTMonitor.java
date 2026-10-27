@@ -50,6 +50,7 @@ import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.displays.DecisionDisplayRules;
 import app.owlcms.fieldofplay.AdjudicationPanel;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
@@ -1461,8 +1462,8 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	/**
 	 * Review vote (seven-person panel or jury vote). For a new vote (ref 0): reset the boxes so that boxes that lock
 	 * after voting are re-armed (this also clears the referee and jury lights on the jury box). Seven-person panel:
-	 * buzz all referees with the summon signal; jury vote: show the referees' decision again. For a re-call: buzz that
-	 * referee only.
+	 * buzz all referees with the summon signal; jury vote: keep the referee lights clear unless HIDE_REFEREES_PANEL
+	 * is disabled. The original decisions are restored when the jury vote is revealed. For a re-call: buzz that referee only.
 	 */
 	@Subscribe
 	public void slavePanelVoteCalled(UIEvent.PanelVoteCalled e) {
@@ -1470,8 +1471,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			publishMqttResetAllDecisions();
 			if (e.getFop() != null && e.getFop().isPanelProcedure()) {
 				publishMqttSummonRef(0);
-			} else if (e.getFop() != null) {
-				// jury vote: the referees do not vote again, their decision stays shown on the jury box
+			} else if (e.getFop() != null && !DecisionDisplayRules.HIDE_REFEREES_PANEL) {
 				Boolean[] refs = e.getFop().getRefereeDecision();
 				for (int i = 0; refs != null && i < Math.min(refs.length, AdjudicationPanel.NB_REFEREES); i++) {
 					if (refs[i] != null) {
