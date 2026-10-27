@@ -8,10 +8,16 @@
 
 <br>
 
+**Development log**
+
+- 69.0.0-alpha04: Adjudication panel
+  - Clear all decisions when voting (both screen and physical box)
+  - Only jury decisions are shown in main area if only the jury is voting
+  - Initial referee decisions are always shown at top right of the screen, brought back on the physical box LEDs after vote
+
 **New in Release 69.0**
 
 - Complies with the requirements of the October 2026 IWF RFP for TIS Certification
-
 - IWF TCRR 2026 seven-person Adjudication Panel (jury size 4 with video playback).
 - Jury votes shown on attempt boards and scoreboards during a jury review.
 - Tracker forwarding uses protocol 69.0.0 and requires OWLCMS Tracker 3.0.0-beta01 or newer (tracker-core 2.0.0-beta01 or newer); 
