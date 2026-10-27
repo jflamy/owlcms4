@@ -14,8 +14,8 @@ PIN defaults to active speaker; Accounts defaults to passive speaker. Competitio
 
 The original recommendations below concerning independent passive implementation, prohibition of all competition events and display-only jury dialogs are superseded. The grantable Competition Director role is now implemented and exclusively protects its operational page alongside Admin. The feature toggle applies only in PIN mode. Partial configuration-tab permissions remain separate work.
 
-Related: [ACCESS_CONTROL_DESIGN.md](../030-ACCESS_CONTROL_REMAINING.md) and
-[COMPETITION_DIRECTOR_PAGE_IMPLEMENTATION_PLAN.md](../070-COMPETITION_DIRECTOR_ACCEPTANCE.md).
+Related: [ACCESS_CONTROL_DESIGN.md](../130-ACCESS_CONTROL_REMAINING.md) and
+[COMPETITION_DIRECTOR_PAGE_IMPLEMENTATION_PLAN.md](../170-COMPETITION_DIRECTOR_ACCEPTANCE.md).
 
 ## 1. Scope
 

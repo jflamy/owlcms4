@@ -11,7 +11,7 @@ Still to do:
 1. The authenticated browser acceptance checks below. Intended vehicle: a
    check in the `playwright` module (Java Playwright, like `UpdateCheck`)
    against a separately launched owlcms. Blocked on
-   [DIRECT_JSON_BOOT.md](060-DIRECT_JSON_BOOT.md): with `OWLCMS_LOADJSON` pointing
+   [DIRECT_JSON_BOOT.md](160-DIRECT_JSON_BOOT.md): with `OWLCMS_LOADJSON` pointing
    at a V2 export fixture that holds the access mode, feature switches and the
    announcer / Competition Director accounts, each scenario starts from one
    launch and no database preparation. Until then there is no clean way to

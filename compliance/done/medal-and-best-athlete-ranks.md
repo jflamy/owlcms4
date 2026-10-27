@@ -544,7 +544,7 @@ available; this part separates the medal and best-athlete display columns.
   Medal withholding rules must apply to `CATEGORY_SCORE` exactly as they do to
   `TOTAL`: `AthleteSorter.isMedalist` currently applies the IMWA qualifying-total
   withholding only for `TOTAL`, and the "QT not met" policy of
-  [Championship Qualification and Scoring Policies](../120-MEDAL_ELIGIBILITY.md)
+  [Championship Qualification and Scoring Policies](../300-MEDAL_ELIGIBILITY.md)
   (`RANKS_WITHOUT_MEDALS`) must withhold the highlight while keeping the rank.
 - `sinclair` / `sinclairRank`: best-athlete score and rank for the championship
   of the registration category (`Athlete.getBestAthleteRank()`, Part 1). Hidden

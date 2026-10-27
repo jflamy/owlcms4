@@ -1,13 +1,13 @@
 # EXTERNAL Role — Read-Only Display Access for Broadcasters
 
-Follow-up 2026-10-25: [the token URL specification](../020-TOKEN_PROTECTED_URLS.md)
+Follow-up 2026-10-25: [the token URL specification](../120-TOKEN_PROTECTED_URLS.md)
 specifies unattended OBS/broadcaster URL tokens and shared read-only replay
 access. It supersedes this archived design's exclusion of unattended login
 and the manual-login limitation in §8. The existing EXTERNAL display permissions
 and jury-scoreboard exclusion remain unchanged. Token support is not yet implemented.
 
 Status: design approved (decisions in §10 resolved), not implemented.
-Audience: the implementing agent. Extends [ACCESS_CONTROL_DESIGN.md](../030-ACCESS_CONTROL_REMAINING.md); its §18 (repository constraints) applies.
+Audience: the implementing agent. Extends [ACCESS_CONTROL_DESIGN.md](../130-ACCESS_CONTROL_REMAINING.md); its §18 (repository constraints) applies.
 
 Line numbers are approximate; search by method name.
 

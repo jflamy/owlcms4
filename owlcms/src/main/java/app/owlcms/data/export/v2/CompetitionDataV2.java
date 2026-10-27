@@ -120,6 +120,7 @@ public class CompetitionDataV2 {
 		return JsonMapper.builder()
 		        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 		        .configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false)
+		        .configure(DeserializationFeature.FAIL_ON_TRAILING_TOKENS, true)
 		        .build();
 	}
 

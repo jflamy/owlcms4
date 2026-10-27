@@ -69,6 +69,16 @@ public class StartupImportSourceTest {
 	}
 
 	@Test
+	public void newlyPublishedCheckpointReplacesAnOlderOneButTemporaryFileDoesNot() throws IOException {
+		Path old = file("checkpoint_1.zip", 1000);
+		file("checkpoint_2.tmp", 3000);
+		assertEquals(old, StartupImportSource.latest(this.temporary.getRoot().toPath()).orElseThrow());
+
+		Path published = file("checkpoint_2.zip", 2000);
+		assertEquals(published, StartupImportSource.latest(this.temporary.getRoot().toPath()).orElseThrow());
+	}
+
+	@Test
 	public void candidatesAreNewestFirstWithNameBreakingTies() throws IOException {
 		file("a.json", 1000);
 		file("b.json", 2000);

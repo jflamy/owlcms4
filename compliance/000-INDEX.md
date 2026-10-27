@@ -1,40 +1,51 @@
 # Compliance Work
 
-Updated 2026-10-25. Active specs contain decisions and remaining work;
+Updated 2026-10-27. Active specs contain decisions and remaining work;
 completed designs belong in [done/](done/). Do not duplicate their requirements
 in this index.
 
-## Access and recovery
+## 0xx — Bugs, do first
 
 | Order | Document | Scope |
 | --- | --- | --- |
-| 005 | [PEM-based account mode](005-PEM_ACCOUNT_MODE.md) | First priority: PEM accounts selection with admin PIN override, temporary admin password, self-service Account page, account password administration |
-| 010 | [Account tokens](010-ACCOUNT_TOKENS.md) | Generate/manage tokens before URL protection |
-| 020 | [Token-protected URLs](020-TOKEN_PROTECTED_URLS.md) | Then use tokens for displays, replays and all URL-based data extraction, including exports |
-| 030 | [Other access work](030-ACCESS_CONTROL_REMAINING.md) | Navigation, in-page actions and non-route review |
-| 040 | [Export credential protection](040-EXPORT_CREDENTIAL_PROTECTION.md) | Secrets inside saved exports; independent of URL authorization |
-| 050 | [Scheduled checkpoints](050-SCHEDULED_CHECKPOINTS.md) | Tracker timer and faithful ZIP retention over the existing WebSocket |
-| 060 | [Direct JSON boot](060-DIRECT_JSON_BOOT.md) | Only unfinished launch/standby work and runtime checks |
-| 070 | [Competition Director acceptance](070-COMPETITION_DIRECTOR_ACCEPTANCE.md) | Remaining browser acceptance/config permissions |
+| 010 | [Age-group editing](010-AGEGROUP_EDIT_CONFIRMATION.md) | Prevent category/participation data loss and make category saves transactional and explicit |
+| 020 | [Concurrent athlete editing](020-ATHLETE_CARD_CONCURRENT_EDITING.md) | Remaining dialog lifecycle/subscription bugs and safer partial-field writes |
+| 030 | [Birth-date parsing](030-BIRTHDATE_LENIENT_PARSE.md) | Accept common spreadsheet date formats consistently instead of rejecting valid registration files |
 
-Implement 005 first, before the remaining JSON boot work in 060. Implement
-010 before 020. The numbering otherwise groups subjects; it does not make
-independent work depend on token support. Checkpoint collection uses existing
-WebSocket authentication, not personal URL tokens.
+## 1xx — Technical RFP compliance
 
-## Other independent work
+| Order | Document | Scope |
+| --- | --- | --- |
+| 100 | [PEM-based account mode](100-PEM_ACCOUNT_MODE.md) | PEM accounts selection with admin PIN override, temporary admin password, self-service Account page and account password administration |
+| 110 | [Account tokens](110-ACCOUNT_TOKENS.md) | Generate and manage account tokens before URL protection |
+| 120 | [Token-protected URLs](120-TOKEN_PROTECTED_URLS.md) | Tokens for displays, replays and URL-based data extraction, including exports |
+| 130 | [Other access work](130-ACCESS_CONTROL_REMAINING.md) | Navigation/action gating and infrastructure/security review; reconcile overlap with 100–120 while implementing |
+| 140 | [Export credential protection](140-EXPORT_CREDENTIAL_PROTECTION.md) | Protect secrets inside saved exports, independently of URL authorization |
+| 150 | [Scheduled checkpoints](150-SCHEDULED_CHECKPOINTS.md) | Tracker timer and faithful ZIP retention over the existing WebSocket |
+| 160 | [Direct JSON boot](160-DIRECT_JSON_BOOT.md) | Control-panel checkpoint-folder launch, no-restart rule and Postgres acceptance |
+| 170 | [Competition Director acceptance](170-COMPETITION_DIRECTOR_ACCEPTANCE.md) | Remaining accounts/passive-page browser acceptance and configuration permissions |
 
-| Order | Document |
-| --- | --- |
-| 100 | [Birth-date parsing](100-BIRTHDATE_LENIENT_PARSE.md) |
-| 110 | [Age-group editing](110-AGEGROUP_EDIT_CONFIRMATION.md) |
-| 120 | [Medal eligibility](120-MEDAL_ELIGIBILITY.md) |
-| 130 | [Personal best records](130-PERSONAL_BEST_RECORDS.md) |
-| 140 | [Store panel decisions](140-STORE_PANEL_DECISIONS.md) |
-| 150 | [Tracker jury votes](150-TRACKER_JURY_VOTES.md) |
-| 160 | [Concurrent athlete editing](160-ATHLETE_CARD_CONCURRENT_EDITING.md) |
-| 170 | [Scoped dark dialogs](170-SCOPED_DARK_DIALOGS.md) |
-| 180 | [Windows signing](180-WINDOWS_SIGNING.md) |
+Implement 100 first. Implement 110 before 120. While implementing 130, remove
+requirements already covered by 100–120 rather than duplicating checks.
+Checkpoint collection uses existing WebSocket authentication, not personal URL
+tokens.
 
-Seven-person adjudication is complete and
-[archived](done/SEVEN_PERSON_ADJUDICATION.md), not an active implementation item.
+## 2xx — Can wait
+
+| Order | Document | Scope |
+| --- | --- | --- |
+| 200 | [Scoped dark dialogs](200-SCOPED_DARK_DIALOGS.md) | Stop display-page dark styling from leaking into ordinary pages |
+| 210 | [Store panel decisions](210-STORE_PANEL_DECISIONS.md) | Persist detailed review votes and circumstances for later reports |
+
+## 3xx — Nice to have
+
+| Order | Document | Scope |
+| --- | --- | --- |
+| 300 | [Medal eligibility](300-MEDAL_ELIGIBILITY.md) | Per-championship qualification, entry-total and team-point policies for mixed-rule competitions |
+| 310 | [Personal best records](310-PERSONAL_BEST_RECORDS.md) | Move live PB tracking into the record-event system |
+| 320 | [Windows signing](320-WINDOWS_SIGNING.md) | Authenticode signing for control-panel and video executables |
+
+Seven-person adjudication, including Tracker jury forwarding, is complete and
+archived in [SEVEN_PERSON_ADJUDICATION.md](done/SEVEN_PERSON_ADJUDICATION.md),
+[TRACKER_JURY_VOTES.md](done/TRACKER_JURY_VOTES.md) and
+[phase-b-referee-lights-mqtt.md](done/phase-b-referee-lights-mqtt.md).

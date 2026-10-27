@@ -1,7 +1,7 @@
 # Token-Protected URLs
 
 Status: agreed 2026-10-25; not implemented.
-Prerequisite: [account token generation](010-ACCOUNT_TOKENS.md).
+Prerequisite: [account token generation](110-ACCOUNT_TOKENS.md).
 
 ## Common rule
 
@@ -50,7 +50,7 @@ not a new permission.
   login platform is selected.
 - Define the replay-validation endpoint, cache/revocation behavior and whether
   already-open push-only boards/streams are disconnected immediately.
-- Local maintenance operations (`/controlpanel/stop`, simulation, standby) are
+- Local maintenance operations (`/controlpanel/stop`, simulation) are
   separate from data extraction; their restrictions are not removed here.
 
 ## Acceptance

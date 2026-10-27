@@ -2,7 +2,7 @@
 
 Plan for giving the tracker (`tracker-core` + `tracker`) everything the OWLCMS boards show about referee decisions,
 jury votes, review votes and jury decisions, for every jury size (0/3/4/5), with or without Video Playback
-Technology (VPT). Procedure: [SEVEN_PERSON_ADJUDICATION.md](done/SEVEN_PERSON_ADJUDICATION.md).
+Technology (VPT). Procedure: [SEVEN_PERSON_ADJUDICATION.md](SEVEN_PERSON_ADJUDICATION.md).
 
 Status: **decided 2026-10-26; implemented.** OWLCMS forwarder, tracker-core 2.0 (2.0.0-beta01) and tracker 3.0 (3.0.0-beta01: attempt board, attempt bar, scoreboards) are released as betas; stable tracker releases must ship with OWLCMS 69. Replaces the earlier Option A / Option B proposal (git history).
 
@@ -28,9 +28,9 @@ Status: **decided 2026-10-26; implemented.** OWLCMS forwarder, tracker-core 2.0 
 
 ### 2.1 Attempt board
 
-[DecisionElementState](../owlcms/src/main/java/app/owlcms/components/elements/DecisionElementState.java) (plain
+[DecisionElementState](../../owlcms/src/main/java/app/owlcms/components/elements/DecisionElementState.java) (plain
 Java, renderer interface `IDecisionRenderer`) drives the lights; the jury card comes from
-[AbstractAttemptBoard.slaveJuryNotification()](../owlcms/src/main/java/app/owlcms/displays/attemptboard/AbstractAttemptBoard.java).
+[AbstractAttemptBoard.slaveJuryNotification()](../../owlcms/src/main/java/app/owlcms/displays/attemptboard/AbstractAttemptBoard.java).
 
 | Moment | Referee cells | Jury cells |
 |---|---|---|
@@ -48,8 +48,8 @@ During a jury or challenge break the decision area is shown when `fop.isPanelVot
 
 ### 2.2 Scoreboard decision section
 
-[DecisionBlockState](../owlcms/src/main/java/app/owlcms/displays/scoreboard/DecisionBlockState.java), painted by
-[Results](../owlcms/src/main/java/app/owlcms/displays/scoreboard/Results.java):
+[DecisionBlockState](../../owlcms/src/main/java/app/owlcms/displays/scoreboard/DecisionBlockState.java), painted by
+[Results](../../owlcms/src/main/java/app/owlcms/displays/scoreboard/Results.java):
 
 - athlete under review (start number, name; age groups with `decisionSectionShowAgeGroups`), referee lights, jury
   circles (switch `juryDecisionsOnScoreboard`), review-vote progress;

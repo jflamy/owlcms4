@@ -75,4 +75,4 @@ One record per reviewed attempt, linked to the athlete and attempt number:
 - Audit trail: add named actions for `PanelVoteCalled`, `PanelVoteCancelled`
   and `JuryRuleRequest`, and the markers in `jury.decision`.
 - Tracker forwarding: send the stored record with the decision
-  ([tracker-jury-votes.md](150-TRACKER_JURY_VOTES.md)).
+  ([tracker-jury-votes.md](done/TRACKER_JURY_VOTES.md)).

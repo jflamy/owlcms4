@@ -17,8 +17,8 @@ below; the sections that follow are the original proposal.
 - The installation key (`~/.owlcms/key`) is not used for forwarding keys; it
   only decrypts development API keys (Google Sheets).
 This document concerns **what an export contains**, not who may download it.
-URL authorization is in [020](020-TOKEN_PROTECTED_URLS.md); checkpoint collection
-is in [050](050-SCHEDULED_CHECKPOINTS.md).
+URL authorization is in [120](120-TOKEN_PROTECTED_URLS.md); checkpoint collection
+is in [150](150-SCHEDULED_CHECKPOINTS.md).
 
 ## Required behavior
 

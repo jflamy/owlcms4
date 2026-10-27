@@ -2,7 +2,7 @@
 
 Status: implemented 2026-10-25; manual acceptance checks remain (see Acceptance).
 Implement this first, before the remaining
-[direct JSON boot work](060-DIRECT_JSON_BOOT.md). Account tokens are not a
+[direct JSON boot work](160-DIRECT_JSON_BOOT.md). Account tokens are not a
 prerequisite.
 
 ## Mode selection and admin override
@@ -106,7 +106,7 @@ After a forced change it navigates to the home page. `OwlcmsLayout` shows the
 **Account** entry when accounts mode is active and the principal is an account.
 
 Moved here from
-[010](010-ACCOUNT_TOKENS.md), which adds the token section later.
+[110](110-ACCOUNT_TOKENS.md), which adds the token section later.
 
 - Individual named users get **Account** in the left-hand menu, for their own
   account only. They can change their own password: current password, new

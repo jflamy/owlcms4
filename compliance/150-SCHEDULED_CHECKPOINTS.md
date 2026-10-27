@@ -34,11 +34,10 @@ matched against OWLCMS's `export.json` (`channel=websocket`) audit record.
 No embedded digest, separate sidecar or reserialization is required.
 
 Connection-credential handling belongs to
-[040](040-EXPORT_CREDENTIAL_PROTECTION.md). Tracker keeps those values opaque
-and does not need the installation recovery key.
-Loading and future standby selection belong to
-[060](060-DIRECT_JSON_BOOT.md). Standby is not yet implemented; immediate
-`OWLCMS_LOADJSON` startup is available.
+[140](140-EXPORT_CREDENTIAL_PROTECTION.md). Tracker stores those values as
+received and never decrypts them; only OWLCMS does, when it loads a checkpoint.
+Loading belongs to [160](160-DIRECT_JSON_BOOT.md): `OWLCMS_LOADJSON` set to
+the checkpoint folder loads the newest complete checkpoint at startup.
 
 Full JSON-plus-log audit snapshots are not five-minute checkpoints: they
 roll audit logs and repeatedly archive the full log history. Keep them at

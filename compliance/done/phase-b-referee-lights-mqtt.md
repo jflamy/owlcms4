@@ -1,5 +1,12 @@
 # Phase B review vote: timeline for the physical box, attempt board and scoreboard
 
+Status: done and archived 2026-10-27. The timeline below is retained as the
+implementation record. Its dated “today”, “planned” and “not implemented”
+phrasing describes the state when the plan was written and is not an active
+backlog; current behavior is documented by
+[SEVEN_PERSON_ADJUDICATION.md](SEVEN_PERSON_ADJUDICATION.md) and
+[TRACKER_JURY_VOTES.md](TRACKER_JURY_VOTES.md).
+
 Reference for the seven-person Adjudication Panel review (VPT on). Each row
 says what the **physical jury box / referee boxes**, the **Jury Control page**,
 the **attempt board** and the **scoreboard decision block** show, and whether
