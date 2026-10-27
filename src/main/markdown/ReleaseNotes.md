@@ -10,10 +10,10 @@
 
 **Development log**
 
-- 69.0.0-alpha04: Adjudication panel
-  - Clear all decisions when voting (both screen and physical box)
+- 69.0.0-alpha04: Adjudication screen improvements
+  - Clear all decisions when review vote is called
   - Only jury decisions are shown in main area if only the jury is voting
-  - Initial referee decisions are always shown at top right of the screen, brought back on the physical box LEDs after vote
+  - Initial referee decisions are always shown at top right of the screen
 
 **New in Release 69.0**
 
