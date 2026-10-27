@@ -80,7 +80,7 @@ public interface BreakDisplay {
 				return Translator.translate("PublicMsg.CompetitionPaused");
 			case JURY:
 				FieldOfPlay fop = getFop();
-				return Translator.translate(fop != null && fop.isPanelReview() ? "PublicMsg.AdjudicationPanelReview"
+				return Translator.translate(fop != null && fop.isPanelReviewing() ? "PublicMsg.AdjudicationPanelReview"
 				        : "PublicMsg.JuryDeliberation");
 			case CHALLENGE:
 				return Translator.translate("PublicMsg.CHALLENGE");

@@ -69,28 +69,23 @@ public class JuryDecisionDialog extends Dialog {
 		}
 		
 		// Build header and message based on whether jury made decision
+		String decisionTitle = Translator.translate(e.isPanelDecision() ? "Announcer.PanelDecisionTitle"
+		        : "Announcer.JuryDecisionTitle");
 		String headerText;
 		String messageText;
 		String messageStyle = "";
 		
 	if (juryDecision == JuryDeliberationEventType.GOOD_LIFT) {
-		headerText = Translator.translate("Announcer.JuryDecisionTitle");
+		headerText = decisionTitle;
 		messageText = athleteDescription;
 		messageStyle = "color: green; font-size: x-large; font-weight: bold; margin-top: 0.5em;";
 	} else if (juryDecision == JuryDeliberationEventType.BAD_LIFT) {
-		headerText = Translator.translate("Announcer.JuryDecisionTitle");
+		headerText = decisionTitle;
 		messageText = athleteDescription;
 		messageStyle = "color: red; font-size: x-large; font-weight: bold; margin-top: 0.5em;";
 	} else {
 			// START_DELIBERATION or CHALLENGE - no jury decision yet, only hand signals
-			JuryDeliberationEventType et = e.getDeliberationEventType();
-			if (et == JuryDeliberationEventType.CHALLENGE) {
-				headerText = Translator.translate("JuryNotification.CHALLENGE");
-			} else if (e.isPanelReview()) {
-				headerText = Translator.translate("JuryNotification.PanelReview");
-			} else {
-				headerText = Translator.translate("JuryNotification.START_DELIBERATION");
-			}
+			headerText = Translator.translate(e.getDeliberationStartedKey());
 			
 			messageText = athleteDescription;
 			messageStyle = "font-size: large; font-weight: bold";
@@ -131,7 +126,8 @@ public class JuryDecisionDialog extends Dialog {
 		// Show waiting status when jury is deliberating
 		waitingStatus = "<div style='color: #666; font-size: x-large; font-style: italic; text-align: center; margin: 0.5em 0;'>" 
 			+ Translator.translate("Announcer.WaitingForJuryDecision") + "</div>";
-		explanationText = Translator.translate("Announcer.WaitingForJuryExplanation");
+		explanationText = Translator.translate(e.getFop() != null && e.getFop().isPanelReviewing()
+		        ? "Announcer.WaitingForPanelExplanation" : "Announcer.WaitingForJuryExplanation");
 	}
 	if (e.isChairEntered() && juryDecision != null) {
 		// seven-person Adjudication Panel: the decision did not come from the panel vote

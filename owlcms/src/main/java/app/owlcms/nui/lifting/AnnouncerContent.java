@@ -302,8 +302,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 						if (e.getAthlete() != null || (fop != null && fop.getAthleteUnderReview() != null)) {
 							juryDecisionDialog(e, null);
 						} else {
-							doStoppageDialog(Translator.translate(e.isPanelReview() ? "JuryNotification.PanelReview"
-							        : "JuryNotification." + et.name()), style);
+							doStoppageDialog(Translator.translate(e.getDeliberationStartedKey()), style);
 						}
 					}
 					this.deliberationNotificationSent = true;

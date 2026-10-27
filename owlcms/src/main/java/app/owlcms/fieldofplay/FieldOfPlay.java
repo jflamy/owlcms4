@@ -1929,6 +1929,14 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
+	 * @return true when a review is decided by the seven-person Adjudication Panel (the referees vote again): the
+	 *         automatic review, or a deliberation or challenge under the panel procedure. Otherwise the jury decides.
+	 */
+	public boolean isPanelReviewing() {
+		return this.panelReview || isPanelProcedure();
+	}
+
+	/**
 	 * @return true while the current JURY break was started automatically (without VPT) by a unanimous four-member
 	 *         jury opposite to the referees
 	 */
@@ -2882,7 +2890,7 @@ public class FieldOfPlay implements IUnregister {
 			juryNotificationEvent.setReasonCode(e.getReasonCode());
 			juryNotificationEvent.setChairEntered(chairEntered);
 			juryNotificationEvent.setSpeakerEntered(!e.isJuryButton());
-			juryNotificationEvent.setPanelDecision(isPanelProcedure() && !chairEntered);
+			juryNotificationEvent.setPanelDecision(isPanelReviewing());
 			// the votes as they stand now (cleared after a Chair override); listeners may run after they are reset
 			juryNotificationEvent.setReviewVotes(this.reviewRefereeDecision, getJuryMemberDecision());
 

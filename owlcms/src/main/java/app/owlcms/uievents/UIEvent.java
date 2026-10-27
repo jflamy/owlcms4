@@ -774,6 +774,25 @@ public class UIEvent {
 		}
 
 		/**
+		 * @return the translation key announcing this START_DELIBERATION / CHALLENGE: the automatic Adjudication Panel
+		 *         Review, a deliberation by the panel (four-member jury with VPT) or by the jury
+		 */
+		public String getDeliberationStartedKey() {
+			if (this.deliberationEventType == null) {
+				return "JuryNotification.START_DELIBERATION";
+			}
+			if (this.deliberationEventType == JuryDeliberationEventType.START_DELIBERATION) {
+				if (this.panelReview) {
+					return "JuryNotification.PanelReview";
+				}
+				if (getFop() != null && getFop().isPanelReviewing()) {
+					return "JuryNotification.PanelDeliberationStarted";
+				}
+			}
+			return "JuryNotification." + this.deliberationEventType.name();
+		}
+
+		/**
 		 * @return true if the Jury Chair entered this GOOD_LIFT/BAD_LIFT decision instead of the seven-person panel vote
 		 */
 		public boolean isChairEntered() {
@@ -797,8 +816,8 @@ public class UIEvent {
 		}
 
 		/**
-		 * @return true if this GOOD_LIFT/BAD_LIFT decision is the seven-person Adjudication Panel's (four-member jury
-		 *         with VPT), false if it is the jury's (including a Jury Chair override of the panel vote)
+		 * @return true if this GOOD_LIFT/BAD_LIFT decision was reached under the seven-person Adjudication Panel
+		 *         (four-member jury with VPT: the referees vote again), false if the jury alone decided
 		 */
 		public boolean isPanelDecision() {
 			return this.panelDecision;

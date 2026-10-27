@@ -1078,8 +1078,7 @@ public abstract class AthleteGridContent extends BaseContent
 					this.summonNotificationSent = true;
 					return;
 				case START_DELIBERATION:
-					text = Translator.translate(e.isPanelReview() ? "JuryNotification.PanelReview"
-					        : "JuryNotification." + et.name());
+					text = Translator.translate(e.getDeliberationStartedKey());
 					if (!this.deliberationNotificationSent) {
 						doNotification(text, style, "jury[" + et.name() + "]");
 					}
