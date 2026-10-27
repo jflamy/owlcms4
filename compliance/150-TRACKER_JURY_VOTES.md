@@ -4,7 +4,7 @@ Plan for giving the tracker (`tracker-core` + `tracker`) everything the OWLCMS b
 jury votes, review votes and jury decisions, for every jury size (0/3/4/5), with or without Video Playback
 Technology (VPT). Procedure: [SEVEN_PERSON_ADJUDICATION.md](done/SEVEN_PERSON_ADJUDICATION.md).
 
-Status: **decided 2026-10-26; OWLCMS forwarder and tracker-core 2.0 implemented, tracker UI in progress.** Replaces the earlier Option A / Option B proposal (git history).
+Status: **decided 2026-10-26; implemented.** OWLCMS forwarder, tracker-core 2.0 (2.0.0-beta01) and tracker 3.0 (3.0.0-beta01: attempt board, attempt bar, scoreboards) are released as betas; stable tracker releases must ship with OWLCMS 69. Replaces the earlier Option A / Option B proposal (git history).
 
 ## 1. Decisions
 

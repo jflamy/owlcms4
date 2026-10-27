@@ -28,6 +28,11 @@ accounts mode or PIN with the feature on). Everything that works today on the
 PIN speaker must keep working there; the checks below say which page each
 applies to.
 
+The PIN speaker checks (#1 PIN-mode part, #3, #7 and #9a on the PIN speaker)
+are covered by the maintainer's ongoing use of the speaker page in PIN mode on
+dev69 (2026-10-27). The remaining checks concern accounts mode and the passive
+and Competition Director pages.
+
 ### Navigation and defaults
 
 | # | Check | Page |
