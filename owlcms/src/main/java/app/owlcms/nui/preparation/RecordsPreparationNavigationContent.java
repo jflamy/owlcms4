@@ -31,7 +31,6 @@ import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.home.HomeNavigationContent;
