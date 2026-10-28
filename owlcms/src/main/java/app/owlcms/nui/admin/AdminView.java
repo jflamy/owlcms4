@@ -1,6 +1,7 @@
 package app.owlcms.nui.admin;
 
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Hr;
@@ -20,6 +21,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.Main;
 import app.owlcms.apputils.AccessUtils;
+import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.AuditContext;
 import app.owlcms.i18n.Translator;
@@ -63,6 +65,7 @@ public class AdminView extends Composite<VerticalLayout> implements HasDynamicTi
 		});
 		Button restart = new Button("Restart", event -> {
 			AuditActor actor = AuditActor.capture(this).atStation("ADMIN", null, false);
+			NotificationUtils.restarting(UI.getCurrent());
 			AuditContext.run(actor, "Admin restart requested",
 					() -> RestartUtils.triggerRestart("Admin restart requested"));
 		});

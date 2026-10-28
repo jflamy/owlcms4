@@ -26,7 +26,7 @@ import com.vaadin.flow.component.grid.dnd.GridDropLocation;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.ValidationResult;
@@ -39,6 +39,7 @@ import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.account.UserAccountRepository;
@@ -246,8 +247,7 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 		        Translator.translate("Platform.RestartNow"),
 		        Translator.translate("Platform.RestartLater"), null,
 		        () -> {
-				Notification.show(Translator.translate("Platform.Restarting"), 0,
-				        Notification.Position.MIDDLE);
+				NotificationUtils.restarting(UI.getCurrent());
 				new Thread(() -> {
 					try {
 						Thread.sleep(2000);

@@ -34,6 +34,7 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.server.streams.UploadHandler;
 
 import app.owlcms.components.ConfirmationDialog;
+import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.CategoryRepository;
@@ -469,7 +470,9 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		        null,
 		        () -> {
 			        NRegistrationFileUploadDialog.this.close();
-			        if (ui != null) {
+			        if (isRestartScenario) {
+				        NotificationUtils.restarting(ui);
+			        } else if (ui != null) {
 				        ui.push();
 			        }
 			        try {

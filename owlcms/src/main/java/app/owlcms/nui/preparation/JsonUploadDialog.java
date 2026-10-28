@@ -19,6 +19,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
 
 import app.owlcms.components.ConfirmationDialog;
+import app.owlcms.apputils.NotificationUtils;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -120,7 +121,9 @@ public class JsonUploadDialog extends Dialog {
 		        null,
 		        () -> {
 			        JsonUploadDialog.this.close();
-			        if (ui != null) {
+			        if (isRestartScenario) {
+				        NotificationUtils.restarting(ui);
+			        } else if (ui != null) {
 				        ui.push();
 			        }
 			        try {

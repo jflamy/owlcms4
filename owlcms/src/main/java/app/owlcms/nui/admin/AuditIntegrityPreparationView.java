@@ -23,6 +23,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
+import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.AuditContext;
 import app.owlcms.audit.AuditIntegrity;
@@ -186,9 +187,14 @@ public class AuditIntegrityPreparationView extends Composite<VerticalLayout>
 		dialog.setCancelable(true);
 		dialog.setCancelText(Translator.translate("AuditIntegrity.Later"));
 		dialog.setConfirmText(this.restart.getText());
-		dialog.addConfirmListener(event -> Thread.ofVirtual().name("AuditKeyRestart").start(
-				() -> AuditContext.run(actor, "Audit key prepared",
-						() -> RestartUtils.triggerRestart("Audit key prepared"))));
+		dialog.addConfirmListener(event -> {
+			if (this.restartable) {
+				NotificationUtils.restarting(UI.getCurrent());
+			}
+			Thread.ofVirtual().name("AuditKeyRestart").start(
+					() -> AuditContext.run(actor, "Audit key prepared",
+							() -> RestartUtils.triggerRestart("Audit key prepared")));
+		});
 		dialog.open();
 	}
 

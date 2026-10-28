@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.apputils;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
@@ -32,6 +33,20 @@ public class NotificationUtils {
 		error.add(layout);
 		error.setPosition(Position.MIDDLE);
 		error.open();
+	}
+
+	/**
+	 * Plain bottom-left notification that stays up until the server goes down. Call on the UI thread; it is pushed
+	 * immediately because the caller usually blocks or exits right after.
+	 */
+	public static void restarting(UI ui) {
+		Notification n = new Notification(Translator.translate("Platform.Restarting"));
+		n.setPosition(Position.BOTTOM_START);
+		n.setDuration(0);
+		n.open();
+		if (ui != null) {
+			ui.push();
+		}
 	}
 
 	/**
