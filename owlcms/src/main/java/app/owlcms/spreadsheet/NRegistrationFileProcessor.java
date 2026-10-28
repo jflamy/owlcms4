@@ -89,6 +89,8 @@ public class NRegistrationFileProcessor {
 	private AthleteOptions athleteOptions;
 	private Locale locale;
 	private boolean lastImportWasLiveSafe;
+	private BirthDateColumn birthDates;
+	private boolean birthDatesRejected;
 
 	public NRegistrationFileProcessor(boolean sbdeFormat, Locale locale) {
 		this.sbdeFormat = sbdeFormat;
@@ -134,6 +136,9 @@ public class NRegistrationFileProcessor {
 			} catch (IOException | EncryptedDocumentException e) {
 				errorConsumer.accept(e.getLocalizedMessage());
 				LoggerUtils.logError(this.logger, e);
+				return 0;
+			}
+			if (this.birthDatesRejected) {
 				return 0;
 			}
 
@@ -1007,7 +1012,125 @@ public class NRegistrationFileProcessor {
 
 	// ... header row detection removed; SBDE uses fixed header row at index 1 when Session is in A2
 
+	/**
+	 * First step of an athlete import: refuses a sheet whose birth dates are unusable, then, if the option asks for it,
+	 * deletes the existing athletes. Nothing is deleted when the sheet is refused.
+	 *
+	 * @param checkAthletes false when the file is not used for athletes (sessions only)
+	 * @return false after reporting to errorConsumer if the sheet was refused and nothing was changed
+	 */
+	public boolean prepareAthleteImport(InputStream inputStream, boolean checkAthletes,
+	        Consumer<String> errorConsumer) {
+		if (checkAthletes && !checkBirthDates(inputStream, errorConsumer)) {
+			return false;
+		}
+		if (isDeleteAthletes()) {
+			resetAthletes();
+		}
+		return true;
+	}
+
+	/**
+	 * Checks the birth dates of the athlete sheet without importing anything, so that a sheet with unusable birth dates
+	 * can be refused before the database is touched. See compliance/030-BIRTHDATE_LENIENT_PARSE.md.
+	 *
+	 * @return true if the athletes can be read, false after reporting the problems to errorConsumer.
+	 */
+	public boolean checkBirthDates(InputStream inputStream, Consumer<String> errorConsumer) {
+		if (isIgnoreAthletes()) {
+			return true;
+		}
+		try {
+			inputStream.reset();
+			try (Workbook workbook = WorkbookFactory.create(inputStream)) {
+				this.formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+				this.formatter = new DataFormatter();
+				Sheet sheet = workbook.getSheetAt(0);
+				int rowsToSkip = this.sbdeFormat ? 8 : 0;
+				Row header = null;
+				for (Row candidate : sheet) {
+					if (candidate.getRowNum() >= rowsToSkip) {
+						header = candidate;
+						break;
+					}
+				}
+				if (header == null) {
+					return true;
+				}
+				Map<String, AthleteHeaderInfo> athleteSetterMap = buildAthleteSetterMap();
+				Integer birthColumn = null;
+				int stopColumn = Math.max(header.getLastCellNum(), 0);
+				for (int col = 0; col < Math.max(header.getLastCellNum(), 0); col++) {
+					Cell cell = header.getCell(col);
+					if (cell == null || cell.getCellType() != CellType.STRING || cell.getStringCellValue().isBlank()) {
+						stopColumn = col;
+						break;
+					}
+					AthleteHeaderInfo info = athleteSetterMap.get(cell.getStringCellValue().trim().toLowerCase());
+					if (info != null && info.delayed == DelayedSetter.BIRTHDATE) {
+						birthColumn = col;
+					}
+				}
+				if (birthColumn == null || birthColumn >= stopColumn) {
+					return true;
+				}
+				BirthDateColumn column = scanBirthDates(sheet, header.getRowNum(), birthColumn, stopColumn);
+				if (column.hasProblems()) {
+					reportBirthDateProblems(column, errorConsumer);
+					return false;
+				}
+				return true;
+			}
+		} catch (IOException | EncryptedDocumentException e) {
+			LoggerUtils.logError(this.logger, e);
+			return true;
+		}
+	}
+
+	/** Collects the birth dates below the header row, up to the first empty row, as readAthletes does. */
+	private BirthDateColumn scanBirthDates(Sheet sheet, int headerRowNum, int birthColumn, int stopColumn) {
+		BirthDateColumn column = new BirthDateColumn(this.locale);
+		for (Row row : sheet) {
+			if (row.getRowNum() <= headerRowNum) {
+				continue;
+			}
+			boolean empty = true;
+			for (int col = 0; col < stopColumn && empty; col++) {
+				Cell cell = row.getCell(col);
+				empty = cell == null || cellToString(cell).isBlank();
+			}
+			if (empty) {
+				break;
+			}
+			Cell birth = row.getCell(birthColumn);
+			if (birth != null) {
+				column.add(birth.getAddress().formatAsString(), cellToString(birth));
+			}
+		}
+		return column;
+	}
+
+	private void reportBirthDateProblems(BirthDateColumn column, Consumer<String> errorConsumer) {
+		if (errorConsumer == null) {
+			return;
+		}
+		for (BirthDateColumn.Problem problem : column.problems()) {
+			String message = switch (problem.kind()) {
+				case TWO_DIGIT_YEAR -> problem.address() + " "
+				        + Translator.translate("Upload.BirthDate.TwoDigitYear", problem.text());
+				case INVALID -> problem.address() + " "
+				        + Translator.translate("Upload.BirthDate.Invalid", problem.text());
+				case CONFLICTING_ORDER -> Translator.translate("Upload.BirthDate.ConflictingOrder",
+				        problem.text(), problem.address(), problem.otherText(), problem.otherAddress());
+			};
+			errorConsumer.accept(message + System.lineSeparator());
+		}
+		errorConsumer.accept(Translator.translate("Upload.BirthDate.Rejected") + System.lineSeparator());
+	}
+
 	private List<RAthlete> readAthletes(Workbook workbook, RCompetition rComp, Consumer<String> errorConsumer, int rowsToSkip) {
+		this.birthDates = null;
+		this.birthDatesRejected = false;
 		if (isIgnoreAthletes()) {
 			return List.of();
 		}
@@ -1082,6 +1205,20 @@ public class NRegistrationFileProcessor {
 				}
 				if (athleteHeaderStopColumn == Integer.MAX_VALUE) {
 					athleteHeaderStopColumn = lastCol;
+				}
+				Integer birthColumn = this.delayedSetterColumns[DelayedSetter.BIRTHDATE.ordinal()];
+				if (birthColumn != null && birthColumn < athleteHeaderStopColumn) {
+					this.birthDates = scanBirthDates(sheet, row.getRowNum(), birthColumn, athleteHeaderStopColumn);
+					if (this.birthDates.hasProblems()) {
+						reportBirthDateProblems(this.birthDates, errorConsumer);
+						this.birthDatesRejected = true;
+						return List.of();
+					}
+					if (this.birthDates.isOrderAssumed() && errorConsumer != null) {
+						errorConsumer.accept(Translator.translate("Upload.BirthDate.AssumedOrder",
+						        this.birthDates.order() == BirthDateColumn.Order.MDY ? "mm/dd/yyyy" : "dd/mm/yyyy")
+						        + System.lineSeparator());
+					}
 				}
 				try {
 					AthleteHeaderInfo[] orderedHeaderTable = orderedAthleteHeaderInfo.toArray(new AthleteHeaderInfo[0]);
@@ -1240,8 +1377,11 @@ public class NRegistrationFileProcessor {
 						}
 					}
 					if (this.setterForColumn[setterColumn] != null) {
-						this.setterForColumn[setterColumn].accept(ra, delayedSetterValues[delayedOrder],
-						        delayedSetterCells[delayedOrder]);
+						String value = delayedSetterValues[delayedOrder];
+						if (delayedOrder == DelayedSetter.BIRTHDATE.ordinal() && this.birthDates != null) {
+							value = this.birthDates.normalize(value);
+						}
+						this.setterForColumn[setterColumn].accept(ra, value, delayedSetterCells[delayedOrder]);
 					}
 				}
 				String lastName = ra.getAthlete().getLastName();

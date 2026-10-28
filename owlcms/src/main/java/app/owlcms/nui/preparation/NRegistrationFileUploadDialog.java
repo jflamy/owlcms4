@@ -198,13 +198,19 @@ public class NRegistrationFileUploadDialog extends Dialog {
 
 		// clear athletes to be able to clear sessions
 		CategoryRepository.resetCodeMap();
+
+		// a sheet with unusable birth dates is refused before any athlete is deleted
+		StringBuffer birthDateErrors = new StringBuffer();
+		Consumer<String> collector = str -> birthDateErrors.append(str.replaceAll("[\r\n]+$", "")).append('\n');
+		int priorCount = AthleteRepository.findAll().size();
+		if (!this.processor.prepareAthleteImport(inputStream, isProcessAthletes(), collector)) {
+			updateDisplay(ta, birthDateErrors);
+			return;
+		}
 		if (this.processor.isDeleteAthletes()) {
-			// compute how many will be deleted; log the info but do not display a translated message in the UI
-			int priorCount = AthleteRepository.findAll().size();
-			this.processor.resetAthletes();
+			// log the info but do not display a translated message in the UI
 			String deletedMsg = "Existing athletes were deleted before processing: " + priorCount;
 			logger.debug(deletedMsg);
-			// do not call updateDisplay for this non-count Upload.* message (logging only)
 		}
 
 		// Surface a short confirmation message in the UI about how athletes will be handled
