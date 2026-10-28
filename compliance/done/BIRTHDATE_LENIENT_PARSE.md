@@ -1,8 +1,30 @@
 # Lenient Birth-Date Parsing for Registration Upload — Spec
 
-Status: draft
+Status: implemented 2026-10-27, focused tests pass.
 Scope: registration spreadsheet upload, birth-date column only
 Owner file: `app.owlcms.spreadsheet.NRegistrationFileProcessor` (+ `RAthlete`, `DateTimeUtils`)
+
+## Implementation
+
+- `BirthDateColumn` (new, `app.owlcms.spreadsheet`) holds the voting, validation and
+  normalization to ISO. It is independent of POI and is unit-tested by `BirthDateColumnTest`.
+- `NRegistrationFileProcessor.checkBirthDates(InputStream, Consumer<String>)` reads the header
+  row and birth column and the cells below it, and reports every problem. `NRegistrationFileUploadDialog.processInput`
+  calls it first, so a refused sheet changes nothing (no athlete deletion, no session
+  changes). `readAthletes` repeats the scan and normalizes each birth value to ISO before it
+  reaches `RAthlete.setFullBirthDate`, so `readAthletes` does not depend on the dialog.
+- Delimiters: `/`, `.`, `-` and spaces, in any mix. 3-digit years and other shapes are invalid.
+- Messages (`birthdate_upload_translations.tsv`, to be imported): `Upload.BirthDate.TwoDigitYear`,
+  `.Invalid`, `.ConflictingOrder`, `.AssumedOrder` (the warning) and `.Rejected`.
+- Tests: `BirthDateColumnTest` (rules), `NRegistrationBirthDateImportTest` (through the
+  processor: conflict refuses the sheet and imports nobody, every bad cell reported, a day above
+  12 decides ambiguous dates, locale order without evidence).
+- Order of checking and deleting: `NRegistrationFileProcessor.prepareAthleteImport` does the
+  check, then the deletion of existing athletes for the "delete athletes" option; the dialog
+  calls it first. `NRegistrationBirthDateImportTest` covers it: a refused sheet leaves the
+  existing athletes in place, an accepted one deletes them, and a sessions-only file is not
+  checked.
+- Not covered: the dialog's own display of the refusal messages (a browser check, optional).
 
 ## Problem
 

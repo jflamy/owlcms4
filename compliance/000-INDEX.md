@@ -6,9 +6,7 @@ in this index.
 
 ## 0xx — Bugs, do first
 
-| Order | Document | Scope |
-| --- | --- | --- |
-| 030 | [Birth-date parsing](030-BIRTHDATE_LENIENT_PARSE.md) | Accept common spreadsheet date formats consistently instead of rejecting valid registration files |
+None open. Lenient birth-date parsing is done: [BIRTHDATE_LENIENT_PARSE.md](done/BIRTHDATE_LENIENT_PARSE.md).
 
 ## 1xx — Technical RFP compliance
 
