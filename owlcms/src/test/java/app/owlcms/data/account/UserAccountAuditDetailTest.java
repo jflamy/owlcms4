@@ -82,6 +82,34 @@ public class UserAccountAuditDetailTest {
 		assertEquals("account=tc,changes=disabled", UserAccount.auditDetail(before, after));
 	}
 
+	@Test
+	public void tokenChangesNameTheTokenIdentifierNeverTheToken() {
+		UserAccount before = account("broadcaster-1", null, new RoleGrant(Role.EXTERNAL, null));
+		UserAccount generated = before.copy();
+		generated.replaceToken(new AccountToken("K7Q2XM", "c0ffee-hash", null));
+		assertEquals("account=broadcaster-1,changes=token-generated,tokenIdAdded=K7Q2XM",
+		        UserAccount.auditDetail(before, generated));
+
+		UserAccount replaced = generated.copy();
+		replaced.replaceToken(new AccountToken("P3RT8W", "other-hash", null));
+		String detail = UserAccount.auditDetail(generated, replaced);
+		assertEquals("account=broadcaster-1,changes=\"token-generated,token-revoked\",tokenIdAdded=P3RT8W,"
+		        + "tokenIdRevoked=K7Q2XM", detail);
+		assertFalse(detail.contains("hash"));
+
+		UserAccount revoked = replaced.copy();
+		revoked.replaceToken(null);
+		assertEquals("account=broadcaster-1,changes=token-revoked,tokenIdRevoked=P3RT8W",
+		        UserAccount.auditDetail(replaced, revoked));
+	}
+
+	@Test
+	public void unchangedTokenHasNoDetail() {
+		UserAccount before = account("broadcaster-1", null, new RoleGrant(Role.EXTERNAL, null));
+		before.replaceToken(new AccountToken("K7Q2XM", "c0ffee-hash", null));
+		assertNull(UserAccount.auditDetail(before, before.copy()));
+	}
+
 	private static UserAccount account(String username, String hash, RoleGrant... grants) {
 		UserAccount account = new UserAccount();
 		account.setUsername(username);

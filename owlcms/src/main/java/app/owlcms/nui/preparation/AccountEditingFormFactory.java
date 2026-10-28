@@ -35,12 +35,15 @@ import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.shared.AccountTokenEditor;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 
 @SuppressWarnings("serial")
 class AccountEditingFormFactory extends OwlcmsCrudFormFactory<UserAccount> {
 
 	private final boolean generic;
+	// the token section of the form being shown; its pending change is applied on Add or Update
+	private AccountTokenEditor tokenEditor;
 
 	/** @param generic whether accounts added through this form are generic (role) accounts */
 	AccountEditingFormFactory(Class<UserAccount> domainType, boolean generic) {
@@ -64,6 +67,9 @@ class AccountEditingFormFactory extends OwlcmsCrudFormFactory<UserAccount> {
 	 * are then initialized and every session is sent to the login page. Called on the UI thread.
 	 */
 	private UserAccount saveAndApplyModeChange(UserAccount account, AuditOrigin origin) {
+		if (this.tokenEditor != null) {
+			this.tokenEditor.applyTo(account);
+		}
 		Config config = Config.getCurrent();
 		boolean wasAccountsMode = config.isAccountsMode();
 		UserAccount saved = UserAccountRepository.save(account, origin);
@@ -186,6 +192,13 @@ class AccountEditingFormFactory extends OwlcmsCrudFormFactory<UserAccount> {
 		                g -> g.getPlatformName() == null || platformNames.contains(g.getPlatformName())),
 		                Translator.translate("Access.Error.UnknownPlatform"))
 		        .bind(UserAccount::getGrants, UserAccount::setGrants);
+
+		// the built-in admin is a person's login, not a device key; it gets no token
+		this.tokenEditor = account.isBuiltInAdmin() ? null
+		        : new AccountTokenEditor(account.getToken(), OwlcmsSession.getLocale());
+		if (this.tokenEditor != null) {
+			layout.add(this.tokenEditor);
+		}
 
 		return layout;
 	}

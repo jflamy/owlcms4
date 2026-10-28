@@ -1,7 +1,7 @@
 # PEM-Based Account Mode
 
 Status: done. Implemented 2026-10-25; manual acceptance passed and findings resolved 2026-10-28.
-[110](../110-ACCOUNT_TOKENS.md) later adds the token section to the account page.
+[110](110-ACCOUNT_TOKENS.md) later adds the token section to the account page.
 
 ## Done
 

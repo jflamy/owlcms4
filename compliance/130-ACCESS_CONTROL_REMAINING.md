@@ -3,7 +3,7 @@
 The role system is implemented. Its historical design is in
 [done/ACCESS_CONTROL_DESIGN.md](done/ACCESS_CONTROL_DESIGN.md).
 Token generation and URL protection are specified separately in
-[110](110-ACCOUNT_TOKENS.md) and [120](120-TOKEN_PROTECTED_URLS.md).
+[110](done/110-ACCOUNT_TOKENS.md) and [120](120-TOKEN_PROTECTED_URLS.md).
 The items below were identified on 2026-10-22; implementation is still pending.
 
 ## Navigation and in-page actions

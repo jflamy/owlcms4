@@ -51,6 +51,10 @@ public class UserAccount implements Serializable {
 	@ElementCollection(fetch = FetchType.EAGER)
 	private List<RoleGrant> grants = new ArrayList<>();
 
+	/** A set, not a list: Hibernate cannot eagerly fetch two lists of the same entity. One token for now. */
+	@ElementCollection(fetch = FetchType.EAGER)
+	private Set<AccountToken> tokens = new HashSet<>();
+
 	public UserAccount() {
 		this.id = IdUtils.getTimeBasedId();
 	}
@@ -66,6 +70,9 @@ public class UserAccount implements Serializable {
 		copy.generic = this.generic;
 		for (RoleGrant grant : this.grants) {
 			copy.grants.add(new RoleGrant(grant.getRole(), grant.getPlatformName()));
+		}
+		for (AccountToken token : this.tokens) {
+			copy.tokens.add(token.copy());
 		}
 		return copy;
 	}
@@ -112,11 +119,20 @@ public class UserAccount implements Serializable {
 		Set<RoleGrant> grantsAfter = grantSet(after);
 		List<String> granted = grantNames(grantsAfter, grantsBefore);
 		List<String> revoked = grantNames(grantsBefore, grantsAfter);
-		if (before != null && after != null && changes.isEmpty() && granted.isEmpty() && revoked.isEmpty()) {
+		List<String> tokensAdded = tokenIds(after, before);
+		List<String> tokensRevoked = tokenIds(before, after);
+		if (before != null && after != null && changes.isEmpty() && granted.isEmpty() && revoked.isEmpty()
+		        && tokensAdded.isEmpty() && tokensRevoked.isEmpty()) {
 			return null;
 		}
 		if (before != null && after != null && (!granted.isEmpty() || !revoked.isEmpty())) {
 			changes.add("grants");
+		}
+		if (!tokensAdded.isEmpty()) {
+			changes.add("token-generated");
+		}
+		if (!tokensRevoked.isEmpty()) {
+			changes.add("token-revoked");
 		}
 		List<String> detail = new ArrayList<>();
 		detail.add(AuditFormat.kv("account", current.getUsername()));
@@ -132,7 +148,23 @@ public class UserAccount implements Serializable {
 		if (!revoked.isEmpty()) {
 			detail.add(AuditFormat.kv("revoked", String.join(",", revoked)));
 		}
+		if (!tokensAdded.isEmpty()) {
+			detail.add(AuditFormat.kv("tokenIdAdded", String.join(",", tokensAdded)));
+		}
+		if (!tokensRevoked.isEmpty()) {
+			detail.add(AuditFormat.kv("tokenIdRevoked", String.join(",", tokensRevoked)));
+		}
 		return String.join(",", detail);
+	}
+
+	/** @return identifiers of the tokens of {@code from} that {@code minus} does not have; never token values */
+	private static List<String> tokenIds(UserAccount from, UserAccount minus) {
+		if (from == null) {
+			return List.of();
+		}
+		Set<AccountToken> others = minus == null ? Set.of() : minus.getTokens();
+		return from.getTokens().stream().filter(t -> !others.contains(t)).map(AccountToken::getTokenId).sorted()
+		        .toList();
 	}
 
 	private static Set<RoleGrant> grantSet(UserAccount account) {
@@ -230,6 +262,28 @@ public class UserAccount implements Serializable {
 
 	public void setGrants(List<RoleGrant> grants) {
 		this.grants = grants != null ? grants : new ArrayList<>();
+	}
+
+	public Set<AccountToken> getTokens() {
+		return this.tokens;
+	}
+
+	public void setTokens(Set<AccountToken> tokens) {
+		this.tokens = tokens != null ? tokens : new HashSet<>();
+	}
+
+	/** @return the account's token, or null; an account holds at most one token for now */
+	@JsonIgnore
+	public AccountToken getToken() {
+		return this.tokens.stream().findFirst().orElse(null);
+	}
+
+	/** Replaces the account's token; null removes it. */
+	public void replaceToken(AccountToken token) {
+		this.tokens.clear();
+		if (token != null) {
+			this.tokens.add(token);
+		}
 	}
 
 	@Override

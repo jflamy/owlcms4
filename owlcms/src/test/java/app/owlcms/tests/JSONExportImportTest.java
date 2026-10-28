@@ -29,6 +29,7 @@ import app.owlcms.access.Role;
 import app.owlcms.data.account.RoleGrant;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
+import app.owlcms.access.AccountTokens;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.agegroup.MedalPolicy;
@@ -188,6 +189,33 @@ public class JSONExportImportTest {
 
     private static UserAccount findAccount(List<UserAccount> accounts, String username) {
         return accounts.stream().filter(a -> username.equals(a.getUsername())).findFirst().orElseThrow();
+    }
+
+    @Test
+    public void tokenHashRoundTripsThroughBothJsonFormatsWithoutTheToken() throws Exception {
+        String username = "tokenuser";
+        AccountTokens.Generated generated = AccountTokens.generate();
+        UserAccount account = new UserAccount();
+        account.setUsername(username);
+        account.replaceToken(generated.record());
+        UserAccountRepository.save(account, AuditOrigin.system("test"));
+
+        String legacyJson = new CompetitionData().exportDataAsString();
+        String v2Json = new String(new CompetitionDataV2().fromDatabase().exportData().readAllBytes(),
+                StandardCharsets.UTF_8);
+        for (String json : List.of(legacyJson, v2Json)) {
+            assertTrue(json.contains(generated.record().getTokenHash()));
+            assertFalse("the token itself is never exported", json.contains(generated.value()));
+        }
+
+        UserAccount legacy = findAccount(new CompetitionData().importDataFromString(legacyJson).getAccounts(),
+                username);
+        UserAccount v2 = findAccount(new CompetitionDataV2().importData(
+                new ByteArrayInputStream(v2Json.getBytes(StandardCharsets.UTF_8))).getAccounts(), username);
+        for (UserAccount imported : List.of(legacy, v2)) {
+            assertEquals(generated.record().getTokenId(), imported.getToken().getTokenId());
+            assertEquals(AccountTokens.hash(generated.value()), imported.getToken().getTokenHash());
+        }
     }
 
     private static void removeMustChangePassword(JsonNode accounts) {

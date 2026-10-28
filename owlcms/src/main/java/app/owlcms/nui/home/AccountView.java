@@ -21,13 +21,17 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.access.AccountPasswords;
 import app.owlcms.access.AccountPasswords.ChangeResult;
+import app.owlcms.access.AccountTokens;
 import app.owlcms.access.AuthenticatedPage;
 import app.owlcms.access.Principal;
+import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.audit.AuditOrigin;
+import app.owlcms.data.account.AccountToken;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.shared.AccountTokenEditor;
 import app.owlcms.nui.shared.ContentWrapping;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.nui.shared.OwlcmsLayoutAware;
@@ -46,6 +50,7 @@ public class AccountView extends Composite<VerticalLayout>
 	private PasswordField currentPasswordField;
 	private PasswordField newPasswordField;
 	private PasswordField confirmField;
+	private AccountTokenEditor tokenEditor;
 
 	public AccountView() {
 		Principal principal = OwlcmsSession.getPrincipal();
@@ -101,6 +106,26 @@ public class AccountView extends Composite<VerticalLayout>
 		form.add(usernameField, this.currentPasswordField, this.newPasswordField,
 		        this.confirmField, change);
 		form.setAlignSelf(Alignment.CENTER, change);
+
+		if (!mustChange && !account.isBuiltInAdmin()) {
+			this.tokenEditor = new AccountTokenEditor(account.getToken(), OwlcmsSession.getLocale());
+			Button saveToken = new Button(Translator.translate("Access.Token.Save"), e -> saveToken());
+			form.add(this.tokenEditor, saveToken);
+			form.setAlignSelf(Alignment.CENTER, saveToken);
+		}
+	}
+
+	// the account is the session's, never a request value
+	private void saveToken() {
+		if (!this.tokenEditor.hasChange()) {
+			return;
+		}
+		Principal principal = OwlcmsSession.getPrincipal();
+		AccountToken token = this.tokenEditor.pendingToken();
+		if (AccountTokens.setOwnToken(principal, token, AuditOrigin.fromUi("Account page"))) {
+			this.tokenEditor.reset(token);
+			NotificationUtils.saved();
+		}
 	}
 
 	// runs on the request thread like LoginView.submitAccount; the account is the session's, never a request value
