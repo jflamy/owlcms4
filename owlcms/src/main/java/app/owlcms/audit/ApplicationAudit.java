@@ -19,6 +19,17 @@ public final class ApplicationAudit {
 				.actor(AuditActor.system()).detail(AuditFormat.kvs("source", source, "sha256", sha256)).build());
 	}
 
+	/**
+	 * Records an export that replaced the competition while running (Import Database). The SHA-256 is of the exact
+	 * JSON bytes imported, so the file can be identified whatever version produced it.
+	 */
+	public static void imported(AuditOrigin origin, String source, int bytes, String sha256) {
+		AuditLog.write(AuditEntry.builder("competition", "application.import").actor(origin.actor())
+				.cause(origin.cause())
+				.detail(AuditFormat.kvs("source", AuthAudit.clean(source), "bytes", bytes, "sha256", sha256))
+				.build());
+	}
+
 	public static void restartRequested(String reason) {
 		AuditLog.write(AuditEntry.builder("competition", "application.restart-requested")
 				.actor(currentActor()).detail(AuditFormat.kv("reason", reason)).build());

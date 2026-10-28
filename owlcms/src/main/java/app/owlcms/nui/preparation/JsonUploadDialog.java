@@ -6,9 +6,7 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
@@ -20,6 +18,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.apputils.NotificationUtils;
+import app.owlcms.audit.AuditOrigin;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -42,6 +41,7 @@ public class JsonUploadDialog extends Dialog {
 	private UI ui;
 	private boolean isRestartScenario;
 	private final Locale capturedLocale;
+	private final AuditOrigin importOrigin;
 	private final ConfirmationDialog restartConfirmationDialog;
 
 	public JsonUploadDialog(UI ui) {
@@ -50,6 +50,7 @@ public class JsonUploadDialog extends Dialog {
 		// Capture from session—safe here because the constructor runs on the UI thread.
 		// OwlcmsSession.getLocale() correctly resolves fr_CA, ru_CA, etc.
 		this.capturedLocale = OwlcmsSession.getLocale();
+		this.importOrigin = AuditOrigin.fromUi("Import Database");
 		this.restartConfirmationDialog = createRestartConfirmationDialog();
 
 		H5 label = new H5(Translator.translate(isRestartScenario ? "ImportJsonR.RestartWarning" : "ImportJson.RestartWarning"));
@@ -61,8 +62,8 @@ public class JsonUploadDialog extends Dialog {
 		ta.setVisible(false);
 
 		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, data) -> {
-			try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data)) {
-				processInput(metadata.fileName(), inputStream, ta);
+			try {
+				processInput(metadata.fileName(), data, ta);
 				openRestartConfirmation();
 
 			} catch (Throwable e) {
@@ -175,11 +176,11 @@ public class JsonUploadDialog extends Dialog {
 	}
 
 	@SuppressWarnings("unused")
-	private void processInput(String fileName, InputStream inputStream, TextArea ta)
+	private void processInput(String fileName, byte[] data, TextArea ta)
 	        throws StreamReadException, DatabindException, IOException {
 		try {
-			// Use FormatDetector for automatic V1/V2 format detection
-			FormatDetector.importData(inputStream);
+			// Use FormatDetector for automatic V1/V2 format detection; it audits the import
+			FormatDetector.importData(data, fileName, this.importOrigin);
 		} catch (Throwable e1) {
 			if (ui != null) {
 				ui.access(() -> {

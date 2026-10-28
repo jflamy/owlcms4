@@ -10,7 +10,10 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.HexFormat;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -20,7 +23,9 @@ import org.slf4j.LoggerFactory;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+import app.owlcms.audit.ApplicationAudit;
 import app.owlcms.audit.AuditContext;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.config.FeatureSwitch;
@@ -49,6 +54,22 @@ public class FormatDetector {
 	 */
 	public static void importData(InputStream inputStream) throws Exception {
 		AuditContext.suppressedChecked(() -> doImportData(inputStream));
+	}
+
+	/**
+	 * Imports an uploaded export (JSON, or a ZIP containing one) and audits it once it has replaced the competition:
+	 * source name, size and SHA-256 of the JSON bytes, who imported it and from where.
+	 *
+	 * @param origin captured where the import was started
+	 */
+	public static void importData(byte[] uploaded, String source, AuditOrigin origin) throws Exception {
+		byte[] json = readJsonBytes(new ByteArrayInputStream(uploaded));
+		importData(new ByteArrayInputStream(json));
+		ApplicationAudit.imported(origin, source, json.length, sha256(json));
+	}
+
+	private static String sha256(byte[] bytes) throws NoSuchAlgorithmException {
+		return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
 	}
 
 	/**
