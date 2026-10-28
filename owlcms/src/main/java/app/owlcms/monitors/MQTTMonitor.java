@@ -1703,11 +1703,10 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 
 	private int mqttJurySize() {
 		// The config response is published by a FOP monitor; use that FOP's active
-		// jury size. 0 is replaced by 3 because 0 was not a prior option for MQTT
-		// refereeing devices. The FOP reports 4 when the seven-person adjudication panel is in use.
+		// jury size. 0 (no jury) is sent as is: Blue Owl versions up to 3.0.0 treat
+		// it as 3. The FOP reports 4 when the seven-person adjudication panel is in use.
 		FieldOfPlay fop = getFop();
-		int jurySize = fop != null ? fop.getJurySize() : Competition.getCurrent().getEffectiveJurySize();
-		return jurySize == 0 ? 3 : jurySize;
+		return fop != null ? fop.getJurySize() : Competition.getCurrent().getEffectiveJurySize();
 	}
 
 	private void publishMqttDownSignal() throws MqttException, MqttPersistenceException {
