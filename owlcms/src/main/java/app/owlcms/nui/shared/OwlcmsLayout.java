@@ -43,6 +43,7 @@ import com.vaadin.flow.router.RouterLink;
 
 import app.owlcms.access.AccessUi;
 import app.owlcms.access.AccountModeAuthenticator;
+import app.owlcms.access.AccountPasswords;
 import app.owlcms.access.Principal;
 import app.owlcms.access.SessionLogout;
 import app.owlcms.data.config.Config;
@@ -86,6 +87,7 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 	private Tab colorSchemeToggle;
 	private Tab logoutEntry;
 	private boolean accountEntryShown;
+	private boolean passwordChangeMenu;
 	private Icon colorSchemeIcon;
 	private Span colorSchemeLabel;
 	private boolean darkMode;
@@ -441,7 +443,16 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 
 	private Tabs getTabs() {
 		Tabs tabs = new Tabs();
+		Principal principal = OwlcmsSession.getPrincipal();
 		String docOpener = "https://jflamy.github.io/owlcms4/#/index";
+		// every other page redirects to the account page until the password is changed
+		this.passwordChangeMenu = AccountPasswords.mustChangePassword(principal);
+		if (this.passwordChangeMenu) {
+			this.accountEntryShown = true;
+			tabs.add(createTab(new Icon(VaadinIcon.USER), Translator.translate("Access.Account"), AccountView.class));
+			tabs.setOrientation(Tabs.Orientation.VERTICAL);
+			return tabs;
+		}
 		boolean recordsOnly = Config.getCurrent().isRecordRepository();
 		if (recordsOnly) {
 			addTabIfAllowed(tabs, new Icon(VaadinIcon.TROPHY), Translator.translate("RecordEvent.PageTitle"),
@@ -463,7 +474,7 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 		addTabIfAllowed(tabs, new Icon(VaadinIcon.TROPHY), Translator.translate("RecordEvent.PageTitle"), RecordContent.class);
 		tabs.add(createTab(new Icon(VaadinIcon.QUESTION_CIRCLE), Translator.translate("Documentation_Menu"), docOpener));
 		addTabIfAllowed(tabs, new Icon(VaadinIcon.INFO_CIRCLE_O), Translator.translate("About"), InfoNavigationContent.class);
-		this.accountEntryShown = isAccountEntryAvailable();
+		this.accountEntryShown = isAccountEntryAvailable(principal);
 		if (this.accountEntryShown) {
 			tabs.add(createTab(new Icon(VaadinIcon.USER), Translator.translate("Access.Account"), AccountView.class));
 		}
@@ -477,8 +488,7 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 	}
 
 	/** Only a named account has a page of its own; PIN and backdoor sessions do not. */
-	private static boolean isAccountEntryAvailable() {
-		Principal principal = OwlcmsSession.getPrincipal();
+	private static boolean isAccountEntryAvailable(Principal principal) {
 		return Config.getCurrent().isAccountsMode() && principal != null
 		        && principal.source() == Principal.AuthSource.ACCOUNT;
 	}
@@ -523,12 +533,14 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 
 	private void refreshDrawerIfNeeded() {
 		boolean accountEntryWasShown = this.accountEntryShown;
+		boolean passwordChangeMenuWasShown = this.passwordChangeMenu;
 		Tabs newTabs = getTabs();
 		// the drawer also holds the color scheme and logout entries, which getTabs() does not produce
 		int extraEntries = (this.colorSchemeToggle != null ? 1 : 0) + (this.logoutEntry != null ? 1 : 0);
 		if (this.drawerTabs != null
 		        && (newTabs.getComponentCount() != this.drawerTabs.getComponentCount() - extraEntries
-		                || accountEntryWasShown != this.accountEntryShown)) {
+		                || accountEntryWasShown != this.accountEntryShown
+		                || passwordChangeMenuWasShown != this.passwordChangeMenu)) {
 			this.drawerTabs.removeFromParent();
 			this.drawerTabs = newTabs;
 			// keep the color scheme entry at the bottom of the drawer. It is normally created
