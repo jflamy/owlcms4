@@ -10,11 +10,13 @@
 
 **Development log**
 
-- 69.0.0-beta01: First beta
-  - Registration spreadsheets accept birth dates typed with `/`, `.`, `-` or spaces, day first or month first. The order is decided once for the whole file from the dates that can only be one or the other (a day from 13 to 31); if no date settles it, the language setting is used and a warning is shown.
-  - A registration spreadsheet is refused, before anything is changed, if a birth date has a 2-digit year, does not exist, or if the file mixes day-first and month-first dates. Every offending cell is listed, and no restart is requested.
-  - TCRR compliance mode is enforced wherever it applies; settings it overrides are locked or hidden on the configuration screens.
-  - A database export with extra data after the JSON is refused instead of being partly imported.
+- 69.0.0-beta01:  Registration spreadsheets accept birth dates typed with `/`, `.`, `-` or spaces,
+  - DMY or MDY formats are accepted, based on what is in the file (>13 indicates days)
+  - If both formats are found, spreadsheet is rejected. If all dates are ambiguous the "official" order for the location is used.
+  - YYYY-MM-DD are accepted.
+
+- 69.0.0-beta01: TCRR Compliance feature toggle to hide configuration sections or restrict acceptable values
+
 - 69.0.0-alpha04: Adjudication screen improvements
   - Clear all decisions when review vote is called
   - Only jury decisions are shown in main area if only the jury is voting
