@@ -49,6 +49,16 @@ public class NotificationUtils {
 		}
 	}
 
+	/** Confirms a save or delete made in an editing form; one notification per operation, bottom left. */
+	public static void crudResult(String text) {
+		Notification.show(text, 3000, Position.BOTTOM_START);
+	}
+
+	/** Confirms an update made in an editing form. */
+	public static void saved() {
+		crudResult(Translator.translate("Crud.Saved"));
+	}
+
 	/**
 	 * Centered red notification that stays until the user clicks it (dismissal ✕ shown).
 	 */

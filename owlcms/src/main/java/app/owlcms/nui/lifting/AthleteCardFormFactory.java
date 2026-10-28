@@ -36,7 +36,6 @@ import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -51,6 +50,7 @@ import com.vaadin.flow.data.converter.StringToDoubleConverter;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.ClassList;
 
+import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -619,9 +619,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			} else if (operation == CrudOperation.UPDATE) {
 				logger.debug("updating 	{}", domainObject);
 				saveCard(a -> {}, true, isLiftResultChanged(), null, () -> {
-					this.notif.setPosition(Position.TOP_END);
-					this.notif.setDuration(2500);
-					this.notif.open();
+					// the form confirms updates: the card is also opened outside a grid
+					NotificationUtils.saved();
 					gridCallback.onComponentEvent(this.operationTriggerEvent);
 				});
 			} else if (operation == CrudOperation.DELETE) {

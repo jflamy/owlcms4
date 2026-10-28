@@ -165,7 +165,10 @@ public class WeighinContent extends BaseContent
 					owlcmsCrudGrid.getGrid().asSingleSelect().clear();
 					owlcmsCrudGrid.getOwlcmsGridLayout().hideForm();
 					refreshGrid();
-					Notification.show(successMessage);
+					// the form already confirmed an update
+					if (operation != CrudOperation.UPDATE) {
+						NotificationUtils.crudResult(successMessage);
+					}
 				}
 			} catch (Exception e) {
 				LoggerUtils.logError(logger, e);

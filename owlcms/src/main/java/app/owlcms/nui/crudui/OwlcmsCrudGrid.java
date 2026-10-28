@@ -26,8 +26,8 @@ import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 
+import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
@@ -63,6 +63,8 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 	        OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory, Grid<T> grid) {
 		super(domainType, crudLayout);
 		this.grid = grid;
+		setSavedMessage(Translator.translate("Crud.Saved"));
+		setDeletedMessage(Translator.translate("Crud.Deleted"));
 		// this.owlcmsCrudFormFactory = owlcmsCrudFormFactory;
 		// logger.trace("creating OwlcmsCrudGrid with formfactory {} wherefrom
 		// {}",System.identityHashCode(owlcmsCrudFormFactory), LoggerUtils.whereFrom());
@@ -311,7 +313,10 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 			// logger.debug("postOperation {}", domainObject);
 			owlcmsCrudGrid.getOwlcmsGridLayout().hideForm();
 			refreshGrid();
-			Notification.show(successMessage);
+			// the form already confirmed an update
+			if (operation != CrudOperation.UPDATE) {
+				NotificationUtils.crudResult(successMessage);
+			}
 			logger.trace("operation performed");
 			focusOutsideThenBackToTriggeringItem();
 		} catch (Exception e) {

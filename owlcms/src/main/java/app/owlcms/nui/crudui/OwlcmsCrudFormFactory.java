@@ -42,6 +42,7 @@ import com.vaadin.flow.data.binder.BindingValidationStatus;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.dom.ClassList;
 
+import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
@@ -71,7 +72,6 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 	protected ResponsiveStep[] responsiveSteps;
 	private boolean valid = false;
 	protected boolean showValidationErrorNotification = true;
-	protected Notification notif = new Notification("Saved.");
 
 	/**
 	 * Instantiates a new Form Factory
@@ -524,9 +524,8 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 			} else if (operation == CrudOperation.UPDATE) {
 				logger.debug("updating 	{}", domainObject);
 				confirmUpdate(domainObject, () -> this.update(domainObject), () -> {
-					this.notif.setPosition(Position.TOP_END);
-					this.notif.setDuration(2500);
-					this.notif.open();
+					// the form confirms updates: pages without a grid have no other feedback
+					NotificationUtils.saved();
 					gridCallback.onComponentEvent(this.operationTriggerEvent);
 				});
 			} else if (operation == CrudOperation.DELETE) {

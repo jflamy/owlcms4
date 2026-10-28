@@ -27,7 +27,6 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -35,6 +34,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
@@ -85,7 +85,10 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 				owlcmsCrudGrid.getGrid().asSingleSelect().clear();
 				owlcmsCrudGrid.getOwlcmsGridLayout().hideForm();
 				refreshGrid();
-				Notification.show(successMessage);
+				// the form already confirmed an update
+				if (operation != CrudOperation.UPDATE) {
+					NotificationUtils.crudResult(successMessage);
+				}
 				focusOutsideThenBackToTriggeringItem();
 			} catch (Exception e) {
 				logger.error("Error in save callback", e);
