@@ -17,6 +17,7 @@ None open. Lenient birth-date parsing is done: [BIRTHDATE_LENIENT_PARSE.md](done
 | 120 | [Token-protected URLs](120-TOKEN_PROTECTED_URLS.md) | Tokens for displays, replays and URL-based data extraction, including exports |
 | 130 | [Other access work](130-ACCESS_CONTROL_REMAINING.md) | Navigation/action gating and infrastructure/security review; reconcile overlap with 100–120 while implementing |
 | 140 | [Export credential protection](140-EXPORT_CREDENTIAL_PROTECTION.md) | Protect secrets inside saved exports, independently of URL authorization |
+| 145 | [Signed exports](145-SIGNED_EXPORTS.md) | PEM signature inside JSON exports, import outcomes in the audit trail, support procedures with and without the key |
 | 150 | [Scheduled checkpoints](150-SCHEDULED_CHECKPOINTS.md) | Tracker timer and faithful ZIP retention over the existing WebSocket |
 | 160 | [Direct JSON boot](160-DIRECT_JSON_BOOT.md) | Control-panel checkpoint-folder launch, no-restart rule and Postgres acceptance |
 | 170 | [Competition Director acceptance](170-COMPETITION_DIRECTOR_ACCEPTANCE.md) | Remaining accounts/passive-page browser acceptance and configuration permissions |
