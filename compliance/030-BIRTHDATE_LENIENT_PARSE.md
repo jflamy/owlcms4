@@ -29,12 +29,11 @@ proven by their neighbours instead of being guessed per row.
 The whole design reduces to voting on the field order for the file.
 
 - Every birth date with a component in **13–31** (a value that can only be a day)
-  casts one vote for an order: `DMY` or `MDY`. A single such date is enough to
-  fix the order for the entire file.
+  casts one vote for an order: `DMY` or `MDY` or "either"
 - Once the order is fixed, **all** dates — including ambiguous ones (both
   day/month parts ≤ 12) — are parsed in that order, without complaint.
 - ISO dates (`yyyy-…`, 4-digit first token) are always accepted and do **not**
-  participate in voting.
+  participate in voting.  YYYY-MM-DD is expected and illegal dates will be spotted as unparseable.
 
 ### Outcomes
 
