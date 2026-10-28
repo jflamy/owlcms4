@@ -10,6 +10,11 @@
 
 **Development log**
 
+- 69.0.0-beta01: First beta
+  - Registration spreadsheets accept birth dates typed with `/`, `.`, `-` or spaces, day first or month first. The order is decided once for the whole file from the dates that can only be one or the other (a day from 13 to 31); if no date settles it, the language setting is used and a warning is shown.
+  - A registration spreadsheet is refused, before anything is changed, if a birth date has a 2-digit year, does not exist, or if the file mixes day-first and month-first dates. Every offending cell is listed, and no restart is requested.
+  - TCRR compliance mode is enforced wherever it applies; settings it overrides are locked or hidden on the configuration screens.
+  - A database export with extra data after the JSON is refused instead of being partly imported.
 - 69.0.0-alpha04: Adjudication screen improvements
   - Clear all decisions when review vote is called
   - Only jury decisions are shown in main area if only the jury is voting
@@ -34,6 +39,7 @@
   - A key encrypted with another PEM key cannot be used: it is treated as not set and must be entered again.
   - In PIN mode the keys are stored as before, so a competition prepared on one computer runs unchanged on another.
 - Conflicting changes to athlete information are clearly signaled.
+- Registration spreadsheets accept more birth-date formats, and unusable birth dates are reported before anything is imported.
 - The H2 database can no longer be opened by other programs while owlcms runs (`H2ServerPort` removed).
 - Imported textual data is cleaned of scripts and markup.
 - Session selectors distinguish completed and upcoming sessions.

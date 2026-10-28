@@ -118,7 +118,10 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			}
 			
 			try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data)) {
-				processInput(inputStream, ta, isSessionsOnly);
+				if (!processInput(inputStream, ta, isSessionsOnly)) {
+					// the file was refused and nothing was changed: no restart is needed
+					return;
+				}
 				boolean liveSafe = this.processor != null
 				        && this.processor.wasLiveSafeImport()
 				        && !isProcessAthletes()
@@ -188,11 +191,14 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		return sessionRadioGroup;
 	}
 
-	public void processInput(InputStream inputStream, TextArea ta) {
-		processInput(inputStream, ta, false);
+	public boolean processInput(InputStream inputStream, TextArea ta) {
+		return processInput(inputStream, ta, false);
 	}
 
-	public void processInput(InputStream inputStream, TextArea ta, boolean isSessionsOnly) {
+	/**
+	 * @return false if the file was refused before anything was changed
+	 */
+	public boolean processInput(InputStream inputStream, TextArea ta, boolean isSessionsOnly) {
 		this.processor.setAthleteOptions(athleteOption);
 		this.processor.setSessionOptions(sessionOption);
 
@@ -205,7 +211,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		int priorCount = AthleteRepository.findAll().size();
 		if (!this.processor.prepareAthleteImport(inputStream, isProcessAthletes(), collector)) {
 			updateDisplay(ta, birthDateErrors);
-			return;
+			return false;
 		}
 		if (this.processor.isDeleteAthletes()) {
 			// log the info but do not display a translated message in the UI
@@ -331,6 +337,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		if (errorsSb.length() > 0) {
 			updateDisplay(ta, errorsSb);
 		}
+		return true;
 	}
 
 	private void rememberSessionCodes() {
