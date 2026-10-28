@@ -1,13 +1,13 @@
 # Account Tokens
 
 Status: agreed 2026-10-25; not implemented. Implement this before token-protected
-URLs, and after the self-service account page in [100](100-PEM_ACCOUNT_MODE.md).
+URLs, and after the self-service account page in [100](done/100-PEM_ACCOUNT_MODE.md).
 Existing roles and account administration remain unchanged.
 
 ## Account UI
 
 - The self-service **Account** page is specified and built in
-  [100](100-PEM_ACCOUNT_MODE.md). This item adds the user's own token section
+  [100](done/100-PEM_ACCOUNT_MODE.md). This item adds the user's own token section
   to it; users still cannot manage other users' tokens.
 - Administrators reach **Accounts** through Admin and manage all users.
   A token generated for a selected user belongs to that user, not the admin.

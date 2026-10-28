@@ -1,8 +1,7 @@
 # PEM-Based Account Mode
 
-Status: implemented 2026-10-25; manual acceptance run and findings resolved 2026-10-28.
-Implement this before the remaining [direct JSON boot work](160-DIRECT_JSON_BOOT.md).
-[110](110-ACCOUNT_TOKENS.md) later adds the token section to the account page.
+Status: done. Implemented 2026-10-25; manual acceptance passed and findings resolved 2026-10-28.
+[110](../110-ACCOUNT_TOKENS.md) later adds the token section to the account page.
 
 ## Done
 
@@ -35,9 +34,15 @@ Run in the VS Code built-in browser against a PEM-configured development server.
   the admin has no password.
 - [x] **JSON import without admin password:** replaces the accounts; the admin
   shows "password required".
-- [ ] **JSON import with admin password:** not run.
+- [x] **JSON import with admin password:** Import Database replaced all accounts;
+  the admin kept its imported password, the imported PIN choice kept PIN mode in
+  force with the PEM present, no temporary password was generated, and after
+  switching to accounts mode the admin logged in with the imported password.
 - [x] **Audit integrity:** intact and configured-key in accounts and PIN mode.
-- [ ] **Audit integrity without a PEM:** not run.
+- [x] **Audit integrity without a PEM:** with the key file removed, startup
+  reports integrity off (the System Settings value), the integrity check
+  reports unsealed logs with no signing key, and the stored accounts mode stays
+  in force.
 - [x] **Temporary admin password:**
   - generated with stored accounts mode after an import and with
     `OWLCMS_ACCESSMODE=ACCOUNTS` overriding an imported PIN choice;
@@ -72,7 +77,7 @@ Run in the VS Code built-in browser against a PEM-configured development server.
    and Log out (3c8d242f3).
 
 Detecting an admin reset done through a modified export, and the support
-procedures, are in [145](145-SIGNED_EXPORTS.md).
+procedures, are in [145](../145-SIGNED_EXPORTS.md).
 
 Cloud note: on a hosted deployment, read `owlcms.log` inside the container, for
 example through `fly ssh console`.

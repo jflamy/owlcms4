@@ -7,7 +7,7 @@ Available: `OWLCMS_LOADJSON` names a `.json`/`.zip` export or a folder, in
 which case the most recently modified `.json`/`.zip` directly inside it is
 loaded (`StartupImportSource`). The VS Code "load JSON" launch configurations
 prompt for a file or folder. Access-mode selection at JSON startup is in
-[100](100-PEM_ACCOUNT_MODE.md).
+[100](done/100-PEM_ACCOUNT_MODE.md).
 
 Decision 2026-10-27: **standby mode is dropped.** Loading from JSON is fast
 enough that waiting for an operator to pick a checkpoint inside OWLCMS is not
