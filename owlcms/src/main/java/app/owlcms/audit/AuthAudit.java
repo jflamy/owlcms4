@@ -2,7 +2,10 @@ package app.owlcms.audit;
 
 import java.util.Collection;
 
-/** Logins, failed logins and logouts: written to the competition log, and to the platform log when one is involved. */
+/**
+ * Logins, failed logins, logouts, passwords, account changes and access-mode changes: written to the competition
+ * log, and to the platform log when one is involved.
+ */
 public final class AuthAudit {
 
 	private static final String COMPETITION = "competition";
@@ -45,6 +48,25 @@ public final class AuthAudit {
 	public static void passwordsCleared(String byUser, String accounts, int count) {
 		write("auth.passwords-cleared", "ACCOUNTS", byUser, AuditFormat.kvs("accounts", accounts, "count", count),
 		        null);
+	}
+
+	/**
+	 * An account was created, changed or deleted, by whatever path. The detail never contains password values or
+	 * hashes.
+	 *
+	 * @param action "added", "updated" or "deleted"
+	 */
+	public static void accountChanged(AuditOrigin origin, String action, String detail) {
+		writeFor(origin, "auth.account-" + action, detail);
+	}
+
+	public static void accessModeChanged(AuditOrigin origin, String from, String to) {
+		writeFor(origin, "auth.access-mode", AuditFormat.kvs("from", from, "to", to));
+	}
+
+	private static void writeFor(AuditOrigin origin, String action, String detail) {
+		AuditLog.write(AuditEntry.builder(COMPETITION, action).actor(origin.actor()).cause(origin.cause())
+		        .detail(detail).build());
 	}
 
 	private static void write(String action, String mode, String user, String detail, String platform) {

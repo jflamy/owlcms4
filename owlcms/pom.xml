@@ -763,6 +763,10 @@
 					<excludes>
 						<exclude>**/ProtocolRecordingTest.java</exclude>
 					</excludes>
+					<!-- keeps test audit entries out of logs/audit, which a running development server uses -->
+					<systemPropertyVariables>
+						<owlcms.auditDirectory>${project.build.directory}/test-audit</owlcms.auditDirectory>
+					</systemPropertyVariables>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -896,6 +900,7 @@
 								<logback.configurationFile>
 									${project.basedir}/src/main/resources/logback-console.xml</logback.configurationFile>
 								<org.slf4j.simpleLogger.defaultLogLevel>DEBUG</org.slf4j.simpleLogger.defaultLogLevel>
+								<owlcms.auditDirectory>${project.build.directory}/test-audit</owlcms.auditDirectory>
 							</systemPropertyVariables>
 							<includes>
 								<include>AllTests.java</include>

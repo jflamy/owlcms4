@@ -7,6 +7,7 @@
 package app.owlcms.nui.preparation;
 
 import app.owlcms.audit.AuditIntegrity;
+import app.owlcms.audit.AuditOrigin;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -268,7 +269,7 @@ public class ConfigEditingFormFactory
 			boolean willHaveChildrenEquipment = config.getFeatureSwitchValue(FeatureSwitch.CHILDREN_EQUIPMENT);
 			boolean childrenEquipmentAdded = !hadChildrenEquipment && willHaveChildrenEquipment;
 			
-			Config saved = Config.setCurrent(config);
+			Config saved = Config.setCurrent(config, AuditOrigin.fromUi("System Settings"));
 			if (this.accessModeBeforeEdit != saved.getParamAccessMode()) {
 				Principal principal = OwlcmsSession.getPrincipal();
 				if (principal != null && principal.source() == Principal.AuthSource.ACCOUNT) {

@@ -22,6 +22,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.Main;
 import app.owlcms.access.PasswordHasher;
 import app.owlcms.access.Role;
@@ -99,7 +100,7 @@ public class JSONExportImportTest {
         account.setUsername("fixtureuser");
         account.setPasswordHash(PasswordHasher.hash("fixtureuser"));
         account.setGrants(new ArrayList<>(List.of(new RoleGrant(Role.ANNOUNCER, "A"))));
-        UserAccountRepository.save(account);
+        UserAccountRepository.save(account, AuditOrigin.system("test"));
 
         String legacyJson = new CompetitionData().exportDataAsString();
         CompetitionData legacyImported = new CompetitionData().importDataFromString(legacyJson);
@@ -124,7 +125,7 @@ public class JSONExportImportTest {
         account.setUsername(username);
         account.setPasswordHash(PasswordHasher.hash("mustchangeuser"));
         account.setMustChangePassword(true);
-        UserAccountRepository.save(account);
+        UserAccountRepository.save(account, AuditOrigin.system("test"));
 
         String legacyJson = new CompetitionData().exportDataAsString();
         String v2Json = new String(new CompetitionDataV2().fromDatabase().exportData().readAllBytes(),
@@ -144,10 +145,10 @@ public class JSONExportImportTest {
         UserAccount generic = new UserAccount();
         generic.setUsername("genericroundtrip");
         generic.setGeneric(true);
-        UserAccountRepository.save(generic);
+        UserAccountRepository.save(generic, AuditOrigin.system("test"));
         UserAccount person = new UserAccount();
         person.setUsername("personroundtrip");
-        UserAccountRepository.save(person);
+        UserAccountRepository.save(person, AuditOrigin.system("test"));
 
         String legacyJson = new CompetitionData().exportDataAsString();
         String v2Json = new String(new CompetitionDataV2().fromDatabase().exportData().readAllBytes(),
@@ -169,7 +170,7 @@ public class JSONExportImportTest {
         account.setUsername(username);
         account.setPasswordHash(PasswordHasher.hash("legacyjsonuser"));
         account.setMustChangePassword(true);
-        UserAccountRepository.save(account);
+        UserAccountRepository.save(account, AuditOrigin.system("test"));
 
         ObjectMapper mapper = JsonMapper.builder().build();
         JsonNode legacyTree = mapper.readTree(new CompetitionData().exportDataAsString());

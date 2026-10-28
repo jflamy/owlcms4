@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.audit.AuditIntegrity;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
@@ -29,10 +30,11 @@ public final class AccessStartup {
 	}
 
 	public static void run() {
-		UserAccountRepository.ensureBuiltInAdmin();
+		AuditOrigin origin = AuditOrigin.system("startup");
+		UserAccountRepository.ensureBuiltInAdmin(origin);
 		Config config = Config.getCurrent();
 		if (!config.isAccountsMode()) {
-			AccountPasswords.ensureAdminPassword(false);
+			AccountPasswords.ensureAdminPassword(false, origin);
 			return;
 		}
 		if (selectedByAuditKey(config)) {
@@ -41,7 +43,7 @@ public final class AccessStartup {
 		if (StartupUtils.getStringParam("pin") != null) {
 			logger./**/warn("OWLCMS_PIN is ignored because accounts mode is active");
 		}
-		AccountPasswords.ensureAdminPassword(true);
+		AccountPasswords.ensureAdminPassword(true, origin);
 	}
 
 	private static boolean selectedByAuditKey(Config config) {
@@ -52,8 +54,10 @@ public final class AccessStartup {
 		        && (override == null || !"ACCOUNTS".equalsIgnoreCase(override.trim()));
 	}
 
-	public static synchronized CompletableFuture<Void> initializeRoleAccountsInBackground() {
-		initialization = CompletableFuture.runAsync(UserAccountRepository::ensureRoleAccounts, ACCOUNT_INITIALIZER)
+	/** @param origin captured by the caller, on its own thread, and passed to the background work */
+	public static synchronized CompletableFuture<Void> initializeRoleAccountsInBackground(AuditOrigin origin) {
+		initialization = CompletableFuture.runAsync(() -> UserAccountRepository.ensureRoleAccounts(origin),
+		        ACCOUNT_INITIALIZER)
 		        .whenComplete((ignored, failure) -> {
 			        if (failure != null) {
 				        logger./**/warn("Unable to initialize role accounts; check the User Accounts page", failure);
@@ -66,9 +70,10 @@ public final class AccessStartup {
 		return initialization;
 	}
 
-	public static synchronized CompletableFuture<List<UserAccount>> recomputeGenericAccountsInBackground() {
+	public static synchronized CompletableFuture<List<UserAccount>> recomputeGenericAccountsInBackground(
+	        AuditOrigin origin) {
 		CompletableFuture<List<UserAccount>> reset = CompletableFuture.supplyAsync(
-		        UserAccountRepository::recomputeGenericAccounts, ACCOUNT_INITIALIZER)
+		        () -> UserAccountRepository.recomputeGenericAccounts(origin), ACCOUNT_INITIALIZER)
 		        .whenComplete((accounts, failure) -> {
 			        if (failure != null) {
 				        logger./**/warn("Unable to recompute generic accounts", failure);
@@ -79,17 +84,17 @@ public final class AccessStartup {
 	}
 
 	/** After a platform is added or renamed, generic accounts are created or renamed at once in accounts mode. */
-	public static void platformsChanged() {
+	public static void platformsChanged(AuditOrigin origin) {
 		if (Config.getCurrent().isAccountsMode()) {
-			initializeRoleAccountsInBackground();
+			initializeRoleAccountsInBackground(origin);
 		}
 	}
 
 	/** Clears the passwords of one group of accounts but the built-in admin and the acting account; completes with the count. */
 	public static CompletableFuture<Integer> clearPasswordsInBackground(boolean generic, Long actingAccountId,
-	        String actingUser) {
+	        String actingUser, AuditOrigin origin) {
 		return CompletableFuture.supplyAsync(
-		        () -> AccountPasswords.clearPasswords(generic, actingAccountId, actingUser), ACCOUNT_INITIALIZER)
+		        () -> AccountPasswords.clearPasswords(generic, actingAccountId, actingUser, origin), ACCOUNT_INITIALIZER)
 		        .whenComplete((count, failure) -> {
 			        if (failure != null) {
 				        logger./**/warn("Unable to clear account passwords", failure);
@@ -99,7 +104,7 @@ public final class AccessStartup {
 
 	public static void initializeRoleAccountsAfterDataLoad() {
 		if (Config.getCurrent().isAccountsMode()) {
-			UserAccountRepository.ensureRoleAccounts();
+			UserAccountRepository.ensureRoleAccounts(AuditOrigin.system("startup"));
 		}
 	}
 }

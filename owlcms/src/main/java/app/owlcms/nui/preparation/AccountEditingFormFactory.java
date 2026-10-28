@@ -26,6 +26,7 @@ import app.owlcms.access.PasswordHasher;
 import app.owlcms.access.Principal;
 import app.owlcms.access.Role;
 import app.owlcms.access.SessionLogout;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.account.RoleGrant;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
@@ -50,28 +51,28 @@ class AccountEditingFormFactory extends OwlcmsCrudFormFactory<UserAccount> {
 	@Override
 	public UserAccount add(UserAccount account) {
 		account.setGeneric(this.generic);
-		return saveAndApplyModeChange(account);
+		return saveAndApplyModeChange(account, AuditOrigin.fromUi("User Accounts form"));
 	}
 
 	@Override
 	public UserAccount update(UserAccount account) {
-		return saveAndApplyModeChange(account);
+		return saveAndApplyModeChange(account, AuditOrigin.fromUi("User Accounts form"));
 	}
 
 	/**
 	 * Setting the admin password can bring accounts mode into force (audit key present); the role accounts
 	 * are then initialized and every session is sent to the login page. Called on the UI thread.
 	 */
-	private UserAccount saveAndApplyModeChange(UserAccount account) {
+	private UserAccount saveAndApplyModeChange(UserAccount account, AuditOrigin origin) {
 		Config config = Config.getCurrent();
 		boolean wasAccountsMode = config.isAccountsMode();
-		UserAccount saved = UserAccountRepository.save(account);
+		UserAccount saved = UserAccountRepository.save(account, origin);
 		boolean isAccountsMode = config.isAccountsMode();
 		if (wasAccountsMode == isAccountsMode) {
 			return saved;
 		}
 		if (isAccountsMode) {
-			AccessStartup.initializeRoleAccountsInBackground();
+			AccessStartup.initializeRoleAccountsInBackground(origin);
 		}
 		Principal principal = OwlcmsSession.getPrincipal();
 		if (principal != null && principal.source() == Principal.AuthSource.ACCOUNT) {
@@ -93,7 +94,7 @@ class AccountEditingFormFactory extends OwlcmsCrudFormFactory<UserAccount> {
 		if (principal != null && account.getId().equals(principal.accountId())) {
 			refuse("Access.Error.OwnAccount");
 		}
-		UserAccountRepository.delete(account);
+		UserAccountRepository.delete(account, AuditOrigin.fromUi("User Accounts form"));
 	}
 
 	@Override

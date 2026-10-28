@@ -23,6 +23,7 @@ import app.owlcms.access.AccountPasswords;
 import app.owlcms.access.AccountPasswords.ChangeResult;
 import app.owlcms.access.AuthenticatedPage;
 import app.owlcms.access.Principal;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.i18n.Translator;
@@ -117,7 +118,7 @@ public class AccountView extends Composite<VerticalLayout>
 		Principal principal = OwlcmsSession.getPrincipal();
 		boolean forced = AccountPasswords.mustChangePassword(principal);
 		ChangeResult result = AccountPasswords.changeOwnPassword(principal, this.currentPasswordField.getValue(),
-		        newPassword);
+		        newPassword, AuditOrigin.fromUi("Account page"));
 		this.currentPasswordField.clear();
 		switch (result) {
 			case CHANGED -> {

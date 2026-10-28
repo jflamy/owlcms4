@@ -13,6 +13,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.Main;
 import app.owlcms.access.AccessPolicy;
 import app.owlcms.access.AccountAuthenticator;
@@ -48,7 +49,7 @@ public class IWFTenderAccountImportTest {
 	public void fixtureImportsAccountsAndEnforcesTheirPrivileges() {
 		UserAccount sentinel = new UserAccount();
 		sentinel.setUsername("local-only");
-		UserAccountRepository.save(sentinel);
+		UserAccountRepository.save(sentinel, AuditOrigin.system("test"));
 
 		try (InputStream fixture = IWFTenderAccountImportTest.class
 		        .getResourceAsStream("/testDatabases/IWFTender.json")) {

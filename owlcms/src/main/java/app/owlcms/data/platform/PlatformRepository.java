@@ -20,6 +20,7 @@ import javax.persistence.Query;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -180,7 +181,13 @@ public class PlatformRepository {
 	/**
 	 * @param Platform
 	 */
+	/** Internal cleanup of invalid or unused platforms. */
 	public static void delete(Platform platform) {
+		delete(platform, AuditOrigin.system("platform cleanup"));
+	}
+
+	/** @param origin who deleted the platform and from where; audits the account grants removed with it */
+	public static void delete(Platform platform, AuditOrigin origin) {
 		try {
 			String platformName = platform.getName();
 			if (OwlcmsFactory.getFopByName() == null) {
@@ -208,7 +215,7 @@ public class PlatformRepository {
 				mm.publishMqttConfig();
 			}
 			OwlcmsFactory.setFirstFOPAsDefault();
-			UserAccountRepository.removePlatform(platformName);
+			UserAccountRepository.removePlatform(platformName, origin);
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}

@@ -14,7 +14,11 @@ import javax.persistence.EntityManager;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.access.AccessMode;
 import app.owlcms.access.Role;
+import app.owlcms.audit.AuditOrigin;
+import app.owlcms.audit.AuthAudit;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import ch.qos.logback.classic.Logger;
@@ -58,7 +62,11 @@ public final class UserAccountRepository {
 		return null;
 	}
 
-	public static UserAccount save(UserAccount account) {
+	public static UserAccount save(UserAccount account, AuditOrigin origin) {
+		UserAccount cachedBefore = findById(account.getId());
+		UserAccount before = cachedBefore != null ? cachedBefore.copy() : null;
+		boolean admin = account.isBuiltInAdmin() || (before != null && before.isBuiltInAdmin());
+		AccessMode modeBefore = admin ? modeInForce() : null;
 		UserAccount saved = JPAService.runInTransaction(em -> {
 			List<UserAccount> matching = em.createQuery(
 			        "select a from UserAccount a where lower(trim(a.username)) = :username", UserAccount.class)
@@ -70,21 +78,36 @@ public final class UserAccountRepository {
 			return em.merge(account);
 		});
 		invalidate();
+		audit(origin, List.of(new Change(before, saved.copy())));
+		// the admin password decides whether an audit key brings accounts mode into force
+		AccessMode modeAfter = admin ? modeInForce() : null;
+		if (modeBefore != null && modeAfter != null && modeBefore != modeAfter) {
+			AuthAudit.accessModeChanged(origin, modeBefore.name(), modeAfter.name());
+		}
 		return saved;
 	}
 
-	public static void delete(UserAccount account) {
-		JPAService.runInTransaction(em -> {
+	public static void delete(UserAccount account, AuditOrigin origin) {
+		UserAccount cachedBefore = findById(account.getId());
+		UserAccount before = cachedBefore != null ? cachedBefore.copy() : account.copy();
+		boolean removed = JPAService.runInTransaction(em -> {
 			UserAccount managed = em.find(UserAccount.class, account.getId());
 			if (managed != null) {
 				em.remove(managed);
+				return true;
 			}
-			return null;
+			return false;
 		});
 		invalidate();
+		if (removed) {
+			audit(origin, List.of(new Change(before, null)));
+		}
 	}
 
-	/** Replaces all accounts as part of an account-bearing competition import. */
+	/**
+	 * Replaces all accounts as part of an account-bearing competition import. Imports are not audited account by
+	 * account; the import itself is the audited event.
+	 */
 	public static void replaceAll(EntityManager em, List<UserAccount> accounts) {
 		accountsByUsername(accounts);
 		List<UserAccount> existing = em.createQuery("select a from UserAccount a", UserAccount.class).getResultList();
@@ -98,14 +121,14 @@ public final class UserAccountRepository {
 		invalidate();
 	}
 
-	public static void renamePlatform(String oldName, String newName) {
+	public static void renamePlatform(String oldName, String newName, AuditOrigin origin) {
 		updateGrants(grant -> Objects.equals(grant.getPlatformName(), oldName)
 		        ? new RoleGrant(grant.getRole(), newName)
-		        : grant);
+		        : grant, origin);
 	}
 
-	public static void removePlatform(String name) {
-		updateGrants(grant -> Objects.equals(grant.getPlatformName(), name) ? null : grant);
+	public static void removePlatform(String name, AuditOrigin origin) {
+		updateGrants(grant -> Objects.equals(grant.getPlatformName(), name) ? null : grant, origin);
 	}
 
 	public static boolean adminHasPassword() {
@@ -113,8 +136,8 @@ public final class UserAccountRepository {
 		return admin != null && admin.hasPassword();
 	}
 
-	public static synchronized void ensureRoleAccounts() {
-		initializeRoleAccounts(false);
+	public static synchronized void ensureRoleAccounts(AuditOrigin origin) {
+		initializeRoleAccounts(false, origin);
 	}
 
 	/**
@@ -122,33 +145,42 @@ public final class UserAccountRepository {
 	 * fits a role and platform is kept and renamed if needed, missing accounts are created, and generic accounts
 	 * that fit nothing are deleted. The built-in admin and user accounts are never touched.
 	 */
-	public static synchronized List<UserAccount> recomputeGenericAccounts() {
-		initializeRoleAccounts(true);
+	public static synchronized List<UserAccount> recomputeGenericAccounts(AuditOrigin origin) {
+		initializeRoleAccounts(true, origin);
 		return findAll();
 	}
 
-	private static void initializeRoleAccounts(boolean removeUnmatched) {
-		JPAService.runInTransaction(em -> {
+	private static void initializeRoleAccounts(boolean removeUnmatched, AuditOrigin origin) {
+		List<Change> changes = JPAService.runInTransaction(em -> {
 			List<UserAccount> existing = em.createQuery("select a from UserAccount a", UserAccount.class).getResultList();
+			Map<Long, UserAccount> before = existing.stream()
+			        .collect(Collectors.toMap(UserAccount::getId, UserAccount::copy));
+			List<Change> result = new ArrayList<>();
 			List<String> platforms = em.createQuery("select p from Platform p order by p.id", Platform.class)
 			        .getResultList().stream().map(Platform::getName).toList();
 			List<UserAccount> unmatched = removeUnmatched ? unmatchedGenericAccounts(existing, platforms) : List.of();
 			for (UserAccount account : unmatched) {
 				em.remove(account);
+				result.add(new Change(before.get(account.getId()), null));
 				logger.info("generic account removed username={}", account.getUsername());
 			}
 			em.flush();
 			List<UserAccount> remaining = existing.stream().filter(a -> !unmatched.contains(a)).toList();
 			List<UserAccount> missing = missingRoleAccounts(remaining, platforms);
+			for (UserAccount account : remaining) {
+				result.add(new Change(before.get(account.getId()), account.copy()));
+			}
 			// renames first, so that a new account may take a name an existing one just gave up
 			em.flush();
 			for (UserAccount account : missing) {
 				em.persist(account);
+				result.add(new Change(null, account.copy()));
 				logger.info("role account created username={} (password required)", account.getUsername());
 			}
-			return null;
+			return result;
 		});
 		invalidate();
+		audit(origin, changes);
 	}
 
 	/** One generic account per role and platform scope; generated names depend on the number of platforms. */
@@ -246,14 +278,14 @@ public final class UserAccountRepository {
 	}
 
 	/** Creates or repairs the built-in admin account. */
-	public static void ensureBuiltInAdmin() {
+	public static void ensureBuiltInAdmin(AuditOrigin origin) {
 		UserAccount admin = findByUsername(UserAccount.BUILT_IN_ADMIN);
 		if (admin == null) {
 			UserAccount created = new UserAccount();
 			created.setUsername(UserAccount.BUILT_IN_ADMIN);
 			created.setGeneric(true);
 			created.getGrants().add(new RoleGrant(Role.ADMIN, null));
-			save(created);
+			save(created, origin);
 			logger.info("built-in admin account created (no password)");
 			return;
 		}
@@ -265,7 +297,7 @@ public final class UserAccountRepository {
 			if (!holdsAdmin) {
 				repaired.getGrants().add(new RoleGrant(Role.ADMIN, null));
 			}
-			save(repaired);
+			save(repaired, origin);
 			logger.warn("built-in admin account repaired");
 		}
 	}
@@ -274,25 +306,52 @@ public final class UserAccountRepository {
 		cache = null;
 	}
 
-	private static void updateGrants(Function<RoleGrant, RoleGrant> change) {
-		JPAService.runInTransaction(em -> {
+	private static void updateGrants(Function<RoleGrant, RoleGrant> change, AuditOrigin origin) {
+		List<Change> changes = JPAService.runInTransaction(em -> {
+			List<Change> result = new ArrayList<>();
 			List<UserAccount> all = em.createQuery("select a from UserAccount a", UserAccount.class).getResultList();
 			for (UserAccount account : all) {
 				List<RoleGrant> updated = new ArrayList<>();
 				for (RoleGrant grant : account.getGrants()) {
-					RoleGrant result = change.apply(grant);
-					if (result != null) {
-						updated.add(result);
+					RoleGrant changed = change.apply(grant);
+					if (changed != null) {
+						updated.add(changed);
 					}
 				}
 				if (!updated.equals(account.getGrants())) {
+					UserAccount before = account.copy();
 					account.getGrants().clear();
 					account.getGrants().addAll(updated);
+					result.add(new Change(before, account.copy()));
 				}
 			}
-			return null;
+			return result;
 		});
 		invalidate();
+		audit(origin, changes);
+	}
+
+	/** One account before and after a change; null before for a creation, null after for a deletion. */
+	private record Change(UserAccount before, UserAccount after) {
+	}
+
+	private static void audit(AuditOrigin origin, List<Change> changes) {
+		for (Change change : changes) {
+			String detail = UserAccount.auditDetail(change.before(), change.after());
+			if (detail != null) {
+				String action = change.before() == null ? "added" : change.after() == null ? "deleted" : "updated";
+				AuthAudit.accountChanged(origin, action, detail);
+			}
+		}
+	}
+
+	private static AccessMode modeInForce() {
+		try {
+			return Config.getCurrent().getParamAccessMode();
+		} catch (RuntimeException e) {
+			// no configuration yet (early startup, some tests): nothing to compare
+			return null;
+		}
 	}
 
 	private static Map<Long, UserAccount> cached() {

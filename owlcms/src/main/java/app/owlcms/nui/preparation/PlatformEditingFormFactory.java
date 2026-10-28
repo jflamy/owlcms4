@@ -27,6 +27,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.ValidationResult;
 
 import app.owlcms.access.AccessStartup;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
@@ -47,13 +48,13 @@ class PlatformEditingFormFactory extends OwlcmsCrudFormFactory<Platform> {
 		Platform saved = PlatformRepository.save(platform);
 		platforms.add(saved);
 		PlatformRepository.updateDisplayOrder(platforms);
-		AccessStartup.platformsChanged();
+		AccessStartup.platformsChanged(AuditOrigin.fromUi("platform added " + saved.getName()));
 		return saved;
 	}
 
 	@Override
 	public void delete(Platform platform) {
-		PlatformRepository.delete(platform);
+		PlatformRepository.delete(platform, AuditOrigin.fromUi("platform deleted " + platform.getName()));
 	}
 
 	@Override

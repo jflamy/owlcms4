@@ -12,6 +12,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.Main;
 import app.owlcms.access.AccessMode;
 import app.owlcms.access.AccessStartup;
@@ -44,13 +45,13 @@ public class AccountPersistenceTest {
 		UserAccount account = new UserAccount();
 		account.setUsername(username);
 		account.setGrants(new java.util.ArrayList<>(List.of(grants)));
-		return UserAccountRepository.save(account);
+		return UserAccountRepository.save(account, AuditOrigin.system("test"));
 	}
 
 	@Test
 	public void builtInAdminIsSeededOnceWithoutPassword() {
-		UserAccountRepository.ensureBuiltInAdmin();
-		UserAccountRepository.ensureBuiltInAdmin();
+		UserAccountRepository.ensureBuiltInAdmin(AuditOrigin.system("test"));
+		UserAccountRepository.ensureBuiltInAdmin(AuditOrigin.system("test"));
 
 		UserAccount admin = UserAccountRepository.findByUsername("ADMIN");
 		assertNotNull(admin);
@@ -63,20 +64,20 @@ public class AccountPersistenceTest {
 		if (!withPassword.hasPassword()) {
 			assertFalse(UserAccountRepository.adminHasPassword());
 			withPassword.setPasswordHash(PasswordHasher.hash("a long password"));
-			UserAccountRepository.save(withPassword);
+			UserAccountRepository.save(withPassword, AuditOrigin.system("test"));
 		}
 		assertTrue(UserAccountRepository.adminHasPassword());
 	}
 
 	@Test
 	public void repairsAnAdminThatWasDisabledOrDemoted() {
-		UserAccountRepository.ensureBuiltInAdmin();
+		UserAccountRepository.ensureBuiltInAdmin(AuditOrigin.system("test"));
 		UserAccount damaged = UserAccountRepository.findByUsername("admin").copy();
 		damaged.setEnabled(false);
 		damaged.getGrants().clear();
-		UserAccountRepository.save(damaged);
+		UserAccountRepository.save(damaged, AuditOrigin.system("test"));
 
-		UserAccountRepository.ensureBuiltInAdmin();
+		UserAccountRepository.ensureBuiltInAdmin(AuditOrigin.system("test"));
 
 		UserAccount admin = UserAccountRepository.findByUsername("admin");
 		assertTrue(admin.isEnabled());
@@ -113,7 +114,7 @@ public class AccountPersistenceTest {
 	public void renamingAPlatformFollowsTheGrants() {
 		newAccount("erin", new RoleGrant(Role.ANNOUNCER, "Old"), new RoleGrant(Role.RESULTS, null));
 
-		UserAccountRepository.renamePlatform("Old", "New");
+		UserAccountRepository.renamePlatform("Old", "New", AuditOrigin.system("test"));
 
 		assertEquals(List.of(new RoleGrant(Role.ANNOUNCER, "New"), new RoleGrant(Role.RESULTS, null)),
 		        UserAccountRepository.findByUsername("erin").getGrants());
@@ -124,7 +125,7 @@ public class AccountPersistenceTest {
 		newAccount("frank", new RoleGrant(Role.TC, "Gone"), new RoleGrant(Role.TIMEKEEPER, "Kept"),
 		        new RoleGrant(Role.RESULTS, null));
 
-		UserAccountRepository.removePlatform("Gone");
+		UserAccountRepository.removePlatform("Gone", AuditOrigin.system("test"));
 
 		assertEquals(List.of(new RoleGrant(Role.TIMEKEEPER, "Kept"), new RoleGrant(Role.RESULTS, null)),
 		        UserAccountRepository.findByUsername("frank").getGrants());
@@ -133,7 +134,7 @@ public class AccountPersistenceTest {
 	@Test
 	public void deletedAccountsDisappear() {
 		UserAccount account = newAccount("gina", new RoleGrant(Role.WEIGHIN, null));
-		UserAccountRepository.delete(account);
+		UserAccountRepository.delete(account, AuditOrigin.system("test"));
 		assertNull(UserAccountRepository.findByUsername("gina"));
 	}
 
@@ -264,20 +265,20 @@ public class AccountPersistenceTest {
 			em.persist(new Platform("Recompute A"));
 			return null;
 		});
-		AccessStartup.recomputeGenericAccountsInBackground().join();
+		AccessStartup.recomputeGenericAccountsInBackground(AuditOrigin.system("test")).join();
 		UserAccount kept = UserAccountRepository.findAll().stream()
 		        .filter(a -> a.isGeneric() && a.getGrants().equals(List.of(new RoleGrant(Role.ANNOUNCER, "Recompute A"))))
 		        .findFirst().orElseThrow();
 		kept.setPasswordHash(PasswordHasher.hash("kept password"));
-		UserAccountRepository.save(kept);
+		UserAccountRepository.save(kept, AuditOrigin.system("test"));
 		UserAccount orphan = newAccount("announcer-Gone", new RoleGrant(Role.ANNOUNCER, "Gone"));
 		orphan.setGeneric(true);
-		UserAccountRepository.save(orphan);
+		UserAccountRepository.save(orphan, AuditOrigin.system("test"));
 		UserAccount person = newAccount("speaker-gone", new RoleGrant(Role.ANNOUNCER, "Gone"));
-		UserAccountRepository.ensureBuiltInAdmin();
+		UserAccountRepository.ensureBuiltInAdmin(AuditOrigin.system("test"));
 		UserAccount admin = UserAccountRepository.findByUsername("admin");
 
-		List<UserAccount> recomputed = AccessStartup.recomputeGenericAccountsInBackground().join();
+		List<UserAccount> recomputed = AccessStartup.recomputeGenericAccountsInBackground(AuditOrigin.system("test")).join();
 		UserAccountRepository.invalidate();
 
 		assertNull(UserAccountRepository.findById(orphan.getId()));

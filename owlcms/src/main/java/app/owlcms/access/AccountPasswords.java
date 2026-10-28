@@ -1,10 +1,12 @@
 package app.owlcms.access;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.audit.AuthAudit;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
@@ -39,12 +41,12 @@ public final class AccountPasswords {
 	 *
 	 * @return true if a password was generated
 	 */
-	public static boolean ensureAdminPassword(boolean accountsModeRequired) {
-		return generateIfRequired(accountsModeRequired) != null;
+	public static boolean ensureAdminPassword(boolean accountsModeRequired, AuditOrigin origin) {
+		return generateIfRequired(accountsModeRequired, origin) != null;
 	}
 
 	/** @return the generated password, for tests; null if none was needed */
-	static synchronized String generateIfRequired(boolean accountsModeRequired) {
+	static synchronized String generateIfRequired(boolean accountsModeRequired, AuditOrigin origin) {
 		generatedAtStartup = false;
 		if (!accountsModeRequired || UserAccountRepository.adminHasPassword()) {
 			return null;
@@ -57,7 +59,7 @@ public final class AccountPasswords {
 		UserAccount admin = cached.copy();
 		admin.setPasswordHash(PasswordHasher.hash(password));
 		admin.setMustChangePassword(true);
-		UserAccountRepository.save(admin);
+		UserAccountRepository.save(admin, new AuditOrigin(origin.actor(), "temporary admin password"));
 		secretLogger.warn("Single-use admin password: {}  (log in as {} and set a new password)", password,
 		        admin.getUsername());
 		logger./**/warn("accounts mode is active and the admin account had no password: a single-use admin password was written to logs/owlcms.log");
@@ -84,9 +86,13 @@ public final class AccountPasswords {
 		return account != null && account.isMustChangePassword();
 	}
 
-	/** A user changing their own password; the account comes from the session, never from the request. */
+	/**
+	 * A user changing their own password; the account comes from the session, never from the request.
+	 *
+	 * @param origin captured by the page; its actor is the same person as the principal
+	 */
 	public static synchronized ChangeResult changeOwnPassword(Principal principal, String currentPassword,
-	        String newPassword) {
+	        String newPassword, AuditOrigin origin) {
 		if (principal == null || principal.source() != Principal.AuthSource.ACCOUNT) {
 			return ChangeResult.NO_ACCOUNT;
 		}
@@ -107,7 +113,7 @@ public final class AccountPasswords {
 		UserAccount account = cached.copy();
 		account.setPasswordHash(PasswordHasher.hash(newPassword));
 		account.setMustChangePassword(false);
-		UserAccountRepository.save(account);
+		UserAccountRepository.save(account, origin);
 		logger.info("password changed user={} how=self", account.getUsername());
 		AuthAudit.passwordChanged(account.getUsername(), "self");
 		return ChangeResult.CHANGED;
@@ -122,9 +128,10 @@ public final class AccountPasswords {
 	 * @param actingAccountId the administrator's account, or null for a PIN/backdoor session
 	 * @return the number of accounts whose password was removed
 	 */
-	public static synchronized int clearPasswords(boolean generic, Long actingAccountId, String actingUser) {
-		int cleared = JPAService.runInTransaction(em -> {
-			int count = 0;
+	public static synchronized int clearPasswords(boolean generic, Long actingAccountId, String actingUser,
+	        AuditOrigin origin) {
+		List<String> details = JPAService.runInTransaction(em -> {
+			List<String> result = new ArrayList<>();
 			List<UserAccount> accounts = em.createQuery("select a from UserAccount a", UserAccount.class)
 			        .getResultList();
 			for (UserAccount account : accounts) {
@@ -133,14 +140,19 @@ public final class AccountPasswords {
 					continue;
 				}
 				if (account.hasPassword() || account.isMustChangePassword()) {
+					UserAccount before = account.copy();
 					account.setPasswordHash(null);
 					account.setMustChangePassword(false);
-					count++;
+					result.add(UserAccount.auditDetail(before, account.copy()));
 				}
 			}
-			return count;
+			return result;
 		});
+		int cleared = details.size();
 		UserAccountRepository.invalidate();
+		for (String detail : details) {
+			AuthAudit.accountChanged(origin, "updated", detail);
+		}
 		String group = generic ? "generic" : "users";
 		logger.info("passwords cleared by={} accounts={} count={}", actingUser, group, cleared);
 		AuthAudit.passwordsCleared(actingUser, group, cleared);

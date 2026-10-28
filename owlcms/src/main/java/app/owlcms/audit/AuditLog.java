@@ -105,7 +105,10 @@ public final class AuditLog {
 		return backend != null && backend.healthy();
 	}
 
-	public static final Path DIRECTORY = Path.of("logs", "audit");
+	/** System property overriding {@link #DIRECTORY}; set by the Maven test run so tests do not write to logs/. */
+	public static final String DIRECTORY_PROPERTY = "owlcms.auditDirectory";
+
+	public static final Path DIRECTORY = Path.of(System.getProperty(DIRECTORY_PROPERTY, "logs/audit"));
 
 	/**
 	 * Forces every sealed stream into a new file so that all previous files are finalized. Returns the files

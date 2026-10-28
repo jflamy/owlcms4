@@ -52,6 +52,7 @@ import app.owlcms.access.AccessMode;
 import app.owlcms.access.AccessModeResolver;
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.audit.AuditIntegrity;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
@@ -150,7 +151,13 @@ public class Config {
 		}
 	}
 
+	/** For saves that are not meant to change the access mode; a mode change is then audited as unspecified. */
 	public static Config setCurrent(Config config) {
+		return setCurrent(config, AuditOrigin.system("unspecified"));
+	}
+
+	/** @param origin who saved and from where; used to audit an access-mode change and the accounts it creates */
+	public static Config setCurrent(Config config, AuditOrigin origin) {
 		// an imported Config carries no access mode; the running value must survive the import
 		if (config.accessMode == null && current != null) {
 			config.accessMode = current.accessMode;
@@ -161,7 +168,7 @@ public class Config {
 		}
 		config.migrateFeatureSwitchesToJson();
 		config.prepareForwardingConnections();
-		Config saved = ConfigRepository.save(config);
+		Config saved = ConfigRepository.save(config, origin);
 		saved.managedForwardingActivity = config.managedForwardingActivity;
 		current = saved;
 		return current;

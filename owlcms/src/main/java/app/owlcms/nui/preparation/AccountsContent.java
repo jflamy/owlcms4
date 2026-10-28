@@ -39,6 +39,7 @@ import app.owlcms.access.Principal;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
 import app.owlcms.access.SessionLogout;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.account.RoleGrant;
@@ -160,7 +161,7 @@ public class AccountsContent extends BaseContent implements OwlcmsContent {
 			}
 			Config config = Config.getCurrent();
 			config.chooseAccessMode(event.getValue() ? AccessMode.ACCOUNTS : AccessMode.PIN);
-			Config.setCurrent(config);
+			Config.setCurrent(config, AuditOrigin.fromUi("User Accounts access-mode switch"));
 			Principal principal = OwlcmsSession.getPrincipal();
 			if (principal != null && principal.source() == Principal.AuthSource.ACCOUNT) {
 				AccountModeAuthenticator.logout(principal, "access mode changed");
@@ -257,7 +258,8 @@ public class AccountsContent extends BaseContent implements OwlcmsContent {
 		String success = Translator.translate("Access.Account.RecomputeGenericDone");
 		String failureMessage = Translator.translate("Access.Account.RecomputeGenericFailed");
 		setGridsEnabled(false);
-		AccessStartup.recomputeGenericAccountsInBackground().whenComplete((accounts, failure) -> ui.accessLater(() -> {
+		AccessStartup.recomputeGenericAccountsInBackground(AuditOrigin.fromUi("Recompute Generic Accounts"))
+		        .whenComplete((accounts, failure) -> ui.accessLater(() -> {
 			setGridsEnabled(true);
 			if (failure != null) {
 				Notification.show(failureMessage, 5000, Notification.Position.MIDDLE);
@@ -286,7 +288,8 @@ public class AccountsContent extends BaseContent implements OwlcmsContent {
 		String actingUser = principal != null ? principal.username() : "-";
 		String failureMessage = Translator.translate("Access.Account.ClearPasswordsFailed");
 		setGridsEnabled(false);
-		AccessStartup.clearPasswordsInBackground(generic, actingAccountId, actingUser)
+		AccessStartup.clearPasswordsInBackground(generic, actingAccountId, actingUser,
+		        AuditOrigin.fromUi("Clear All Passwords"))
 		        .whenComplete((count, failure) -> ui.accessLater(() -> {
 			        setGridsEnabled(true);
 			        if (failure != null) {
@@ -307,7 +310,7 @@ public class AccountsContent extends BaseContent implements OwlcmsContent {
 			if (event.isFromClient()) {
 				UserAccount updated = account.copy();
 				updated.setEnabled(event.getValue());
-				UserAccountRepository.save(updated);
+				UserAccountRepository.save(updated, AuditOrigin.fromUi("User Accounts active checkbox"));
 			}
 		});
 		return enabled;

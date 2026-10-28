@@ -34,6 +34,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.HasUrlParameter;
 import app.owlcms.access.AccessStartup;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
@@ -225,8 +226,9 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 				String oldName = platform.getName();
 				platform.setName(normalizedName);
 				PlatformRepository.saveName(platform);
-				UserAccountRepository.renamePlatform(oldName, normalizedName);
-				AccessStartup.platformsChanged();
+				AuditOrigin origin = AuditOrigin.fromUi("platform renamed " + oldName + " -> " + normalizedName);
+				UserAccountRepository.renamePlatform(oldName, normalizedName, origin);
+				AccessStartup.platformsChanged(origin);
 				crud.refreshGrid();
 				showRenameRestartDialog();
 			}

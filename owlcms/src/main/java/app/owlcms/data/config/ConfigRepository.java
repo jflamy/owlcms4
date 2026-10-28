@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.access.AccessMode;
 import app.owlcms.access.AccessStartup;
+import app.owlcms.audit.AuditOrigin;
+import app.owlcms.audit.AuthAudit;
 import app.owlcms.data.jpa.JPAService;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -80,7 +82,7 @@ public class ConfigRepository {
 	 * @param config the config
 	 * @return the config
 	 */
-	static Config save(Config config) {
+	static Config save(Config config, AuditOrigin origin) {
 		// Preserve BLOB data before merge to avoid "unable to merge BLOB data" error.
 		// Hibernate cannot merge a Blob whose stream has already been consumed.
 		// We extract the bytes from the in-memory BlobProxy (not from DB), clear it,
@@ -113,11 +115,16 @@ public class ConfigRepository {
 			}
 			return new SaveResult(nc, previous != null, previousStored, previousPinChosen);
 		});
-		boolean initializeAccounts = result.config().isAccountsMode()
-		        && (!result.hadPrevious() || Config.effectiveAccessMode(result.previousStored(),
-		                result.previousPinChosen()) != AccessMode.ACCOUNTS);
+		AccessMode modeBefore = result.hadPrevious()
+		        ? Config.effectiveAccessMode(result.previousStored(), result.previousPinChosen())
+		        : null;
+		AccessMode modeAfter = result.config().getParamAccessMode();
+		if (modeBefore != null && modeBefore != modeAfter) {
+			AuthAudit.accessModeChanged(origin, modeBefore.name(), modeAfter.name());
+		}
+		boolean initializeAccounts = modeAfter == AccessMode.ACCOUNTS && modeBefore != AccessMode.ACCOUNTS;
 		if (initializeAccounts) {
-			AccessStartup.initializeRoleAccountsInBackground();
+			AccessStartup.initializeRoleAccountsInBackground(origin);
 		}
 		return result.config();
 	}
