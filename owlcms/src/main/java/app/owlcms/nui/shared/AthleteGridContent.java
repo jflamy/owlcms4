@@ -952,7 +952,47 @@ public abstract class AthleteGridContent extends BaseContent
 
 	@Subscribe
 	public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
-		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> passiveLiveDecisionShow(e));
+		if (!isTraceLiveDecisionLights()) {
+			UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> passiveLiveDecisionShow(e));
+			return;
+		}
+		String fopName = FieldOfPlay.getLoggingName(e.getFop());
+		String screen = traceScreenId();
+		long receivedAt = System.currentTimeMillis();
+		logger.warn("{}DOWNTRACE {} refereeUpdate now={} refs=[{},{},{}]", fopName, screen, receivedAt, e.ref1,
+		        e.ref2, e.ref3);
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			passiveLiveDecisionShow(e);
+			long accessAt = System.currentTimeMillis();
+			boolean shown = isLiveLights() && this.decisionDisplay != null;
+			logger.warn("{}DOWNTRACE {} lights ui.access now={} waitedMs={} liveLights={}", fopName, screen, accessAt,
+			        accessAt - receivedAt, shown);
+			if (!shown) {
+				return;
+			}
+			// Runs after the payload property is applied; resolves once Lit has rendered the lights.
+			this.decisionDisplay.getElement().executeJs("""
+			        const received = performance.now();
+			        return this.updateComplete.then(() => 'renderMs=' + Math.round(performance.now() - received)
+			                + ' rendered=[' + this.ref1 + ',' + this.ref2 + ',' + this.ref3 + ']'
+			                + ' visibility=' + document.visibilityState + ' focus=' + document.hasFocus());
+			        """).then(String.class,
+			        value -> {
+				        long now = System.currentTimeMillis();
+				        logger.warn("{}DOWNTRACE {} lights browser ack now={} roundTripMs={} {}", fopName, screen, now,
+				                now - accessAt, value);
+			        },
+			        error -> logger.warn("{}DOWNTRACE {} lights browser error now={} {}", fopName, screen,
+			                System.currentTimeMillis(), error));
+		});
+	}
+
+	protected boolean isTraceLiveDecisionLights() {
+		return false;
+	}
+
+	protected String traceScreenId() {
+		return this.getClass().getSimpleName() + getUI().map(ui -> "#ui" + ui.getUIId()).orElse("#detached");
 	}
 
 	private synchronized void clearRecordNotifications() {

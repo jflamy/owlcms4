@@ -2479,6 +2479,9 @@ public class FieldOfPlay implements IUnregister {
 		setClockOwner(null); // athlete has lifted, time does not keep running for them
 		setClockOwnerInitialTimeAllowed(0);
 		this.downSignalVisibleSince = System.currentTimeMillis();
+		this.logger.warn("{}DOWNTRACE emitDown now={} refs={} origin={}", FieldOfPlay.getLoggingName(this),
+				this.downSignalVisibleSince, Arrays.toString(getRefereeDecision()),
+				e.origin == null ? null : e.origin.getClass().getSimpleName());
 		uiShowDownSignalOnSlaveDisplays(e.origin);
 		setState(DOWN_SIGNAL_VISIBLE);
 	}

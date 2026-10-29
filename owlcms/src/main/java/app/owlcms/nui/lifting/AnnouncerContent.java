@@ -138,6 +138,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		return true;
 	}
 
+	@Override
+	protected boolean isTraceLiveDecisionLights() {
+		return true;
+	}
+
 	/**
 	 * Not used in this class. We use createInitialBar and createTopBar as required.
 	 *
@@ -605,10 +610,46 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		// Down alone is not enough to identify the missing referee. Announcer reminders
 		// follow the same trigger as the referee wake-up logic: two votes received and one missing.
 		FieldOfPlay fop = getFop();
+		logger.warn("{}DOWNTRACE {} slaveDownSignal now={} thread={} downSilenced={} serverSound={} attached={}",
+		        FieldOfPlay.getLoggingName(fop), traceScreenId(), System.currentTimeMillis(),
+		        Thread.currentThread().getName(), isDownSilenced(), fop != null && fop.isEmitSoundsOnServer(),
+		        getUI().isPresent());
 		if (isDownSilenced() || (fop != null && fop.isEmitSoundsOnServer())) {
 			return;
 		}
-		playBrowserSound(e, this.downSound);
+		playDownSoundTraced(e);
+	}
+
+	private void playDownSoundTraced(UIEvent.DownSignal event) {
+		FieldOfPlay fop = getFop();
+		String screen = traceScreenId();
+		long queuedAt = System.currentTimeMillis();
+		UIEventProcessor.uiAccess(this, this.uiEventBus, event, () -> {
+			long accessAt = System.currentTimeMillis();
+			logger.warn("{}DOWNTRACE {} sound ui.access now={} waitedMs={}", FieldOfPlay.getLoggingName(fop),
+			        screen, accessAt, accessAt - queuedAt);
+			// Browser timings are reported as differences so that clock skew between
+			// the announcer machine and the server does not matter.
+			this.downSound.executeJs("""
+			        const received = performance.now();
+			        const context = () => ' readyState=' + this.readyState
+			                + ' visibility=' + document.visibilityState + ' focus=' + document.hasFocus()
+			                + ' ua=' + navigator.userAgent;
+			        this.currentTime = 0;
+			        const result = this.play();
+			        if (!result) return 'playStartMs=nopromise' + context();
+			        return result.then(() => 'playStartMs=' + Math.round(performance.now() - received) + context())
+			                .catch(error => 'playFailed=' + error + ' afterMs='
+			                        + Math.round(performance.now() - received) + context());
+			        """).then(String.class,
+			        value -> {
+				        long now = System.currentTimeMillis();
+				        logger.warn("{}DOWNTRACE {} sound browser ack now={} roundTripMs={} {}",
+				                FieldOfPlay.getLoggingName(fop), screen, now, now - accessAt, value);
+			        },
+			        error -> logger.warn("{}DOWNTRACE {} sound browser error now={} {}",
+			                FieldOfPlay.getLoggingName(fop), screen, System.currentTimeMillis(), error));
+		});
 	}
 
 	@Subscribe

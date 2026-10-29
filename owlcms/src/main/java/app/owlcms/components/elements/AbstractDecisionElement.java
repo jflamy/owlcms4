@@ -181,6 +181,9 @@ public abstract class AbstractDecisionElement extends LitTemplate
 			Long ref2Time,
 			Long ref3Time) {
 		Object origin = this.getOrigin();
+		logger.warn("{}DOWNTRACE keypad update received now={} refs=[{},{},{}] keyTimes=[{},{},{}]",
+				FieldOfPlay.getLoggingName(this.fop), System.currentTimeMillis(), ref1, ref2, ref3,
+				ref1Time, ref2Time, ref3Time);
 		if (this.fop != null && fopName.contentEquals(this.fop.getName())) {
 			if (this.isSingleRef()) {
 				Integer refIndex = ref1 != null ? 0 : (ref2 != null ? 1 : (ref3 != null ? 2 : null));
@@ -222,6 +225,10 @@ public abstract class AbstractDecisionElement extends LitTemplate
 	@ClientCallable
 	public void decisionPayloadApplied(String sequence, String mode, Boolean singleRef, Boolean announcerForced,
 	        Boolean ref1, Boolean ref2, Boolean ref3) {
+		if ("down".equals(mode)) {
+			logger.warn("{}DOWNTRACE board down displayed ack now={} board={}", FieldOfPlay.getLoggingName(this.fop),
+			        System.currentTimeMillis(), this.getOrigin().getClass().getSimpleName());
+		}
 		logger.debug("{}decisionElement applied decisionPayload sequence={} mode={} singleRef={} announcerForced={} refs=[{},{},{}] parent={}",
 		        FieldOfPlay.getLoggingName(this.fop), sequence, mode, singleRef, announcerForced, ref1, ref2, ref3,
 		        this.getOrigin());
