@@ -79,7 +79,8 @@ public class IWFTenderAccountImportTest {
 
 		Principal results = login("results");
 		assertTrue(AccessPolicy.canOpen(results, page(Role.RESULTS, false), null));
-		assertTrue(AccessPolicy.canOpen(results, page(Role.DISPLAYS, true), "B"));
+		assertFalse(AccessPolicy.canOpen(results, page(Role.STREAMING, true), "B"));
+		assertFalse(AccessPolicy.canOpen(results, page(Role.DISPLAYS, true), "B"));
 		assertFalse(AccessPolicy.canOpen(results, page(Role.ANNOUNCER, true), "B"));
 
 		for (Role role : List.of(Role.ANNOUNCER, Role.MARSHAL, Role.TIMEKEEPER, Role.TC, Role.JURY, Role.REFEREE,

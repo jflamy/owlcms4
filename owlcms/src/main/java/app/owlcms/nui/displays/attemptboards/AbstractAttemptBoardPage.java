@@ -32,7 +32,6 @@ import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.fieldofplay.FOPEvent.DecisionUpdate;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.displays.SoundEntries;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
@@ -137,7 +136,7 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage
 			return;
 		}
 		if (!AccessUi.displayInputAllowed(fop)) {
-			Principal principal = OwlcmsSession.getPrincipal();
+			Principal principal = AccessUi.currentPrincipal();
 			this.logger.info("{}ignored decision input from read-only display user={}",
 			        FieldOfPlay.getLoggingName(fop), principal != null ? principal.username() : null);
 			return;

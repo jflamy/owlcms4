@@ -401,7 +401,7 @@ public class JuryMobileContent extends BaseContent implements FOPParametersReade
 		}
 		Location location2 = new Location(this.location.getPath(), new QueryParameters(this.urlParams));
 		URLUtils.replaceState(this.locationUI.getPage().getHistory(), null, location2, this.location);
-		logger.trace("changed location to {}", location2.getPathWithQueryParameters());
+		logger.trace("changed location to {}", URLUtils.redactToken(location2.getPathWithQueryParameters()));
 		UI.getCurrent().getPage().setTitle(getPageTitle());
 	}
 

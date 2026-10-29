@@ -94,6 +94,12 @@ public final class PinModeAuthenticator {
 		return null;
 	}
 
+	/** @return true if a display PIN is configured (an empty override disables the stored one) */
+	public static boolean displayPinExpected() {
+		Config config = Config.getCurrent();
+		return pinExpected(config.getParamDisplayPin(), config.getDisplayPin());
+	}
+
 	static boolean pinExpected(String override, String storedPin) {
 		return override != null ? !override.isBlank() : storedPin != null && !storedPin.isBlank();
 	}

@@ -2,11 +2,14 @@ package app.owlcms.access;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterListener;
 import com.vaadin.flow.router.NotFoundException;
@@ -14,6 +17,8 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.AccessUtils;
+import app.owlcms.audit.AuthAudit;
+import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
@@ -56,30 +61,105 @@ public class AccessControlListener implements BeforeEnterListener {
 				Principal principal = PinModeAuthenticator.resolveOfficials(path, queryParameters);
 				if (principal != null) {
 					OwlcmsSession.setPrincipal(principal);
-					event.forwardTo("");
+					event.forwardTo("", withoutToken(queryParameters));
 				}
 			}
 			return;
 		}
 
+		if (handleToken(event, rule, path, queryParameters)) {
+			return;
+		}
+		// nothing below may save a token for the login redirect or carry it to another page: a forward keeps the
+		// original query parameters unless they are given explicitly
+		queryParameters = withoutToken(queryParameters);
+
 		Principal principal = resolvePrincipal(rule, path, queryParameters);
 		if (principal == null) {
 			boolean displayLogin = rule.isDisplayPage() && !Config.getCurrent().isAccountsMode();
-			event.forwardTo(displayLogin ? DisplayLoginView.LOGIN : LoginView.LOGIN);
+			event.forwardTo(displayLogin ? DisplayLoginView.LOGIN : LoginView.LOGIN, queryParameters);
 			return;
 		}
 		OwlcmsSession.setPrincipal(principal);
 
 		if (AccountPasswords.mustChangePassword(principal) && !AccountPasswords.ACCOUNT_ROUTE.equals(path)) {
-			event.forwardTo(AccountPasswords.ACCOUNT_ROUTE);
+			event.forwardTo(AccountPasswords.ACCOUNT_ROUTE, queryParameters);
 			return;
 		}
 
 		String platform = rule.platformBound() ? targetPlatform(queryParameters) : null;
 		if (!AccessPolicy.canOpen(principal, rule, platform)) {
 			logger.info("access denied user={} path={} platform={}", principal.username(), path, platform);
-			event.forwardTo(AccessDeniedView.class);
+			event.forwardTo(AccessDeniedView.class, queryParameters);
 		}
+	}
+
+	/**
+	 * A navigation carrying {@code token}, or made in a tab opened with a token. Accounts mode: the account token
+	 * decides, and a tab bound to a token never falls back to a password login. PIN mode: a correct display PIN in
+	 * {@code token} authenticates the session for displays, then the normal flow continues.
+	 *
+	 * @return true if the navigation was decided here (allowed or refused)
+	 */
+	private boolean handleToken(BeforeEnterEvent event, PageRule rule, String path, QueryParameters queryParameters) {
+		UI ui = event.getUI();
+		String clientIp = AccessUtils.getClientIp();
+		Map<String, List<String>> query = queryParameters.getParameters();
+		if (Config.getCurrent().isAccountsMode()) {
+			List<String> platforms = OwlcmsFactory.getFOPs().stream().map(FieldOfPlay::getName).toList();
+			TokenAuthenticator authenticator = new TokenAuthenticator(UserAccountRepository::findByTokenHash,
+			        LoginThrottle.shared());
+			switch (TokenNavigation.decideAccounts(rule, query, platforms, TokenTab.of(ui), clientIp, authenticator,
+			        UserAccountRepository::findById)) {
+				case TokenNavigation.Decision.NotToken _ -> {
+					return false;
+				}
+				case TokenNavigation.Decision.Refuse refuse -> {
+					logger.info("token navigation refused path={} status={} reason={}", path, refuse.status(),
+					        refuse.reason());
+					AuthAudit.tokenRefused(clientIp, path, refuse.reason(), refuse.username(), refuse.tokenId());
+					event.rerouteToError(new TokenRefusedException(refuse.status()), "");
+					return true;
+				}
+				case TokenNavigation.Decision.Allow allow -> {
+					TokenTab.bind(ui, allow.tab());
+					if (allow.newlyBound()) {
+						logger.info("token navigation accepted path={} user={} token id={}", path,
+						        allow.tab().principal().username(), allow.tab().tokenId());
+						AuthAudit.tokenAccepted(clientIp, path, allow.tab().principal().username(),
+						        allow.tab().tokenId());
+					}
+					return true;
+				}
+			}
+		}
+		String displayList = Config.getCurrent().getParamDisplayList();
+		boolean ipAllowedForDisplay = displayList == null || displayList.isBlank()
+		        || AccessUtils.isIpAllowedForDisplay(clientIp);
+		switch (TokenNavigation.decidePin(rule, query, PinModeAuthenticator.displayPinExpected(), ipAllowedForDisplay,
+		        clientIp, AccessUtils::displayPinMatches, LoginThrottle.shared())) {
+			case TokenNavigation.PinDecision.Refuse refuse -> {
+				logger.info("display PIN in URL refused path={} status={} reason={}", path, refuse.status(),
+				        refuse.reason());
+				AuthAudit.tokenRefused(clientIp, path, refuse.reason(), null, null);
+				event.rerouteToError(new TokenRefusedException(refuse.status()), "");
+				return true;
+			}
+			case TokenNavigation.PinDecision.Accept _ -> OwlcmsSession.setDisplayAuthenticated(true);
+			case TokenNavigation.PinDecision.NotApplicable _ -> {
+			}
+		}
+		return false;
+	}
+
+	private static QueryParameters withoutToken(QueryParameters queryParameters) {
+		Map<String, List<String>> parameters = queryParameters.getParameters();
+		if (!parameters.containsKey(TokenNavigation.TOKEN)) {
+			return queryParameters;
+		}
+		Map<String, List<String>> kept = new HashMap<>(parameters);
+		kept.remove(TokenNavigation.TOKEN);
+		return new QueryParameters(kept);
 	}
 
 	private Principal resolvePrincipal(PageRule rule, String path, QueryParameters queryParameters) {

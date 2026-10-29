@@ -53,10 +53,11 @@ public class TokenAuthenticatorTest {
 
 	@Test
 	public void resultsRoleIsHeldDirectlyOrThroughACompositeRole() {
-		for (Role role : List.of(Role.RESULTS, Role.ADMIN, Role.COMPETITION_DIRECTOR, Role.COMPETITION_SUPERVISOR)) {
+		for (Role role : List.of(Role.RESULTS, Role.EXTERNAL, Role.ADMIN, Role.COMPETITION_DIRECTOR,
+		        Role.COMPETITION_SUPERVISOR)) {
 			assertTrue(role.name(), TokenAuthenticator.holds(account(role), Role.RESULTS));
 		}
-		assertFalse(TokenAuthenticator.holds(account(Role.EXTERNAL), Role.RESULTS));
+		assertFalse(TokenAuthenticator.holds(account(Role.STREAMING), Role.RESULTS));
 		assertFalse(TokenAuthenticator.holds(account(Role.DISPLAYS), Role.RESULTS));
 	}
 

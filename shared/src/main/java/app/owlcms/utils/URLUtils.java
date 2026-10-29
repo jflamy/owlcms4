@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -186,8 +187,20 @@ public class URLUtils {
         Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
-            logger.debug("{}: {}", headerName, request.getHeader(headerName));
+            String value = "authorization".equalsIgnoreCase(headerName) ? "***"
+                    : redactToken(request.getHeader(headerName));
+            logger.debug("{}: {}", headerName, value);
         }
+    }
+
+    private static final Pattern TOKEN_PARAMETER = Pattern.compile("(^|[?&])token=[^&#]*");
+
+    /** @return the URL or query string with the value of every {@code token} parameter replaced, for logging */
+    public static String redactToken(String pathWithQuery) {
+        if (pathWithQuery == null || !pathWithQuery.contains("token=")) {
+            return pathWithQuery;
+        }
+        return TOKEN_PARAMETER.matcher(pathWithQuery).replaceAll("$1token=***");
     }
 
     public static String urlEncode(String name) {
@@ -320,7 +333,7 @@ public class URLUtils {
 			if (originalFop != null && !originalFop.equals(newFop)) {
 				// FOP value changed from original
 				String errorMsg = "CRITICAL: replaceState would change FOP value!\n" +
-					"Original: " + originalFop + "\nNew: " + newFop + "\nURL: " + location.getPathWithQueryParameters() + "\nStack: " + LoggerUtils.stackTrace();
+					"Original: " + originalFop + "\nNew: " + newFop + "\nURL: " + redactToken(location.getPathWithQueryParameters()) + "\nStack: " + LoggerUtils.stackTrace();
 				logger.error(errorMsg);
 			}
 		}

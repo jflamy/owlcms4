@@ -565,7 +565,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		// change the URL to reflect group
 		Location location2 = new Location(this.location.getPath(), new QueryParameters(this.urlParams));
 		URLUtils.replaceState(this.locationUI.getPage().getHistory(), null, location2, this.location);
-		logger.trace("changed location to {}", location2.getPathWithQueryParameters());
+		logger.trace("changed location to {}", URLUtils.redactToken(location2.getPathWithQueryParameters()));
 		UI.getCurrent().getPage().setTitle(getPageTitle());
 	}
 

@@ -20,7 +20,7 @@ public class RoleAccountInitializationTest {
 	@Test
 	public void createsAllGrantableRolesWithTheCorrectPlatformScope() {
 		List<UserAccount> accounts = UserAccountRepository.missingRoleAccounts(List.of(), List.of("A", "B"));
-		assertEquals(23, accounts.size());
+		assertEquals(24, accounts.size());
 		for (Role role : Role.values()) {
 			if (!role.isGrantable() || role == Role.COMPETITION_DIRECTOR) {
 				assertFalse(role.name(), accounts.stream().anyMatch(a -> a.getGrants().stream()
@@ -40,6 +40,7 @@ public class RoleAccountInitializationTest {
 		assertTrue(accounts.stream().anyMatch(a -> a.getUsername().equals("announcer-A")));
 		assertTrue(accounts.stream().anyMatch(a -> a.getUsername().equals("platform-B")));
 		assertTrue(accounts.stream().anyMatch(a -> a.getUsername().equals("competition_supervisor")));
+		assertTrue(accounts.stream().anyMatch(a -> a.getUsername().equals("streaming")));
 	}
 
 	@Test
@@ -112,7 +113,7 @@ public class RoleAccountInitializationTest {
 	@Test
 	public void createsOnlyGlobalRolesWhenThereAreNoPlatforms() {
 		List<UserAccount> accounts = UserAccountRepository.missingRoleAccounts(List.of(), List.of());
-		assertEquals(7, accounts.size());
+		assertEquals(8, accounts.size());
 		assertTrue(accounts.stream().allMatch(a -> a.getGrants().get(0).getPlatformName() == null));
 	}
 
@@ -147,7 +148,7 @@ public class RoleAccountInitializationTest {
 	@Test
 	public void singlePlatformAccountsHaveNoSuffixButKeepTheirPlatformScope() {
 		List<UserAccount> accounts = UserAccountRepository.missingRoleAccounts(List.of(), List.of("Main"));
-		assertEquals(15, accounts.size());
+		assertEquals(16, accounts.size());
 		assertTrue(accounts.stream().noneMatch(a -> a.getUsername().contains("-")));
 		UserAccount announcer = accounts.stream().filter(a -> a.getUsername().equals("announcer"))
 		        .findFirst().orElseThrow();

@@ -10,13 +10,15 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
+import app.owlcms.access.TokenAccessible;
 import app.owlcms.displays.scoreboard.ResultsMedals;
 
 /**
  * Prospective medalists, including categories that are not finished.
  */
 @SuppressWarnings("serial")
-@RequiresRole(value = { Role.DISPLAYS, Role.EXTERNAL }, platformBound = true)
+@RequiresRole(value = { Role.DISPLAYS, Role.STREAMING }, platformBound = true)
+@TokenAccessible
 @Route("displays/medalLeaders")
 
 public class MedalLeadersPage extends MedalsPage {

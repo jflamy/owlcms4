@@ -6,6 +6,9 @@ import java.util.Set;
 /**
  * Roles known to the access control. Pages only reference base roles; grantable roles may be composite and expand to
  * base roles in {@link #expand()}.
+ * <p>
+ * DISPLAYS is for the competition venue's own screens. STREAMING is for what a streaming client may show. Every page
+ * naming STREAMING also names DISPLAYS. RESULTS gives results access only; EXTERNAL expands to RESULTS and STREAMING.
  */
 public enum Role {
 	ADMIN(true, false, false, false),
@@ -26,7 +29,8 @@ public enum Role {
 	JURY(true, true, true, true),
 	REFEREE(true, true, true, true),
 	DISPLAYS(true, true, false, true),
-	EXTERNAL(true, false, false, true);
+	STREAMING(true, false, false, true),
+	EXTERNAL(true, false, false, false);
 
 	private final boolean grantable;
 	private final boolean platformScopable;
@@ -62,10 +66,10 @@ public enum Role {
 		return switch (this) {
 			case ADMIN -> baseRoles();
 			case COMPETITION_SUPERVISOR -> EnumSet.of(COMPETITION_SUPERVISOR, PREPARATION, REGISTRATION, WEIGHIN,
-			        RESULTS, ANNOUNCER, MARSHAL, TIMEKEEPER, TC, JURY, REFEREE, DISPLAYS);
+			        RESULTS, ANNOUNCER, MARSHAL, TIMEKEEPER, TC, JURY, REFEREE, DISPLAYS, STREAMING);
 			case COMPETITION_DIRECTOR -> EnumSet.of(PREPARATION, RESULTS, DISPLAYS);
-			case RESULTS -> EnumSet.of(RESULTS, DISPLAYS);
 			case PLATFORM -> EnumSet.of(ANNOUNCER, MARSHAL, TIMEKEEPER, TC, DISPLAYS);
+			case EXTERNAL -> EnumSet.of(RESULTS, STREAMING);
 			default -> EnumSet.of(this);
 		};
 	}

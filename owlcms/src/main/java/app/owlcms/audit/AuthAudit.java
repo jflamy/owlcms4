@@ -67,8 +67,9 @@ public final class AuthAudit {
 	/**
 	 * A token presented on a non-interactive request was refused. Never pass the token itself.
 	 *
-	 * @param reason   "invalid", "throttled" or "forbidden"
-	 * @param username the token's owner when known (forbidden), else null
+	 * @param reason   "invalid", "throttled", "forbidden", "not-token-page", "malformed", "platform", "revoked" or
+	 *                 "display-ip"
+	 * @param username the token's owner when known, else null
 	 * @param tokenId  the token identifier when known, else null
 	 */
 	public static void tokenRefused(String clientIp, String path, String reason, String username, String tokenId) {
@@ -76,6 +77,13 @@ public final class AuthAudit {
 		        : AuditActor.token(clean(username), tokenId, clientIp);
 		AuditLog.write(AuditEntry.builder(COMPETITION, "auth.token-refused").actor(actor)
 		        .detail(AuditFormat.kvs("reason", reason, "path", path)).build());
+	}
+
+	/** A display tab was opened with an account token. Never pass the token itself. */
+	public static void tokenAccepted(String clientIp, String path, String username, String tokenId) {
+		AuditLog.write(AuditEntry.builder(COMPETITION, "auth.token-accepted")
+		        .actor(AuditActor.token(clean(username), tokenId, clientIp))
+		        .detail(AuditFormat.kv("path", path)).build());
 	}
 
 	private static void writeFor(AuditOrigin origin, String action, String detail) {

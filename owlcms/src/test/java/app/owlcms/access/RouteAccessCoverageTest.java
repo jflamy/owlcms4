@@ -21,8 +21,14 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.access.Principal.AuthSource;
 import app.owlcms.data.account.RoleGrant;
 import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.nui.displays.AbstractDisplayPage;
+import app.owlcms.nui.displays.DisplayNavigationContent;
+import app.owlcms.nui.displays.VideoNavigationContent;
+import app.owlcms.nui.displays.attemptboards.AthleteFacingAttemptBoardPage;
+import app.owlcms.nui.displays.attemptboards.AthleteFacingDecisionBoardPage;
 import app.owlcms.nui.displays.scoreboards.JuryDecisionsPage;
 import app.owlcms.nui.displays.scoreboards.JuryScoreboardPage;
+import app.owlcms.nui.home.navigation.MobileScoreboardsNavigationContent;
 import app.owlcms.nui.lifting.AnnouncerContent;
 import app.owlcms.nui.lifting.CompetitionDirectorContent;
 import app.owlcms.nui.lifting.PassiveAnnouncerContent;
@@ -80,7 +86,9 @@ public class RouteAccessCoverageTest {
 	}
 
 	@Test
-	public void externalIsListedExactlyOnPagesListingDisplays() throws Exception {
+	public void streamingIsListedOnStreamablePages() throws Exception {
+		Set<Class<?>> venueOnly = Set.of(JuryScoreboardPage.class, AthleteFacingAttemptBoardPage.class,
+		        AthleteFacingDecisionBoardPage.class);
 		List<String> problems = new ArrayList<>();
 		for (Class<?> pageClass : routeClasses()) {
 			PageRule rule = PageRule.of(pageClass);
@@ -88,16 +96,51 @@ public class RouteAccessCoverageTest {
 				continue;
 			}
 			boolean displays = rule.roles().contains(Role.DISPLAYS);
-			boolean external = rule.roles().contains(Role.EXTERNAL);
-			boolean expectedExternal = displays && pageClass != JuryScoreboardPage.class;
-			if (external != expectedExternal) {
-				problems.add(pageClass.getSimpleName() + " displays=" + displays + " external=" + external);
+			boolean streaming = rule.roles().contains(Role.STREAMING);
+			boolean expectedStreaming = displays && !venueOnly.contains(pageClass);
+			if (streaming != expectedStreaming) {
+				problems.add(pageClass.getSimpleName() + " displays=" + displays + " streaming=" + streaming);
+			}
+			if (rule.roles().contains(Role.EXTERNAL)) {
+				problems.add(pageClass.getSimpleName() + " lists EXTERNAL, which is a composite role");
 			}
 		}
 		assertEquals(problems.toString(), 0, problems.size());
-		assertTrue(PageRule.of(JuryScoreboardPage.class).roles().contains(Role.DISPLAYS));
-		assertFalse(PageRule.of(JuryScoreboardPage.class).roles().contains(Role.EXTERNAL));
-		assertTrue(PageRule.of(JuryDecisionsPage.class).roles().contains(Role.EXTERNAL));
+		for (Class<?> venuePage : venueOnly) {
+			assertTrue(venuePage.getSimpleName(), PageRule.of(venuePage).roles().contains(Role.DISPLAYS));
+			assertFalse(venuePage.getSimpleName(), PageRule.of(venuePage).roles().contains(Role.STREAMING));
+		}
+		assertTrue(PageRule.of(JuryDecisionsPage.class).roles().contains(Role.STREAMING));
+	}
+
+	@Test
+	public void tokenAccessibleExactlyOnDisplayOutputPages() throws Exception {
+		List<String> problems = new ArrayList<>();
+		int tokenAccessible = 0;
+		for (Class<?> pageClass : routeClasses()) {
+			PageRule rule = PageRule.of(pageClass);
+			boolean outputPage = AbstractDisplayPage.class.isAssignableFrom(pageClass);
+			if (rule.tokenAccessible() != outputPage) {
+				problems.add(pageClass.getSimpleName() + " tokenAccessible=" + rule.tokenAccessible()
+				        + " displayOutputPage=" + outputPage);
+			}
+			if (rule.tokenAccessible()) {
+				tokenAccessible++;
+				if (rule.kind() != PageRule.Kind.ROLES || !rule.roles().contains(Role.DISPLAYS)) {
+					problems.add(pageClass.getSimpleName() + " is token accessible without a DISPLAYS role rule");
+				}
+			}
+		}
+		assertEquals(problems.toString(), 0, problems.size());
+		assertEquals(27, tokenAccessible);
+		for (Class<?> launcher : List.of(DisplayNavigationContent.class, VideoNavigationContent.class,
+		        MobileScoreboardsNavigationContent.class)) {
+			assertFalse(launcher.getSimpleName(), PageRule.of(launcher).tokenAccessible());
+		}
+		for (Class<?> venue : List.of(JuryScoreboardPage.class, AthleteFacingAttemptBoardPage.class,
+		        AthleteFacingDecisionBoardPage.class)) {
+			assertTrue(venue.getSimpleName(), PageRule.of(venue).tokenAccessible());
+		}
 	}
 
 	@Test

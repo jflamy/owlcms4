@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.router.QueryParameters;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
+import app.owlcms.access.TokenAccessible;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
@@ -24,7 +25,8 @@ import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@RequiresRole({ Role.DISPLAYS, Role.EXTERNAL })
+@RequiresRole({ Role.DISPLAYS, Role.STREAMING })
+@TokenAccessible
 @Route("displays/rankings")
 
 public class RankingsPage extends AbstractResultsDisplayPage {

@@ -8,6 +8,7 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.access.Principal;
+import app.owlcms.access.TokenTab;
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.init.OwlcmsSession;
 
@@ -17,10 +18,13 @@ public record AuditActor(String mode, String user, String station, Integer index
 		return new AuditActor("PIN", "-", "SYSTEM", null, false, "-", "-");
 	}
 
+	/** A tab opened with a token is attributed to the token's owner, not to the browser's password login. */
 	public static AuditActor capture(Object origin) {
-		Principal principal = currentPrincipal();
+		TokenTab tab = currentTokenTab();
+		Principal principal = tab != null ? tab.principal() : currentPrincipal();
+		String device = tab != null ? "token id=" + tab.tokenId() : "-";
 		return new AuditActor(modeOf(principal), userOf(principal), StationResolver.resolve(origin), null, true,
-				captureClient(), "-");
+				captureClient(), device);
 	}
 
 	/** The person logging in or out, as opposed to a station acting on the competition. */
@@ -59,6 +63,14 @@ public record AuditActor(String mode, String user, String station, Integer index
 		return new AuditActor(this.mode, this.user, station, index, inferred, this.client, this.device);
 	}
 
+	private static TokenTab currentTokenTab() {
+		try {
+			return TokenTab.of(UI.getCurrent());
+		} catch (RuntimeException e) {
+			return null;
+		}
+	}
+
 	private static Principal currentPrincipal() {
 		try {
 			return OwlcmsSession.getPrincipal();
@@ -68,7 +80,8 @@ public record AuditActor(String mode, String user, String station, Integer index
 	}
 
 	private static String modeOf(Principal principal) {
-		return principal != null && principal.source() == Principal.AuthSource.ACCOUNT ? "ACCOUNTS" : "PIN";
+		return principal != null && (principal.source() == Principal.AuthSource.ACCOUNT
+		        || principal.source() == Principal.AuthSource.TOKEN) ? "ACCOUNTS" : "PIN";
 	}
 
 	private static String userOf(Principal principal) {

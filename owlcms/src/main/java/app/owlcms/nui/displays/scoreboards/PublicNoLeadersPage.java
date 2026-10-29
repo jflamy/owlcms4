@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import com.vaadin.flow.router.QueryParameters;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
+import app.owlcms.access.TokenAccessible;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
@@ -22,7 +23,8 @@ import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@RequiresRole(value = { Role.DISPLAYS, Role.EXTERNAL }, platformBound = true)
+@RequiresRole(value = { Role.DISPLAYS, Role.STREAMING }, platformBound = true)
+@TokenAccessible
 @Route("displays/publicSimple")
 
 public class PublicNoLeadersPage extends PublicScoreboardPage {

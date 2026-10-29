@@ -10,7 +10,7 @@ public record Principal(AuthSource source, Long accountId, String username, List
         String loginPlatform) {
 
 	public enum AuthSource {
-		ACCOUNT, OFFICIALS_PIN, DISPLAY_PIN, NO_PIN, BACKDOOR
+		ACCOUNT, TOKEN, OFFICIALS_PIN, DISPLAY_PIN, NO_PIN, BACKDOOR
 	}
 
 	/** Officials PIN, no PIN expected, or backdoor: everything, all platforms, live platform selectors. */
@@ -27,6 +27,15 @@ public record Principal(AuthSource source, Long accountId, String username, List
 	public static Principal of(UserAccount account, String loginPlatform) {
 		return new Principal(AuthSource.ACCOUNT, account.getId(), account.getUsername(),
 		        List.copyOf(account.getGrants()), loginPlatform);
+	}
+
+	/**
+	 * Authenticated by an account token, for one tab. Rebuilt from the account at each navigation, so revoked grants
+	 * take effect at the next navigation. It is not an account session: no password change, no platform lock.
+	 */
+	public static Principal ofToken(UserAccount account) {
+		return new Principal(AuthSource.TOKEN, account.getId(), account.getUsername(),
+		        List.copyOf(account.getGrants()), null);
 	}
 
 	public Principal withLoginPlatform(String platform) {

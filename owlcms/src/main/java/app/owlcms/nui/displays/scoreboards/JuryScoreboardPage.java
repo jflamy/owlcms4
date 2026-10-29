@@ -18,6 +18,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.QueryParameters;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
+import app.owlcms.access.TokenAccessible;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
@@ -30,6 +31,7 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 @RequiresRole(value = { Role.DISPLAYS, Role.JURY }, platformBound = true)
+@TokenAccessible
 @Route("displays/juryScoreboard")
 
 public class JuryScoreboardPage extends WarmupNoLeadersPage {

@@ -20,6 +20,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.QueryParameters;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
+import app.owlcms.access.TokenAccessible;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
@@ -37,7 +38,8 @@ import app.owlcms.uievents.UIEvent;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@RequiresRole(value = { Role.DISPLAYS, Role.EXTERNAL }, platformBound = true)
+@RequiresRole(value = { Role.DISPLAYS, Role.STREAMING }, platformBound = true)
+@TokenAccessible
 @Route("displays/publicScoreboard")
 
 public class PublicScoreboardPage extends AbstractResultsDisplayPage {

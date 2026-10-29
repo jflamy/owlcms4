@@ -8,8 +8,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import app.owlcms.data.config.FeatureSwitch;
 
-/** The access rule declared on a page class by one of the access annotations. */
-public record PageRule(Kind kind, Set<Role> roles, boolean platformBound, FeatureSwitch feature) {
+/**
+ * The access rule declared on a page class by one of the access annotations.
+ *
+ * @param tokenAccessible the page is a display output page that a token may open; the roles still decide
+ */
+public record PageRule(Kind kind, Set<Role> roles, boolean platformBound, FeatureSwitch feature,
+        boolean tokenAccessible) {
 
 	public enum Kind {
 		/** No annotation: deny by default. */
@@ -18,12 +23,21 @@ public record PageRule(Kind kind, Set<Role> roles, boolean platformBound, Featur
 
 	private static final Map<Class<?>, PageRule> CACHE = new ConcurrentHashMap<>();
 
+	public PageRule(Kind kind, Set<Role> roles, boolean platformBound, FeatureSwitch feature) {
+		this(kind, roles, platformBound, feature, false);
+	}
+
 	public static PageRule of(Class<?> pageClass) {
 		return CACHE.computeIfAbsent(pageClass, PageRule::parse);
 	}
 
 	public static PageRule roles(Set<Role> roles, boolean platformBound) {
-		return new PageRule(Kind.ROLES, roles, platformBound, null);
+		return new PageRule(Kind.ROLES, roles, platformBound, null, false);
+	}
+
+	/** A role rule for a token-accessible page; for tests. */
+	public static PageRule tokenRoles(Set<Role> roles, boolean platformBound) {
+		return new PageRule(Kind.ROLES, roles, platformBound, null, true);
 	}
 
 	/** Pages that show scoreboards accept display credentials. */
@@ -45,7 +59,8 @@ public record PageRule(Kind kind, Set<Role> roles, boolean platformBound, Featur
 		if (required != null) {
 			Set<Role> roles = EnumSet.noneOf(Role.class);
 			roles.addAll(Arrays.asList(required.value()));
-			return new PageRule(Kind.ROLES, roles, required.platformBound(), feature);
+			return new PageRule(Kind.ROLES, roles, required.platformBound(), feature,
+			        pageClass.isAnnotationPresent(TokenAccessible.class));
 		}
 		return new PageRule(Kind.NONE, Set.of(), false, feature);
 	}

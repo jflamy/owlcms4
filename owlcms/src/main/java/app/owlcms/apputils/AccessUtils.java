@@ -7,6 +7,7 @@
 package app.owlcms.apputils;
 
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
 
@@ -135,6 +136,28 @@ public class AccessUtils {
 
 	public static boolean isBackdoorAccess() {
 		return checkBackdoor(getClientIp());
+	}
+
+	/**
+	 * Compares a value with the display PIN, in constant time. Unlike the display login, it neither reads nor sets the
+	 * session, and does not check the display address list.
+	 */
+	public static boolean displayPinMatches(String value) {
+		String candidate = value == null ? "" : value;
+		String pinOverride = Config.getCurrent().getParamDisplayPin();
+		if (pinOverride != null) {
+			return pinOverride.isBlank() || constantTimeEquals(pinOverride, candidate);
+		}
+		String dbPin = Config.getCurrent().getDisplayPin();
+		if (dbPin == null) {
+			return true;
+		}
+		return constantTimeEquals(dbPin, Config.getCurrent().encodeUserPassword(candidate, dbPin));
+	}
+
+	private static boolean constantTimeEquals(String expected, String actual) {
+		return MessageDigest.isEqual(expected.getBytes(StandardCharsets.UTF_8),
+		        actual.getBytes(StandardCharsets.UTF_8));
 	}
 
 	public static boolean isIpAllowedForDisplay(String clientIp) {
