@@ -242,7 +242,7 @@ public class ThemeCompare {
 	        new Route(1, "lifting/marshall", true, false),
 	        // The transparent and public stylesheet trees (css/transparent, css/public) are selected
 	        // by the video and public *query parameters*, which make StylesDirSelection point
-	        // stylesDir at getParamVideoStylesDir() / getParamPublicStylesDir(). The "video=true"
+	        // stylesDir at getParamVideoStylesDir() / getParamPublicStylesDir(). The "video"
 	        // route further down is the Video Streaming navigation page and does not exercise them.
 	        new Route(1, "displays/resultsLeaders?video=true", true, false),
 	        new Route(1, "displays/attemptBoard?video=true", true, false),
@@ -305,9 +305,8 @@ public class ThemeCompare {
 	        new Route(5, "lifting", false, true),
 	        new Route(5, "displays", false, true),
 	        new Route(5, "recordsPreparation", false, true),
-	        // the Video Streaming navigation page: "video=true" is its literal @Route value, not a
-	        // query parameter, so this captures a menu page and not a transparently-styled display
-	        new Route(5, "video=true", false, true),
+	        // the Video Streaming navigation page, a menu page and not a transparently-styled display
+	        new Route(5, "video", false, true),
 	        new Route(5, "preparation/competition", false, true),
 	        new Route(5, "preparation/agegroup", false, true),
 	        new Route(5, "preparation/coaches", false, true),

@@ -72,7 +72,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @RequiresRole({ Role.DISPLAYS, Role.EXTERNAL })
-@Route(value = "video=true", layout = OwlcmsLayout.class)
+@Route(value = "video", layout = OwlcmsLayout.class)
 public class VideoNavigationContent extends BaseNavigationContent
         implements NavigationPage, HasDynamicTitle {
 
