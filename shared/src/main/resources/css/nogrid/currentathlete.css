@@ -133,7 +133,7 @@ div > div.attemptBar > div.attempts > table > tr > td.totalRank {
 }
 
 .breakTime {
-    color: var(--breakTimerColor)
+    color: var(--breakTimerColor);
     grid-column: 6/7;
 }
 
