@@ -2,7 +2,7 @@
 
 This item is for `owlcms/video` (Go module `github.com/owlcms/video`), not for
 OWLCMS itself. It is listed here because it completes the token-protected URLs of
-[120](120-TOKEN_PROTECTED_URLS.md).
+[120](done/120-TOKEN_PROTECTED_URLS.md).
 
 ## Context
 

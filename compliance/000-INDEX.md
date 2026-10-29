@@ -12,8 +12,7 @@ None open. Lenient birth-date parsing is done: [BIRTHDATE_LENIENT_PARSE.md](done
 
 | Order | Document | Scope |
 | --- | --- | --- |
-| 120 | [Token-protected URLs](120-TOKEN_PROTECTED_URLS.md) | Tokens for displays, replays and URL-based data extraction; the competition export URL is done, the rest remains |
-| 130 | [Other access work](130-ACCESS_CONTROL_REMAINING.md) | Navigation/action gating and infrastructure/security review; reconcile overlap with 100–120 while implementing |
+| 130 | [Other access work](130-ACCESS_CONTROL_REMAINING.md) | Navigation/action gating, infrastructure/security review, remaining token-protected servlets and supervisor backups |
 | 140 | [Export credential protection](140-EXPORT_CREDENTIAL_PROTECTION.md) | Protect secrets inside saved exports, independently of URL authorization |
 | 145 | [Signed exports](145-SIGNED_EXPORTS.md) | PEM signature inside JSON exports, import outcomes in the audit trail, support procedures with and without the key |
 | 150 | [Scheduled checkpoints](150-SCHEDULED_CHECKPOINTS.md) | Tracker timer and faithful ZIP retention over the existing WebSocket |
@@ -21,9 +20,10 @@ None open. Lenient birth-date parsing is done: [BIRTHDATE_LENIENT_PARSE.md](done
 | 170 | [Competition Director acceptance](170-COMPETITION_DIRECTOR_ACCEPTANCE.md) | Remaining accounts/passive-page browser acceptance and configuration permissions |
 | 180 | [Card dialog browser check](180-CARD_DIALOG_BROWSER_CHECK.md) | Manual check that a decision closes an athlete card together with its pending confirmation |
 
-PEM-based account mode (100) and account tokens (110) are done:
+PEM-based account mode (100), account tokens (110) and token-protected URLs (120) are done:
 [100-PEM_ACCOUNT_MODE.md](done/100-PEM_ACCOUNT_MODE.md),
-[110-ACCOUNT_TOKENS.md](done/110-ACCOUNT_TOKENS.md). While implementing 130, remove
+[110-ACCOUNT_TOKENS.md](done/110-ACCOUNT_TOKENS.md),
+[120-TOKEN_PROTECTED_URLS.md](done/120-TOKEN_PROTECTED_URLS.md). While implementing 130, remove
 requirements already covered by 100–120 rather than duplicating checks.
 Checkpoint collection uses existing WebSocket authentication, not personal URL
 tokens.

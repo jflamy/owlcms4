@@ -1,6 +1,6 @@
 # EXTERNAL Role — Read-Only Display Access for Broadcasters
 
-Follow-up 2026-10-25: [the token URL specification](../120-TOKEN_PROTECTED_URLS.md)
+Follow-up 2026-10-25: [the token URL specification](120-TOKEN_PROTECTED_URLS.md)
 specifies unattended OBS/broadcaster URL tokens and shared read-only replay
 access. It supersedes this archived design's exclusion of unattended login
 and the manual-login limitation in §8. The existing EXTERNAL display permissions

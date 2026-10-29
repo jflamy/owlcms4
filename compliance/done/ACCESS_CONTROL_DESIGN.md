@@ -470,7 +470,7 @@ Startup: if accounts mode is active (DB or env) and the built-in `admin` account
 
 ## 12. Account administration UI
 
-Follow-up 2026-10-25: [the token URL specification](../120-TOKEN_PROTECTED_URLS.md)
+Follow-up 2026-10-25: [the token URL specification](120-TOKEN_PROTECTED_URLS.md)
 adds self-service Account navigation, Admin-menu Accounts management and
 personal URL tokens. It supersedes this archived iteration where they differ,
 including the unresolved servlet account-authentication question in §13.1.

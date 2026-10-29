@@ -3,7 +3,7 @@
 Status: implemented and accepted 2026-10-28 (unit tests and browser, both forms).
 Tokens are created and managed here. The first endpoint that accepts them is the
 competition export URL; the rest is tracked in
-[120](../120-TOKEN_PROTECTED_URLS.md).
+[120](120-TOKEN_PROTECTED_URLS.md).
 Existing roles and account administration remain unchanged.
 
 ## Account UI

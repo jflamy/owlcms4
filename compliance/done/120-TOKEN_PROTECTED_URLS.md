@@ -1,8 +1,11 @@
 # Token-Protected URLs
 
-Status: agreed 2026-10-25, revised 2026-10-28. The competition export URL is
-implemented; the Vaadin display pages and the remaining servlets are not.
-Prerequisite: [account token generation](done/110-ACCOUNT_TOKENS.md).
+Status: done 2026-10-29. Implemented and accepted: the competition export URL, the
+STREAMING role and token access to the Vaadin display pages (accounts and PIN mode).
+The H2 download, `/simulation/*`, `/controlpanel/stop` and the supervisor backups are
+specified here and tracked in [130](../130-ACCESS_CONTROL_REMAINING.md).
+Prerequisite: [account token generation](110-ACCOUNT_TOKENS.md).
+Implementation plan for the STREAMING role and the display pages: [120-IMPLEMENTATION_PLAN.md](120-IMPLEMENTATION_PLAN.md).
 
 ## Principles
 
@@ -36,14 +39,19 @@ Prerequisite: [account token generation](done/110-ACCOUNT_TOKENS.md).
   venue-only pages (athlete-facing attempt and decision boards, jury scoreboard).
 - EXTERNAL stays, so no stored data changes. It becomes a composite role that expands
   to RESULTS and STREAMING, for now. Whoever needs results, exports included, uses an
-  EXTERNAL account. Expansion is one level: EXTERNAL does not receive DISPLAYS through
-  RESULTS.
+  EXTERNAL account.
+- RESULTS gives results access only (it expanded to DISPLAYS before STREAMING existed).
+  EXTERNAL is the results-plus-streaming grant, held by a separate account so its token
+  can be granted and revoked separately.
+- COMPETITION_SUPERVISOR also expands to STREAMING. COMPETITION_DIRECTOR keeps
+  PREPARATION, RESULTS and DISPLAYS. Every page naming STREAMING also names DISPLAYS,
+  so DISPLAYS opens all display pages.
 - A STREAMING account serves both uses. Logged in with a password, it browses the
   Displays navigation page to copy URLs. Its token opens the display pages only.
 - Any named account may have a token, including the competition supervisor's.
-  COMPETITION_SUPERVISOR expands to every base role except ADMIN_PAGES and STREAMING;
-  it reaches the display pages through DISPLAYS, so its token reaches every
-  token-accessible page and servlet. ADMIN is needed only for the admin pages
+  COMPETITION_SUPERVISOR expands to every base role except ADMIN_PAGES, so its token
+  reaches every token-accessible page and servlet. ADMIN is needed only for the admin
+  pages
   (administration, backups, audit checks, accounts, settings, session import,
   testing), which no token reaches.
 - The built-in admin is a bootstrap and recovery account. It has no token, and
@@ -105,6 +113,11 @@ as Caddy makes a remote request appear to come from localhost.
 - The accepted stop is audited with `cause=control-panel`; the value is never logged.
 
 ## Vaadin pages
+
+State: implemented 2026-10-29 and accepted in the browser, in accounts and PIN mode.
+Vaadin pages answer the first request with HTTP 200 and navigate in a second request,
+so 401, 403 and 429 appear as the refusal text only; the export servlet returns real
+status codes.
 
 A token never logs a browser in. It opens individual display pages and nothing else.
 The same account used with a password still reaches every page its roles allow.
@@ -218,7 +231,7 @@ re-authenticates. The diagnostics that print URLs or query maps (the debug log i
 
 ### Refusals
 
-A refusal shows only the status text ("Unauthorized", "Forbidden", "Too Many
+A refusal shows only the status text ("Unauthenticated", "Forbidden", "Too Many
 Requests"): no application layout, no buttons, no account details, no login redirect.
 It works without an authenticated principal, unlike the current `denied` page. The
 status code applies to the initial page request; a client-side navigation shows the
@@ -233,9 +246,11 @@ disconnected on revocation.
 ## Replays
 
 Replays, in the video module, does not check OWLCMS account tokens. It gets its own
-token, generated in the video application: see [330](330-REPLAYS_TOKEN.md).
+token, generated in the video application: see [330](../330-REPLAYS_TOKEN.md).
 
 ## Later work
+
+Tracked in [130](../130-ACCESS_CONTROL_REMAINING.md).
 
 - Moving some admin pages from ADMIN_PAGES to COMPETITION_SUPERVISOR. This changes
   page roles only; tokens still do not reach those pages unless they are made

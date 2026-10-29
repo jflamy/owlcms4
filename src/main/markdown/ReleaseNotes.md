@@ -10,6 +10,19 @@
 
 **Development log**
 
+- 69.0.0-beta02: MQTT refereeing devices are told when a competition has no jury (jury size 0) instead of being sent a jury size of 3.
+  - Blue Owl versions up to 3.0.0 treat it as a jury of 3, as before.
+
+- 69.0.0-beta02: Robustness/correctness of user accounts management and audit trail
+
+- 69.0.0-beta02: Some URLs accept a `?token=` from a user account, so OBS and scripts work without a login.
+  - Tokens are generated and revoked by going on the user that would normally use the pages and using Generate Token
+  - Navigation and operator input pages never accept a token.
+  - Streaming display pages need a STREAMING token (or DISPLAYS)
+  - Venue-only pages (athlete-facing boards, jury scoreboard) need DISPLAYS.
+  - Competition export URLs need a RESULTS token.
+  - In PIN mode, the display PIN can be passed as `?token=` on display pages.
+
 - 69.0.0-beta01:  Registration spreadsheets accept birth dates typed with `/`, `.`, `-` or spaces,
   - DMY or MDY formats are accepted, based on what is in the file (>13 indicates days)
   - If both formats are found, spreadsheet is rejected. If all dates are ambiguous the "official" order for the location is used.
