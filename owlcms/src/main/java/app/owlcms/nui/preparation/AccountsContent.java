@@ -46,6 +46,7 @@ import app.owlcms.data.account.RoleGrant;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
@@ -150,6 +151,8 @@ public class AccountsContent extends BaseContent implements OwlcmsContent {
 	private Checkbox createAccessModeSwitch() {
 		Checkbox accountsMode = new Checkbox(Translator.translate("Access.Mode.ACCOUNTS"));
 		accountsMode.setValue(Config.getCurrent().isAccountsMode());
+		// iwfCompliance requires accounts mode until it is turned off and OWLCMS restarted
+		accountsMode.setEnabled(!FeatureSwitch.IWF_COMPLIANCE.isEffective());
 		accountsMode.addValueChangeListener(event -> {
 			if (!event.isFromClient()) {
 				return;

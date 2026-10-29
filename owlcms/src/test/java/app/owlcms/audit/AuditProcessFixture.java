@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.util.List;
 
 import app.owlcms.data.config.Config;
-import app.owlcms.data.config.FeatureSwitch;
 
 /** Isolated audit-only JVM: no server, Vaadin components, competition database or devices are started. */
 public final class AuditProcessFixture {
@@ -14,12 +13,14 @@ public final class AuditProcessFixture {
 	public static void main(String[] args) throws Exception {
 		System.setProperty("user.home", Path.of("home").toAbsolutePath().toString());
 		Config config = new Config();
-		if ("forced".equals(args[0])) {
+		String mode = args[0];
+		if ("key".equals(mode)) {
 			AuditKeyFiles.prepare(AuditKeyFiles.resolvePath(null, Path.of(System.getProperty("user.home"))));
-		} else if (!"plain".equals(args[0])) {
-			config.setFeatureSwitchValue(FeatureSwitch.IWF_COMPLIANCE, true);
 		}
-		AuditIntegrity.initialize(config);
+		// without initialization the logs are not sealed, as in unit tests
+		if (!"plain".equals(mode)) {
+			AuditIntegrity.initialize(config);
+		}
 		AuditLog.writeBatch(List.of(
 				AuditEntry.builder("A", "athlete.change").actor(AuditActor.device("WEIGHIN", null, "-"))
 						.field("bodyWeight").newValue(81.35).build(),

@@ -32,7 +32,6 @@ Keep the marshal Pause button and the existing announcer/timekeeper controls.
 
 | Surface | Remaining review |
 | --- | --- |
-| `/simulation/*`, `/controlpanel/stop` | Confirm localhost/backdoor maintenance restrictions |
 | `/local/*` | Verify directory/classpath confinement, decoding, traversal and symlinks; exclude sensitive files |
 | MQTT broker and `/mqtt` | Keep MQTT credentials; remove client password from MoquetteAuthenticator debug logging |
 | Vaadin dynamic downloads/uploads | Verify resource creation and use require the appropriate page permission |
@@ -43,19 +42,6 @@ IP resolution must use the socket peer unless that peer is explicitly trusted.
 For a trusted proxy use its configured header convention, reject malformed
 chains and prevent direct backend access around it. A loopback proxy does not
 make its external callers localhost. Do not infer trust from a private address.
-
-## Remaining token-protected servlets
-
-Specified in [120](done/120-TOKEN_PROTECTED_URLS.md#plain-servlets) (roles, PIN mode,
-responses); not implemented yet. Reuse `TokenAuthenticator.authenticate` and `holds`,
-as `CompetitionExport` does.
-
-- `/competition/h2` (GET, HEAD): account token with COMPETITION_SUPERVISOR; PIN mode
-  keeps the local-network rule.
-- `/simulation/*` (GET, HEAD, POST): account token with PREPARATION; the form carries
-  the token on its POSTs; PIN mode keeps the local rule.
-- `/controlpanel/stop` (POST): the current audit `runId`, not an account token; see
-  [120](done/120-TOKEN_PROTECTED_URLS.md#controlpanelstop).
 
 ## Supervisor backups
 

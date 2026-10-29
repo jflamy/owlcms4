@@ -2,8 +2,9 @@
 
 Status: done 2026-10-29. Implemented and accepted: the competition export URL, the
 STREAMING role and token access to the Vaadin display pages (accounts and PIN mode).
-The H2 download, `/simulation/*`, `/controlpanel/stop` and the supervisor backups are
-specified here and tracked in [130](../130-ACCESS_CONTROL_REMAINING.md).
+Implemented 2026-10-29: the H2 download, `/simulation/*` and `/controlpanel/stop` (with
+the control panel sending its launch token). The supervisor backups are tracked in
+[130](../130-ACCESS_CONTROL_REMAINING.md).
 Prerequisite: [account token generation](110-ACCOUNT_TOKENS.md).
 Implementation plan for the STREAMING role and the display pages: [120-IMPLEMENTATION_PLAN.md](120-IMPLEMENTATION_PLAN.md).
 
@@ -29,7 +30,7 @@ Implementation plan for the STREAMING role and the display pages: [120-IMPLEMENT
 | --- | --- | --- | --- |
 | Account token | Accounts | An account; its current roles decide | Display pages, plain servlets |
 | Display PIN, passed as `token` | PIN | Knowledge of the display PIN (weak shared secret) | Display pages |
-| Current audit `runId` | Both | The caller runs on the same machine | `/controlpanel/stop` only |
+| Control panel token, else a direct loopback connection (token mandatory in IWF compliance) | Both | The caller is on this machine: the control panel run that launched OWLCMS, or an operator who read the token from it | `/controlpanel/stop`, `/simulation/*` |
 
 ## Roles
 
@@ -79,15 +80,16 @@ Implementation plan for the STREAMING role and the display pages: [120-IMPLEMENT
 | URL | Roles (accounts mode) | PIN mode | State |
 | --- | --- | --- | --- |
 | `/competition/export`, `/competition/export/json/1`, `/competition/export/json/2`, `/competition/export/sbde` | RESULTS (also through EXTERNAL, COMPETITION_DIRECTOR and COMPETITION_SUPERVISOR). STREAMING refused. | Local network or backdoor, as before | Implemented |
-| `/competition/h2` (GET, HEAD) | COMPETITION_SUPERVISOR. The file holds password and token hashes. | Local network or backdoor, as before | To do |
-| `/simulation/*` (GET, HEAD, POST) | PREPARATION (also through COMPETITION_SUPERVISOR). The form carries the token on its POSTs. | Localhost or backdoor, as before | To do |
-| `/controlpanel/stop` (POST) | None: current audit `runId` | Same | To do |
+| `/competition/h2` (GET, HEAD) | RESULTS, as for the exports | Local network or backdoor, as before | Implemented |
+| `/simulation/*` (GET, HEAD, POST) | None: control panel token, else a direct loopback connection. The page asks for the token; the form carries it on its POSTs. | Same | Implemented |
+| `/controlpanel/stop` (POST) | None: control panel token, else a direct loopback connection | Same | Implemented |
 | `/mqtt` | Out of scope: the MQTT broker authenticates its clients | Same | — |
 | `/local/...` (logos, flags) | Public static assets | Same | — |
 
 Responses: 401 with `WWW-Authenticate` for a missing or invalid token, 403 for a
 valid token without the role, 429 with `Retry-After` when throttled. GET and HEAD
-behave the same.
+behave the same. The export and H2 servlets share `ServletTokenGuard`; stop and simulation
+share `SameMachineProof`.
 
 Full audit backups are downloaded from an admin page; no token URL is planned for them.
 
@@ -97,20 +99,28 @@ Full audit backups are downloaded from an admin page; no token URL is planned fo
   known); successful exports as `export.json` with `device=token id=<id>`.
 - A revoked token or disabled account is refused immediately.
 
-### `/controlpanel/stop`
+### `/controlpanel/stop` and `/simulation/*`
 
-Stops the process. Its callers, the control panel and the updater
-(`playwright/UpdateCheck`), run on the same machine as OWLCMS and have no account.
-The only assertion needed is that the caller can read files on that machine. The
-socket peer or forwarded address cannot prove it, because a local reverse proxy such
-as Caddy makes a remote request appear to come from localhost.
+Both must come from this machine. The client address alone does not prove it: a local
+reverse proxy such as Caddy makes remote requests appear to come from localhost. The
+audit `runId` is not used: the control panel may stop OWLCMS before any audit file exists.
 
-- The caller reads the `runId` of the current server run from an `audit.open` entry
-  and sends it with the POST. Every rolled audit file of the run repeats the same
-  `runId`, so rolling does not matter.
-- OWLCMS accepts only its own current `runId`. A value from an earlier run is refused.
-  The backdoor list does not bypass the check.
-- The accepted stop is audited with `cause=control-panel`; the value is never logged.
+- The control panel generates a random token once per run, passes it to OWLCMS at
+  launch as `OWLCMS_CONTROLPANELTOKEN`, shows it to the operator, and sends it on stop as
+  `Authorization: Bearer <token>`. The simulation page asks for it and its form carries
+  it on its POSTs.
+- A request presenting a token must present that one (constant-time comparison); a
+  wrong token is refused, whatever the address.
+- Without a token, the weaker check applies: the connection must come from loopback and
+  carry no forwarding header (`X-Forwarded-For`, `Forwarded`, `X-Real-IP`). A reverse
+  proxy adds such a header (Caddy does by default), so a request it forwards is not
+  taken as local. This covers OWLCMS started by hand or by another tool.
+- In IWF compliance mode the token is mandatory: there is no fallback.
+- The backdoor list does not bypass the check. A refusal is audited as
+  `auth.token-refused` (`missing`, `invalid` or `not-local`). Stop answers 403 and the
+  control panel falls back to stopping the process with a signal; simulation shows the
+  token prompt. An accepted stop is audited as
+  `application.stopping reason=control-panel stop`. The token is never logged.
 
 ## Vaadin pages
 

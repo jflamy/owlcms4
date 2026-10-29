@@ -8,10 +8,10 @@ import java.util.concurrent.Executors;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.audit.AuditOrigin;
-import app.owlcms.audit.AuditIntegrity;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -37,21 +37,18 @@ public final class AccessStartup {
 			AccountPasswords.ensureAdminPassword(false, origin);
 			return;
 		}
-		if (selectedByAuditKey(config)) {
-			logger.info("accounts mode selected because an audit signing key is configured and the admin account has a password; the administrator can choose PIN mode instead");
-		}
 		if (StartupUtils.getStringParam("pin") != null) {
 			logger./**/warn("OWLCMS_PIN is ignored because accounts mode is active");
 		}
+		if (FeatureSwitch.IWF_COMPLIANCE.isEffective(config)) {
+			String override = StartupUtils.getStringParam("accessMode");
+			if (override != null && "PIN".equalsIgnoreCase(override.trim())) {
+				logger./**/warn("OWLCMS_ACCESSMODE=PIN is ignored because iwfCompliance requires accounts mode");
+			} else if (Boolean.TRUE.equals(config.getPinModeChosen())) {
+				logger.info("the PIN mode choice is ignored because iwfCompliance requires accounts mode");
+			}
+		}
 		AccountPasswords.ensureAdminPassword(true, origin);
-	}
-
-	private static boolean selectedByAuditKey(Config config) {
-		String override = StartupUtils.getStringParam("accessMode");
-		return AuditIntegrity.isInitialized() && AuditIntegrity.current().forcedByKey()
-		        && config.getAccessMode() != AccessMode.ACCOUNTS
-		        && !Boolean.TRUE.equals(config.getPinModeChosen())
-		        && (override == null || !"ACCOUNTS".equalsIgnoreCase(override.trim()));
 	}
 
 	/** @param origin captured by the caller, on its own thread, and passed to the background work */

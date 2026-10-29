@@ -15,12 +15,16 @@
 
 - 69.0.0-beta02: Robustness/correctness of user accounts management and audit trail
 
+- 69.0.0-beta02: Audit logs are always sealed, with the audit signing key (PEM) when present, else with the built-in key, which only allows testing.
+  - A PEM no longer turns on `iwfCompliance` or accounts mode.
+  - `iwfCompliance` now requires accounts mode and makes the control panel token mandatory for stopping OWLCMS and for the simulation page.
+
 - 69.0.0-beta02: Some URLs accept a `?token=` from a user account, so OBS and scripts work without a login.
   - Tokens are generated and revoked by going on the user that would normally use the pages and using Generate Token
   - Navigation and operator input pages never accept a token.
   - Streaming display pages need a STREAMING token (or DISPLAYS)
   - Venue-only pages (athlete-facing boards, jury scoreboard) need DISPLAYS.
-  - Competition export URLs need a RESULTS token.
+  - Competition export and H2 database download URLs need a RESULTS token.
   - In PIN mode, the display PIN can be passed as `?token=` on display pages.
 
 - 69.0.0-beta01:  Registration spreadsheets accept birth dates typed with `/`, `.`, `-` or spaces,

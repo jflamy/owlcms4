@@ -10,9 +10,16 @@
  *
  * HOW TO USE
  * 1. OWLCMS → Apply TSV Translation Updates
- * 2. Paste the contents of es-gender-terms-proposed.tsv into the text area.
+ * 2. Paste the contents of the proposed .tsv file into the text area.
  * 3. Click "Preview" first to see what will change without writing anything.
  * 4. If the preview looks correct, click "Apply".
+ *
+ * DUPLICATE KEYS
+ * The updater only updates the first row of a key that appears more than once.
+ * Run OWLCMS → Remove Duplicate Keys first: it lists what it will do and asks
+ * for confirmation. For each duplicated key it keeps the last row (the one
+ * OWLCMS uses), fills its empty cells from the earlier rows (latest non-empty
+ * value wins, as when OWLCMS loads the file), then deletes the earlier rows.
  *
  * SAFETY
  * - Only cells whose current value differs from the proposed value are updated.
@@ -30,7 +37,140 @@ function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('OWLCMS')
     .addItem('Apply TSV Translation Updates', 'showTsvUpdateDialog')
+    .addItem('Remove Duplicate Keys', 'removeDuplicateKeys')
     .addToUi();
+}
+
+// ---------------------------------------------------------------------------
+// Duplicate keys
+// ---------------------------------------------------------------------------
+
+function removeDuplicateKeys() {
+  var ui = SpreadsheetApp.getUi();
+  var sheet = SpreadsheetApp.getActiveSheet();
+  var plan = planDuplicateKeyRemoval(sheet);
+
+  if (plan.groups.length === 0) {
+    ui.alert('Remove Duplicate Keys', 'No duplicate keys in sheet "' + sheet.getName() + '".', ui.ButtonSet.OK);
+    return;
+  }
+
+  var lines = [];
+  lines.push('Sheet: ' + sheet.getName());
+  lines.push(plan.groups.length + ' duplicated key(s), ' + plan.rowsToDelete.length + ' row(s) to delete, '
+      + plan.fills.length + ' empty cell(s) to fill in the kept rows.');
+  if (plan.deletedFormulaCells > 0) {
+    lines.push(plan.deletedFormulaCells + ' formula cell(s) are in the rows to delete.');
+  }
+  if (plan.referencingCells.length > 0) {
+    lines.push('WARNING: formulas in other rows refer to rows that will be deleted:');
+    plan.referencingCells.slice(0, 20).forEach(function(ref) { lines.push('  ' + ref); });
+    if (plan.referencingCells.length > 20) {
+      lines.push('  ... and ' + (plan.referencingCells.length - 20) + ' more');
+    }
+  }
+  lines.push('');
+  for (var g = 0; g < plan.groups.length; g++) {
+    var group = plan.groups[g];
+    lines.push(group.key + ': keep row ' + group.keepRow + ', delete row(s) ' + group.deleteRows.join(', '));
+  }
+  lines.push('');
+  lines.push('Proceed?');
+
+  var answer = ui.alert('Remove Duplicate Keys', lines.join('\n'), ui.ButtonSet.YES_NO);
+  if (answer !== ui.Button.YES) {
+    return;
+  }
+
+  for (var f = 0; f < plan.fills.length; f++) {
+    var fill = plan.fills[f];
+    sheet.getRange(fill.row1, fill.col1).setValue(fill.value);
+  }
+  // bottom-up so the remaining row numbers stay valid
+  var rowsToDelete = plan.rowsToDelete.slice().sort(function(a, b) { return b - a; });
+  for (var d = 0; d < rowsToDelete.length; d++) {
+    sheet.deleteRow(rowsToDelete[d]);
+  }
+  ui.alert('Remove Duplicate Keys',
+      'Done: ' + rowsToDelete.length + ' row(s) deleted, ' + plan.fills.length + ' cell(s) filled.',
+      ui.ButtonSet.OK);
+}
+
+/**
+ * Keeps the last row of each duplicated key. Its empty cells take the latest
+ * non-empty displayed value from the earlier rows; the "ia" column and the
+ * kept row's formula cells are left alone. Formulas elsewhere that refer to a
+ * row being deleted are reported.
+ */
+function planDuplicateKeyRemoval(sheet) {
+  var range = sheet.getDataRange();
+  var values = range.getValues();
+  var formulas = range.getFormulas();
+  var header = values[0].map(String);
+  var iaCol = header.indexOf('ia');
+
+  var rowsByKey = {};
+  var keyOrder = [];
+  for (var r = 1; r < values.length; r++) {
+    var key = String(values[r][0] || '').trim();
+    if (!key) continue;
+    if (!rowsByKey.hasOwnProperty(key)) {
+      rowsByKey[key] = [];
+      keyOrder.push(key);
+    }
+    rowsByKey[key].push(r);
+  }
+
+  var plan = { groups: [], rowsToDelete: [], fills: [], deletedFormulaCells: 0, referencingCells: [] };
+  for (var k = 0; k < keyOrder.length; k++) {
+    var key2 = keyOrder[k];
+    var rows = rowsByKey[key2];
+    if (rows.length < 2) continue;
+
+    var keep = rows[rows.length - 1];
+    var earlier = rows.slice(0, rows.length - 1);
+    for (var c = 1; c < header.length; c++) {
+      if (c === iaCol) continue;
+      if (formulas[keep][c] !== '' || String(values[keep][c]) !== '') continue;
+      var latest = '';
+      for (var e = 0; e < earlier.length; e++) {
+        var v = String(values[earlier[e]][c]);
+        if (v.trim() !== '') latest = values[earlier[e]][c];
+      }
+      if (latest !== '') {
+        plan.fills.push({ row1: keep + 1, col1: c + 1, value: latest });
+      }
+    }
+    earlier.forEach(function(row) {
+      plan.deletedFormulaCells += formulas[row].filter(function(cell) { return cell !== ''; }).length;
+      plan.rowsToDelete.push(row + 1);
+    });
+    plan.groups.push({
+      key: key2,
+      keepRow: keep + 1,
+      deleteRows: earlier.map(function(row) { return row + 1; })
+    });
+  }
+
+  var deleted = {};
+  plan.rowsToDelete.forEach(function(row1) { deleted[row1] = true; });
+  var cellRef = /(^|[^A-Za-z0-9_])\$?[A-Za-z]{1,3}\$?(\d+)(?![\d(])/g;
+  for (var fr = 1; fr < formulas.length; fr++) {
+    if (deleted[fr + 1]) continue;
+    for (var fc = 0; fc < formulas[fr].length; fc++) {
+      var formula = formulas[fr][fc];
+      if (!formula) continue;
+      var match;
+      cellRef.lastIndex = 0;
+      while ((match = cellRef.exec(formula)) !== null) {
+        if (deleted[Number(match[2])]) {
+          plan.referencingCells.push(header[fc] + ' row ' + (fr + 1) + ': ' + formula);
+          break;
+        }
+      }
+    }
+  }
+  return plan;
 }
 
 // ---------------------------------------------------------------------------

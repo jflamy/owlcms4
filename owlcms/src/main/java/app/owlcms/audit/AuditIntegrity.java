@@ -18,24 +18,28 @@ public final class AuditIntegrity {
 	private AuditIntegrity() {
 	}
 
-	public record State(boolean enabled, boolean tcrrCompliance, boolean forcedByKey, boolean environmentKey,
-			Path keyPath, AuditSigningKey signingKey) {
+	/**
+	 * @param iwfCompliance the switch as read at startup; it forces accounts mode
+	 * @param signingKey    the configured key when present, else the built-in key
+	 */
+	public record State(boolean iwfCompliance, boolean tcrrCompliance, boolean environmentKey, Path keyPath,
+			AuditSigningKey signingKey) {
 	}
 
-	public static State load(boolean configuredIntegrity, boolean configuredTcrr, String flattenedPem,
-			String pathOverride, Path home) throws IOException {
+	/**
+	 * Audit logs are always sealed: with the configured key when present (a pending one is promoted first), else with
+	 * the built-in key, whose fingerprint is predictable and gives no protection.
+	 */
+	public static State load(boolean iwfCompliance, boolean configuredTcrr, String flattenedPem, String pathOverride,
+			Path home) throws IOException {
 		if (flattenedPem != null) {
-			return new State(true, configuredTcrr, true, true, null,
-					AuditSigningKey.fromFlattenedPem(flattenedPem));
+			return new State(iwfCompliance, configuredTcrr, true, null, AuditSigningKey.fromFlattenedPem(flattenedPem));
 		}
 		Path path = AuditKeyFiles.resolvePath(pathOverride, home);
-		boolean forced = pathOverride != null || AuditKeyFiles.exists(AuditKeyFiles.pendingPath(path))
+		boolean keyConfigured = pathOverride != null || AuditKeyFiles.exists(AuditKeyFiles.pendingPath(path))
 				|| AuditKeyFiles.exists(path);
-		if (forced) {
-			return new State(true, configuredTcrr, true, false, path, AuditKeyFiles.loadAndPromote(path));
-		}
-		return new State(configuredIntegrity, configuredTcrr, false, false, path,
-				configuredIntegrity ? AuditSigningKey.builtin() : null);
+		return new State(iwfCompliance, configuredTcrr, false, path,
+				keyConfigured ? AuditKeyFiles.loadAndPromote(path) : AuditSigningKey.builtin());
 	}
 
 	public static synchronized void initialize(Config config) {
@@ -47,17 +51,12 @@ public final class AuditIntegrity {
 					config.requestedFeatureSwitch(FeatureSwitch.TCRR_COMPLIANCE),
 					System.getenv(AuditKeyFiles.PEM_ENV), System.getenv(AuditKeyFiles.PATH_ENV),
 					Path.of(System.getProperty("user.home")));
-			if (loaded.enabled()) {
-				AuditLog.initializeIntegrity(loaded.signingKey());
-				logger.info("Sealed audit logging enabled keySource={} fingerprint={} forcedByKey={}",
-						loaded.signingKey().isBuiltin() ? "builtin" : "configured",
-						loaded.signingKey().fingerprint(), loaded.forcedByKey());
-				// the built-in key's fingerprint is public, so only a configured key provides a usable fingerprint
-				StartupUtils.getStartupLogger().info("Audit Integrity: active, fingerprinting {}",
-						loaded.signingKey().isBuiltin() ? "off" : "on");
-			} else {
-				logger.info("Audit integrity mode is off");
-			}
+			AuditLog.initializeIntegrity(loaded.signingKey());
+			logger.info("Sealed audit logging enabled keySource={} fingerprint={}",
+					loaded.signingKey().isBuiltin() ? "builtin" : "configured", loaded.signingKey().fingerprint());
+			// the built-in key's fingerprint is public, so only a configured key provides a usable fingerprint
+			StartupUtils.getStartupLogger().info("Audit Integrity: active, fingerprinting {}",
+					loaded.signingKey().isBuiltin() ? "off" : "on");
 			state = loaded;
 		} catch (IOException | RuntimeException e) {
 			logger.error("Audit integrity startup failed", e);

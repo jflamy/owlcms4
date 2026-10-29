@@ -6,7 +6,6 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
-import app.owlcms.audit.AuditIntegrity;
 import app.owlcms.audit.AuditOrigin;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -340,6 +339,8 @@ public class ConfigEditingFormFactory
 		accessModeField.setItemLabelGenerator(mode -> Translator.translate("Access.Mode." + mode.name()));
 		accessModeField.setAllowCustomValue(false);
 		accessModeField.setWidthFull();
+		// iwfCompliance requires accounts mode until it is turned off and OWLCMS restarted
+		accessModeField.setReadOnly(FeatureSwitch.IWF_COMPLIANCE.isEffective());
 		configLayout.addFormItem(accessModeField, Translator.translate("Access.Mode"));
 		this.binder.forField(accessModeField)
 		        .asRequired()
@@ -478,12 +479,6 @@ public class ConfigEditingFormFactory
 	private Component featureSwitchRow(Config config, FeatureSwitch featureSwitch, boolean delimiterAbove) {
 		Checkbox enabled = new Checkbox();
 		enabled.setValue(config.getFeatureSwitchValue(featureSwitch));
-		if (featureSwitch == FeatureSwitch.IWF_COMPLIANCE && AuditIntegrity.isInitialized()
-				&& AuditIntegrity.current().forcedByKey()) {
-			enabled.setValue(true);
-			enabled.setEnabled(false);
-			enabled.setTooltipText(Translator.translate("AuditIntegrity.ForcedByKey"));
-		}
 		enabled.addValueChangeListener(e -> config.setFeatureSwitchValue(featureSwitch, e.getValue()));
 		enabled.getStyle().set("justify-self", "center");
 

@@ -28,7 +28,8 @@ import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.apputils.AccessUtils;
+import app.owlcms.access.SameMachineProof;
+import app.owlcms.audit.AuthAudit;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.simulation.CompetitionSimulator;
 import app.owlcms.utils.LoggerUtils;
@@ -126,7 +127,7 @@ public class SimulationServlet extends HttpServlet {
 			return;
 		}
 
-		writePage(response, message, formValues);
+		writePage(response, message, formValues, request.getParameter("token"));
 	}
 
 	private static synchronized String startSimulation(boolean skipDone, String skipBefore, String platforms,
@@ -183,19 +184,53 @@ public class SimulationServlet extends HttpServlet {
 		return wasRunning ? "Simulation stop requested." : "Simulation is not running.";
 	}
 
+	/**
+	 * Same proof as the control panel stop: the control panel token, or without one a direct local connection (not in
+	 * IWF compliance mode). When the token is missing or wrong, the page asks for it.
+	 */
 	private boolean authorize(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		// use proxyutils because this is a plain servlet, not a Vaadin servlet
 		String host = ProxyUtils.getClientIp(request);
-		boolean allowed = AccessUtils.isLocalhost(host) || AccessUtils.checkBackdoor(host);
-		if (!allowed) {
-			logger.error("{} not localhost or in backdoor list, denied simulation", host);
-			response.setStatus(403);
+		String refusal = SameMachineProof.refusal(request);
+		if (refusal == null) {
+			logger.info("{} authorized simulation", host);
+			return true;
+		}
+		logger./**/warn("{} denied simulation reason={}", host, refusal);
+		if (!"missing".equals(refusal)) {
+			AuthAudit.tokenRefused(host, request.getServletPath(), refusal, null, null);
+		}
+		if ("not-local".equals(refusal)) {
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			response.setContentType("text/plain;charset=UTF-8");
+			response.getWriter().println("Simulation is only available from the computer running OWLCMS");
 			response.flushBuffer();
 			return false;
-		} else {
-			logger.info("{} authorized simulation", host);
 		}
-		return true;
+		writeTokenPrompt(response, "invalid".equals(refusal));
+		return false;
+	}
+
+	private void writeTokenPrompt(HttpServletResponse response, boolean wrong) throws IOException {
+		response.reset();
+		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+		response.setContentType("text/html;charset=UTF-8");
+		PrintWriter pw = new PrintWriter(response.getOutputStream(), true, StandardCharsets.UTF_8);
+		pw.println("<!doctype html>");
+		pw.println("<html><head><meta charset='utf-8'><title>Simulation</title></head><body>");
+		pw.println("<h2>Simulation</h2>");
+		if (wrong) {
+			pw.println("<p>Wrong token.</p>");
+		}
+		pw.println("<form method='get' action=''>");
+		pw.println("<p><label>Control panel token <input type='password' name='token' autocomplete='off'"
+		        + " autofocus></label></p>");
+		pw.println("<p>The token is shown in the OWLCMS control panel.</p>");
+		pw.println("<button type='submit'>Continue</button>");
+		pw.println("</form>");
+		pw.println("</body></html>");
+		pw.flush();
 	}
 
 	private String getAction(HttpServletRequest request) {
@@ -210,7 +245,8 @@ public class SimulationServlet extends HttpServlet {
 		return pathInfo.startsWith("/") ? pathInfo.substring(1) : pathInfo;
 	}
 
-	private void writePage(HttpServletResponse response, String message, SimulationFormValues formValues) throws IOException {
+	private void writePage(HttpServletResponse response, String message, SimulationFormValues formValues,
+	        String token) throws IOException {
 		response.reset();
 		response.setStatus(200);
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
@@ -227,6 +263,9 @@ public class SimulationServlet extends HttpServlet {
 			pw.println("<p>" + html(message) + "</p>");
 		}
 		pw.println("<form method='post' action=''>");
+		if (token != null && !token.isBlank()) {
+			pw.println("<input type='hidden' name='token' value='" + htmlAttribute(token) + "'>");
+		}
 		pw.println("<p><label><input type='checkbox' name='skipDone' value='on'"
 		        + checked(formValues.skipDone())
 		        + "> Skip sessions already done (defer weigh-in, keep existing results)</label></p>");

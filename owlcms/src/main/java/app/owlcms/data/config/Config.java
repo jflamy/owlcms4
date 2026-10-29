@@ -53,7 +53,6 @@ import app.owlcms.access.AccessModeResolver;
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.audit.AuditIntegrity;
 import app.owlcms.audit.AuditOrigin;
-import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
@@ -280,7 +279,7 @@ public class Config {
 	public boolean featureSwitch(FeatureSwitch featureSwitch) {
 		if (AuditIntegrity.isInitialized()) {
 			if (featureSwitch == FeatureSwitch.IWF_COMPLIANCE) {
-				return AuditIntegrity.current().enabled();
+				return AuditIntegrity.current().iwfCompliance();
 			}
 			if (featureSwitch == FeatureSwitch.TCRR_COMPLIANCE) {
 				return AuditIntegrity.current().tcrrCompliance();
@@ -670,20 +669,20 @@ public class Config {
 		this.pinModeChosen = mode == AccessMode.PIN;
 	}
 
-	/** The mode in force: OWLCMS_ACCESSMODE, an explicit PIN choice, or the audit key with an admin password. */
+	/**
+	 * The mode in force: accounts under iwfCompliance, else OWLCMS_ACCESSMODE, else an explicit PIN choice, else the
+	 * stored mode.
+	 */
 	@JsonIgnore
 	public AccessMode getParamAccessMode() {
 		return effectiveAccessMode(getAccessMode(), this.pinModeChosen);
 	}
 
-	/** @return the mode in force for the given stored values, using the live environment and admin account */
+	/** @return the mode in force for the given stored values, using the live environment */
 	public static AccessMode effectiveAccessMode(AccessMode stored, Boolean pinChosen) {
-		boolean pemForced = AuditIntegrity.isInitialized() && AuditIntegrity.current().forcedByKey();
-		// the account lookup is only needed when the audit key could decide
-		boolean adminHasPassword = pemForced && !Boolean.TRUE.equals(pinChosen)
-		        && UserAccountRepository.adminHasPassword();
-		return AccessModeResolver.resolve(StartupUtils.getStringParam("accessMode"), stored, pinChosen, pemForced,
-		        adminHasPassword);
+		boolean iwfCompliance = AuditIntegrity.isInitialized() && AuditIntegrity.current().iwfCompliance();
+		return AccessModeResolver.resolve(StartupUtils.getStringParam("accessMode"), stored, pinChosen,
+		        iwfCompliance);
 	}
 
 	@JsonIgnore

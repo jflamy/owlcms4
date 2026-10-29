@@ -38,7 +38,7 @@ public class AuditLogPersistenceTest {
 	}
 
 	@Test
-	public void integrityOffPreservesPlainLogNamesAndHasNoMarkersOrKeys() throws Exception {
+	public void withoutIntegrityInitializationLogsArePlainWithNoMarkersOrKeys() throws Exception {
 		Path root = temporary.newFolder().toPath();
 		runFixture(root, "plain");
 		assertTrue(named(root, AuditFileStore.SEALED_INFIX).isEmpty());
@@ -73,9 +73,9 @@ public class AuditLogPersistenceTest {
 	}
 
 	@Test
-	public void forcedKeyTurnsOnRealProductionSealingAndPromotesPendingPem() throws Exception {
+	public void aPendingPemIsPromotedAndSeals() throws Exception {
 		Path root = temporary.newFolder().toPath();
-		runFixture(root, "forced");
+		runFixture(root, "key");
 		assertTrue(Files.exists(root.resolve("home/.owlcms/auditkey.pem")));
 		assertFalse(Files.exists(root.resolve("home/.owlcms/auditkey.pem.new")));
 		for (Path file : AuditFileStoreTest.files(root.resolve("logs/audit"))) {

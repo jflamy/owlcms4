@@ -17,7 +17,8 @@ import java.sql.Statement;
 import org.hibernate.Session;
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.apputils.AccessUtils;
+import app.owlcms.access.Role;
+import app.owlcms.access.ServletTokenGuard;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ProxyUtils;
@@ -61,10 +62,7 @@ public class H2BackupServlet extends HttpServlet {
 	        throws ServletException, IOException {
 		// For HEAD, just check access and database type
 		String host = ProxyUtils.getClientIp(request);
-		boolean allowed = AccessUtils.isLocalNetwork(host) || AccessUtils.checkBackdoor(host);
-		if (!allowed) {
-			logger./**/warn("Access denied from {} - not local or in backdoor list", LoggerUtils.whereFrom());
-			response.setStatus(403);
+		if (ServletTokenGuard.authorize(request, response, host, Role.RESULTS, "H2 backup") == null) {
 			return;
 		}
 
@@ -89,16 +87,12 @@ public class H2BackupServlet extends HttpServlet {
 	        throws IOException {
 		logger.info("processing H2 backup request");
 		
-		// Check access control
+		// PIN mode: local network or backdoor; accounts mode: a token whose owner holds RESULTS, as for exports
 		String host = ProxyUtils.getClientIp(request);
-		boolean allowed = AccessUtils.isLocalNetwork(host) || AccessUtils.checkBackdoor(host);
-		if (!allowed) {
-			logger./**/warn("{} not local or in backdoor list, denied H2 backup access {}", host, LoggerUtils.whereFrom());
-			response.setStatus(403);
+		if (ServletTokenGuard.authorize(request, response, host, Role.RESULTS, "H2 backup") == null) {
 			response.flushBuffer();
 			return;
 		}
-		logger.info("{} authorized H2 backup access", host);
 
 		// Check if we're using H2
 		if (!JPAService.isLocalDb()) {

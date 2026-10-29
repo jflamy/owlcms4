@@ -6,7 +6,8 @@ import java.nio.charset.StandardCharsets;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.Main;
-import app.owlcms.apputils.AccessUtils;
+import app.owlcms.access.SameMachineProof;
+import app.owlcms.audit.AuthAudit;
 import app.owlcms.utils.ProxyUtils;
 import ch.qos.logback.classic.Logger;
 import jakarta.servlet.ServletException;
@@ -23,13 +24,14 @@ public class ControlPanelServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 	        throws ServletException, IOException {
-		String socketHost = request.getRemoteAddr();
 		String host = ProxyUtils.getClientIp(request);
-		if (!AccessUtils.isLocalhost(socketHost) && !AccessUtils.checkBackdoor(host)) {
-			logger.warn("{} denied control panel stop request", host);
+		String refusal = SameMachineProof.refusal(request);
+		if (refusal != null) {
+			logger./**/warn("{} denied control panel stop request reason={}", host, refusal);
+			AuthAudit.tokenRefused(host, request.getServletPath(), refusal, null, null);
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			response.setContentType("text/plain;charset=UTF-8");
-			response.getWriter().println("OWLCMS stop requires localhost or backdoor whitelist access");
+			response.getWriter().println("OWLCMS stop refused");
 			response.flushBuffer();
 			return;
 		}
@@ -47,7 +49,7 @@ public class ControlPanelServlet extends HttpServlet {
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
-			Main.prepareForExit();
+			Main.prepareForExit("control-panel stop");
 			System.exit(0);
 		}, "controlpanel-stop");
 		stopThread.setDaemon(false);

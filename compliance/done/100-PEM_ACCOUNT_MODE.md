@@ -5,11 +5,14 @@ Status: done. Implemented 2026-10-25; manual acceptance passed and findings reso
 
 ## Done
 
-- **Mode selection:** a PEM key plus an admin password selects accounts mode,
-  unless the administrator explicitly chose PIN (`Config.pinModeChosen`,
-  persisted and exported). Order in `AccessModeResolver`: `OWLCMS_ACCESSMODE`,
-  explicit PIN choice, PEM and admin password, stored mode. Selectors are never
-  locked; the PEM still forces audit integrity in either mode.
+- **Mode selection:** order in `AccessModeResolver`:
+  `iwfCompliance` first (accounts), then `OWLCMS_ACCESSMODE`, explicit PIN
+  choice (`Config.pinModeChosen`, persisted and exported), stored mode, else
+  PIN. Selectors are read-only only while `iwfCompliance` is on.
+  - Superseded 2026-10-29: a PEM key plus an admin password used to select
+    accounts mode and forced `iwfCompliance`. Now `iwfCompliance` forces
+    accounts mode, and the audit logs are always sealed: with the PEM when
+    present, else with the built-in key.
 - **Temporary admin password:** generated at startup when accounts mode is
   required and admin has no password; plaintext written to `owlcms.log` only;
   login page notice; forced change persisted as `UserAccount.mustChangePassword`.

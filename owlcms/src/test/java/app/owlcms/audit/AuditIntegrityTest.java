@@ -27,31 +27,27 @@ public class AuditIntegrityTest {
 	public TemporaryFolder temporary = new TemporaryFolder();
 
 	@Test
-	public void switchesAreIndependentAndBuiltinRequiresExplicitIntegrity() throws Exception {
+	public void withoutAKeyTheBuiltinKeySealsAndSwitchesAreIndependent() throws Exception {
 		Path home = temporary.getRoot().toPath();
-		AuditIntegrity.State off = AuditIntegrity.load(false, true, null, null, home);
-		assertFalse(off.enabled());
-		assertTrue(off.tcrrCompliance());
-		assertNull(off.signingKey());
-		AuditIntegrity.State builtin = AuditIntegrity.load(true, false, null, null, home);
-		assertTrue(builtin.enabled());
-		assertFalse(builtin.tcrrCompliance());
-		assertFalse(builtin.forcedByKey());
-		assertTrue(builtin.signingKey().isBuiltin());
+		AuditIntegrity.State tcrr = AuditIntegrity.load(false, true, null, null, home);
+		assertFalse(tcrr.iwfCompliance());
+		assertTrue(tcrr.tcrrCompliance());
+		assertTrue(tcrr.signingKey().isBuiltin());
+		AuditIntegrity.State iwf = AuditIntegrity.load(true, false, null, null, home);
+		assertTrue(iwf.iwfCompliance());
+		assertFalse(iwf.tcrrCompliance());
+		assertTrue(iwf.signingKey().isBuiltin());
 	}
 
 	@Test
-	public void manualPemForcesIntegrityWithoutEnablingTcrr() throws Exception {
+	public void aKeyFileSealsWhateverTheSwitches() throws Exception {
 		Path home = temporary.getRoot().toPath();
 		Path active = AuditKeyFiles.resolvePath(null, home);
 		Files.createDirectories(active.getParent());
 		AuditSigningKey key = AuditSigningKey.generate();
 		Files.writeString(active, key.toPem());
-		AuditIntegrity.State state = AuditIntegrity.load(false, false, null, null, home);
-		assertTrue(state.enabled());
-		assertTrue(state.forcedByKey());
-		assertFalse(state.tcrrCompliance());
-		assertEquals(key.fingerprint(), state.signingKey().fingerprint());
+		assertEquals(key.fingerprint(), AuditIntegrity.load(false, false, null, null, home).signingKey().fingerprint());
+		assertEquals(key.fingerprint(), AuditIntegrity.load(true, false, null, null, home).signingKey().fingerprint());
 	}
 
 	@Test
@@ -103,14 +99,13 @@ public class AuditIntegrityTest {
 		AuditIntegrity.State state = AuditIntegrity.load(false, false, flattened, "invalid relative override", home);
 		assertEquals(envKey.fingerprint(), state.signingKey().fingerprint());
 		assertTrue(state.environmentKey());
-		assertTrue(state.forcedByKey());
 		assertEquals("invalid active", Files.readString(active));
 		assertEquals("invalid pending", Files.readString(AuditKeyFiles.pendingPath(active)));
 		assertThrows(IOException.class, () -> AuditIntegrity.load(false, false, "", null, home));
 	}
 
 	@Test
-	public void missingExplicitPathFailsInsteadOfDisablingIntegrity() {
+	public void missingExplicitPathFailsInsteadOfFallingBackToTheBuiltinKey() {
 		Path missing = temporary.getRoot().toPath().resolve("missing.pem");
 		assertThrows(IOException.class, () -> AuditIntegrity.load(false, false, null,
 				missing.toString(), temporary.getRoot().toPath()));

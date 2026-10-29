@@ -18,12 +18,14 @@ public final class AccessModeResolver {
 	 * @param override        the OWLCMS_ACCESSMODE environment or parameter value, may be null
 	 * @param stored          the mode stored in the database, null if never set
 	 * @param pinModeChosen   true if the administrator deliberately chose PIN mode
-	 * @param pemForced       true if an audit signing key is configured
-	 * @param adminHasPassword true if the built-in admin account has a password
-	 * @return the mode in force
+	 * @param iwfCompliance   the switch as read at startup; it requires accounts mode
+	 * @return the mode in force; PIN unless accounts mode was chosen or required
 	 */
-	public static AccessMode resolve(String override, AccessMode stored, Boolean pinModeChosen, boolean pemForced,
-	        boolean adminHasPassword) {
+	public static AccessMode resolve(String override, AccessMode stored, Boolean pinModeChosen,
+	        boolean iwfCompliance) {
+		if (iwfCompliance) {
+			return AccessMode.ACCOUNTS;
+		}
 		if (override != null && !override.isBlank()) {
 			try {
 				return AccessMode.valueOf(override.trim().toUpperCase(Locale.ROOT));
@@ -33,9 +35,6 @@ public final class AccessModeResolver {
 		}
 		if (Boolean.TRUE.equals(pinModeChosen)) {
 			return AccessMode.PIN;
-		}
-		if (pemForced && adminHasPassword) {
-			return AccessMode.ACCOUNTS;
 		}
 		return stored != null ? stored : AccessMode.PIN;
 	}

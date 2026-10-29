@@ -96,10 +96,6 @@ public class AuditIntegrityPreparationView extends Composite<VerticalLayout>
 
 	private Div activeKeyArea() {
 		Div area = new Div();
-		if (!this.state.enabled()) {
-			area.add(new Paragraph(Translator.translate("AuditIntegrity.Off")));
-			return area;
-		}
 		AuditSigningKey key = this.state.signingKey();
 		area.add(new Paragraph(Translator.translate("AuditIntegrity.ActiveKey")), fingerprint(key));
 		if (key.isBuiltin()) {

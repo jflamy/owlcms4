@@ -134,8 +134,6 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 		                        OwlcmsFactory.getBuildTimestamp())));
 		if (!AuditIntegrity.isInitialized()) {
 			license.add(new Paragraph(Translator.translate("AuditIntegrity.RestartRequired")));
-		} else if (!AuditIntegrity.current().enabled()) {
-			license.add(new Paragraph(Translator.translate("AuditIntegrity.Off")));
 		} else {
 			AuditIntegrity.State integrity = AuditIntegrity.current();
 			Pre fingerprint = new Pre(integrity.signingKey().displayFingerprint());
@@ -144,9 +142,6 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 					AuditLog.integrityHealthy() ? "AuditIntegrity.Active" : "AuditIntegrity.Failed")));
 			if (integrity.signingKey().isBuiltin()) {
 				license.add(new Paragraph(Translator.translate("AuditIntegrity.Builtin")));
-			}
-			if (integrity.forcedByKey()) {
-				license.add(new Paragraph(Translator.translate("AuditIntegrity.ForcedByKey")));
 			}
 		}
 		license.add(sectionTitle(Translator.translate("CopyrightLicense")));
