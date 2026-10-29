@@ -46,6 +46,11 @@ public record AuditActor(String mode, String user, String station, Integer index
 		return new AuditActor("-", "-", "HTTP", null, false, clientIp, "-");
 	}
 
+	/** A servlet request authenticated by an account token; the token identifier is not secret. */
+	public static AuditActor token(String username, String tokenId, String clientIp) {
+		return new AuditActor("ACCOUNTS", username, "HTTP", null, false, clientIp, "token id=" + tokenId);
+	}
+
 	public String displayStation() {
 		return this.index == null ? this.station : this.station + "#" + this.index;
 	}

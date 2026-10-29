@@ -62,6 +62,22 @@ public final class UserAccountRepository {
 		return null;
 	}
 
+	/**
+	 * @param tokenHash SHA-256 of a presented token
+	 * @return the cached account holding a token with that hash, or null: read it, do not modify it
+	 */
+	public static UserAccount findByTokenHash(String tokenHash) {
+		if (tokenHash == null) {
+			return null;
+		}
+		for (UserAccount account : cached().values()) {
+			if (account.getTokens().stream().anyMatch(t -> tokenHash.equals(t.getTokenHash()))) {
+				return account;
+			}
+		}
+		return null;
+	}
+
 	public static UserAccount save(UserAccount account, AuditOrigin origin) {
 		UserAccount cachedBefore = findById(account.getId());
 		UserAccount before = cachedBefore != null ? cachedBefore.copy() : null;

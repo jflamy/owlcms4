@@ -64,6 +64,20 @@ public final class AuthAudit {
 		writeFor(origin, "auth.access-mode", AuditFormat.kvs("from", from, "to", to));
 	}
 
+	/**
+	 * A token presented on a non-interactive request was refused. Never pass the token itself.
+	 *
+	 * @param reason   "invalid", "throttled" or "forbidden"
+	 * @param username the token's owner when known (forbidden), else null
+	 * @param tokenId  the token identifier when known, else null
+	 */
+	public static void tokenRefused(String clientIp, String path, String reason, String username, String tokenId) {
+		AuditActor actor = username == null ? AuditActor.http(clientIp)
+		        : AuditActor.token(clean(username), tokenId, clientIp);
+		AuditLog.write(AuditEntry.builder(COMPETITION, "auth.token-refused").actor(actor)
+		        .detail(AuditFormat.kvs("reason", reason, "path", path)).build());
+	}
+
 	private static void writeFor(AuditOrigin origin, String action, String detail) {
 		AuditLog.write(AuditEntry.builder(COMPETITION, action).actor(origin.actor()).cause(origin.cause())
 		        .detail(detail).build());

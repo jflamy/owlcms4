@@ -12,7 +12,7 @@ None open. Lenient birth-date parsing is done: [BIRTHDATE_LENIENT_PARSE.md](done
 
 | Order | Document | Scope |
 | --- | --- | --- |
-| 120 | [Token-protected URLs](120-TOKEN_PROTECTED_URLS.md) | Tokens for displays, replays and URL-based data extraction, including exports |
+| 120 | [Token-protected URLs](120-TOKEN_PROTECTED_URLS.md) | Tokens for displays, replays and URL-based data extraction; the competition export URL is done, the rest remains |
 | 130 | [Other access work](130-ACCESS_CONTROL_REMAINING.md) | Navigation/action gating and infrastructure/security review; reconcile overlap with 100–120 while implementing |
 | 140 | [Export credential protection](140-EXPORT_CREDENTIAL_PROTECTION.md) | Protect secrets inside saved exports, independently of URL authorization |
 | 145 | [Signed exports](145-SIGNED_EXPORTS.md) | PEM signature inside JSON exports, import outcomes in the audit trail, support procedures with and without the key |
@@ -43,6 +43,7 @@ tokens.
 | 300 | [Medal eligibility](300-MEDAL_ELIGIBILITY.md) | Per-championship qualification, entry-total and team-point policies for mixed-rule competitions |
 | 310 | [Personal best records](310-PERSONAL_BEST_RECORDS.md) | Move live PB tracking into the record-event system |
 | 320 | [Windows signing](320-WINDOWS_SIGNING.md) | Authenticode signing for control-panel and video executables |
+| 330 | [Replays token](330-REPLAYS_TOKEN.md) | Video module: its own access token, generated in the app, required on replay URLs |
 
 Seven-person adjudication, including Tracker jury forwarding, is complete and
 archived in [SEVEN_PERSON_ADJUDICATION.md](done/SEVEN_PERSON_ADJUDICATION.md),
