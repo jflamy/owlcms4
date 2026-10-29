@@ -10,6 +10,8 @@
 
 **Maintenance Log**
 
+- 68.0.6: Additional logging for the down signal sound on the announcer screen.
+
 - 68.0.5: Regression fix: The best-athlete selector can again be cleared to use each participation's age-group scoring system in results and exports.
 
 - 68.0.4: Fixed decisions being ignored after reloading the session while a decision was shown: the platform stayed stuck and refused to start the clock until the session was unloaded.
