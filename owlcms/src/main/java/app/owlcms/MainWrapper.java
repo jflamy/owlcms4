@@ -58,6 +58,18 @@ public class MainWrapper {
         return value != null && !value.isBlank();
     }
 
+    /** @return the VM arguments without the system-property form of OWLCMS_LOADJSON */
+    static List<String> withoutStartupImport(List<String> vmArgs) {
+        String property = "-D" + LOAD_JSON_PROPERTY;
+        List<String> kept = new ArrayList<>();
+        for (String arg : vmArgs) {
+            if (!arg.equals(property) && !arg.startsWith(property + "=")) {
+                kept.add(arg);
+            }
+        }
+        return kept;
+    }
+
     private static boolean isWindows() {
         return System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
     }
@@ -124,6 +136,8 @@ public class MainWrapper {
 
         int restartCount = 0;
         int wrapperExitCode = 0;
+        // set once Main asks for a restart after its startup load: later launches keep the current database
+        boolean startupImportDropped = false;
         while (restartCount <= MAX_RESTARTS) {
             try {
                 logger.info("Starting app.owlcms.Main as separate process (restart count: {})", restartCount);
@@ -131,7 +145,7 @@ public class MainWrapper {
                 // Build the command
                 List<String> command = new ArrayList<>();
                 command.add(javaBin);
-                command.addAll(vmArgs);
+                command.addAll(startupImportDropped ? withoutStartupImport(vmArgs) : vmArgs);
                 command.add("-cp");
                 command.add(classpath);
                 command.add("app.owlcms.Main");
@@ -147,6 +161,9 @@ public class MainWrapper {
                 Map<String, String> subprocessEnv = pb.environment();
                 subprocessEnv.putAll(env); // Pass all environment variables
                 subprocessEnv.putIfAbsent("OWLCMS_CONTROLPANEL", "3.1.0"); // Fallback enables restart after JSON import
+                if (startupImportDropped) {
+                    subprocessEnv.remove(LOAD_JSON_ENV);
+                }
                 if (!isWindows() && !isDaemonMode(env)) {
                     subprocessEnv.put(WRAPPER_PID_ENV, Long.toString(ProcessHandle.current().pid()));
                 }
@@ -165,7 +182,13 @@ public class MainWrapper {
                     break;
                 }
                 
-                if (isLoadJsonLaunch(env)) {
+                if (exitCode == Main.EXIT_RESTART_WITHOUT_STARTUP_IMPORT) {
+                    if (!startupImportDropped) {
+                        logger.info("app.owlcms.Main asked for a restart after its startup load; restarting without {}",
+                                LOAD_JSON_ENV);
+                    }
+                    startupImportDropped = true;
+                } else if (!startupImportDropped && isLoadJsonLaunch(env)) {
                     logger.info("app.owlcms.Main exited with code {} and {} is set, not restarting", exitCode,
                             LOAD_JSON_ENV);
                     wrapperExitCode = exitCode;

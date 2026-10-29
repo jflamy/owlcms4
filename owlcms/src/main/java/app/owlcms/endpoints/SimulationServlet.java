@@ -4,326 +4,105 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-//
-//  Copyright (C) 2009 BalusC
-//
-//  This program is free software: you can redistribute it and/or modify it under the terms of the
-//  GNU Lesser General Public License as published by the Free Software Foundation, either version 3
-//  of the License, or (at your option) any later version.
-//
-//  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
-//  even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
-//
-//  You should have received a copy of the GNU Lesser General Public License along with this library.
-//  If not, see <http://www.gnu.org/licenses/>.
-
 package app.owlcms.endpoints;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.access.SameMachineProof;
 import app.owlcms.audit.AuthAudit;
-import app.owlcms.data.platform.PlatformRepository;
-import app.owlcms.simulation.CompetitionSimulator;
-import app.owlcms.utils.LoggerUtils;
+import app.owlcms.simulation.SimulationControl;
 import app.owlcms.utils.ProxyUtils;
 import ch.qos.logback.classic.Logger;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * A file servlet supporting resume of downloads and client-side caching and GZIP of text content. This servlet can also be used for images, client-side caching
- * would become more efficient. This servlet can also be used for text files, GZIP would decrease network bandwidth.
- *
- * @author BalusC
- * @link http://balusc.blogspot.com/2009/02/fileservlet-supporting-resume-and.html
+ * Scripted control of the competition simulation, for curl and test scripts. People use the {@code simulation} page.
+ * <ul>
+ * <li>{@code POST /simulation/start} with optional {@code skipDone}, {@code skipBefore}, {@code platforms},
+ * {@code randomDeclarationJumps}</li>
+ * <li>{@code POST /simulation/stop}</li>
+ * <li>{@code GET /simulation/status}</li>
+ * </ul>
+ * Same proof as the control panel stop: the control panel token as {@code Authorization: Bearer} or {@code token},
+ * required whenever OWLCMS has one.
  */
 @SuppressWarnings("serial")
-/**
- * Modified to fetch files under the ./local directory relative to the startup directory and, failing that, as a resource on the classpath.
- *
- * @author Jean-François Lamy
- *
- */
-@WebServlet("/simulation/*")
+@WebServlet(urlPatterns = { SimulationServlet.START, SimulationServlet.STOP, SimulationServlet.STATUS })
 public class SimulationServlet extends HttpServlet {
 
-	// Helpers (can be refactored to public utility class)
-	// ----------------------------------------
+	static final String START = "/simulation/start";
+	static final String STOP = "/simulation/stop";
+	static final String STATUS = "/simulation/status";
 
-	private static Logger logger = (Logger) LoggerFactory.getLogger(SimulationServlet.class);
-	private static volatile Thread simulationThread;
-	// { logger.setLevel(Level.DEBUG); }
+	private static final Logger logger = (Logger) LoggerFactory.getLogger(SimulationServlet.class);
 
-	// Inner classes
-	// ------------------------------------------------------------------------------
-
-	/**
-	 * Process GET request.
-	 *
-	 * @see HttpServlet#doGet(HttpServletRequest, HttpServletResponse).
-	 */
 	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-	        throws ServletException, IOException {
-		processRequest(request, response, true);
-	}
-
-	/**
-	 * Process HEAD request. This returns the same headers as GET request, but without content.
-	 *
-	 * @see HttpServlet#doHead(HttpServletRequest, HttpServletResponse).
-	 */
-	@Override
-	protected void doHead(HttpServletRequest request, HttpServletResponse response)
-	        throws ServletException, IOException {
-		processRequest(request, response, false);
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		if (!STATUS.equals(request.getServletPath())) {
+			response.setHeader("Allow", "POST");
+			reply(response, HttpServletResponse.SC_METHOD_NOT_ALLOWED, "use POST");
+			return;
+		}
+		if (authorize(request, response)) {
+			reply(response, HttpServletResponse.SC_OK, SimulationControl.isRunning() ? "running" : "stopped");
+		}
 	}
 
 	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-	        throws ServletException, IOException {
-		processRequest(request, response, true);
-	}
-
-	/**
-	 * Process the actual request.
-	 *
-	 * @param request  The request to be processed.
-	 * @param response The response to be created.
-	 * @param content  Whether the request body should be written (GET) or not (HEAD).
-	 * @throws IOException If something fails at I/O level.
-	 */
-	private void processRequest(HttpServletRequest request, HttpServletResponse response, boolean content)
-	        throws IOException {
-		logger.info("processing simulation request");
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		if (!authorize(request, response)) {
 			return;
 		}
-
-		String action = getAction(request);
-		SimulationFormValues formValues = SimulationFormValues.from(request);
-		String message = null;
-		if ("start".equalsIgnoreCase(action)) {
-			message = startSimulation(formValues.skipDone(), formValues.skipBefore(), formValues.platforms(),
-			        formValues.randomDeclarationJumps());
-		} else if ("stop".equalsIgnoreCase(action)) {
-			message = stopSimulation();
-		}
-
-		if (!content) {
-			response.setStatus(200);
-			response.flushBuffer();
-			return;
-		}
-
-		writePage(response, message, formValues, request.getParameter("token"));
-	}
-
-	private static synchronized String startSimulation(boolean skipDone, String skipBefore, String platforms,
-	        boolean randomDeclarationJumps) {
-		if (CompetitionSimulator.isRunning()) {
-			return "Simulation is already running.";
-		}
-		simulationThread = new Thread(() -> {
-			try {
-				new CompetitionSimulator(skipDone, skipBefore, platforms, randomDeclarationJumps).runSimulation();
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				logger./**/warn("simulation thread interrupted");
-			} catch (Throwable t) {
-				logger.error("{}", LoggerUtils.stackTrace(t));
+		switch (request.getServletPath()) {
+			case START -> {
+				SimulationControl.Result result = SimulationControl.start(isChecked(request, "skipDone"),
+				        request.getParameter("skipBefore"), request.getParameter("platforms"),
+				        isChecked(request, "randomDeclarationJumps"));
+				if (result == SimulationControl.Result.STARTED) {
+					reply(response, HttpServletResponse.SC_ACCEPTED, "started");
+				} else {
+					reply(response, HttpServletResponse.SC_CONFLICT, "already running");
+				}
 			}
-		}, "competition-simulation");
-		simulationThread.setDaemon(true);
-		simulationThread.start();
-		boolean hasSkipBefore = skipBefore != null && !skipBefore.isBlank();
-		boolean hasPlatforms = platforms != null && !platforms.isBlank();
-		if (!skipDone && !hasSkipBefore && !hasPlatforms && !randomDeclarationJumps) {
-			return "Simulation start requested.";
+			case STOP -> reply(response, HttpServletResponse.SC_OK,
+			        SimulationControl.stop() == SimulationControl.Result.STOPPED ? "stopped" : "not running");
+			default -> reply(response, HttpServletResponse.SC_NOT_FOUND, "not found");
 		}
-
-		StringBuilder options = new StringBuilder("Simulation start requested (");
-		String separator = "";
-		if (skipDone) {
-			options.append("skip done");
-			separator = ", ";
-		}
-		if (hasSkipBefore) {
-			options.append(separator).append("skip before boundary");
-			separator = ", ";
-		}
-		if (hasPlatforms) {
-			options.append(separator).append("platform filter");
-			separator = ", ";
-		}
-		if (randomDeclarationJumps) {
-			options.append(separator).append("random declaration jumps");
-		}
-		options.append(").");
-		return options.toString();
 	}
 
-	private static synchronized String stopSimulation() {
-		boolean wasRunning = CompetitionSimulator.isRunning();
-		CompetitionSimulator.stopSimulation();
-		if (simulationThread != null) {
-			simulationThread.interrupt();
-			simulationThread = null;
-		}
-		return wasRunning ? "Simulation stop requested." : "Simulation is not running.";
-	}
-
-	/**
-	 * Same proof as the control panel stop: the control panel token, or without one a direct local connection (not in
-	 * IWF compliance mode). When the token is missing or wrong, the page asks for it.
-	 */
 	private boolean authorize(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		// use proxyutils because this is a plain servlet, not a Vaadin servlet
 		String host = ProxyUtils.getClientIp(request);
 		String refusal = SameMachineProof.refusal(request);
 		if (refusal == null) {
-			logger.info("{} authorized simulation", host);
+			logger.info("{} authorized {}", host, request.getServletPath());
 			return true;
 		}
-		logger./**/warn("{} denied simulation reason={}", host, refusal);
-		if (!"missing".equals(refusal)) {
-			AuthAudit.tokenRefused(host, request.getServletPath(), refusal, null, null);
-		}
+		logger./**/warn("{} denied {} reason={}", host, request.getServletPath(), refusal);
+		AuthAudit.tokenRefused(host, request.getServletPath(), refusal, null, null);
 		if ("not-local".equals(refusal)) {
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-			response.setContentType("text/plain;charset=UTF-8");
-			response.getWriter().println("Simulation is only available from the computer running OWLCMS");
-			response.flushBuffer();
-			return false;
+			reply(response, HttpServletResponse.SC_FORBIDDEN, "only available from the computer running OWLCMS");
+		} else {
+			response.setHeader("WWW-Authenticate", "Bearer");
+			reply(response, HttpServletResponse.SC_UNAUTHORIZED, "control panel token required");
 		}
-		writeTokenPrompt(response, "invalid".equals(refusal));
 		return false;
 	}
 
-	private void writeTokenPrompt(HttpServletResponse response, boolean wrong) throws IOException {
-		response.reset();
-		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-		response.setContentType("text/html;charset=UTF-8");
-		PrintWriter pw = new PrintWriter(response.getOutputStream(), true, StandardCharsets.UTF_8);
-		pw.println("<!doctype html>");
-		pw.println("<html><head><meta charset='utf-8'><title>Simulation</title></head><body>");
-		pw.println("<h2>Simulation</h2>");
-		if (wrong) {
-			pw.println("<p>Wrong token.</p>");
-		}
-		pw.println("<form method='get' action=''>");
-		pw.println("<p><label>Control panel token <input type='password' name='token' autocomplete='off'"
-		        + " autofocus></label></p>");
-		pw.println("<p>The token is shown in the OWLCMS control panel.</p>");
-		pw.println("<button type='submit'>Continue</button>");
-		pw.println("</form>");
-		pw.println("</body></html>");
-		pw.flush();
+	private static void reply(HttpServletResponse response, int status, String text) throws IOException {
+		response.setStatus(status);
+		response.setContentType("text/plain;charset=UTF-8");
+		response.getWriter().println(text);
+		response.flushBuffer();
 	}
 
-	private String getAction(HttpServletRequest request) {
-		String action = request.getParameter("action");
-		if (action != null && !action.isBlank()) {
-			return action;
-		}
-		String pathInfo = request.getPathInfo();
-		if (pathInfo == null || pathInfo.isBlank() || "/".equals(pathInfo)) {
-			return null;
-		}
-		return pathInfo.startsWith("/") ? pathInfo.substring(1) : pathInfo;
+	private static boolean isChecked(HttpServletRequest request, String name) {
+		String value = request.getParameter(name);
+		return "on".equalsIgnoreCase(value) || "true".equalsIgnoreCase(value);
 	}
-
-	private void writePage(HttpServletResponse response, String message, SimulationFormValues formValues,
-	        String token) throws IOException {
-		response.reset();
-		response.setStatus(200);
-		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-		response.setContentType("text/html;charset=UTF-8");
-		String platformList = platformList();
-
-		OutputStream output = response.getOutputStream();
-		PrintWriter pw = new PrintWriter(output, true, StandardCharsets.UTF_8);
-		pw.println("<!doctype html>");
-		pw.println("<html><head><meta charset='utf-8'><title>Simulation</title></head><body>");
-		pw.println("<h2>Simulation</h2>");
-		pw.println("<p>Status: " + (CompetitionSimulator.isRunning() ? "running" : "stopped") + "</p>");
-		if (message != null && !message.isBlank()) {
-			pw.println("<p>" + html(message) + "</p>");
-		}
-		pw.println("<form method='post' action=''>");
-		if (token != null && !token.isBlank()) {
-			pw.println("<input type='hidden' name='token' value='" + htmlAttribute(token) + "'>");
-		}
-		pw.println("<p><label><input type='checkbox' name='skipDone' value='on'"
-		        + checked(formValues.skipDone())
-		        + "> Skip sessions already done (defer weigh-in, keep existing results)</label></p>");
-		pw.println("<p><label><input type='checkbox' name='randomDeclarationJumps' value='on'"
-		        + checked(formValues.randomDeclarationJumps())
-		        + "> Random declaration jumps (+2/+3 kg) and marshal weight changes while the clock runs</label></p>");
-		pw.println("<p><label>Skip sessions before <input type='text' name='skipBefore' value='"
-		        + htmlAttribute(formValues.skipBefore()) + "'></label></p>");
-		pw.println("<p><label>Only platforms <input type='text' name='platforms' placeholder='"
-		        + htmlAttribute(platformList) + "' value='" + htmlAttribute(formValues.platforms()) + "'></label></p>");
-		if (!platformList.isBlank()) {
-			pw.println("<p>Available platforms: " + html(platformList) + "</p>");
-		}
-		pw.println("<button type='submit' name='action' value='start'>Start</button>");
-		pw.println("<button type='submit' name='action' value='stop'>Stop</button>");
-		pw.println("</form>");
-		pw.println("</body></html>");
-		pw.flush();
-		output.flush();
-		output.close();
-	}
-
-	private static String platformList() {
-		return PlatformRepository.findAll().stream()
-		        .map(platform -> platform.getName())
-		        .filter(name -> name != null && !name.isBlank())
-		        .sorted(String.CASE_INSENSITIVE_ORDER)
-		        .collect(Collectors.joining(", "));
-	}
-
-	private static String checked(boolean checked) {
-		return checked ? " checked" : "";
-	}
-
-	private static String html(String value) {
-		return value == null ? "" : value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
-	}
-
-	private static String htmlAttribute(String value) {
-		return html(value).replace("\"", "&quot;").replace("'", "&#39;");
-	}
-
-	private record SimulationFormValues(boolean skipDone, boolean randomDeclarationJumps, String skipBefore,
-	        String platforms) {
-		static SimulationFormValues from(HttpServletRequest request) {
-			return new SimulationFormValues(isChecked(request, "skipDone"), isChecked(request, "randomDeclarationJumps"),
-			        value(request, "skipBefore"), value(request, "platforms"));
-		}
-
-		private static boolean isChecked(HttpServletRequest request, String parameterName) {
-			String value = request.getParameter(parameterName);
-			return "on".equalsIgnoreCase(value) || "true".equalsIgnoreCase(value);
-		}
-
-		private static String value(HttpServletRequest request, String parameterName) {
-			String value = request.getParameter(parameterName);
-			return value != null ? value : "";
-		}
-	}
-
 }

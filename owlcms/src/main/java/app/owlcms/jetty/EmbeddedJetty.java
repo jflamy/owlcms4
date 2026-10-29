@@ -7,15 +7,19 @@
 package app.owlcms.jetty;
 
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.concurrent.CountDownLatch;
 
 import org.eclipse.jetty.ee10.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import jakarta.servlet.DispatcherType;
 import jakarta.websocket.ContainerProvider;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.Main;
+import app.owlcms.access.AdminRecovery;
 import app.owlcms.apputils.LogbackConfigReloader;
+import app.owlcms.endpoints.AdminRecoveryFilter;
 import app.owlcms.endpoints.ControlPanelServlet;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
@@ -69,6 +73,10 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
 			        patternString.replace(".*\\.jar", "(?!.*jackson).*\\.jar"));
 		}
 		context.addServlet(ControlPanelServlet.class, "/controlpanel/stop");
+		if (AdminRecovery.isOn()) {
+			// filters run before every servlet, Vaadin included
+			context.addFilter(AdminRecoveryFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
+		}
 		return context;
 	}
 

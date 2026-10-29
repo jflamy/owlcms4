@@ -39,12 +39,14 @@ public final class RestartUtils {
 
 	public static void triggerRestart(String reason) {
 		ApplicationAudit.restartRequested(reason);
+		// after a startup load, tell the launcher to restart without OWLCMS_LOADJSON
+		int exitCode = Main.isStartupImportLoaded() ? Main.EXIT_RESTART_WITHOUT_STARTUP_IMPORT : 1;
 		if (reason == null || reason.isBlank()) {
-			logger.info("Triggering restart via System.exit(1)");
-			System.err.println("OWLCMS: Triggering restart via System.exit(1)");
+			logger.info("Triggering restart via System.exit({})", exitCode);
+			System.err.println("OWLCMS: Triggering restart via System.exit(" + exitCode + ")");
 		} else {
-			logger.info("Triggering restart via System.exit(1): {}", reason);
-			System.err.println("OWLCMS: Triggering restart via System.exit(1) - " + reason);
+			logger.info("Triggering restart via System.exit({}): {}", exitCode, reason);
+			System.err.println("OWLCMS: Triggering restart via System.exit(" + exitCode + ") - " + reason);
 		}
 		Main.prepareForExit(reason == null || reason.isBlank() ? "restart" : reason);
 		try {
@@ -52,7 +54,7 @@ public final class RestartUtils {
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 		}
-		System.exit(1);
+		System.exit(exitCode);
 	}
 
 	public static void triggerRestartIfNeeded(String reason) {

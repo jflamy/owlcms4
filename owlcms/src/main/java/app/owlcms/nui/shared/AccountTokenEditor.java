@@ -8,6 +8,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -51,8 +52,40 @@ public class AccountTokenEditor extends VerticalLayout {
 		this.value.setReadOnly(true);
 		this.value.setWidthFull();
 		this.value.getStyle().set("font-family", "monospace");
+		this.value.setSuffixComponent(copyButton());
 		add(title, this.status, new HorizontalLayout(this.generate, this.revoke), this.value, this.notice);
 		reset(current);
+	}
+
+	/**
+	 * Copies the field's value in the browser, within the click itself: the clipboard API is only available to a user
+	 * gesture in a secure context, and OWLCMS is often reached over plain http on a LAN, hence the fallback.
+	 */
+	private Button copyButton() {
+		Button copy = new Button(VaadinIcon.COPY_O.create());
+		copy.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_ICON);
+		String label = Translator.translate("Copy");
+		copy.setTooltipText(label);
+		copy.setAriaLabel(label);
+		copy.getElement().executeJs("""
+		        this.addEventListener('click', () => {
+		            const field = this.closest('vaadin-text-field');
+		            const input = field && field.inputElement;
+		            if (!input) {
+		                return;
+		            }
+		            const fallback = () => {
+		                input.select();
+		                document.execCommand('copy');
+		                input.setSelectionRange(0, 0);
+		            };
+		            if (navigator.clipboard && window.isSecureContext) {
+		                navigator.clipboard.writeText(field.value).catch(fallback);
+		            } else {
+		                fallback();
+		            }
+		        });""");
+		return copy;
 	}
 
 	/** Shows {@code token} as the saved token and discards any pending change. */

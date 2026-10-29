@@ -92,9 +92,11 @@ public class AdminView extends Composite<VerticalLayout> implements HasDynamicTi
 				event -> event.getSource().getUI().ifPresent(ui -> ui.navigate(AuditIntegrityPreparationView.class)));
 		Button checkAudit = new Button(Translator.translate("AuditIntegrity.CheckTitle"),
 				event -> event.getSource().getUI().ifPresent(ui -> ui.navigate(AuditIntegrityCheckView.class)));
+		Button simulation = new Button(Translator.translate("Simulation.Title"),
+				event -> event.getSource().getUI().ifPresent(ui -> ui.navigate(SimulationView.class)));
 
 		content.add(title, stop, restart, reloadTranslationsAction, separator(), backup, separator(), prepareAudit,
-		        checkAudit);
+		        checkAudit, separator(), simulation);
 	}
 
 	/**

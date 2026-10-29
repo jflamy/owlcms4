@@ -24,7 +24,17 @@ In the controlpanel repository:
 - **Restart rule:** never restart a child launched with `OWLCMS_LOADJSON` set,
   whether import fails or the application crashes later. Reloading would
   replace competition work. Decide from the child's launch environment, not
-  its exit code. Normal launches and UI-import restarts remain unchanged.
+  its exit code, except for the restart code below. Normal launches and
+  UI-import restarts remain unchanged.
+  Done for GUI and command-line/systemd launches (`owlcms/startupimport.go`).
+- **Import after a startup load:** done. A process cannot change its parent's
+  environment, so OWLCMS tells its launcher: after a successful startup load, a
+  restart request (UI import, Admin restart, new audit key) exits with code 75
+  (`Main.EXIT_RESTART_WITHOUT_STARTUP_IMPORT`) instead of 1. The control panel
+  and `MainWrapper` then restart without `OWLCMS_LOADJSON` (and `-DloadJson`),
+  for that restart and later ones, so the imported database is kept. Without a
+  startup load, restarts still exit with 1. In the cloud, Fly restarts with the
+  same secrets, so startup loading should not be used there.
 
 ## 2. Remaining runtime acceptance
 

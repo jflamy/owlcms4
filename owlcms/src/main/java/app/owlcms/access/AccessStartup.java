@@ -32,6 +32,10 @@ public final class AccessStartup {
 	public static void run() {
 		AuditOrigin origin = AuditOrigin.system("startup");
 		UserAccountRepository.ensureBuiltInAdmin(origin);
+		if (AdminRecovery.isOn()) {
+			// the password is set on the recovery page; no single-use password, no role accounts
+			return;
+		}
 		Config config = Config.getCurrent();
 		if (!config.isAccountsMode()) {
 			AccountPasswords.ensureAdminPassword(false, origin);

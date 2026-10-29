@@ -11,16 +11,15 @@ import app.owlcms.utils.StartupUtils;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * Proof that a maintenance request ({@code /controlpanel/stop}, {@code /simulation}) comes from this machine. The
- * client address alone is not one: a local reverse proxy such as Caddy makes remote requests appear to come from
- * localhost. The backdoor list never replaces the proof.
+ * Proof that a maintenance request ({@code /controlpanel/stop}, the scripted simulation requests) comes from this
+ * machine. The client address alone is not one: a local reverse proxy such as Caddy makes remote requests appear to
+ * come from localhost. The backdoor list never replaces the proof.
  * <ul>
- * <li>The control panel gives OWLCMS a token at launch ({@code OWLCMS_CONTROLPANELTOKEN}), shows it to the operator
- * and sends it on stop. A request presenting it as {@code ?token=} or an Authorization Bearer header is accepted;
- * a presented but wrong token is refused.</li>
- * <li>Without a token, a weaker check: a loopback connection that carries no forwarding header. A proxy adds such a
- * header (Caddy does by default), so a request it forwards is not taken as local. In IWF compliance mode the token is
- * mandatory and this fallback is not available.</li>
+ * <li>The control panel gives OWLCMS a token at launch ({@code OWLCMS_CONTROLPANELTOKEN}), offers to copy it and
+ * sends it on stop. Whenever OWLCMS has a token, the request must present it, from any address.</li>
+ * <li>Only when OWLCMS was started without a token, a weaker check applies: a loopback connection that carries no
+ * forwarding header. A proxy adds such a header (Caddy does by default), so a request it forwards is not taken as
+ * local. In IWF compliance mode this fallback is not available: OWLCMS must be started with a token.</li>
  * </ul>
  */
 public final class SameMachineProof {
@@ -43,19 +42,27 @@ public final class SameMachineProof {
 	}
 
 	/**
-	 * @param expected       the control panel token given at launch, or null
-	 * @param presented      the token in the request, or null
-	 * @param remoteAddr     the socket peer ({@code getRemoteAddr()}), not a forwarded address
-	 * @param header         looks up a request header, null if absent
-	 * @param tokenMandatory IWF compliance: no fallback to a local connection
+	 * @param expected      the control panel token given at launch, or null
+	 * @param presented     the token in the request, or null
+	 * @param remoteAddr    the socket peer ({@code getRemoteAddr()}), not a forwarded address
+	 * @param header        looks up a request header, null if absent
+	 * @param iwfCompliance no fallback to a local connection
 	 * @return null if allowed, else "missing", "invalid" or "not-local"
 	 */
 	static String refusal(String expected, String presented, String remoteAddr, Function<String, String> header,
-	        boolean tokenMandatory) {
-		if (presented != null && !presented.isBlank()) {
+	        boolean iwfCompliance) {
+		boolean tokenPresented = presented != null && !presented.isBlank();
+		if (expected != null && !expected.isBlank()) {
+			if (!tokenPresented) {
+				return "missing";
+			}
 			return matches(presented, expected) ? null : "invalid";
 		}
-		if (tokenMandatory) {
+		if (tokenPresented) {
+			// OWLCMS has no token to compare with
+			return "invalid";
+		}
+		if (iwfCompliance) {
 			return "missing";
 		}
 		return isDirectLoopback(remoteAddr, header) ? null : "not-local";

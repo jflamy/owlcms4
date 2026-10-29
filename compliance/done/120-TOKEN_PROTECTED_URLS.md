@@ -30,7 +30,7 @@ Implementation plan for the STREAMING role and the display pages: [120-IMPLEMENT
 | --- | --- | --- | --- |
 | Account token | Accounts | An account; its current roles decide | Display pages, plain servlets |
 | Display PIN, passed as `token` | PIN | Knowledge of the display PIN (weak shared secret) | Display pages |
-| Control panel token, else a direct loopback connection (token mandatory in IWF compliance) | Both | The caller is on this machine: the control panel run that launched OWLCMS, or an operator who read the token from it | `/controlpanel/stop`, `/simulation/*` |
+| Control panel token; only when OWLCMS has none, a direct loopback connection (not in IWF compliance) | Both | The caller is on this machine: the control panel run that launched OWLCMS, or an operator who copied the token from it | `/controlpanel/stop`, `/simulation/start`, `/simulation/stop`, `/simulation/status` |
 
 ## Roles
 
@@ -81,7 +81,8 @@ Implementation plan for the STREAMING role and the display pages: [120-IMPLEMENT
 | --- | --- | --- | --- |
 | `/competition/export`, `/competition/export/json/1`, `/competition/export/json/2`, `/competition/export/sbde` | RESULTS (also through EXTERNAL, COMPETITION_DIRECTOR and COMPETITION_SUPERVISOR). STREAMING refused. | Local network or backdoor, as before | Implemented |
 | `/competition/h2` (GET, HEAD) | RESULTS, as for the exports | Local network or backdoor, as before | Implemented |
-| `/simulation/*` (GET, HEAD, POST) | None: control panel token, else a direct loopback connection. The page asks for the token; the form carries it on its POSTs. | Same | Implemented |
+| `/simulation/start`, `/simulation/stop` (POST), `/simulation/status` (GET): scripts | None: control panel token, as for stop | Same | Implemented |
+| `simulation` (page, not a servlet) | ADMIN_PAGES or COMPETITION_SUPERVISOR, logged in; no locality | Officials PIN | Implemented |
 | `/controlpanel/stop` (POST) | None: control panel token, else a direct loopback connection | Same | Implemented |
 | `/mqtt` | Out of scope: the MQTT broker authenticates its clients | Same | — |
 | `/local/...` (logos, flags) | Public static assets | Same | — |
@@ -99,27 +100,27 @@ Full audit backups are downloaded from an admin page; no token URL is planned fo
   known); successful exports as `export.json` with `device=token id=<id>`.
 - A revoked token or disabled account is refused immediately.
 
-### `/controlpanel/stop` and `/simulation/*`
+### `/controlpanel/stop` and the simulation script requests
 
 Both must come from this machine. The client address alone does not prove it: a local
 reverse proxy such as Caddy makes remote requests appear to come from localhost. The
 audit `runId` is not used: the control panel may stop OWLCMS before any audit file exists.
 
 - The control panel generates a random token once per run, passes it to OWLCMS at
-  launch as `OWLCMS_CONTROLPANELTOKEN`, shows it to the operator, and sends it on stop as
-  `Authorization: Bearer <token>`. The simulation page asks for it and its form carries
-  it on its POSTs.
-- A request presenting a token must present that one (constant-time comparison); a
-  wrong token is refused, whatever the address.
-- Without a token, the weaker check applies: the connection must come from loopback and
-  carry no forwarding header (`X-Forwarded-For`, `Forwarded`, `X-Real-IP`). A reverse
-  proxy adds such a header (Caddy does by default), so a request it forwards is not
-  taken as local. This covers OWLCMS started by hand or by another tool.
-- In IWF compliance mode the token is mandatory: there is no fallback.
+  launch as `OWLCMS_CONTROLPANELTOKEN`, offers to copy it, and sends it on stop as an
+  `Authorization` bearer header. Scripts driving the simulation send it the same way.
+- Whenever OWLCMS has a token, a request must present that one (constant-time
+  comparison), from any address, including the OWLCMS machine itself.
+- Only when OWLCMS was started without a token, the weaker check applies: the
+  connection must come from loopback and carry no forwarding header (`X-Forwarded-For`,
+  `Forwarded`, `X-Real-IP`). A reverse proxy adds such a header (Caddy does by
+  default), so a request it forwards is not taken as local. This covers OWLCMS started
+  by hand or by another tool.
+- In IWF compliance mode OWLCMS must have a token: there is no fallback.
 - The backdoor list does not bypass the check. A refusal is audited as
   `auth.token-refused` (`missing`, `invalid` or `not-local`). Stop answers 403 and the
-  control panel falls back to stopping the process with a signal; simulation shows the
-  token prompt. An accepted stop is audited as
+  control panel falls back to stopping the process with a signal; the simulation script
+  requests answer 401 or 403. An accepted stop is audited as
   `application.stopping reason=control-panel stop`. The token is never logged.
 
 ## Vaadin pages

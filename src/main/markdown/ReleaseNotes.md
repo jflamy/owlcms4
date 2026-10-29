@@ -13,6 +13,9 @@
 - 69.0.0-beta02: MQTT refereeing devices are told when a competition has no jury (jury size 0) instead of being sent a jury size of 3.
   - Blue Owl versions up to 3.0.0 treat it as a jury of 3, as before.
 
+- 69.0.0-beta02: Admin password recovery: starting OWLCMS with `OWLCMS_ADMINRECOVERY=true` shows only a recovery page, which sets a new admin password once the control panel token is entered.
+  - Nothing else is reachable in this mode; remove the setting and restart afterwards.
+
 - 69.0.0-beta02: Robustness/correctness of user accounts management and audit trail
 
 - 69.0.0-beta02: Audit logs are always sealed, with the audit signing key (PEM) when present, else with the built-in key, which only allows testing.

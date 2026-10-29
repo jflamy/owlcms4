@@ -30,9 +30,11 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import app.owlcms.access.AccessStartup;
+import app.owlcms.access.AdminRecovery;
 import app.owlcms.audit.ApplicationAudit;
 import app.owlcms.audit.AuditIntegrity;
 import app.owlcms.audit.AuditContext;
+import app.owlcms.audit.AuthAudit;
 import app.owlcms.utils.BrowserUtils;
 import app.owlcms.apputils.LogbackConfigReloader;
 import app.owlcms.data.agegroup.AgeGroup;
@@ -111,6 +113,11 @@ public class Main {
         return intentionalSignalReceived;
     }
 
+    /** @return true if this run loaded the export named by OWLCMS_LOADJSON */
+    public static boolean isStartupImportLoaded() {
+        return startupImportLoaded;
+    }
+
     private static void exitWhenWrapperExits() {
         if (System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win")) {
             return;
@@ -153,9 +160,16 @@ public class Main {
     protected static boolean smallData;
     /** Exit code when the export named by OWLCMS_LOADJSON cannot be loaded (sysexits EX_CONFIG). Diagnostic only. */
     public static final int EXIT_STARTUP_IMPORT_FAILED = 78;
+    /**
+     * Exit code of a restart request after a successful OWLCMS_LOADJSON startup load (sysexits EX_TEMPFAIL): the
+     * launcher restarts without OWLCMS_LOADJSON, so the restart keeps the current database instead of loading the file
+     * again. Without a startup load, restarts use exit code 1.
+     */
+    public static final int EXIT_RESTART_WITHOUT_STARTUP_IMPORT = 75;
     private static InitialData initialData;
     /** OWLCMS_LOADJSON is honored once per JVM: an in-process restart must not replace the competition again. */
     private static boolean startupImportAttempted;
+    private static volatile boolean startupImportLoaded;
     public static String mqttStartup;
     private static volatile Server mqttBroker;
     private static volatile boolean mqttPortInUse;
@@ -195,6 +209,10 @@ public class Main {
      * otherwise initializes normally.
      */
     public static void initStartup() {
+        if (AdminRecovery.isOn()) {
+            initAdminRecovery();
+            return;
+        }
         Optional<Path> source = Optional.empty();
         if (!startupImportAttempted) {
             startupImportAttempted = true;
@@ -211,6 +229,26 @@ public class Main {
             initConfig();
             initData();
         }
+    }
+
+    /**
+     * Admin recovery mode: only the configuration phase runs (database, settings, audit, built-in admin). No
+     * competition loading, MQTT broker or event forwarding; every request gets the recovery form.
+     */
+    private static void initAdminRecovery() {
+        logger./**/warn("ADMIN RECOVERY MODE: only the admin password can be set; remove OWLCMS_ADMINRECOVERY and restart afterwards");
+        if (StartupUtils.getStringParam("loadJson") != null) {
+            logger./**/warn("OWLCMS_LOADJSON is ignored in admin recovery mode");
+        }
+        JPAService.init(memoryMode, false);
+        completeConfig();
+        boolean tokenConfigured = AdminRecovery.expectedToken() != null;
+        AuthAudit.adminRecoveryStarted(tokenConfigured);
+        if (!tokenConfigured) {
+            logger.error("admin recovery needs OWLCMS_CONTROLPANELTOKEN; OWLCMS was started without it");
+        }
+        AdminRecovery.markReady();
+        StartupUtils.getStartupLogger().info("Admin recovery mode: open OWLCMS in a browser to set the admin password.");
     }
 
     /**
@@ -240,6 +278,7 @@ public class Main {
 
             completeConfig();
             ApplicationAudit.startupImport(name, sha256);
+            startupImportLoaded = true;
             initData();
         } catch (Throwable e) {
             failStartupImport(source, e);

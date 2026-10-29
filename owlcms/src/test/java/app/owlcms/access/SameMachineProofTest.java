@@ -16,25 +16,25 @@ public class SameMachineProofTest {
 	private static final Function<String, String> NO_HEADERS = Map.<String, String>of()::get;
 
 	@Test
-	public void aPresentedTokenMustMatchWhateverTheAddress() {
-		for (boolean mandatory : new boolean[] { false, true }) {
-			assertNull(SameMachineProof.refusal(TOKEN, TOKEN, "203.0.113.7", NO_HEADERS, mandatory));
+	public void withATokenItMustBePresentedAndMatchWhateverTheAddress() {
+		for (boolean iwf : new boolean[] { false, true }) {
+			assertNull(SameMachineProof.refusal(TOKEN, TOKEN, "203.0.113.7", NO_HEADERS, iwf));
 			assertNull("surrounding spaces are ignored",
-			        SameMachineProof.refusal(TOKEN, " " + TOKEN + " ", "127.0.0.1", NO_HEADERS, mandatory));
-			assertEquals("invalid",
-			        SameMachineProof.refusal(TOKEN, TOKEN.toUpperCase(), "127.0.0.1", NO_HEADERS, mandatory));
+			        SameMachineProof.refusal(TOKEN, " " + TOKEN + " ", "127.0.0.1", NO_HEADERS, iwf));
+			assertEquals("invalid", SameMachineProof.refusal(TOKEN, TOKEN.toUpperCase(), "127.0.0.1", NO_HEADERS, iwf));
 			assertEquals("a wrong token is refused even from loopback", "invalid",
-			        SameMachineProof.refusal(TOKEN, "wrong", "127.0.0.1", NO_HEADERS, mandatory));
-			assertEquals("no token was given at launch", "invalid",
-			        SameMachineProof.refusal(null, TOKEN, "127.0.0.1", NO_HEADERS, mandatory));
+			        SameMachineProof.refusal(TOKEN, "wrong", "127.0.0.1", NO_HEADERS, iwf));
+			assertEquals("a direct local connection is not enough when OWLCMS has a token", "missing",
+			        SameMachineProof.refusal(TOKEN, null, "127.0.0.1", NO_HEADERS, iwf));
+			assertEquals("missing", SameMachineProof.refusal(TOKEN, " ", "192.168.1.10", NO_HEADERS, iwf));
 		}
 	}
 
 	@Test
 	public void withoutATokenADirectLocalConnectionIsAccepted() {
-		assertNull(SameMachineProof.refusal(TOKEN, null, "127.0.0.1", NO_HEADERS, false));
-		assertNull(SameMachineProof.refusal(null, " ", "0:0:0:0:0:0:0:1", NO_HEADERS, false));
-		assertEquals("not-local", SameMachineProof.refusal(TOKEN, null, "192.168.1.10", NO_HEADERS, false));
+		assertNull(SameMachineProof.refusal(null, null, "127.0.0.1", NO_HEADERS, false));
+		assertNull(SameMachineProof.refusal(" ", " ", "0:0:0:0:0:0:0:1", NO_HEADERS, false));
+		assertEquals("not-local", SameMachineProof.refusal(null, null, "192.168.1.10", NO_HEADERS, false));
 		assertEquals("not-local", SameMachineProof.refusal(null, null, null, NO_HEADERS, false));
 		for (String header : SameMachineProof.FORWARDING_HEADERS) {
 			assertEquals("forwarded by a proxy: " + header, "not-local",
@@ -43,12 +43,14 @@ public class SameMachineProofTest {
 		assertEquals("a forwarded loopback claim is not trusted", "not-local", SameMachineProof.refusal(null, null,
 		        "127.0.0.1", Map.of("X-Forwarded-For", "127.0.0.1")::get, false));
 		assertNull(SameMachineProof.refusal(null, null, "127.0.0.1", Map.of("X-Forwarded-For", " ")::get, false));
+		assertEquals("OWLCMS has no token to compare with", "invalid",
+		        SameMachineProof.refusal(null, TOKEN, "127.0.0.1", NO_HEADERS, false));
 	}
 
 	@Test
-	public void inIwfComplianceTheTokenIsMandatory() {
-		assertEquals("missing", SameMachineProof.refusal(TOKEN, null, "127.0.0.1", NO_HEADERS, true));
+	public void inIwfComplianceOwlcmsMustHaveAToken() {
 		assertEquals("missing", SameMachineProof.refusal(null, null, "127.0.0.1", NO_HEADERS, true));
+		assertEquals("invalid", SameMachineProof.refusal(null, TOKEN, "127.0.0.1", NO_HEADERS, true));
 		assertNull(SameMachineProof.refusal(TOKEN, TOKEN, "127.0.0.1", NO_HEADERS, true));
 	}
 
