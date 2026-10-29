@@ -30,7 +30,13 @@ import java.util.function.Supplier;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.access.LoginThrottle;
+import app.owlcms.access.Role;
+import app.owlcms.access.TokenAuthenticator;
 import app.owlcms.apputils.AccessUtils;
+import app.owlcms.audit.AuthAudit;
+import app.owlcms.data.account.UserAccountRepository;
+import app.owlcms.data.config.Config;
 import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.ExportAudit;
 import app.owlcms.data.export.CompetitionData;
@@ -142,14 +148,10 @@ public class CompetitionExport extends HttpServlet {
 		logger.info("processing competition export request {}", request.getServletPath());
 		// use proxyutils because this is a plain servlet, not a Vaadin servlet
 		String host = ProxyUtils.getClientIp(request);
-		boolean allowed = AccessUtils.isLocalNetwork(host) || AccessUtils.checkBackdoor(host);
-		if (!allowed) {
-			logger.error("{} not local and not in backdoor list, denied full state access", host);
-			response.setStatus(403);
+		AuditActor actor = authorize(request, response, host);
+		if (actor == null) {
 			response.flushBuffer();
 			return;
-		} else {
-			logger.info("{} authorized full state access", host);
 		}
 
 		// Prepare and initialize response
@@ -164,7 +166,7 @@ public class CompetitionExport extends HttpServlet {
 
 		try {
 			installRequestSession(request);
-			ExportPayload payload = createPayload(request.getServletPath(), AuditActor.http(host));
+			ExportPayload payload = createPayload(request.getServletPath(), actor);
 			if (payload == null) {
 				response.setStatus(404);
 				response.flushBuffer();
@@ -226,6 +228,59 @@ public class CompetitionExport extends HttpServlet {
 
 	private String excelContentType(String extension) {
 		return ".xls".equals(extension) ? XLS_CONTENT_TYPE : XLSX_CONTENT_TYPE;
+	}
+
+	/**
+	 * PIN mode: local network or backdoor list, as before. Accounts mode: a token whose owner holds the results
+	 * role, whatever the address. Sets the refusal status itself.
+	 *
+	 * @return the audit actor for the export, or null when refused
+	 */
+	private AuditActor authorize(HttpServletRequest request, HttpServletResponse response, String host) {
+		if (!Config.getCurrent().isAccountsMode()) {
+			if (AccessUtils.isLocalNetwork(host) || AccessUtils.checkBackdoor(host)) {
+				logger.info("{} authorized full state access", host);
+				return AuditActor.http(host);
+			}
+			logger.error("{} not local and not in backdoor list, denied full state access", host);
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			return null;
+		}
+		String path = request.getServletPath();
+		String token = TokenAuthenticator.presentedToken(request.getParameter("token"),
+		        request.getHeader("Authorization"));
+		TokenAuthenticator authenticator = new TokenAuthenticator(UserAccountRepository::findByTokenHash,
+		        LoginThrottle.shared());
+		switch (authenticator.authenticate(token, host)) {
+			case TokenAuthenticator.Result.Authenticated authenticated -> {
+				String username = authenticated.account().getUsername();
+				String tokenId = authenticated.token().getTokenId();
+				if (TokenAuthenticator.holds(authenticated.account(), Role.RESULTS)) {
+					logger.info("{} export authorized by token id={} of account {}", host, tokenId, username);
+					return AuditActor.token(username, tokenId, host);
+				}
+				logger./**/warn("{} export refused: token id={} of account {} does not hold the results role", host,
+				        tokenId, username);
+				AuthAudit.tokenRefused(host, path, "forbidden", username, tokenId);
+				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			}
+			case TokenAuthenticator.Result.Missing _ -> {
+				logger.info("{} export refused: no token", host);
+				response.setHeader("WWW-Authenticate", "Bearer");
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			}
+			case TokenAuthenticator.Result.Invalid _ -> {
+				AuthAudit.tokenRefused(host, path, "invalid", null, null);
+				response.setHeader("WWW-Authenticate", "Bearer error=\"invalid_token\"");
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			}
+			case TokenAuthenticator.Result.Throttled throttled -> {
+				AuthAudit.tokenRefused(host, path, "throttled", null, null);
+				response.setHeader("Retry-After", Long.toString(throttled.seconds()));
+				response.setStatus(429);
+			}
+		}
+		return null;
 	}
 
 	private void installRequestSession(HttpServletRequest request) {
