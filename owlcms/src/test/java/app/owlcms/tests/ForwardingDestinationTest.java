@@ -4,17 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Base64;
 import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ForwardingConnection;
@@ -22,11 +16,7 @@ import app.owlcms.monitors.ForwardingDestination;
 
 public class ForwardingDestinationTest {
 
-	@Rule
-	public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
 	private String originalEnableEventForwardingProperty;
-	private String originalHome;
 	private String originalControlPanelProperty;
 	private String originalLauncherProperty;
 	private String originalRemoteProperty;
@@ -36,12 +26,6 @@ public class ForwardingDestinationTest {
 
 	@Before
 	public void captureForwardingProperties() throws Exception {
-		this.originalHome = System.getProperty("user.home");
-		Path testHome = this.temporaryFolder.newFolder("crypto-home").toPath();
-		Path keyDirectory = Files.createDirectories(testHome.resolve(".owlcms"));
-		Files.writeString(keyDirectory.resolve("key"), Base64.getEncoder().encodeToString(new byte[32]),
-		        StandardCharsets.US_ASCII);
-		System.setProperty("user.home", testHome.toString());
 		this.originalEnableEventForwardingProperty = System.getProperty("enableEventForwarding");
 		this.originalControlPanelProperty = System.getProperty("controlpanel");
 		this.originalLauncherProperty = System.getProperty("launcher");
@@ -60,7 +44,6 @@ public class ForwardingDestinationTest {
 
 	@After
 	public void restoreForwardingProperties() {
-		System.setProperty("user.home", this.originalHome);
 		restoreProperty("enableEventForwarding", this.originalEnableEventForwardingProperty);
 		restoreProperty("controlpanel", this.originalControlPanelProperty);
 		restoreProperty("launcher", this.originalLauncherProperty);

@@ -21,9 +21,11 @@ public final class AuditIntegrity {
 	/**
 	 * @param iwfCompliance the switch as read at startup; it forces accounts mode
 	 * @param signingKey    the configured key when present, else the built-in key
+	 * @param replacedKey   the key that a pending key replaced at this startup, else null; see
+	 *                      {@link AuditKeyFiles.Promotion}
 	 */
 	public record State(boolean iwfCompliance, boolean tcrrCompliance, boolean environmentKey, Path keyPath,
-			AuditSigningKey signingKey) {
+			AuditSigningKey signingKey, AuditSigningKey replacedKey) {
 	}
 
 	/**
@@ -33,13 +35,17 @@ public final class AuditIntegrity {
 	public static State load(boolean iwfCompliance, boolean configuredTcrr, String flattenedPem, String pathOverride,
 			Path home) throws IOException {
 		if (flattenedPem != null) {
-			return new State(iwfCompliance, configuredTcrr, true, null, AuditSigningKey.fromFlattenedPem(flattenedPem));
+			return new State(iwfCompliance, configuredTcrr, true, null, AuditSigningKey.fromFlattenedPem(flattenedPem),
+					null);
 		}
 		Path path = AuditKeyFiles.resolvePath(pathOverride, home);
 		boolean keyConfigured = pathOverride != null || AuditKeyFiles.exists(AuditKeyFiles.pendingPath(path))
 				|| AuditKeyFiles.exists(path);
-		return new State(iwfCompliance, configuredTcrr, false, path,
-				keyConfigured ? AuditKeyFiles.loadAndPromote(path) : AuditSigningKey.builtin());
+		if (!keyConfigured) {
+			return new State(iwfCompliance, configuredTcrr, false, path, AuditSigningKey.builtin(), null);
+		}
+		AuditKeyFiles.Promotion promotion = AuditKeyFiles.loadAndPromote(path);
+		return new State(iwfCompliance, configuredTcrr, false, path, promotion.key(), promotion.replaced());
 	}
 
 	public static synchronized void initialize(Config config) {

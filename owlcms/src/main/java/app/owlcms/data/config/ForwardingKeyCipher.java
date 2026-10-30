@@ -12,9 +12,11 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,6 +33,9 @@ import app.owlcms.audit.AuditSigningKey;
  * In PIN mode they are written in plain text. In accounts mode they are encrypted with AES-256-GCM, using a key derived
  * from the audit signing key: the configured PEM key, or else the built-in key. The built-in private key is public, so
  * that only hides the value. Values are read whatever the current mode, so changing the mode loses nothing.
+ * <p>
+ * A change of protection (switching to or from PIN mode, or a new audit key) re-stores every value with
+ * {@link #reencrypt(String, AuditSigningKey, AuditSigningKey)}.
  */
 public final class ForwardingKeyCipher {
 
@@ -57,19 +62,35 @@ public final class ForwardingKeyCipher {
 
 	/**
 	 * @return the plain value, null if none
-	 * @throws IOException if the stored value cannot be decrypted with the current or the built-in audit key
+	 * @throws IOException if the stored value cannot be decrypted with the current, replaced or built-in audit key
 	 */
 	static String reveal(String stored) throws IOException {
-		return reveal(stored, AuditIntegrity.isInitialized() ? currentSigningKey() : null);
+		if (!AuditIntegrity.isInitialized()) {
+			return revealWith(stored);
+		}
+		return revealWith(stored, currentSigningKey(), AuditIntegrity.current().replacedKey());
 	}
 
 	public static String forStorage(String stored, boolean accountsMode, AuditSigningKey signingKey)
 	        throws IOException {
-		String plain = reveal(stored, signingKey);
-		if (plain == null || !accountsMode) {
+		return reencrypt(stored, signingKey, accountsMode ? signingKey : null);
+	}
+
+	/**
+	 * Re-stores a value for a change of protection.
+	 *
+	 * @param oldKey the key that protected the value, null if it was plain text
+	 * @param newKey the key that must protect it, null for plain text
+	 * @return the value to store: plain text when newKey is null, else encrypted with newKey (a value already encrypted
+	 *         with newKey is returned unchanged); null if none
+	 * @throws IOException if the value is encrypted with neither key nor the built-in key
+	 */
+	public static String reencrypt(String stored, AuditSigningKey oldKey, AuditSigningKey newKey) throws IOException {
+		String plain = revealWith(stored, oldKey, newKey);
+		if (plain == null || newKey == null) {
 			return plain;
 		}
-		byte[] key = keyFor(signingKey);
+		byte[] key = keyFor(newKey);
 		String current = stored.strip();
 		if (current.startsWith(ENCRYPTED_PREFIX + fingerprint(key) + ":")) {
 			return current;
@@ -81,6 +102,11 @@ public final class ForwardingKeyCipher {
 	 * @param signingKey the audit key in force, null to try only the built-in key
 	 */
 	public static String reveal(String stored, AuditSigningKey signingKey) throws IOException {
+		return revealWith(stored, signingKey);
+	}
+
+	/** Tries each non-null key, then the built-in key. */
+	private static String revealWith(String stored, AuditSigningKey... keys) throws IOException {
 		if (stored == null || stored.isBlank()) {
 			return null;
 		}
@@ -106,8 +132,14 @@ public final class ForwardingKeyCipher {
 		if (sealed.length <= NONCE_LENGTH) {
 			throw new IOException("the encrypted value is invalid");
 		}
-		for (AuditSigningKey candidate : signingKey != null ? new AuditSigningKey[] { signingKey, builtin() }
-		        : new AuditSigningKey[] { builtin() }) {
+		List<AuditSigningKey> candidates = new ArrayList<>();
+		for (AuditSigningKey key : keys) {
+			if (key != null) {
+				candidates.add(key);
+			}
+		}
+		candidates.add(builtin());
+		for (AuditSigningKey candidate : candidates) {
 			byte[] key = keyFor(candidate);
 			if (fingerprint.equals(fingerprint(key))) {
 				return open(key, sealed);

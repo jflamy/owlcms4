@@ -53,6 +53,7 @@ import app.owlcms.access.AccessModeResolver;
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.audit.AuditIntegrity;
 import app.owlcms.audit.AuditOrigin;
+import app.owlcms.audit.AuditSigningKey;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
@@ -167,6 +168,7 @@ public class Config {
 		}
 		config.migrateFeatureSwitchesToJson();
 		config.prepareForwardingConnections();
+		config.protectForwardingKeys();
 		Config saved = ConfigRepository.save(config, origin);
 		saved.managedForwardingActivity = config.managedForwardingActivity;
 		current = saved;
@@ -343,6 +345,59 @@ public class Config {
 	private boolean prepareForwardingConnections() {
 		boolean changed = migrateForwardingConnectionsToJson();
 		return synchronizeControlPanelVideoData() || changed;
+	}
+
+	/**
+	 * Stores the forwarding update keys as the mode in force requires: encrypted with the audit key in accounts mode,
+	 * plain text in PIN mode. Runs at every save, so switching modes and newly entered keys are covered. No effect until
+	 * the audit key is loaded at startup.
+	 */
+	private void protectForwardingKeys() {
+		if (!AuditIntegrity.isInitialized()) {
+			return;
+		}
+		AuditSigningKey key = AuditIntegrity.current().signingKey();
+		reencryptForwardingKeys(key, isAccountsMode() ? key : null);
+	}
+
+	/**
+	 * The hook for a change of protection: re-stores every forwarding update key. See
+	 * {@link ForwardingKeyCipher#reencrypt}.
+	 *
+	 * @param oldKey the key that protected the values, null if they were plain text
+	 * @param newKey the key that must protect them, null for plain text
+	 * @return true if a stored value changed
+	 */
+	boolean reencryptForwardingKeys(AuditSigningKey oldKey, AuditSigningKey newKey) {
+		if (this.forwardingDestinationsJson == null) {
+			return false;
+		}
+		List<ForwardingConnection> connections = readForwardingConnectionsJson(this.forwardingDestinationsJson);
+		boolean changed = false;
+		for (ForwardingConnection connection : connections) {
+			changed |= connection.reencryptUpdateKey(oldKey, newKey);
+		}
+		if (changed) {
+			this.forwardingDestinationsJson = writeForwardingConnectionsJson(connections);
+		}
+		return changed;
+	}
+
+	/**
+	 * At startup, once the audit key is loaded: stores the forwarding update keys for the mode in force. After a new
+	 * audit key was activated, the values protected by the key it replaced are re-encrypted with the new one; plain
+	 * values left by earlier versions are encrypted in accounts mode.
+	 */
+	public static void protectForwardingKeysAtStartup() {
+		AuditIntegrity.State state = AuditIntegrity.current();
+		Config config = getCurrent();
+		AuditSigningKey key = state.signingKey();
+		AuditSigningKey oldKey = state.replacedKey() != null ? state.replacedKey() : key;
+		if (config.reencryptForwardingKeys(oldKey, config.isAccountsMode() ? key : null)) {
+			logger.info("forwarding update keys stored for {} mode{}", config.getParamAccessMode(),
+			        state.replacedKey() != null ? ", re-encrypted with the new audit key" : "");
+			setCurrent(config, AuditOrigin.system("startup"));
+		}
 	}
 
 	private boolean synchronizeControlPanelVideoData() {

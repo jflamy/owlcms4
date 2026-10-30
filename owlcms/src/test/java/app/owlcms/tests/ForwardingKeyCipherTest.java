@@ -63,6 +63,28 @@ public class ForwardingKeyCipherTest {
 	}
 
 	@Test
+	public void reencryptHandlesEveryChangeOfProtection() throws Exception {
+		AuditSigningKey oldKey = AuditSigningKey.generate();
+		AuditSigningKey newKey = AuditSigningKey.generate();
+
+		String encrypted = ForwardingKeyCipher.reencrypt("tracker-key", null, oldKey);
+		assertTrue("PIN to accounts encrypts", encrypted.startsWith("enc:v1:"));
+		assertEquals("tracker-key", ForwardingKeyCipher.reveal(encrypted, oldKey));
+		assertEquals("already protected: unchanged", encrypted, ForwardingKeyCipher.reencrypt(encrypted, oldKey, oldKey));
+
+		assertEquals("accounts to PIN decrypts", "tracker-key", ForwardingKeyCipher.reencrypt(encrypted, oldKey, null));
+
+		String rotated = ForwardingKeyCipher.reencrypt(encrypted, oldKey, newKey);
+		assertEquals("a new audit key re-encrypts", "tracker-key", ForwardingKeyCipher.reveal(rotated, newKey));
+		assertThrows(IOException.class, () -> ForwardingKeyCipher.reveal(rotated, oldKey));
+
+		assertEquals("plain stays plain", "tracker-key", ForwardingKeyCipher.reencrypt("tracker-key", null, null));
+		assertNull(ForwardingKeyCipher.reencrypt(null, oldKey, newKey));
+		assertThrows("a foreign key cannot be re-encrypted", IOException.class,
+		        () -> ForwardingKeyCipher.reencrypt(encrypted, AuditSigningKey.generate(), newKey));
+	}
+
+	@Test
 	public void rejectsMalformedUnsupportedAndTamperedValues() throws Exception {
 		AuditSigningKey pem = AuditSigningKey.generate();
 		String stored = ForwardingKeyCipher.forStorage("tracker-key", true, pem);

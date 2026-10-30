@@ -34,7 +34,7 @@ matched against OWLCMS's `export.json` (`channel=websocket`) audit record.
 No embedded digest, separate sidecar or reserialization is required.
 
 Connection-credential handling belongs to
-[140](140-EXPORT_CREDENTIAL_PROTECTION.md). Tracker stores those values as
+[140](done/140-EXPORT_CREDENTIAL_PROTECTION.md). Tracker stores those values as
 received and never decrypts them; only OWLCMS does, when it loads a checkpoint.
 Loading belongs to [160](160-DIRECT_JSON_BOOT.md): `OWLCMS_LOADJSON` set to
 the checkpoint folder loads the newest complete checkpoint at startup.

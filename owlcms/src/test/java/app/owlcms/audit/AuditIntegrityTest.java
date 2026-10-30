@@ -61,8 +61,11 @@ public class AuditIntegrityTest {
 		assertEquals(old.fingerprint(), AuditSigningKey.parsePem(Files.readString(active)).fingerprint());
 		AuditIntegrity.State state = AuditIntegrity.load(false, false, null, null, home);
 		assertEquals(pending.fingerprint(), state.signingKey().fingerprint());
+		assertEquals("the replaced key is kept for this run", old.fingerprint(), state.replacedKey().fingerprint());
 		assertFalse(Files.exists(AuditKeyFiles.pendingPath(active)));
 		assertEquals(pending.fingerprint(), AuditSigningKey.parsePem(Files.readString(active)).fingerprint());
+		assertNull("nothing is replaced at the next startup",
+				AuditIntegrity.load(false, false, null, null, home).replacedKey());
 	}
 
 	@Test
@@ -71,8 +74,9 @@ public class AuditIntegrityTest {
 		Path active = AuditKeyFiles.resolvePath(null, home);
 		AuditSigningKey pending = AuditKeyFiles.prepare(active);
 		assertFalse(Files.exists(active));
-		assertEquals(pending.fingerprint(), AuditIntegrity.load(false, false, null, null, home)
-				.signingKey().fingerprint());
+		AuditIntegrity.State state = AuditIntegrity.load(false, false, null, null, home);
+		assertEquals(pending.fingerprint(), state.signingKey().fingerprint());
+		assertNull(state.replacedKey());
 	}
 
 	@Test

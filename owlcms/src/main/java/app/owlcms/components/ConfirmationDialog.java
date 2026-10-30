@@ -6,6 +6,9 @@
  *******************************************************************************/
 package app.owlcms.components;
 
+import java.util.function.BooleanSupplier;
+
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
@@ -21,6 +24,9 @@ import app.owlcms.i18n.Translator;
 public class ConfirmationDialog extends Dialog {
 
 	Runnable action;
+	private final VerticalLayout content = new VerticalLayout();
+	private BooleanSupplier confirmCheck;
+	private Runnable cancelAction;
 
 	/**
 	 * Creates a confirmation dialog with a custom confirm button label.
@@ -40,18 +46,26 @@ public class ConfirmationDialog extends Dialog {
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
 
-		VerticalLayout content = new VerticalLayout();
+		VerticalLayout content = this.content;
 		H3 title1 = new H3(title);
 		title1.getStyle().set("margin-top", "0px");
 		title1.getStyle().set("padding-top", "0px");
 
 		Paragraph paragraph = new Paragraph();
-		paragraph.getElement().setProperty("innerHTML", question);
-		paragraph.setWidth("550px");
-		content.add(title1, paragraph);
+		content.add(title1);
+		// null when the caller adds its own body, for example markdown
+		if (question != null) {
+			paragraph.getElement().setProperty("innerHTML", question);
+			paragraph.setWidth("550px");
+			content.add(paragraph);
+		}
 
 		HorizontalLayout buttons = new HorizontalLayout();
 		Button confirmButton = new Button(confirmButtonLabel, event -> {
+			if (this.confirmCheck != null && !this.confirmCheck.getAsBoolean()) {
+				// the check shows its own error; the dialog stays open
+				return;
+			}
 			if (pAction != null) {
 				pAction.run();
 			} else if (this.action != null) {
@@ -66,6 +80,9 @@ public class ConfirmationDialog extends Dialog {
 
 		String effectiveCancelLabel = cancelButtonLabel != null ? cancelButtonLabel : Translator.translate("Cancel");
 		Button cancelButton = new Button(effectiveCancelLabel, event -> {
+			if (this.cancelAction != null) {
+				this.cancelAction.run();
+			}
 			dialog.close();
 		});
 		cancelButton.getElement().setAttribute("theme", "primary");
@@ -99,6 +116,21 @@ public class ConfirmationDialog extends Dialog {
 
 	public Runnable getAction() {
 		return this.action;
+	}
+
+	/** Adds a component, such as an input field, below the question. */
+	public void addBody(Component component) {
+		this.content.add(component);
+	}
+
+	/** @param confirmCheck runs before the action; when it returns false, nothing is done and the dialog stays open */
+	public void setConfirmCheck(BooleanSupplier confirmCheck) {
+		this.confirmCheck = confirmCheck;
+	}
+
+	/** @param cancelAction runs when the cancel button is used, for example to undo what led to the dialog */
+	public void setCancelAction(Runnable cancelAction) {
+		this.cancelAction = cancelAction;
 	}
 
 	public void setAction(Runnable action) {

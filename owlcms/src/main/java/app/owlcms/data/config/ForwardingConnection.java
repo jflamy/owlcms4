@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import app.owlcms.audit.AuditIntegrity;
+import app.owlcms.audit.AuditSigningKey;
 import ch.qos.logback.classic.Logger;
 
 public class ForwardingConnection {
@@ -91,6 +92,31 @@ public class ForwardingConnection {
 		if (AuditIntegrity.isInitialized() && reportedUnusableKeys.add(this.updateKey)) {
 			logger./**/warn("forwarding key for {} treated as unset, enter it again in the settings: {}", this.url,
 			        e.getMessage());
+		}
+	}
+
+	/** The value as stored: plain text or {@code enc:v1:...}. */
+	String storedUpdateKey() {
+		return this.updateKey;
+	}
+
+	/**
+	 * Re-stores the key for a change of protection; see {@link ForwardingKeyCipher#reencrypt}. A key encrypted with
+	 * an unknown audit key is left as is: it is unusable until entered again.
+	 *
+	 * @return true if the stored value changed
+	 */
+	boolean reencryptUpdateKey(AuditSigningKey oldKey, AuditSigningKey newKey) {
+		try {
+			String next = ForwardingKeyCipher.reencrypt(this.updateKey, oldKey, newKey);
+			if (Objects.equals(next, this.updateKey)) {
+				return false;
+			}
+			this.updateKey = next;
+			return true;
+		} catch (IOException e) {
+			reportUnusable(e);
+			return false;
 		}
 	}
 

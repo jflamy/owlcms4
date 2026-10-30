@@ -77,11 +77,23 @@ token-accessible `/simulation/*` script endpoints were removed.
 
 ## Audit pages
 
-`admin/audit/prepare` creates a new signing key on the server's disk and shows its
-fingerprint for the technical delegate to photograph at the machine.
+The **cp challenge** is a dialog in which the operator pastes the control panel token
+before an action that needs locality (`ControlPanelChallenge`, same rule as the locality
+proof above). It is asked at each such action; failures are throttled and audited.
+
+The Audit Key Initialization button on the Administration page opens a dialog that
+shows the active and pending key fingerprints and the key file, and creates a new
+pending signing key on the server's disk. The new fingerprint is then shown for the
+technical delegate to photograph at the machine, and OWLCMS restarts to activate it.
 `admin/audit/check` verifies logs at a path on the server's disk. Both require
-ADMIN_PAGES, the admin password ([Admin pages](#admin-pages)), and locality. In the
-cloud the key comes from a secret, so the preparation page does not apply there.
+ADMIN_PAGES and the admin password ([Admin pages](#admin-pages)). In the cloud the key
+comes from a secret, so key initialization does not apply there.
+
+| Action | Status |
+| --- | --- |
+| Generating or replacing the pending key (dialog on the Administration page; the `admin/audit/prepare` page was removed) | Done: cp challenge in the dialog |
+| Running a check (`admin/audit/check`) | To do: still the address check on opening the page |
+| Database import with `iwfCompliance` | To do: cp challenge before importing |
 
 ## Admin password
 
@@ -116,13 +128,45 @@ by an officials-PIN holder.
 OWLCMS started by hand, without a control panel, has no token: whoever starts it can
 define `OWLCMS_CONTROLPANELTOKEN` themselves, which makes the same flows available.
 
+### Threat model
+
+Guarantee: **nobody can reset the admin password with the token without access to the
+OWLCMS server.** Server access means an account on the machine (desktop or SSH), or, in
+the cloud, the operator's Fly access to the app's secrets. Someone with that access
+already controls OWLCMS (database files, startup settings, the jar) and is outside the
+threat model; the protection is against attackers who only reach OWLCMS over the network.
+
+An arbitrary token given in the environment at launch is sufficient:
+
+- The network cannot set it: only whoever starts OWLCMS chooses its environment.
+- The network cannot read it: it is never logged, displayed, exported or written to the
+  audit trail (the trail records `how=control-panel-token`, not the value). The control
+  panel shows it only through a copy icon in its own window and keeps it in an
+  owner-only runtime file.
+- It cannot be guessed: 72 random bits, with failed logins throttled.
+- It is short-lived: the control panel gives each launch a new token.
+
+Typing the token in a browser on another machine is therefore acceptable: whoever types it
+obtained it from the server.
+
+Rejected, because they add nothing against network attackers and cannot stop someone
+with server access:
+
+- A secret shared by the control panel and OWLCMS, to prove the token came from the
+  control panel: it can be extracted from the binaries, and the control panel's command
+  line can itself start OWLCMS over SSH.
+- A Unix domain socket handing the token to OWLCMS: an account on the machine can create
+  the socket and serve any token.
+- Address checks: a reverse proxy or port forward on the server makes remote requests
+  look local, and forwarding headers can be forged.
+
 ## Admin pages
 
 | Page | Access |
 | --- | --- |
-| `admin` (stop, restart, translation reload, links) | ADMIN_PAGES role and the admin password; no locality, so cloud installations can use it |
+| `admin` (Administration: stop, restart, translations, backup, audit key, audit check, simulation) | ADMIN_PAGES role and the admin password; no locality, so cloud installations can use it. Audit key generation needs the cp challenge ([Audit pages](#audit-pages)). |
 | `admin/backup` | ADMIN_PAGES or COMPETITION_SUPERVISOR, and the admin password for ADMIN_PAGES; no locality. The Competition Supervisor page (`lifting/competition-director`) gets a Backup button. |
-| `admin/audit/prepare`, `admin/audit/check` | Also locality ([Audit pages](#audit-pages)) |
+| `admin/audit/check` | Also locality ([Audit pages](#audit-pages)) |
 | `simulation` (button on the admin page) | ADMIN_PAGES or COMPETITION_SUPERVISOR, with a login (not token-accessible); no locality. |
 
 - Accounts mode: the admin password is the normal login.

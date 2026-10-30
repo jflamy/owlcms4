@@ -23,9 +23,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Decrypts API keys given to a development machine, such as {@code GOOGLE_SHEETS_API_KEY}, with the key in
- * {@code ~/.owlcms/apiprotection.aes}. The values are produced by the control panel's {@code secret encrypt} command
- * (see controlpanel shared/secret.go), which uses the control panel's {@code ~/.owlcms/key}; the two files must
- * therefore have the same content.
+ * {@code ~/.owlcms/apiprotection.aes}. The values are produced on the same computer by the control panel's
+ * {@code secret encrypt apiprotection.aes <value>} command, which creates that file on first use.
  */
 public final class DevApiKeySecret {
 
@@ -83,7 +82,7 @@ public final class DevApiKeySecret {
 			encoded = Files.readString(keyPath, StandardCharsets.US_ASCII).strip();
 		} catch (NoSuchFileException e) {
 			throw new IOException("no API protection key in " + keyPath
-			        + "; copy the control panel's ~/.owlcms/key there");
+			        + "; encrypt the value with the control panel command: secret encrypt " + KEY_FILE + " <value>");
 		}
 		byte[] key;
 		try {

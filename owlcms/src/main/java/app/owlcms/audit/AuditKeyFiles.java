@@ -63,14 +63,26 @@ public final class AuditKeyFiles {
 		}
 	}
 
-	public static AuditSigningKey loadAndPromote(Path active) throws IOException {
+	/**
+	 * @param key      the key in force after promotion
+	 * @param replaced the key a promoted pending key replaced, kept in memory for this run only so that values
+	 *                 protected by it can be re-encrypted; null when nothing was promoted
+	 */
+	public record Promotion(AuditSigningKey key, AuditSigningKey replaced) {
+	}
+
+	public static Promotion loadAndPromote(Path active) throws IOException {
 		Path pending = pendingPath(active);
+		AuditSigningKey replaced = null;
 		if (exists(pending)) {
 			AuditSigningKey.parsePem(Files.readString(pending, StandardCharsets.UTF_8));
+			if (exists(active)) {
+				replaced = AuditSigningKey.parsePem(Files.readString(active, StandardCharsets.UTF_8));
+			}
 			Files.deleteIfExists(active);
 			Files.move(pending, active);
 		}
-		return AuditSigningKey.parsePem(Files.readString(active, StandardCharsets.UTF_8));
+		return new Promotion(AuditSigningKey.parsePem(Files.readString(active, StandardCharsets.UTF_8)), replaced);
 	}
 
 	public static AuditSigningKey prepare(Path active) throws IOException {
@@ -145,6 +157,11 @@ public final class AuditKeyFiles {
 		} catch (IOException | RuntimeException e) {
 			return Optional.of(new PendingKey(null, e.getMessage()));
 		}
+	}
+
+	/** Withdraws a pending key: the active key stays in force after the next restart. */
+	public static void deletePending(Path active) throws IOException {
+		Files.deleteIfExists(pendingPath(active));
 	}
 
 	static Path stagingPath(Path active) {

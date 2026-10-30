@@ -5,7 +5,7 @@ Status: proposed 2026-10-28.
 Make a JSON export show whether it is the unmodified output of a server holding
 a given PEM key. This gives evidence of tampering; it does not control who may
 load an export or obtain a temporary admin password ([100](done/100-PEM_ACCOUNT_MODE.md)).
-Forwarding-key encryption is in [140](140-EXPORT_CREDENTIAL_PROTECTION.md).
+Forwarding-key encryption is in [140](done/140-EXPORT_CREDENTIAL_PROTECTION.md).
 
 ## Existing behavior
 

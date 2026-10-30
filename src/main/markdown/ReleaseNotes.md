@@ -10,6 +10,8 @@
 
 **Development log**
 
+- 69.0.0-beta02: In accounts mode, the update keys of forwarding connections are encrypted in the database, not only in exports. They are decrypted when switching to PIN mode, and re-encrypted automatically when a new audit key is activated.
+
 - 69.0.0-beta02: OWLCMS 69 requires control panel 3.10.0 or later, which gives OWLCMS a new control panel token at each launch. The home page says so when an older control panel is used.
 
 - 69.0.0-beta02: MQTT refereeing devices are told when a competition has no jury (jury size 0) instead of being sent a jury size of 3.

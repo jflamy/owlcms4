@@ -294,6 +294,7 @@ public class Main {
         Config.initConfig();
         refuseIwfComplianceWithoutToken();
         AuditIntegrity.initialize(Config.getCurrent());
+        Config.protectForwardingKeysAtStartup();
         ResourceMonitor.start();
         AccessStartup.run();
 
