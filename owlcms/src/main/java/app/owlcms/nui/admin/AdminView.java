@@ -55,8 +55,8 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 		checkLocalAccess();
 	}
 
-	/** Pages that act on the server's disk. Accounts mode has no backdoor. */
-	public static void checkLocalAccess() {
+	/** PIN mode only, until the admin pages ask for the admin password: localhost or the backdoor list. */
+	private static void checkLocalAccess() {
 		Principal principal = OwlcmsSession.getPrincipal();
 		boolean accountSession = principal != null && principal.source() == Principal.AuthSource.ACCOUNT;
 		if (!OwlcmsSession.isAuthenticated() && !accountSession) {

@@ -50,6 +50,7 @@ public class AuditIntegrityCheckView extends Composite<VerticalLayout>
 	/** One check at a time for the whole server: reading and verifying large logs is I/O and CPU bound. */
 	private static final Semaphore RUNNING = new Semaphore(1);
 	private final TextField evidence = new TextField(Translator.translate("AuditCheck.Evidence"));
+	private final ControlPanelTokenField token = new ControlPanelTokenField();
 	private final Button check = new Button(Translator.translate("AuditCheck.Check"));
 	private final Paragraph status = new Paragraph();
 	private final Div result = new Div();
@@ -63,13 +64,18 @@ public class AuditIntegrityCheckView extends Composite<VerticalLayout>
 		getContent().add(new H2(getPageTitle()),
 				new Paragraph(Translator.translate("AuditCheck.Description")),
 				new Paragraph(Translator.translate("AuditCheck.Caution")),
-				this.evidence, this.check, this.status, this.result);
+				this.evidence, this.token, this.check, this.status, this.result);
 	}
 
+	// runs on the request thread, like the challenge it starts with
 	private void runCheck() {
 		String value = this.evidence.getValue() == null ? "" : this.evidence.getValue().strip();
 		if (value.isEmpty()) {
 			this.status.setText(Translator.translate("AuditCheck.NoEvidence"));
+			return;
+		}
+		// the check reads any path on the server's disk: the cp challenge comes first, at each check
+		if (!this.token.passes("audit integrity check")) {
 			return;
 		}
 		if (!RUNNING.tryAcquire()) {
@@ -164,7 +170,8 @@ public class AuditIntegrityCheckView extends Composite<VerticalLayout>
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		AdminView.checkLocalAccess();
+		// opening the page needs no locality: each check needs the cp challenge
+		AdminView.checkAdminAccess();
 	}
 
 	@Override

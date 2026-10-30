@@ -92,7 +92,7 @@ comes from a secret, so key initialization does not apply there.
 | Action | Status |
 | --- | --- |
 | Generating or replacing the pending key (dialog on the Administration page; the `admin/audit/prepare` page was removed) | Done: cp challenge in the dialog |
-| Running a check (`admin/audit/check`) | To do: still the address check on opening the page |
+| Running a check (`admin/audit/check`) | Done: token field on the page, cp challenge at each check; opening the page needs no locality |
 | Database import with `iwfCompliance` | To do: cp challenge before importing |
 
 ## Admin password
@@ -166,7 +166,7 @@ with server access:
 | --- | --- |
 | `admin` (Administration: stop, restart, translations, backup, audit key, audit check, simulation) | ADMIN_PAGES role and the admin password; no locality, so cloud installations can use it. Audit key generation needs the cp challenge ([Audit pages](#audit-pages)). |
 | `admin/backup` | ADMIN_PAGES or COMPETITION_SUPERVISOR, and the admin password for ADMIN_PAGES; no locality. The Competition Supervisor page (`lifting/competition-director`) gets a Backup button. |
-| `admin/audit/check` | Also locality ([Audit pages](#audit-pages)) |
+| `admin/audit/check` | ADMIN_PAGES and the admin password; each check needs the cp challenge ([Audit pages](#audit-pages)) |
 | `simulation` (button on the admin page) | ADMIN_PAGES or COMPETITION_SUPERVISOR, with a login (not token-accessible); no locality. |
 
 - Accounts mode: the admin password is the normal login.

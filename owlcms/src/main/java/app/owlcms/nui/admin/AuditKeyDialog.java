@@ -10,10 +10,7 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Pre;
 import com.vaadin.flow.component.markdown.Markdown;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.textfield.PasswordField;
-import com.vaadin.flow.server.VaadinServletRequest;
 
-import app.owlcms.access.ControlPanelChallenge;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.AuditContext;
@@ -24,7 +21,6 @@ import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.RestartUtils;
 import ch.qos.logback.classic.Logger;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Audit key initialization, opened from the admin page, in two steps: (A) confirmation with the cp challenge, then
@@ -70,10 +66,7 @@ final class AuditKeyDialog {
 	        Optional<AuditKeyFiles.PendingKey> pending) {
 		boolean replace = pending.isPresent();
 		String generateLabel = Translator.translate(replace ? "AuditIntegrity.Replace" : "AuditIntegrity.Generate");
-		PasswordField token = new PasswordField(Translator.translate("Access.ControlPanelToken"));
-		token.setHelperText(Translator.translate("Access.ControlPanelTokenHint"));
-		token.setRevealButtonVisible(true);
-		token.setWidthFull();
+		ControlPanelTokenField token = new ControlPanelTokenField();
 
 		ConfirmationDialog dialog = new ConfirmationDialog(Translator.translate("AuditIntegrity.PrepareTitle"), null,
 		        generateLabel, null, null, () -> generate(ui, actor, state, replace));
@@ -81,7 +74,7 @@ final class AuditKeyDialog {
 		explanation.setWidth("550px");
 		dialog.addBody(explanation);
 		dialog.addBody(token);
-		dialog.setConfirmCheck(() -> passesChallenge(token));
+		dialog.setConfirmCheck(() -> token.passes("audit key generation"));
 		dialog.open();
 	}
 
@@ -89,22 +82,6 @@ final class AuditKeyDialog {
 		Pre fingerprint = new Pre(key.displayFingerprint());
 		fingerprint.getStyle().set("white-space", "pre-wrap");
 		return fingerprint;
-	}
-
-	// runs on the request thread: the challenge needs the connection of the current request
-	private static boolean passesChallenge(PasswordField token) {
-		HttpServletRequest request = VaadinServletRequest.getCurrent().getHttpServletRequest();
-		ControlPanelChallenge.Result result = ControlPanelChallenge.check(token.getValue(), request.getRemoteAddr(),
-		        request::getHeader, "audit key generation");
-		token.clear();
-		if (result.accepted()) {
-			return true;
-		}
-		token.setErrorMessage(result.blockedSeconds() > 0
-		        ? Translator.translate("Access.TooManyAttempts") + " (" + result.blockedSeconds() + " s)"
-		        : Translator.translate("Access.ControlPanelTokenWrong"));
-		token.setInvalid(true);
-		return false;
 	}
 
 	private static void generate(UI ui, AuditActor actor, AuditIntegrity.State state, boolean replace) {
