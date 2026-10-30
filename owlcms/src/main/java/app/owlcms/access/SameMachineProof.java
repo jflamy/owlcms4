@@ -55,7 +55,7 @@ public final class SameMachineProof {
 	}
 
 	/** Compares in constant time; false if either value is missing. */
-	static boolean matches(String presented, String expected) {
+	public static boolean matches(String presented, String expected) {
 		if (presented == null || presented.isBlank() || expected == null || expected.isBlank()) {
 			return false;
 		}

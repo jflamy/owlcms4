@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +18,10 @@ import com.google.common.hash.Hashing;
 import com.vaadin.flow.server.VaadinServletRequest;
 
 import app.owlcms.Main;
+import app.owlcms.access.LoginThrottle;
+import app.owlcms.access.PinHashes;
+import app.owlcms.access.SameMachineProof;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
@@ -25,57 +30,84 @@ import jakarta.servlet.http.HttpServletRequest;
 public class AccessUtils {
 	static Logger logger = (Logger) LoggerFactory.getLogger(AccessUtils.class);
 
-	public static boolean checkAuthenticated(String password) {
-		boolean isAuthenticated = OwlcmsSession.isAuthenticated();
-
-		if (!isAuthenticated) {
-			boolean ipIsAllowed = AccessUtils.ipIsAllowedForOfficials(getClientIp());
-			if (!(ipIsAllowed)) {
-				OwlcmsSession.setAuthenticated(false);
-				return false;
-			}
-
-			String pinOverride = Config.getCurrent().getParamPin();
-			String dbPin = Config.getCurrent().getPin();
-			boolean passwordValid = checkPassword(password, pinOverride, dbPin, "TO");
-			OwlcmsSession.setAuthenticated(passwordValid);
-			return passwordValid;
-		}
-		return true;
+	/**
+	 * @param controlPanelToken accepted because the control panel token was given instead of the officials PIN
+	 * @param blockedSeconds    when refused because of earlier failures, else 0
+	 */
+	public record PinCheck(boolean accepted, boolean controlPanelToken, long blockedSeconds) {
+		static final PinCheck REFUSED = new PinCheck(false, false, 0);
+		static final PinCheck ACCEPTED = new PinCheck(true, false, 0);
 	}
 
-	public static boolean checkBackdoor(String clientIp) {
-		String backdoorList = Config.getCurrent().getParamBackdoorList();
-		String[] clientIps = clientIp.split("[ ,]+");
-		for (String cip : clientIps) {
-			if (checkListMembership(cip, backdoorList, false)) {
-				return true;
-			}
+	/** Throttling keys: PIN attempts are counted apart from account logins. */
+	static final String OFFICIALS_PIN_THROTTLE = "officials-pin";
+	static final String DISPLAY_PIN_THROTTLE = "display-pin";
+
+	/**
+	 * The officials PIN login. The control panel token is accepted too, so that a forgotten PIN can be replaced in the
+	 * settings. Attempts are throttled.
+	 */
+	public static PinCheck checkOfficialsPin(String password) {
+		if (OwlcmsSession.isAuthenticated()) {
+			return PinCheck.ACCEPTED;
 		}
-		return false;
+		String clientIp = getClientIp();
+		if (!ipIsAllowedForOfficials(clientIp)) {
+			OwlcmsSession.setAuthenticated(false);
+			return PinCheck.REFUSED;
+		}
+		LoginThrottle throttle = LoginThrottle.shared();
+		long blocked = throttle.blockedSeconds(OFFICIALS_PIN_THROTTLE, clientIp);
+		if (blocked > 0) {
+			logger./**/warn("officials PIN login throttled ip={} seconds={}", clientIp, blocked);
+			return new PinCheck(false, false, blocked);
+		}
+		if (SameMachineProof.matches(password, SameMachineProof.configuredToken())) {
+			throttle.success(OFFICIALS_PIN_THROTTLE, clientIp);
+			OwlcmsSession.setAuthenticated(true);
+			logger./**/warn("officials login with the control panel token ip={}", clientIp);
+			return new PinCheck(true, true, 0);
+		}
+		Config config = Config.getCurrent();
+		boolean valid = checkPassword(password, config.getParamPin(), config.getPin(), "TO",
+		        pin -> upgradePin("Officials", c -> c.setPin(PinHashes.hash(pin))));
+		recordAttempt(throttle, OFFICIALS_PIN_THROTTLE, clientIp, valid);
+		OwlcmsSession.setAuthenticated(valid);
+		return valid ? PinCheck.ACCEPTED : PinCheck.REFUSED;
 	}
 
-	public static boolean checkDisplayAuthenticated(String password) {
-		boolean isAuthenticated = OwlcmsSession.computeDisplayAuthenticated();
-
-		if (!isAuthenticated) {
-			String displayList = Config.getCurrent().getParamDisplayList();
-			boolean noDisplayList = displayList == null || displayList.isBlank();
-			String clientIp = getClientIp();
-			boolean ipIsAllowed = noDisplayList || AccessUtils.isIpAllowedForDisplay(clientIp);
-			if (!ipIsAllowed) {
-				OwlcmsSession.setDisplayAuthenticated(false);
-				return false;
-			}
-
-			// check for PIN if one is specified
-			String pinOverride = Config.getCurrent().getParamDisplayPin();
-			String dbPin = Config.getCurrent().getDisplayPin();
-			boolean passwordValid = checkPassword(password, pinOverride, dbPin, "Display");
-			OwlcmsSession.setDisplayAuthenticated(passwordValid);
-			return passwordValid;
+	/** The display PIN login; attempts are throttled. */
+	public static PinCheck checkDisplayPin(String password) {
+		if (OwlcmsSession.computeDisplayAuthenticated()) {
+			return PinCheck.ACCEPTED;
 		}
-		return true;
+		String displayList = Config.getCurrent().getParamDisplayList();
+		boolean noDisplayList = displayList == null || displayList.isBlank();
+		String clientIp = getClientIp();
+		if (!noDisplayList && !isIpAllowedForDisplay(clientIp)) {
+			OwlcmsSession.setDisplayAuthenticated(false);
+			return PinCheck.REFUSED;
+		}
+		LoginThrottle throttle = LoginThrottle.shared();
+		long blocked = throttle.blockedSeconds(DISPLAY_PIN_THROTTLE, clientIp);
+		if (blocked > 0) {
+			logger./**/warn("display PIN login throttled ip={} seconds={}", clientIp, blocked);
+			return new PinCheck(false, false, blocked);
+		}
+		Config config = Config.getCurrent();
+		boolean valid = checkPassword(password, config.getParamDisplayPin(), config.getDisplayPin(), "Display",
+		        pin -> upgradePin("Display", c -> c.setDisplayPin(PinHashes.hash(pin))));
+		recordAttempt(throttle, DISPLAY_PIN_THROTTLE, clientIp, valid);
+		OwlcmsSession.setDisplayAuthenticated(valid);
+		return valid ? PinCheck.ACCEPTED : PinCheck.REFUSED;
+	}
+
+	private static void recordAttempt(LoginThrottle throttle, String key, String clientIp, boolean valid) {
+		if (valid) {
+			throttle.success(key, clientIp);
+		} else {
+			throttle.fail(key, clientIp);
+		}
 	}
 
 	public static String encodePin(String pin, String storedPin, boolean checkingPassword) {
@@ -134,10 +166,6 @@ public class AccessUtils {
 		return (whiteList != null && !whiteList.isEmpty()) ? checkListMembership(clientIp, whiteList, true) : true;
 	}
 
-	public static boolean isBackdoorAccess() {
-		return checkBackdoor(getClientIp());
-	}
-
 	/**
 	 * Compares a value with the display PIN, in constant time. Unlike the display login, it neither reads nor sets the
 	 * session, and does not check the display address list.
@@ -152,7 +180,7 @@ public class AccessUtils {
 		if (dbPin == null) {
 			return true;
 		}
-		return constantTimeEquals(dbPin, Config.getCurrent().encodeUserPassword(candidate, dbPin));
+		return PinHashes.matches(candidate, dbPin);
 	}
 
 	/** Compares in constant time, to avoid leaking secrets through timing; false if either value is null. */
@@ -224,30 +252,39 @@ public class AccessUtils {
 		}
 	}
 
-	private static boolean checkPassword(String password, String pinOverride, String dbPin, String loggingContext) {
-
-		String hashedPassword = "";
-		if (dbPin != null) {
-			hashedPassword = Config.getCurrent().encodeUserPassword(password, dbPin);
-		}
-
+	/**
+	 * @param upgrade saves a new hash of the PIN when the stored one is an older format
+	 */
+	private static boolean checkPassword(String password, String pinOverride, String dbPin, String loggingContext,
+	        Consumer<String> upgrade) {
+		String candidate = password == null ? "" : password;
 		if (pinOverride != null && pinOverride.isBlank()) {
 			// no check
 			logger.info("empty {} password override", loggingContext);
 			return true;
-		} else if (pinOverride != null && !pinOverride.isBlank()) {
-			if (pinOverride.contentEquals(password)) {
+		} else if (pinOverride != null) {
+			if (constantTimeEquals(pinOverride, candidate)) {
 				logger.info("{} password override successful", loggingContext);
 				return true;
-			} else {
-				logger.error("{} password override unsuccessful", loggingContext);
-				return false;
 			}
-		} else if (dbPin == null || hashedPassword.contentEquals(dbPin)) {
-			return true;
-		} else {
+			logger.error("{} password override unsuccessful", loggingContext);
 			return false;
 		}
+		if (dbPin == null || dbPin.isBlank()) {
+			return true;
+		}
+		boolean valid = PinHashes.matches(candidate, dbPin);
+		if (valid && PinHashes.isOutdated(dbPin)) {
+			upgrade.accept(candidate);
+		}
+		return valid;
+	}
+
+	private static void upgradePin(String loggingContext, Consumer<Config> store) {
+		Config config = Config.getCurrent();
+		store.accept(config);
+		Config.setCurrent(config, AuditOrigin.system(loggingContext + " PIN hash upgrade"));
+		logger.info("{} PIN stored with the current hashing", loggingContext);
 	}
 
 	private static String doSHA(String pin, String salt) {

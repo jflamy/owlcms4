@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Authorization of plain servlets that extract competition data. PIN mode: local network or backdoor list, as before.
+ * Authorization of plain servlets that extract competition data. PIN mode: local network.
  * Accounts mode: an account token ({@code ?token=} or Authorization Bearer) whose owner holds the required role,
  * whatever the address.
  */
@@ -34,11 +34,11 @@ public final class ServletTokenGuard {
 	public static AuditActor authorize(HttpServletRequest request, HttpServletResponse response, String host,
 	        Role required, String what) {
 		if (!Config.getCurrent().isAccountsMode()) {
-			if (AccessUtils.isLocalNetwork(host) || AccessUtils.checkBackdoor(host)) {
+			if (AccessUtils.isLocalNetwork(host)) {
 				logger.info("{} authorized {}", host, what);
 				return AuditActor.http(host);
 			}
-			logger.error("{} not local and not in backdoor list, denied {}", host, what);
+			logger.error("{} not on the local network, denied {}", host, what);
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			return null;
 		}

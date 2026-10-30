@@ -15,7 +15,6 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import app.owlcms.access.PublicPage;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.AccessUtils;
 import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -57,7 +56,7 @@ public class PublicRecordsContent extends RecordContent {
 		boolean pinExpected = hasAccessPassword();
 
 		Button loginButton = new Button(Translator.translate(pinExpected ? "Login" : "Edit"), e -> {
-			if (!pinExpected || AccessUtils.isBackdoorAccess()) {
+			if (!pinExpected) {
 				UI.getCurrent().navigate("preparation/records", getLocation().getQueryParameters());
 				return;
 			}

@@ -15,7 +15,7 @@ public final class PasswordHasher {
 	public static final int MIN_LENGTH = 8;
 
 	// stored in each hash, so it can be raised later without invalidating existing accounts
-	private static final int ITERATIONS = 310_000;
+	static final int ITERATIONS = 600_000;
 	private static final int SALT_BYTES = 16;
 	private static final int KEY_BYTES = 32;
 	private static final String PREFIX = "pbkdf2-sha256";
@@ -60,6 +60,23 @@ public final class PasswordHasher {
 
 	static int iterationsOf(String stored) {
 		return Integer.parseInt(stored.split("\\$")[1]);
+	}
+
+	/** @return true if the value is a hash made by {@link #hash(String)}, whatever its iteration count */
+	public static boolean isHash(String stored) {
+		return stored != null && stored.startsWith(PREFIX + "$");
+	}
+
+	/** @return true if the stored value is an older format, or uses fewer iterations than new hashes */
+	public static boolean needsRehash(String stored) {
+		if (!isHash(stored)) {
+			return true;
+		}
+		try {
+			return iterationsOf(stored) < ITERATIONS;
+		} catch (RuntimeException e) {
+			return true;
+		}
 	}
 
 	private static byte[] derive(String password, byte[] salt, int iterations) {

@@ -22,7 +22,6 @@ import app.owlcms.data.account.RoleGrant;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.config.Config;
-import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 

@@ -14,6 +14,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.AccessUtils;
+import app.owlcms.apputils.AccessUtils.PinCheck;
 import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.DisplayNavigationContent;
@@ -44,8 +45,8 @@ public class DisplayLoginView extends LoginView implements BeforeEnterObserver {
 	}
 
 	@Override
-	protected boolean checkAuthenticated(String value) {
-		return !AccessUtils.checkDisplayAuthenticated(value);
+	protected PinCheck checkPin(String value) {
+		return AccessUtils.checkDisplayPin(value);
 	}
 
 	@Override

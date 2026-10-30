@@ -20,6 +20,7 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -44,6 +45,7 @@ import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinService;
 
 import app.owlcms.apputils.AccessUtils;
+import app.owlcms.apputils.AccessUtils.PinCheck;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.audit.AuthAudit;
 import app.owlcms.components.fields.OwlcmsPasswordField;
@@ -125,15 +127,23 @@ public class LoginView extends Composite<VerticalLayout>
 		this.pinField.setLabel(Translator.translate("EnterPin"));
 		this.pinField.setWidthFull();
 		this.pinField.addValueChangeListener(event -> {
-			String value = event.getValue();
-			if (checkAuthenticated(value)) {
+			PinCheck check = checkPin(event.getValue());
+			if (check.blockedSeconds() > 0) {
+				this.pinField.setErrorMessage(
+				        Translator.translate("Access.TooManyAttempts") + " (" + check.blockedSeconds() + " s)");
+				this.pinField.setInvalid(true);
+			} else if (!check.accepted()) {
 				AuthAudit.loginFailed("PIN", "-", loginKind());
 				this.pinField.setErrorMessage(Translator.translate("LoginDenied"));
 				this.pinField.setInvalid(true);
 			} else {
 				Principal principal = authenticatedPrincipal();
-				AuthAudit.loginSucceeded("PIN", "-", loginKind(), loginAuditPlatforms(principal));
+				AuthAudit.loginSucceeded("PIN", "-", check.controlPanelToken() ? "control-panel-token" : loginKind(),
+				        loginAuditPlatforms(principal));
 				this.pinField.setInvalid(false);
+				if (check.controlPanelToken()) {
+					showPinTokenNotice();
+				}
 				redirect();
 			}
 		});
@@ -194,13 +204,15 @@ public class LoginView extends Composite<VerticalLayout>
 		String clientIp = AccessUtils.getClientIp();
 		AccountAuthenticator authenticator = new AccountAuthenticator(UserAccountRepository::findByUsername,
 		        LoginThrottle.shared(), AccessUtils::ipIsAllowedForOfficials, SameMachineProof::configuredToken);
-		AccountAuthenticator.Result result = authenticator.authenticate(username, this.passwordField.getValue(),
-		        clientIp);
+		String password = this.passwordField.getValue();
+		AccountAuthenticator.Result result = authenticator.authenticate(username, password, clientIp);
 		this.passwordField.clear();
 
 		switch (result) {
-			case AccountAuthenticator.Result.Success success ->
-			    completeAccountAuthentication(success.account(), clientIp, "password");
+			case AccountAuthenticator.Result.Success success -> {
+				AccountPasswords.upgradeHash(success.account(), password, AuditOrigin.fromUi("Login page"));
+				completeAccountAuthentication(success.account(), clientIp, "password");
+			}
 			case AccountAuthenticator.Result.ControlPanelToken token -> {
 				UserAccount admin = AccountPasswords.controlPanelTokenLogin(token.account(),
 				        SameMachineProof.configuredToken(), AuditOrigin.fromUi("Login page"));
@@ -359,8 +371,17 @@ public class LoginView extends Composite<VerticalLayout>
 		this.routerLayout = routerLayout;
 	}
 
-	protected boolean checkAuthenticated(String value) {
-		return !AccessUtils.checkAuthenticated(value);
+	protected PinCheck checkPin(String value) {
+		return AccessUtils.checkOfficialsPin(value);
+	}
+
+	/** After a login with the control panel token: where to set a new officials PIN. */
+	private static void showPinTokenNotice() {
+		Notification notification = new Notification(Translator.translate("Access.Login.PinTokenNotice",
+		        Translator.translate("PrepareCompetition"), Translator.translate("Config.Title")));
+		notification.setDuration(15000);
+		notification.setPosition(Notification.Position.TOP_CENTER);
+		notification.open();
 	}
 
 	protected void redirect() {

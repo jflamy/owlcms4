@@ -23,10 +23,10 @@ import app.owlcms.access.AccountModeAuthenticator;
 import app.owlcms.access.Principal;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
+import app.owlcms.access.SameMachineProof;
 import app.owlcms.access.SecuritySettings;
 import app.owlcms.access.SecuritySettings.Outcome;
 import app.owlcms.access.SessionLogout;
-import app.owlcms.apputils.AccessUtils;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.AuditContext;
@@ -54,34 +54,19 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 	}
 
 	/**
-	 * Admin and backup pages. In accounts mode the ADMIN_PAGES login is enough, so cloud installations can use them; in
-	 * PIN mode they need localhost or the backdoor list.
+	 * The Administration and audit check pages exist only when OWLCMS has a control panel token: their dangerous
+	 * actions need it, so without one (a cloud app without the secret) the pages are hidden. The route roles apply as
+	 * usual; in PIN mode the officials PIN gives them.
 	 */
 	public static void checkAdminAccess() {
-		if (Config.getCurrent().isAccountsMode()) {
-			return;
-		}
-		if (!hasLocalAccess()) {
+		if (SameMachineProof.configuredToken() == null) {
 			throw new AccessDeniedException();
 		}
 	}
 
-	/** PIN mode only, until the admin pages ask for the admin password: localhost or the backdoor list. */
-	private static boolean hasLocalAccess() {
-		Principal principal = OwlcmsSession.getPrincipal();
-		boolean accountSession = principal != null && principal.source() == Principal.AuthSource.ACCOUNT;
-		if (!OwlcmsSession.isAuthenticated() && !accountSession) {
-			return true;
-		}
-		String clientIp = AccessUtils.getClientIp();
-		boolean backdoor = !Config.getCurrent().isAccountsMode() && AccessUtils.checkBackdoor(clientIp);
-		return AccessUtils.isLocalhost(clientIp) || backdoor;
-	}
-
-	/** Shown to the sessions that can open the page: the route roles, and in PIN mode localhost or the backdoor. */
+	/** Shown to the sessions that can open the page, when OWLCMS has a control panel token. */
 	public static boolean isMenuEntryAvailable() {
-		return AccessUi.canOpen(AdminView.class, null)
-		        && (Config.getCurrent().isAccountsMode() || hasLocalAccess());
+		return SameMachineProof.configuredToken() != null && AccessUi.canOpen(AdminView.class, null);
 	}
 
 	public AdminView() {

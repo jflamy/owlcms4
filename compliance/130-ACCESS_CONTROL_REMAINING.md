@@ -143,10 +143,9 @@ Done in accounts mode:
   warns. In the cloud, set `OWLCMS_CONTROLPANELTOKEN` as a Fly secret
   ([340](340-CLOUD_CONTROL_PANEL_TOKEN.md) automates it).
 
-Remaining, PIN mode: the admin pages ask for the admin password (see
-[Admin pages](#admin-pages)); that prompt also accepts the token and leads to the same
-change-password page. The admin password is no longer set from the User Accounts form
-by an officials-PIN holder.
+PIN mode: an officials-PIN holder sets the admin password on the User Accounts page,
+which is needed before switching to accounts mode. A forgotten officials PIN is replaced
+after logging in with the control panel token ([PIN mode](#pin-mode)).
 
 OWLCMS started by hand, without a control panel, has no token: whoever starts it can
 define `OWLCMS_CONTROLPANELTOKEN` themselves, which makes the same flows available.
@@ -193,12 +192,13 @@ with server access:
 | `simulation` (button on the admin page) | ADMIN_PAGES or COMPETITION_SUPERVISOR, with a login (not token-accessible); no locality. |
 
 - Accounts mode: the admin password is the normal login.
-- PIN mode: the officials PIN currently gives full admin rights. The admin pages also
-  ask for the built-in admin's password, once per session.
+- PIN mode: the officials PIN gives every permission ("PIN mode stays naked"); the
+  dangerous actions on these pages need the control panel token.
 - Done: the side-menu entry is shown to any session allowed to open the admin page,
   in PIN mode too (the PIN mode switch to accounts is on that page).
-- To do: remove the PIN-mode locality check (`AdminView.hasLocalAccess`, localhost or
-  backdoor list) once the admin password is asked for.
+- Done: the PIN-mode address check (`AdminView.hasLocalAccess`) and the backdoor list
+  are removed; the Administration and audit check pages exist only when OWLCMS has a
+  control panel token ([PIN mode](#pin-mode)).
 - Tokens do not reach these pages: they are not `@TokenAccessible`.
 
 ## Database import
@@ -242,8 +242,8 @@ missing from an older export takes its default (PIN mode, check off).
 
 ## PIN mode
 
-Direction agreed (2026-10-30), not implemented. PIN mode protects a cloud installation
-from random visitors; it is a weak check by design.
+Agreed 2026-10-30. PIN mode protects a cloud installation from random visitors; it is a
+weak check by design. Done: everything below except "Remember this browser".
 
 - The officials PIN opens the Home page and gives every permission ("PIN mode stays
   naked"). The address check on the admin pages (`AdminView.hasLocalAccess`) and the
@@ -252,12 +252,13 @@ from random visitors; it is a weak check by design.
   `OWLCMS_DISPLAYLIST` are kept: only the operator sets them, and existing cloud apps use
   them.
 - The Administration page is hidden when OWLCMS has no control panel token.
-- "Remember this browser" for the officials and display PINs: a long-lived HttpOnly
-  cookie, a keyed hash of the current PIN and an expiry; changing the PIN forgets every
-  browser, and a button forgets them all.
+- To do: "Remember this browser" for the officials and display PINs: a long-lived
+  HttpOnly cookie, a keyed hash of the current PIN and an expiry; changing the PIN
+  forgets every browser, and a button forgets them all.
 - The officials PIN login also accepts the control panel token (constant time, throttled,
   audited `how=control-panel-token`), so a forgotten PIN can be replaced in System
-  Settings. A token login is never remembered.
+  Settings; a notice says where. A token login is never remembered. The officials and
+  display PIN logins are throttled like account logins.
 - The officials PIN, display PIN and MQTT password are hashed with PBKDF2 like account
   passwords (today a single salted SHA-256); older hashes are accepted and converted
   at the next correct entry. Comparisons are constant-time.

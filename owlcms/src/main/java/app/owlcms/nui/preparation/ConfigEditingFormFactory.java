@@ -358,13 +358,6 @@ public class ConfigEditingFormFactory
 		        .withNullRepresentation("")
 		        .bind(Config::getIpDisplayList, Config::setIpDisplayList);
 
-		TextField backdoorField = new TextField();
-		backdoorField.setWidthFull();
-		configLayout.addFormItem(backdoorField, Translator.translate("Config.Backdoor"));
-		this.binder.forField(backdoorField)
-		        .withNullRepresentation("")
-		        .bind(Config::getIpBackdoorList, Config::setIpBackdoorList);
-
 		// the stored values are kept, so that switching back to PIN mode finds them again
 		passwordField.setEnabled(!accounts);
 		displayPasswordField.setEnabled(!accounts);

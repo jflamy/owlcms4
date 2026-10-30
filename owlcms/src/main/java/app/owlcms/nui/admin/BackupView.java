@@ -9,8 +9,6 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
@@ -28,7 +26,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 @RequiresRole(Role.ADMIN_PAGES)
 @Route(value = "admin/backup", layout = OwlcmsLayout.class)
 public class BackupView extends Composite<VerticalLayout>
-		implements BeforeEnterObserver, HasDynamicTitle {
+		implements HasDynamicTitle {
 	private final RadioButtonGroup<Scope> scope = new RadioButtonGroup<>();
 
 	public BackupView() {
@@ -52,11 +50,6 @@ public class BackupView extends Composite<VerticalLayout>
 		getContent().add(new H2(getPageTitle()),
 				new Paragraph(Translator.translate("Backup.Description")),
 				this.scope, download);
-	}
-
-	@Override
-	public void beforeEnter(BeforeEnterEvent event) {
-		AdminView.checkAdminAccess();
 	}
 
 	@Override

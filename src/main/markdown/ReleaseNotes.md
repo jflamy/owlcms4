@@ -15,6 +15,10 @@
   - "Check IWF compliance" lists the IWF requirements met or not
   - Database exports include the access mode; an import restores the exported settings as they are.
   - `OWLCMS_ACCESSMODE` is no longer read: the access mode is set only on the Administration page or by an import.
+- 69.0.0-beta02: PIN mode
+  - The control panel token is accepted as the officials PIN, so a forgotten PIN can be replaced in the settings.
+  - The officials PIN, display PIN and MQTT password are stored as PBKDF2 hashes; older values are converted the next time they are entered. PIN logins are throttled.
+  - The backdoor address list (`OWLCMS_BACKDOOR`) is removed. The Administration page no longer depends on the browser's address; it is shown only when OWLCMS was started by the control panel.
 
 - 69.0.0-beta02: The update keys of forwarding connections encrypted in Accounts mode.
 

@@ -10,13 +10,12 @@ public record Principal(AuthSource source, Long accountId, String username, List
         String loginPlatform) {
 
 	public enum AuthSource {
-		ACCOUNT, TOKEN, OFFICIALS_PIN, DISPLAY_PIN, NO_PIN, BACKDOOR
+		ACCOUNT, TOKEN, OFFICIALS_PIN, DISPLAY_PIN, NO_PIN
 	}
 
 	/** Officials PIN, no PIN expected, or backdoor: everything, all platforms, live platform selectors. */
 	public static Principal admin(AuthSource source) {
-		String name = source == AuthSource.BACKDOOR ? "backdoor" : "-";
-		return new Principal(source, null, name, List.of(new RoleGrant(Role.ADMIN, null)), null);
+		return new Principal(source, null, "-", List.of(new RoleGrant(Role.ADMIN, null)), null);
 	}
 
 	public static Principal displays() {

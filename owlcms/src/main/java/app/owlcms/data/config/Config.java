@@ -49,6 +49,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import app.owlcms.Main;
 import app.owlcms.access.AccessMode;
+import app.owlcms.access.PinHashes;
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.audit.AuditIntegrity;
 import app.owlcms.audit.AuditOrigin;
@@ -176,7 +177,6 @@ public class Config {
 	private String displayPin;
 	private String ipAccessList;
 	private String ipDisplayList;
-	private String ipBackdoorList;
 	@Enumerated(EnumType.STRING)
 	private AccessMode accessMode;
 	/** The IWF compliance check is on; see {@link #isIwfComplianceChecked()}. */
@@ -727,10 +727,6 @@ public class Config {
 		return this.ipAccessList;
 	}
 
-	public String getIpBackdoorList() {
-		return this.ipBackdoorList;
-	}
-
 	public String getIpDisplayList() {
 		return this.ipDisplayList;
 	}
@@ -809,22 +805,6 @@ public class Config {
 		if (uAccessList == null) {
 			// use access list from database
 			uAccessList = Config.getCurrent().ipAccessList;
-			if (uAccessList == null || uAccessList.isBlank()) {
-				uAccessList = null;
-			}
-		}
-		return uAccessList;
-	}
-
-	/**
-	 * @return the current whitelist.
-	 */
-	@JsonIgnore
-	public String getParamBackdoorList() {
-		String uAccessList = StartupUtils.getStringParam("backdoor");
-		if (uAccessList == null) {
-			// use access list from database
-			uAccessList = Config.getCurrent().ipBackdoorList;
 			if (uAccessList == null || uAccessList.isBlank()) {
 				uAccessList = null;
 			}
@@ -1388,9 +1368,7 @@ public class Config {
 	public void setDisplayPinForField(String displayPin) {
 		// logger.debug("setDisplayPinForField with {}", displayPin);
 		if (displayPin != null && displayPin.length() != 64 && displayPin != FAKE_PIN) {
-			String encodedPin = AccessUtils.encodePin(displayPin, Config.getCurrent().getPin(), false);
-			logger.debug("encoded displayPin {}", encodedPin);
-			this.setDisplayPin(encodedPin);
+			this.setDisplayPin(PinHashes.hash(displayPin));
 		} else if (displayPin == null || displayPin.isBlank()) {
 			logger.debug("empty {}", displayPin);
 			this.setDisplayPin(null);
@@ -1443,10 +1421,6 @@ public class Config {
 
 	public void setIpAccessList(String ipAccessList) {
 		this.ipAccessList = ipAccessList;
-	}
-
-	public void setIpBackdoorList(String ipBackdoorList) {
-		this.ipBackdoorList = ipBackdoorList;
 	}
 
 	public void setIpDisplayList(String ipDisplayList) {
@@ -1548,9 +1522,7 @@ public class Config {
 	public void setMqttPasswordForField(String mqttPassword) {
 		// logger.debug("setMqttPasswordForField with {}", mqttPassword);
 		if (mqttPassword != null && mqttPassword.length() != 64 && mqttPassword != FAKE_PIN) {
-			String encodedPin = AccessUtils.encodePin(mqttPassword, Config.getCurrent().getPin(), false);
-			logger.debug("encoded mqttPassword {}", encodedPin);
-			this.setMqttPassword(encodedPin);
+			this.setMqttPassword(PinHashes.hash(mqttPassword));
 		} else if (mqttPassword == null || mqttPassword.isBlank()) {
 			logger.debug("empty mqttPassword {}", mqttPassword);
 			this.setMqttPassword(null);
@@ -1573,7 +1545,7 @@ public class Config {
 	public void setPinForField(String pin) {
 		// logger.debug("displayPin setter called with {}", displayPin);
 		if (pin != null && pin.length() != 64 && pin != FAKE_PIN) {
-			this.setPin(AccessUtils.encodePin(pin, Config.getCurrent().getPin(), false));
+			this.setPin(PinHashes.hash(pin));
 		} else if (pin == null || pin.isBlank()) {
 			this.setPin(null);
 		}

@@ -35,9 +35,6 @@ The settings are as follows.  In actual practice only the first (Password for Of
 - **Password for Officials**  When doing streaming, it is possible that you want to prevent the people running the video from accessing the technical official's consoles. A password will be required for the various technical official screens
 - **Authorized IP addresses for Officials** For the same reason, you may want to instead (or in addition to password) use whitelisting.  Technical officials will be required to come from this network.  If running in the cloud but from a gym, this would be the public IP address shown by https://ip4.me/.
 - **IP Addresses Authorized to Access Displays** and **Password for Displays**.  You may want to authorize a video production company to see your displays, likely without setting a password.  The screen password setting is there for symmetry and is unlikely to be used.
-- **Backdoor Access IP**  This grants access without requesting a password, to all the technical official screens and displays.  Setting this value also enables access to two other pages that are normaly hidden
-  - the `/simulstion`page to [launch a simulated competition](./160-Simulation).  
-  - The`/admin` page that is used for stopping the system and special data migration functions
 
 
 ### Features

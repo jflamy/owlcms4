@@ -239,8 +239,8 @@ public class JSONExportImportTest {
             String legacyJson = new CompetitionData().exportDataAsString();
             String v2Json = new String(new CompetitionDataV2().fromDatabase().exportData().readAllBytes(),
                     StandardCharsets.UTF_8);
-            assertEquals("ACCOUNTS", mapper.readTree(legacyJson).get("config").get("accessMode").asText());
-            assertEquals("ACCOUNTS", mapper.readTree(v2Json).get("config").get("accessMode").asText());
+            assertEquals("ACCOUNTS", mapper.readTree(legacyJson).get("config").get("accessMode").asString());
+            assertEquals("ACCOUNTS", mapper.readTree(v2Json).get("config").get("accessMode").asString());
 
             for (boolean v2 : new boolean[] { false, true }) {
                 config = Config.getCurrent();

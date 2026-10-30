@@ -202,13 +202,6 @@ public class AccessControlListener implements BeforeEnterListener {
 		if (isRecordsOnlyPublicPath(path)) {
 			return;
 		}
-		if (isRecordsOnlyAdminPath(path)) {
-			if (AccessUtils.isBackdoorAccess()) {
-				return;
-			}
-			event.forwardTo("recordsPreparation");
-			return;
-		}
 		if (!isRecordsOnlySecretaryPath(path)) {
 			event.forwardTo("publicRecords");
 			return;
@@ -229,9 +222,5 @@ public class AccessControlListener implements BeforeEnterListener {
 
 	private static boolean isRecordsOnlySecretaryPath(String path) {
 		return List.of("preparation/recordsConfig", "preparation/config", "preparation/records").contains(path);
-	}
-
-	private static boolean isRecordsOnlyAdminPath(String path) {
-		return false;
 	}
 }

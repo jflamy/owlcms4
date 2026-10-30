@@ -1,7 +1,5 @@
 package app.owlcms.access;
 
-import org.slf4j.LoggerFactory;
-
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.access.Principal.AuthSource;
@@ -9,7 +7,6 @@ import app.owlcms.apputils.AccessUtils;
 import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.home.LoginView;
-import ch.qos.logback.classic.Logger;
 
 /**
  * Resolves the principal when the officials PIN / display PIN scheme is in use. This is the logic that used to live in
@@ -17,8 +14,6 @@ import ch.qos.logback.classic.Logger;
  * still reads them keeps working.
  */
 public final class PinModeAuthenticator {
-
-	private static final Logger logger = (Logger) LoggerFactory.getLogger(PinModeAuthenticator.class);
 
 	private PinModeAuthenticator() {
 	}
@@ -37,17 +32,7 @@ public final class PinModeAuthenticator {
 		Config config = Config.getCurrent();
 		String paramPin = config.getParamPin();
 		String dbPin = config.getPin();
-		String backdoorList = config.getParamBackdoorList();
-
-		boolean backdoor = backdoorList != null && !backdoorList.isBlank();
 		String clientIp = AccessUtils.getClientIp();
-		if (backdoor && AccessUtils.checkBackdoor(clientIp)) {
-			// explicit backdoor access allowed (e.g. for video capture of browser screens)
-			logger.info("Backdoor access from {}", clientIp);
-			OwlcmsSession.setAuthenticated(true);
-			return Principal.admin(AuthSource.BACKDOOR);
-		}
-
 		boolean pinExpected = pinExpected(paramPin, dbPin);
 		if (!pinExpected && AccessUtils.ipIsAllowedForOfficials(clientIp)) {
 			OwlcmsSession.setAuthenticated(true);
@@ -67,19 +52,12 @@ public final class PinModeAuthenticator {
 		// An explicit empty OWLCMS_DISPLAYPIN disables any database display PIN.
 		String displayPinOverride = config.getParamDisplayPin();
 		String dbDisplayPin = config.getDisplayPin();
-		String backdoorList = config.getParamBackdoorList();
 
 		boolean noDisplayPin = !pinExpected(displayPinOverride, dbDisplayPin);
 		boolean noDisplayList = displayList == null || displayList.isBlank();
-		boolean backdoor = backdoorList != null && !backdoorList.isBlank();
 		if (noDisplayPin && noDisplayList) {
 			OwlcmsSession.setDisplayAuthenticated(true);
 			return Principal.displays();
-		}
-		if (backdoor && AccessUtils.checkBackdoor(AccessUtils.getClientIp())) {
-			logger.info("allowing backdoor access from {}", AccessUtils.getClientIp());
-			OwlcmsSession.setDisplayAuthenticated(true);
-			return Principal.admin(AuthSource.BACKDOOR);
 		}
 		if (noDisplayPin && AccessUtils.isIpAllowedForDisplay(AccessUtils.getClientIp())) {
 			OwlcmsSession.setDisplayAuthenticated(true);

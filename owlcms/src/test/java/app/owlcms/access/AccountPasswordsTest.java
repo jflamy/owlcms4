@@ -110,7 +110,7 @@ public class AccountPasswordsTest {
 	public void pinSessionsHaveNoOwnPassword() {
 		assertEquals(AccountPasswords.ChangeResult.NO_ACCOUNT, AccountPasswords.changeOwnPassword(
 		        Principal.admin(Principal.AuthSource.OFFICIALS_PIN), "x", "a new long password", AuditOrigin.system("test")));
-		assertFalse(AccountPasswords.mustChangePassword(Principal.admin(Principal.AuthSource.BACKDOOR)));
+		assertFalse(AccountPasswords.mustChangePassword(Principal.admin(Principal.AuthSource.NO_PIN)));
 	}
 
 	@Test

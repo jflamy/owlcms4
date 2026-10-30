@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.Main;
+import app.owlcms.access.PinHashes;
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.data.config.Config;
 import app.owlcms.utils.StartupUtils;
@@ -50,7 +51,7 @@ public class MoquetteAuthenticator implements IAuthenticator {
 		String expectedClearTextPassword = StartupUtils.getStringParam("mqttPassword");
 		if (expectedClearTextPassword != null) {
 			// clear text comparison
-			boolean plainTextMatch = expectedClearTextPassword.contentEquals(clientPasswordString);
+			boolean plainTextMatch = AccessUtils.constantTimeEquals(expectedClearTextPassword, clientPasswordString);
 			this.logger.debug("clear text match {}", plainTextMatch);
 			return plainTextMatch;
 		} else {
@@ -59,8 +60,7 @@ public class MoquetteAuthenticator implements IAuthenticator {
 				this.logger.debug("no password configured, MQTT access allowed to {}", username);
 				return true;
 			} else {
-				String hashedPassword = Config.getCurrent().encodeUserPassword(clientPasswordString, dbHashedPassword);
-				boolean shaMatch = dbHashedPassword.contentEquals(hashedPassword);
+				boolean shaMatch = PinHashes.matches(clientPasswordString, dbHashedPassword);
 				if (shaMatch) {
 					this.logger.debug("correct password provided, MQTT access allowed to {}", username);
 				} else {

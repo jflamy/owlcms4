@@ -89,7 +89,7 @@ public class AccessPolicyTest {
 		assertTrue(AccessPolicy.canOpen(null, publicPage, null));
 		assertFalse(AccessPolicy.canOpen(null, authenticated, null));
 		assertTrue(AccessPolicy.canOpen(displays, authenticated, null));
-		assertFalse(AccessPolicy.canOpen(Principal.admin(AuthSource.BACKDOOR), unannotated, null));
+		assertFalse(AccessPolicy.canOpen(Principal.admin(AuthSource.NO_PIN), unannotated, null));
 	}
 
 	@Test

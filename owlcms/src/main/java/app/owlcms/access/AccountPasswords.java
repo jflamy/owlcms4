@@ -97,6 +97,21 @@ public final class AccountPasswords {
 	}
 
 	/**
+	 * After a successful login: replaces a hash made with fewer iterations than new hashes, while the password is known.
+	 *
+	 * @param origin captured by the login page
+	 */
+	public static synchronized void upgradeHash(UserAccount account, String password, AuditOrigin origin) {
+		if (account == null || password == null || !PasswordHasher.needsRehash(account.getPasswordHash())) {
+			return;
+		}
+		UserAccount upgraded = account.copy();
+		upgraded.setPasswordHash(PasswordHasher.hash(password));
+		UserAccountRepository.save(upgraded, origin);
+		logger.info("password hash upgraded user={}", upgraded.getUsername());
+	}
+
+	/**
 	 * A user changing their own password; the account comes from the session, never from the request.
 	 *
 	 * @param origin captured by the page; its actor is the same person as the principal

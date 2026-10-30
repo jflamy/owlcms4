@@ -26,7 +26,15 @@ public class PasswordHasherTest {
 	public void iterationCountIsStoredInTheHash() {
 		String hash = PasswordHasher.hash("some password");
 		assertTrue(hash.startsWith("pbkdf2-sha256$"));
-		assertEquals(310_000, PasswordHasher.iterationsOf(hash));
+		assertEquals(600_000, PasswordHasher.iterationsOf(hash));
+	}
+
+	@Test
+	public void olderFormatsAndFewerIterationsNeedARehash() {
+		assertFalse(PasswordHasher.needsRehash(PasswordHasher.hash("some password")));
+		assertTrue(PasswordHasher.needsRehash("pbkdf2-sha256$310000$AAAA$AAAA"));
+		assertTrue("an older salted SHA-256", PasswordHasher.needsRehash("0123abcd_5f3e"));
+		assertTrue(PasswordHasher.needsRehash("pbkdf2-sha256$abc$AAAA$AAAA"));
 	}
 
 	@Test

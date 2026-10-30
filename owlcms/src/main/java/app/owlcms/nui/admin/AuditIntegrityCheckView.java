@@ -170,7 +170,7 @@ public class AuditIntegrityCheckView extends Composite<VerticalLayout>
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		// opening the page needs no locality: each check needs the cp challenge
+		// hidden without a control panel token; with one, each check needs the cp challenge
 		AdminView.checkAdminAccess();
 	}
 
