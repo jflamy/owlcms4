@@ -32,8 +32,13 @@ public final class AccountTokens {
 	private AccountTokens() {
 	}
 
+	/** A new random token value, with no stored record. */
+	public static String newValue() {
+		return random(ALPHABET, LENGTH);
+	}
+
 	public static Generated generate() {
-		String value = random(ALPHABET, LENGTH);
+		String value = newValue();
 		return new Generated(value, new AccountToken(random(ID_ALPHABET, ID_LENGTH), hash(value), LocalDateTime.now()));
 	}
 

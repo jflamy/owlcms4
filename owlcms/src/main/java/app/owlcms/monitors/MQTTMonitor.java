@@ -1599,7 +1599,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			if (current4.getParamMqttInternal()) {
 				Config current5 = Config.getCurrent();
 				this.userName = current5.getParamMqttUserName();
-				this.password = Main.mqttStartup;
+				this.password = Main.mqttInternalSecret;
 			}
 		}
 		MqttConnectOptions connOpts = setupMQTTClient(this.userName, this.password);

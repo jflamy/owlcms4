@@ -38,11 +38,13 @@ import app.owlcms.access.LoginThrottle;
 import app.owlcms.access.PageRule;
 import app.owlcms.access.Principal;
 import app.owlcms.access.PublicPage;
+import app.owlcms.access.SameMachineProof;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinService;
 
 import app.owlcms.apputils.AccessUtils;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.audit.AuthAudit;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
@@ -173,8 +175,8 @@ public class LoginView extends Composite<VerticalLayout>
 
 		VerticalLayout form = new VerticalLayout();
 		form.add(createTitle());
-		if (AccountPasswords.isTemporaryAdminPasswordPending()) {
-			Paragraph notice = new Paragraph(Translator.translate("Access.Login.TemporaryAdminPassword"));
+		if (!UserAccountRepository.adminHasPassword()) {
+			Paragraph notice = new Paragraph(Translator.translate("Access.Login.UseControlPanelToken"));
 			notice.getStyle().set("font-size", "var(--lumo-font-size-s)");
 			notice.getStyle().set("color", "var(--lumo-secondary-text-color)");
 			form.add(notice);
@@ -190,13 +192,19 @@ public class LoginView extends Composite<VerticalLayout>
 		String username = this.usernameField.getValue();
 		String clientIp = AccessUtils.getClientIp();
 		AccountAuthenticator authenticator = new AccountAuthenticator(UserAccountRepository::findByUsername,
-		        LoginThrottle.shared(), AccessUtils::ipIsAllowedForOfficials);
+		        LoginThrottle.shared(), AccessUtils::ipIsAllowedForOfficials, SameMachineProof::configuredToken);
 		AccountAuthenticator.Result result = authenticator.authenticate(username, this.passwordField.getValue(),
 		        clientIp);
 		this.passwordField.clear();
 
 		switch (result) {
-			case AccountAuthenticator.Result.Success success -> completeAccountAuthentication(success.account(), clientIp);
+			case AccountAuthenticator.Result.Success success ->
+			    completeAccountAuthentication(success.account(), clientIp, "password");
+			case AccountAuthenticator.Result.ControlPanelToken token -> {
+				UserAccount admin = AccountPasswords.controlPanelTokenLogin(token.account(),
+				        SameMachineProof.configuredToken(), AuditOrigin.fromUi("Login page"));
+				completeAccountAuthentication(admin, clientIp, "control-panel-token");
+			}
 			case AccountAuthenticator.Result.Throttled throttled ->
 			    showError(Translator.translate("Access.TooManyAttempts") + " (" + throttled.seconds() + " s)");
 			case AccountAuthenticator.Result.IpRefused _ -> {
@@ -210,14 +218,14 @@ public class LoginView extends Composite<VerticalLayout>
 		}
 	}
 
-	private void completeAccountAuthentication(UserAccount account, String clientIp) {
+	private void completeAccountAuthentication(UserAccount account, String clientIp, String how) {
 		VaadinRequest request = VaadinRequest.getCurrent();
 		if (request != null) {
 			VaadinService.reinitializeSession(request);
 		}
 		Principal principal = Principal.of(account, null);
 		if (!AccessPolicy.requiresPlatformChoice(principal)) {
-			completeAccountLogin(account, null, clientIp);
+			completeAccountLogin(account, null, clientIp, how);
 			return;
 		}
 
@@ -230,14 +238,14 @@ public class LoginView extends Composite<VerticalLayout>
 		}
 		FieldOfPlay requested = requestedLoginPlatform(choices);
 		if (choices.size() == 1) {
-			completeAccountLogin(account, choices.get(0), clientIp);
+			completeAccountLogin(account, choices.get(0), clientIp, how);
 			return;
 		}
-		showPlatformChoice(account, clientIp, choices, requested);
+		showPlatformChoice(account, clientIp, choices, requested, how);
 	}
 
 	private void showPlatformChoice(UserAccount account, String clientIp, java.util.List<FieldOfPlay> choices,
-	        FieldOfPlay requested) {
+	        FieldOfPlay requested, String how) {
 		ComboBox<FieldOfPlay> platformField = new ComboBox<>(Translator.translate("CompetitionPlatform"));
 		platformField.setItems(choices);
 		platformField.setItemLabelGenerator(FieldOfPlay::getName);
@@ -251,7 +259,7 @@ public class LoginView extends Composite<VerticalLayout>
 				showError(Translator.translate("Access.Denied.Message"));
 				return;
 			}
-			completeAccountLogin(account, selected, clientIp);
+			completeAccountLogin(account, selected, clientIp, how);
 		});
 		button.addClickShortcut(Key.ENTER);
 		button.setWidth("10em");
@@ -275,14 +283,14 @@ public class LoginView extends Composite<VerticalLayout>
 		        .filter(choices::contains).orElse(null);
 	}
 
-	private void completeAccountLogin(UserAccount account, FieldOfPlay loginPlatform, String clientIp) {
+	private void completeAccountLogin(UserAccount account, FieldOfPlay loginPlatform, String clientIp, String how) {
 		Principal principal = Principal.of(account, loginPlatform != null ? loginPlatform.getName() : null);
 		OwlcmsSession.setPrincipal(principal);
 		if (loginPlatform != null) {
 			OwlcmsSession.setFop(loginPlatform);
 		}
-		logger.info("login user={} ip={}", account.getUsername(), clientIp);
-		AuthAudit.loginSucceeded("ACCOUNTS", account.getUsername(), "password", loginAuditPlatforms(principal));
+		logger.info("login user={} ip={} how={}", account.getUsername(), clientIp, how);
+		AuthAudit.loginSucceeded("ACCOUNTS", account.getUsername(), how, loginAuditPlatforms(principal));
 		redirect();
 	}
 

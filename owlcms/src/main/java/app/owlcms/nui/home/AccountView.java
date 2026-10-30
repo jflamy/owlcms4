@@ -35,6 +35,7 @@ import app.owlcms.nui.shared.AccountTokenEditor;
 import app.owlcms.nui.shared.ContentWrapping;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.nui.shared.OwlcmsLayoutAware;
+import app.owlcms.utils.RestartUtils;
 
 /**
  * Self-service page: the session's own account and its password. Also the page every other page redirects
@@ -51,12 +52,14 @@ public class AccountView extends Composite<VerticalLayout>
 	private PasswordField newPasswordField;
 	private PasswordField confirmField;
 	private AccountTokenEditor tokenEditor;
+	private boolean controlPanelTokenLogin;
 
 	public AccountView() {
 		Principal principal = OwlcmsSession.getPrincipal();
 		UserAccount account = principal != null && principal.source() == Principal.AuthSource.ACCOUNT
 		        ? UserAccountRepository.findById(principal.accountId())
 		        : null;
+		this.controlPanelTokenLogin = AccountPasswords.isControlPanelTokenLogin(principal);
 
 		VerticalLayout form = new VerticalLayout();
 		form.add(createTitle());
@@ -103,6 +106,8 @@ public class AccountView extends Composite<VerticalLayout>
 		Button change = new Button(Translator.translate("Access.Account.ChangePassword"), e -> changePassword());
 		change.addClickShortcut(Key.ENTER);
 		change.getThemeNames().add("primary");
+		// after a login with the control panel token, the current password is the token itself
+		this.currentPasswordField.setVisible(!this.controlPanelTokenLogin);
 		form.add(usernameField, this.currentPasswordField, this.newPasswordField,
 		        this.confirmField, change);
 		form.setAlignSelf(Alignment.CENTER, change);
@@ -142,13 +147,20 @@ public class AccountView extends Composite<VerticalLayout>
 
 		Principal principal = OwlcmsSession.getPrincipal();
 		boolean forced = AccountPasswords.mustChangePassword(principal);
-		ChangeResult result = AccountPasswords.changeOwnPassword(principal, this.currentPasswordField.getValue(),
-		        newPassword, AuditOrigin.fromUi("Account page"));
+		AuditOrigin origin = AuditOrigin.fromUi("Account page");
+		ChangeResult result = this.controlPanelTokenLogin
+		        ? AccountPasswords.changeAfterControlPanelToken(principal, newPassword, origin)
+		        : AccountPasswords.changeOwnPassword(principal, this.currentPasswordField.getValue(), newPassword,
+		                origin);
 		this.currentPasswordField.clear();
 		switch (result) {
 			case CHANGED -> {
 				this.newPasswordField.clear();
 				this.confirmField.clear();
+				if (this.controlPanelTokenLogin) {
+					restartAfterControlPanelToken();
+					return;
+				}
 				if (forced) {
 					UI.getCurrent().navigate(HomeNavigationContent.class);
 				}
@@ -159,6 +171,20 @@ public class AccountView extends Composite<VerticalLayout>
 			case SAME_AS_CURRENT -> showError(this.newPasswordField, "Access.Error.NewPasswordSame");
 			case NO_ACCOUNT -> showError(this.currentPasswordField, "Access.Error.NoAccount");
 		}
+	}
+
+	/** Ends every session, including any opened by someone else who had the token; the browser reconnects. */
+	private static void restartAfterControlPanelToken() {
+		NotificationUtils.restarting(UI.getCurrent());
+		Thread.ofVirtual().name("ControlPanelTokenRestart").start(() -> {
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return;
+			}
+			RestartUtils.triggerRestart("admin password set after a control panel token login");
+		});
 	}
 
 	private static void showError(PasswordField field, String key) {

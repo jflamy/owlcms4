@@ -14,23 +14,18 @@ Before a large meet, you may wish to test your configuration and equipment.  The
    4. Provide the registration information for the athletes (birth year, gender, body weight or registration category)
    5. Look at the Preparation / registration entries page to check that all is correct
 
-2. Add permissions when running the simulation remotely
+2. Check who can start the simulation
 
-   Simulation requests from localhost are always allowed. To run a simulation from another machine or a cloud deployment, configure Backdoor Access as follows.
+   The simulation is started from the Simulation page, which is available from the Admin page (or by adding `/simulation` to the address of OWLCMS).
 
-   1. Go to the Preparation / Language and System Settings page
+   - In accounts mode, log in with an account that has the Admin Pages or the Competition Supervisor role.
+   - In PIN mode, enter the officials PIN as usual.
 
-   2. Locate the "Backdoor Access" setting and enter a string like the following (replace `192.168.0.105` with the actual address of the main owlcms computer when running on a laptop, or your public IP address if running on Fly.io).
-
-      `192.168.0.105`
-
-      This setting is used to make sure that only these machines can start the simulation. Localhost does not need to be added.
-
-      If you are running on Fly.io, you can type "what is my ip" in Google to get your public IP address.
+   This works the same way on a laptop and on a cloud deployment: no address needs to be configured.
 
 3. Export your registration data from the Preparation page (for reference)
 
-4. Export the full database from the System Settings page (the setting that allow access will be saved inside the export)
+4. Export the full database from the System Settings page
 
 #### Install a monitoring tool (optional)
 
@@ -44,8 +39,14 @@ If you like watching scrolling graphics and have a computer or programming backg
 
 #### Start the simulation
 
-- If running locally, go to the main laptop and open the Home page.  Type "http://127.0.0.1/simulation" 
-- Ïf running remotely, open a window on the cloud application and to the main page. Add `/simulation` at the end.  This will give you something similar to https://mycompetition.fly.dev/simulation 
+Open the Simulation page (Admin page, then Simulation, or add `/simulation` at the end of the address, for example `http://127.0.0.1:8080/simulation` on the laptop or https://mycompetition.fly.dev/simulation in the cloud). Choose the options and click Start:
+
+- Skip sessions already done (keep their results)
+- Skip sessions before a given session
+- Only these platforms (comma-separated)
+- Random declaration jumps (+2/+3 kg) and marshal weight changes while the clock runs
+
+The Stop button ends the simulation.
 
 The system will perform a fake weigh-in if needed and create fake declarations for the snatch and clean & jerk.
 

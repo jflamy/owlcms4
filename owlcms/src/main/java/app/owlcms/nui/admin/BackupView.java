@@ -56,7 +56,7 @@ public class BackupView extends Composite<VerticalLayout>
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		AdminView.checkLocalAccess();
+		AdminView.checkAdminAccess();
 	}
 
 	@Override

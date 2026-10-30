@@ -27,7 +27,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.nui.shared.OwlcmsLayoutAware;
 import app.owlcms.simulation.SimulationControl;
 
-/** Starts and stops the competition simulation. Scripts use {@code /simulation/start} and {@code /simulation/stop}. */
+/** Starts and stops the competition simulation. Requires a login: the page is not token-accessible. */
 @SuppressWarnings("serial")
 @RequiresRole({ Role.ADMIN_PAGES, Role.COMPETITION_SUPERVISOR })
 @Route(value = "simulation", layout = OwlcmsLayout.class)

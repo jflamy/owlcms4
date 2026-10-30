@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.Main;
+import app.owlcms.apputils.AccessUtils;
 import app.owlcms.data.config.Config;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
@@ -28,9 +29,8 @@ public class MoquetteAuthenticator implements IAuthenticator {
 		// Moquette passes null when the client sends a user name without a password
 		String clientPasswordString = password != null ? new String(password, StandardCharsets.UTF_8) : "";
 
-		if (clientPasswordString.contentEquals(Main.mqttStartup)) {
-			// special case -- owlcms is calling it's own moquette locally
-			// the shared secret is the milliseconds at which the server started.
+		if (AccessUtils.constantTimeEquals(Main.mqttInternalSecret, password != null ? clientPasswordString : null)) {
+			// special case -- owlcms is calling its own moquette locally with the secret generated at startup
 			this.logger.debug("owlcms MQTT connection from {}", clientId);
 			return true;
 		}
@@ -41,14 +41,13 @@ public class MoquetteAuthenticator implements IAuthenticator {
 			this.logger.debug("no user name configured, anonymous MQTT access allowed");
 			return true;
 		}
-		if (!expectedUserName.contentEquals(username)) {
+		if (!expectedUserName.contentEquals(username != null ? username : "")) {
 			// wrong user name provided
 			this.logger./**/warn("wrong MQTT username, {} is denied: {}", clientId, username);
 			return false;
 		}
 
 		String expectedClearTextPassword = StartupUtils.getStringParam("mqttPassword");
-		this.logger.debug("client password string : {}", clientPasswordString);
 		if (expectedClearTextPassword != null) {
 			// clear text comparison
 			boolean plainTextMatch = expectedClearTextPassword.contentEquals(clientPasswordString);

@@ -11,8 +11,8 @@ the control panel's role.
 OWLCMS reads `OWLCMS_CONTROLPANELTOKEN` at startup. A request presenting that token
 counts as coming from the OWLCMS machine. In the cloud every request arrives through
 Fly's proxy with forwarding headers, so the direct-local-connection fallback never
-applies: without a token, the actions that require locality are unreachable (scripted simulation,
-audit preparation and checking, setting the first admin password).
+applies: without a token, the actions that require locality are unreachable (audit
+preparation and checking), and so is the admin account until it has a password.
 
 Fly secrets are write-only: `fly secrets list` returns names, never values. The cloud
 app has no storage of its own between sessions.

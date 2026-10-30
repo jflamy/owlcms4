@@ -2,6 +2,7 @@ package app.owlcms.access;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +14,10 @@ public final class AccountAuthenticator {
 
 	public sealed interface Result {
 		record Success(UserAccount account) implements Result {
+		}
+
+		/** The built-in admin, with the control panel token as the password: the admin must set a new password. */
+		record ControlPanelToken(UserAccount account) implements Result {
 		}
 
 		/** Unknown user, wrong password or disabled account; deliberately indistinguishable. */
@@ -35,12 +40,14 @@ public final class AccountAuthenticator {
 	private final Function<String, UserAccount> lookup;
 	private final LoginThrottle throttle;
 	private final Predicate<String> officialsIpAllowed;
+	private final Supplier<String> controlPanelToken;
 
 	public AccountAuthenticator(Function<String, UserAccount> lookup, LoginThrottle throttle,
-	        Predicate<String> officialsIpAllowed) {
+	        Predicate<String> officialsIpAllowed, Supplier<String> controlPanelToken) {
 		this.lookup = lookup;
 		this.throttle = throttle;
 		this.officialsIpAllowed = officialsIpAllowed;
+		this.controlPanelToken = controlPanelToken;
 	}
 
 	public Result authenticate(String username, String password, String clientIp) {
@@ -55,6 +62,12 @@ public final class AccountAuthenticator {
 
 		UserAccount account = username == null ? null : this.lookup.apply(username);
 		String candidate = password == null ? "" : password;
+		if (account != null && account.isBuiltInAdmin()
+		        && SameMachineProof.matches(candidate, this.controlPanelToken.get())) {
+			this.throttle.success(username, clientIp);
+			logger./**/warn("admin login with the control panel token ip={}", clientIp);
+			return new Result.ControlPanelToken(account);
+		}
 		boolean valid;
 		if (account != null && account.hasPassword()) {
 			valid = PasswordHasher.verify(candidate, account.getPasswordHash());

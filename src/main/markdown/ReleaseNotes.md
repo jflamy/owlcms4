@@ -10,17 +10,20 @@
 
 **Development log**
 
+- 69.0.0-beta02: OWLCMS 69 requires control panel 3.10.0 or later, which gives OWLCMS a new control panel token at each launch. The home page says so when an older control panel is used.
+
 - 69.0.0-beta02: MQTT refereeing devices are told when a competition has no jury (jury size 0) instead of being sent a jury size of 3.
   - Blue Owl versions up to 3.0.0 treat it as a jury of 3, as before.
 
-- 69.0.0-beta02: Admin password recovery: starting OWLCMS with `OWLCMS_ADMINRECOVERY=true` shows only a recovery page, which sets a new admin password once the control panel token is entered.
-  - Nothing else is reachable in this mode; remove the setting and restart afterwards.
+- 69.0.0-beta02: Admin password emergency access: logging in as `admin` with the control panel token as the password always works, for the first password of a new installation or a forgotten one.
+  - The admin must then set a new password, after which OWLCMS restarts, ending every session.
+  - The single-use admin password is no longer written to `owlcms.log`.
 
 - 69.0.0-beta02: Robustness/correctness of user accounts management and audit trail
 
 - 69.0.0-beta02: Audit logs are always sealed, with the audit signing key (PEM) when present, else with the built-in key, which only allows testing.
   - A PEM no longer turns on `iwfCompliance` or accounts mode.
-  - `iwfCompliance` now requires accounts mode and makes the control panel token mandatory for stopping OWLCMS and for the simulation page.
+  - `iwfCompliance` now requires accounts mode and a control panel token: OWLCMS refuses to start without `OWLCMS_CONTROLPANELTOKEN`.
 
 - 69.0.0-beta02: Some URLs accept a `?token=` from a user account, so OBS and scripts work without a login.
   - Tokens are generated and revoked by going on the user that would normally use the pages and using Generate Token

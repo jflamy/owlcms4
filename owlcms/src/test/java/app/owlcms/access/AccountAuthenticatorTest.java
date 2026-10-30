@@ -15,24 +15,31 @@ import app.owlcms.data.account.UserAccount;
 public class AccountAuthenticatorTest {
 
 	private static final String IP = "10.0.0.1";
+	private static final String TOKEN = "panel-token-123";
 	private final AtomicLong now = new AtomicLong(1_000_000L);
 	private LoginThrottle throttle;
 	private UserAccount bob;
 	private UserAccount noPassword;
 	private UserAccount disabled;
+	private UserAccount admin;
 	private boolean ipAllowed;
+	private String configuredToken;
 	private AccountAuthenticator authenticator;
 
 	@Before
 	public void setUp() {
 		this.throttle = new LoginThrottle(this.now::get);
 		this.ipAllowed = true;
+		this.configuredToken = TOKEN;
 		this.bob = account("bob", "correct horse", true);
 		this.noPassword = account("nopass", null, true);
 		this.disabled = account("gone", "correct horse", false);
-		Map<String, UserAccount> accounts = Map.of("bob", this.bob, "nopass", this.noPassword, "gone", this.disabled);
+		this.admin = account(UserAccount.BUILT_IN_ADMIN, "admin password", true);
+		Map<String, UserAccount> accounts = Map.of("bob", this.bob, "nopass", this.noPassword, "gone", this.disabled,
+		        UserAccount.BUILT_IN_ADMIN, this.admin);
 		this.authenticator = new AccountAuthenticator(
-		        name -> accounts.get(UserAccount.normalizeUsername(name)), this.throttle, ip -> this.ipAllowed);
+		        name -> accounts.get(UserAccount.normalizeUsername(name)), this.throttle, ip -> this.ipAllowed,
+		        () -> this.configuredToken);
 	}
 
 	private static UserAccount account(String name, String password, boolean enabled) {
@@ -66,6 +73,32 @@ public class AccountAuthenticatorTest {
 		this.ipAllowed = false;
 		assertTrue(this.authenticator.authenticate("bob", "correct horse", IP) instanceof Result.IpRefused);
 		assertEquals(0, this.throttle.blockedSeconds("bob", IP));
+	}
+
+	@Test
+	public void controlPanelTokenLogsInOnlyTheBuiltInAdmin() {
+		Result result = this.authenticator.authenticate("Admin", TOKEN, IP);
+		assertTrue(result instanceof Result.ControlPanelToken);
+		assertEquals(this.admin, ((Result.ControlPanelToken) result).account());
+		assertTrue("the admin's own password still works",
+		        this.authenticator.authenticate("admin", "admin password", IP) instanceof Result.Success);
+		assertTrue(this.authenticator.authenticate("bob", TOKEN, IP) instanceof Result.Failure);
+		assertTrue(this.authenticator.authenticate("admin", TOKEN + "x", IP) instanceof Result.Failure);
+	}
+
+	@Test
+	public void withoutAConfiguredTokenNothingMatches() {
+		this.configuredToken = null;
+		assertTrue(this.authenticator.authenticate("admin", TOKEN, IP) instanceof Result.Failure);
+		assertTrue(this.authenticator.authenticate("admin", "", IP) instanceof Result.Failure);
+	}
+
+	@Test
+	public void tokenGuessesAreThrottled() {
+		for (int i = 0; i < 5; i++) {
+			this.authenticator.authenticate("admin", "guess " + i, IP);
+		}
+		assertTrue(this.authenticator.authenticate("admin", TOKEN, IP) instanceof Result.Throttled);
 	}
 
 	@Test

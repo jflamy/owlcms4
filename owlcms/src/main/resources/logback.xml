@@ -80,10 +80,6 @@
 
     <!-- default levels for owlcms -->
     <logger name="app.owlcms" level="INFO" />
-    <!-- single-use admin password: owlcms.log only, never the console or startup.log -->
-    <logger name="app.owlcms.access.TemporaryAdminPassword" level="INFO" additivity="false">
-        <appender-ref ref="FILE" />
-    </logger>
     <!-- Set the standard resource logger to OFF for table-only output. -->
     <logger name="app.owlcms.monitors.ResourceMonitor" level="INFO" />
     <logger name="app.owlcms.monitors.ResourceMonitor.table" level="INFO" additivity="false">

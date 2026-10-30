@@ -33,7 +33,7 @@ Keep the marshal Pause button and the existing announcer/timekeeper controls.
 | Surface | Remaining review |
 | --- | --- |
 | `/local/*` | Verify directory/classpath confinement, decoding, traversal and symlinks; exclude sensitive files |
-| MQTT broker and `/mqtt` | Keep MQTT credentials; remove client password from MoquetteAuthenticator debug logging |
+| MQTT broker and `/mqtt` | Done: client password no longer logged; OWLCMS's own broker connection uses a random secret (not the startup time), compared in constant time |
 | Vaadin dynamic downloads/uploads | Verify resource creation and use require the appropriate page permission |
 | Forwarded client IP | Trust headers only through a configured trusted proxy; never trust a caller-supplied localhost/backdoor claim |
 | CorsFilter | Review credentialed cross-origin cookies and `SameSite=None` with named accounts |
@@ -60,8 +60,8 @@ never counts as locality.
   including from the OWLCMS machine itself.
 - Only when OWLCMS was started without a token (by hand, without a control panel) is a
   direct local connection (loopback socket peer, no forwarding header) accepted
-  instead. It is not available in IWF compliance mode: OWLCMS must then be started
-  with a token.
+  instead. In IWF compliance mode OWLCMS refuses to start without a token (exit code
+  78).
 - Where a page needs locality, it asks for the token once; the session remembers it.
 
 `iwfCompliance` turns on the security rules: accounts mode, and the token as the only
@@ -71,7 +71,9 @@ event may use either one without the other.
 | Action | Status |
 | --- | --- |
 | `/controlpanel/stop` (the control panel sends the token automatically) | Done |
-| `/simulation/start`, `/simulation/stop`, `/simulation/status` (scripts) | Done |
+
+Simulation needs no locality: only the `simulation` page starts it, with a login; the
+token-accessible `/simulation/*` script endpoints were removed.
 
 ## Audit pages
 
@@ -83,47 +85,33 @@ cloud the key comes from a secret, so the preparation page does not apply there.
 
 ## Admin password
 
-When the built-in admin has no password, the control panel token takes the place of
-the single-use password, in either access mode:
+The control panel token, entered verbatim as the built-in admin's password, is the
+emergency way in, at any time: for the first password of a new installation and for a
+forgotten one. Fetching the token requires control of the OWLCMS process, the same as
+setting a startup variable, so there is no separate recovery mode.
 
-- Accounts mode: the login page tells the admin to enter the control panel token as
-  the password. After that login the admin is sent to the existing change-password page
-  (`AccountView`) and must set a real password before going anywhere else.
-- PIN mode: the admin pages ask for the admin password (see [Admin pages](#admin-pages));
-  while there is none, that prompt accepts the token instead and leads to the same
-  change-password page. The admin password is no longer set from the User Accounts
-  form by an officials-PIN holder.
-- The token is accepted only while the admin has no password. Once a password exists,
-  only that password works; changing it requires the current one, from anywhere.
+Done in accounts mode:
 
-The single-use admin password written to `owlcms.log` at startup is removed: locality
-is proven by the token, not by access to the log. A database whose admin has no
-password (for example a hand-edited JSON loaded at startup) therefore needs the token
-before anyone can use the admin account.
+- The login page accepts user `admin` with the token as password, compared in constant
+  time and throttled like a password. The login is audited with `how=control-panel-token`.
+- The token becomes the admin's current password and the admin must change it: every
+  page redirects to the change-password page (`AccountView`), which does not ask for the
+  current password in that case. The token cannot be kept as the password.
+- Once the new password is set, OWLCMS restarts, ending every session, including any
+  opened by someone else who had the token. The control panel gives each OWLCMS launch,
+  restarts included, a new token, so the token used for the emergency login stops
+  working. In the cloud the secret stays the same until it is replaced.
+- While the admin has no password, the login page says to use the token.
+- The single-use admin password written to `owlcms.log` and the `OWLCMS_ADMINRECOVERY`
+  recovery page are removed.
+- Without a token and without an admin password, nobody can log in as admin; startup
+  warns. In the cloud, set `OWLCMS_CONTROLPANELTOKEN` as a Fly secret
+  ([340](340-CLOUD_CONTROL_PANEL_TOKEN.md) automates it).
 
-Recovery from a forgotten admin password is a separate mode, triggered by a startup
-setting, `OWLCMS_ADMINRECOVERY=true`. Only whoever controls the OWLCMS process can set
-it: a line in the control panel's `env.properties` for a local installation, or a Fly
-secret in the cloud. No JSON editing is involved.
-
-- The control panel token is mandatory: without `OWLCMS_CONTROLPANELTOKEN`, startup
-  reports that recovery cannot proceed.
-- Startup runs the configuration phase (database, settings, audit, built-in admin) and
-  skips the competition phase: no competition loading, MQTT broker, event forwarding or
-  tracker push. `OWLCMS_LOADJSON` is ignored, with a warning. No single-use password is
-  generated. Startup announces recovery mode.
-- A servlet filter registered in `EmbeddedJetty` on `/*` runs before every servlet,
-  Vaadin included. `/controlpanel/stop` passes through; every other request gets a plain
-  HTML recovery form (status 401) asking for the control panel token, the new admin
-  password and its confirmation. No page, export, H2 download or simulation is
-  reachable. The form is in the browser's language, from the translation file, which
-  does not depend on the database.
-- A submission received before the database is ready is answered "starting, try again";
-  the filter never waits. The token is compared in constant time and failures are
-  throttled. The password must be acceptable and confirmed.
-- Once the new password is set, every request gets a page telling the operator to
-  remove `OWLCMS_ADMINRECOVERY` and restart.
-- Entering recovery mode, each refused token and the password change are audited.
+Remaining, PIN mode: the admin pages ask for the admin password (see
+[Admin pages](#admin-pages)); that prompt also accepts the token and leads to the same
+change-password page. The admin password is no longer set from the User Accounts form
+by an officials-PIN holder.
 
 OWLCMS started by hand, without a control panel, has no token: whoever starts it can
 define `OWLCMS_CONTROLPANELTOKEN` themselves, which makes the same flows available.
@@ -135,7 +123,7 @@ define `OWLCMS_CONTROLPANELTOKEN` themselves, which makes the same flows availab
 | `admin` (stop, restart, translation reload, links) | ADMIN_PAGES role and the admin password; no locality, so cloud installations can use it |
 | `admin/backup` | ADMIN_PAGES or COMPETITION_SUPERVISOR, and the admin password for ADMIN_PAGES; no locality. The Competition Supervisor page (`lifting/competition-director`) gets a Backup button. |
 | `admin/audit/prepare`, `admin/audit/check` | Also locality ([Audit pages](#audit-pages)) |
-| `simulation` (button on the admin page) | ADMIN_PAGES or COMPETITION_SUPERVISOR; no locality. Scripts use `/simulation/start` and `/simulation/stop` with the control panel token. |
+| `simulation` (button on the admin page) | ADMIN_PAGES or COMPETITION_SUPERVISOR, with a login (not token-accessible); no locality. |
 
 - Accounts mode: the admin password is the normal login.
 - PIN mode: the officials PIN currently gives full admin rights. The admin pages also

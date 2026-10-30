@@ -24,6 +24,7 @@ import app.owlcms.apputils.AccessUtils;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.AuditContext;
+import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.websocket.WebSocketEventSender;
@@ -37,9 +38,21 @@ public class AdminView extends Composite<VerticalLayout> implements HasDynamicTi
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
+		checkAdminAccess();
+	}
+
+	/**
+	 * Admin and backup pages. In accounts mode the ADMIN_PAGES login is enough, so cloud installations can use them; in
+	 * PIN mode they need localhost or the backdoor list.
+	 */
+	public static void checkAdminAccess() {
+		if (Config.getCurrent().isAccountsMode()) {
+			return;
+		}
 		checkLocalAccess();
 	}
 
+	/** Pages that act on the server's disk. Accounts mode has no backdoor. */
 	public static void checkLocalAccess() {
 		Principal principal = OwlcmsSession.getPrincipal();
 		boolean accountSession = principal != null && principal.source() == Principal.AuthSource.ACCOUNT;
@@ -47,7 +60,8 @@ public class AdminView extends Composite<VerticalLayout> implements HasDynamicTi
 			return;
 		}
 		String clientIp = AccessUtils.getClientIp();
-		if (!AccessUtils.isLocalhost(clientIp) && !AccessUtils.checkBackdoor(clientIp)) {
+		boolean backdoor = !Config.getCurrent().isAccountsMode() && AccessUtils.checkBackdoor(clientIp);
+		if (!AccessUtils.isLocalhost(clientIp) && !backdoor) {
 			throw new AccessDeniedException();
 		}
 	}
@@ -100,17 +114,13 @@ public class AdminView extends Composite<VerticalLayout> implements HasDynamicTi
 	}
 
 	/**
-	 * The side-menu entry is offered only to signed-in administrator accounts that would pass
-	 * {@link #checkLocalAccess()}; PIN-mode sessions reach the page by its URL.
+	 * The side-menu entry is offered only to signed-in administrator accounts, which pass
+	 * {@link #checkAdminAccess()}; PIN-mode sessions reach the page by its URL.
 	 */
 	public static boolean isMenuEntryAvailable() {
 		Principal principal = OwlcmsSession.getPrincipal();
-		if (principal == null || principal.source() != Principal.AuthSource.ACCOUNT
-		        || !AccessPolicy.isAdmin(principal)) {
-			return false;
-		}
-		String clientIp = AccessUtils.getClientIp();
-		return AccessUtils.isLocalhost(clientIp) || AccessUtils.checkBackdoor(clientIp);
+		return principal != null && principal.source() == Principal.AuthSource.ACCOUNT
+		        && AccessPolicy.isAdmin(principal);
 	}
 
 	private Hr separator() {

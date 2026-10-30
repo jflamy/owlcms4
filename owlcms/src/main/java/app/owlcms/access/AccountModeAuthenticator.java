@@ -5,14 +5,13 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.access.Principal.AuthSource;
-import app.owlcms.apputils.AccessUtils;
 import app.owlcms.audit.AuthAudit;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
-/** Resolves the principal when named accounts are in use. */
+/** Resolves the principal when named accounts are in use: a login or a token is always required, no backdoor. */
 public final class AccountModeAuthenticator {
 
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(AccountModeAuthenticator.class);
@@ -29,11 +28,6 @@ public final class AccountModeAuthenticator {
 				return Principal.of(account, existing.loginPlatform());
 			}
 			logout(existing, "account disabled, deleted or password cleared");
-		}
-
-		if (AccessUtils.isBackdoorAccess()) {
-			logger.info("Backdoor access from {}", AccessUtils.getClientIp());
-			return Principal.admin(AuthSource.BACKDOOR);
 		}
 
 		OwlcmsSession.setRequestedUrl(path);

@@ -35,17 +35,6 @@ public final class AuthAudit {
 		write("auth.logout", mode, user, AuditFormat.kv("reason", reason), loginPlatform);
 	}
 
-	/** Never pass the password itself. */
-	public static void temporaryPasswordGenerated(String user) {
-		write("auth.temporary-password", "ACCOUNTS", user, AuditFormat.kv("disclosed", "owlcms.log"), null);
-	}
-
-	/** OWLCMS started in admin recovery mode. */
-	public static void adminRecoveryStarted(boolean tokenConfigured) {
-		AuditLog.write(AuditEntry.builder(COMPETITION, "auth.admin-recovery").actor(AuditActor.system())
-		        .detail(AuditFormat.kv("token", tokenConfigured ? "configured" : "missing")).build());
-	}
-
 	/** @param how "self" when users change their own password */
 	public static void passwordChanged(String user, String how) {
 		write("auth.password-changed", "ACCOUNTS", user, AuditFormat.kv("how", how), null);

@@ -155,7 +155,11 @@ public class AccessUtils {
 		return constantTimeEquals(dbPin, Config.getCurrent().encodeUserPassword(candidate, dbPin));
 	}
 
-	private static boolean constantTimeEquals(String expected, String actual) {
+	/** Compares in constant time, to avoid leaking secrets through timing; false if either value is null. */
+	public static boolean constantTimeEquals(String expected, String actual) {
+		if (expected == null || actual == null) {
+			return false;
+		}
 		return MessageDigest.isEqual(expected.getBytes(StandardCharsets.UTF_8),
 		        actual.getBytes(StandardCharsets.UTF_8));
 	}

@@ -100,11 +100,11 @@ For fixes that support must make directly on the competition.
 
 1. The operator sends the export and the PEM by separate secure channels.
 2. Support starts with the PEM, removes the admin hash if needed, loads the
-   export and logs in with the temporary password from `owlcms.log`.
+   export and logs in as `admin` with its own control panel token.
 3. Support makes the fix and exports. The export is signed with the
    competition key and keeps its forwarding keys.
 4. The operator loads the returned export. The audit trail shows the invalid
-   import (admin hash removed), the temporary password and the support
+   import (admin hash removed), the control panel token login and the support
    changes, all signed with the competition key.
 5. The operator decides whether to generate a new PEM after the support case.
 
@@ -116,8 +116,8 @@ Default procedure.
 2. Support removes the admin hash, loads the export, makes the fix and
    exports. The returned export is unsigned and has no forwarding keys.
 3. The operator loads it on the server holding the PEM, checks it, re-enters
-   the forwarding keys and resets the admin password if needed (temporary
-   password in `owlcms.log`).
+   the forwarding keys and resets the admin password if needed (log in as
+   `admin` with the control panel token).
 4. Exports from that point are signed with the competition key. The audit
    trail records that an unsigned export was accepted.
 

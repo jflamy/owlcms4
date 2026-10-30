@@ -1,7 +1,5 @@
 package app.owlcms.access;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.List;
 import java.util.function.Function;
 
@@ -11,7 +9,7 @@ import app.owlcms.utils.StartupUtils;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * Proof that a maintenance request ({@code /controlpanel/stop}, the scripted simulation requests) comes from this
+ * Proof that a maintenance request ({@code /controlpanel/stop}) comes from this
  * machine. The client address alone is not one: a local reverse proxy such as Caddy makes remote requests appear to
  * come from localhost. The backdoor list never replaces the proof.
  * <ul>
@@ -19,8 +17,9 @@ import jakarta.servlet.http.HttpServletRequest;
  * sends it on stop. Whenever OWLCMS has a token, the request must present it, from any address.</li>
  * <li>Only when OWLCMS was started without a token, a weaker check applies: a loopback connection that carries no
  * forwarding header. A proxy adds such a header (Caddy does by default), so a request it forwards is not taken as
- * local. In IWF compliance mode this fallback is not available: OWLCMS must be started with a token.</li>
+ * local. In IWF compliance mode OWLCMS refuses to start without a token.</li>
  * </ul>
+ * The token is also the emergency admin password: see {@link AccountPasswords}.
  */
 public final class SameMachineProof {
 
@@ -37,8 +36,14 @@ public final class SameMachineProof {
 	public static String refusal(HttpServletRequest request) {
 		String presented = TokenAuthenticator.presentedToken(request.getParameter("token"),
 		        request.getHeader("Authorization"));
-		return refusal(StartupUtils.getStringParam(CONTROL_PANEL_TOKEN), presented, request.getRemoteAddr(),
+		return refusal(configuredToken(), presented, request.getRemoteAddr(),
 		        request::getHeader, FeatureSwitch.IWF_COMPLIANCE.isEffective());
+	}
+
+	/** @return the control panel token OWLCMS was started with, or null */
+	public static String configuredToken() {
+		String token = StartupUtils.getStringParam(CONTROL_PANEL_TOKEN);
+		return token == null || token.isBlank() ? null : token;
 	}
 
 	/**
@@ -73,8 +78,7 @@ public final class SameMachineProof {
 		if (presented == null || presented.isBlank() || expected == null || expected.isBlank()) {
 			return false;
 		}
-		return MessageDigest.isEqual(expected.strip().getBytes(StandardCharsets.UTF_8),
-		        presented.strip().getBytes(StandardCharsets.UTF_8));
+		return AccessUtils.constantTimeEquals(expected.strip(), presented.strip());
 	}
 
 	/** @return true if the connection is from loopback and no proxy forwarded it */

@@ -1,6 +1,5 @@
 package app.owlcms.access;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +12,14 @@ import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.jpa.JPAService;
 import ch.qos.logback.classic.Logger;
 
-/** Password lifecycle outside the login itself: temporary admin password, self-service change, bulk clearing. */
+/**
+ * Password lifecycle outside the login itself: control panel token login, self-service change, bulk clearing.
+ * <p>
+ * The control panel token, entered as the built-in admin's password, is the emergency way in: for the first password
+ * of a new installation and for a forgotten one. Whoever has the token controls the OWLCMS process (the control panel,
+ * or the secrets of a cloud app). The admin must then set a new password, after which OWLCMS restarts, ending every
+ * session.
+ */
 public final class AccountPasswords {
 
 	/** Route of the self-service account page, which is also the forced password-change page. */
@@ -24,66 +30,70 @@ public final class AccountPasswords {
 	}
 
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(AccountPasswords.class);
-	// routed only to owlcms.log by logback.xml, so the secret stays out of the console and startup.log
-	private static final Logger secretLogger = (Logger) LoggerFactory
-	        .getLogger("app.owlcms.access.TemporaryAdminPassword");
-	private static final String ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
-	private static final int TEMPORARY_LENGTH = 16;
-	private static final SecureRandom RANDOM = new SecureRandom();
-	private static volatile boolean generatedAtStartup;
 
 	private AccountPasswords() {
 	}
 
 	/**
-	 * Called at each startup. When accounts mode is required and the built-in admin has no password, sets a
-	 * single-use password that must be changed at the first login, and writes it to owlcms.log only.
+	 * After a login with the control panel token: the token becomes the admin's current password, so the account
+	 * session stays valid, and the admin must change it before opening any other page.
 	 *
-	 * @return true if a password was generated
+	 * @return the updated account
 	 */
-	public static boolean ensureAdminPassword(boolean accountsModeRequired, AuditOrigin origin) {
-		return generateIfRequired(accountsModeRequired, origin) != null;
+	public static synchronized UserAccount controlPanelTokenLogin(UserAccount admin, String token, AuditOrigin origin) {
+		UserAccount account = admin.copy();
+		account.setPasswordHash(PasswordHasher.hash(token));
+		account.setMustChangePassword(true);
+		return UserAccountRepository.save(account, origin);
 	}
 
-	/** @return the generated password, for tests; null if none was needed */
-	static synchronized String generateIfRequired(boolean accountsModeRequired, AuditOrigin origin) {
-		generatedAtStartup = false;
-		if (!accountsModeRequired || UserAccountRepository.adminHasPassword()) {
-			return null;
-		}
-		UserAccount cached = UserAccountRepository.findByUsername(UserAccount.BUILT_IN_ADMIN);
-		if (cached == null) {
-			return null;
-		}
-		String password = randomPassword();
-		UserAccount admin = cached.copy();
-		admin.setPasswordHash(PasswordHasher.hash(password));
-		admin.setMustChangePassword(true);
-		UserAccountRepository.save(admin, new AuditOrigin(origin.actor(), "temporary admin password"));
-		secretLogger.warn("Single-use admin password: {}  (log in as {} and set a new password)", password,
-		        admin.getUsername());
-		logger./**/warn("accounts mode is active and the admin account had no password: a single-use admin password was written to logs/owlcms.log");
-		AuthAudit.temporaryPasswordGenerated(admin.getUsername());
-		generatedAtStartup = true;
-		return password;
-	}
-
-	/** @return true while the password generated at this startup has not been replaced; drives the login notice */
-	public static boolean isTemporaryAdminPasswordPending() {
-		if (!generatedAtStartup) {
-			return false;
-		}
-		UserAccount admin = UserAccountRepository.findByUsername(UserAccount.BUILT_IN_ADMIN);
-		return admin != null && admin.isMustChangePassword();
+	/**
+	 * @return true while the admin logged in with the control panel token has not set a new password; the
+	 *         change-password page then does not ask for the current password
+	 */
+	public static boolean isControlPanelTokenLogin(Principal principal) {
+		UserAccount account = ownAccount(principal);
+		String token = SameMachineProof.configuredToken();
+		return account != null && account.isBuiltInAdmin() && account.isMustChangePassword() && token != null
+		        && account.hasPassword() && PasswordHasher.verify(token, account.getPasswordHash());
 	}
 
 	/** @return true if the account must change its password before opening any other page */
 	public static boolean mustChangePassword(Principal principal) {
-		if (principal == null || principal.source() != Principal.AuthSource.ACCOUNT) {
-			return false;
-		}
-		UserAccount account = UserAccountRepository.findById(principal.accountId());
+		UserAccount account = ownAccount(principal);
 		return account != null && account.isMustChangePassword();
+	}
+
+	private static UserAccount ownAccount(Principal principal) {
+		if (principal == null || principal.source() != Principal.AuthSource.ACCOUNT) {
+			return null;
+		}
+		return UserAccountRepository.findById(principal.accountId());
+	}
+
+	/**
+	 * The admin logged in with the control panel token sets a new password, without the current one (the token).
+	 * The caller then restarts OWLCMS.
+	 */
+	public static synchronized ChangeResult changeAfterControlPanelToken(Principal principal, String newPassword,
+	        AuditOrigin origin) {
+		if (!isControlPanelTokenLogin(principal)) {
+			return ChangeResult.NO_ACCOUNT;
+		}
+		UserAccount cached = ownAccount(principal);
+		if (!PasswordHasher.isAcceptable(newPassword)) {
+			return ChangeResult.UNACCEPTABLE;
+		}
+		if (PasswordHasher.verify(newPassword, cached.getPasswordHash())) {
+			return ChangeResult.SAME_AS_CURRENT;
+		}
+		UserAccount account = cached.copy();
+		account.setPasswordHash(PasswordHasher.hash(newPassword));
+		account.setMustChangePassword(false);
+		UserAccountRepository.save(account, origin);
+		logger.info("password changed user={} how=control-panel-token", account.getUsername());
+		AuthAudit.passwordChanged(account.getUsername(), "control-panel-token");
+		return ChangeResult.CHANGED;
 	}
 
 	/**
@@ -157,13 +167,5 @@ public final class AccountPasswords {
 		logger.info("passwords cleared by={} accounts={} count={}", actingUser, group, cleared);
 		AuthAudit.passwordsCleared(actingUser, group, cleared);
 		return cleared;
-	}
-
-	static String randomPassword() {
-		StringBuilder password = new StringBuilder(TEMPORARY_LENGTH);
-		for (int i = 0; i < TEMPORARY_LENGTH; i++) {
-			password.append(ALPHABET.charAt(RANDOM.nextInt(ALPHABET.length())));
-		}
-		return password.toString();
 	}
 }

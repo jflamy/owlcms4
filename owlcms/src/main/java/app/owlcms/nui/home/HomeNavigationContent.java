@@ -322,9 +322,10 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 
 	private static final String REPO_OWNER = "jflamy";
 	private static final String REPO_NAME = "owlcms4";
-	private static final String CONTROL_PANEL_VERSION = "controlPanelVersion.txt";
 	private static final String GITHUB_RAW_URL = "https://raw.githubusercontent.com/" + REPO_OWNER + "/" + REPO_NAME + "/master/";
-	private static LocalDateTime cpWarningEmitted = LocalDateTime.MIN;
+	/** The oldest control panel this version of OWLCMS works with: it gives OWLCMS a new token at each launch. */
+	static final String MIN_CONTROL_PANEL_VERSION = "3.10.0";
+	private static final String CONTROL_PANEL_RELEASES = "https://github.com/owlcms/owlcms-controlpanel/releases";
 	private static LocalDateTime motdEmitted = LocalDateTime.MIN;
 	/** Shared: each HttpClient carries its own connection pool and threads, and is never closed. */
 	private static final HttpClient githubClient = HttpClient.newBuilder()
@@ -332,38 +333,25 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	        .build();
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 
-	public static String checkControlPanelVersion(String curVer) {
-		if (LocalDateTime.now().minusHours(1).isBefore(cpWarningEmitted)) {
+	/** @return true if the control panel version is older than the one this version of OWLCMS requires */
+	static boolean isControlPanelTooOld(String curVer) {
+		String current = curVer.strip();
+		if (current.startsWith("v")) {
+			current = current.substring(1);
+		}
+		// prereleases and development builds of the required version are accepted
+		return new ComparableVersion(current).compareTo(new ComparableVersion(MIN_CONTROL_PANEL_VERSION + "-alpha00")) < 0;
+	}
+
+	/** @return the notice to show when the control panel is too old for this version of OWLCMS, else null */
+	public static String checkControlPanelVersion(String curVer, Locale locale) {
+		if (!isControlPanelTooOld(curVer)) {
 			return null;
 		}
-		cpWarningEmitted = LocalDateTime.now();
-		HttpRequest request = HttpRequest.newBuilder()
-		        .uri(URI.create(GITHUB_RAW_URL + CONTROL_PANEL_VERSION))
-		        .timeout(Duration.ofSeconds(2))
-		        .build();
-
-		try {
-			HttpResponse<String> response = githubClient.send(request, HttpResponse.BodyHandlers.ofString());
-			if (response.statusCode() != 200) {
-				throw new IOException(request.uri() + " Unexpected code " + response.statusCode());
-			}
-			String string = response.body().strip();
-
-			// compare the versions using semantic versioning conventions.
-			ComparableVersion currentVersion = new ComparableVersion(curVer);
-			ComparableVersion requiredVersion = new ComparableVersion(string);
-			int comparison = currentVersion.compareTo(requiredVersion);
-			if (comparison < 0) {
-				logger.error("Control panel version is out of date. Current version: {}, required version: {}", curVer, string);
-				return getMotd("controlPanel.html");
-			} else {
-				logger.info("Control panel version is up to date. Current version: {}, required version: {}", curVer, string);
-				return null;
-			}
-		} catch (Exception e) {
-			logger.error("Error fetching control panel version: {} {}", e.getMessage(), request.uri());
-			return null;
-		}
+		logger./**/warn("control panel {} is too old, this version of OWLCMS requires {}", curVer, MIN_CONTROL_PANEL_VERSION);
+		return "<div><b>\u26A0 " + Translator.translate("CheckVersion.ControlPanelRequired", locale,
+		        MIN_CONTROL_PANEL_VERSION, curVer) + "</b> <a href=\"" + CONTROL_PANEL_RELEASES + "\">"
+		        + CONTROL_PANEL_RELEASES + "</a></div>";
 	}
 
 	static boolean localFileTesting = false;
@@ -526,7 +514,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			VersionCheckResult versionResult = checkVersion();
 			String motd = getMotd(this.motdFileName);
 			String controlPanelVersion = this.launcherVersion == null ? null
-			        : checkControlPanelVersion(this.launcherVersion);
+			        : checkControlPanelVersion(this.launcherVersion, locale);
 			if (!ui.isAttached()) {
 				return;
 			}

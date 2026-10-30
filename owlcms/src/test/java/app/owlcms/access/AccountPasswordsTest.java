@@ -3,12 +3,12 @@ package app.owlcms.access;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -39,6 +39,7 @@ public class AccountPasswordsTest {
 
 	@Before
 	public void adminWithoutPassword() {
+		System.clearProperty(SameMachineProof.CONTROL_PANEL_TOKEN);
 		UserAccountRepository.ensureBuiltInAdmin(AuditOrigin.system("test"));
 		UserAccount admin = UserAccountRepository.findByUsername(UserAccount.BUILT_IN_ADMIN).copy();
 		admin.setPasswordHash(null);
@@ -46,49 +47,63 @@ public class AccountPasswordsTest {
 		UserAccountRepository.save(admin, AuditOrigin.system("test"));
 	}
 
-	@Test
-	public void temporaryAdminPasswordOnlyWhenAccountsModeIsRequired() {
-		assertNull(AccountPasswords.generateIfRequired(false, AuditOrigin.system("test")));
-		assertFalse(UserAccountRepository.adminHasPassword());
-		assertFalse(AccountPasswords.isTemporaryAdminPasswordPending());
-
-		String password = AccountPasswords.generateIfRequired(true, AuditOrigin.system("test"));
-		assertNotNull(password);
-		assertEquals(16, password.length());
-		UserAccount admin = UserAccountRepository.findByUsername(UserAccount.BUILT_IN_ADMIN);
-		assertTrue(PasswordHasher.verify(password, admin.getPasswordHash()));
-		assertTrue(admin.isMustChangePassword());
-		assertTrue(AccountPasswords.isTemporaryAdminPasswordPending());
-
-		// a restart before the change does not replace the password the operator may already have read
-		assertNull(AccountPasswords.generateIfRequired(true, AuditOrigin.system("test")));
-		assertTrue(PasswordHasher.verify(password,
-		        UserAccountRepository.findByUsername(UserAccount.BUILT_IN_ADMIN).getPasswordHash()));
-		assertFalse("only the start that generated it shows the notice",
-		        AccountPasswords.isTemporaryAdminPasswordPending());
+	@After
+	public void noToken() {
+		System.clearProperty(SameMachineProof.CONTROL_PANEL_TOKEN);
 	}
 
 	@Test
-	public void forcedChangeIsClearedBySettingANewPassword() {
-		String temporary = AccountPasswords.generateIfRequired(true, AuditOrigin.system("test"));
-		Principal admin = Principal.of(UserAccountRepository.findByUsername(UserAccount.BUILT_IN_ADMIN), null);
-		assertTrue(AccountPasswords.mustChangePassword(admin));
+	public void tokenLoginForcesANewPasswordWithoutTheCurrentOne() {
+		String token = "test-control-panel-token";
+		System.setProperty(SameMachineProof.CONTROL_PANEL_TOKEN, token);
+		UserAccount admin = AccountPasswords.controlPanelTokenLogin(
+		        UserAccountRepository.findByUsername(UserAccount.BUILT_IN_ADMIN), token, AuditOrigin.system("test"));
+		assertTrue(PasswordHasher.verify(token, admin.getPasswordHash()));
+		Principal principal = Principal.of(admin, null);
+		assertTrue(AccountPasswords.mustChangePassword(principal));
+		assertTrue(AccountPasswords.isControlPanelTokenLogin(principal));
 
-		assertEquals(AccountPasswords.ChangeResult.WRONG_CURRENT_PASSWORD,
-		        AccountPasswords.changeOwnPassword(admin, "wrong password", "a new long password", AuditOrigin.system("test")));
 		assertEquals(AccountPasswords.ChangeResult.UNACCEPTABLE,
-		        AccountPasswords.changeOwnPassword(admin, temporary, "short", AuditOrigin.system("test")));
-		assertEquals(AccountPasswords.ChangeResult.SAME_AS_CURRENT,
-		        AccountPasswords.changeOwnPassword(admin, temporary, temporary, AuditOrigin.system("test")));
-		assertTrue(AccountPasswords.mustChangePassword(admin));
+		        AccountPasswords.changeAfterControlPanelToken(principal, "short", AuditOrigin.system("test")));
+		assertEquals("the token cannot stay the password", AccountPasswords.ChangeResult.SAME_AS_CURRENT,
+		        AccountPasswords.changeAfterControlPanelToken(principal, token, AuditOrigin.system("test")));
+		assertEquals(AccountPasswords.ChangeResult.CHANGED, AccountPasswords.changeAfterControlPanelToken(principal,
+		        "a new long password", AuditOrigin.system("test")));
 
-		assertEquals(AccountPasswords.ChangeResult.CHANGED,
-		        AccountPasswords.changeOwnPassword(admin, temporary, "a new long password", AuditOrigin.system("test")));
 		UserAccount changed = UserAccountRepository.findByUsername(UserAccount.BUILT_IN_ADMIN);
 		assertTrue(PasswordHasher.verify("a new long password", changed.getPasswordHash()));
 		assertFalse(changed.isMustChangePassword());
-		assertFalse(AccountPasswords.mustChangePassword(admin));
-		assertFalse(AccountPasswords.isTemporaryAdminPasswordPending());
+		assertFalse(AccountPasswords.isControlPanelTokenLogin(principal));
+		assertEquals("only once per token login", AccountPasswords.ChangeResult.NO_ACCOUNT,
+		        AccountPasswords.changeAfterControlPanelToken(principal, "another long password",
+		                AuditOrigin.system("test")));
+	}
+
+	@Test
+	public void anOrdinaryForcedChangeStillNeedsTheCurrentPassword() {
+		System.setProperty(SameMachineProof.CONTROL_PANEL_TOKEN, "test-control-panel-token");
+		UserAccount flagged = account("forced-user", "given password", true, new RoleGrant(Role.JURY, "A"));
+		Principal principal = Principal.of(flagged, null);
+		assertTrue(AccountPasswords.mustChangePassword(principal));
+		assertFalse(AccountPasswords.isControlPanelTokenLogin(principal));
+		assertEquals(AccountPasswords.ChangeResult.NO_ACCOUNT, AccountPasswords.changeAfterControlPanelToken(
+		        principal, "a new long password", AuditOrigin.system("test")));
+
+		assertEquals(AccountPasswords.ChangeResult.WRONG_CURRENT_PASSWORD, AccountPasswords
+		        .changeOwnPassword(principal, "wrong password", "a new long password", AuditOrigin.system("test")));
+		assertEquals(AccountPasswords.ChangeResult.SAME_AS_CURRENT, AccountPasswords.changeOwnPassword(principal,
+		        "given password", "given password", AuditOrigin.system("test")));
+		assertEquals(AccountPasswords.ChangeResult.CHANGED, AccountPasswords.changeOwnPassword(principal,
+		        "given password", "a new long password", AuditOrigin.system("test")));
+		assertFalse(AccountPasswords.mustChangePassword(principal));
+	}
+
+	@Test
+	public void withoutAConfiguredTokenThereIsNoTokenSession() {
+		String token = "test-control-panel-token";
+		UserAccount admin = AccountPasswords.controlPanelTokenLogin(
+		        UserAccountRepository.findByUsername(UserAccount.BUILT_IN_ADMIN), token, AuditOrigin.system("test"));
+		assertFalse(AccountPasswords.isControlPanelTokenLogin(Principal.of(admin, null)));
 	}
 
 	@Test

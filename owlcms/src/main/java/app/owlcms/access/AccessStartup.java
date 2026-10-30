@@ -32,13 +32,8 @@ public final class AccessStartup {
 	public static void run() {
 		AuditOrigin origin = AuditOrigin.system("startup");
 		UserAccountRepository.ensureBuiltInAdmin(origin);
-		if (AdminRecovery.isOn()) {
-			// the password is set on the recovery page; no single-use password, no role accounts
-			return;
-		}
 		Config config = Config.getCurrent();
 		if (!config.isAccountsMode()) {
-			AccountPasswords.ensureAdminPassword(false, origin);
 			return;
 		}
 		if (StartupUtils.getStringParam("pin") != null) {
@@ -52,7 +47,9 @@ public final class AccessStartup {
 				logger.info("the PIN mode choice is ignored because iwfCompliance requires accounts mode");
 			}
 		}
-		AccountPasswords.ensureAdminPassword(true, origin);
+		if (!UserAccountRepository.adminHasPassword() && SameMachineProof.configuredToken() == null) {
+			logger./**/warn("the admin account has no password and OWLCMS was started without OWLCMS_CONTROLPANELTOKEN: nobody can log in as admin");
+		}
 	}
 
 	/** @param origin captured by the caller, on its own thread, and passed to the background work */
