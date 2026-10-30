@@ -57,7 +57,6 @@ import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.router.Location;
-import com.vaadin.flow.router.RouterLink;
 
 import app.owlcms.components.fields.OwlcmsPasswordField;
 import app.owlcms.data.athlete.Gender;
@@ -154,7 +153,6 @@ public class ConfigEditingFormFactory
 
 		this.binder = buildBinder(operation, config);
 
-		FormLayout accessLayout = accessForm();
 		FormLayout paperLayout = paperSizeForm();
 		FormLayout tzLayout = tzForm();
 		FormLayout languageLayout = presentationForm();
@@ -186,9 +184,6 @@ public class ConfigEditingFormFactory
 		                new Div(),
 		                forwardingConnectionsLayout, separator(),
 		                mqttLayout, separator()));
-		tabSheet.add(Translator.translate("Config.AccessControlTab"),
-		        new VerticalLayout(
-		                new Div(), accessLayout));
 		tabSheet.add(Translator.translate("Config.FeaturesTab"), new VerticalLayout(new Div(), featuresLayout));
 		tabSheet.add(Translator.translate("Config.CustomizationTab"),
 		        new VerticalLayout(new Div(),
@@ -308,63 +303,6 @@ public class ConfigEditingFormFactory
 	protected void bindField(HasValue field, String property, Class<?> propertyType, CrudFormConfiguration c) {
 		this.binder.forField(field);
 		super.bindField(field, property, propertyType, c);
-	}
-
-	private FormLayout accessForm() {
-		FormLayout configLayout = createLayout();
-		Component title = createTitle("Config.AccessControlTitle");
-		configLayout.add(title);
-		configLayout.setColspan(title, 2);
-
-		// the access mode is set in the Security section of the Administration page
-		boolean accounts = Config.getCurrent().isAccountsMode();
-		RouterLink accountsLink = new RouterLink(Translator.translate("Access.Accounts.Title"),
-		        AccountsContent.class);
-		Span pinIgnored = new Span(Translator.translate("Access.Mode.PinIgnored"));
-		pinIgnored.getStyle().set("color", "var(--lumo-secondary-text-color)");
-		Div accountsNote = new Div(accountsLink, new Div(pinIgnored));
-		configLayout.add(accountsNote);
-		configLayout.setColspan(accountsNote, 2);
-
-		PasswordField passwordField = new OwlcmsPasswordField();
-		passwordField.setWidthFull();
-		configLayout.addFormItem(passwordField, Translator.translate("Config.PasswordOrPIN"));
-		this.binder.forField(passwordField)
-		        .withNullRepresentation("")
-		        .bind(Config::getPinForField, Config::setPinForField);
-
-		// configLayout.addFormItem(new Html("<br/>"), "");
-
-		TextField accessListField = new TextField();
-		accessListField.setWidthFull();
-		configLayout.addFormItem(accessListField, Translator.translate("Config.AccessList"));
-		this.binder.forField(accessListField)
-		        .withNullRepresentation("")
-		        .bind(Config::getIpAccessList, Config::setIpAccessList);
-
-		PasswordField displayPasswordField = new OwlcmsPasswordField();
-		displayPasswordField.setWidthFull();
-		configLayout.addFormItem(displayPasswordField, Translator.translate("Config.DisplayPIN"));
-		this.binder.forField(displayPasswordField)
-		        .withNullRepresentation("")
-		        .bind(Config::getDisplayPinForField, Config::setDisplayPinForField);
-
-		// configLayout.addFormItem(new Html("<br/>"), "");
-
-		TextField displayListField = new TextField();
-		displayListField.setWidthFull();
-		configLayout.addFormItem(displayListField, Translator.translate("Config.DisplayAccessList"));
-		this.binder.forField(displayListField)
-		        .withNullRepresentation("")
-		        .bind(Config::getIpDisplayList, Config::setIpDisplayList);
-
-		// the stored values are kept, so that switching back to PIN mode finds them again
-		passwordField.setEnabled(!accounts);
-		displayPasswordField.setEnabled(!accounts);
-		displayListField.setEnabled(!accounts);
-		pinIgnored.setVisible(accounts);
-
-		return configLayout;
 	}
 
 	private FormLayout createLayout() {

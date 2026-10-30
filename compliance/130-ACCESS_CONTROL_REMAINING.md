@@ -35,13 +35,8 @@ Keep the marshal Pause button and the existing announcer/timekeeper controls.
 | `/local/*` | Verify directory/classpath confinement, decoding, traversal and symlinks; exclude sensitive files |
 | MQTT broker and `/mqtt` | Done: client password no longer logged; OWLCMS's own broker connection uses a random secret (not the startup time), compared in constant time |
 | Vaadin dynamic downloads/uploads | Verify resource creation and use require the appropriate page permission |
-| Forwarded client IP | Trust headers only through a configured trusted proxy; never trust a caller-supplied localhost/backdoor claim |
+| Forwarded client IP | Decided: no trusted-proxy work. The officials and display address lists are PIN mode only and keep reading `X-Forwarded-For` (weak, accepted). Accounts mode does not depend on the client address (login throttling and logs only); security needs accounts. |
 | CorsFilter | Review credentialed cross-origin cookies and `SameSite=None` with named accounts |
-
-IP resolution must use the socket peer unless that peer is explicitly trusted.
-For a trusted proxy use its configured header convention, reject malformed
-chains and prevent direct backend access around it. A loopback proxy does not
-make its external callers localhost. Do not infer trust from a private address.
 
 ## Locality: the control panel token
 
@@ -197,8 +192,11 @@ with server access:
 - Done: the side-menu entry is shown to any session allowed to open the admin page,
   in PIN mode too (the PIN mode switch to accounts is on that page).
 - Done: the PIN-mode address check (`AdminView.hasLocalAccess`) and the backdoor list
-  are removed; the Administration and audit check pages exist only when OWLCMS has a
-  control panel token ([PIN mode](#pin-mode)).
+  are removed ([PIN mode](#pin-mode)).
+- The Administration page has two tabs: System (stop, restart, backup, simulation) and
+  Security and Audit (access mode, IWF check, the PIN-mode access settings moved from
+  System Settings, audit key and audit check). Without a control panel token it is
+  still shown; the actions that need the token are disabled and say why.
 - Tokens do not reach these pages: they are not `@TokenAccessible`.
 
 ## Database import
@@ -243,7 +241,7 @@ missing from an older export takes its default (PIN mode, check off).
 ## PIN mode
 
 Agreed 2026-10-30. PIN mode protects a cloud installation from random visitors; it is a
-weak check by design. Done: everything below except "Remember this browser".
+weak check by design. Done.
 
 - The officials PIN opens the Home page and gives every permission ("PIN mode stays
   naked"). The address check on the admin pages (`AdminView.hasLocalAccess`) and the
@@ -251,10 +249,20 @@ weak check by design. Done: everything below except "Remember this browser".
   keep the control panel token. `OWLCMS_PIN`, `OWLCMS_DISPLAYPIN`, `OWLCMS_IP` and
   `OWLCMS_DISPLAYLIST` are kept: only the operator sets them, and existing cloud apps use
   them.
-- The Administration page is hidden when OWLCMS has no control panel token.
-- To do: "Remember this browser" for the officials and display PINs: a long-lived
-  HttpOnly cookie, a keyed hash of the current PIN and an expiry; changing the PIN
-  forgets every browser, and a button forgets them all.
+- Without a control panel token (a cloud app without the secret) the Administration
+  page is still shown, so the PINs can be changed; only the actions that need the token
+  are disabled.
+- "Remember this browser" on the officials and display PIN logins (`RememberedBrowser`):
+  an HttpOnly cookie valid 30 days, holding an expiry and an HMAC of the current PIN
+  hash, keyed with a secret stored in the settings and never exported (an export also
+  holds the PIN hashes). The PIN arrives over the push connection, so the login page
+  exchanges a one-time ticket at `/remember`, whose HTTP response sets the cookie.
+  Saving the PIN, even unchanged, forgets every browser (a new salt makes a new hash).
+  Officials: unchecked by default; displays: checked.
+- A Logout entry for PIN sessions ends the session and shows the login page. A
+  remembered browser stays remembered: the login page shows the box checked, Login
+  with no PIN lets it in, and any other page lets it in directly. Unchecking the box
+  on the login page forgets the browser at once, without the PIN.
 - The officials PIN login also accepts the control panel token (constant time, throttled,
   audited `how=control-panel-token`), so a forgotten PIN can be replaced in System
   Settings; a notice says where. A token login is never remembered. The officials and

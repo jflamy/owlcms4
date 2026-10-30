@@ -22,14 +22,12 @@ public class AccountAuthenticatorTest {
 	private UserAccount noPassword;
 	private UserAccount disabled;
 	private UserAccount admin;
-	private boolean ipAllowed;
 	private String configuredToken;
 	private AccountAuthenticator authenticator;
 
 	@Before
 	public void setUp() {
 		this.throttle = new LoginThrottle(this.now::get);
-		this.ipAllowed = true;
 		this.configuredToken = TOKEN;
 		this.bob = account("bob", "correct horse", true);
 		this.noPassword = account("nopass", null, true);
@@ -38,7 +36,7 @@ public class AccountAuthenticatorTest {
 		Map<String, UserAccount> accounts = Map.of("bob", this.bob, "nopass", this.noPassword, "gone", this.disabled,
 		        UserAccount.BUILT_IN_ADMIN, this.admin);
 		this.authenticator = new AccountAuthenticator(
-		        name -> accounts.get(UserAccount.normalizeUsername(name)), this.throttle, ip -> this.ipAllowed,
+		        name -> accounts.get(UserAccount.normalizeUsername(name)), this.throttle,
 		        () -> this.configuredToken);
 	}
 
@@ -66,13 +64,6 @@ public class AccountAuthenticatorTest {
 		assertTrue(this.authenticator.authenticate("nopass", "", IP) instanceof Result.Failure);
 		assertTrue(this.authenticator.authenticate("gone", "correct horse", IP) instanceof Result.Failure);
 		assertTrue(this.authenticator.authenticate(null, null, IP) instanceof Result.Failure);
-	}
-
-	@Test
-	public void addressOutsideTheOfficialsListIsRefusedBeforeAnythingElse() {
-		this.ipAllowed = false;
-		assertTrue(this.authenticator.authenticate("bob", "correct horse", IP) instanceof Result.IpRefused);
-		assertEquals(0, this.throttle.blockedSeconds("bob", IP));
 	}
 
 	@Test

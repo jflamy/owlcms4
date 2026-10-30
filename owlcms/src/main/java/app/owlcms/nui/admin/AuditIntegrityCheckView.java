@@ -23,8 +23,6 @@ import com.vaadin.flow.component.html.Pre;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
@@ -45,7 +43,7 @@ import ch.qos.logback.classic.Logger;
 @RequiresRole(Role.ADMIN_PAGES)
 @Route(value = "admin/audit/check", layout = OwlcmsLayout.class)
 public class AuditIntegrityCheckView extends Composite<VerticalLayout>
-		implements BeforeEnterObserver, HasDynamicTitle {
+		implements HasDynamicTitle {
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(AuditIntegrityCheckView.class);
 	/** One check at a time for the whole server: reading and verifying large logs is I/O and CPU bound. */
 	private static final Semaphore RUNNING = new Semaphore(1);
@@ -166,12 +164,6 @@ public class AuditIntegrityCheckView extends Composite<VerticalLayout>
 		Pre pre = new Pre(text);
 		pre.getStyle().set("white-space", "pre-wrap");
 		return pre;
-	}
-
-	@Override
-	public void beforeEnter(BeforeEnterEvent event) {
-		// hidden without a control panel token; with one, each check needs the cp challenge
-		AdminView.checkAdminAccess();
 	}
 
 	@Override

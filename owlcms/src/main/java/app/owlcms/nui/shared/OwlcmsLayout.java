@@ -46,6 +46,7 @@ import app.owlcms.access.AccountModeAuthenticator;
 import app.owlcms.access.AccountPasswords;
 import app.owlcms.access.Principal;
 import app.owlcms.access.SessionLogout;
+import app.owlcms.audit.AuthAudit;
 import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -299,7 +300,7 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 		addToDrawer(this.drawerTabs);
 	}
 
-	/** Only account sessions can log out; a PIN session has nothing to forget. */
+	/** Account sessions, and PIN sessions that entered a PIN, can log out. */
 	private Tab createLogoutEntry() {
 		Icon icon = new Icon(VaadinIcon.SIGN_OUT);
 		icon.getStyle().set("box-sizing", "border-box")
@@ -322,15 +323,24 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 			return;
 		}
 		Principal principal = OwlcmsSession.getPrincipal();
-		this.logoutEntry.setVisible(Config.getCurrent().isAccountsMode() && principal != null
-		        && principal.source() == Principal.AuthSource.ACCOUNT);
+		Principal.AuthSource source = principal != null ? principal.source() : null;
+		boolean accountsMode = Config.getCurrent().isAccountsMode();
+		this.logoutEntry.setVisible(accountsMode ? source == Principal.AuthSource.ACCOUNT
+		        : source == Principal.AuthSource.OFFICIALS_PIN || source == Principal.AuthSource.DISPLAY_PIN);
 	}
 
 	private void logout() {
 		UI ui = UI.getCurrent();
 		Principal principal = OwlcmsSession.getPrincipal();
-		if (principal != null) {
+		if (principal != null && principal.source() == Principal.AuthSource.ACCOUNT) {
 			AccountModeAuthenticator.logout(principal, "user logout");
+		} else {
+			// ends the session only: a remembered browser stays remembered
+			AuthAudit.loggedOut("PIN", "-", "user logout", null);
+			// these live in the HTTP session, which closing the Vaadin session keeps
+			OwlcmsSession.setPrincipal(null);
+			OwlcmsSession.setAuthenticated(false);
+			OwlcmsSession.setDisplayAuthenticated(false);
 		}
 		SessionLogout.redirectAllAndInvalidate(ui.getSession());
 	}

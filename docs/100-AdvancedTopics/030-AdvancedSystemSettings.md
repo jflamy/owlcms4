@@ -26,7 +26,7 @@ This section is used if you wish to add protection to the OWLCMS server.  It is 
 
 ### Access Control
 
-This section controls who can access the system.
+This section controls who can access the system. It is on the Administration page, in the Security and Audit tab.
 
 ![10](img/030-AdvancedSystemSettings/10.png)
 
@@ -35,6 +35,7 @@ The settings are as follows.  In actual practice only the first (Password for Of
 - **Password for Officials**  When doing streaming, it is possible that you want to prevent the people running the video from accessing the technical official's consoles. A password will be required for the various technical official screens
 - **Authorized IP addresses for Officials** For the same reason, you may want to instead (or in addition to password) use whitelisting.  Technical officials will be required to come from this network.  If running in the cloud but from a gym, this would be the public IP address shown by https://ip4.me/.
 - **IP Addresses Authorized to Access Displays** and **Password for Displays**.  You may want to authorize a video production company to see your displays, likely without setting a password.  The screen password setting is there for symmetry and is unlikely to be used.
+- **Remember this browser**  The login page offers to remember the browser after a correct password, for 30 days or until the password changes, so that dedicated laptops and display screens need not enter it again.
 
 
 ### Features

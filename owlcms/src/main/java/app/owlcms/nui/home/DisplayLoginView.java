@@ -13,6 +13,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.access.RememberedBrowser;
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.apputils.AccessUtils.PinCheck;
 import app.owlcms.data.config.Config;
@@ -47,6 +48,17 @@ public class DisplayLoginView extends LoginView implements BeforeEnterObserver {
 	@Override
 	protected PinCheck checkPin(String value) {
 		return AccessUtils.checkDisplayPin(value);
+	}
+
+	@Override
+	protected RememberedBrowser.Kind rememberKind() {
+		return RememberedBrowser.Kind.DISPLAY;
+	}
+
+	/** Displays are usually dedicated screens. */
+	@Override
+	protected boolean rememberByDefault() {
+		return true;
 	}
 
 	@Override

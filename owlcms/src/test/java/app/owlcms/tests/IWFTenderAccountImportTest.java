@@ -105,7 +105,7 @@ public class IWFTenderAccountImportTest {
 
 	private static Principal login(String username) {
 		AccountAuthenticator authenticator = new AccountAuthenticator(UserAccountRepository::findByUsername,
-		        new LoginThrottle(System::currentTimeMillis), ip -> true, () -> null);
+		        new LoginThrottle(System::currentTimeMillis), () -> null);
 		AccountAuthenticator.Result result = authenticator.authenticate(username, username, "127.0.0.1");
 		assertTrue(username + " must authenticate", result instanceof AccountAuthenticator.Result.Success);
 		return Principal.of(((AccountAuthenticator.Result.Success) result).account(), null);

@@ -175,6 +175,9 @@ public class Config {
 	private Locale defaultLocale = null;
 	private String pin;
 	private String displayPin;
+	/** Keys the "remember this browser" cookies; never exported, since an export also holds the PIN hashes. */
+	@JsonIgnore
+	private String rememberSecret;
 	private String ipAccessList;
 	private String ipDisplayList;
 	@Enumerated(EnumType.STRING)
@@ -633,6 +636,16 @@ public class Config {
 
 	public String getDisplayPin() {
 		return this.displayPin;
+	}
+
+	@JsonIgnore
+	public String getRememberSecret() {
+		return this.rememberSecret;
+	}
+
+	@JsonIgnore
+	public void setRememberSecret(String rememberSecret) {
+		this.rememberSecret = rememberSecret;
 	}
 
 	@JsonIgnore

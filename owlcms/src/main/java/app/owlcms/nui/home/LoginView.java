@@ -14,6 +14,7 @@ import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Image;
@@ -28,6 +29,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.Autocomplete;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
@@ -37,8 +39,10 @@ import app.owlcms.access.AccountLandingPolicy;
 import app.owlcms.access.AccessPolicy;
 import app.owlcms.access.LoginThrottle;
 import app.owlcms.access.PageRule;
+import app.owlcms.access.PinModeAuthenticator;
 import app.owlcms.access.Principal;
 import app.owlcms.access.PublicPage;
+import app.owlcms.access.RememberedBrowser;
 import app.owlcms.access.SameMachineProof;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinRequest;
@@ -99,6 +103,9 @@ public class LoginView extends Composite<VerticalLayout>
 	public static final String LOGIN = "login";
 	static Logger logger = (Logger) LoggerFactory.getLogger(LoginView.class);
 	private PasswordField pinField = new OwlcmsPasswordField();
+	private Checkbox rememberBrowser = new Checkbox();
+	/** Read when the page opens, from the HTTP request that carries the cookies. */
+	private boolean remembered;
 	private TextField usernameField = new TextField();
 	private PasswordField passwordField = new OwlcmsPasswordField();
 	private Span errorMessage = new Span();
@@ -126,42 +133,66 @@ public class LoginView extends Composite<VerticalLayout>
 		this.pinField.setAutofocus(true);
 		this.pinField.setLabel(Translator.translate("EnterPin"));
 		this.pinField.setWidthFull();
-		this.pinField.addValueChangeListener(event -> {
-			PinCheck check = checkPin(event.getValue());
-			if (check.blockedSeconds() > 0) {
-				this.pinField.setErrorMessage(
-				        Translator.translate("Access.TooManyAttempts") + " (" + check.blockedSeconds() + " s)");
-				this.pinField.setInvalid(true);
-			} else if (!check.accepted()) {
-				AuthAudit.loginFailed("PIN", "-", loginKind());
-				this.pinField.setErrorMessage(Translator.translate("LoginDenied"));
-				this.pinField.setInvalid(true);
-			} else {
-				Principal principal = authenticatedPrincipal();
-				AuthAudit.loginSucceeded("PIN", "-", check.controlPanelToken() ? "control-panel-token" : loginKind(),
-				        loginAuditPlatforms(principal));
-				this.pinField.setInvalid(false);
-				if (check.controlPanelToken()) {
-					showPinTokenNotice();
-				}
-				redirect();
-			}
-		});
+		// submitted by the button or Enter only, so that clicking "remember this browser" does not submit
+		this.pinField.setValueChangeMode(ValueChangeMode.EAGER);
 
 		H3 h3 = createTitle();
 
-		Button button = new Button(Translator.translate("Login"));
+		Button button = new Button(Translator.translate("Login"), e -> submitPin());
 		button.addClickShortcut(Key.ENTER);
 		button.setWidth("10em");
 		button.getThemeNames().add("primary");
 		button.getThemeNames().add("icon");
 
+		this.remembered = PinModeAuthenticator.isRemembered(rememberKind());
+		this.rememberBrowser.setLabel(Translator.translate("Access.Login.RememberBrowser"));
+		this.rememberBrowser.setValue(this.remembered || rememberByDefault());
+		// unchecking forgets the browser at once: removing access needs no PIN
+		this.rememberBrowser.addValueChangeListener(e -> {
+			if (e.isFromClient() && !e.getValue() && this.remembered) {
+				forgetThisBrowser();
+				this.remembered = false;
+			}
+		});
+
 		VerticalLayout form = new VerticalLayout();
-		form.add(h3, this.pinField, button);
+		form.add(h3, this.pinField, this.rememberBrowser, button);
 		form.setWidth("20em");
 		form.setAlignSelf(Alignment.CENTER, button);
 
 		getContent().add(form);
+	}
+
+	private void submitPin() {
+		String pin = this.pinField.getValue();
+		if ((pin == null || pin.isBlank()) && this.remembered && this.rememberBrowser.getValue()) {
+			Principal principal = PinModeAuthenticator.loginRemembered(rememberKind());
+			if (principal != null) {
+				redirect();
+				return;
+			}
+		}
+		PinCheck check = checkPin(pin);
+		if (check.blockedSeconds() > 0) {
+			this.pinField.setErrorMessage(
+			        Translator.translate("Access.TooManyAttempts") + " (" + check.blockedSeconds() + " s)");
+			this.pinField.setInvalid(true);
+		} else if (!check.accepted()) {
+			AuthAudit.loginFailed("PIN", "-", loginKind());
+			this.pinField.setErrorMessage(Translator.translate("LoginDenied"));
+			this.pinField.setInvalid(true);
+		} else {
+			Principal principal = authenticatedPrincipal();
+			AuthAudit.loginSucceeded("PIN", "-", check.controlPanelToken() ? "control-panel-token" : loginKind(),
+			        loginAuditPlatforms(principal));
+			this.pinField.setInvalid(false);
+			if (check.controlPanelToken()) {
+				showPinTokenNotice();
+			} else if (this.rememberBrowser.getValue()) {
+				rememberThisBrowser();
+			}
+			redirect();
+		}
 	}
 
 	private void buildAccountsForm() {
@@ -203,7 +234,7 @@ public class LoginView extends Composite<VerticalLayout>
 		String username = this.usernameField.getValue();
 		String clientIp = AccessUtils.getClientIp();
 		AccountAuthenticator authenticator = new AccountAuthenticator(UserAccountRepository::findByUsername,
-		        LoginThrottle.shared(), AccessUtils::ipIsAllowedForOfficials, SameMachineProof::configuredToken);
+		        LoginThrottle.shared(), SameMachineProof::configuredToken);
 		String password = this.passwordField.getValue();
 		AccountAuthenticator.Result result = authenticator.authenticate(username, password, clientIp);
 		this.passwordField.clear();
@@ -220,10 +251,6 @@ public class LoginView extends Composite<VerticalLayout>
 			}
 			case AccountAuthenticator.Result.Throttled throttled ->
 			    showError(Translator.translate("Access.TooManyAttempts") + " (" + throttled.seconds() + " s)");
-			case AccountAuthenticator.Result.IpRefused _ -> {
-				AuthAudit.loginFailed("ACCOUNTS", username, "address not allowed");
-				showError(Translator.translate("Access.LoginFailed"));
-			}
 			case AccountAuthenticator.Result.Failure _ -> {
 				AuthAudit.loginFailed("ACCOUNTS", username, "invalid credentials");
 				showError(Translator.translate("Access.LoginFailed"));
@@ -375,10 +402,37 @@ public class LoginView extends Composite<VerticalLayout>
 		return AccessUtils.checkOfficialsPin(value);
 	}
 
+	/** Which PIN this page checks, for "remember this browser". */
+	protected RememberedBrowser.Kind rememberKind() {
+		return RememberedBrowser.Kind.OFFICIALS;
+	}
+
+	/** Officials often use shared laptops: not remembered unless asked. */
+	protected boolean rememberByDefault() {
+		return false;
+	}
+
+	/**
+	 * The PIN arrived over the push connection, which cannot set a cookie: the browser exchanges a one-time ticket at
+	 * {@code /remember}, whose response sets it. keepalive lets the request finish during the redirect.
+	 */
+	/** The box was unchecked on a remembered browser: the browser forgets this PIN. keepalive survives a redirect. */
+	private void forgetThisBrowser() {
+		UI.getCurrent().getPage().executeJs(
+		        "fetch('remember', {method: 'DELETE', body: $0, credentials: 'same-origin', keepalive: true})",
+		        rememberKind().name());
+	}
+
+	private void rememberThisBrowser() {
+		String ticket = RememberedBrowser.issueTicket(rememberKind(), System.currentTimeMillis());
+		UI.getCurrent().getPage().executeJs(
+		        "fetch('remember', {method: 'POST', body: $0, credentials: 'same-origin', keepalive: true})", ticket);
+	}
+
 	/** After a login with the control panel token: where to set a new officials PIN. */
 	private static void showPinTokenNotice() {
 		Notification notification = new Notification(Translator.translate("Access.Login.PinTokenNotice",
-		        Translator.translate("PrepareCompetition"), Translator.translate("Config.Title")));
+		        Translator.translate("Admin.Title"), Translator.translate("Admin.SecurityAndAudit")));
 		notification.setDuration(15000);
 		notification.setPosition(Notification.Position.TOP_CENTER);
 		notification.open();

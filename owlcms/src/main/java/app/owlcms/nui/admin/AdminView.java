@@ -1,18 +1,18 @@
 package app.owlcms.nui.admin;
 
 import com.github.appreciated.layout.FlexibleGridLayout;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.markdown.Markdown;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.AccessDeniedException;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
@@ -42,57 +42,65 @@ import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.utils.RestartUtils;
 
-/** Administration: stopping and restarting OWLCMS, backup, security settings, audit trail and simulation. */
+/** Administration: system (stop, restart, backup, simulation), security settings, audit trail. */
 @SuppressWarnings("serial")
 @RequiresRole(Role.ADMIN_PAGES)
 @Route(value = "admin", layout = OwlcmsLayout.class)
-public class AdminView extends BaseNavigationContent implements NavigationPage, HasDynamicTitle, BeforeEnterObserver {
+public class AdminView extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
-	@Override
-	public void beforeEnter(BeforeEnterEvent event) {
-		checkAdminAccess();
+	/** Shown to the sessions that can open the page. */
+	public static boolean isMenuEntryAvailable() {
+		return AccessUi.canOpen(AdminView.class, null);
 	}
 
 	/**
-	 * The Administration and audit check pages exist only when OWLCMS has a control panel token: their dangerous
-	 * actions need it, so without one (a cloud app without the secret) the pages are hidden. The route roles apply as
-	 * usual; in PIN mode the officials PIN gives them.
+	 * Two tabs: System (with testing), Security and Audit. Without a control panel token (a cloud app without the
+	 * secret), the actions that need it are disabled and say why; the others work.
 	 */
-	public static void checkAdminAccess() {
-		if (SameMachineProof.configuredToken() == null) {
-			throw new AccessDeniedException();
-		}
-	}
-
-	/** Shown to the sessions that can open the page, when OWLCMS has a control panel token. */
-	public static boolean isMenuEntryAvailable() {
-		return SameMachineProof.configuredToken() != null && AccessUi.canOpen(AdminView.class, null);
-	}
-
 	public AdminView() {
+		boolean token = SameMachineProof.configuredToken() != null;
 		Button stop = new Button(Translator.translate("Admin.Stop"), VaadinIcon.STOP.create(),
 		        event -> confirmStop());
 		Button restart = new Button(Translator.translate("Admin.Restart"), VaadinIcon.REFRESH.create(),
 		        event -> confirmRestart());
 		Button backup = openInNewTabNoParam(BackupView.class, Translator.translate("Backup.Title"),
 		        VaadinIcon.DOWNLOAD.create());
+		Button simulation = openInNewTabNoParam(SimulationView.class, Translator.translate("Simulation.Title"));
 
 		Button auditKey = new Button(Translator.translate("AuditIntegrity.PrepareTitle"), VaadinIcon.KEY.create(),
 		        event -> AuditKeyDialog.open(UI.getCurrent(),
 		                AuditActor.capture(this).atStation("ADMIN", null, false)));
 		Button auditCheck = openInNewTabNoParam(AuditIntegrityCheckView.class,
 		        Translator.translate("AuditIntegrity.CheckTitle"), VaadinIcon.CHECK_SQUARE_O.create());
+		auditKey.setEnabled(token);
+		auditCheck.setEnabled(token);
 
-		Button simulation = openInNewTabNoParam(SimulationView.class, Translator.translate("Simulation.Title"));
+		VerticalLayout systemTab = tab(HomeNavigationContent.navigationGrid(stop, restart, backup),
+		        heading("Admin.Testing"), HomeNavigationContent.navigationGrid(simulation));
+		VerticalLayout securityTab = tab(heading("Config.AccessControlTitle"), securityStatus(), securityControls(token),
+		        new AccessControlForm(),
+		        heading("Admin.AuditTrail"), HomeNavigationContent.navigationGrid(auditKey, auditCheck));
+		if (!token) {
+			securityTab.add(helperText("Access.ControlPanelTokenNotSet"));
+		}
 
-		FlexibleGridLayout system = HomeNavigationContent.navigationGrid(stop, restart, backup);
-		FlexibleGridLayout audit = HomeNavigationContent.navigationGrid(auditKey, auditCheck);
-		FlexibleGridLayout testing = HomeNavigationContent.navigationGrid(simulation);
+		TabSheet tabs = new TabSheet();
+		tabs.add(Translator.translate("Admin.System"), systemTab);
+		tabs.add(Translator.translate("Admin.SecurityAndAudit"), securityTab);
+		tabs.setWidthFull();
+		add(tabs);
+	}
 
-		doGroup(Translator.translate("Admin.System"), system, this);
-		doGroup(Translator.translate("Admin.Security"), securityStatus(), securityControls(), this);
-		doGroup(Translator.translate("Admin.AuditTrail"), audit, this);
-		doGroup(Translator.translate("Admin.Testing"), testing, this);
+	private static VerticalLayout tab(Component... content) {
+		VerticalLayout layout = new VerticalLayout(content);
+		layout.setPadding(false);
+		return layout;
+	}
+
+	private static H4 heading(String key) {
+		H4 heading = new H4(Translator.translate(key));
+		heading.getStyle().set("margin", "var(--lumo-space-m) 0 0 0");
+		return heading;
 	}
 
 	/** The access mode in force. */
@@ -108,12 +116,15 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 		return status;
 	}
 
-	private FlexibleGridLayout securityControls() {
+	/** @param token false when OWLCMS has no control panel token: the access mode cannot be switched */
+	private FlexibleGridLayout securityControls(boolean token) {
 		Config config = Config.getCurrent();
 		AccessMode target = config.getParamAccessMode() == AccessMode.ACCOUNTS ? AccessMode.PIN : AccessMode.ACCOUNTS;
 		Button accessMode = new Button(Translator.translate(accessModeLabel(target)), VaadinIcon.USERS.create(),
 		        event -> confirmAccessMode(target));
-		return HomeNavigationContent.navigationGrid(securityAction(accessMode, accessModeLabel(target) + "Help"),
+		accessMode.setEnabled(token);
+		return HomeNavigationContent.navigationGrid(
+		        securityAction(accessMode, token ? accessModeLabel(target) + "Help" : "Access.ControlPanelTokenNotSet"),
 		        iwfComplianceCheck());
 	}
 

@@ -71,6 +71,12 @@ public final class AuthAudit {
 		        "missing", notMet.isEmpty() ? "-" : String.join(" ", notMet)));
 	}
 
+	/** A browser was given a "remember this browser" cookie after a correct PIN. */
+	public static void browserRemembered(String clientIp, String kind) {
+		AuditLog.write(AuditEntry.builder(COMPETITION, "auth.browser-remembered").actor(AuditActor.http(clientIp))
+		        .detail(AuditFormat.kvs("pin", kind)).build());
+	}
+
 	/**
 	 * A token presented on a non-interactive request was refused. Never pass the token itself.
 	 *

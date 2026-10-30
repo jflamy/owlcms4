@@ -11,14 +11,18 @@
 **Development log**
 
 - 69.0.0-beta02: New Security section on the Administration page.
-  - Switching the access mode from PIN to Account logins/tokens asks for the control panel token.
+  - Switching the access mode between Simple Access (shared passwords) and User Accounts asks for the control panel token. Simple Access is the new name of PIN mode.
   - "Check IWF compliance" lists the IWF requirements met or not
   - Database exports include the access mode; an import restores the exported settings as they are.
   - `OWLCMS_ACCESSMODE` is no longer read: the access mode is set only on the Administration page or by an import.
-- 69.0.0-beta02: PIN mode
-  - The control panel token is accepted as the officials PIN, so a forgotten PIN can be replaced in the settings.
-  - The officials PIN, display PIN and MQTT password are stored as PBKDF2 hashes; older values are converted the next time they are entered. PIN logins are throttled.
-  - The backdoor address list (`OWLCMS_BACKDOOR`) is removed. The Administration page no longer depends on the browser's address; it is shown only when OWLCMS was started by the control panel.
+- 69.0.0-beta02: Simple Access mode (formerly PIN mode)
+  - The control panel token is accepted as the officials password, so a forgotten password can be replaced on the Administration page.
+  - "Remember this browser" on the officials and display password logins: the browser is let in for 30 days, or until the password changes.
+  - Logout is available in Simple Access mode; it ends the session.
+  - The officials and display IP address lists apply in Simple Access mode only; account logins no longer depend on the client address.
+  - The officials and display passwords and the address lists moved from System Settings to the Administration page (Security and Audit tab).
+  - The officials password, display password and MQTT password are stored as PBKDF2 hashes; older values are converted the next time they are entered. Password logins are throttled.
+  - The backdoor address list (`OWLCMS_BACKDOOR`) is removed. The Administration page no longer depends on the browser's address.
 
 - 69.0.0-beta02: The update keys of forwarding connections encrypted in Accounts mode.
 
@@ -42,7 +46,7 @@
   - Streaming display pages need a STREAMING token (or DISPLAYS)
   - Venue-only pages (athlete-facing boards, jury scoreboard) need DISPLAYS.
   - Competition export and H2 database download URLs need a RESULTS token.
-  - In PIN mode, the display PIN can be passed as `?token=` on display pages.
+  - In Simple Access mode, the display password can be passed as `?token=` on display pages.
 
 - 69.0.0-beta01:  Registration spreadsheets accept birth dates typed with `/`, `.`, `-` or spaces,
   - DMY or MDY formats are accepted, based on what is in the file (>13 indicates days)
@@ -73,7 +77,7 @@
 - Event forwarding keys are encrypted in the database and in JSON exports when using accounts mode.
   - The encryption key is derived from the audit signing key (PEM). Without a PEM key the built-in key is used, which only hides the values.
   - A key encrypted with another PEM key cannot be used: it is treated as not set and must be entered again.
-  - In PIN mode the keys are stored as before, so a competition prepared on one computer runs unchanged on another.
+  - In Simple Access mode the keys are stored as before, so a competition prepared on one computer runs unchanged on another.
 - Conflicting changes to athlete information are clearly signaled.
 - Registration spreadsheets accept more birth-date formats, and unusable birth dates are reported before anything is imported.
 - The H2 database can no longer be opened by other programs while owlcms runs (`H2ServerPort` removed).

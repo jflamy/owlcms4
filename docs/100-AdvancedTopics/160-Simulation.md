@@ -19,7 +19,7 @@ Before a large meet, you may wish to test your configuration and equipment.  The
    The simulation is started from the Simulation page, which is available from the Admin page (or by adding `/simulation` to the address of OWLCMS).
 
    - In accounts mode, log in with an account that has the Admin Pages or the Competition Supervisor role.
-   - In PIN mode, enter the officials PIN as usual.
+   - In Simple Access mode, enter the officials password as usual.
 
    This works the same way on a laptop and on a cloud deployment: no address needs to be configured.
 

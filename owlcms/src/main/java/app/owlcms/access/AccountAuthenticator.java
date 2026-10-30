@@ -1,7 +1,6 @@
 package app.owlcms.access;
 
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.slf4j.LoggerFactory;
@@ -26,10 +25,6 @@ public final class AccountAuthenticator {
 
 		record Throttled(long seconds) implements Result {
 		}
-
-		/** Client address not on the officials list. */
-		record IpRefused() implements Result {
-		}
 	}
 
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(AccountAuthenticator.class);
@@ -39,21 +34,16 @@ public final class AccountAuthenticator {
 
 	private final Function<String, UserAccount> lookup;
 	private final LoginThrottle throttle;
-	private final Predicate<String> officialsIpAllowed;
 	private final Supplier<String> controlPanelToken;
 
 	public AccountAuthenticator(Function<String, UserAccount> lookup, LoginThrottle throttle,
-	        Predicate<String> officialsIpAllowed, Supplier<String> controlPanelToken) {
+	        Supplier<String> controlPanelToken) {
 		this.lookup = lookup;
 		this.throttle = throttle;
-		this.officialsIpAllowed = officialsIpAllowed;
 		this.controlPanelToken = controlPanelToken;
 	}
 
 	public Result authenticate(String username, String password, String clientIp) {
-		if (!this.officialsIpAllowed.test(clientIp)) {
-			return new Result.IpRefused();
-		}
 		long blocked = this.throttle.blockedSeconds(username, clientIp);
 		if (blocked > 0) {
 			logger./**/warn("login throttled user={} ip={} seconds={}", username, clientIp, blocked);

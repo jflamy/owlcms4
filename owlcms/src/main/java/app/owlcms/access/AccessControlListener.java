@@ -58,7 +58,8 @@ public class AccessControlListener implements BeforeEnterListener {
 
 		if (rule.kind() == PageRule.Kind.PUBLIC) {
 			if (!Config.getCurrent().isAccountsMode() && target == LoginView.class) {
-				Principal principal = PinModeAuthenticator.resolveOfficials(path, queryParameters);
+				// skips the form only when no PIN is required, not for a remembered browser
+				Principal principal = PinModeAuthenticator.resolveOfficials(path, queryParameters, false);
 				if (principal != null) {
 					OwlcmsSession.setPrincipal(principal);
 					event.forwardTo("", withoutToken(queryParameters));
