@@ -40,19 +40,37 @@ public class ConfigTest {
     }
 
     @Test
-    public void complianceSwitchesAreOffByDefaultAndIndependent() {
+    public void iwfComplianceCheckIsAConfigSettingIndependentOfTcrr() {
         Config config = new Config();
-        assertFalse(config.featureSwitch(FeatureSwitch.IWF_COMPLIANCE));
+        assertFalse(config.isIwfComplianceChecked());
         assertFalse(config.featureSwitch(FeatureSwitch.TCRR_COMPLIANCE));
         config.setFeatureSwitchValue(FeatureSwitch.TCRR_COMPLIANCE, true);
-        assertFalse(config.featureSwitch(FeatureSwitch.IWF_COMPLIANCE));
+        assertFalse(config.isIwfComplianceChecked());
         assertTrue(config.featureSwitch(FeatureSwitch.TCRR_COMPLIANCE));
         config.setFeatureSwitchValue(FeatureSwitch.TCRR_COMPLIANCE, false);
-        config.setFeatureSwitchValue(FeatureSwitch.IWF_COMPLIANCE, true);
-        assertTrue(config.featureSwitch(FeatureSwitch.IWF_COMPLIANCE));
+        config.setIwfCompliance(true);
+        assertTrue(config.isIwfComplianceChecked());
         assertFalse(config.featureSwitch(FeatureSwitch.TCRR_COMPLIANCE));
-        assertEquals(FeatureSwitch.IWF_COMPLIANCE, FeatureSwitch.fromId("IWFcompliance").orElseThrow());
+        assertTrue("iwfCompliance is no longer a feature switch", FeatureSwitch.fromId("iwfCompliance").isEmpty());
         assertEquals(FeatureSwitch.TCRR_COMPLIANCE, FeatureSwitch.fromId("TCRRcompliance").orElseThrow());
+    }
+
+    @Test
+    public void iwfComplianceStartupParameterOverridesTheStoredValue() {
+        Config config = new Config();
+        config.setIwfCompliance(false);
+        try {
+            System.setProperty("iwfCompliance", "true");
+            assertTrue(Config.isIwfComplianceSetAtStartup());
+            assertTrue(config.isIwfComplianceChecked());
+            System.setProperty("iwfCompliance", "false");
+            config.setIwfCompliance(true);
+            assertFalse(config.isIwfComplianceChecked());
+        } finally {
+            System.clearProperty("iwfCompliance");
+        }
+        assertFalse(Config.isIwfComplianceSetAtStartup());
+        assertTrue(config.isIwfComplianceChecked());
     }
 
     @Test

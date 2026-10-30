@@ -30,8 +30,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import app.owlcms.access.AccessStartup;
+import app.owlcms.access.IwfComplianceCheck;
 import app.owlcms.access.AccountTokens;
-import app.owlcms.access.SameMachineProof;
 import app.owlcms.audit.ApplicationAudit;
 import app.owlcms.audit.AuditIntegrity;
 import app.owlcms.audit.AuditContext;
@@ -50,7 +50,6 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
-import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.export.FormatDetector;
 import app.owlcms.data.export.StartupImportSource;
 import app.owlcms.data.jpa.BenchmarkData;
@@ -161,8 +160,6 @@ public class Main {
     protected static boolean smallData;
     /** Exit code when the export named by OWLCMS_LOADJSON cannot be loaded (sysexits EX_CONFIG). Diagnostic only. */
     public static final int EXIT_STARTUP_IMPORT_FAILED = 78;
-    /** Exit code when the configuration cannot be used, such as iwfCompliance without a control panel token. */
-    public static final int EXIT_CONFIGURATION_REFUSED = 78;
     /**
      * Exit code of a restart request after a successful OWLCMS_LOADJSON startup load (sysexits EX_TEMPFAIL): the
      * launcher restarts without OWLCMS_LOADJSON, so the restart keeps the current database instead of loading the file
@@ -279,24 +276,15 @@ public class Main {
         System.exit(EXIT_STARTUP_IMPORT_FAILED);
     }
 
-    /** In IWF compliance mode, the control panel token is the only proof of locality and the only way in as admin. */
-    private static void refuseIwfComplianceWithoutToken() {
-        if (FeatureSwitch.IWF_COMPLIANCE.isEffective(Config.getCurrent()) && SameMachineProof.configuredToken() == null) {
-            logger.error("Cannot start: iwfCompliance requires OWLCMS_CONTROLPANELTOKEN");
-            StartupUtils.getStartupLogger().error("iwfCompliance requires OWLCMS_CONTROLPANELTOKEN; OWLCMS was started without it.");
-            System.exit(EXIT_CONFIGURATION_REFUSED);
-        }
-    }
-
     /** The configuration steps that need the database, shared by normal and import startup. */
     private static void completeConfig() {
         // check for database override of resource files
         Config.initConfig();
-        refuseIwfComplianceWithoutToken();
         AuditIntegrity.initialize(Config.getCurrent());
         Config.protectForwardingKeysAtStartup();
         ResourceMonitor.start();
         AccessStartup.run();
+        IwfComplianceCheck.reportAtStartup();
 
         // Run UTC normalization migration after JPAService and Config are initialized
         JPAService.runInTransaction(em -> {

@@ -46,6 +46,7 @@ import com.vaadin.flow.server.VaadinService;
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.audit.AuthAudit;
+import app.owlcms.components.fields.OwlcmsPasswordField;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.config.Config;
@@ -95,9 +96,9 @@ public class LoginView extends Composite<VerticalLayout>
 
 	public static final String LOGIN = "login";
 	static Logger logger = (Logger) LoggerFactory.getLogger(LoginView.class);
-	private PasswordField pinField = new PasswordField();
+	private PasswordField pinField = new OwlcmsPasswordField();
 	private TextField usernameField = new TextField();
-	private PasswordField passwordField = new PasswordField();
+	private PasswordField passwordField = new OwlcmsPasswordField();
 	private Span errorMessage = new Span();
 	private OwlcmsLayout routerLayout;
 

@@ -19,12 +19,11 @@ public final class AuditIntegrity {
 	}
 
 	/**
-	 * @param iwfCompliance the switch as read at startup; it forces accounts mode
 	 * @param signingKey    the configured key when present, else the built-in key
 	 * @param replacedKey   the key that a pending key replaced at this startup, else null; see
 	 *                      {@link AuditKeyFiles.Promotion}
 	 */
-	public record State(boolean iwfCompliance, boolean tcrrCompliance, boolean environmentKey, Path keyPath,
+	public record State(boolean tcrrCompliance, boolean environmentKey, Path keyPath,
 			AuditSigningKey signingKey, AuditSigningKey replacedKey) {
 	}
 
@@ -32,20 +31,20 @@ public final class AuditIntegrity {
 	 * Audit logs are always sealed: with the configured key when present (a pending one is promoted first), else with
 	 * the built-in key, whose fingerprint is predictable and gives no protection.
 	 */
-	public static State load(boolean iwfCompliance, boolean configuredTcrr, String flattenedPem, String pathOverride,
+	public static State load(boolean configuredTcrr, String flattenedPem, String pathOverride,
 			Path home) throws IOException {
 		if (flattenedPem != null) {
-			return new State(iwfCompliance, configuredTcrr, true, null, AuditSigningKey.fromFlattenedPem(flattenedPem),
+			return new State(configuredTcrr, true, null, AuditSigningKey.fromFlattenedPem(flattenedPem),
 					null);
 		}
 		Path path = AuditKeyFiles.resolvePath(pathOverride, home);
 		boolean keyConfigured = pathOverride != null || AuditKeyFiles.exists(AuditKeyFiles.pendingPath(path))
 				|| AuditKeyFiles.exists(path);
 		if (!keyConfigured) {
-			return new State(iwfCompliance, configuredTcrr, false, path, AuditSigningKey.builtin(), null);
+			return new State(configuredTcrr, false, path, AuditSigningKey.builtin(), null);
 		}
 		AuditKeyFiles.Promotion promotion = AuditKeyFiles.loadAndPromote(path);
-		return new State(iwfCompliance, configuredTcrr, false, path, promotion.key(), promotion.replaced());
+		return new State(configuredTcrr, false, path, promotion.key(), promotion.replaced());
 	}
 
 	public static synchronized void initialize(Config config) {
@@ -53,8 +52,7 @@ public final class AuditIntegrity {
 			throw new IllegalStateException("Audit integrity is already initialized; key changes require a restart");
 		}
 		try {
-			State loaded = load(config.requestedFeatureSwitch(FeatureSwitch.IWF_COMPLIANCE),
-					config.requestedFeatureSwitch(FeatureSwitch.TCRR_COMPLIANCE),
+			State loaded = load(config.requestedFeatureSwitch(FeatureSwitch.TCRR_COMPLIANCE),
 					System.getenv(AuditKeyFiles.PEM_ENV), System.getenv(AuditKeyFiles.PATH_ENV),
 					Path.of(System.getProperty("user.home")));
 			AuditLog.initializeIntegrity(loaded.signingKey());

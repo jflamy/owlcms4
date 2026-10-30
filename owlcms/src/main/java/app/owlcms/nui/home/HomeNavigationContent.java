@@ -70,12 +70,15 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.admin.AdminView;
 import app.owlcms.nui.displays.DisplayNavigationContent;
 import app.owlcms.nui.displays.VideoNavigationContent;
+import app.owlcms.nui.lifting.CompetitionDirectorContent;
 import app.owlcms.nui.lifting.LiftingNavigationContent;
 import app.owlcms.nui.preparation.PreparationNavigationContent;
 import app.owlcms.nui.results.ResultsNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
+import app.owlcms.nui.shared.IwfComplianceDisplay;
 import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.utils.IPInterfaceUtils;
@@ -282,6 +285,11 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		if (this.launcherVersion != null) {
 			this.controlPanelVersionPlaceholder = new Div();
 			intro.add(this.controlPanelVersionPlaceholder);
+		}
+		// the administrators and the competition supervisor are told when IWF requirements are not met
+		if (AccessUi.canOpen(AdminView.class, null)
+		        || AccessUi.canOpen(CompetitionDirectorContent.class, OwlcmsSession.getFop())) {
+			IwfComplianceDisplay.warning().ifPresent(intro::add);
 		}
 
 		this.versionPlaceholder.getStyle().set("margin-bottom", "1ex");

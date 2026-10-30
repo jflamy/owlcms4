@@ -59,11 +59,7 @@ import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.RouterLink;
 
-import app.owlcms.access.AccessMode;
-import app.owlcms.access.AccountModeAuthenticator;
-import app.owlcms.access.Principal;
-import app.owlcms.access.SessionLogout;
-import app.owlcms.data.account.UserAccountRepository;
+import app.owlcms.components.fields.OwlcmsPasswordField;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ForwardingConnection;
@@ -73,7 +69,6 @@ import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.ForwarderSetup;
 import app.owlcms.monitors.ForwardingDestination;
 import app.owlcms.monitors.websocket.WebSocketEventSender;
@@ -98,7 +93,6 @@ public class ConfigEditingFormFactory
 	private ConfigContent origin;
 	private TabSheet tabSheet;
 	private List<ForwardingDestination> forwardingDestinationsBeforeEdit;
-	private AccessMode accessModeBeforeEdit;
 	private static final String CONFIG_ROUTE = "preparation/config";
 
 	// Zero-based tab indices. The URL uses these values directly, so "/0" is equivalent to "/".
@@ -157,7 +151,6 @@ public class ConfigEditingFormFactory
 		// bean. The grid edits Config.getCurrent() in place, so once the binder runs there is no
 		// longer an unmodified copy to compare against.
 		this.forwardingDestinationsBeforeEdit = ForwardingDestination.fromConfig(config);
-		this.accessModeBeforeEdit = config.getParamAccessMode();
 
 		this.binder = buildBinder(operation, config);
 
@@ -269,17 +262,6 @@ public class ConfigEditingFormFactory
 			boolean childrenEquipmentAdded = !hadChildrenEquipment && willHaveChildrenEquipment;
 			
 			Config saved = Config.setCurrent(config, AuditOrigin.fromUi("System Settings"));
-			if (this.accessModeBeforeEdit != saved.getParamAccessMode()) {
-				Principal principal = OwlcmsSession.getPrincipal();
-				if (principal != null && principal.source() == Principal.AuthSource.ACCOUNT) {
-					AccountModeAuthenticator.logout(principal, "access mode changed");
-				}
-				OwlcmsSession.setPrincipal(null);
-				OwlcmsSession.setAuthenticated(false);
-				OwlcmsSession.setDisplayAuthenticated(false);
-				SessionLogout.redirectAllAndInvalidate(UI.getCurrent().getSession());
-				return saved;
-			}
 			
 			ForwarderSetup.reinitializeIfDestinationsChanged(this.forwardingDestinationsBeforeEdit, config);
 			
@@ -334,26 +316,8 @@ public class ConfigEditingFormFactory
 		configLayout.add(title);
 		configLayout.setColspan(title, 2);
 
-		ComboBox<AccessMode> accessModeField = new ComboBox<>();
-		accessModeField.setItems(AccessMode.values());
-		accessModeField.setItemLabelGenerator(mode -> Translator.translate("Access.Mode." + mode.name()));
-		accessModeField.setAllowCustomValue(false);
-		accessModeField.setWidthFull();
-		// iwfCompliance requires accounts mode until it is turned off and OWLCMS restarted
-		accessModeField.setReadOnly(FeatureSwitch.IWF_COMPLIANCE.isEffective());
-		configLayout.addFormItem(accessModeField, Translator.translate("Access.Mode"));
-		this.binder.forField(accessModeField)
-		        .asRequired()
-		        .withValidator(mode -> mode == this.accessModeBeforeEdit || mode != AccessMode.ACCOUNTS
-		                || UserAccountRepository.adminHasPassword(),
-		                Translator.translate("Access.Error.AdminPasswordRequired"))
-		        // shows the mode in force; a choice is recorded only when the displayed value is changed
-		        .bind(Config::getParamAccessMode, (c, mode) -> {
-			        if (mode != this.accessModeBeforeEdit) {
-				        c.chooseAccessMode(mode);
-			        }
-		        });
-
+		// the access mode is set in the Security section of the Administration page
+		boolean accounts = Config.getCurrent().isAccountsMode();
 		RouterLink accountsLink = new RouterLink(Translator.translate("Access.Accounts.Title"),
 		        AccountsContent.class);
 		Span pinIgnored = new Span(Translator.translate("Access.Mode.PinIgnored"));
@@ -362,7 +326,7 @@ public class ConfigEditingFormFactory
 		configLayout.add(accountsNote);
 		configLayout.setColspan(accountsNote, 2);
 
-		PasswordField passwordField = new PasswordField();
+		PasswordField passwordField = new OwlcmsPasswordField();
 		passwordField.setWidthFull();
 		configLayout.addFormItem(passwordField, Translator.translate("Config.PasswordOrPIN"));
 		this.binder.forField(passwordField)
@@ -378,7 +342,7 @@ public class ConfigEditingFormFactory
 		        .withNullRepresentation("")
 		        .bind(Config::getIpAccessList, Config::setIpAccessList);
 
-		PasswordField displayPasswordField = new PasswordField();
+		PasswordField displayPasswordField = new OwlcmsPasswordField();
 		displayPasswordField.setWidthFull();
 		configLayout.addFormItem(displayPasswordField, Translator.translate("Config.DisplayPIN"));
 		this.binder.forField(displayPasswordField)
@@ -402,15 +366,10 @@ public class ConfigEditingFormFactory
 		        .bind(Config::getIpBackdoorList, Config::setIpBackdoorList);
 
 		// the stored values are kept, so that switching back to PIN mode finds them again
-		Runnable applyMode = () -> {
-			boolean accounts = accessModeField.getValue() == AccessMode.ACCOUNTS;
-			passwordField.setEnabled(!accounts);
-			displayPasswordField.setEnabled(!accounts);
-			displayListField.setEnabled(!accounts);
-			pinIgnored.setVisible(accounts);
-		};
-		accessModeField.addValueChangeListener(e -> applyMode.run());
-		applyMode.run();
+		passwordField.setEnabled(!accounts);
+		displayPasswordField.setEnabled(!accounts);
+		displayListField.setEnabled(!accounts);
+		pinIgnored.setVisible(accounts);
 
 		return configLayout;
 	}
@@ -604,7 +563,7 @@ public class ConfigEditingFormFactory
 		        .withValidator(new RegexpValidator(Translator.translate("Config.MQTTUserNameInvalid"), "[^\\s:/]*"))
 		        .bind(Config::getMqttUserName, Config::setMqttUserName);
 
-		PasswordField mqttPassword = new PasswordField();
+		PasswordField mqttPassword = new OwlcmsPasswordField();
 		mqttPassword.setWidthFull();
 		layout.addFormItem(mqttPassword, Translator.translate("Config.MQTTPassword"));
 		this.binder.forField(mqttPassword)

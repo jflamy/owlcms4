@@ -1,6 +1,7 @@
 package app.owlcms.audit;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Logins, failed logins, logouts, passwords, account changes and access-mode changes: written to the competition
@@ -59,11 +60,22 @@ public final class AuthAudit {
 		writeFor(origin, "auth.access-mode", AuditFormat.kvs("from", from, "to", to));
 	}
 
+	/** The IWF compliance check was turned on or off; it only shows or hides the list of requirements not met. */
+	public static void iwfComplianceCheckChanged(AuditOrigin origin, boolean on) {
+		writeFor(origin, "auth.iwf-compliance", AuditFormat.kvs("check", on ? "on" : "off"));
+	}
+
+	/** @param notMet the requirements not met at startup, empty when all are */
+	public static void iwfComplianceChecked(AuditOrigin origin, List<String> notMet) {
+		writeFor(origin, "auth.iwf-compliance-check", AuditFormat.kvs("result", notMet.isEmpty() ? "met" : "not-met",
+		        "missing", notMet.isEmpty() ? "-" : String.join(" ", notMet)));
+	}
+
 	/**
 	 * A token presented on a non-interactive request was refused. Never pass the token itself.
 	 *
-	 * @param reason   "invalid", "throttled", "forbidden", "not-token-page", "malformed", "platform", "revoked" or
-	 *                 "display-ip"
+	 * @param reason   "no-token", "missing", "invalid", "throttled", "forbidden", "not-token-page", "malformed",
+	 *                 "platform", "revoked" or "display-ip"
 	 * @param username the token's owner when known, else null
 	 * @param tokenId  the token identifier when known, else null
 	 */

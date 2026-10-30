@@ -4,7 +4,6 @@ import java.nio.file.Path;
 
 import app.owlcms.Main;
 import app.owlcms.data.config.Config;
-import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
@@ -34,7 +33,6 @@ public final class AuditLiftFixture {
 		Main.injectSuppliers();
 		JPAService.init(true, true);
 		Config.initConfig();
-		Config.getCurrent().setFeatureSwitchValue(FeatureSwitch.IWF_COMPLIANCE, true);
 		AuditIntegrity.initialize(Config.getCurrent());
 
 		TwoMinutesRuleTest scenario = new TwoMinutesRuleTest();

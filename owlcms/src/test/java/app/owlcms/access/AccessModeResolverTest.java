@@ -7,15 +7,7 @@ import org.junit.Test;
 public class AccessModeResolverTest {
 
 	private static AccessMode resolve(String override, AccessMode stored, Boolean pinChosen) {
-		return AccessModeResolver.resolve(override, stored, pinChosen, false);
-	}
-
-	@Test
-	public void iwfComplianceRequiresAccountsOverEverything() {
-		for (AccessMode stored : new AccessMode[] { null, AccessMode.PIN, AccessMode.ACCOUNTS }) {
-			assertEquals(AccessMode.ACCOUNTS, AccessModeResolver.resolve("PIN", stored, true, true));
-			assertEquals(AccessMode.ACCOUNTS, AccessModeResolver.resolve(null, stored, null, true));
-		}
+		return AccessModeResolver.resolve(override, stored, pinChosen);
 	}
 
 	@Test

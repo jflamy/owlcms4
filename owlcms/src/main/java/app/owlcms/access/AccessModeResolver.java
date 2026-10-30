@@ -18,14 +18,9 @@ public final class AccessModeResolver {
 	 * @param override        the OWLCMS_ACCESSMODE environment or parameter value, may be null
 	 * @param stored          the mode stored in the database, null if never set
 	 * @param pinModeChosen   true if the administrator deliberately chose PIN mode
-	 * @param iwfCompliance   the switch as read at startup; it requires accounts mode
-	 * @return the mode in force; PIN unless accounts mode was chosen or required
+	 * @return the mode in force; PIN unless accounts mode was chosen
 	 */
-	public static AccessMode resolve(String override, AccessMode stored, Boolean pinModeChosen,
-	        boolean iwfCompliance) {
-		if (iwfCompliance) {
-			return AccessMode.ACCOUNTS;
-		}
+	public static AccessMode resolve(String override, AccessMode stored, Boolean pinModeChosen) {
 		if (override != null && !override.isBlank()) {
 			try {
 				return AccessMode.valueOf(override.trim().toUpperCase(Locale.ROOT));

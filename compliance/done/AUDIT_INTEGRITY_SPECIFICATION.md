@@ -36,14 +36,14 @@ Audit-record content, routing and actor attribution are defined in [AUDIT_TRAIL_
 
 This work exists to satisfy IWF competition-management requirements. JSON V2 is the IWF export format; JSON V1 remains available for other federations and for backward compatibility.
 
-### 0.1 Compliance Feature Toggles
+### 0.1 Compliance Settings
 
-Add two independent `FeatureSwitch` values in `SPECIALTY_FEATURES`, both off by default:
+Two independent settings, both off by default:
 
-- `TCRR_COMPLIANCE` (`tcrrCompliance`) enables compliance with IWF Technical and Competition Rules and Regulations.
-- `IWF_COMPLIANCE` (`iwfCompliance`) forces role-based accounts and role-based URL tokens: accounts mode, and the control panel token for maintenance requests.
+- `TCRR_COMPLIANCE` (`tcrrCompliance`), a `FeatureSwitch` in `SPECIALTY_FEATURES`, enables compliance with IWF Technical and Competition Rules and Regulations.
+- `iwfCompliance`, a Config setting (Security section of the Administration page, `OWLCMS_IWFCOMPLIANCE` at startup), is a check, not a mode: it lists the IWF requirements not met (accounts mode, an installed audit key, a control panel token) and enforces nothing. See [130](../130-ACCESS_CONTROL_REMAINING.md#security-settings).
 
-Neither switch implies the other. An event requiring both rule compliance and integrity protection must enable both.
+Neither setting implies the other. An event requiring both rule compliance and integrity protection must enable both.
 
 Audit logs are **always sealed**, whatever the switches and the access mode: with the real key when one is configured, else with the built-in key, whose predictable fingerprint allows testing. Sealing the logs is independent of encrypting the event-forwarding keys, which is done in accounts mode only.
 
@@ -60,7 +60,7 @@ Audit logs are **always sealed**, whatever the switches and the access mode: wit
 | Final-export declaration with snapshot and audit boundary (§4) | Always on | IWF evidence-handover requirement. |
 | Integrity checking page (§7) | Always available to administrators | A clean installation must be able to check evidence without enabling sealing locally. |
 
-Both switches use the normal feature-switch configuration and environment override mechanism. `tcrrCompliance` is controlled only by its configured feature-switch value.
+`tcrrCompliance` uses the normal feature-switch configuration and environment override mechanism. `iwfCompliance` is changed only on the Administration page, unless `OWLCMS_IWFCOMPLIANCE` sets it.
 
 Real-key configuration is present when any of the following exists:
 
@@ -69,7 +69,7 @@ Real-key configuration is present when any of the following exists:
 - `auditkey.pem.new`;
 - `auditkey.pem` at the configured/default audit-key location.
 
-`iwfCompliance` forces accounts mode: it overrides an explicit PIN choice and `OWLCMS_ACCESSMODE=PIN` (a startup warning says so), and the access-mode selectors are read-only while it is on. The switches and the key sources are read at startup; changing them takes effect at the next restart.
+The key sources and `tcrrCompliance` are read at startup; changing them takes effect at the next restart. The `iwfCompliance` check is evaluated each time it is shown.
 
 Unsealed files (`<stream>_full_<time>.log` with a `<stream>_plain_<time>.log` companion, no `FIRST`, `CONTINUE`, `SEAL` or `FINAL`) are written only when audit integrity was never initialized, as in unit tests, and by earlier versions; the checker reports them as unsealed rather than altered.
 

@@ -27,16 +27,14 @@ public class AuditIntegrityTest {
 	public TemporaryFolder temporary = new TemporaryFolder();
 
 	@Test
-	public void withoutAKeyTheBuiltinKeySealsAndSwitchesAreIndependent() throws Exception {
+	public void withoutAKeyTheBuiltinKeySeals() throws Exception {
 		Path home = temporary.getRoot().toPath();
-		AuditIntegrity.State tcrr = AuditIntegrity.load(false, true, null, null, home);
-		assertFalse(tcrr.iwfCompliance());
+		AuditIntegrity.State tcrr = AuditIntegrity.load(true, null, null, home);
 		assertTrue(tcrr.tcrrCompliance());
 		assertTrue(tcrr.signingKey().isBuiltin());
-		AuditIntegrity.State iwf = AuditIntegrity.load(true, false, null, null, home);
-		assertTrue(iwf.iwfCompliance());
-		assertFalse(iwf.tcrrCompliance());
-		assertTrue(iwf.signingKey().isBuiltin());
+		AuditIntegrity.State plain = AuditIntegrity.load(false, null, null, home);
+		assertFalse(plain.tcrrCompliance());
+		assertTrue(plain.signingKey().isBuiltin());
 	}
 
 	@Test
@@ -46,8 +44,8 @@ public class AuditIntegrityTest {
 		Files.createDirectories(active.getParent());
 		AuditSigningKey key = AuditSigningKey.generate();
 		Files.writeString(active, key.toPem());
-		assertEquals(key.fingerprint(), AuditIntegrity.load(false, false, null, null, home).signingKey().fingerprint());
-		assertEquals(key.fingerprint(), AuditIntegrity.load(true, false, null, null, home).signingKey().fingerprint());
+		assertEquals(key.fingerprint(), AuditIntegrity.load(false, null, null, home).signingKey().fingerprint());
+		assertEquals(key.fingerprint(), AuditIntegrity.load(true, null, null, home).signingKey().fingerprint());
 	}
 
 	@Test
@@ -59,13 +57,13 @@ public class AuditIntegrityTest {
 		Files.writeString(active, old.toPem());
 		AuditSigningKey pending = AuditKeyFiles.prepare(active);
 		assertEquals(old.fingerprint(), AuditSigningKey.parsePem(Files.readString(active)).fingerprint());
-		AuditIntegrity.State state = AuditIntegrity.load(false, false, null, null, home);
+		AuditIntegrity.State state = AuditIntegrity.load(false, null, null, home);
 		assertEquals(pending.fingerprint(), state.signingKey().fingerprint());
 		assertEquals("the replaced key is kept for this run", old.fingerprint(), state.replacedKey().fingerprint());
 		assertFalse(Files.exists(AuditKeyFiles.pendingPath(active)));
 		assertEquals(pending.fingerprint(), AuditSigningKey.parsePem(Files.readString(active)).fingerprint());
 		assertNull("nothing is replaced at the next startup",
-				AuditIntegrity.load(false, false, null, null, home).replacedKey());
+				AuditIntegrity.load(false, null, null, home).replacedKey());
 	}
 
 	@Test
@@ -74,7 +72,7 @@ public class AuditIntegrityTest {
 		Path active = AuditKeyFiles.resolvePath(null, home);
 		AuditSigningKey pending = AuditKeyFiles.prepare(active);
 		assertFalse(Files.exists(active));
-		AuditIntegrity.State state = AuditIntegrity.load(false, false, null, null, home);
+		AuditIntegrity.State state = AuditIntegrity.load(false, null, null, home);
 		assertEquals(pending.fingerprint(), state.signingKey().fingerprint());
 		assertNull(state.replacedKey());
 	}
@@ -87,7 +85,7 @@ public class AuditIntegrityTest {
 		String original = AuditSigningKey.generate().toPem();
 		Files.writeString(active, original);
 		Files.writeString(AuditKeyFiles.pendingPath(active), "incomplete");
-		assertThrows(IOException.class, () -> AuditIntegrity.load(false, false, null, null, home));
+		assertThrows(IOException.class, () -> AuditIntegrity.load(false, null, null, home));
 		assertEquals(original, Files.readString(active));
 	}
 
@@ -100,18 +98,18 @@ public class AuditIntegrityTest {
 		Files.writeString(AuditKeyFiles.pendingPath(active), "invalid pending");
 		AuditSigningKey envKey = AuditSigningKey.generate();
 		String flattened = Base64.getEncoder().encodeToString(envKey.toPem().getBytes(StandardCharsets.UTF_8));
-		AuditIntegrity.State state = AuditIntegrity.load(false, false, flattened, "invalid relative override", home);
+		AuditIntegrity.State state = AuditIntegrity.load(false, flattened, "invalid relative override", home);
 		assertEquals(envKey.fingerprint(), state.signingKey().fingerprint());
 		assertTrue(state.environmentKey());
 		assertEquals("invalid active", Files.readString(active));
 		assertEquals("invalid pending", Files.readString(AuditKeyFiles.pendingPath(active)));
-		assertThrows(IOException.class, () -> AuditIntegrity.load(false, false, "", null, home));
+		assertThrows(IOException.class, () -> AuditIntegrity.load(false, "", null, home));
 	}
 
 	@Test
 	public void missingExplicitPathFailsInsteadOfFallingBackToTheBuiltinKey() {
 		Path missing = temporary.getRoot().toPath().resolve("missing.pem");
-		assertThrows(IOException.class, () -> AuditIntegrity.load(false, false, null,
+		assertThrows(IOException.class, () -> AuditIntegrity.load(false, null,
 				missing.toString(), temporary.getRoot().toPath()));
 	}
 
@@ -164,7 +162,7 @@ public class AuditIntegrityTest {
 			assertEquals(Set.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE),
 					Files.getPosixFilePermissions(AuditKeyFiles.pendingPath(active)));
 		}
-		AuditIntegrity.State state = AuditIntegrity.load(false, false, null, null, temporary.getRoot().toPath());
+		AuditIntegrity.State state = AuditIntegrity.load(false, null, null, temporary.getRoot().toPath());
 		assertEquals(second.fingerprint(), state.signingKey().fingerprint());
 	}
 

@@ -12,7 +12,14 @@ OWLCMS reads `OWLCMS_CONTROLPANELTOKEN` at startup. A request presenting that to
 counts as coming from the OWLCMS machine. In the cloud every request arrives through
 Fly's proxy with forwarding headers, so the direct-local-connection fallback never
 applies: without a token, the actions that require locality are unreachable (audit
-preparation and checking), and so is the admin account until it has a password.
+preparation and checking, access-mode changes), and so is the admin account until it
+has a password. The IWF compliance check reports a missing token as a requirement not
+met.
+
+Until this item is done, cloud apps stay in PIN mode, the default: switching to user
+accounts on the Administration page needs the token. An organizer who wants accounts in
+the cloud sets it by hand (`fly secrets set OWLCMS_CONTROLPANELTOKEN=<value>`) and
+pastes the same value when asked.
 
 Fly secrets are write-only: `fly secrets list` returns names, never values. The cloud
 app has no storage of its own between sessions.

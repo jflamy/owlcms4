@@ -58,15 +58,37 @@ never counts as locality.
   [340](340-CLOUD_CONTROL_PANEL_TOKEN.md).
 - Whenever OWLCMS has a token, it is required and must match, from any address,
   including from the OWLCMS machine itself.
-- Only when OWLCMS was started without a token (by hand, without a control panel) is a
-  direct local connection (loopback socket peer, no forwarding header) accepted
-  instead. In IWF compliance mode OWLCMS refuses to start without a token (exit code
-  78).
-- Where a page needs locality, it asks for the token once; the session remembers it.
+- An OWLCMS started without a token (by hand, without a control panel) refuses every
+  action that needs locality, and says so. There is no fallback on the client address,
+  not even a direct loopback connection.
 
-`iwfCompliance` turns on the security rules: accounts mode, and the token as the only
-proof of locality. It is independent of `tcrrCompliance` (the competition rules): an
-event may use either one without the other.
+## Security settings
+
+The access mode (PIN or accounts) and the IWF compliance check are set only in the
+Security section of the Administration page (`SecuritySettings`). The Accounts page and
+the System Settings no longer have an access-mode control.
+
+- Switching the access mode, in either direction, needs the cp challenge
+  ([Audit pages](#audit-pages)) and an admin password for accounts mode. It is audited
+  (`ConfigRepository.save`) and logs out every session. In the cloud the cp challenge
+  means the token secret; until [340](340-CLOUD_CONTROL_PANEL_TOKEN.md) sets it, cloud
+  apps stay in PIN mode unless it is set by hand.
+- IWF compliance is a check, not a mode (`IwfComplianceCheck`): nothing is enforced.
+  When the "Check IWF compliance" box is checked, OWLCMS lists the requirements:
+  - user accounts are used;
+  - the audit trail is signed with an installed key (a key file, or the key secret in
+    the cloud), not the built-in one; a pending key counts after the next restart;
+  - OWLCMS was started with a control panel token.
+
+  The Security section shows every requirement. The requirements not met are shown on
+  the home page to the sessions that can open the Administration or Competition
+  Supervisor pages, and as a notification on the Competition Supervisor page. The
+  result is logged and audited at startup (`auth.iwf-compliance-check`).
+- The check takes effect at once, without the cp challenge or a restart; changing it is
+  audited (`auth.iwf-compliance`). `OWLCMS_IWFCOMPLIANCE` overrides the stored value,
+  as `OWLCMS_ACCESSMODE` does for the mode; a value set at startup cannot be changed
+  from the page. It is independent of `tcrrCompliance` (the competition rules).
+- An `iwfCompliance` entry left in the feature switches is ignored.
 
 | Action | Status |
 | --- | --- |
@@ -93,7 +115,7 @@ comes from a secret, so key initialization does not apply there.
 | --- | --- |
 | Generating or replacing the pending key (dialog on the Administration page; the `admin/audit/prepare` page was removed) | Done: cp challenge in the dialog |
 | Running a check (`admin/audit/check`) | Done: token field on the page, cp challenge at each check; opening the page needs no locality |
-| Database import with `iwfCompliance` | To do: cp challenge before importing |
+| Database import | Undecided: see [Database import](#database-import) |
 
 ## Admin password
 
@@ -164,7 +186,7 @@ with server access:
 
 | Page | Access |
 | --- | --- |
-| `admin` (Administration: stop, restart, translations, backup, audit key, audit check, simulation) | ADMIN_PAGES role and the admin password; no locality, so cloud installations can use it. Audit key generation needs the cp challenge ([Audit pages](#audit-pages)). |
+| `admin` (Administration: stop, restart, security settings, backup, audit key, audit check, simulation) | ADMIN_PAGES role and the admin password; no locality, so cloud installations can use it. Audit key generation and security settings need the cp challenge ([Audit pages](#audit-pages)). |
 | `admin/backup` | ADMIN_PAGES or COMPETITION_SUPERVISOR, and the admin password for ADMIN_PAGES; no locality. The Competition Supervisor page (`lifting/competition-director`) gets a Backup button. |
 | `admin/audit/check` | ADMIN_PAGES and the admin password; each check needs the cp challenge ([Audit pages](#audit-pages)) |
 | `simulation` (button on the admin page) | ADMIN_PAGES or COMPETITION_SUPERVISOR, with a login (not token-accessible); no locality. |
@@ -172,17 +194,18 @@ with server access:
 - Accounts mode: the admin password is the normal login.
 - PIN mode: the officials PIN currently gives full admin rights. The admin pages also
   ask for the built-in admin's password, once per session.
-- `AdminView.checkLocalAccess` (localhost or backdoor list) is removed; the side-menu
-  entry is shown to any session allowed to open the admin page.
+- Done: the side-menu entry is shown to any session allowed to open the admin page,
+  in PIN mode too (the PIN mode switch to accounts is on that page).
+- To do: remove the PIN-mode locality check (`AdminView.hasLocalAccess`, localhost or
+  backdoor list) once the admin password is asked for.
 - Tokens do not reach these pages: they are not `@TokenAccessible`.
 
 ## Database import
 
 Import keeps its current roles (the preparation page); there is no import URL, so the
 user is logged in. It is a full replacement, accounts included: anyone allowed to
-import can replace the accounts. In PIN mode, and in accounts mode outside IWF
-compliance, it is unchanged. In IWF compliance mode it also requires locality, which
-there means the token.
+import can replace the accounts. Whether import should also ask for the control panel
+token is undecided: import is normal until the competition starts, and dangerous after.
 
 ## Acceptance
 

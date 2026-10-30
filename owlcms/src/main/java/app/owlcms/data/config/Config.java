@@ -166,6 +166,9 @@ public class Config {
 		if (config.pinModeChosen == null && current != null) {
 			config.pinModeChosen = current.pinModeChosen;
 		}
+		if (config.iwfCompliance == null && current != null) {
+			config.iwfCompliance = current.iwfCompliance;
+		}
 		config.migrateFeatureSwitchesToJson();
 		config.prepareForwardingConnections();
 		config.protectForwardingKeys();
@@ -192,6 +195,12 @@ public class Config {
 	/** true when the administrator deliberately chose PIN mode; exported, unlike accessMode. */
 	@Column(name = "pinModeChosen")
 	private Boolean pinModeChosen;
+	/**
+	 * IWF compliance requested for the next startup; the value in force is frozen at startup. Exported, so that a
+	 * restored competition keeps it.
+	 */
+	@Column(name = "iwfCompliance")
+	private Boolean iwfCompliance;
 	private String mqttPort;
 	private String mqttUserName;
 	private String mqttPassword;
@@ -279,15 +288,39 @@ public class Config {
 	}
 
 	public boolean featureSwitch(FeatureSwitch featureSwitch) {
-		if (AuditIntegrity.isInitialized()) {
-			if (featureSwitch == FeatureSwitch.IWF_COMPLIANCE) {
-				return AuditIntegrity.current().iwfCompliance();
-			}
-			if (featureSwitch == FeatureSwitch.TCRR_COMPLIANCE) {
-				return AuditIntegrity.current().tcrrCompliance();
-			}
+		if (AuditIntegrity.isInitialized() && featureSwitch == FeatureSwitch.TCRR_COMPLIANCE) {
+			return AuditIntegrity.current().tcrrCompliance();
 		}
 		return requestedFeatureSwitch(featureSwitch);
+	}
+
+	public Boolean getIwfCompliance() {
+		return this.iwfCompliance;
+	}
+
+	public void setIwfCompliance(Boolean iwfCompliance) {
+		this.iwfCompliance = iwfCompliance;
+	}
+
+	/**
+	 * IWF compliance is a check, not a mode: when on, OWLCMS reports the requirements that are not met (see
+	 * {@code IwfComplianceCheck}).
+	 *
+	 * @return OWLCMS_IWFCOMPLIANCE when set, else the stored value
+	 */
+	@JsonIgnore
+	public boolean isIwfComplianceChecked() {
+		String override = StartupUtils.getStringParam("iwfCompliance");
+		if (override != null && !override.isBlank()) {
+			return Boolean.parseBoolean(override.strip());
+		}
+		return Boolean.TRUE.equals(this.iwfCompliance);
+	}
+
+	/** @return true if OWLCMS_IWFCOMPLIANCE sets the value: the stored one is then ignored */
+	public static boolean isIwfComplianceSetAtStartup() {
+		String override = StartupUtils.getStringParam("iwfCompliance");
+		return override != null && !override.isBlank();
 	}
 
 	public boolean requestedFeatureSwitch(FeatureSwitch featureSwitch) {
@@ -724,10 +757,7 @@ public class Config {
 		this.pinModeChosen = mode == AccessMode.PIN;
 	}
 
-	/**
-	 * The mode in force: accounts under iwfCompliance, else OWLCMS_ACCESSMODE, else an explicit PIN choice, else the
-	 * stored mode.
-	 */
+	/** The mode in force: OWLCMS_ACCESSMODE, else an explicit PIN choice, else the stored mode. */
 	@JsonIgnore
 	public AccessMode getParamAccessMode() {
 		return effectiveAccessMode(getAccessMode(), this.pinModeChosen);
@@ -735,9 +765,7 @@ public class Config {
 
 	/** @return the mode in force for the given stored values, using the live environment */
 	public static AccessMode effectiveAccessMode(AccessMode stored, Boolean pinChosen) {
-		boolean iwfCompliance = AuditIntegrity.isInitialized() && AuditIntegrity.current().iwfCompliance();
-		return AccessModeResolver.resolve(StartupUtils.getStringParam("accessMode"), stored, pinChosen,
-		        iwfCompliance);
+		return AccessModeResolver.resolve(StartupUtils.getStringParam("accessMode"), stored, pinChosen);
 	}
 
 	@JsonIgnore

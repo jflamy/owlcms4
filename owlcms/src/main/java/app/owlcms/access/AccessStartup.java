@@ -11,7 +11,6 @@ import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.config.Config;
-import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -38,14 +37,6 @@ public final class AccessStartup {
 		}
 		if (StartupUtils.getStringParam("pin") != null) {
 			logger./**/warn("OWLCMS_PIN is ignored because accounts mode is active");
-		}
-		if (FeatureSwitch.IWF_COMPLIANCE.isEffective(config)) {
-			String override = StartupUtils.getStringParam("accessMode");
-			if (override != null && "PIN".equalsIgnoreCase(override.trim())) {
-				logger./**/warn("OWLCMS_ACCESSMODE=PIN is ignored because iwfCompliance requires accounts mode");
-			} else if (Boolean.TRUE.equals(config.getPinModeChosen())) {
-				logger.info("the PIN mode choice is ignored because iwfCompliance requires accounts mode");
-			}
 		}
 		if (!UserAccountRepository.adminHasPassword() && SameMachineProof.configuredToken() == null) {
 			logger./**/warn("the admin account has no password and OWLCMS was started without OWLCMS_CONTROLPANELTOKEN: nobody can log in as admin");

@@ -32,21 +32,16 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.access.AccessMode;
 import app.owlcms.access.AccessStartup;
-import app.owlcms.access.AccountModeAuthenticator;
 import app.owlcms.access.Principal;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
-import app.owlcms.access.SessionLogout;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.account.RoleGrant;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
-import app.owlcms.data.config.Config;
-import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
@@ -148,32 +143,6 @@ public class AccountsContent extends BaseContent implements OwlcmsContent {
 		}
 	}
 
-	private Checkbox createAccessModeSwitch() {
-		Checkbox accountsMode = new Checkbox(Translator.translate("Access.Mode.ACCOUNTS"));
-		accountsMode.setValue(Config.getCurrent().isAccountsMode());
-		// iwfCompliance requires accounts mode until it is turned off and OWLCMS restarted
-		accountsMode.setEnabled(!FeatureSwitch.IWF_COMPLIANCE.isEffective());
-		accountsMode.addValueChangeListener(event -> {
-			if (!event.isFromClient()) {
-				return;
-			}
-			if (event.getValue() && !UserAccountRepository.adminHasPassword()) {
-				accountsMode.setValue(false);
-				Notification.show(Translator.translate("Access.Error.AdminPasswordRequired"));
-				return;
-			}
-			Config config = Config.getCurrent();
-			config.chooseAccessMode(event.getValue() ? AccessMode.ACCOUNTS : AccessMode.PIN);
-			Config.setCurrent(config, AuditOrigin.fromUi("User Accounts access-mode switch"));
-			Principal principal = OwlcmsSession.getPrincipal();
-			if (principal != null && principal.source() == Principal.AuthSource.ACCOUNT) {
-				AccountModeAuthenticator.logout(principal, "access mode changed");
-			}
-			SessionLogout.redirectAllAndInvalidate(UI.getCurrent().getSession());
-		});
-		return accountsMode;
-	}
-
 	@Override
 	public FlexLayout createMenuArea() {
 		return new FlexLayout();
@@ -227,7 +196,6 @@ public class AccountsContent extends BaseContent implements OwlcmsContent {
 		gridCrud.setCrudListener(new GroupListener(crudFormFactory, generic));
 		gridCrud.setClickRowToUpdate(true);
 		if (generic) {
-			gridCrud.getCrudLayout().addToolbarComponent(createAccessModeSwitch());
 			gridCrud.getCrudLayout().addToolbarComponent(createRecomputeGenericAccountsButton());
 		}
 		gridCrud.getCrudLayout().addToolbarComponent(createClearPasswordsButton(generic));

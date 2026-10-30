@@ -26,6 +26,7 @@ import app.owlcms.access.AuthenticatedPage;
 import app.owlcms.access.Principal;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.audit.AuditOrigin;
+import app.owlcms.components.fields.OwlcmsPasswordField;
 import app.owlcms.data.account.AccountToken;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
@@ -85,17 +86,22 @@ public class AccountView extends Composite<VerticalLayout>
 			notice.getStyle().set("font-weight", "bold");
 			form.add(notice);
 		}
+		if (this.controlPanelTokenLogin) {
+			Paragraph restart = new Paragraph(Translator.translate("Access.Account.RestartAfterChange"));
+			restart.getStyle().set("font-weight", "bold");
+			form.add(restart);
+		}
 
 		TextField usernameField = new TextField(Translator.translate("Access.Username"));
 		usernameField.setValue(account.getUsername());
 		usernameField.setReadOnly(true);
 		usernameField.setWidthFull();
 
-		this.currentPasswordField = new PasswordField(Translator.translate("Access.Account.CurrentPassword"));
+		this.currentPasswordField = new OwlcmsPasswordField(Translator.translate("Access.Account.CurrentPassword"));
 		this.currentPasswordField.setAutocomplete(Autocomplete.CURRENT_PASSWORD);
-		this.newPasswordField = new PasswordField(Translator.translate("Access.Account.NewPassword"));
+		this.newPasswordField = new OwlcmsPasswordField(Translator.translate("Access.Account.NewPassword"));
 		this.newPasswordField.setAutocomplete(Autocomplete.NEW_PASSWORD);
-		this.confirmField = new PasswordField(Translator.translate("Access.Account.ConfirmPassword"));
+		this.confirmField = new OwlcmsPasswordField(Translator.translate("Access.Account.ConfirmPassword"));
 		this.confirmField.setAutocomplete(Autocomplete.NEW_PASSWORD);
 		for (PasswordField field : new PasswordField[] { this.currentPasswordField, this.newPasswordField,
 		        this.confirmField }) {
@@ -173,9 +179,14 @@ public class AccountView extends Composite<VerticalLayout>
 		}
 	}
 
-	/** Ends every session, including any opened by someone else who had the token; the browser reconnects. */
+	/**
+	 * Ends every session, including any opened by someone else who had the token. The browser reconnects to the login
+	 * page rather than to this page, so the new login lands on the account's default page.
+	 */
 	private static void restartAfterControlPanelToken() {
-		NotificationUtils.restarting(UI.getCurrent());
+		UI ui = UI.getCurrent();
+		ui.getPage().getHistory().replaceState(null, LoginView.LOGIN);
+		NotificationUtils.restarting(ui);
 		Thread.ofVirtual().name("ControlPanelTokenRestart").start(() -> {
 			try {
 				Thread.sleep(2000);

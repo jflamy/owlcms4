@@ -111,14 +111,11 @@ audit `runId` is not used: the control panel may stop OWLCMS before any audit fi
   `Authorization` bearer header. Scripts driving the simulation send it the same way.
 - Whenever OWLCMS has a token, a request must present that one (constant-time
   comparison), from any address, including the OWLCMS machine itself.
-- Only when OWLCMS was started without a token, the weaker check applies: the
-  connection must come from loopback and carry no forwarding header (`X-Forwarded-For`,
-  `Forwarded`, `X-Real-IP`). A reverse proxy adds such a header (Caddy does by
-  default), so a request it forwards is not taken as local. This covers OWLCMS started
-  by hand or by another tool.
-- In IWF compliance mode OWLCMS must have a token: there is no fallback.
+- An OWLCMS started without a token refuses: there is no fallback on the client
+  address (the earlier loopback-without-forwarding-header check was removed, see
+  [130](../130-ACCESS_CONTROL_REMAINING.md#locality-the-control-panel-token)).
 - The backdoor list does not bypass the check. A refusal is audited as
-  `auth.token-refused` (`missing`, `invalid` or `not-local`). Stop answers 403 and the
+  `auth.token-refused` (`no-token`, `missing` or `invalid`). Stop answers 403 and the
   control panel falls back to stopping the process with a signal; the simulation script
   requests answer 401 or 403. An accepted stop is audited as
   `application.stopping reason=control-panel stop`. The token is never logged.

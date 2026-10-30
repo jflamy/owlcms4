@@ -27,6 +27,7 @@ import app.owlcms.access.Principal;
 import app.owlcms.access.Role;
 import app.owlcms.access.SessionLogout;
 import app.owlcms.audit.AuditOrigin;
+import app.owlcms.components.fields.OwlcmsPasswordField;
 import app.owlcms.data.account.RoleGrant;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
@@ -153,8 +154,8 @@ class AccountEditingFormFactory extends OwlcmsCrudFormFactory<UserAccount> {
 		layout.add(enabledField);
 		this.binder.forField(enabledField).bind(UserAccount::isEnabled, UserAccount::setEnabled);
 
-		PasswordField newPasswordField = new PasswordField(Translator.translate("Access.Account.NewPassword"));
-		PasswordField confirmField = new PasswordField(Translator.translate("Access.Account.ConfirmPassword"));
+		PasswordField newPasswordField = new OwlcmsPasswordField(Translator.translate("Access.Account.NewPassword"));
+		PasswordField confirmField = new OwlcmsPasswordField(Translator.translate("Access.Account.ConfirmPassword"));
 		layout.add(newPasswordField, confirmField);
 		// blank means unchanged; the hash is computed on save, and the typed value is never kept
 		Binding<UserAccount, String> passwordBinding = this.binder.forField(newPasswordField)
