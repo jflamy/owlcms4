@@ -56,24 +56,6 @@ public class ConfigTest {
     }
 
     @Test
-    public void iwfComplianceStartupParameterOverridesTheStoredValue() {
-        Config config = new Config();
-        config.setIwfCompliance(false);
-        try {
-            System.setProperty("iwfCompliance", "true");
-            assertTrue(Config.isIwfComplianceSetAtStartup());
-            assertTrue(config.isIwfComplianceChecked());
-            System.setProperty("iwfCompliance", "false");
-            config.setIwfCompliance(true);
-            assertFalse(config.isIwfComplianceChecked());
-        } finally {
-            System.clearProperty("iwfCompliance");
-        }
-        assertFalse(Config.isIwfComplianceSetAtStartup());
-        assertTrue(config.isIwfComplianceChecked());
-    }
-
-    @Test
     public void legacyFeatureSwitchStringMigratesToJson() {
         Config config = new Config();
 

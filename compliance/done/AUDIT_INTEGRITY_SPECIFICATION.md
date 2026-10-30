@@ -41,7 +41,7 @@ This work exists to satisfy IWF competition-management requirements. JSON V2 is 
 Two independent settings, both off by default:
 
 - `TCRR_COMPLIANCE` (`tcrrCompliance`), a `FeatureSwitch` in `SPECIALTY_FEATURES`, enables compliance with IWF Technical and Competition Rules and Regulations.
-- `iwfCompliance`, a Config setting (Security section of the Administration page, `OWLCMS_IWFCOMPLIANCE` at startup), is a check, not a mode: it lists the IWF requirements not met (accounts mode, an installed audit key, a control panel token) and enforces nothing. See [130](../130-ACCESS_CONTROL_REMAINING.md#security-settings).
+- `iwfCompliance`, a Config setting (Security section of the Administration page), is a check, not a mode: it lists the IWF requirements not met (accounts mode, an installed audit key, a control panel token) and enforces nothing. See [130](../130-ACCESS_CONTROL_REMAINING.md#security-settings).
 
 Neither setting implies the other. An event requiring both rule compliance and integrity protection must enable both.
 
@@ -60,7 +60,7 @@ Audit logs are **always sealed**, whatever the switches and the access mode: wit
 | Final-export declaration with snapshot and audit boundary (§4) | Always on | IWF evidence-handover requirement. |
 | Integrity checking page (§7) | Always available to administrators | A clean installation must be able to check evidence without enabling sealing locally. |
 
-`tcrrCompliance` uses the normal feature-switch configuration and environment override mechanism. `iwfCompliance` is changed only on the Administration page, unless `OWLCMS_IWFCOMPLIANCE` sets it.
+`tcrrCompliance` uses the normal feature-switch configuration and environment override mechanism. `iwfCompliance` is changed only on the Administration page, or by an import.
 
 Real-key configuration is present when any of the following exists:
 

@@ -10,13 +10,13 @@
 
 **Development log**
 
-- 69.0.0-beta02: New Security section on the Administration page, the only place to choose PIN or accounts mode.
-  - Switching the access mode asks for the control panel token.
-  - The Administration page is in the side menu, in PIN mode too (from the OWLCMS machine or the backdoor list).
-  - `iwfCompliance` is no longer a feature switch, and no longer a mode. "Check IWF compliance" lists the IWF requirements not met: user accounts, an installed audit key, OWLCMS started by the control panel. The administrators and the Competition Supervisor are warned on the home page and the Competition Supervisor page. `OWLCMS_IWFCOMPLIANCE` can set it at startup.
-  - Actions that need the control panel token are refused when OWLCMS was started without one, even from the OWLCMS machine itself.
+- 69.0.0-beta02: New Security section on the Administration page.
+  - Switching the access mode from PIN to Account logins/tokens asks for the control panel token.
+  - "Check IWF compliance" lists the IWF requirements met or not
+  - Database exports include the access mode; an import restores the exported settings as they are.
+  - `OWLCMS_ACCESSMODE` is no longer read: the access mode is set only on the Administration page or by an import.
 
-- 69.0.0-beta02: In accounts mode, the update keys of forwarding connections are encrypted in the database, not only in exports. They are decrypted when switching to PIN mode, and re-encrypted automatically when a new audit key is activated.
+- 69.0.0-beta02: The update keys of forwarding connections encrypted in Accounts mode.
 
 - 69.0.0-beta02: OWLCMS 69 requires control panel 3.10.0 or later, which gives OWLCMS a new control panel token at each launch. The home page says so when an older control panel is used.
 

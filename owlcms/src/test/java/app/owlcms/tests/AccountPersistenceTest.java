@@ -145,83 +145,25 @@ public class AccountPersistenceTest {
 	}
 
 	@Test
-	public void importedConfigKeepsTheRunningAccessMode() {
+	public void anImportedConfigIsTakenAsIsNotCompletedWithTheRunningValues() {
 		Config current = Config.getCurrent();
 		current.setAccessMode(AccessMode.ACCOUNTS);
+		current.setIwfCompliance(true);
 		Config.setCurrent(current);
 		AccessStartup.roleAccountInitialization().join();
 		try {
-			Config imported = new Config();
-			Config saved = Config.setCurrent(imported);
+			Config olderExport = new Config();
+			Config saved = Config.setCurrent(olderExport);
 
-			assertEquals(AccessMode.ACCOUNTS, saved.getAccessMode());
-			assertEquals(AccessMode.ACCOUNTS, Config.getCurrent().getAccessMode());
+			assertEquals("a missing access mode means the default", AccessMode.PIN, saved.getAccessMode());
+			assertNull(saved.getIwfCompliance());
+			assertEquals(AccessMode.PIN, Config.getCurrent().getAccessMode());
 		} finally {
 			Config restored = Config.getCurrent();
 			restored.setAccessMode(AccessMode.PIN);
 			Config.setCurrent(restored);
 		}
 		assertEquals(AccessMode.PIN, Config.getCurrent().getAccessMode());
-	}
-
-	@Test
-	public void pinModeChoicePersistsAndChoosingAccountsClearsIt() {
-		Config config = Config.getCurrent();
-		try {
-			config.setAccessMode(AccessMode.PIN);
-			config.setPinModeChosen(null);
-			Config.setCurrent(config);
-			assertNull(ConfigRepository.findAll().get(0).getPinModeChosen());
-
-			config = Config.getCurrent();
-			config.chooseAccessMode(AccessMode.PIN);
-			Config.setCurrent(config);
-			Config stored = ConfigRepository.findAll().get(0);
-			assertEquals(AccessMode.PIN, stored.getAccessMode());
-			assertEquals(Boolean.TRUE, stored.getPinModeChosen());
-
-			config = Config.getCurrent();
-			config.chooseAccessMode(AccessMode.ACCOUNTS);
-			Config.setCurrent(config);
-			AccessStartup.roleAccountInitialization().join();
-			stored = ConfigRepository.findAll().get(0);
-			assertEquals(AccessMode.ACCOUNTS, stored.getAccessMode());
-			assertEquals(Boolean.FALSE, stored.getPinModeChosen());
-		} finally {
-			Config restored = Config.getCurrent();
-			restored.setAccessMode(AccessMode.PIN);
-			restored.setPinModeChosen(null);
-			Config.setCurrent(restored);
-		}
-	}
-
-	@Test
-	public void importedConfigKeepsTheRunningPinModeChoiceUnlessItCarriesOne() {
-		Config current = Config.getCurrent();
-		current.setPinModeChosen(Boolean.TRUE);
-		Config.setCurrent(current);
-		try {
-			Config oldExport = new Config();
-			assertNull(oldExport.getPinModeChosen());
-			Config saved = Config.setCurrent(oldExport);
-			assertEquals(Boolean.TRUE, saved.getPinModeChosen());
-			assertEquals(Boolean.TRUE, ConfigRepository.findAll().get(0).getPinModeChosen());
-
-			Config explicitFalse = new Config();
-			explicitFalse.setPinModeChosen(Boolean.FALSE);
-			saved = Config.setCurrent(explicitFalse);
-			assertEquals(Boolean.FALSE, saved.getPinModeChosen());
-			assertEquals(Boolean.FALSE, Config.getCurrent().getPinModeChosen());
-
-			Config explicitTrue = new Config();
-			explicitTrue.setPinModeChosen(Boolean.TRUE);
-			saved = Config.setCurrent(explicitTrue);
-			assertEquals(Boolean.TRUE, saved.getPinModeChosen());
-		} finally {
-			Config restored = Config.getCurrent();
-			restored.setPinModeChosen(null);
-			Config.setCurrent(restored);
-		}
 	}
 
 	@Test

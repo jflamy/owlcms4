@@ -85,9 +85,10 @@ the System Settings no longer have an access-mode control.
   Supervisor pages, and as a notification on the Competition Supervisor page. The
   result is logged and audited at startup (`auth.iwf-compliance-check`).
 - The check takes effect at once, without the cp challenge or a restart; changing it is
-  audited (`auth.iwf-compliance`). `OWLCMS_IWFCOMPLIANCE` overrides the stored value,
-  as `OWLCMS_ACCESSMODE` does for the mode; a value set at startup cannot be changed
-  from the page. It is independent of `tcrrCompliance` (the competition rules).
+  audited (`auth.iwf-compliance`). It is independent of `tcrrCompliance` (the
+  competition rules).
+- There is no startup override: `OWLCMS_ACCESSMODE` and `OWLCMS_IWFCOMPLIANCE` were
+  removed. Both settings come from the database: the Security section, or an import.
 - An `iwfCompliance` entry left in the feature switches is ignored.
 
 | Action | Status |
@@ -204,8 +205,65 @@ with server access:
 
 Import keeps its current roles (the preparation page); there is no import URL, so the
 user is logged in. It is a full replacement, accounts included: anyone allowed to
-import can replace the accounts. Whether import should also ask for the control panel
-token is undecided: import is normal until the competition starts, and dangerous after.
+import can replace the accounts. Import is normal until the competition starts, and
+dangerous after.
+
+Direction agreed (2026-10-30), not implemented:
+
+- Terminology: a **permission** is an individual right (a base role in the code, the only
+  thing `@RequiresRole` checks); a **role** is a set of permissions given to an account
+  (a grantable role in the code, expanded by `Role.expand()`). Many names are both: the
+  Preparation role contains only the PREPARATION permission.
+- Actions inside pages get required permissions, like pages do with `@RequiresRole`: an
+  enum of protected actions, checked in the UI (hide or disable the button) and again
+  in the back end where the action runs, with the refusal audited. Today the actions on
+  the Preparation page (database import and export, registration and SBDE uploads)
+  check no role: any role allowed on the page can use them.
+- An **"Imports are allowed"** yes/no setting, on the Competition Supervisor page,
+  changed by the COMPETITION_SUPERVISOR permission (the Supervisor or an admin) and
+  audited. Manual, not automatic: test lifts are often done before the competition.
+  When it is off, every import is refused, whoever asks: the database (JSON) import, the
+  registration upload and the SBDE upload. To use SBDE during the competition (athlete
+  names, referee allocations; results are not touched), the Supervisor turns imports on,
+  uploads, and turns them off again.
+- In PIN mode the setting applies too, but any PIN holder can change it: it prevents
+  accidents, not people ("PIN mode stays naked").
+- On by default for a new competition. Stored with the competition, so exports carry
+  it and an import restores it.
+- Database exports require the RESULTS permission (roles: Results, Competition
+  Director, Competition Supervisor, External, admin). The secrets an export contains
+  are protected by their hashes (see [PIN mode](#pin-mode) for the PINs).
+- The registration upload requires REGISTRATION; the SBDE upload requires PREPARATION,
+  since it also changes the technical officials and their allocations.
+
+An import is faithful: the settings are those of the export, the access mode and the
+IWF compliance check included; nothing is kept from the running OWLCMS. A setting
+missing from an older export takes its default (PIN mode, check off).
+
+## PIN mode
+
+Direction agreed (2026-10-30), not implemented. PIN mode protects a cloud installation
+from random visitors; it is a weak check by design.
+
+- The officials PIN opens the Home page and gives every permission ("PIN mode stays
+  naked"). The address check on the admin pages (`AdminView.hasLocalAccess`) and the
+  backdoor list (`ipBackdoorList`, `OWLCMS_BACKDOOR`) are removed; the dangerous actions
+  keep the control panel token. `OWLCMS_PIN`, `OWLCMS_DISPLAYPIN`, `OWLCMS_IP` and
+  `OWLCMS_DISPLAYLIST` are kept: only the operator sets them, and existing cloud apps use
+  them.
+- The Administration page is hidden when OWLCMS has no control panel token.
+- "Remember this browser" for the officials and display PINs: a long-lived HttpOnly
+  cookie, a keyed hash of the current PIN and an expiry; changing the PIN forgets every
+  browser, and a button forgets them all.
+- The officials PIN login also accepts the control panel token (constant time, throttled,
+  audited `how=control-panel-token`), so a forgotten PIN can be replaced in System
+  Settings. A token login is never remembered.
+- The officials PIN, display PIN and MQTT password are hashed with PBKDF2 like account
+  passwords (today a single salted SHA-256); older hashes are accepted and converted
+  at the next correct entry. Comparisons are constant-time.
+- Account passwords: PBKDF2 iterations raised from 310,000 to 600,000 (current OWASP
+  figure for PBKDF2-HMAC-SHA256); a stored hash with fewer iterations is replaced at
+  the next successful login.
 
 ## Acceptance
 

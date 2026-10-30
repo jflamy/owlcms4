@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -37,19 +36,12 @@ public class SecuritySettingsTest {
 
 	@Before
 	public void pinModeWithoutAdminPassword() {
-		clearProperties();
 		UserAccountRepository.ensureBuiltInAdmin(ORIGIN);
 		setAdminPassword(null);
 		Config config = Config.getCurrent();
 		config.setIwfCompliance(false);
-		config.chooseAccessMode(AccessMode.PIN);
+		config.setAccessMode(AccessMode.PIN);
 		Config.setCurrent(config, ORIGIN);
-	}
-
-	@After
-	public void clearProperties() {
-		System.clearProperty("accessMode");
-		System.clearProperty("iwfCompliance");
 	}
 
 	private static void setAdminPassword(String password) {
@@ -84,13 +76,5 @@ public class SecuritySettingsTest {
 
 		assertEquals(Outcome.CHANGED, SecuritySettings.setIwfComplianceCheck(false, ORIGIN));
 		assertFalse(Config.getCurrent().isIwfComplianceChecked());
-	}
-
-	@Test
-	public void startupParametersCannotBeOverriddenFromThePage() {
-		System.setProperty("accessMode", "PIN");
-		assertEquals(Outcome.SET_AT_STARTUP, SecuritySettings.switchAccessMode(AccessMode.ACCOUNTS, ORIGIN));
-		System.setProperty("iwfCompliance", "false");
-		assertEquals(Outcome.SET_AT_STARTUP, SecuritySettings.setIwfComplianceCheck(true, ORIGIN));
 	}
 }

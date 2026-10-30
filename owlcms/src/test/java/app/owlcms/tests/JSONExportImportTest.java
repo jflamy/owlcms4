@@ -22,6 +22,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import app.owlcms.access.AccessMode;
+import app.owlcms.access.AccessStartup;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.Main;
 import app.owlcms.access.PasswordHasher;
@@ -226,61 +228,39 @@ public class JSONExportImportTest {
     }
 
     @Test
-    public void pinModeChoiceRoundTripsThroughBothJsonFormats() throws Exception {
-        Config config = Config.getCurrent();
-        ObjectMapper mapper = JsonMapper.builder().build();
-        try {
-            config.setPinModeChosen(Boolean.TRUE);
-            Config.setCurrent(config);
-            String legacyJson = new CompetitionData().exportDataAsString();
-            String v2Json = new String(new CompetitionDataV2().fromDatabase().exportData().readAllBytes(),
-                    StandardCharsets.UTF_8);
-            assertTrue(mapper.readTree(legacyJson).get("config").get("pinModeChosen").asBoolean());
-            assertTrue(mapper.readTree(v2Json).get("config").get("pinModeChosen").asBoolean());
-
-            config = Config.getCurrent();
-            config.setPinModeChosen(Boolean.FALSE);
-            Config.setCurrent(config);
-            CompetitionData legacyImported = new CompetitionData().importDataFromString(legacyJson);
-            assertEquals(Boolean.TRUE, legacyImported.getConfig().getPinModeChosen());
-            assertEquals(Boolean.TRUE, Config.getCurrent().getPinModeChosen());
-
-            config = Config.getCurrent();
-            config.setPinModeChosen(Boolean.FALSE);
-            Config.setCurrent(config);
-            CompetitionDataV2 v2Imported = new CompetitionDataV2().importData(
-                    new ByteArrayInputStream(v2Json.getBytes(StandardCharsets.UTF_8)));
-            assertEquals(Boolean.TRUE, v2Imported.getConfig().getPinModeChosen());
-            assertEquals(Boolean.TRUE, Config.getCurrent().getPinModeChosen());
-        } finally {
-            Config restored = Config.getCurrent();
-            restored.setPinModeChosen(null);
-            Config.setCurrent(restored);
-        }
-    }
-
-    @Test
-    public void jsonWithoutPinModeChoiceKeepsTheRunningChoice() throws Exception {
+    public void securitySettingsRoundTripThroughBothJsonFormats() throws Exception {
         ObjectMapper mapper = JsonMapper.builder().build();
         try {
             Config config = Config.getCurrent();
-            config.setPinModeChosen(Boolean.TRUE);
+            config.setAccessMode(AccessMode.ACCOUNTS);
+            config.setIwfCompliance(true);
             Config.setCurrent(config);
-            JsonNode legacyTree = mapper.readTree(new CompetitionData().exportDataAsString());
-            ((ObjectNode) legacyTree.get("config")).remove("pinModeChosen");
-            JsonNode v2Tree = mapper.readTree(new String(
-                    new CompetitionDataV2().fromDatabase().exportData().readAllBytes(), StandardCharsets.UTF_8));
-            ((ObjectNode) v2Tree.get("config")).remove("pinModeChosen");
+            AccessStartup.roleAccountInitialization().join();
+            String legacyJson = new CompetitionData().exportDataAsString();
+            String v2Json = new String(new CompetitionDataV2().fromDatabase().exportData().readAllBytes(),
+                    StandardCharsets.UTF_8);
+            assertEquals("ACCOUNTS", mapper.readTree(legacyJson).get("config").get("accessMode").asText());
+            assertEquals("ACCOUNTS", mapper.readTree(v2Json).get("config").get("accessMode").asText());
 
-            new CompetitionData().importDataFromString(mapper.writeValueAsString(legacyTree));
-            assertEquals(Boolean.TRUE, Config.getCurrent().getPinModeChosen());
-
-            new CompetitionDataV2().importData(
-                    new ByteArrayInputStream(mapper.writeValueAsString(v2Tree).getBytes(StandardCharsets.UTF_8)));
-            assertEquals(Boolean.TRUE, Config.getCurrent().getPinModeChosen());
+            for (boolean v2 : new boolean[] { false, true }) {
+                config = Config.getCurrent();
+                config.setAccessMode(AccessMode.PIN);
+                config.setIwfCompliance(false);
+                Config.setCurrent(config);
+                if (v2) {
+                    new CompetitionDataV2().importData(
+                            new ByteArrayInputStream(v2Json.getBytes(StandardCharsets.UTF_8)));
+                } else {
+                    new CompetitionData().importDataFromString(legacyJson);
+                }
+                AccessStartup.roleAccountInitialization().join();
+                assertEquals("the import is faithful", AccessMode.ACCOUNTS, Config.getCurrent().getAccessMode());
+                assertTrue(Config.getCurrent().isIwfComplianceChecked());
+            }
         } finally {
             Config restored = Config.getCurrent();
-            restored.setPinModeChosen(null);
+            restored.setAccessMode(AccessMode.PIN);
+            restored.setIwfCompliance(null);
             Config.setCurrent(restored);
         }
     }

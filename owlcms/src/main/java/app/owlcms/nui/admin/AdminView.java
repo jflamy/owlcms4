@@ -140,10 +140,7 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 		Div checklist = new Div();
 		Checkbox check = new Checkbox(Translator.translate("Admin.IwfCheck"),
 		        Config.getCurrent().isIwfComplianceChecked());
-		check.setHelperText(Translator.translate(Config.isIwfComplianceSetAtStartup()
-		        ? "Admin.SetAtStartup"
-		        : "Admin.IwfCheckHelp"));
-		check.setReadOnly(Config.isIwfComplianceSetAtStartup());
+		check.setHelperText(Translator.translate("Admin.IwfCheckHelp"));
 		AuditOrigin origin = AuditOrigin.fromUi("Administration security settings");
 		check.addValueChangeListener(event -> {
 			if (!event.isFromClient()) {
@@ -224,7 +221,6 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 
 	private static void showOutcome(Outcome outcome) {
 		String key = switch (outcome) {
-			case SET_AT_STARTUP -> "Admin.SetAtStartup";
 			case ADMIN_PASSWORD_REQUIRED -> "Access.Error.AdminPasswordRequired";
 			case CHANGED, UNCHANGED -> null;
 		};

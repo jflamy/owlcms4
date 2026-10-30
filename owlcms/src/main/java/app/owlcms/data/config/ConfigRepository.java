@@ -106,17 +106,16 @@ public class ConfigRepository {
 			// raw values only: the effective mode needs the account cache, which must not be read in here
 			Config previous = em.find(Config.class, config.getId());
 			AccessMode previousStored = previous != null ? previous.getAccessMode() : null;
-			Boolean previousPinChosen = previous != null ? previous.getPinModeChosen() : null;
 			Config nc = em.merge(config);
 			TimeZone tz = nc.getTimeZone();
 			if (tz != null) {
 				logger.info("setting time zone to {}", tz);
 				TimeZone.setDefault(tz);
 			}
-			return new SaveResult(nc, previous != null, previousStored, previousPinChosen);
+			return new SaveResult(nc, previous != null, previousStored);
 		});
 		AccessMode modeBefore = result.hadPrevious()
-		        ? Config.effectiveAccessMode(result.previousStored(), result.previousPinChosen())
+		        ? Config.effectiveAccessMode(result.previousStored())
 		        : null;
 		AccessMode modeAfter = result.config().getParamAccessMode();
 		if (modeBefore != null && modeBefore != modeAfter) {
@@ -129,8 +128,7 @@ public class ConfigRepository {
 		return result.config();
 	}
 
-	private record SaveResult(Config config, boolean hadPrevious, AccessMode previousStored,
-	        Boolean previousPinChosen) {
+	private record SaveResult(Config config, boolean hadPrevious, AccessMode previousStored) {
 	}
 
 }

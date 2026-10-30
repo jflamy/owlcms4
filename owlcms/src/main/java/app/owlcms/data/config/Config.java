@@ -49,7 +49,6 @@ import tools.jackson.databind.json.JsonMapper;
 
 import app.owlcms.Main;
 import app.owlcms.access.AccessMode;
-import app.owlcms.access.AccessModeResolver;
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.audit.AuditIntegrity;
 import app.owlcms.audit.AuditOrigin;
@@ -158,17 +157,6 @@ public class Config {
 
 	/** @param origin who saved and from where; used to audit an access-mode change and the accounts it creates */
 	public static Config setCurrent(Config config, AuditOrigin origin) {
-		// an imported Config carries no access mode; the running value must survive the import
-		if (config.accessMode == null && current != null) {
-			config.accessMode = current.accessMode;
-		}
-		// an export from an older version carries no explicit choice; keep the running one
-		if (config.pinModeChosen == null && current != null) {
-			config.pinModeChosen = current.pinModeChosen;
-		}
-		if (config.iwfCompliance == null && current != null) {
-			config.iwfCompliance = current.iwfCompliance;
-		}
 		config.migrateFeatureSwitchesToJson();
 		config.prepareForwardingConnections();
 		config.protectForwardingKeys();
@@ -190,15 +178,8 @@ public class Config {
 	private String ipDisplayList;
 	private String ipBackdoorList;
 	@Enumerated(EnumType.STRING)
-	@JsonIgnore
 	private AccessMode accessMode;
-	/** true when the administrator deliberately chose PIN mode; exported, unlike accessMode. */
-	@Column(name = "pinModeChosen")
-	private Boolean pinModeChosen;
-	/**
-	 * IWF compliance requested for the next startup; the value in force is frozen at startup. Exported, so that a
-	 * restored competition keeps it.
-	 */
+	/** The IWF compliance check is on; see {@link #isIwfComplianceChecked()}. */
 	@Column(name = "iwfCompliance")
 	private Boolean iwfCompliance;
 	private String mqttPort;
@@ -306,21 +287,11 @@ public class Config {
 	 * IWF compliance is a check, not a mode: when on, OWLCMS reports the requirements that are not met (see
 	 * {@code IwfComplianceCheck}).
 	 *
-	 * @return OWLCMS_IWFCOMPLIANCE when set, else the stored value
+	 * @return the stored value
 	 */
 	@JsonIgnore
 	public boolean isIwfComplianceChecked() {
-		String override = StartupUtils.getStringParam("iwfCompliance");
-		if (override != null && !override.isBlank()) {
-			return Boolean.parseBoolean(override.strip());
-		}
 		return Boolean.TRUE.equals(this.iwfCompliance);
-	}
-
-	/** @return true if OWLCMS_IWFCOMPLIANCE sets the value: the stored one is then ignored */
-	public static boolean isIwfComplianceSetAtStartup() {
-		String override = StartupUtils.getStringParam("iwfCompliance");
-		return override != null && !override.isBlank();
 	}
 
 	public boolean requestedFeatureSwitch(FeatureSwitch featureSwitch) {
@@ -727,45 +698,24 @@ public class Config {
 		return this.id;
 	}
 
-	/** The mode stored in the database; not exported, so a competition import never changes it. */
-	@JsonIgnore
+	/** The mode stored in the database; exported, so an import restores it like every other setting. */
 	public AccessMode getAccessMode() {
 		return this.accessMode != null ? this.accessMode : AccessMode.PIN;
 	}
 
-	@JsonIgnore
 	public void setAccessMode(AccessMode accessMode) {
 		this.accessMode = accessMode;
 	}
 
-	/** @return true if the administrator deliberately chose PIN mode, null if there was no explicit choice */
-	public Boolean getPinModeChosen() {
-		return this.pinModeChosen;
-	}
-
-	public void setPinModeChosen(Boolean pinModeChosen) {
-		this.pinModeChosen = pinModeChosen;
-	}
-
-	/**
-	 * Records an explicit administrator choice: choosing PIN is remembered so that an audit key does not undo
-	 * it, choosing ACCOUNTS clears it.
-	 */
-	@JsonIgnore
-	public void chooseAccessMode(AccessMode mode) {
-		this.accessMode = mode;
-		this.pinModeChosen = mode == AccessMode.PIN;
-	}
-
-	/** The mode in force: OWLCMS_ACCESSMODE, else an explicit PIN choice, else the stored mode. */
+	/** The mode in force: the stored mode, PIN when never set. */
 	@JsonIgnore
 	public AccessMode getParamAccessMode() {
-		return effectiveAccessMode(getAccessMode(), this.pinModeChosen);
+		return effectiveAccessMode(this.accessMode);
 	}
 
-	/** @return the mode in force for the given stored values, using the live environment */
-	public static AccessMode effectiveAccessMode(AccessMode stored, Boolean pinChosen) {
-		return AccessModeResolver.resolve(StartupUtils.getStringParam("accessMode"), stored, pinChosen);
+	/** @return the mode in force for the given stored value */
+	public static AccessMode effectiveAccessMode(AccessMode stored) {
+		return stored != null ? stored : AccessMode.PIN;
 	}
 
 	@JsonIgnore
