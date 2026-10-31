@@ -187,7 +187,7 @@ public class PreparationNavigationContent extends BaseNavigationContent
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
 		if (Config.getCurrent().isRecordRepository()) {
-			event.forwardTo("records");
+			event.forwardTo("preparation/records");
 		}
 	}
 

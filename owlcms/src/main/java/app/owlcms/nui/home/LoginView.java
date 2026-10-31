@@ -61,7 +61,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.nui.preparation.RecordsNavigationContent;
+import app.owlcms.nui.preparation.RecordContent;
 import app.owlcms.nui.home.navigation.JuryNavigationContent;
 import app.owlcms.nui.home.navigation.RefereeNavigationContent;
 import app.owlcms.nui.lifting.PassiveAnnouncerContent;
@@ -452,7 +452,8 @@ public class LoginView extends Composite<VerticalLayout>
 		if (requestedUrl != null) {
 			UI.getCurrent().navigate(requestedUrl, OwlcmsSession.getRequestedQueryParameters());
 		} else if (Config.getCurrent().isRecordRepository()) {
-			UI.getCurrent().navigate(RecordsNavigationContent.class);
+			// same landing page as an authenticated visit to a records-only display or the public records page
+			UI.getCurrent().navigate(RecordContent.class);
 		} else {
 			UI.getCurrent().navigate(HomeNavigationContent.class);
 		}

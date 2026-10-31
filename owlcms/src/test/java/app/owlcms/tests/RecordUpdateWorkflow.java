@@ -155,7 +155,7 @@ public class RecordUpdateWorkflow {
 
 		JPAService.init(true, false);
 		jpaInitialized = true;
-		Config.setCurrent(ConfigRepository.findAll().get(0));
+		Config.setCurrentTesting(ConfigRepository.findAll().get(0));
 		Config.initConfig();
 	}
 

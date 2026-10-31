@@ -299,7 +299,7 @@ public class WebSocketAdjudicationForwardingTest {
 	private static void setSwitch(FeatureSwitch featureSwitch, boolean enabled) {
 		Config config = Config.getCurrent();
 		config.setFeatureSwitchValue(featureSwitch, enabled);
-		Config.setCurrent(config);
+		Config.setCurrentTesting(config);
 	}
 
 	private ForwarderDecisionState forwarderDecisionState() {

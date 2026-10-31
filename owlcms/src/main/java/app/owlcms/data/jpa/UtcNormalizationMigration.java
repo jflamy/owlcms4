@@ -11,6 +11,7 @@ import javax.persistence.Transient;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
@@ -21,6 +22,7 @@ import ch.qos.logback.classic.Logger;
 public class UtcNormalizationMigration {
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(UtcNormalizationMigration.class);
+    private static final AuditOrigin MIGRATION = AuditOrigin.system("UTC normalization migration");
 
     public static void normalizeAllToUtc(EntityManager em) {
         if (Config.getCurrent().isLocalDateTimeUtcNormalized()) {
@@ -52,6 +54,7 @@ public class UtcNormalizationMigration {
         int competitionCount = 0;
         for (Competition c : competitions) {
             normalizeDates(c);
+            c.stamp(MIGRATION, c.getLastSavedAt());
             em.merge(c);
             competitionCount++;
         }
@@ -70,6 +73,7 @@ public class UtcNormalizationMigration {
         // Set the flag in Config
         Config config = Config.getCurrent();
         config.setLocalDateTimeUtcNormalized(true);
+        config.stamp(MIGRATION, config.getLastSavedAt());
         em.merge(config);
         logger.info("UtcNormalizationMigration: normalization flag set in Config");
     }

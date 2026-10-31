@@ -49,6 +49,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
@@ -69,6 +70,7 @@ import app.owlcms.data.config.TcrrCompliance;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.jpa.SingletonSaves;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -109,7 +111,7 @@ public class Competition {
 	public static String breakTimerTimeOverSound = "timeOver";
 	private static final String ATHLETE_TIMER_TWO_MINUTES_ENV = "OWLCMS_ATHLETE_TIMER_TWO_MINUTES";
 	private static final String ATHLETE_TIMER_ONE_MINUTE_ENV = "OWLCMS_ATHLETE_TIMER_ONE_MINUTE";
-	private static Competition competition;
+	private static volatile Competition competition;
 	final static private Logger logger = (Logger) LoggerFactory.getLogger(Competition.class);
 
 	/**
@@ -525,8 +527,51 @@ public class Competition {
 	@Column(columnDefinition = "boolean default true")
 	private boolean hideEmptyChampionships = true;
 
+	/** Stale-save check: time of the last save of this row (epoch ms). Never exported. */
+	@JsonIgnore
+	private Long lastSavedAt;
+	/** Stale-save check: who made the last save of this row. Never exported. */
+	@JsonIgnore
+	private String lastSavedBy;
+
 	public Competition() {
 		this.medalsByGroup = new HashMap<>();
+	}
+
+	/** When the stored row was last saved (epoch milliseconds); null if never saved since this check exists. */
+	@JsonIgnore
+	public Long getLastSavedAt() {
+		return this.lastSavedAt;
+	}
+
+	/** Who made the last save of the stored row. */
+	@JsonIgnore
+	public String getLastSavedBy() {
+		return this.lastSavedBy;
+	}
+
+	/**
+	 * Marks this instance as saved now. Persistence use only (repository, import, migrations).
+	 *
+	 * @param previous the stamp of the row being replaced, null if none
+	 */
+	public void stamp(AuditOrigin origin, Long previous) {
+		this.lastSavedAt = SingletonSaves.nextStamp(previous);
+		this.lastSavedBy = SingletonSaves.savedByLabel(origin);
+	}
+
+	/** Copies the state that lives only in memory from the instance this one replaces. */
+	void copyRuntimeStateFrom(Competition source) {
+		if (source == null || source == this) {
+			return;
+		}
+		this.simulation = source.simulation;
+		this.rankingsInvalid = source.rankingsInvalid;
+	}
+
+	/** The published instance, without loading it. */
+	static Competition peekCurrent() {
+		return competition;
 	}
 
 	/**

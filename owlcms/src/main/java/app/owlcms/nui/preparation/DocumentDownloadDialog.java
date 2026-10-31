@@ -1,6 +1,7 @@
 package app.owlcms.nui.preparation;
 
 import java.util.List;
+import java.util.Objects;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.Component;
@@ -33,7 +34,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
 import com.vaadin.flow.component.html.H4;
-import app.owlcms.data.competition.Competition;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.TemplateResourceUtils;
@@ -766,11 +767,11 @@ public class DocumentDownloadDialog extends Dialog {
                     }
                 }
 
-                // lambda uses getCurrent().
-                template.templateFileNameSetter.accept(newTemplateName);
-                Competition current = Competition.getCurrent();
-                CompetitionRepository.save(current);
-                current = Competition.getCurrent();
+                // only a different template is saved
+                if (!Objects.equals(template.templateFileNameSupplier.get(), newTemplateName)) {
+                    CompetitionRepository.apply(c -> template.templateFileNameSetter.accept(c, newTemplateName),
+                            AuditOrigin.fromUi("document template selection"));
+                }
 
                 // clear previous messages
                 clearProcessing();

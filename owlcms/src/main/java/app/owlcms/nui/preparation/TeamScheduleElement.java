@@ -20,6 +20,7 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.internal.AllowInert;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
@@ -104,9 +105,9 @@ public class TeamScheduleElement extends LitTemplate {
 			if (groupsById.isEmpty() && !rows.isEmpty()) {
 				throw new IllegalArgumentException("No timetable sessions are available");
 			}
-			Competition competition = Competition.getCurrent();
-			competition.setTeamScheduleColumnOrder(roles.stream().map(Enum::name).toList());
-			CompetitionRepository.save(competition);
+			List<String> columnOrder = roles.stream().map(Enum::name).toList();
+			CompetitionRepository.apply(competition -> competition.setTeamScheduleColumnOrder(columnOrder),
+			        AuditOrigin.fromUi("team schedule"));
 			logger.info("Saved technical officials timetable for {} sessions with {} assigned cells",
 			        rows.size(),
 			        rows.stream().mapToLong(row -> row.cells == null ? 0 : row.cells.values().stream()

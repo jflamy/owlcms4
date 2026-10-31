@@ -28,6 +28,7 @@ import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -62,7 +63,9 @@ public class ConfigContent extends Composite<VerticalLayout>
 			LoggerUtils.logError(this.logger, e);
 		}
 		this.factory = createFormFactory();
-		Component form = this.factory.buildNewForm(CrudOperation.UPDATE, Config.getCurrent(), false, null, event -> {
+		// the form edits its own copy: the published settings change only when Save succeeds
+		Component form = this.factory.buildNewForm(CrudOperation.UPDATE, ConfigRepository.loadForEdit(), false, null,
+		        event -> {
 		});
 		fillHW(form, getContent());
 	}

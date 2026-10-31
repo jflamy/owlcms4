@@ -1,7 +1,7 @@
 # Stale-Save Check for Configuration Singletons
 
 Plan, 2026-10-31, fourth revision — simplified. Prerequisite of the "Imports are
-allowed" switch ([130](130-ACCESS_CONTROL_REMAINING.md#database-import)). No Java
+allowed" switch ([130](../130-ACCESS_CONTROL_REMAINING.md#database-import)). No Java
 has been changed by this document.
 
 ## Premise
@@ -103,7 +103,6 @@ meaningless if the form has already mutated the published object before Save.
 - The browser-derived default paper size (`ConfigEditingFormFactory` ~line 572)
   saves `Config.getCurrent()` while the form is open, which would make the form stale
   on arrival. Set the value on the draft instead; Save persists it.
-- `RecordsConfigContent` passes the result of `addMissing` (below) to the form.
 
 ### 2. Remove the duplicate footer saves
 
@@ -281,7 +280,6 @@ as an ordinary error.
 | Page | Immediate save | Resolution |
 | --- | --- | --- |
 | Administration | IWF toggle saves `Config` beside `AccessControlForm` | after `apply`, the form reloads and `readBean`s **only if `binder.hasChanges()` is false**; a dirty form is left to conflict |
-| Records configuration | `addMissing` at page build and after upload/clear | `addMissing` saves only when the order changed and returns the saved instance; the page/callback adopts it (re-read if clean) |
 | System Settings | Local Override upload / Clear | unchanged: both reload the page |
 | Administration | access-mode switch | ends sessions only after its `apply` commits |
 
@@ -336,14 +334,19 @@ pipeline's "Saved" notification and grid callback do not run. Direct Save button
 are caught the same way. No worker thread is introduced.
 
 `lastSavedBy` is the `AuditOrigin` actor rendered as `user@station` in Accounts
-mode, the station/page in PIN mode, or `system` for `AuditOrigin.system`. Never the
-session fingerprint.
+mode, or `system` for `AuditOrigin.system`. In PIN mode no person is known: the
+station is named only when it is certain (a page listed by exact class in
+`StationResolver`, such as ANNOUNCER or ADMIN, or a station declared explicitly);
+a station guessed from the page's package (PREPARATION) or no active page gives no
+name, and the message says only that the settings were changed. Never the session
+fingerprint.
 
 Translation keys (`ConcurrentEdit.Settings.*`) go through the TSV process.
 
 ## Tests
 
-Non-UI tests only, H2. PostgreSQL by manual acceptance.
+Non-UI tests only, H2. No PostgreSQL run: the check compares a plain column under an
+application lock and uses no JPA versioning or database-specific mechanism.
 
 | Test | Asserts |
 | --- | --- |
@@ -369,7 +372,9 @@ Non-UI tests only, H2. PostgreSQL by manual acceptance.
 Browser acceptance, two sessions: System Settings vs Access Control; two Competition
 forms; template change then Competition Save; download dialog opened from the
 Announcer page then Competition Save (must succeed); IWF toggle then Access Control
-Save clean and dirty; Records upload then Save.
+Save clean and dirty; Records display options in two sessions; Competition
+start-number change after the switch was changed in System Settings (refused), and
+after an unrelated System Settings save (accepted).
 
 ## Order
 
@@ -393,3 +398,53 @@ None open. Resolved 2026-10-31: video colours use `apply`; release-note text is 
 Behavior; migrations stamp (the earlier "need no change" claim was wrong, and its
 stated consequence — overwriting the template — was also wrong; see "Migrations stamp
 too"); download dialogs no longer save on opening.
+
+## Implementation status (2026-10-31)
+
+Implemented, not committed. `SingletonStaleSaveTest` (13 tests),
+`SecuritySettingsTest`, `JSONExportImportTest`, `AccountPersistenceTest`,
+`ConfigTest` and `AllTests` (994) pass. Browser acceptance (two sessions, list under
+Tests) passed. Translations are proposed in
+`shared/src/main/resources/i18n/stale_settings_translations.tsv`.
+
+Deviations from the plan, deliberate:
+
+- The unchecked replacement is kept under explicit names instead of being removed:
+  `ConfigRepository.replaceForImport` (the V1/V2 import, production) and
+  `Config.setCurrentTesting` / `CompetitionRepository.saveTesting` (test setup, 25
+  calls in 13 test classes). Their comments say they skip the stale-save check; the
+  former `Config.setCurrent`, `CompetitionRepository.save` and `RecordConfig.setCurrent`
+  no longer exist. Every other production writer uses `saveEdited`, `apply` or
+  `create`.
+- The import-time Jackson setters (`setConfig` in V1 and V2) still store the imported
+  settings, as before; `restore()` stores them again with the importer's origin. Two
+  stamped saves, harmless: the second one updates the row the first inserted.
+- `appVersion` is still set on the published `Config` by the V2 export: it is
+  transient export metadata, never stored.
+- `RecordConfig`'s unused static was removed. `getCurrent()` keeps the second-level
+  cache (scoreboards call it during competition); `loadForEdit()` and the save
+  checks bypass the cache.
+
+Found during implementation and fixed:
+
+- After a **V2** import the published `Competition` was the deserialized object, with
+  no id; the next save of it would have inserted a second competition. V2 now
+  republishes the stored row after the restore commits, as V1 already did.
+- The age-group file picker saved `Competition` on every opening of the age-group
+  page (its listener is registered before the initial `setValue`); it now saves only
+  a different file.
+- Three immediate-save controls (IWF toggle, the championships checkbox on the
+  standalone page, video colour overrides) took their audit origin when the page was
+  built, before it is the active route: saves were attributed to "system". The origin
+  is now taken at the click.
+- The old Records Configuration page (`preparation/recordsConfig`,
+  `RecordsConfigContent`, `RecordConfigEditingFormFactory`) and the old Records
+  navigation page (`records`, `RecordsNavigationContent`) were removed: the Records
+  page (`preparation/records`) replaced them, and they were reachable only from the
+  records-only login, which now lands on `preparation/records`.
+- In PIN mode the message named stations guessed from the page's package
+  ("saved by PREPARATION"). Such guesses are no longer named (see Attribution).
+
+Not covered by unit tests (UI code, no Vaadin objects in tests): the combined
+Competition + start-number switch save, the Access Control refresh after the IWF
+toggle. Both passed browser acceptance.

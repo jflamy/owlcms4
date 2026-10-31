@@ -11,6 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
@@ -25,7 +26,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import app.owlcms.apputils.JpaJsonConverter;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.jpa.SingletonSaves;
+import app.owlcms.data.jpa.StaleSingletonException;
+import app.owlcms.data.jpa.StaleSingletonException.Kind;
 import ch.qos.logback.classic.Logger;
 
 @Cacheable
@@ -36,34 +41,88 @@ public class RecordConfig {
 	static Logger logger = (Logger) LoggerFactory.getLogger(RecordConfig.class);
 	private static final int RECORD_ORDER_LENGTH = 512;
 	private static final int RECORD_ORDER_SAFE_LENGTH = RECORD_ORDER_LENGTH - 16;
-	private static RecordConfig current;
 
+	/** Read at each call (second-level cache allowed); creates the default row when there is none. */
 	public static RecordConfig getCurrent() {
-		current = JPAService.runInTransaction(em -> em.find(RecordConfig.class, 1L));
-		if (current == null) {
-			current = new RecordConfig();
-			setCurrent(current);
+		RecordConfig rc = JPAService.runInTransaction(em -> em.find(RecordConfig.class, 1L));
+		if (rc == null) {
+			rc = createIfAbsent();
 		}
-		if (current.getRecordOrder() == null) {
-			current.setRecordOrder(new ArrayList<>());
-		}
-		if (current.getShowAllCategoryRecords() == null) {
-			current.setShowAllCategoryRecords(false);
-		}
-		if (current.getShowAllFederations() == null) {
-			current.setShowAllFederations(false);
-		}
-		return current;
+		return withDefaults(rc);
 	}
 
-	public static RecordConfig setCurrent(RecordConfig recordConfig) {
-		RecordConfig merged = JPAService.runInTransaction(em -> {
-			RecordConfig nc = em.merge(recordConfig);
-			em.flush();
-			return nc;
-		});
-		current = merged;
-		return current;
+	private static RecordConfig withDefaults(RecordConfig rc) {
+		if (rc.getRecordOrder() == null) {
+			rc.setRecordOrder(new ArrayList<>());
+		}
+		if (rc.getShowAllCategoryRecords() == null) {
+			rc.setShowAllCategoryRecords(false);
+		}
+		if (rc.getShowAllFederations() == null) {
+			rc.setShowAllFederations(false);
+		}
+		return rc;
+	}
+
+	/** A fresh copy for a form, read from the database; it carries the stamp {@link #saveEdited} compares with the row. */
+	public static RecordConfig loadForEdit() {
+		RecordConfig rc = SingletonSaves.inTransaction(em -> SingletonSaves.findFresh(em, RecordConfig.class, 1L));
+		if (rc == null) {
+			rc = createIfAbsent();
+		}
+		return withDefaults(rc);
+	}
+
+	/**
+	 * Saves a form's copy, unless the stored record settings were saved after the copy was loaded.
+	 *
+	 * @throws StaleSingletonException when they were saved since; nothing is written
+	 */
+	public static RecordConfig saveEdited(RecordConfig draft, AuditOrigin origin) {
+		synchronized (SingletonSaves.LOCK) {
+			RecordConfig merged = SingletonSaves.inTransaction(em -> {
+				RecordConfig row = SingletonSaves.findFresh(em, RecordConfig.class, draft.id);
+				if (row == null || !Objects.equals(row.getLastSavedAt(), draft.getLastSavedAt())) {
+					throw new StaleSingletonException(Kind.RECORD_CONFIG, row != null ? row.getLastSavedBy() : null);
+				}
+				draft.stamp(origin, row.getLastSavedAt());
+				return em.merge(draft);
+			});
+			return merged;
+		}
+	}
+
+	/** Immediate change (no form): loads the stored row under the save lock, applies the change and saves. */
+	public static RecordConfig apply(Consumer<RecordConfig> change, AuditOrigin origin) {
+		synchronized (SingletonSaves.LOCK) {
+			RecordConfig saved = SingletonSaves.inTransaction(em -> {
+				RecordConfig row = SingletonSaves.findFresh(em, RecordConfig.class, 1L);
+				if (row == null) {
+					row = new RecordConfig();
+					change.accept(row);
+					row.stamp(origin, null);
+					return em.merge(row);
+				}
+				change.accept(row);
+				row.stamp(origin, row.getLastSavedAt());
+				return row;
+			});
+			return saved;
+		}
+	}
+
+	private static RecordConfig createIfAbsent() {
+		synchronized (SingletonSaves.LOCK) {
+			return SingletonSaves.inTransaction(em -> {
+				RecordConfig row = SingletonSaves.findFresh(em, RecordConfig.class, 1L);
+				if (row != null) {
+					return row;
+				}
+				RecordConfig fresh = new RecordConfig();
+				fresh.stamp(AuditOrigin.system("record settings created"), null);
+				return em.merge(fresh);
+			});
+		}
 	}
 
 	/**
@@ -100,27 +159,75 @@ public class RecordConfig {
 	private Boolean showAllFederations;
 	@Id
 	Long id = 1L; // is a singleton. if we ever create a new one it should merge.
+	/** Stale-save check: time of the last save of this row (epoch ms). Never exported. */
+	@JsonIgnore
+	private Long lastSavedAt;
+	/** Stale-save check: who made the last save of this row. Never exported. */
+	@JsonIgnore
+	private String lastSavedBy;
 
 	public RecordConfig() {
 		this.recordOrder = new ArrayList<>();
 	}
 
-	public void addMissing(List<String> findAllRecordNames) {
-		// get rid of items in list but not in database
-		if (this.recordOrder != null && this.recordOrder.size() > 0) {
-			ArrayList<String> extras = new ArrayList<>(this.recordOrder);
-			extras.removeAll(findAllRecordNames);
-			this.recordOrder.removeAll(extras);
-			findAllRecordNames.removeAll(this.recordOrder);
+	/**
+	 * Keeps the display order in line with the record names in the database: names no longer present are dropped,
+	 * new names are added at the end so the current order is preserved. Saves only when the order changes.
+	 *
+	 * @return the saved settings when the order changed, otherwise this instance
+	 */
+	public RecordConfig addMissing(List<String> findAllRecordNames) {
+		if (Objects.equals(mergedOrder(this.recordOrder, findAllRecordNames), this.recordOrder)) {
+			return this;
 		}
-		if (this.recordOrder == null && findAllRecordNames != null && findAllRecordNames.size() > 0) {
-			this.recordOrder = new ArrayList<>();
-		}
+		return apply(rc -> rc.setRecordOrder(mergedOrder(rc.getRecordOrder(), findAllRecordNames)),
+		        AuditOrigin.system("record order update"));
+	}
 
-		// new items in database but not in list, add them at the end to preserve
-		// current sort order
-		this.recordOrder.addAll(findAllRecordNames);
-		setCurrent(this);
+	static ArrayList<String> mergedOrder(List<String> order, List<String> names) {
+		List<String> available = names != null ? names : List.of();
+		ArrayList<String> merged = new ArrayList<>();
+		if (order != null) {
+			for (String name : order) {
+				if (available.contains(name) && !merged.contains(name)) {
+					merged.add(name);
+				}
+			}
+		}
+		for (String name : available) {
+			if (!merged.contains(name)) {
+				merged.add(name);
+			}
+		}
+		return merged;
+	}
+
+	/** The singleton row's id; not exported. */
+	@JsonIgnore
+	public Long getId() {
+		return this.id;
+	}
+
+	/** When the stored row was last saved (epoch milliseconds); null if never saved since this check exists. */
+	@JsonIgnore
+	public Long getLastSavedAt() {
+		return this.lastSavedAt;
+	}
+
+	/** Who made the last save of the stored row. */
+	@JsonIgnore
+	public String getLastSavedBy() {
+		return this.lastSavedBy;
+	}
+
+	/**
+	 * Marks this instance as saved now. Persistence use only (repository, import).
+	 *
+	 * @param previous the stamp of the row being replaced, null if none
+	 */
+	public void stamp(AuditOrigin origin, Long previous) {
+		this.lastSavedAt = SingletonSaves.nextStamp(previous);
+		this.lastSavedBy = SingletonSaves.savedByLabel(origin);
 	}
 
 	public static boolean normalizeImportedRecordNames(List<RecordEvent> records, RecordConfig recordConfig) {

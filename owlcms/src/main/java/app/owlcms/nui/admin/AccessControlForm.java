@@ -15,6 +15,7 @@ import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.components.fields.OwlcmsPasswordField;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.i18n.Translator;
 
 /**
@@ -25,6 +26,8 @@ import app.owlcms.i18n.Translator;
 class AccessControlForm extends VerticalLayout {
 
 	private final Binder<Config> binder = new Binder<>(Config.class);
+	/** The form's own copy: the published settings change only when Save succeeds. */
+	private Config draft;
 
 	AccessControlForm() {
 		setPadding(false);
@@ -69,16 +72,28 @@ class AccessControlForm extends VerticalLayout {
 		layout.setEnabled(!accounts);
 		save.setEnabled(!accounts);
 
-		this.binder.readBean(Config.getCurrent());
+		this.draft = ConfigRepository.loadForEdit();
+		this.binder.readBean(this.draft);
 		add(unused, layout, save);
 	}
 
+	/**
+	 * After another control on the page saved the settings: picks up the new copy so that Save is not refused,
+	 * unless the user has unsaved edits here, which are kept (Save then reports the conflict).
+	 */
+	void refreshIfClean() {
+		if (!this.binder.hasChanges()) {
+			this.draft = ConfigRepository.loadForEdit();
+			this.binder.readBean(this.draft);
+		}
+	}
+
 	private void save() {
-		// the settings are edited in place, as in System Settings
-		Config config = Config.getCurrent();
-		if (this.binder.writeBeanIfValid(config)) {
-			Config.setCurrent(config, AuditOrigin.fromUi("Administration access control"));
-			this.binder.readBean(Config.getCurrent());
+		if (this.binder.writeBeanIfValid(this.draft)) {
+			// refused with a notification if the settings were saved since the copy was loaded
+			ConfigRepository.saveEdited(this.draft, AuditOrigin.fromUi("Administration access control"));
+			this.draft = ConfigRepository.loadForEdit();
+			this.binder.readBean(this.draft);
 			NotificationUtils.saved();
 		}
 	}

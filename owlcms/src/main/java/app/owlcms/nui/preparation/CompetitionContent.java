@@ -26,7 +26,9 @@ import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
@@ -53,8 +55,12 @@ public class CompetitionContent extends Composite<VerticalLayout>
 	public CompetitionContent() {
 		initLoggers();
 		this.factory = (CompetitionEditingFormFactory) createFormFactory();
-		Component form = this.factory.buildNewForm(CrudOperation.UPDATE, Competition.getCurrent(), false, null,
-		        event -> {
+		// these can save the Competition once (legacy migration): run them before the form takes its copy
+		ChampionshipRepository.normalizeDefaultTypes();
+		ChampionshipRepository.normalizeCompetitionDefaultFlags();
+		// the form edits its own copy: the published competition changes only when Save succeeds
+		Component form = this.factory.buildNewForm(CrudOperation.UPDATE, CompetitionRepository.loadForEdit(), false,
+		        null, event -> {
 		        });
 		fillHW(form, getContent());
 	}

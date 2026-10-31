@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
-import app.owlcms.data.competition.Competition;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.competition.CompetitionRepository;
-import app.owlcms.data.config.Config;
+import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -145,13 +145,13 @@ public class ProtocolScenario implements BreakController {
 			return m1;
 		});
 		// the situation where an OVR is used: seven-person Adjudication Panel (four-member jury with video playback)
-		Competition competition = Competition.getCurrent();
-		competition.setJurySize(JURY_SIZE);
-		competition.setVideoPlaybackTechnology(true);
-		CompetitionRepository.save(competition);
-		Config config = Config.getCurrent();
-		config.setFeatureSwitchValue(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, true);
-		Config.setCurrent(config);
+		AuditOrigin origin = AuditOrigin.system("protocol simulation");
+		CompetitionRepository.apply(competition -> {
+			competition.setJurySize(JURY_SIZE);
+			competition.setVideoPlaybackTechnology(true);
+		}, origin);
+		ConfigRepository.apply(config -> config.setFeatureSwitchValue(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, true),
+		        origin);
 		return session;
 	}
 

@@ -4,6 +4,7 @@ import app.owlcms.audit.AuditOrigin;
 import app.owlcms.audit.AuthAudit;
 import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.ConfigRepository;
 
 /**
  * The security settings of the Administration page: the access mode (PIN or user accounts), which needs the control
@@ -30,8 +31,7 @@ public final class SecuritySettings {
 		if (target == AccessMode.ACCOUNTS && !UserAccountRepository.adminHasPassword()) {
 			return Outcome.ADMIN_PASSWORD_REQUIRED;
 		}
-		config.setAccessMode(target);
-		Config.setCurrent(config, origin);
+		ConfigRepository.apply(c -> c.setAccessMode(target), origin);
 		return Outcome.CHANGED;
 	}
 
@@ -41,8 +41,7 @@ public final class SecuritySettings {
 		if (config.isIwfComplianceChecked() == on) {
 			return Outcome.UNCHANGED;
 		}
-		config.setIwfCompliance(on);
-		Config.setCurrent(config, origin);
+		ConfigRepository.apply(c -> c.setIwfCompliance(on), origin);
 		AuthAudit.iwfComplianceCheckChanged(origin, on);
 		return Outcome.CHANGED;
 	}

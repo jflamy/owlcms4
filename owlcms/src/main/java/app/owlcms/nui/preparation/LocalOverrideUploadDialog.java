@@ -17,7 +17,8 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.server.streams.UploadHandler;
 
-import app.owlcms.data.config.Config;
+import app.owlcms.audit.AuditOrigin;
+import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
@@ -38,14 +39,14 @@ public class LocalOverrideUploadDialog extends Dialog {
 		ta.setWidth("80em");
 		ta.setVisible(false);
 
+		// captured on the UI thread, where the dialog is built
+		AuditOrigin origin = AuditOrigin.fromUi("local override upload");
 		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, bytes) -> {
 			logger.info("zip type {}", metadata.contentType());
 			try {
 				ResourceWalker.unzipBlobToTemp(bytes);
 				// Save directly to config and reload page
-				Config config = Config.getCurrent();
-				config.setLocalZipBlob(bytes);
-				Config.setCurrent(config);
+				ConfigRepository.apply(c -> c.setLocalZipBlob(bytes), origin);
 				ResourceWalker.checkForLocalOverrideDirectory();
 				this.close();
 				UI.getCurrent().getPage().reload();

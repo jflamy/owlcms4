@@ -46,12 +46,17 @@ import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.router.Location;
 
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.components.fields.LocalizedIntegerField;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.config.TcrrCompliance;
+import app.owlcms.data.jpa.SingletonSaves;
+import app.owlcms.data.jpa.StaleSingletonException;
+import app.owlcms.data.jpa.StaleSingletonException.Kind;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -83,6 +88,7 @@ public class CompetitionEditingFormFactory
 	private RadioButtonGroup<StartNumberOrder> startNumberOrderField;
 	private TabSheet tabSheet;
 	private boolean jurySizeChanged;
+	private boolean openingBwThenAgeGroup;
 
 	private enum StartNumberOrder {
 		BY_BODY_WEIGHT_CATEGORY,
@@ -101,9 +107,12 @@ public class CompetitionEditingFormFactory
 		// Save current RankingConfig state to competition before persisting
 		c.saveRankingConfig();
 		applyStartNumberOrder(c);
-		CompetitionRepository.save(c);
-		saveStartNumberOrderConfiguration();
-		return c;
+		AuditOrigin origin = AuditOrigin.fromUi("Competition");
+		Competition saved = CompetitionRepository.create(c, origin);
+		boolean bwThenAgeGroup = this.startNumberOrderField.getValue() == StartNumberOrder.BY_BODY_WEIGHT_CATEGORY_THEN_AGE_GROUP;
+		ConfigRepository.apply(config -> config.setFeatureSwitchValue(FeatureSwitch.BW_CLASS_THEN_AGE_GROUP, bwThenAgeGroup),
+		        origin);
+		return saved;
 	}
 
 	@Override
@@ -166,14 +175,15 @@ public class CompetitionEditingFormFactory
 		FormLayout liftingOrderLayout = liftingOrderForm();
 		FormLayout otherRulesLayout = otherRulesForm();
 		FormLayout pointScoresForm = pointScoresForm();
-		EditChampionshipsPanel championshipsPanel = new EditChampionshipsPanel();
+		// the panel edits the form's copy: its checkbox is saved with the form
+		EditChampionshipsPanel championshipsPanel = new EditChampionshipsPanel(comp);
 		boolean tcrrCompliance = TcrrCompliance.isEnabled();
 		mastersRulesLayout.setVisible(!tcrrCompliance);
 		liftingOrderLayout.setVisible(!tcrrCompliance);
 
+		// update() already ran when this callback is invoked: saving again here would be refused as stale
 		Component footer = this.buildFooter(operation, comp, cancelButtonClickListener,
 		        c -> {
-			        this.update(comp);
 		        }, deleteButtonClickListener, false);
 
 		TabSheet ts = new TabSheet();
@@ -255,14 +265,10 @@ public class CompetitionEditingFormFactory
 
 	@Override
 	public Competition update(Competition competition) {
-		// The championships panel saves this flag immediately on Competition.getCurrent(),
-		// which may be a newer instance than the one being edited by this form.
-		competition.setHideEmptyChampionships(Competition.getCurrent().isHideEmptyChampionships());
 		// Save current RankingConfig state to competition before persisting
 		competition.saveRankingConfig();
 		applyStartNumberOrder(competition);
-		Competition saved = CompetitionRepository.save(competition);
-		saveStartNumberOrderConfiguration();
+		Competition saved = saveWithStartNumberSwitch(competition, AuditOrigin.fromUi("Competition"));
 		if (this.jurySizeChanged) {
 			for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
 				if (fop.getPlatform() != null && fop.getPlatform().getJurySize() == null) {
@@ -595,6 +601,8 @@ public class CompetitionEditingFormFactory
 	}
 
 	private FormLayout startNumberForm(Competition competition) {
+		// the switch lives in Config: remember its value when the form opens, to detect a change made elsewhere
+		this.openingBwThenAgeGroup = Config.getCurrent().getFeatureSwitchValue(FeatureSwitch.BW_CLASS_THEN_AGE_GROUP);
 		FormLayout layout = createLayout();
 
 		Component startNumberTitle = createTitle("StartNumber");
@@ -629,17 +637,38 @@ public class CompetitionEditingFormFactory
 		if (competition.isDisplayByAgeGroup()) {
 			return StartNumberOrder.BY_ASCENDING_AGE_GROUP_THEN_BODY_WEIGHT_CATEGORY;
 		}
-		if (Config.getCurrent().getFeatureSwitchValue(FeatureSwitch.BW_CLASS_THEN_AGE_GROUP)) {
+		if (this.openingBwThenAgeGroup) {
 			return StartNumberOrder.BY_BODY_WEIGHT_CATEGORY_THEN_AGE_GROUP;
 		}
 		return StartNumberOrder.BY_BODY_WEIGHT_CATEGORY;
 	}
 
-	private void saveStartNumberOrderConfiguration() {
-		Config config = Config.getCurrent();
-		config.setFeatureSwitchValue(FeatureSwitch.BW_CLASS_THEN_AGE_GROUP,
-		        this.startNumberOrderField.getValue() == StartNumberOrder.BY_BODY_WEIGHT_CATEGORY_THEN_AGE_GROUP);
-		Config.setCurrent(config);
+	/**
+	 * Saves the competition and, when the start-number choice changed, the BW_CLASS_THEN_AGE_GROUP switch kept in
+	 * Config, under one save lock. Every check runs before any write: a refused save writes nothing.
+	 *
+	 * @throws StaleSingletonException if the competition was saved since the form was opened, or if the switch was
+	 *                                 changed elsewhere (System Settings) while the start-number choice changed here
+	 */
+	private Competition saveWithStartNumberSwitch(Competition competition, AuditOrigin origin) {
+		boolean bwThenAgeGroup = this.startNumberOrderField.getValue() == StartNumberOrder.BY_BODY_WEIGHT_CATEGORY_THEN_AGE_GROUP;
+		boolean switchChanged = bwThenAgeGroup != this.openingBwThenAgeGroup;
+		synchronized (SingletonSaves.LOCK) {
+			if (switchChanged) {
+				// compare the switch itself: unrelated Config saves (password upgrade at login) do not block this
+				Config stored = ConfigRepository.loadForEdit();
+				if (stored.getFeatureSwitchValue(FeatureSwitch.BW_CLASS_THEN_AGE_GROUP) != this.openingBwThenAgeGroup) {
+					throw new StaleSingletonException(Kind.CONFIG, stored.getLastSavedBy());
+				}
+			}
+			Competition saved = CompetitionRepository.saveEdited(competition, origin);
+			if (switchChanged) {
+				ConfigRepository.apply(c -> c.setFeatureSwitchValue(FeatureSwitch.BW_CLASS_THEN_AGE_GROUP, bwThenAgeGroup),
+				        origin);
+				this.openingBwThenAgeGroup = bwThenAgeGroup;
+			}
+			return saved;
+		}
 	}
 
 	private String startNumberOrderLabel(StartNumberOrder startNumberOrder) {

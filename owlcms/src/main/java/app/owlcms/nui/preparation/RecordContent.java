@@ -32,6 +32,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 
 import app.owlcms.access.AccessUi;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.components.fields.GridField;
 import app.owlcms.components.JXLSDownloader;
@@ -315,7 +316,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	}
 
 	private void openDisplayOrderDialog() {
-		RecordConfig current = RecordConfig.getCurrent();
+		RecordConfig current = RecordConfig.loadForEdit();
 
 		GridField<String> orderingField = new GridField<>(getOrderedActiveRecordNames(current), true,
 		        Translator.translate("Records.NoDisplayOrderRecords"));
@@ -339,7 +340,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			current.setRecordOrder(new ArrayList<>(orderingField.getValue()));
 			current.setShowAllCategoryRecords(showAllCategoriesField.getValue());
 			current.setShowAllFederations(showAllFederationsField.getValue());
-			RecordConfig.setCurrent(current);
+			// refused with a notification if the record settings were saved since the dialog was opened;
+			// the dialog then stays open
+			RecordConfig.saveEdited(current, AuditOrigin.fromUi("Records display options"));
 			dialog.close();
 		});
 		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);

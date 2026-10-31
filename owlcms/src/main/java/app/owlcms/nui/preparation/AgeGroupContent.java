@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import app.owlcms.access.AccessUi;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
@@ -515,8 +517,10 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		Resource found = searchMatch(resourceList, curTemplateName);
 		this.ageGroupDefinitionSelect.addValueChangeListener((e) -> {
 			logger.debug("setTemplateSelectionListener {}", found);
-			Competition.getCurrent().setAgeGroupsFileName(e.getValue().getFileName());
-			CompetitionRepository.save(Competition.getCurrent());
+			String fileName = e.getValue().getFileName();
+			if (!Objects.equals(Competition.getCurrent().getAgeGroupsFileName(), fileName)) {
+				CompetitionRepository.apply(c -> c.setAgeGroupsFileName(fileName), AuditOrigin.fromUi("age group file"));
+			}
 		});
 		this.ageGroupDefinitionSelect.setValue(found);
 	}

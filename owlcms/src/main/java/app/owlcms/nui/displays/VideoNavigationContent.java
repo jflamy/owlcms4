@@ -35,8 +35,10 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.components.GroupCategorySelectionMenu;
 import app.owlcms.data.category.Category;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -233,7 +235,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 
 		enableColorOverrideCheckbox.addClickListener(event -> {
 			boolean selected = Boolean.TRUE.equals(enableColorOverrideCheckbox.getValue());
-			Config.getCurrent().setEnableColorOverrides(selected);
+			ConfigRepository.apply(c -> c.setEnableColorOverrides(selected), AuditOrigin.fromUi("video colour override"));
 			colorPicker.setEnabled(selected);
 			logger.debug("selected {}", selected);
 		});
@@ -252,7 +254,8 @@ public class VideoNavigationContent extends BaseNavigationContent
 		                new ColorPreset("#00008b", "Dark Blue")));
 
 		colorPicker.addValueChangeListener(event -> {
-			Config.getCurrent().setVideoColorOverrides("--videoHeaderBackgroundColor: " + event.getValue());
+			String overrides = "--videoHeaderBackgroundColor: " + event.getValue();
+			ConfigRepository.apply(c -> c.setVideoColorOverrides(overrides), AuditOrigin.fromUi("video colour override"));
 			Notification.show(event.getValue());
 		});
 

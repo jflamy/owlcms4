@@ -60,6 +60,17 @@ public class NotificationUtils {
 	}
 
 	/**
+	 * A save refused because the same settings were saved after the page was opened. Nothing was written.
+	 *
+	 * @param savedBy who made that save; null or blank when unknown
+	 */
+	public static void staleSettings(String savedBy) {
+		centeredError(savedBy == null || savedBy.isBlank()
+		        ? Translator.translate("ConcurrentEdit.Settings.Changed")
+		        : Translator.translate("ConcurrentEdit.Settings.SavedBy", savedBy));
+	}
+
+	/**
 	 * Centered red notification that stays until the user clicks it (dismissal ✕ shown).
 	 */
 	public static Notification centeredError(String text) {

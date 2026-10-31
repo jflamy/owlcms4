@@ -343,7 +343,7 @@ public class NRegistrationFileProcessorTest {
         try {
             for (boolean explicitTeams : new boolean[] { false, true }) {
                 config.setFeatureSwitchValue(FeatureSwitch.EXPLICIT_TEAMS, explicitTeams);
-                Config.setCurrent(config);
+                Config.setCurrentTesting(config);
                 for (int incomingCase = 0; incomingCase < 3; incomingCase++) {
                     LinkedHashSet<Category> priorTeams = new LinkedHashSet<>(List.of(priorCategory));
                     RCompetition.putTeams(existingAthlete.getId(), new LinkedHashSet<>(priorTeams));
@@ -364,7 +364,7 @@ public class NRegistrationFileProcessorTest {
             }
         } finally {
             config.setFeatureSwitchValue(FeatureSwitch.EXPLICIT_TEAMS, previousExplicitTeams);
-            Config.setCurrent(config);
+            Config.setCurrentTesting(config);
             RCompetition.getAthleteToTeams().remove(existingAthlete.getId());
             RCompetition.getAthleteToMixedTeams().remove(existingAthlete.getId());
         }

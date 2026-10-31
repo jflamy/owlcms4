@@ -207,7 +207,7 @@ public class NRegistrationFileProcessorCategoryAssignmentTest {
 		try {
 			for (boolean explicitTeams : new boolean[] { false, true }) {
 				config.setFeatureSwitchValue(FeatureSwitch.EXPLICIT_TEAMS, explicitTeams);
-				Config.setCurrent(config);
+				Config.setCurrentTesting(config);
 				for (String categorySpec : new String[] { "", "95", "M 95", "95/+T,+MT", "M 95/-T,+MT", "95/-T,-MT", "95/" }) {
 					boolean expectedTeam = categorySpec.contains("+T")
 						|| (!explicitTeams && !categorySpec.contains("-T") && !categorySpec.endsWith("/"));
@@ -237,7 +237,7 @@ public class NRegistrationFileProcessorCategoryAssignmentTest {
 			}
 		} finally {
 			config.setFeatureSwitchValue(FeatureSwitch.EXPLICIT_TEAMS, previousExplicitTeams);
-			Config.setCurrent(config);
+			Config.setCurrentTesting(config);
 		}
 	}
 

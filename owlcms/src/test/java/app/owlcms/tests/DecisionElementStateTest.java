@@ -782,13 +782,13 @@ public class DecisionElementStateTest {
     private void setShowDecisionsImmediately(boolean enabled) {
         Config config = Config.getCurrent();
         config.setFeatureSwitchValue(FeatureSwitch.SHOW_DECISIONS_IMMEDIATELY, enabled);
-        Config.setCurrent(config);
+        Config.setCurrentTesting(config);
     }
 
     private void setJuryDecisionsOnAttemptBoard(boolean enabled) {
         Config config = Config.getCurrent();
         config.setFeatureSwitchValue(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, enabled);
-        Config.setCurrent(config);
+        Config.setCurrentTesting(config);
     }
 
     private static final class EventTimeline {

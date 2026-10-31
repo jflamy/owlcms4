@@ -234,7 +234,7 @@ public class JSONExportImportTest {
             Config config = Config.getCurrent();
             config.setAccessMode(AccessMode.ACCOUNTS);
             config.setIwfCompliance(true);
-            Config.setCurrent(config);
+            Config.setCurrentTesting(config);
             AccessStartup.roleAccountInitialization().join();
             String legacyJson = new CompetitionData().exportDataAsString();
             String v2Json = new String(new CompetitionDataV2().fromDatabase().exportData().readAllBytes(),
@@ -246,7 +246,7 @@ public class JSONExportImportTest {
                 config = Config.getCurrent();
                 config.setAccessMode(AccessMode.PIN);
                 config.setIwfCompliance(false);
-                Config.setCurrent(config);
+                Config.setCurrentTesting(config);
                 if (v2) {
                     new CompetitionDataV2().importData(
                             new ByteArrayInputStream(v2Json.getBytes(StandardCharsets.UTF_8)));
@@ -261,7 +261,7 @@ public class JSONExportImportTest {
             Config restored = Config.getCurrent();
             restored.setAccessMode(AccessMode.PIN);
             restored.setIwfCompliance(null);
-            Config.setCurrent(restored);
+            Config.setCurrentTesting(restored);
         }
     }
 
@@ -279,7 +279,7 @@ public class JSONExportImportTest {
                     .get("config").get("forwardingDestinations").get(0).get("updateKey").asString();
             CompetitionData legacyImported = new CompetitionData().importDataFromString(legacyJson);
 
-            Config.setCurrent(config);
+            Config.setCurrentTesting(config);
             CompetitionDataV2 v2 = new CompetitionDataV2().fromDatabase();
             String v2Json = new String(v2.exportData().readAllBytes(), StandardCharsets.UTF_8);
             String v2ExportedKey = mapper.readTree(v2Json)
@@ -296,7 +296,7 @@ public class JSONExportImportTest {
             assertEquals("fixture-update-key", config.getForwardingDestinations().get(0).getUpdateKey());
         } finally {
             config.setForwardingDestinations(originalConnections);
-            Config.setCurrent(config);
+            Config.setCurrentTesting(config);
         }
     }
 

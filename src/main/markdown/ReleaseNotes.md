@@ -26,6 +26,10 @@
 
 - 69.0.0-beta02: The update keys of forwarding connections encrypted in Accounts mode.
 
+- 69.0.0-beta02: Settings pages (System Settings, Access Control, Competition, Records) refuse to save if the same settings were changed after the page was opened, and say who changed them when that is known (the account, or the station in Simple Access mode); reload the page and redo the change. Previously the older page silently overwrote the newer settings.
+  - Some actions save these settings immediately and count as such a change: uploading a registration file, saving the team schedule, choosing a different document template or age-group file, changing the start-number order, hiding empty championships, the IWF compliance switch, the video colour override, and uploading or clearing local overrides.
+  - Opening a document download dialog, choosing the age-group file already in use, and tracker connections no longer save the settings.
+
 - 69.0.0-beta02: Buttons that open another page (medal ceremony, championships, age groups, records, record eligibility report, team schedule, registration from the sessions page, plates and collars from the platforms page) are shown only to accounts allowed to open that page. The records page and the record eligibility report need the Preparation or Results permission (the records page needed Preparation, the report the admin pages). The referee and jury device testing page is open to the TC and the Competition Supervisor (it was admin only).
 
 - 69.0.0-beta02: OWLCMS 69 requires control panel 3.10.0 or later, which gives OWLCMS a new control panel token at each launch. The home page says so when an older control panel is used.

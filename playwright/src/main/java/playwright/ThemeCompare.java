@@ -220,7 +220,6 @@ public class ThemeCompare {
 	        "preparation/officials",
 	        "preparation/platforms",
 	        "preparation/agegroup",
-	        "records",
 	        "results/results",
 	        "results/finalpackage",
 	        "results/teamresults",
@@ -253,9 +252,6 @@ public class ThemeCompare {
 	        new Route(2, "results/finalpackage", false, true),
 	        new Route(2, "preparation/athletes", false, true),
 	        new Route(2, "results/results", false, true),
-	        // examined: input fields sit 1px right in Vaadin 25, but 0.45% is above the "ignore"
-	        // threshold, so it stays in the run until confirmed harmless on screen
-	        new Route(2, "records", false, true),
 	        new Route(2, "preparation/records", false, true),
 
 	        // ---- Tier 3: still open ---------------------------------------------------------------
@@ -283,7 +279,6 @@ public class ThemeCompare {
 	        // below 0.1%: no visible difference
 	        new Route(4, "preparation", false, true),
 	        new Route(4, "results", false, true),
-	        new Route(4, "preparation/recordsConfig", false, true),
 	        new Route(4, "preparation/teams", false, true),
 	        new Route(4, "results/teamresults", false, true),
 	        new Route(4, "lifting/announcer", true, false),

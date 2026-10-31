@@ -41,7 +41,7 @@ public class SecuritySettingsTest {
 		Config config = Config.getCurrent();
 		config.setIwfCompliance(false);
 		config.setAccessMode(AccessMode.PIN);
-		Config.setCurrent(config, ORIGIN);
+		Config.setCurrentTesting(config, ORIGIN);
 	}
 
 	private static void setAdminPassword(String password) {

@@ -13,7 +13,6 @@ None open. Lenient birth-date parsing is done: [BIRTHDATE_LENIENT_PARSE.md](done
 | Order | Document | Scope |
 | --- | --- | --- |
 | 130 | [Other access work](130-ACCESS_CONTROL_REMAINING.md) | Locality by control panel token, admin pages and admin password, navigation/action gating, infrastructure/security review |
-| 136 | [Configuration stale-save check](136-CONFIG_COARSE_CONFLICT.md) | `lastSavedAt`/`lastSavedBy` on Config, Competition and RecordConfig; detached form editing; one lock; V2 export stops saving Config; prerequisite of the 130 "Imports are allowed" switch |
 | 145 | [Signed exports](145-SIGNED_EXPORTS.md) | PEM signature inside JSON exports, import outcomes in the audit trail, support procedures with and without the key |
 | 150 | [Scheduled checkpoints](150-SCHEDULED_CHECKPOINTS.md) | Tracker timer and faithful ZIP retention over the existing WebSocket |
 | 160 | [Direct JSON boot](160-DIRECT_JSON_BOOT.md) | Control-panel checkpoint-folder launch, no-restart rule and Postgres acceptance |
@@ -25,7 +24,9 @@ export credential protection (140) are done:
 [100-PEM_ACCOUNT_MODE.md](done/100-PEM_ACCOUNT_MODE.md),
 [110-ACCOUNT_TOKENS.md](done/110-ACCOUNT_TOKENS.md),
 [120-TOKEN_PROTECTED_URLS.md](done/120-TOKEN_PROTECTED_URLS.md),
-[140-EXPORT_CREDENTIAL_PROTECTION.md](done/140-EXPORT_CREDENTIAL_PROTECTION.md). While implementing 130, remove
+[140-EXPORT_CREDENTIAL_PROTECTION.md](done/140-EXPORT_CREDENTIAL_PROTECTION.md). The configuration
+stale-save check (136) is done too:
+[136-CONFIG_COARSE_CONFLICT.md](done/136-CONFIG_COARSE_CONFLICT.md). While implementing 130, remove
 requirements already covered by 100–120 rather than duplicating checks.
 Checkpoint collection uses existing WebSocket authentication, not personal URL
 tokens.
@@ -37,6 +38,7 @@ tokens.
 | 200 | [Age-group editing](200-AGEGROUP_EDIT_CONFIRMATION.md) | Target behavior for age-group edits and athlete reassignment per championship; stops the data loss. Current behavior unchanged since version 65; not blocking for a beta |
 | 210 | [Scoped dark dialogs](210-SCOPED_DARK_DIALOGS.md) | Stop display-page dark styling from leaking into ordinary pages |
 | 220 | [Store panel decisions](220-STORE_PANEL_DECISIONS.md) | Persist detailed review votes and circumstances for later reports |
+| 230 | [Document template settings](230-DOCUMENT_TEMPLATE_SETTINGS.md) | Store per-document template choices apart from `Competition`, so printing never counts as a change to the competition settings |
 
 ## 3xx — Nice to have
 

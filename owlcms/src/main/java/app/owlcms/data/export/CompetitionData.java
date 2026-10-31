@@ -27,6 +27,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.notification.Notification;
 
 import app.owlcms.audit.AuditActor;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
@@ -41,6 +42,7 @@ import app.owlcms.data.coach.CoachRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.export.ChecksummedJsonExport.ChecksummedInputStream;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -269,6 +271,11 @@ public class CompetitionData {
 	}
 
 	public void restore(InputStream inputStream) {
+		restore(inputStream, AuditOrigin.system("import"));
+	}
+
+	/** @param origin who imported and from where; recorded as the last saver of the replaced settings */
+	public void restore(InputStream inputStream, AuditOrigin origin) {
 		this.removeAll();
 		JPAService.runInTransaction(em -> {
 			try {
@@ -286,7 +293,7 @@ public class CompetitionData {
 					logger.info("override zip found {} bytes", blob.length);
 				}
 				// this writes out the config as well.
-				Config.setCurrent(config);
+				ConfigRepository.replaceForImport(config, origin);
 				
 				ResourceWalker.setInitializedLocalDir(false);
 				ResourceWalker.initLocalDir();
@@ -344,7 +351,11 @@ public class CompetitionData {
 				}
 
 				if (updated.getRecordConfig() != null) {
-					em.merge(updated.getRecordConfig());
+					RecordConfig importedRecordConfig = updated.getRecordConfig();
+					// the record settings row is not deleted before an import: it is replaced in place
+					RecordConfig existing = em.find(RecordConfig.class, importedRecordConfig.getId());
+					importedRecordConfig.stamp(origin, existing != null ? existing.getLastSavedAt() : null);
+					em.merge(importedRecordConfig);
 				}
 
 				if (updated.getTechnicalOfficials() != null) {
@@ -360,6 +371,7 @@ public class CompetitionData {
 					}
 				}
 				
+				competition.stamp(origin, null);
 				em.merge(competition);
 				em.flush();
 			} catch (Exception e) {
@@ -426,7 +438,8 @@ public class CompetitionData {
 	 */
 	public void setConfig(Config config) {
 		this.config = config;
-		Config.setCurrent(this.getConfig());
+		// import setter (export uses setConfigForExport): the imported settings are in force while the rest is read
+		ConfigRepository.replaceForImport(this.getConfig(), AuditOrigin.system("import"));
 		logger.info("Applied imported language and system settings.");
 	}
 

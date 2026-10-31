@@ -53,7 +53,12 @@ public class FormatDetector {
 	 * @throws Exception if import fails
 	 */
 	public static void importData(InputStream inputStream) throws Exception {
-		AuditContext.suppressedChecked(() -> doImportData(inputStream));
+		importData(inputStream, AuditOrigin.system("startup import"));
+	}
+
+	/** @param origin recorded as the last saver of the replaced settings */
+	public static void importData(InputStream inputStream, AuditOrigin origin) throws Exception {
+		AuditContext.suppressedChecked(() -> doImportData(inputStream, origin));
 	}
 
 	/**
@@ -64,7 +69,7 @@ public class FormatDetector {
 	 */
 	public static void importData(byte[] uploaded, String source, AuditOrigin origin) throws Exception {
 		byte[] json = readJsonBytes(new ByteArrayInputStream(uploaded));
-		importData(new ByteArrayInputStream(json));
+		importData(new ByteArrayInputStream(json), origin);
 		ApplicationAudit.imported(origin, source, json.length, sha256(json));
 	}
 
@@ -109,7 +114,7 @@ public class FormatDetector {
 		throw new IOException("The ZIP archive contains no .json file");
 	}
 
-	private static void doImportData(InputStream inputStream) throws Exception {
+	private static void doImportData(InputStream inputStream, AuditOrigin origin) throws Exception {
 		OwlcmsFactory.setImportInProgress(true);
 		try {
 			// Ensure stream supports mark/reset
@@ -177,9 +182,9 @@ public class FormatDetector {
 			inputStream.reset();
 
 			if ("2.0".equals(version)) {
-				new CompetitionDataV2().restore(inputStream);
+				new CompetitionDataV2().restore(inputStream, origin);
 			} else {
-				new CompetitionData().restore(inputStream);
+				new CompetitionData().restore(inputStream, origin);
 			}
 
 			// JSON payloads can come from external tools or older exports. Recompute

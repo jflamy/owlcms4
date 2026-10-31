@@ -46,6 +46,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.FeatureSwitch;
@@ -1415,36 +1416,8 @@ public class NRegistrationFileProcessor {
 				this.formatter = new DataFormatter();
 
 				Sheet sheet = workbook.getSheetAt(0);
-				Competition competition = Competition.getCurrent();
-				Row row;
-
-				row = sheet.getRow(0);
-				if (row != null) {
-					setCompetitionString(competition::setFederation, row.getCell('A' - 'A')); // A1
-					setCompetitionString(competition::setCompetitionName, row.getCell('F' - 'A')); // F1
-					setCompetitionDate(competition::setCompetitionDate, row.getCell('M' - 'A')); // M1
-					setCompetitionDate(competition::setCompetitionEndDate, row.getCell('N' - 'A')); // N1
-				}
-
-				row = sheet.getRow(1);
-				if (row != null) {
-					setCompetitionString(competition::setFederationAddress, row.getCell('A' - 'A')); // A2
-					setCompetitionString(competition::setCompetitionCity, row.getCell('F' - 'A')); // F2
-				}
-
-				row = sheet.getRow(2);
-				if (row != null) {
-					setCompetitionString(competition::setFederationWebSite, row.getCell('A' - 'A')); // A3
-					setCompetitionString(competition::setCompetitionSite, row.getCell('F' - 'A')); // F3
-				}
-
-				row = sheet.getRow(3);
-				if (row != null) {
-					setCompetitionString(competition::setFederationEMail, row.getCell('A' - 'A')); // A4
-					setCompetitionString(competition::setCompetitionOrganizer, row.getCell('F' - 'A')); // F4
-				}
-
-				CompetitionRepository.save(competition);
+				CompetitionRepository.apply(competition -> readCompetitionHeader(sheet, competition),
+				        AuditOrigin.fromUi("registration upload"));
 				if (displayUpdater != null) {
 					displayUpdater.run();
 				}
@@ -1456,6 +1429,37 @@ public class NRegistrationFileProcessor {
 		} catch (IOException e) {
 			LoggerUtils.stackTrace(e);
 			LoggerUtils.logError(this.logger, e);
+		}
+	}
+
+	/** Copies the competition fields from the header rows of the registration file. */
+	private void readCompetitionHeader(Sheet sheet, Competition competition) {
+		Row row;
+
+		row = sheet.getRow(0);
+		if (row != null) {
+			setCompetitionString(competition::setFederation, row.getCell('A' - 'A')); // A1
+			setCompetitionString(competition::setCompetitionName, row.getCell('F' - 'A')); // F1
+			setCompetitionDate(competition::setCompetitionDate, row.getCell('M' - 'A')); // M1
+			setCompetitionDate(competition::setCompetitionEndDate, row.getCell('N' - 'A')); // N1
+		}
+
+		row = sheet.getRow(1);
+		if (row != null) {
+			setCompetitionString(competition::setFederationAddress, row.getCell('A' - 'A')); // A2
+			setCompetitionString(competition::setCompetitionCity, row.getCell('F' - 'A')); // F2
+		}
+
+		row = sheet.getRow(2);
+		if (row != null) {
+			setCompetitionString(competition::setFederationWebSite, row.getCell('A' - 'A')); // A3
+			setCompetitionString(competition::setCompetitionSite, row.getCell('F' - 'A')); // F3
+		}
+
+		row = sheet.getRow(3);
+		if (row != null) {
+			setCompetitionString(competition::setFederationEMail, row.getCell('A' - 'A')); // A4
+			setCompetitionString(competition::setCompetitionOrganizer, row.getCell('F' - 'A')); // F4
 		}
 	}
 

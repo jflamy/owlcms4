@@ -148,11 +148,11 @@ public class AccountPersistenceTest {
 		Config current = Config.getCurrent();
 		current.setAccessMode(AccessMode.ACCOUNTS);
 		current.setIwfCompliance(true);
-		Config.setCurrent(current);
+		Config.setCurrentTesting(current);
 		AccessStartup.roleAccountInitialization().join();
 		try {
 			Config olderExport = new Config();
-			Config saved = Config.setCurrent(olderExport);
+			Config saved = Config.setCurrentTesting(olderExport);
 
 			assertEquals("a missing access mode means the default", AccessMode.PIN, saved.getAccessMode());
 			assertNull(saved.getIwfCompliance());
@@ -160,7 +160,7 @@ public class AccountPersistenceTest {
 		} finally {
 			Config restored = Config.getCurrent();
 			restored.setAccessMode(AccessMode.PIN);
-			Config.setCurrent(restored);
+			Config.setCurrentTesting(restored);
 		}
 		assertEquals(AccessMode.PIN, Config.getCurrent().getAccessMode());
 	}
@@ -174,11 +174,11 @@ public class AccountPersistenceTest {
 		});
 		Config config = Config.getCurrent();
 		config.setAccessMode(AccessMode.PIN);
-		Config.setCurrent(config);
+		Config.setCurrentTesting(config);
 		try {
 			config = Config.getCurrent();
 			config.setAccessMode(AccessMode.ACCOUNTS);
-			Config.setCurrent(config);
+			Config.setCurrentTesting(config);
 			AccessStartup.roleAccountInitialization().join();
 			UserAccountRepository.invalidate();
 			UserAccount results = UserAccountRepository.findByUsername("results");
@@ -196,7 +196,7 @@ public class AccountPersistenceTest {
 		} finally {
 			Config restored = Config.getCurrent();
 			restored.setAccessMode(AccessMode.PIN);
-			Config.setCurrent(restored);
+			Config.setCurrentTesting(restored);
 		}
 	}
 

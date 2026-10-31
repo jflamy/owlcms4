@@ -10,7 +10,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +25,7 @@ import app.owlcms.access.PinHashes;
 import app.owlcms.access.SameMachineProof;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 import jakarta.servlet.http.HttpServletRequest;
@@ -69,8 +72,9 @@ public class AccessUtils {
 			return new PinCheck(true, true, 0);
 		}
 		Config config = Config.getCurrent();
-		boolean valid = checkPassword(password, config.getParamPin(), config.getPin(), "TO",
-		        pin -> upgradePin("Officials", c -> c.setPin(PinHashes.hash(pin))));
+		String storedPin = config.getPin();
+		boolean valid = checkPassword(password, config.getParamPin(), storedPin, "TO",
+		        pin -> upgradePin("Officials", storedPin, Config::getPin, c -> c.setPin(PinHashes.hash(pin))));
 		recordAttempt(throttle, OFFICIALS_PIN_THROTTLE, clientIp, valid);
 		OwlcmsSession.setAuthenticated(valid);
 		return valid ? PinCheck.ACCEPTED : PinCheck.REFUSED;
@@ -95,8 +99,10 @@ public class AccessUtils {
 			return new PinCheck(false, false, blocked);
 		}
 		Config config = Config.getCurrent();
-		boolean valid = checkPassword(password, config.getParamDisplayPin(), config.getDisplayPin(), "Display",
-		        pin -> upgradePin("Display", c -> c.setDisplayPin(PinHashes.hash(pin))));
+		String storedDisplayPin = config.getDisplayPin();
+		boolean valid = checkPassword(password, config.getParamDisplayPin(), storedDisplayPin, "Display",
+		        pin -> upgradePin("Display", storedDisplayPin, Config::getDisplayPin,
+		                c -> c.setDisplayPin(PinHashes.hash(pin))));
 		recordAttempt(throttle, DISPLAY_PIN_THROTTLE, clientIp, valid);
 		OwlcmsSession.setDisplayAuthenticated(valid);
 		return valid ? PinCheck.ACCEPTED : PinCheck.REFUSED;
@@ -280,10 +286,19 @@ public class AccessUtils {
 		return valid;
 	}
 
-	private static void upgradePin(String loggingContext, Consumer<Config> store) {
-		Config config = Config.getCurrent();
-		store.accept(config);
-		Config.setCurrent(config, AuditOrigin.system(loggingContext + " PIN hash upgrade"));
+	/**
+	 * Stores the PIN with the current hashing, unless the stored PIN changed since it was checked: a password changed
+	 * meanwhile must not be replaced by the hash of the old one.
+	 *
+	 * @param checkedHash the stored value the password was checked against
+	 */
+	private static void upgradePin(String loggingContext, String checkedHash, Function<Config, String> stored,
+	        Consumer<Config> store) {
+		ConfigRepository.apply(c -> {
+			if (Objects.equals(stored.apply(c), checkedHash)) {
+				store.accept(c);
+			}
+		}, AuditOrigin.system(loggingContext + " PIN hash upgrade"));
 		logger.info("{} PIN stored with the current hashing", loggingContext);
 	}
 

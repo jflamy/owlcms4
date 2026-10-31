@@ -9,6 +9,7 @@ package app.owlcms;
 import org.eclipse.jetty.io.EofException;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.ColorScheme;
@@ -26,6 +27,8 @@ import com.vaadin.flow.server.communication.IndexHtmlResponse;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.access.AccessControlListener;
+import app.owlcms.apputils.NotificationUtils;
+import app.owlcms.data.jpa.StaleSingletonException;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.servlet.StopProcessingException;
@@ -105,6 +108,15 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
 				@Override
 				public void error(ErrorEvent errorEvent) {
 					Throwable t = errorEvent.getThrowable();
+					StaleSingletonException stale = StaleSingletonException.find(t);
+					if (stale != null) {
+						// expected use, not a fault: no stack trace, nothing about the stored values
+						LoggerFactory.getLogger("app.owlcms.errorHandler").info("save refused: {}", stale.getMessage());
+						if (UI.getCurrent() != null) {
+							NotificationUtils.staleSettings(stale.getSavedBy());
+						}
+						return;
+					}
 					if (!(t instanceof StopProcessingException) && !(t instanceof EofException)) {
 						LoggerFactory.getLogger("app.owlcms.errorHandler").warn("{}\n{}", t.toString(),
 						        LoggerUtils.stackTrace(t));

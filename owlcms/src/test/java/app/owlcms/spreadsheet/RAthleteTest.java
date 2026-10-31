@@ -168,7 +168,7 @@ public class RAthleteTest {
 	private static void setExplicitTeams(boolean enabled) {
 		Config config = Config.getCurrent();
 		config.setFeatureSwitchValue(FeatureSwitch.EXPLICIT_TEAMS, enabled);
-		Config.setCurrent(config);
+		Config.setCurrentTesting(config);
 	}
 
 	private Set<Category> categories(Category... categories) {

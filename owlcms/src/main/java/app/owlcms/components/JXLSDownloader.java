@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -37,6 +38,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.server.streams.DownloadHandler;
 
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
@@ -292,7 +294,12 @@ public class JXLSDownloader {
 				return;
 			}
 			this.logger.debug("(2) template found {}", res.getFilePath());
-			this.templateNameSetter.accept(current, newTemplateName);
+			// opening the dialog preselects the stored template: only a different choice is saved, so that
+			// opening a download does not count as a change to the competition settings
+			if (!Objects.equals(this.templateNameGetter.apply(current), newTemplateName)) {
+				current = CompetitionRepository.apply(c -> this.templateNameSetter.accept(c, newTemplateName),
+				        AuditOrigin.fromUi("document template selection"));
+			}
 			this.logger.debug("(2) template as set {}", this.templateNameGetter.apply(current));
 
 			this.xlsWriter = this.streamSourceSupplier.get();
@@ -303,10 +310,6 @@ public class JXLSDownloader {
 			}
 			this.logger.debug("(2) xlsWriter {} {}", this.xlsWriter.getClass().getSimpleName(),
 			        newTemplateName);
-
-			CompetitionRepository.save(current);
-			current = Competition.getCurrent();
-			this.logger.debug("(2) template as stored {}", this.templateNameGetter.apply(current));
 
 			// Do not run prechecks here. The precheck callback/validation is handled by the
 			// centralized pre-check flow elsewhere. If no template is selected we return early

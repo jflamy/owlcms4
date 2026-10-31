@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
-import app.owlcms.data.competition.Competition;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
@@ -120,11 +121,11 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 					}
 				}
 
-				// lambda uses getCurrent().
-				template.templateFileNameSetter.accept(newTemplateName);
-				Competition current = Competition.getCurrent();
-				CompetitionRepository.save(current);
-				current = Competition.getCurrent();
+				// only a different template is saved
+				if (!Objects.equals(template.templateFileNameSupplier.get(), newTemplateName)) {
+					CompetitionRepository.apply(c -> template.templateFileNameSetter.accept(c, newTemplateName),
+					        AuditOrigin.fromUi("document template selection"));
+				}
 
 				// If a dialog was supplied and it is a DocumentDownloadDialog, notify it so it
 				// can re-run any prechecks attached to the download control and clear messages.

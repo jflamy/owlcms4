@@ -77,8 +77,10 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 
 		VerticalLayout systemTab = tab(HomeNavigationContent.navigationGrid(stop, restart, backup),
 		        heading("Admin.Testing"), HomeNavigationContent.navigationGrid(simulation));
-		VerticalLayout securityTab = tab(heading("Config.AccessControlTitle"), securityStatus(), securityControls(token),
-		        new AccessControlForm(),
+		AccessControlForm accessControlForm = new AccessControlForm();
+		VerticalLayout securityTab = tab(heading("Config.AccessControlTitle"), securityStatus(),
+		        securityControls(token, accessControlForm::refreshIfClean),
+		        accessControlForm,
 		        heading("Admin.AuditTrail"), HomeNavigationContent.navigationGrid(auditKey, auditCheck));
 		if (!token) {
 			securityTab.add(helperText("Access.ControlPanelTokenNotSet"));
@@ -116,8 +118,11 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 		return status;
 	}
 
-	/** @param token false when OWLCMS has no control panel token: the access mode cannot be switched */
-	private FlexibleGridLayout securityControls(boolean token) {
+	/**
+	 * @param token         false when OWLCMS has no control panel token: the access mode cannot be switched
+	 * @param settingsSaved run after a control here saved the settings
+	 */
+	private FlexibleGridLayout securityControls(boolean token, Runnable settingsSaved) {
 		Config config = Config.getCurrent();
 		AccessMode target = config.getParamAccessMode() == AccessMode.ACCOUNTS ? AccessMode.PIN : AccessMode.ACCOUNTS;
 		Button accessMode = new Button(Translator.translate(accessModeLabel(target)), VaadinIcon.USERS.create(),
@@ -125,11 +130,11 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 		accessMode.setEnabled(token);
 		return HomeNavigationContent.navigationGrid(
 		        securityAction(accessMode, token ? accessModeLabel(target) + "Help" : "Access.ControlPanelTokenNotSet"),
-		        iwfComplianceCheck());
+		        iwfComplianceCheck(settingsSaved));
 	}
 
 	/** The checkbox, and the list of requirements while it is checked. */
-	private static VerticalLayout iwfComplianceCheck() {
+	private static VerticalLayout iwfComplianceCheck(Runnable settingsSaved) {
 		VerticalLayout block = new VerticalLayout();
 		block.setPadding(false);
 		block.setSpacing(false);
@@ -137,13 +142,17 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 		Checkbox check = new Checkbox(Translator.translate("Admin.IwfCheck"),
 		        Config.getCurrent().isIwfComplianceChecked());
 		check.setHelperText(Translator.translate("Admin.IwfCheckHelp"));
-		AuditOrigin origin = AuditOrigin.fromUi("Administration security settings");
 		check.addValueChangeListener(event -> {
 			if (!event.isFromClient()) {
 				return;
 			}
+			// captured at the click, on the UI thread: while the page is being built it is not yet the active
+			// route, and the actor would resolve to SYSTEM
+			AuditOrigin origin = AuditOrigin.fromUi("Administration security settings");
 			Outcome outcome = SecuritySettings.setIwfComplianceCheck(event.getValue(), origin);
-			if (outcome != Outcome.CHANGED && outcome != Outcome.UNCHANGED) {
+			if (outcome == Outcome.CHANGED) {
+				settingsSaved.run();
+			} else if (outcome != Outcome.UNCHANGED) {
 				showOutcome(outcome);
 			}
 			showChecklist(checklist);

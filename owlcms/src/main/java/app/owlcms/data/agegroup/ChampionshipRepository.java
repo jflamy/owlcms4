@@ -16,6 +16,7 @@ import javax.persistence.TypedQuery;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.athleteSort.BestAthleteRankingService;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.competition.Competition;
@@ -208,6 +209,8 @@ public class ChampionshipRepository {
 			return;
 		}
 		if (competition.migrateToChampionship(template)) {
+			// a Competition form opened before the migration must not write the legacy values back
+			competition.stamp(AuditOrigin.system("championship migration"), competition.getLastSavedAt());
 			em.merge(competition);
 			Competition.syncCurrentAfterMigration(competition);
 			logger.info("Migrated legacy Competition championship defaults into template '{}'", template.getName());

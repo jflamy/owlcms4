@@ -323,6 +323,6 @@ public class ForcedReloadTest {
     private void setShowDecisionsImmediately(boolean enabled) {
         Config config = Config.getCurrent();
         config.setFeatureSwitchValue(FeatureSwitch.SHOW_DECISIONS_IMMEDIATELY, enabled);
-        Config.setCurrent(config);
+        Config.setCurrentTesting(config);
     }
 }

@@ -21,7 +21,6 @@ target), as the navigation pages already did:
 | AnnouncerContent, BreakManagement | MedalCeremonyContent |
 | EditChampionshipsPanel (also inside the Competition page) | AgeGroupContent, ChampionshipTemplateContent |
 | AgeGroupContent, TeamResultsContent | ChampionshipsContent |
-| RecordConfigEditingFormFactory, RecordsConfigContent | RecordContent |
 | PlatformContent | TCContent for each platform; the column is hidden when no platform is allowed |
 | SessionContent | RegistrationContent |
 | RecordContent | RecordFederationComparisonReport (PREPARATION or RESULTS, like the records page; was ADMIN_PAGES) |
@@ -241,7 +240,7 @@ Direction agreed (2026-10-30), not implemented:
 - In PIN mode the setting applies too, but any PIN holder can change it: it prevents
   accidents, not people ("PIN mode stays naked").
 - On by default. Stored directly in `Config`, so exports carry it and an import
-  restores it. [136](136-CONFIG_COARSE_CONFLICT.md) protects it against stale System
+  restores it. [136](done/136-CONFIG_COARSE_CONFLICT.md) protects it against stale System
   Settings and other Config editors using versioned saves and import invalidation;
   no `CompetitionControls` embeddable is introduced.
 - When imports are off, the import buttons are shown disabled, with helper text saying

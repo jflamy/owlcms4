@@ -57,6 +57,7 @@ import app.owlcms.audit.AuditSigningKey;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
+import app.owlcms.data.jpa.SingletonSaves;
 import app.owlcms.data.records.RecordConfig;
 import app.owlcms.servlet.FileServlet;
 import app.owlcms.utils.ResourceWalker;
@@ -77,7 +78,7 @@ public class Config {
 
 	public static final String FAKE_PIN = "\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF";
 	public static final int SHORT_TEAM_LENGTH = 6;
-	private static Config current;
+	private static volatile Config current;
 	@JsonAutoDetect(
 	        fieldVisibility = JsonAutoDetect.Visibility.ANY,
 	        getterVisibility = JsonAutoDetect.Visibility.NONE,
@@ -113,58 +114,114 @@ public class Config {
 	}
 
 	public static void initConfig() {
-		JPAService.runInTransaction(em -> {
-			if (ConfigRepository.findAll().isEmpty()) {
-				Config config = new Config();
-				config.setMqttInternal(true);
-				config.setLocalDateTimeUtcNormalized(true);
-				Config.setCurrent(config);
-			}
-			return null;
-		});
+		if (ConfigRepository.findAll().isEmpty()) {
+			Config config = new Config();
+			config.setMqttInternal(true);
+			config.setLocalDateTimeUtcNormalized(true);
+			ConfigRepository.create(config, AuditOrigin.system("startup"));
+		}
 		migrateCurrentFeatureSwitchesToJson();
 		migrateCurrentForwardingConnectionsToJson();
 
-		JPAService.runInTransaction(em -> {
-			RecordConfig f = RecordConfig.getCurrent();
-			if (f == null) {
-				RecordConfig rc = new RecordConfig();
-				RecordConfig.setCurrent(rc);
-			}
-			return null;
-		});
+		// creates the default row if there is none
+		RecordConfig.getCurrent();
 
 		Competition.loadTimingConfig();
 	}
 
 	private static void migrateCurrentFeatureSwitchesToJson() {
-		Config config = getCurrent();
-		if (config.migrateFeatureSwitchesToJson()) {
-			Config.setCurrent(config);
+		if (ConfigRepository.loadForEdit().migrateFeatureSwitchesToJson()) {
+			ConfigRepository.apply(Config::migrateFeatureSwitchesToJson, AuditOrigin.system("startup migration"));
 		}
 	}
 
 	private static void migrateCurrentForwardingConnectionsToJson() {
-		Config config = getCurrent();
-		if (config.prepareForwardingConnections()) {
-			Config.setCurrent(config);
+		if (ConfigRepository.loadForEdit().prepareForwardingConnections()) {
+			ConfigRepository.apply(Config::prepareForwardingConnections, AuditOrigin.system("startup migration"));
 		}
 	}
 
-	/** For saves that are not meant to change the access mode; a mode change is then audited as unspecified. */
-	public static Config setCurrent(Config config) {
-		return setCurrent(config, AuditOrigin.system("unspecified"));
+	/**
+	 * TEST SETUP ONLY. Replaces the stored settings without the stale-save check: a page that loaded the settings
+	 * earlier is not detected. Application code must use {@link ConfigRepository#saveEdited} (forms),
+	 * {@link ConfigRepository#apply} (immediate changes), {@link ConfigRepository#create} (first creation) or
+	 * {@link ConfigRepository#replaceForImport} (database import).
+	 */
+	public static Config setCurrentTesting(Config config) {
+		return setCurrentTesting(config, AuditOrigin.system("test"));
 	}
 
-	/** @param origin who saved and from where; used to audit an access-mode change and the accounts it creates */
-	public static Config setCurrent(Config config, AuditOrigin origin) {
-		config.migrateFeatureSwitchesToJson();
-		config.prepareForwardingConnections();
-		config.protectForwardingKeys();
-		Config saved = ConfigRepository.save(config, origin);
-		saved.managedForwardingActivity = config.managedForwardingActivity;
-		current = saved;
+	/**
+	 * TEST SETUP ONLY, see {@link #setCurrentTesting(Config)}.
+	 *
+	 * @param origin who saved and from where; used to audit an access-mode change and the accounts it creates
+	 */
+	public static Config setCurrentTesting(Config config, AuditOrigin origin) {
+		return ConfigRepository.replace(config, origin);
+	}
+
+	/** The published instance, without loading it. */
+	static Config peekCurrent() {
 		return current;
+	}
+
+	/** Replaces the published instance; called by the repository under the save lock, after the commit. */
+	static void publish(Config config) {
+		current = config;
+	}
+
+	/** Normalizations run before every save. */
+	void prepareForSave() {
+		migrateFeatureSwitchesToJson();
+		prepareForwardingConnections();
+		protectForwardingKeys();
+	}
+
+	/**
+	 * Copies the state that lives only in memory from the instance it replaces.
+	 *
+	 * @param includeForwardingActivity false when this instance carries its own (edited) forwarding activity
+	 */
+	void copyRuntimeStateFrom(Config source, boolean includeForwardingActivity) {
+		if (source == null || source == this) {
+			return;
+		}
+		if (includeForwardingActivity) {
+			this.managedForwardingActivity = source.managedForwardingActivity;
+		}
+		this.mqttConfig = source.mqttConfig;
+		this.traceMemory = source.traceMemory;
+		this.useCompetitionDate = source.useCompetitionDate;
+	}
+
+	Map<String, Boolean> getManagedForwardingActivity() {
+		return this.managedForwardingActivity;
+	}
+
+	void setManagedForwardingActivity(Map<String, Boolean> activity) {
+		this.managedForwardingActivity = activity;
+	}
+
+	/** When the stored row was last saved (epoch milliseconds); null if never saved since this check exists. */
+	@JsonIgnore
+	public Long getLastSavedAt() {
+		return this.lastSavedAt;
+	}
+
+	/** Who made the last save of the stored row. */
+	@JsonIgnore
+	public String getLastSavedBy() {
+		return this.lastSavedBy;
+	}
+
+	/**
+	 * Marks this instance as saved now. Persistence use only (repository, import, migrations).
+	 *
+	 * @param previous the stamp of the row being replaced, null if none
+	 */
+	public void stamp(AuditOrigin origin, Long previous) {
+		this.lastSavedAt = SingletonSaves.nextStamp(previous);
+		this.lastSavedBy = SingletonSaves.savedByLabel(origin);
 	}
 
 	@Id
@@ -239,6 +296,13 @@ public class Config {
 	 */
 	@Column(columnDefinition = "boolean default false")
 	private boolean localDateTimeUtcNormalized = false;
+
+	/** Stale-save check: time of the last save of this row (epoch ms). Never exported. */
+	@JsonIgnore
+	private Long lastSavedAt;
+	/** Stale-save check: who made the last save of this row. Never exported. */
+	@JsonIgnore
+	private String lastSavedBy;
 	
 	/**
 	 * OWLCMS application version - export-only field set at time of V2 export
@@ -397,13 +461,14 @@ public class Config {
 	 */
 	public static void protectForwardingKeysAtStartup() {
 		AuditIntegrity.State state = AuditIntegrity.current();
-		Config config = getCurrent();
 		AuditSigningKey key = state.signingKey();
 		AuditSigningKey oldKey = state.replacedKey() != null ? state.replacedKey() : key;
-		if (config.reencryptForwardingKeys(oldKey, config.isAccountsMode() ? key : null)) {
-			logger.info("forwarding update keys stored for {} mode{}", config.getParamAccessMode(),
+		Config probe = ConfigRepository.loadForEdit();
+		if (probe.reencryptForwardingKeys(oldKey, probe.isAccountsMode() ? key : null)) {
+			ConfigRepository.apply(c -> c.reencryptForwardingKeys(oldKey, c.isAccountsMode() ? key : null),
+			        AuditOrigin.system("startup"));
+			logger.info("forwarding update keys stored for {} mode{}", probe.getParamAccessMode(),
 			        state.replacedKey() != null ? ", re-encrypted with the new audit key" : "");
-			setCurrent(config, AuditOrigin.system("startup"));
 		}
 	}
 

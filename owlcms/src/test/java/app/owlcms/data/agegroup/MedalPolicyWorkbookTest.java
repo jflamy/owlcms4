@@ -31,7 +31,7 @@ public class MedalPolicyWorkbookTest {
 		Main.injectSuppliers();
 		JPAService.init(true, true);
 		Config.initConfig();
-		CompetitionRepository.save(new Competition());
+		CompetitionRepository.saveTesting(new Competition());
 	}
 
 	@AfterClass

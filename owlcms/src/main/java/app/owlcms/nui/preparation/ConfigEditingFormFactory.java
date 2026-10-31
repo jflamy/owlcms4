@@ -108,8 +108,7 @@ public class ConfigEditingFormFactory
 
 	@Override
 	public Config add(Config config) {
-		Config.setCurrent(config);
-		return config;
+		return ConfigRepository.create(config, AuditOrigin.fromUi("System Settings"));
 	}
 
 	@Override
@@ -147,8 +146,7 @@ public class ConfigEditingFormFactory
 	        ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
 
 		// Capture the forwarding destinations before the binder writes the edited values into the
-		// bean. The grid edits Config.getCurrent() in place, so once the binder runs there is no
-		// longer an unmodified copy to compare against.
+		// form's copy, to compare with the saved ones afterwards.
 		this.forwardingDestinationsBeforeEdit = ForwardingDestination.fromConfig(config);
 
 		this.binder = buildBinder(operation, config);
@@ -166,7 +164,7 @@ public class ConfigEditingFormFactory
 
 		Component footer = this.buildFooter(operation, config, cancelButtonClickListener,
 		        c -> {
-			        Config.setCurrent(config); // does a save
+			        // runs after update() saved the settings
 			        Config current = Config.getCurrent();
 			        Locale defaultLocale = current.getDefaultLocale();
 			        Translator.reset();
@@ -256,7 +254,7 @@ public class ConfigEditingFormFactory
 			boolean willHaveChildrenEquipment = config.getFeatureSwitchValue(FeatureSwitch.CHILDREN_EQUIPMENT);
 			boolean childrenEquipmentAdded = !hadChildrenEquipment && willHaveChildrenEquipment;
 			
-			Config saved = Config.setCurrent(config, AuditOrigin.fromUi("System Settings"));
+			Config saved = ConfigRepository.saveEdited(config, AuditOrigin.fromUi("System Settings"));
 			
 			ForwarderSetup.reinitializeIfDestinationsChanged(this.forwardingDestinationsBeforeEdit, config);
 			
@@ -427,11 +425,10 @@ public class ConfigEditingFormFactory
 					Translator.translate("Config.ClearZipLabel"), // Confirm button label (same as title)
 					null, // No notification needed - page reload confirms action
 					() -> {
-						// Get current config, set clearZip flag, and save through proper merge flow
-						Config config = Config.getCurrent();
-						config.setClearZip(true);
-						// setCurrent calls save() which handles the merge and returns the merged entity
-						Config.setCurrent(config);
+						ConfigRepository.apply(c -> {
+							c.clearLocalOverride();
+							c.setClearZip(false);
+						}, AuditOrigin.fromUi("System Settings local override"));
 						// Refresh local override directory
 						ResourceWalker.checkForLocalOverrideDirectory();
 						// Reload page to reflect changes
@@ -569,13 +566,9 @@ public class ConfigEditingFormFactory
 			        .then(String.class, (browserTimeZoneId) -> {
 					this.browserZoneId = browserTimeZoneId;
 					String resolvedPaperSize = TemplateResourceUtils.resolvedDefaultPaperSize(browserTimeZoneId);
-					Config currentConfig = Config.getCurrent();
-					if (currentConfig.getDefaultPaperSize() == null || currentConfig.getDefaultPaperSize().isBlank()) {
-						currentConfig.setDefaultPaperSize(resolvedPaperSize);
-						Config.setCurrent(currentConfig);
-					}
+					// proposed in the form and stored with Save: saving it here would make this page's own copy stale
 					if (paperSizeField.getValue() == null || paperSizeField.getValue().isBlank()) {
-						paperSizeField.setValue(currentConfig.getDefaultPaperSize());
+						paperSizeField.setValue(resolvedPaperSize);
 					}
 					refreshMismatchWarning.run();
 			        });

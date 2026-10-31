@@ -1698,7 +1698,7 @@ public class SevenPersonAdjudicationTest {
 	private static void setSwitch(FeatureSwitch featureSwitch, boolean enabled) {
 		Config config = Config.getCurrent();
 		config.setFeatureSwitchValue(featureSwitch, enabled);
-		Config.setCurrent(config);
+		Config.setCurrentTesting(config);
 	}
 
 	/** records what the boards are asked to draw for the review vote */

@@ -33,6 +33,14 @@ public final class StationResolver {
 	private StationResolver() {
 	}
 
+	/**
+	 * True when the station names a known page class, as opposed to the PREPARATION package fallback, UNKNOWN, or
+	 * SYSTEM when no page was active.
+	 */
+	public static boolean isExactPage(String station) {
+		return station != null && !"SYSTEM".equals(station) && STATIONS.containsValue(station);
+	}
+
 	public static String resolve(Object origin) {
 		if (origin == null) {
 			return "SYSTEM";

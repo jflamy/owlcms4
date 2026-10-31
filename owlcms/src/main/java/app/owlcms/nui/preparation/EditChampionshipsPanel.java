@@ -32,6 +32,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 
 import app.owlcms.access.AccessUi;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -60,7 +61,16 @@ public class EditChampionshipsPanel extends VerticalLayout {
 	private ChampionshipRow draggedChampionship;
 	private List<ChampionshipRow> displayedRows = new ArrayList<>();
 
+	/** Standalone page: the "hide empty" choice is saved at once. */
 	public EditChampionshipsPanel() {
+		this(null);
+	}
+
+	/**
+	 * @param competitionDraft the Competition page's own copy: the "hide empty" choice is set on it and saved with the
+	 *                         page; null on the standalone page, where it is saved at once
+	 */
+	public EditChampionshipsPanel(Competition competitionDraft) {
 		setPadding(false);
 		setSpacing(false);
 		setWidthFull();
@@ -69,11 +79,16 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		ChampionshipRepository.normalizeDefaultTypes();
 		ChampionshipRepository.normalizeCompetitionDefaultFlags();
 		this.hideEmptyChampionships = new Checkbox(Translator.translate("Championship.HideEmpty"));
-		this.hideEmptyChampionships.setValue(Competition.getCurrent().isHideEmptyChampionships());
+		this.hideEmptyChampionships.setValue((competitionDraft != null ? competitionDraft : Competition.getCurrent())
+		        .isHideEmptyChampionships());
 		this.hideEmptyChampionships.addValueChangeListener(e -> {
-			Competition competition = Competition.getCurrent();
-			competition.setHideEmptyChampionships(Boolean.TRUE.equals(e.getValue()));
-			CompetitionRepository.save(competition);
+			boolean hide = Boolean.TRUE.equals(e.getValue());
+			if (competitionDraft != null) {
+				competitionDraft.setHideEmptyChampionships(hide);
+			} else {
+				// captured at the click: while the page is built it is not yet the active route
+				CompetitionRepository.apply(c -> c.setHideEmptyChampionships(hide), AuditOrigin.fromUi("Championships"));
+			}
 			updateChampionshipsTable();
 		});
 		this.hideCompetitionDefaults = new Checkbox(Translator.translate("EditChampionships.HideCompetitionDefaults"));

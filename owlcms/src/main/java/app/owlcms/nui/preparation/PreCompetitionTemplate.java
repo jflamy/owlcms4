@@ -6,7 +6,7 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import app.owlcms.data.competition.Competition;
@@ -14,55 +14,55 @@ import app.owlcms.data.competition.Competition;
 public enum PreCompetitionTemplate {
 	BY_CATEGORY("/templates/categories", ".xlsx",
 	        () -> Competition.getCurrent().getCategoriesListTemplateFileName(),
-	        (v) -> Competition.getCurrent().setCategoriesListTemplateFileName(v)),
+	        Competition::setCategoriesListTemplateFileName),
 	BY_BODYWEIGHT("/templates/bwStart", ".xlsx",
 	        () -> Competition.getCurrent().getBodyWeightListTemplateFileName(),
-	        (v) -> Competition.getCurrent().setBodyWeightListTemplateFileName(v)),
+	        Competition::setBodyWeightListTemplateFileName),
 	BY_TEAM("/templates/teams", ".xlsx",
 	        () -> Competition.getCurrent().getTeamsListTemplateFileName(),
-	        (v) -> Competition.getCurrent().setTeamsListTemplateFileName(v)),
+	        Competition::setTeamsListTemplateFileName),
 
 	START_LIST("/templates/start", ".xlsx",
 	        () -> Competition.getCurrent().getStartListTemplateFileName(),
-	        (v) -> Competition.getCurrent().setStartListTemplateFileName(v)),
+	        Competition::setStartListTemplateFileName),
 	SCHEDULE("/templates/schedule", ".xlsx",
 	        () -> Competition.getCurrent().getScheduleTemplateFileName(),
-	        (v) -> Competition.getCurrent().setScheduleTemplateFileName(v)),
+	        Competition::setScheduleTemplateFileName),
 	OFFICIALS("/templates/officials", ".xlsx",
 	        () -> Competition.getCurrent().getOfficialsListTemplateFileName(),
-	        (v) -> Competition.getCurrent().setOfficialsListTemplateFileName(v)),
+	        Competition::setOfficialsListTemplateFileName),
 	CHECKIN("/templates/checkin", ".xlsx",
 	        () -> Competition.getCurrent().getCheckInTemplateFileName(),
-	        (v) -> Competition.getCurrent().setCheckInTemplateFileName(v)),
+	        Competition::setCheckInTemplateFileName),
 
 	CARDS("/templates/cards", ".xlsx",
 	        () -> Competition.getCurrent().getCardsTemplateFileName(),
-	        (v) -> Competition.getCurrent().setCardsTemplateFileName(v)),
+	        Competition::setCardsTemplateFileName),
 	ATHLETE_CREDENTIALS("/templates/credentials", ".xlsx",
 	        () -> Competition.getCurrent().getAthleteCredentialsTemplateFileName(),
-	        (v) -> Competition.getCurrent().setAthleteCredentialsTemplateFileName(v)),
+	        Competition::setAthleteCredentialsTemplateFileName),
 	TO_CREDENTIALS("/templates/credentials", ".xlsx",
 	        () -> Competition.getCurrent().getToCredentialsTemplateFileName(),
-	        (v) -> Competition.getCurrent().setToCredentialsTemplateFileName(v)),
+	        Competition::setToCredentialsTemplateFileName),
 	COACH_CREDENTIALS("/templates/credentials", ".xlsx",
 	        () -> Competition.getCurrent().getCoachCredentialsTemplateFileName(),
-	        (v) -> Competition.getCurrent().setCoachCredentialsTemplateFileName(v)),
+	        Competition::setCoachCredentialsTemplateFileName),
 	WEIGHIN("/templates/weighin", ".xlsx",
 	        () -> Competition.getCurrent().getWeighInFormTemplateFileName(),
-	        (v) -> Competition.getCurrent().setWeighInFormTemplateFileName(v)),
+	        Competition::setWeighInFormTemplateFileName),
 
 	INTRODUCTION("/templates/introduction", ".xlsx",
 	        () -> Competition.getCurrent().getIntroductionTemplateFileName(),
-	        (v) -> Competition.getCurrent().setIntroductionTemplateFileName(v)),
+	        Competition::setIntroductionTemplateFileName),
 	EMPTY_PROTOCOL("/templates/emptyProtocol", ".xlsx",
 	        () -> Competition.getCurrent().getEmptyProtocolTemplateFileName(),
-	        (v) -> Competition.getCurrent().setEmptyProtocolTemplateFileName(v)),
+	        Competition::setEmptyProtocolTemplateFileName),
 	JURY("/templates/jury", ".xlsx",
 	        () -> Competition.getCurrent().getJuryTemplateFileName(),
-	        (v) -> Competition.getCurrent().setJuryTemplateFileName(v)),
+	        Competition::setJuryTemplateFileName),
 	RECORDS("/templates/records", ".xlsx",
 	        () -> Competition.getCurrent().getCurrentRecordsTemplateFileName(),
-	        (v) -> Competition.getCurrent().setCurrentRecordsTemplateFileName(v)),
+	        Competition::setCurrentRecordsTemplateFileName),
 	PRE_WEIGHIN("", ".zip", null, null),
 	POST_WEIGHIN("", ".zip", null, null),
 	;
@@ -70,9 +70,11 @@ public enum PreCompetitionTemplate {
 	String folder;
 	String extension;
 	Supplier<String> templateFileNameSupplier;
-	Consumer<String> templateFileNameSetter;
+	/** Applied to the stored competition row by {@code CompetitionRepository.apply}. */
+	BiConsumer<Competition, String> templateFileNameSetter;
 
-	PreCompetitionTemplate(String folder, String extension, Supplier<String> templateFileNameSupplier, Consumer<String> templateFileNameSetter) {
+	PreCompetitionTemplate(String folder, String extension, Supplier<String> templateFileNameSupplier,
+	        BiConsumer<Competition, String> templateFileNameSetter) {
 		this.folder = folder;
 		this.extension = extension;
 		this.templateFileNameSupplier = templateFileNameSupplier;

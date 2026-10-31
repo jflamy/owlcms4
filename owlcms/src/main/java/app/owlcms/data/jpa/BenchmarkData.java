@@ -22,6 +22,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
@@ -77,7 +78,7 @@ public class BenchmarkData {
 	public static void insertInitialData(EnumSet<ChampionshipType> championshipTypes) {
 		JPAService.runInTransaction(em -> {
 			Competition competition = createDefaultCompetition(championshipTypes);
-			CompetitionRepository.save(competition);
+			CompetitionRepository.create(competition, AuditOrigin.system("initial data"));
 			AgeGroupRepository.insertAgeGroups(em, championshipTypes);
 			return null;
 		});

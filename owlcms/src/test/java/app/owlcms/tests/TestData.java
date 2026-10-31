@@ -73,7 +73,7 @@ public class TestData {
         JPAService.runInTransaction(em -> {
         	EnumSet<ChampionshipType> divisions = EnumSet.of(ChampionshipType.DEFAULT);
             Competition competition = createDefaultCompetition(divisions);
-            CompetitionRepository.save(competition);
+            CompetitionRepository.saveTesting(competition);
             AgeGroupRepository.insertAgeGroups(em, divisions, "/agegroups/AgeGroups_Tests.xlsx");
             return null;
         });

@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
@@ -39,7 +40,7 @@ public class ProdData {
 	public static void insertInitialData(int nbAthletes) {
 		JPAService.runInTransaction(em -> {
 			Competition competition = createDefaultCompetition();
-			CompetitionRepository.save(competition);
+			CompetitionRepository.create(competition, AuditOrigin.system("initial data"));
 
 			AgeGroupRepository.insertAgeGroups(em, null);
 			return null;

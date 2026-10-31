@@ -222,6 +222,6 @@ public class AccessControlListener implements BeforeEnterListener {
 	}
 
 	private static boolean isRecordsOnlySecretaryPath(String path) {
-		return List.of("preparation/recordsConfig", "preparation/config", "preparation/records").contains(path);
+		return List.of("preparation/config", "preparation/records").contains(path);
 	}
 }

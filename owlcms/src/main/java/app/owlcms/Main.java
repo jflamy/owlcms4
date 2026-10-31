@@ -35,6 +35,7 @@ import app.owlcms.access.AccountTokens;
 import app.owlcms.audit.ApplicationAudit;
 import app.owlcms.audit.AuditIntegrity;
 import app.owlcms.audit.AuditContext;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.utils.BrowserUtils;
 import app.owlcms.apputils.LogbackConfigReloader;
 import app.owlcms.data.agegroup.AgeGroup;
@@ -402,11 +403,8 @@ public class Main {
         Config conf = Config.getCurrent();
         Boolean mqttInternal = conf.getMqttInternal();
         if (mqttInternal == null) {
-            conf.setMqttInternal(true);
-            Config.setCurrent(conf);
+            conf = ConfigRepository.apply(c -> c.setMqttInternal(true), AuditOrigin.system("startup"));
         } else {
-            // conf.setMqttInternal(true);
-            // Config.setCurrent(conf);
             if (!mqttInternal) {
                 logger.info("MQTT server disabled using database configuration");
                 return;
@@ -597,9 +595,7 @@ public class Main {
 
             if (allCompetitions.isEmpty()) {
                 logger.info("injecting initial data {}", data);
-                Config current = Config.getCurrent();
-                current.setLocalDateTimeUtcNormalized(true);
-                Config.setCurrent(current); // forces a s save.
+                ConfigRepository.apply(c -> c.setLocalDateTimeUtcNormalized(true), AuditOrigin.system("initial data"));
                 switch (data) {
                     case EMPTY_COMPETITION:
                         ProdData.insertInitialData(0);
@@ -637,7 +633,7 @@ public class Main {
                 List<Config> configs = ConfigRepository.findAll();
                 if (configs.isEmpty()) {
                     logger.debug("adding config object");
-                    Config.setCurrent(new Config());
+                    ConfigRepository.create(new Config(), AuditOrigin.system("startup"));
                 }
 
                 List<Category> nullCodeCategories = CategoryRepository.findNullCodes();

@@ -27,6 +27,7 @@ import com.vaadin.flow.component.notification.Notification;
 import java.time.Instant;
 
 import app.owlcms.audit.AuditActor;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.audit.ExportAudit;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -40,7 +41,9 @@ import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.coach.Coach;
 import app.owlcms.data.coach.CoachRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.export.ChecksummedJsonExport;
 import app.owlcms.data.export.ChecksummedJsonExport.ChecksummedInputStream;
 import app.owlcms.data.group.Group;
@@ -203,9 +206,11 @@ public class CompetitionDataV2 {
 		setPlatforms(PlatformRepository.findAll());
 		setAccounts(UserAccountRepository.findAll());
 		Config config = Config.getCurrent();
+		// export metadata only: transient, never stored
 		config.setAppVersion(StartupUtils.getVersion());
-		setConfig(config);
-		setCompetition(Competition.getCurrent());
+		// not setConfig/setCompetition: those are the import setters, and setConfig saves
+		setConfigForExport(config);
+		setCompetitionForExport(Competition.getCurrent());
 		setRecords(RecordRepository.findAll());
 		setRecordConfig(RecordConfig.getCurrent());
 		setTechnicalOfficials(TechnicalOfficialRepository.findAll());
@@ -267,6 +272,11 @@ public class CompetitionDataV2 {
 	}
 
 	public void restore(InputStream inputStream) {
+		restore(inputStream, AuditOrigin.system("import"));
+	}
+
+	/** @param origin who imported and from where; recorded as the last saver of the replaced settings */
+	public void restore(InputStream inputStream, AuditOrigin origin) {
 		this.removeAll();
 		JPAService.runInTransaction(em -> {
 			try {
@@ -282,7 +292,7 @@ public class CompetitionDataV2 {
 				if (blob != null) {
 					logger.info("override zip found {} bytes", blob.length);
 				}
-				Config.setCurrent(config);
+				ConfigRepository.replaceForImport(config, origin);
 				
 				ResourceWalker.setInitializedLocalDir(false);
 				ResourceWalker.initLocalDir();
@@ -383,7 +393,11 @@ public class CompetitionDataV2 {
 		}
 
 		if (updated.getRecordConfig() != null) {
-			em.merge(updated.getRecordConfig());
+			RecordConfig importedRecordConfig = updated.getRecordConfig();
+			// the record settings row is not deleted before an import: it is replaced in place
+			RecordConfig existing = em.find(RecordConfig.class, importedRecordConfig.getId());
+			importedRecordConfig.stamp(origin, existing != null ? existing.getLastSavedAt() : null);
+			em.merge(importedRecordConfig);
 		}
 
 		if (updated.getRecords() != null) {
@@ -413,6 +427,7 @@ public class CompetitionDataV2 {
 			}
 		}
 		
+		competition.stamp(origin, null);
 		em.merge(competition);
 		em.flush();
 		} catch (Exception e) {
@@ -426,6 +441,9 @@ public class CompetitionDataV2 {
 		// the account cache may have been refilled with the old accounts before the import committed
 		UserAccountRepository.invalidate();
 		ChampionshipRepository.reconcileImportedAgeGroups();
+		// publish the stored competition, not the deserialized object (which has no id): saving that one
+		// would insert a second competition
+		Competition.setCurrent(CompetitionRepository.findAll().stream().findFirst().orElse(null));
 		Championship.reset();
 		Championship.recomputeParticipantCounts();
 		Competition.recomputeAllAthleteRanks();
@@ -437,7 +455,7 @@ public class CompetitionDataV2 {
 	private void removeAll() {
 		// Use existing removal logic from CompetitionRepository
 		JPAService.runInTransaction(em -> {
-			app.owlcms.data.competition.CompetitionRepository.doRemoveAll(em);
+			CompetitionRepository.doRemoveAll(em);
 			return null;
 		});
 	}
@@ -495,13 +513,24 @@ public class CompetitionDataV2 {
 		RankingConfig.updateMustCompute();
 	}
 
+	/** Export side: assignment only. {@link #setCompetition} is the import setter and republishes. */
+	private void setCompetitionForExport(Competition competition) {
+		this.competition = competition;
+	}
+
 	public Config getConfig() {
 		return config;
 	}
 
 	public void setConfig(Config config) {
 		this.config = config;
-		Config.setCurrent(this.config);
+		// import setter (export uses setConfigForExport): the imported settings are in force while the rest is read
+		ConfigRepository.replaceForImport(this.config, AuditOrigin.system("import"));
+	}
+
+	/** Export side: assignment only. {@link #setConfig} is the import setter and replaces the stored settings. */
+	private void setConfigForExport(Config config) {
+		this.config = config;
 	}
 
 	public List<UserAccount> getAccounts() {

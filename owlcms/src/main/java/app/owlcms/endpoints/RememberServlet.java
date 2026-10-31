@@ -11,6 +11,7 @@ import app.owlcms.access.RememberedBrowser.Kind;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.audit.AuthAudit;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.utils.ProxyUtils;
 import ch.qos.logback.classic.Logger;
 import jakarta.servlet.ServletException;
@@ -91,12 +92,17 @@ public class RememberServlet extends HttpServlet {
 		return contextPath == null || contextPath.isEmpty() ? "/" : contextPath;
 	}
 
-	private static synchronized String rememberSecret(Config config) {
+	private static String rememberSecret(Config config) {
 		String secret = config.getRememberSecret();
 		if (secret == null || secret.isBlank()) {
-			secret = RememberedBrowser.newSecret();
-			config.setRememberSecret(secret);
-			Config.setCurrent(config, AuditOrigin.system("remember browser secret created"));
+			// created at most once: the row is checked again under the save lock
+			Config saved = ConfigRepository.apply(c -> {
+				String stored = c.getRememberSecret();
+				if (stored == null || stored.isBlank()) {
+					c.setRememberSecret(RememberedBrowser.newSecret());
+				}
+			}, AuditOrigin.system("remember browser secret created"));
+			secret = saved.getRememberSecret();
 		}
 		return secret;
 	}
