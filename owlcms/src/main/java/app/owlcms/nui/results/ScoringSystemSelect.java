@@ -20,9 +20,8 @@ import app.owlcms.data.athleteSort.RankingConfig;
 /**
  * Best-athlete scoring system selector for the results pages.
  *
- * Lists the systems required by the active championships first, then every scoring family
- * (GAMX, QPoints, Robi, Sinclair). A ranking may appear in more than one group, so items are
- * wrapped with their section index to keep them distinct.
+ * Lists the systems required by the active championships first, then the remaining systems of
+ * every scoring family (GAMX, QPoints, Robi, Sinclair). Each ranking appears only once.
  */
 @SuppressWarnings("serial")
 public class ScoringSystemSelect extends ComboBox<ScoringSystemSelect.Choice> {
@@ -76,8 +75,10 @@ public class ScoringSystemSelect extends ComboBox<ScoringSystemSelect.Choice> {
 			        .forEach(requiredInFamilyOrder::add);
 		}
 		sections.add(requiredInFamilyOrder);
+		// ComboBox cannot show separators, so required systems are not repeated in their family
 		families.forEach(family -> sections.add(family.stream()
 		        .filter(ranking -> !UNIMPLEMENTED_RANKINGS.contains(ranking))
+		        .filter(ranking -> !requiredInFamilyOrder.contains(ranking))
 		        .toList()));
 
 		this.choices.clear();
