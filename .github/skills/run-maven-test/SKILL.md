@@ -54,6 +54,15 @@ For `AllTests`, use the suite class name:
 mvn -pl owlcms -am -Dtest=AllTests -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false test
 ```
 
+`AllTests` leaves out the classes annotated `@Category(SlowCategory.class)` (tests that wait on real time). `SlowTests` runs only those, `FullTests` runs `AllTests` then `SlowTests` and only when named explicitly (the pom excludes it from plain `mvn test`):
+
+```bash
+mvn -pl owlcms -am -Dtest=SlowTests -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false test
+mvn -pl owlcms -am -Dtest=FullTests -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false test
+```
+
+`ProtocolRecordingSimulation` (live tracker, several minutes) is not named `*Test`, so no suite picks it up; run it with `-Dtest=ProtocolRecordingSimulation`.
+
 ## Read Surefire Reports Directly
 
 Do not rely only on captured Maven terminal output. In this environment Maven output may be huge, truncated, written to a chat-session resource file, or the terminal tool may say `Failed to retrieve command output` even though Surefire reports were written.

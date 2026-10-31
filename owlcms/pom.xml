@@ -759,9 +759,9 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.0.0-M5</version>
 				<configuration>
-					<!-- Live external scenario; an explicit -Dtest=ProtocolRecordingTest overrides this exclusion. -->
+					<!-- AllTests + SlowTests: run only on request; an explicit -Dtest=FullTests overrides this exclusion. -->
 					<excludes>
-						<exclude>**/ProtocolRecordingTest.java</exclude>
+						<exclude>**/FullTests.java</exclude>
 					</excludes>
 					<!-- keeps test audit entries out of logs/audit, which a running development server uses -->
 					<systemPropertyVariables>
