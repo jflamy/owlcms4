@@ -159,6 +159,12 @@ public class PreparationNavigationContent extends BaseNavigationContent
 			exportJsonV2Div.setWidthFull();
 		}
 
+		if (!AccessUi.hasCapability(Capability.EXPORT_DATA, null)) {
+			// no RESULTS permission: database and SBDE exports would be refused
+			DownloadButtonFactory.hide(exportJsonDiv);
+			DownloadButtonFactory.hide(exportJsonV2Div);
+			DownloadButtonFactory.hide(sbdeDiv);
+		}
 		if (!AccessUi.hasCapability(Capability.IMPORT_DATA, null)) {
 			// no IMPORT permission (Competition Director): the upload would be refused
 			upload.setVisible(false);
@@ -192,9 +198,11 @@ public class PreparationNavigationContent extends BaseNavigationContent
 		}
 		doGroup(Translator.translate("ExportDatabase.ExportImport"), grid5, this, true);
 
-		FlexibleGridLayout grid6 = HomeNavigationContent.navigationGrid(sbdeDiv, sbdeUpload);
-		doHiddenGroup(Translator.translate("AdvancedPreparation.Title"),
-				new Div(Translator.translate("AdvancedPreparation.Explanation")), grid6, this, true);
+		if (sbdeDiv.isVisible() || sbdeUpload.isVisible()) {
+			FlexibleGridLayout grid6 = HomeNavigationContent.navigationGrid(sbdeDiv, sbdeUpload);
+			doHiddenGroup(Translator.translate("AdvancedPreparation.Title"),
+					new Div(Translator.translate("AdvancedPreparation.Explanation")), grid6, this, true);
+		}
 
 		DebugUtils.gc();
 	}

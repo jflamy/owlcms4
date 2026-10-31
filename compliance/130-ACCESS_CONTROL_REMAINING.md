@@ -7,8 +7,8 @@ Token generation and URL protection are done: [110](done/110-ACCOUNT_TOKENS.md) 
 The items below were identified on 2026-10-22. Done: navigation and in-page actions,
 locality, security settings, audit pages, admin password, admin pages, PIN mode (now
 "Simple Access" in the interface), the OWLCMS side of the [Non-route review](#non-route-review).
-Remaining: the rest of the [Database import](#database-import) plan (protected actions,
-RESULTS for exports; "Imports are allowed" and the IMPORT permission are done) and the [Acceptance](#acceptance)
+Remaining: the general list of protected actions in the [Database import](#database-import)
+plan ("Imports are allowed", the IMPORT permission and RESULTS for exports are done) and the [Acceptance](#acceptance)
 checks. The tracker proxy review is [360](360-TRACKER_PROXY.md).
 
 ## Navigation and in-page actions
@@ -222,7 +222,7 @@ import can replace the accounts. Import is normal until the competition starts, 
 dangerous after.
 
 Direction agreed (2026-10-30). Done: "Imports are allowed", the IMPORT permission. Not
-implemented: the general list of protected actions, RESULTS for exports.
+implemented: the general list of protected actions. Done: RESULTS for exports.
 
 - Terminology: a **permission** is an individual right (a base role in the code, the only
   thing `@RequiresRole` checks); a **role** is a set of permissions given to an account
@@ -254,8 +254,14 @@ implemented: the general list of protected actions, RESULTS for exports.
   makes earlier pages stale; no `CompetitionControls` embeddable is introduced.
 - When imports are off, the three import buttons on the Preparation page are disabled,
   and a notice at the top of the page says where to turn imports back on.
-- Database exports require the RESULTS permission (roles: Results, Competition
-  Director, Competition Supervisor, External, admin). The secrets an export contains
+- Done: database exports require the RESULTS permission (roles: Results, Competition
+  Director, Competition Supervisor, External, admin; `Capability.EXPORT_DATA`). The
+  Preparation page and the records-only page hide the JSON exports (and the SBDE export)
+  from sessions without it; the JSON download checks again when the stream is produced,
+  with the session that clicked, and audits a refusal (`export.json`, `outcome=refused`).
+  The HTTP endpoints (`/competition/export/...`, SBDE included) already required RESULTS.
+  Backup and Capture Anomaly include an export; their page needs ADMIN_PAGES or
+  COMPETITION_SUPERVISOR, both of which include RESULTS. The secrets an export contains
   are protected by their hashes (see [PIN mode](#pin-mode) for the PINs).
 - Done (decided 2026-10-30): the three imports (database JSON, registration, SBDE) require a
   new IMPORT permission (`Role.IMPORT`, `Capability.IMPORT_DATA`). It is not grantable on its

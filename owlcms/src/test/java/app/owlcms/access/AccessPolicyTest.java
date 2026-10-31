@@ -295,4 +295,17 @@ public class AccessPolicyTest {
 		assertFalse(AccessPolicy.hasCapability(tcA, Capability.BREAK_MANAGEMENT, "A"));
 		assertFalse(AccessPolicy.hasCapability(juryA, Capability.BREAK_MANAGEMENT, "A"));
 	}
+
+	@Test
+	public void databaseExportsNeedResults() {
+		for (Role role : List.of(Role.RESULTS, Role.COMPETITION_DIRECTOR, Role.COMPETITION_SUPERVISOR, Role.EXTERNAL,
+		        Role.ADMIN)) {
+			assertTrue(role.name(), AccessPolicy.hasCapability(account(null, new RoleGrant(role, null)),
+			        Capability.EXPORT_DATA, null));
+		}
+		for (Role role : List.of(Role.PREPARATION, Role.REGISTRATION, Role.WEIGHIN, Role.PLATFORM, Role.DISPLAYS)) {
+			assertFalse(role.name(), AccessPolicy.hasCapability(account(null, new RoleGrant(role, null)),
+			        Capability.EXPORT_DATA, null));
+		}
+	}
 }

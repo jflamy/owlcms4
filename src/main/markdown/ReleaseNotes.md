@@ -10,69 +10,39 @@
 
 **Development log**
 
+- 69.0.0-beta02: OWLCMS 69 requires control panel 3.10.0 or later, which gives OWLCMS a new control panel token at each launch. The home page says so when an older control panel is used.
 - 69.0.0-beta02: New Security section on the Administration page.
   - Switching the access mode between Simple Access (shared passwords) and User Accounts asks for the control panel token. Simple Access is the new name of PIN mode.
   - "Check IWF compliance" lists the IWF requirements met or not
   - Database exports include the access mode; an import restores the exported settings as they are.
   - `OWLCMS_ACCESSMODE` is no longer read: the access mode is set only on the Administration page or by an import.
 - 69.0.0-beta02: Simple Access mode (formerly PIN mode)
+
+  - Moved from the System Settings to the Administration page (Security and Audit tab).
+  - "Remember this browser" on the officials and display password logins: the browser is let in for 30 days, or until the password changes. This allows removal of the Backdoor list.
   - The control panel token is accepted as the officials password, so a forgotten password can be replaced on the Administration page.
-  - "Remember this browser" on the officials and display password logins: the browser is let in for 30 days, or until the password changes.
-  - Logout is available in Simple Access mode; it ends the session.
-  - The officials and display IP address lists apply in Simple Access mode only; account logins no longer depend on the client address.
-  - The officials and display passwords and the address lists moved from System Settings to the Administration page (Security and Audit tab).
-  - The officials password, display password and MQTT password are stored as PBKDF2 hashes; older values are converted the next time they are entered. Password logins are throttled.
-  - The backdoor address list (`OWLCMS_BACKDOOR`) is removed. The Administration page no longer depends on the browser's address.
 
-- 69.0.0-beta02: The update keys of forwarding connections encrypted in Accounts mode.
 
-- 69.0.0-beta02: Settings pages (System Settings, Access Control, Competition, Records) refuse to save if the same settings were changed after the page was opened, and say who changed them when that is known (the account, or the station in Simple Access mode); reload the page and redo the change. Previously the older page silently overwrote the newer settings.
-  - Some actions save these settings immediately and count as such a change: uploading a registration file, saving the team schedule, choosing a different document template or age-group file, changing the start-number order, hiding empty championships, the IWF compliance switch, the video colour override, and uploading or clearing local overrides.
-  - Opening a document download dialog, choosing the age-group file already in use, and tracker connections no longer save the settings.
-
-- 69.0.0-beta02: Files under `/local/` are served only from the override folder and the built-in resources; on Windows, a name with backslashes could reach other files on the disk. Uploading a local override zip (System Settings) refuses a zip whose entries would be written outside the override folder.
-
-- 69.0.0-beta02: "Imports are allowed" on the Administration page (System tab). When it is off, the registration, SBDE and database imports on the Preparation page are refused, so a competition under way cannot be replaced by mistake. On by default; changes and refusals are recorded in the audit trail.
-  - The Competition Supervisor can open the Administration page and sees its System tab (stop, restart, backup, imports, simulation); the Security and Audit tab remains for the admin.
-  - Imports need the Preparation, Registration or Competition Supervisor role (or admin). The Competition Director no longer sees the import buttons.
-  - Backup offers "Database export only", in addition to logs only, export and logs, and export, logs and local folder.
-  - "Capture Anomaly" (System tab): asks what happened, records it in the audit trail and the application log, then downloads the database export and the logs.
-
-- 69.0.0-beta02: Buttons that open another page (medal ceremony, championships, age groups, records, record eligibility report, team schedule, registration from the sessions page, plates and collars from the platforms page) are shown only to accounts allowed to open that page. The records page and the record eligibility report need the Preparation or Results permission (the records page needed Preparation, the report the admin pages). The referee and jury device testing page is open to the TC and the Competition Supervisor (it was admin only).
-
-- 69.0.0-beta02: OWLCMS 69 requires control panel 3.10.0 or later, which gives OWLCMS a new control panel token at each launch. The home page says so when an older control panel is used.
-
+- 69.0.0-beta02: "Imports are allowed" on the Administration page (System tab). When it is off, the registration, SBDE and database imports on the Preparation page are refused.  Used to prevent accidental imports after Competition has started.
+- 69.0.0-beta02: Imports need the Preparation, Registration or Competition Supervisor role; database and SBDE exports need the Results permission (Results, Competition Director, Competition Supervisor, External). The buttons are hidden from other accounts.
+- 69.0.0-beta02:  "Capture Anomaly" (System tab): asks what happened, records it in the audit trail and the application log, then downloads the database export and the logs.
+- 69.0.0-beta02: Buttons that open another page (medal ceremony, championships, age groups, records, record eligibility report, team schedule, registration from the sessions page, plates and collars from the platforms page) are shown only to accounts allowed to open that page.
 - 69.0.0-beta02: MQTT refereeing devices are told when a competition has no jury (jury size 0) instead of being sent a jury size of 3.
   - Blue Owl versions up to 3.0.0 treat it as a jury of 3, as before.
-
 - 69.0.0-beta02: Admin password emergency access: logging in as `admin` with the control panel token as the password always works, for the first password of a new installation or a forgotten one.
   - The admin must then set a new password, after which OWLCMS restarts, ending every session.
-  - The single-use admin password is no longer written to `owlcms.log`.
-
 - 69.0.0-beta02: Robustness/correctness of user accounts management and audit trail
-
-- 69.0.0-beta02: Audit logs are always sealed, with the audit signing key (PEM) when present, else with the built-in key, which only allows testing.
-  - A PEM no longer turns on `iwfCompliance` or accounts mode.
-
-- 69.0.0-beta02: Some URLs accept a `?token=` from a user account, so OBS and scripts work without a login.
-  - Tokens are generated and revoked by going on the user that would normally use the pages and using Generate Token
+- 69.0.0-beta02: URLs meant to be used externally (e.g., from OBS) accept a `?token=` parameter to work without a login.
+  - Tokens are generated and revoked on the account configuration of a user with the appropriate permissions
+    - Streaming display pages need a STREAMING token (or DISPLAYS)
+    - Venue-only pages (athlete-facing boards, jury scoreboard) need DISPLAYS.
+    - Competition export and H2 database download URLs need a RESULTS token.
   - Navigation and operator input pages never accept a token.
-  - Streaming display pages need a STREAMING token (or DISPLAYS)
-  - Venue-only pages (athlete-facing boards, jury scoreboard) need DISPLAYS.
-  - Competition export and H2 database download URLs need a RESULTS token.
-  - In Simple Access mode, the display password can be passed as `?token=` on display pages.
-
+  - In Simple Access mode, the display password can be passed as `?token=` on DISPLAY pages.
 - 69.0.0-beta01:  Registration spreadsheets accept birth dates typed with `/`, `.`, `-` or spaces,
   - DMY or MDY formats are accepted, based on what is in the file (>13 indicates days)
   - If both formats are found, spreadsheet is rejected. If all dates are ambiguous the "official" order for the location is used.
   - YYYY-MM-DD are accepted.
-
-- 69.0.0-beta01: TCRR Compliance feature toggle to hide configuration sections or restrict acceptable values
-
-- 69.0.0-alpha04: Adjudication screen improvements
-  - Clear all decisions when review vote is called
-  - Only jury decisions are shown in main area if only the jury is voting
-  - Initial referee decisions are always shown at top right of the screen
 
 **New in Release 69.0**
 
@@ -97,9 +67,9 @@
 - The H2 database can no longer be opened by other programs while owlcms runs (`H2ServerPort` removed).
 - Imported textual data is cleaned of scripts and markup.
 - Session selectors distinguish completed and upcoming sessions.
-- Scoreboards can show body weight in its own column (`displayBodyWeight` feature toggle).
+- Scoreboards can show body weight in its own column (`displayBodyWeight` feature toggle).
 - Protocol templates include lot and start numbers.
 - VFE team reports flag category and team-size violations.
-- Optional resource monitoring (`resourceTraces` feature toggle).
+- Optional resource monitoring (`resourceTraces` feature toggle).
 
 -For other recent changes, see [the release repository](https://github.com/jflamy/owlcms4/releases)

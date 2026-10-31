@@ -26,6 +26,8 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.Capability;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
@@ -83,6 +85,11 @@ public class RecordsPreparationNavigationContent extends BaseNavigationContent
 			Optional<Component> exportJsonV2Button = exportJsonV2Div.getChildren().findFirst();
 			exportJsonV2Button.ifPresent(c -> ((Button) c).setWidth("100%"));
 			exportJsonV2Div.setWidthFull();
+		}
+
+		if (!AccessUi.hasCapability(Capability.EXPORT_DATA, null)) {
+			DownloadButtonFactory.hide(exportJsonDiv);
+			DownloadButtonFactory.hide(exportJsonV2Div);
 		}
 
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(config);

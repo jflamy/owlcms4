@@ -24,6 +24,10 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.server.InputStreamFactory;
 
+import app.owlcms.access.AccessPolicy;
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.Capability;
+import app.owlcms.access.Principal;
 import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.ExportAudit;
 import app.owlcms.components.elements.LazyDownloadButton;
@@ -71,10 +75,31 @@ public class DownloadButtonFactory {
 		return new Div(downloadButton);
 	}
 
+	/**
+	 * Database exports need the RESULTS permission: checked when the stream is produced, with the session that
+	 * clicked, and audited when refused.
+	 */
+	private static void requireExportPermission(Principal exporter, AuditActor actor, int format) {
+		if (!AccessPolicy.hasCapability(exporter, Capability.EXPORT_DATA, null)) {
+			ExportAudit.refused(actor, format, ExportAudit.CHANNEL_DOWNLOAD);
+			throw new IllegalStateException("database export refused: no RESULTS permission");
+		}
+	}
+
+	/** Hides an export (or import) button wrapped in a Div, so that an empty navigation group is not shown. */
+	public static void hide(Div wrapped) {
+		if (wrapped == null) {
+			return;
+		}
+		wrapped.setVisible(false);
+		wrapped.getChildren().forEach(child -> child.setVisible(false));
+	}
+
 	public static Div createDynamicJsonDownloadButton(String prefix, String label, Notification notification) {
 		UI ui = UI.getCurrent();
 		// the stream is produced on a request thread with no current UI; capture the actor on click
 		AtomicReference<AuditActor> actor = new AtomicReference<>();
+		AtomicReference<Principal> exporter = new AtomicReference<>();
 		final LazyDownloadButton downloadButton = new LazyDownloadButton(
 		        label,
 		        new Icon(VaadinIcon.DOWNLOAD_ALT),
@@ -85,9 +110,13 @@ public class DownloadButtonFactory {
 			                + ".json";
 		        },
 		        () -> {
+			        requireExportPermission(exporter.get(), actor.get(), 1);
 			        return new CompetitionData().exportData(ui, notification, actor.get(), ExportAudit.CHANNEL_DOWNLOAD);
 		        });
-		downloadButton.addClickListener(e -> actor.set(AuditActor.fromCurrentUi()));
+		downloadButton.addClickListener(e -> {
+			actor.set(AuditActor.fromCurrentUi());
+			exporter.set(AccessUi.currentPrincipal());
+		});
 	// Keep notification handling to the stream source doneCallback to avoid
 	// duplicate notifications. The stream source will open/close the
 	// processing notification via its doneCallback.
@@ -97,6 +126,7 @@ public class DownloadButtonFactory {
 	public static Div createDynamicJsonV2DownloadButton(String prefix, String label, Notification notification) {
 		UI ui = UI.getCurrent();
 		AtomicReference<AuditActor> actor = new AtomicReference<>();
+		AtomicReference<Principal> exporter = new AtomicReference<>();
 		final LazyDownloadButton downloadButton = new LazyDownloadButton(
 		        label,
 		        new Icon(VaadinIcon.DOWNLOAD_ALT),
@@ -107,9 +137,13 @@ public class DownloadButtonFactory {
 			                + ".json";
 		        },
 		        () -> {
+			        requireExportPermission(exporter.get(), actor.get(), 2);
 			        return new CompetitionDataV2().exportData(ui, notification, actor.get(), ExportAudit.CHANNEL_DOWNLOAD);
 		        });
-		downloadButton.addClickListener(e -> actor.set(AuditActor.fromCurrentUi()));
+		downloadButton.addClickListener(e -> {
+			actor.set(AuditActor.fromCurrentUi());
+			exporter.set(AccessUi.currentPrincipal());
+		});
 	// Keep notification handling to the stream source doneCallback to avoid
 	// duplicate notifications. The stream source will open/close the
 	// processing notification via its doneCallback.

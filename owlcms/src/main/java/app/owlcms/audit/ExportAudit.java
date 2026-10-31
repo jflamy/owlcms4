@@ -28,6 +28,14 @@ public final class ExportAudit {
 				.detail(failureDetail(format, channel, error)).build());
 	}
 
+	/** The session that clicked has no RESULTS permission. */
+	public static void refused(AuditActor actor, int format, String channel) {
+		AuditLog.write(AuditEntry.builder(COMPETITION, ACTION).actor(effective(actor))
+				.detail(AuditFormat.kvs("format", format, "channel", channel, "outcome", "refused", "reason",
+						"no-results-permission"))
+				.build());
+	}
+
 	static String successDetail(int format, String channel, long bytes, String sha256) {
 		return AuditFormat.kvs("format", format, "channel", channel, "bytes", bytes, "sha256", sha256);
 	}
