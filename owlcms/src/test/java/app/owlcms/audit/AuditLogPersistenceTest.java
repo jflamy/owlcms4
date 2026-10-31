@@ -14,8 +14,12 @@ import java.util.stream.Stream;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 
+import app.owlcms.tests.SlowCategory;
+
+@Category(SlowCategory.class)
 public class AuditLogPersistenceTest {
 	@Rule
 	public TemporaryFolder temporary = new TemporaryFolder();
