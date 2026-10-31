@@ -20,6 +20,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
@@ -43,6 +44,7 @@ import ch.qos.logback.classic.Level;
  * in INACTIVE with the group reloaded, and nothing scheduled before the reload may show, commit or reset a
  * decision afterwards.
  */
+@Category(SlowCategory.class)
 public class ForcedReloadTest {
 
     // loadGroup ignores a reload requested less than 300ms after the previous one (unless in testing mode)

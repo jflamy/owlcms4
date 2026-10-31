@@ -66,7 +66,7 @@ import app.owlcms.simulation.ProtocolScenario;
  * <p>
  * Needs Node and the tracker checkout next to this repository ({@code -DtrackerDir=...} or {@code TRACKER_DIR} to
  * override, {@code -Dnode=...} for the Node executable); skipped otherwise. Run it on its own:
- * {@code mvn -pl owlcms -am -Dtest=ProtocolRecordingTest -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false test}
+ * {@code mvn -pl owlcms -am -Dtest=ProtocolRecordingSimulation -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false test}
  * </p>
  *
  * <p>
@@ -77,7 +77,7 @@ import app.owlcms.simulation.ProtocolScenario;
  * valid between runs (each run starts a fresh tracker).
  * </p>
  */
-public class ProtocolRecordingTest {
+public class ProtocolRecordingSimulation {
 
 	private static final String UPDATE_KEY = "protocol-test-key";
 	private static final int TRACKER_PORT = 51793;

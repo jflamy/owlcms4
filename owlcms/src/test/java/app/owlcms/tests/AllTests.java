@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import org.junit.runner.RunWith;
 import org.slf4j.LoggerFactory;
 
+import com.googlecode.junittoolbox.ExcludeCategories;
 import com.googlecode.junittoolbox.SuiteClasses;
 import com.googlecode.junittoolbox.WildcardPatternSuite;
 
@@ -25,8 +26,9 @@ import ch.qos.logback.classic.Logger;
 
 @RunWith(WildcardPatternSuite.class)
 // tests of package-private code must stay in the package under test, outside app.owlcms.tests
-// ProtocolRecordingTest runs a real tracker for minutes: run it on its own (-Dtest=ProtocolRecordingTest)
-@SuiteClasses({ "../**/*Test.class", "!ProtocolRecordingTest.class" })
+@SuiteClasses({ "../**/*Test.class" })
+// real-time tests are in SlowTests, FullTests runs both
+@ExcludeCategories(SlowCategory.class)
 public class AllTests {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AllTests.class);

@@ -15,6 +15,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,7 @@ import app.owlcms.fieldofplay.MockFieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.UIEvent;
 
+@Category(SlowCategory.class)
 public class DecisionElementStateTest {
     private static final Logger logger = LoggerFactory.getLogger(DecisionElementStateTest.class);
     private static final long DECISION_INPUT_IGNORE_WINDOW_MS = 100;
