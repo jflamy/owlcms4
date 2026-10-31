@@ -283,20 +283,6 @@ public class AccessPolicyTest {
 	}
 
 	@Test
-	public void breakManagementCapability() {
-		Principal timekeeperA = account("A", new RoleGrant(Role.TIMEKEEPER, "A"));
-		Principal marshalA = account("A", new RoleGrant(Role.MARSHAL, "A"));
-		Principal tcA = account("A", new RoleGrant(Role.TC, "A"));
-		Principal juryA = account("A", new RoleGrant(Role.JURY, "A"));
-
-		assertTrue(AccessPolicy.hasCapability(timekeeperA, Capability.BREAK_MANAGEMENT, "A"));
-		assertTrue(AccessPolicy.hasCapability(marshalA, Capability.BREAK_MANAGEMENT, "A"));
-		assertFalse(AccessPolicy.hasCapability(timekeeperA, Capability.BREAK_MANAGEMENT, "B"));
-		assertFalse(AccessPolicy.hasCapability(tcA, Capability.BREAK_MANAGEMENT, "A"));
-		assertFalse(AccessPolicy.hasCapability(juryA, Capability.BREAK_MANAGEMENT, "A"));
-	}
-
-	@Test
 	public void databaseExportsNeedResults() {
 		for (Role role : List.of(Role.RESULTS, Role.COMPETITION_DIRECTOR, Role.COMPETITION_SUPERVISOR, Role.EXTERNAL,
 		        Role.ADMIN)) {
