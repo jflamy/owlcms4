@@ -280,7 +280,7 @@ OWLCMS (JUnit, with maintainer consent):
    result, Chair override, abandoned vote.
 3. `adjudicationDecision`: `refereeVotes` empty without the panel, `juryVotes` after a Chair override,
    `originalRefereeDecisions` from the athlete, judged attempt after the lifting order moved.
-4. `ProtocolRecordingTest` runs the scenario against the peer dev tracker. Both headless and watch modes use:
+4. `ProtocolRecordingSimulation` runs the scenario against the peer dev tracker. Both headless and watch modes use:
    - 10 s before-introduction countdown;
    - 5 s athlete introduction, no timer;
    - one 20 s before-snatch countdown, started when athlete introduction ends;
