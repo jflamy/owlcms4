@@ -1,7 +1,7 @@
 # Tracker Reverse Proxy
 
 Status: note, not started (2026-10-31). Tracker repository.
-Related: [130](130-ACCESS_CONTROL_REMAINING.md#non-route-review) (OWLCMS no longer
+Related: [130](done/130-ACCESS_CONTROL_REMAINING.md#non-route-review) (OWLCMS no longer
 supports being framed by another site; the tracker proxy is the supported way).
 
 ## Context

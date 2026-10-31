@@ -2,7 +2,7 @@
 
 This item is for the cloud deployment app (`fly-owlcms`, repository `cloud`), not for
 OWLCMS itself. It completes the locality rules of
-[130](130-ACCESS_CONTROL_REMAINING.md#locality-the-control-panel-token): in the cloud
+[130](done/130-ACCESS_CONTROL_REMAINING.md#locality-the-control-panel-token): in the cloud
 there is no OWLCMS machine at hand and no local control panel, so the cloud app plays
 the control panel's role.
 

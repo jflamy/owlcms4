@@ -1,7 +1,7 @@
 # Stale-Save Check for Configuration Singletons
 
 Plan, 2026-10-31, fourth revision — simplified. Prerequisite of the "Imports are
-allowed" switch ([130](../130-ACCESS_CONTROL_REMAINING.md#database-import)). No Java
+allowed" switch ([130](130-ACCESS_CONTROL_REMAINING.md#database-import)). No Java
 has been changed by this document.
 
 ## Premise

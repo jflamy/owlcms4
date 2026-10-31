@@ -1,15 +1,16 @@
 # Access Control - Other Remaining Work
 
 The role system is implemented. Its historical design is in
-[done/ACCESS_CONTROL_DESIGN.md](done/ACCESS_CONTROL_DESIGN.md).
-Token generation and URL protection are done: [110](done/110-ACCOUNT_TOKENS.md) and
-[120](done/120-TOKEN_PROTECTED_URLS.md).
+[done/ACCESS_CONTROL_DESIGN.md](ACCESS_CONTROL_DESIGN.md).
+Token generation and URL protection are done: [110](110-ACCOUNT_TOKENS.md) and
+[120](120-TOKEN_PROTECTED_URLS.md).
 The items below were identified on 2026-10-22. Done: navigation and in-page actions,
 locality, security settings, audit pages, admin password, admin pages, PIN mode (now
 "Simple Access" in the interface), the OWLCMS side of the [Non-route review](#non-route-review).
-Remaining: the general list of protected actions in the [Database import](#database-import)
-plan ("Imports are allowed", the IMPORT permission and RESULTS for exports are done) and the [Acceptance](#acceptance)
-checks. The tracker proxy review is [360](360-TRACKER_PROXY.md).
+The [Database import](#database-import) plan is done, including the list of
+[protected actions](#protected-actions). Closed on 2026-10-31: the acceptance checks added that
+day passed; the original ones (PLATFORM(A), combined REGISTRATION/WEIGHIN/RESULTS, break
+controls) were not run. The tracker proxy review is [360](../360-TRACKER_PROXY.md).
 
 ## Navigation and in-page actions
 
@@ -51,7 +52,7 @@ Competition Supervisor, testing).
 | Vaadin dynamic downloads/uploads | Done, no change needed. All use `DownloadHandler`/`UploadHandler` (no legacy `StreamResource`/`StreamReceiver`); Flow serves them only within the owning session, and refuses (403) when the owning component is detached, hidden, disabled or inert; uploads also check a per-component key in constant time. Uploads are created inside dialogs opened by a button, or on a page with its own role (System Settings laptop override restore); downloads are created on click or inside a dialog. A protected action is therefore unreachable once its button is hidden or disabled, or its dialog is not opened; the protected-actions plan ([Database import](#database-import)) still checks again where the action runs. |
 | Forwarded client IP | Decided: no trusted-proxy work. The officials and display address lists are PIN mode only and keep reading `X-Forwarded-For` (weak, accepted). Accounts mode does not depend on the client address (login throttling and logs only); security needs accounts. |
 | CorsFilter | Done: removed. It answered any site with credentials on Vaadin UIDL, heartbeat and build requests, and tried to make the session cookie `SameSite=None` (only for `JSESSIONID`; the cookie is named `owlcms`, so it never applied). It was added to let another site show a scoreboard in an iframe, which CORS does not govern: a framed page talks to its own server. Decided 2026-10-31: framing OWLCMS from another site is not supported (Vaadin sends `X-Frame-Options: SAMEORIGIN` since 25.2, and the session cookie is not sent in a cross-site frame). To show a scoreboard inside another page, use the tracker's reverse proxy (`/proxy`, used by the celebrations plugin): the frame is then same-origin with the tracker page. |
-| Tracker `/proxy` (tracker repository) | Moved to [360](360-TRACKER_PROXY.md): open proxy through `_target`, and framing protection stripped from proxied OWLCMS pages. |
+| Tracker `/proxy` (tracker repository) | Moved to [360](../360-TRACKER_PROXY.md): open proxy through `_target`, and framing protection stripped from proxied OWLCMS pages. |
 
 ## Locality: the control panel token
 
@@ -65,7 +66,7 @@ never counts as locality.
   tab (the value is not displayed). It keeps the token in its runtime file (readable by
   its owner only) so a restarted control panel can still copy it and stop OWLCMS.
 - In the cloud, the cloud app plays the control panel's role:
-  [340](340-CLOUD_CONTROL_PANEL_TOKEN.md).
+  [340](../340-CLOUD_CONTROL_PANEL_TOKEN.md).
 - Whenever OWLCMS has a token, it is required and must match, from any address,
   including from the OWLCMS machine itself.
 - An OWLCMS started without a token (by hand, without a control panel) refuses every
@@ -81,7 +82,7 @@ the System Settings no longer have an access-mode control.
 - Switching the access mode, in either direction, needs the cp challenge
   ([Audit pages](#audit-pages)) and an admin password for accounts mode. It is audited
   (`ConfigRepository.save`) and logs out every session. In the cloud the cp challenge
-  means the token secret; until [340](340-CLOUD_CONTROL_PANEL_TOKEN.md) sets it, cloud
+  means the token secret; until [340](../340-CLOUD_CONTROL_PANEL_TOKEN.md) sets it, cloud
   apps stay in PIN mode unless it is set by hand.
 - IWF compliance is a check, not a mode (`IwfComplianceCheck`): nothing is enforced.
   When the "Check IWF compliance" box is checked, OWLCMS lists the requirements:
@@ -151,7 +152,7 @@ Done in accounts mode:
   recovery page are removed.
 - Without a token and without an admin password, nobody can log in as admin; startup
   warns. In the cloud, set `OWLCMS_CONTROLPANELTOKEN` as a Fly secret
-  ([340](340-CLOUD_CONTROL_PANEL_TOKEN.md) automates it).
+  ([340](../340-CLOUD_CONTROL_PANEL_TOKEN.md) automates it).
 
 PIN mode: an officials-PIN holder sets the admin password on the User Accounts page,
 which is needed before switching to accounts mode. A forgotten officials PIN is replaced
@@ -221,18 +222,18 @@ user is logged in. It is a full replacement, accounts included: anyone allowed t
 import can replace the accounts. Import is normal until the competition starts, and
 dangerous after.
 
-Direction agreed (2026-10-30). Done: "Imports are allowed", the IMPORT permission. Not
-implemented: the general list of protected actions. Done: RESULTS for exports.
+Direction agreed (2026-10-30). Done (2026-10-31): "Imports are allowed", the IMPORT
+permission, RESULTS for exports, the list of [protected actions](#protected-actions).
 
 - Terminology: a **permission** is an individual right (a base role in the code, the only
   thing `@RequiresRole` checks); a **role** is a set of permissions given to an account
   (a grantable role in the code, expanded by `Role.expand()`). Many names are both: the
   Preparation role contains only the PREPARATION permission.
-- Actions inside pages get required permissions, like pages do with `@RequiresRole`: an
-  enum of protected actions, checked in the UI (hide or disable the button) and again
-  in the back end where the action runs, with the refusal audited. Today the actions on
-  the Preparation page (database import and export, registration and SBDE uploads)
-  check no role: any role allowed on the page can use them.
+- Done: actions inside pages get required permissions, like pages do with `@RequiresRole`:
+  `Capability` (SECURITY_SETTINGS, IMPORT_DATA, EXPORT_DATA), checked in the UI (hide the
+  button) and again where the action runs, with the refusal audited. The unused
+  BREAK_MANAGEMENT entry was removed: break controls are limited by the pages that show
+  them.
 - Done: an **"Imports are allowed"** yes/no setting, on the System tab of the
   Administration page (decided 2026-10-31: the Competition Supervisor page is for
   watching the competition, and it exists in Simple Access only with a feature switch),
@@ -249,7 +250,7 @@ implemented: the general list of protected actions. Done: RESULTS for exports.
 - In PIN mode the setting applies too, but any PIN holder can change it: it prevents
   accidents, not people ("PIN mode stays naked").
 - On by default. Stored directly in `Config`, so exports carry it and an import
-  restores it. [136](done/136-CONFIG_COARSE_CONFLICT.md) protects it: a System
+  restores it. [136](136-CONFIG_COARSE_CONFLICT.md) protects it: a System
   Settings page opened before the setting changed cannot overwrite it, and an import
   makes earlier pages stale; no `CompetitionControls` embeddable is introduced.
 - When imports are off, the three import buttons on the Preparation page are disabled,
@@ -276,6 +277,24 @@ implemented: the general list of protected actions. Done: RESULTS for exports.
 An import is faithful: the settings are those of the export, the access mode and the
 IWF compliance check included; nothing is kept from the running OWLCMS. A setting
 missing from an older export takes its default (PIN mode, check off).
+
+### Protected actions
+
+Decided complete on 2026-10-31. "Admin" is the admin account or any account with the
+admin role. In Simple Access mode the officials password gives everything below (the
+control panel token is still asked where noted); the display password gives none of it.
+
+| Action | Where | Roles (User Accounts mode) | Also needs |
+| --- | --- | --- | --- |
+| Registration, SBDE and database imports | Preparation page | Preparation, Registration, Competition Supervisor, admin (IMPORT) | "Imports are allowed" on; checked again when the file arrives |
+| Database (JSON) and SBDE exports | Preparation, Results and records-only pages; `/competition/export/...` | Results, Competition Director, Competition Supervisor, External, admin (RESULTS) | JSON download checked again when produced; the endpoints accept an account token with RESULTS |
+| "Imports are allowed", Stop, Restart, Backup, Capture Anomaly, Simulation | Administration page, System tab | Competition Supervisor, admin | — |
+| Officials and display passwords, address lists, IWF compliance check | Administration page, Security and Audit tab | admin (SECURITY_SETTINGS) | — |
+| Access mode switch, audit key initialization | Security and Audit tab | admin | control panel token at each action |
+| Audit integrity check | `admin/audit/check` | admin | control panel token at each check |
+| System Settings, User Accounts, session results import | their pages | admin | — |
+| Device testing | `lifting/testing` | TC on the platform, Competition Supervisor | — |
+| Break controls | announcer, timekeeper, marshal, Competition Supervisor and testing pages | those pages' roles | — |
 
 ## PIN mode
 
@@ -318,5 +337,19 @@ weak check by design. Done.
 Verify hidden/inaccessible routes and buttons for PLATFORM(A) and combined
 REGISTRATION/WEIGHIN/RESULTS accounts. Hide empty menu groups. Break controls
 remain available only to authorized announcer/timekeeper/marshal roles.
+
+Added and passed 2026-10-31 (User Accounts mode, test accounts deleted afterwards):
+
+- Competition Director: no import buttons on the Preparation page (registration upload,
+  database import, SBDE import); database and SBDE exports present.
+- Preparation-only: imports present, no database export. Weigh-in-only: neither; the
+  "Export and Import Database" group and "Advanced Preparation Functions" are not shown.
+- Competition Supervisor: Admin entry in the menu; Administration page with the System
+  tab only (Stop, Restart, Backup, Capture Anomaly, Simulation, Imports are allowed);
+  Backup opens. Admin account: both tabs.
+- "Imports are allowed" turned off from another tab while an Import Database dialog was
+  open: the upload is refused with the message, and the audit trail has
+  `application.imports-allowed imports=not-allowed` then
+  `application.import-refused import=database,reason=imports-not-allowed`.
 Audit behavior follows the existing
-[audit specification](done/AUDIT_TRAIL_SPECIFICATION.md).
+[audit specification](AUDIT_TRAIL_SPECIFICATION.md).

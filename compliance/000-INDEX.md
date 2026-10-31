@@ -12,10 +12,8 @@ None open. Lenient birth-date parsing is done: [BIRTHDATE_LENIENT_PARSE.md](done
 
 | Order | Document | Scope |
 | --- | --- | --- |
-| 130 | [Other access work](130-ACCESS_CONTROL_REMAINING.md) | Locality by control panel token, admin pages and admin password, navigation/action gating, infrastructure/security review |
 | 145 | [Signed exports](145-SIGNED_EXPORTS.md) | PEM signature inside JSON exports, import outcomes in the audit trail, support procedures with and without the key |
-| 150 | [Scheduled checkpoints](150-SCHEDULED_CHECKPOINTS.md) | Tracker timer and faithful ZIP retention over the existing WebSocket |
-| 160 | [Direct JSON boot](160-DIRECT_JSON_BOOT.md) | Control-panel checkpoint-folder launch, no-restart rule and Postgres acceptance |
+| 150 | [Scheduled checkpoints](150-SCHEDULED_CHECKPOINTS.md) | Token-accessible OWLCMS backup URL; tracker plugin pulling backups (export + sealed logs) after OWLCMS sends the database and on a timer after activity; control panel launch from the checkpoint folder |
 | 170 | [Competition Director acceptance](170-COMPETITION_DIRECTOR_ACCEPTANCE.md) | Remaining accounts/passive-page browser acceptance and configuration permissions |
 | 180 | [Card dialog browser check](180-CARD_DIALOG_BROWSER_CHECK.md) | Manual check that a decision closes an athlete card together with its pending confirmation |
 
@@ -25,9 +23,10 @@ export credential protection (140) are done:
 [110-ACCOUNT_TOKENS.md](done/110-ACCOUNT_TOKENS.md),
 [120-TOKEN_PROTECTED_URLS.md](done/120-TOKEN_PROTECTED_URLS.md),
 [140-EXPORT_CREDENTIAL_PROTECTION.md](done/140-EXPORT_CREDENTIAL_PROTECTION.md). The configuration
-stale-save check (136) is done too:
-[136-CONFIG_COARSE_CONFLICT.md](done/136-CONFIG_COARSE_CONFLICT.md). While implementing 130, remove
-requirements already covered by 100–120 rather than duplicating checks.
+stale-save check (136), the other access work (130) and direct JSON boot (160) are done too:
+[136-CONFIG_COARSE_CONFLICT.md](done/136-CONFIG_COARSE_CONFLICT.md),
+[130-ACCESS_CONTROL_REMAINING.md](done/130-ACCESS_CONTROL_REMAINING.md),
+[160-DIRECT_JSON_BOOT.md](done/160-DIRECT_JSON_BOOT.md).
 Checkpoint collection uses existing WebSocket authentication, not personal URL
 tokens.
 

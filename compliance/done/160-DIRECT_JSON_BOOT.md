@@ -1,13 +1,14 @@
-# Direct JSON Boot - Remaining Work
+# Direct JSON Boot
 
-Checked against the implementation on 2026-10-27. Completed startup-import
-work is omitted. This is a backlog, not a description of available features.
+Done (closed 2026-10-31). The control panel's "launch from checkpoint folder"
+moved to [150](../150-SCHEDULED_CHECKPOINTS.md); the Postgres acceptance run was
+dropped: the startup load uses the same import as the Import Database page.
 
 Available: `OWLCMS_LOADJSON` names a `.json`/`.zip` export or a folder, in
 which case the most recently modified `.json`/`.zip` directly inside it is
 loaded (`StartupImportSource`). The VS Code "load JSON" launch configurations
 prompt for a file or folder. Access-mode selection at JSON startup is in
-[100](done/100-PEM_ACCOUNT_MODE.md).
+[100](100-PEM_ACCOUNT_MODE.md).
 
 Decision 2026-10-27: **standby mode is dropped.** Loading from JSON is fast
 enough that waiting for an operator to pick a checkpoint inside OWLCMS is not
@@ -18,9 +19,7 @@ OWLCMS loads the latest checkpoint at startup.
 
 In the controlpanel repository:
 
-- **Launch from checkpoint folder:** let the operator choose a folder (or a
-  single export) and launch OWLCMS with `OWLCMS_LOADJSON` set to it. Remember
-  the last folder; carry the setting across installed-version upgrades.
+- **Launch from checkpoint folder:** moved to [150](../150-SCHEDULED_CHECKPOINTS.md).
 - **Restart rule:** never restart a child launched with `OWLCMS_LOADJSON` set,
   whether import fails or the application crashes later. Reloading would
   replace competition work. Decide from the child's launch environment, not
@@ -36,6 +35,3 @@ In the controlpanel repository:
   startup load, restarts still exit with 1. In the cloud, Fly restarts with the
   same secrets, so startup loading should not be used there.
 
-## 2. Remaining runtime acceptance
-
-- Start from a V2 export using Postgres.

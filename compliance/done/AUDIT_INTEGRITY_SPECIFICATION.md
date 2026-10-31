@@ -41,7 +41,7 @@ This work exists to satisfy IWF competition-management requirements. JSON V2 is 
 Two independent settings, both off by default:
 
 - `TCRR_COMPLIANCE` (`tcrrCompliance`), a `FeatureSwitch` in `SPECIALTY_FEATURES`, enables compliance with IWF Technical and Competition Rules and Regulations.
-- `iwfCompliance`, a Config setting (Security section of the Administration page), is a check, not a mode: it lists the IWF requirements not met (accounts mode, an installed audit key, a control panel token) and enforces nothing. See [130](../130-ACCESS_CONTROL_REMAINING.md#security-settings).
+- `iwfCompliance`, a Config setting (Security section of the Administration page), is a check, not a mode: it lists the IWF requirements not met (accounts mode, an installed audit key, a control panel token) and enforces nothing. See [130](130-ACCESS_CONTROL_REMAINING.md#security-settings).
 
 Neither setting implies the other. An event requiring both rule compliance and integrity protection must enable both.
 

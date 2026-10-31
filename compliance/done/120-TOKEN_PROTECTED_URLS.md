@@ -4,7 +4,7 @@ Status: done 2026-10-29. Implemented and accepted: the competition export URL, t
 STREAMING role and token access to the Vaadin display pages (accounts and PIN mode).
 Implemented 2026-10-29: the H2 download, `/simulation/*` and `/controlpanel/stop` (with
 the control panel sending its launch token). The supervisor backups are tracked in
-[130](../130-ACCESS_CONTROL_REMAINING.md).
+[130](130-ACCESS_CONTROL_REMAINING.md).
 Prerequisite: [account token generation](110-ACCOUNT_TOKENS.md).
 Implementation plan for the STREAMING role and the display pages: [120-IMPLEMENTATION_PLAN.md](120-IMPLEMENTATION_PLAN.md).
 
@@ -113,7 +113,7 @@ audit `runId` is not used: the control panel may stop OWLCMS before any audit fi
   comparison), from any address, including the OWLCMS machine itself.
 - An OWLCMS started without a token refuses: there is no fallback on the client
   address (the earlier loopback-without-forwarding-header check was removed, see
-  [130](../130-ACCESS_CONTROL_REMAINING.md#locality-the-control-panel-token)).
+  [130](130-ACCESS_CONTROL_REMAINING.md#locality-the-control-panel-token)).
 - The backdoor list does not bypass the check. A refusal is audited as
   `auth.token-refused` (`no-token`, `missing` or `invalid`). Stop answers 403 and the
   control panel falls back to stopping the process with a signal; the simulation script
@@ -258,7 +258,7 @@ token, generated in the video application: see [330](../330-REPLAYS_TOKEN.md).
 
 ## Later work
 
-Tracked in [130](../130-ACCESS_CONTROL_REMAINING.md).
+Tracked in [130](130-ACCESS_CONTROL_REMAINING.md).
 
 - Moving some admin pages from ADMIN_PAGES to COMPETITION_SUPERVISOR. This changes
   page roles only; tokens still do not reach those pages unless they are made
