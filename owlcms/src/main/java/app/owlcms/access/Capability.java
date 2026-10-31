@@ -6,7 +6,9 @@ import java.util.Set;
 public enum Capability {
 	BREAK_MANAGEMENT(Set.of(Role.ANNOUNCER, Role.TIMEKEEPER, Role.MARSHAL), true),
 	/** The Security and Audit tab of the Administration page; the Competition Supervisor sees only the System tab. */
-	SECURITY_SETTINGS(Set.of(Role.ADMIN_PAGES), false);
+	SECURITY_SETTINGS(Set.of(Role.ADMIN_PAGES), false),
+	/** Registration, SBDE and database imports; see {@link ImportGate}. */
+	IMPORT_DATA(Set.of(Role.IMPORT), false);
 
 	private final Set<Role> roles;
 	private final boolean platformBound;

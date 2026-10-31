@@ -6,31 +6,46 @@
  *******************************************************************************/
 package app.owlcms.access;
 
-/** An import was refused because imports are turned off on the Administration page. */
+/** An import was refused: no IMPORT permission, or imports are turned off on the Administration page. */
 @SuppressWarnings("serial")
 public class ImportsNotAllowedException extends RuntimeException {
 
-	private final ImportGate.Kind kind;
+	public enum Reason {
+		NO_PERMISSION("no-import-permission", "Imports.NotPermitted"),
+		NOT_ALLOWED("imports-not-allowed", "Imports.NotAllowed");
 
-	public ImportsNotAllowedException(ImportGate.Kind kind) {
-		super(kind + " import refused: imports are not allowed");
+		private final String auditValue;
+		private final String messageKey;
+
+		Reason(String auditValue, String messageKey) {
+			this.auditValue = auditValue;
+			this.messageKey = messageKey;
+		}
+
+		public String auditValue() {
+			return this.auditValue;
+		}
+
+		/** Translation key of the message shown to the user. */
+		public String messageKey() {
+			return this.messageKey;
+		}
+	}
+
+	private final ImportGate.Kind kind;
+	private final Reason reason;
+
+	public ImportsNotAllowedException(ImportGate.Kind kind, Reason reason) {
+		super(kind + " import refused: " + reason.auditValue());
 		this.kind = kind;
+		this.reason = reason;
 	}
 
 	public ImportGate.Kind getKind() {
 		return this.kind;
 	}
 
-	/** The refusal in a cause chain, or null. */
-	public static ImportsNotAllowedException find(Throwable t) {
-		for (Throwable c = t; c != null; c = c.getCause()) {
-			if (c instanceof ImportsNotAllowedException refused) {
-				return refused;
-			}
-			if (c.getCause() == c) {
-				break;
-			}
-		}
-		return null;
+	public Reason getReason() {
+		return this.reason;
 	}
 }

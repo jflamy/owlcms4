@@ -34,6 +34,7 @@
 
 - 69.0.0-beta02: "Imports are allowed" on the Administration page (System tab). When it is off, the registration, SBDE and database imports on the Preparation page are refused, so a competition under way cannot be replaced by mistake. On by default; changes and refusals are recorded in the audit trail.
   - The Competition Supervisor can open the Administration page and sees its System tab (stop, restart, backup, imports, simulation); the Security and Audit tab remains for the admin.
+  - Imports need the Preparation, Registration or Competition Supervisor role (or admin). The Competition Director no longer sees the import buttons.
   - Backup offers "Database export only", in addition to logs only, export and logs, and export, logs and local folder.
   - "Capture Anomaly" (System tab): asks what happened, records it in the audit trail and the application log, then downloads the database export and the logs.
 

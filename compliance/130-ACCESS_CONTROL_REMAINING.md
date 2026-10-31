@@ -7,8 +7,8 @@ Token generation and URL protection are done: [110](done/110-ACCOUNT_TOKENS.md) 
 The items below were identified on 2026-10-22. Done: navigation and in-page actions,
 locality, security settings, audit pages, admin password, admin pages, PIN mode (now
 "Simple Access" in the interface), the OWLCMS side of the [Non-route review](#non-route-review).
-Remaining: the rest of the [Database import](#database-import) plan (protected actions, IMPORT
-permission, RESULTS for exports; "Imports are allowed" is done) and the [Acceptance](#acceptance)
+Remaining: the rest of the [Database import](#database-import) plan (protected actions,
+RESULTS for exports; "Imports are allowed" and the IMPORT permission are done) and the [Acceptance](#acceptance)
 checks. The tracker proxy review is [360](360-TRACKER_PROXY.md).
 
 ## Navigation and in-page actions
@@ -221,8 +221,8 @@ user is logged in. It is a full replacement, accounts included: anyone allowed t
 import can replace the accounts. Import is normal until the competition starts, and
 dangerous after.
 
-Direction agreed (2026-10-30). Done: "Imports are allowed". Not implemented: the protected
-actions, the IMPORT permission, RESULTS for exports.
+Direction agreed (2026-10-30). Done: "Imports are allowed", the IMPORT permission. Not
+implemented: the general list of protected actions, RESULTS for exports.
 
 - Terminology: a **permission** is an individual right (a base role in the code, the only
   thing `@RequiresRole` checks); a **role** is a set of permissions given to an account
@@ -257,11 +257,13 @@ actions, the IMPORT permission, RESULTS for exports.
 - Database exports require the RESULTS permission (roles: Results, Competition
   Director, Competition Supervisor, External, admin). The secrets an export contains
   are protected by their hashes (see [PIN mode](#pin-mode) for the PINs).
-- Decided 2026-10-30: the three imports (database JSON, registration, SBDE) require a new
-  IMPORT permission. It is not grantable on its own: it comes with the Preparation and
-  Registration roles, Competition Supervisor and admin (and Simple Access), not with
-  Competition Director. Accounts without it do not see the import buttons; the back end
-  checks again when the import runs and audits a refusal. The other uploads (age groups,
+- Done (decided 2026-10-30): the three imports (database JSON, registration, SBDE) require a
+  new IMPORT permission (`Role.IMPORT`, `Capability.IMPORT_DATA`). It is not grantable on its
+  own: it comes with the Preparation and Registration roles, Competition Supervisor and admin
+  (and Simple Access), not with Competition Director, whose PREPARATION permission comes
+  without it. Accounts without it do not see the import buttons; `ImportGate.requireAllowed`
+  checks again when the file arrives, with the identity captured when the dialog was opened,
+  and audits a refusal (`reason=no-import-permission`). The other uploads (age groups,
   officials, coaches, team schedule, records, session results) are not imports for this
   purpose.
 

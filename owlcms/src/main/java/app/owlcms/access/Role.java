@@ -19,6 +19,11 @@ public enum Role {
 	COMPETITION_DIRECTOR(true, false, false, false),
 	PREPARATION(true, false, false, true),
 	REGISTRATION(true, false, false, true),
+	/**
+	 * Registration, SBDE and database imports. Not granted alone: it comes with the Preparation and Registration
+	 * roles, Competition Supervisor and admin, not with the Competition Director.
+	 */
+	IMPORT(false, false, false, true),
 	WEIGHIN(true, false, false, true),
 	RESULTS(true, false, false, true),
 	PLATFORM(true, true, false, false),
@@ -65,11 +70,13 @@ public enum Role {
 	public Set<Role> expand() {
 		return switch (this) {
 			case ADMIN -> baseRoles();
-			case COMPETITION_SUPERVISOR -> EnumSet.of(COMPETITION_SUPERVISOR, PREPARATION, REGISTRATION, WEIGHIN,
-			        RESULTS, ANNOUNCER, MARSHAL, TIMEKEEPER, TC, JURY, REFEREE, DISPLAYS, STREAMING);
+			case COMPETITION_SUPERVISOR -> EnumSet.of(COMPETITION_SUPERVISOR, PREPARATION, REGISTRATION, IMPORT,
+			        WEIGHIN, RESULTS, ANNOUNCER, MARSHAL, TIMEKEEPER, TC, JURY, REFEREE, DISPLAYS, STREAMING);
 			case COMPETITION_DIRECTOR -> EnumSet.of(PREPARATION, RESULTS, DISPLAYS);
 			case PLATFORM -> EnumSet.of(ANNOUNCER, MARSHAL, TIMEKEEPER, TC, DISPLAYS);
 			case EXTERNAL -> EnumSet.of(RESULTS, STREAMING);
+			case PREPARATION -> EnumSet.of(PREPARATION, IMPORT);
+			case REGISTRATION -> EnumSet.of(REGISTRATION, IMPORT);
 			default -> EnumSet.of(this);
 		};
 	}

@@ -6,15 +6,16 @@
  *******************************************************************************/
 package app.owlcms.access;
 
+import app.owlcms.access.ImportsNotAllowedException.Reason;
 import app.owlcms.audit.ApplicationAudit;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
 
 /**
- * "Imports are allowed": the registration, SBDE and database imports started from the Preparation page. Set on the
- * Administration page (System tab). The startup load of a checkpoint by the control panel is not an import for this
- * purpose, and records-only mode ignores the setting.
+ * The registration, SBDE and database imports started from the Preparation page: they need the IMPORT permission
+ * ({@link Capability#IMPORT_DATA}) and "Imports are allowed" (Administration page, System tab). The startup load of
+ * a checkpoint by the control panel is not an import for this purpose, and records-only mode ignores the setting.
  */
 public final class ImportGate {
 
@@ -44,12 +45,20 @@ public final class ImportGate {
 	/**
 	 * Called where the import runs, when the file has arrived: a dialog opened while imports were allowed is refused
 	 * if they were turned off since. The refusal is audited.
+	 *
+	 * @param principal who imports, captured on the UI thread where the import was started
 	 */
-	public static void requireAllowed(Kind kind, AuditOrigin origin) {
-		if (isAllowed()) {
+	public static void requireAllowed(Kind kind, Principal principal, AuditOrigin origin) {
+		Reason refusal = null;
+		if (!AccessPolicy.hasCapability(principal, Capability.IMPORT_DATA, null)) {
+			refusal = Reason.NO_PERMISSION;
+		} else if (!isAllowed()) {
+			refusal = Reason.NOT_ALLOWED;
+		}
+		if (refusal == null) {
 			return;
 		}
-		ApplicationAudit.importRefused(origin, kind.name().toLowerCase());
-		throw new ImportsNotAllowedException(kind);
+		ApplicationAudit.importRefused(origin, kind.name().toLowerCase(), refusal.auditValue());
+		throw new ImportsNotAllowedException(kind, refusal);
 	}
 }

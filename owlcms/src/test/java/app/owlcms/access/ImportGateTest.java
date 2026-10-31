@@ -21,6 +21,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import app.owlcms.Main;
+import app.owlcms.access.ImportsNotAllowedException.Reason;
 import app.owlcms.access.Principal.AuthSource;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.account.RoleGrant;
@@ -40,6 +41,12 @@ import app.owlcms.nui.admin.AdminView;
 public class ImportGateTest {
 
 	private static final AuditOrigin ORIGIN = AuditOrigin.system("test");
+	private static final Principal ADMIN = Principal.admin(AuthSource.ACCOUNT);
+
+	private static Principal account(Role role) {
+		return new Principal(AuthSource.ACCOUNT, 3L, role.name().toLowerCase(), List.of(new RoleGrant(role, null)),
+		        null);
+	}
 
 	@BeforeClass
 	public static void setUpDatabase() {
@@ -72,7 +79,7 @@ public class ImportGateTest {
 		assertNull(Config.getCurrent().getImportsAllowed());
 		assertTrue(ImportGate.isAllowed());
 		for (ImportGate.Kind kind : ImportGate.Kind.values()) {
-			ImportGate.requireAllowed(kind, ORIGIN);
+			ImportGate.requireAllowed(kind, ADMIN, ORIGIN);
 		}
 	}
 
@@ -83,8 +90,9 @@ public class ImportGateTest {
 		assertEquals(Boolean.FALSE, ConfigRepository.loadForEdit().getImportsAllowed());
 		for (ImportGate.Kind kind : ImportGate.Kind.values()) {
 			ImportsNotAllowedException refused = assertThrows(ImportsNotAllowedException.class,
-			        () -> ImportGate.requireAllowed(kind, ORIGIN));
+			        () -> ImportGate.requireAllowed(kind, ADMIN, ORIGIN));
 			assertEquals(kind, refused.getKind());
+			assertEquals(Reason.NOT_ALLOWED, refused.getReason());
 		}
 		assertTrue(ImportGate.setAllowed(true, ORIGIN));
 		assertTrue(ImportGate.isAllowed());
@@ -96,7 +104,7 @@ public class ImportGateTest {
 		ImportGate.setAllowed(false, ORIGIN);
 		Long stamp = ConfigRepository.loadForEdit().getLastSavedAt();
 		ImportsNotAllowedException refused = assertThrows(ImportsNotAllowedException.class,
-		        () -> FormatDetector.importData(json, "test.json", ORIGIN));
+		        () -> FormatDetector.importData(json, "test.json", ADMIN, ORIGIN));
 		assertEquals(ImportGate.Kind.DATABASE, refused.getKind());
 		assertEquals("nothing was replaced", stamp, ConfigRepository.loadForEdit().getLastSavedAt());
 	}
@@ -106,8 +114,37 @@ public class ImportGateTest {
 		ImportGate.setAllowed(false, ORIGIN);
 		byte[] json = export();
 		ImportGate.setAllowed(true, ORIGIN);
-		FormatDetector.importData(json, "test.json", ORIGIN);
+		FormatDetector.importData(json, "test.json", ADMIN, ORIGIN);
 		assertFalse(ImportGate.isAllowed());
+	}
+
+	@Test
+	public void importPermissionComesWithPreparationRegistrationSupervisorAndAdmin() {
+		for (Role role : List.of(Role.PREPARATION, Role.REGISTRATION, Role.COMPETITION_SUPERVISOR, Role.ADMIN)) {
+			assertTrue(role.name(), AccessPolicy.hasCapability(account(role), Capability.IMPORT_DATA, null));
+		}
+		for (Role role : List.of(Role.COMPETITION_DIRECTOR, Role.RESULTS, Role.WEIGHIN, Role.PLATFORM, Role.EXTERNAL)) {
+			assertFalse(role.name(), AccessPolicy.hasCapability(account(role), Capability.IMPORT_DATA, null));
+		}
+		assertTrue("Simple Access", AccessPolicy.hasCapability(Principal.admin(AuthSource.OFFICIALS_PIN), Capability.IMPORT_DATA,
+		        null));
+		assertFalse("not grantable on its own", Role.IMPORT.isGrantable());
+	}
+
+	@Test
+	public void competitionDirectorImportIsRefusedEvenWhenAllowed() throws Exception {
+		Principal director = account(Role.COMPETITION_DIRECTOR);
+		assertTrue(ImportGate.isAllowed());
+		for (ImportGate.Kind kind : ImportGate.Kind.values()) {
+			ImportsNotAllowedException refused = assertThrows(ImportsNotAllowedException.class,
+			        () -> ImportGate.requireAllowed(kind, director, ORIGIN));
+			assertEquals(Reason.NO_PERMISSION, refused.getReason());
+		}
+		byte[] json = export();
+		Long stamp = ConfigRepository.loadForEdit().getLastSavedAt();
+		assertThrows(ImportsNotAllowedException.class, () -> FormatDetector.importData(json, "test.json", director,
+		        ORIGIN));
+		assertEquals("nothing was replaced", stamp, ConfigRepository.loadForEdit().getLastSavedAt());
 	}
 
 	@Test

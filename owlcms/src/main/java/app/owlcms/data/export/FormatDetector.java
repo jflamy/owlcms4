@@ -24,6 +24,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import app.owlcms.access.ImportGate;
+import app.owlcms.access.Principal;
 import app.owlcms.audit.ApplicationAudit;
 import app.owlcms.audit.AuditContext;
 import app.owlcms.audit.AuditOrigin;
@@ -66,10 +67,12 @@ public class FormatDetector {
 	 * Imports an uploaded export (JSON, or a ZIP containing one) and audits it once it has replaced the competition:
 	 * source name, size and SHA-256 of the JSON bytes, who imported it and from where.
 	 *
-	 * @param origin captured where the import was started
+	 * @param principal who imports, captured where the import was started: needs the IMPORT permission
+	 * @param origin    captured where the import was started
 	 */
-	public static void importData(byte[] uploaded, String source, AuditOrigin origin) throws Exception {
-		ImportGate.requireAllowed(ImportGate.Kind.DATABASE, origin);
+	public static void importData(byte[] uploaded, String source, Principal principal, AuditOrigin origin)
+	        throws Exception {
+		ImportGate.requireAllowed(ImportGate.Kind.DATABASE, principal, origin);
 		byte[] json = readJsonBytes(new ByteArrayInputStream(uploaded));
 		importData(new ByteArrayInputStream(json), origin);
 		ApplicationAudit.imported(origin, source, json.length, sha256(json));

@@ -35,6 +35,8 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.Capability;
 import app.owlcms.access.ImportGate;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
@@ -157,7 +159,12 @@ public class PreparationNavigationContent extends BaseNavigationContent
 			exportJsonV2Div.setWidthFull();
 		}
 
-		if (!ImportGate.isAllowed()) {
+		if (!AccessUi.hasCapability(Capability.IMPORT_DATA, null)) {
+			// no IMPORT permission (Competition Director): the upload would be refused
+			upload.setVisible(false);
+			sbdeUpload.setVisible(false);
+			uploadJson.setVisible(false);
+		} else if (!ImportGate.isAllowed()) {
 			// turned off on the Administration page (System tab); the upload is refused there too
 			upload.setEnabled(false);
 			sbdeUpload.setEnabled(false);

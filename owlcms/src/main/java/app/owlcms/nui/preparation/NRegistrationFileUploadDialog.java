@@ -34,8 +34,11 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.server.streams.UploadHandler;
 
 import app.owlcms.components.ConfirmationDialog;
+import app.owlcms.access.AccessUi;
 import app.owlcms.access.ImportGate;
 import app.owlcms.access.ImportsNotAllowedException;
+import app.owlcms.access.ImportsNotAllowedException.Reason;
+import app.owlcms.access.Principal;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.agegroup.Championship;
@@ -81,6 +84,8 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		// Capture locale now while still on UI thread - will be used in upload callback
 		this.capturedLocale = OwlcmsSession.getLocale();
 		AuditOrigin importOrigin = AuditOrigin.fromUi(sbdeFormat ? "SBDE import" : "Registration upload");
+		Principal importer = AccessUi.currentPrincipal();
+		String notPermitted = Translator.translate("Imports.NotPermitted");
 		String notAllowed = Translator.translate("Imports.NotAllowed");
 
 		H5 label = new H5(Translator.translate(REGISTRATION_REPLACE_WARNING_KEY));
@@ -106,9 +111,9 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, data) -> {
 			try {
 				ImportGate.requireAllowed(this.sbdeFormat ? ImportGate.Kind.SBDE : ImportGate.Kind.REGISTRATION,
-				        importOrigin);
+				        importer, importOrigin);
 			} catch (ImportsNotAllowedException e) {
-				appendErrors(ta, notAllowed);
+				appendErrors(ta, e.getReason() == Reason.NO_PERMISSION ? notPermitted : notAllowed);
 				return;
 			}
 			// Process the uploaded file data
