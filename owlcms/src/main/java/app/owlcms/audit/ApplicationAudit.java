@@ -30,6 +30,20 @@ public final class ApplicationAudit {
 				.build());
 	}
 
+	/** "Imports are allowed" was turned on or off (Administration page). */
+	public static void importsAllowedChanged(AuditOrigin origin, boolean allowed) {
+		AuditLog.write(AuditEntry.builder("competition", "application.imports-allowed").actor(origin.actor())
+				.cause(origin.cause()).detail(AuditFormat.kv("imports", allowed ? "allowed" : "not-allowed"))
+				.build());
+	}
+
+	/** An import was refused because imports are not allowed. */
+	public static void importRefused(AuditOrigin origin, String kind) {
+		AuditLog.write(AuditEntry.builder("competition", "application.import-refused").actor(origin.actor())
+				.cause(origin.cause()).detail(AuditFormat.kvs("import", kind, "reason", "imports-not-allowed"))
+				.build());
+	}
+
 	public static void restartRequested(String reason) {
 		AuditLog.write(AuditEntry.builder("competition", "application.restart-requested")
 				.actor(currentActor()).detail(AuditFormat.kv("reason", reason)).build());

@@ -1,10 +1,14 @@
 package app.owlcms.nui.admin;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Paragraph;
@@ -13,6 +17,7 @@ import com.vaadin.flow.component.markdown.Markdown;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
@@ -20,6 +25,8 @@ import app.owlcms.Main;
 import app.owlcms.access.AccessMode;
 import app.owlcms.access.AccessUi;
 import app.owlcms.access.AccountModeAuthenticator;
+import app.owlcms.access.Capability;
+import app.owlcms.access.ImportGate;
 import app.owlcms.access.Principal;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
@@ -31,20 +38,27 @@ import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.AuditContext;
 import app.owlcms.audit.AuditOrigin;
+import app.owlcms.audit.AuditSnapshot;
+import app.owlcms.audit.AuditSnapshot.Scope;
 import app.owlcms.components.ConfirmationDialog;
+import app.owlcms.components.elements.LazyDownloadButton;
 import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
+import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.nui.shared.IwfComplianceDisplay;
 import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.utils.RestartUtils;
 
-/** Administration: system (stop, restart, backup, simulation), security settings, audit trail. */
+/**
+ * Administration: system (stop, restart, backup, imports allowed, simulation), security settings, audit trail. The
+ * Competition Supervisor sees only the System tab.
+ */
 @SuppressWarnings("serial")
-@RequiresRole(Role.ADMIN_PAGES)
+@RequiresRole({ Role.ADMIN_PAGES, Role.COMPETITION_SUPERVISOR })
 @Route(value = "admin", layout = OwlcmsLayout.class)
 public class AdminView extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
@@ -75,20 +89,28 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 		auditKey.setEnabled(token);
 		auditCheck.setEnabled(token);
 
-		VerticalLayout systemTab = tab(HomeNavigationContent.navigationGrid(stop, restart, backup),
+		Button captureAnomaly = new Button(Translator.translate("Admin.CaptureAnomaly"), VaadinIcon.WARNING.create(),
+		        event -> openAnomalyDialog());
+		captureAnomaly.addThemeVariants(ButtonVariant.LUMO_ERROR);
+
+		VerticalLayout systemTab = tab(heading("Admin.Server"),
+		        HomeNavigationContent.navigationGrid(stop, restart, backup, captureAnomaly),
+		        heading("Admin.Imports"), importsAllowedSwitch(),
 		        heading("Admin.Testing"), HomeNavigationContent.navigationGrid(simulation));
-		AccessControlForm accessControlForm = new AccessControlForm();
-		VerticalLayout securityTab = tab(heading("Config.AccessControlTitle"), securityStatus(),
-		        securityControls(token, accessControlForm::refreshIfClean),
-		        accessControlForm,
-		        heading("Admin.AuditTrail"), HomeNavigationContent.navigationGrid(auditKey, auditCheck));
-		if (!token) {
-			securityTab.add(helperText("Access.ControlPanelTokenNotSet"));
-		}
 
 		TabSheet tabs = new TabSheet();
 		tabs.add(Translator.translate("Admin.System"), systemTab);
-		tabs.add(Translator.translate("Admin.SecurityAndAudit"), securityTab);
+		if (AccessUi.hasCapability(Capability.SECURITY_SETTINGS, null)) {
+			AccessControlForm accessControlForm = new AccessControlForm();
+			VerticalLayout securityTab = tab(heading("Config.AccessControlTitle"), securityStatus(),
+			        securityControls(token, accessControlForm::refreshIfClean),
+			        accessControlForm,
+			        heading("Admin.AuditTrail"), HomeNavigationContent.navigationGrid(auditKey, auditCheck));
+			if (!token) {
+				securityTab.add(helperText("Access.ControlPanelTokenNotSet"));
+			}
+			tabs.add(Translator.translate("Admin.SecurityAndAudit"), securityTab);
+		}
 		tabs.setWidthFull();
 		add(tabs);
 	}
@@ -131,6 +153,47 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 		return HomeNavigationContent.navigationGrid(
 		        securityAction(accessMode, token ? accessModeLabel(target) + "Help" : "Access.ControlPanelTokenNotSet"),
 		        iwfComplianceCheck(settingsSaved));
+	}
+
+	/**
+	 * Downloads the database export and the logs, with the operator's description recorded in the audit trail before
+	 * the logs are sealed, so that the zip holds it.
+	 */
+	private void openAnomalyDialog() {
+		Dialog dialog = new Dialog();
+		dialog.setHeaderTitle(Translator.translate("Admin.CaptureAnomaly"));
+		dialog.setWidth("40em");
+		TextArea description = new TextArea(Translator.translate("Admin.AnomalyDescription"));
+		description.setWidthFull();
+		description.setMaxLength(500);
+
+		// the zip is built on a request thread with no current UI; capture the actor and the text on click
+		AtomicReference<AuditActor> actor = new AtomicReference<>();
+		AtomicReference<String> text = new AtomicReference<>("");
+		Div download = DownloadButtonFactory.createDynamicZipDownloadButton("owlcms_anomaly",
+		        Translator.translate("Admin.AnomalyDownload"),
+		        () -> AuditSnapshot.stream(Scope.LOGS_AND_EXPORT, actor.get(), text.get()));
+		download.getChildren().filter(LazyDownloadButton.class::isInstance).findFirst()
+		        .ifPresent(button -> ((LazyDownloadButton) button).addClickListener(event -> {
+			        actor.set(AuditActor.capture(this).atStation("ADMIN", null, false));
+			        text.set(description.getValue());
+		        }));
+
+		dialog.add(new Paragraph(Translator.translate("Admin.AnomalyExplanation")), description, download);
+		dialog.getFooter().add(new Button(Translator.translate("Close"), event -> dialog.close()));
+		dialog.open();
+	}
+
+	/** Registration, SBDE and database imports on the Preparation page. */
+	private static Checkbox importsAllowedSwitch() {
+		Checkbox allowed = new Checkbox(Translator.translate("Admin.ImportsAllowed"), ImportGate.isAllowed());
+		allowed.setHelperText(Translator.translate("Admin.ImportsAllowedHelp"));
+		allowed.addValueChangeListener(event -> {
+			if (event.isFromClient()) {
+				ImportGate.setAllowed(event.getValue(), AuditOrigin.fromUi("Administration imports allowed"));
+			}
+		});
+		return allowed;
 	}
 
 	/** The checkbox, and the list of requirements while it is checked. */

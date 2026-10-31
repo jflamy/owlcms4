@@ -32,6 +32,11 @@
 
 - 69.0.0-beta02: Files under `/local/` are served only from the override folder and the built-in resources; on Windows, a name with backslashes could reach other files on the disk. Uploading a local override zip (System Settings) refuses a zip whose entries would be written outside the override folder.
 
+- 69.0.0-beta02: "Imports are allowed" on the Administration page (System tab). When it is off, the registration, SBDE and database imports on the Preparation page are refused, so a competition under way cannot be replaced by mistake. On by default; changes and refusals are recorded in the audit trail.
+  - The Competition Supervisor can open the Administration page and sees its System tab (stop, restart, backup, imports, simulation); the Security and Audit tab remains for the admin.
+  - Backup offers "Database export only", in addition to logs only, export and logs, and export, logs and local folder.
+  - "Capture Anomaly" (System tab): asks what happened, records it in the audit trail and the application log, then downloads the database export and the logs.
+
 - 69.0.0-beta02: Buttons that open another page (medal ceremony, championships, age groups, records, record eligibility report, team schedule, registration from the sessions page, plates and collars from the platforms page) are shown only to accounts allowed to open that page. The records page and the record eligibility report need the Preparation or Results permission (the records page needed Preparation, the report the admin pages). The referee and jury device testing page is open to the TC and the Competition Supervisor (it was admin only).
 
 - 69.0.0-beta02: OWLCMS 69 requires control panel 3.10.0 or later, which gives OWLCMS a new control panel token at each launch. The home page says so when an older control panel is used.

@@ -47,6 +47,11 @@ public final class AccessUi {
 		return canOpenOnPlatform(target, fop != null ? fop.getName() : null);
 	}
 
+	/** UI thread only: whether the current tab has the in-page function. */
+	public static boolean hasCapability(Capability capability, FieldOfPlay fop) {
+		return AccessPolicy.hasCapability(currentPrincipal(), capability, fop != null ? fop.getName() : null);
+	}
+
 	/** UI thread only: whether the current tab may open {@code target} for the named platform. */
 	public static boolean canOpenOnPlatform(Class<?> target, String platformName) {
 		return AccessPolicy.canOpen(currentPrincipal(), PageRule.of(target), platformName);

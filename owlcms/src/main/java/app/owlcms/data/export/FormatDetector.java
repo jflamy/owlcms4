@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+import app.owlcms.access.ImportGate;
 import app.owlcms.audit.ApplicationAudit;
 import app.owlcms.audit.AuditContext;
 import app.owlcms.audit.AuditOrigin;
@@ -68,6 +69,7 @@ public class FormatDetector {
 	 * @param origin captured where the import was started
 	 */
 	public static void importData(byte[] uploaded, String source, AuditOrigin origin) throws Exception {
+		ImportGate.requireAllowed(ImportGate.Kind.DATABASE, origin);
 		byte[] json = readJsonBytes(new ByteArrayInputStream(uploaded));
 		importData(new ByteArrayInputStream(json), origin);
 		ApplicationAudit.imported(origin, source, json.length, sha256(json));

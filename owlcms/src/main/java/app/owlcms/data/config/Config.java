@@ -242,6 +242,9 @@ public class Config {
 	/** The IWF compliance check is on; see {@link #isIwfComplianceChecked()}. */
 	@Column(name = "iwfCompliance")
 	private Boolean iwfCompliance;
+	/** Imports from the Preparation page are allowed; see {@link #allowsImports()}. */
+	@Column(name = "importsAllowed")
+	private Boolean importsAllowed;
 	private String mqttPort;
 	private String mqttUserName;
 	private String mqttPassword;
@@ -348,6 +351,23 @@ public class Config {
 
 	public void setIwfCompliance(Boolean iwfCompliance) {
 		this.iwfCompliance = iwfCompliance;
+	}
+
+	public Boolean getImportsAllowed() {
+		return this.importsAllowed;
+	}
+
+	public void setImportsAllowed(Boolean importsAllowed) {
+		this.importsAllowed = importsAllowed;
+	}
+
+	/**
+	 * Registration, SBDE and database imports started from the Preparation page. Unset (older databases and exports)
+	 * means allowed.
+	 */
+	@JsonIgnore
+	public boolean allowsImports() {
+		return !Boolean.FALSE.equals(this.importsAllowed);
 	}
 
 	/**

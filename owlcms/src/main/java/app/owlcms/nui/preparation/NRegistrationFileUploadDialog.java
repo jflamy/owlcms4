@@ -34,7 +34,10 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.server.streams.UploadHandler;
 
 import app.owlcms.components.ConfirmationDialog;
+import app.owlcms.access.ImportGate;
+import app.owlcms.access.ImportsNotAllowedException;
 import app.owlcms.apputils.NotificationUtils;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.CategoryRepository;
@@ -77,6 +80,8 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		this.isRestartScenario = RestartUtils.isRestartScenario();
 		// Capture locale now while still on UI thread - will be used in upload callback
 		this.capturedLocale = OwlcmsSession.getLocale();
+		AuditOrigin importOrigin = AuditOrigin.fromUi(sbdeFormat ? "SBDE import" : "Registration upload");
+		String notAllowed = Translator.translate("Imports.NotAllowed");
 
 		H5 label = new H5(Translator.translate(REGISTRATION_REPLACE_WARNING_KEY));
 		label.getStyle().set("color", "red");
@@ -99,6 +104,13 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		ta.setVisible(false);
 
 		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, data) -> {
+			try {
+				ImportGate.requireAllowed(this.sbdeFormat ? ImportGate.Kind.SBDE : ImportGate.Kind.REGISTRATION,
+				        importOrigin);
+			} catch (ImportsNotAllowedException e) {
+				appendErrors(ta, notAllowed);
+				return;
+			}
 			// Process the uploaded file data
 			this.processor = this.sbdeFormat
 			        ? new NRegistrationFileProcessor(sbdeFormat, this.capturedLocale)

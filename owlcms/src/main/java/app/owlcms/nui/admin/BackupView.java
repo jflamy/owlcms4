@@ -23,7 +23,7 @@ import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.nui.shared.OwlcmsLayout;
 
 @SuppressWarnings("serial")
-@RequiresRole(Role.ADMIN_PAGES)
+@RequiresRole({ Role.ADMIN_PAGES, Role.COMPETITION_SUPERVISOR })
 @Route(value = "admin/backup", layout = OwlcmsLayout.class)
 public class BackupView extends Composite<VerticalLayout>
 		implements HasDynamicTitle {
@@ -47,9 +47,10 @@ public class BackupView extends Composite<VerticalLayout>
 					selected.set(this.scope.getValue());
 				}));
 
-		getContent().add(new H2(getPageTitle()),
-				new Paragraph(Translator.translate("Backup.Description")),
-				this.scope, download);
+		// the description holds a <br> between its two sentences
+		Paragraph description = new Paragraph();
+		description.getElement().setProperty("innerHTML", Translator.translate("Backup.Description"));
+		getContent().add(new H2(getPageTitle()), description, this.scope, download);
 	}
 
 	@Override

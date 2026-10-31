@@ -6,9 +6,10 @@ Token generation and URL protection are done: [110](done/110-ACCOUNT_TOKENS.md) 
 [120](done/120-TOKEN_PROTECTED_URLS.md).
 The items below were identified on 2026-10-22. Done: navigation and in-page actions,
 locality, security settings, audit pages, admin password, admin pages, PIN mode (now
-"Simple Access" in the interface). Remaining: the [Database import](#database-import)
-plan (protected actions, "Imports are allowed"), the [Non-route review](#non-route-review)
-and the [Acceptance](#acceptance) checks.
+"Simple Access" in the interface), the OWLCMS side of the [Non-route review](#non-route-review).
+Remaining: the rest of the [Database import](#database-import) plan (protected actions, IMPORT
+permission, RESULTS for exports; "Imports are allowed" is done) and the [Acceptance](#acceptance)
+checks. The tracker proxy review is [360](360-TRACKER_PROXY.md).
 
 ## Navigation and in-page actions
 
@@ -43,13 +44,14 @@ Competition Supervisor, testing).
 
 ## Non-route review
 
-| Surface | Remaining review |
+| Surface | Review |
 | --- | --- |
 | `/local/*` | Done. One check, `ResourceWalker.resolveInside` (normalize, then stay inside the base, with the operating system's separators), is used by the resource lookup (`getFileOrResourcePath`, `getFileOrResource`: override directory and classpath names) and by override zip extraction (`ZipUtils.extractZip`, zip slip). Jetty already refuses encoded `/`, `%25` and `..` segments; this covers `%5c`, a separator on Windows (`..\`, `C:\...`). Symbolic links inside the override directory are followed: they are the operator's choice. |
 | MQTT broker and `/mqtt` | Done: client password no longer logged; OWLCMS's own broker connection uses a random secret (not the startup time), compared in constant time |
-| Vaadin dynamic downloads/uploads | Verify resource creation and use require the appropriate page permission |
+| Vaadin dynamic downloads/uploads | Done, no change needed. All use `DownloadHandler`/`UploadHandler` (no legacy `StreamResource`/`StreamReceiver`); Flow serves them only within the owning session, and refuses (403) when the owning component is detached, hidden, disabled or inert; uploads also check a per-component key in constant time. Uploads are created inside dialogs opened by a button, or on a page with its own role (System Settings laptop override restore); downloads are created on click or inside a dialog. A protected action is therefore unreachable once its button is hidden or disabled, or its dialog is not opened; the protected-actions plan ([Database import](#database-import)) still checks again where the action runs. |
 | Forwarded client IP | Decided: no trusted-proxy work. The officials and display address lists are PIN mode only and keep reading `X-Forwarded-For` (weak, accepted). Accounts mode does not depend on the client address (login throttling and logs only); security needs accounts. |
-| CorsFilter | Review credentialed cross-origin cookies and `SameSite=None` with named accounts |
+| CorsFilter | Done: removed. It answered any site with credentials on Vaadin UIDL, heartbeat and build requests, and tried to make the session cookie `SameSite=None` (only for `JSESSIONID`; the cookie is named `owlcms`, so it never applied). It was added to let another site show a scoreboard in an iframe, which CORS does not govern: a framed page talks to its own server. Decided 2026-10-31: framing OWLCMS from another site is not supported (Vaadin sends `X-Frame-Options: SAMEORIGIN` since 25.2, and the session cookie is not sent in a cross-site frame). To show a scoreboard inside another page, use the tracker's reverse proxy (`/proxy`, used by the celebrations plugin): the frame is then same-origin with the tracker page. |
+| Tracker `/proxy` (tracker repository) | Moved to [360](360-TRACKER_PROXY.md): open proxy through `_target`, and framing protection stripped from proxied OWLCMS pages. |
 
 ## Locality: the control panel token
 
@@ -194,8 +196,8 @@ with server access:
 
 | Page | Access |
 | --- | --- |
-| `admin` (Administration: stop, restart, security settings, backup, audit key, audit check, simulation) | ADMIN_PAGES role and the admin password; no locality, so cloud installations can use it. Audit key generation and security settings need the cp challenge ([Audit pages](#audit-pages)). |
-| `admin/backup` | ADMIN_PAGES or COMPETITION_SUPERVISOR, and the admin password for ADMIN_PAGES; no locality. The Competition Supervisor page (`lifting/competition-director`) gets a Backup button. |
+| `admin` (Administration: stop, restart, backup, imports allowed, simulation, security settings, audit key, audit check) | ADMIN_PAGES or COMPETITION_SUPERVISOR; no locality, so cloud installations can use it. The Security and Audit tab needs ADMIN_PAGES (`Capability.SECURITY_SETTINGS`) and the admin password: the Competition Supervisor sees only the System tab. Audit key generation and security settings need the cp challenge ([Audit pages](#audit-pages)). |
+| `admin/backup` | ADMIN_PAGES or COMPETITION_SUPERVISOR, and the admin password for ADMIN_PAGES; no locality. Opened from the System tab of the Administration page. |
 | `admin/audit/check` | ADMIN_PAGES and the admin password; each check needs the cp challenge ([Audit pages](#audit-pages)) |
 | `simulation` (button on the admin page) | ADMIN_PAGES or COMPETITION_SUPERVISOR, with a login (not token-accessible); no locality. |
 
@@ -206,8 +208,8 @@ with server access:
   in PIN mode too (the PIN mode switch to accounts is on that page).
 - Done: the PIN-mode address check (`AdminView.hasLocalAccess`) and the backdoor list
   are removed ([PIN mode](#pin-mode)).
-- The Administration page has two tabs: System (stop, restart, backup, simulation) and
-  Security and Audit (access mode, IWF check, the PIN-mode access settings moved from
+- The Administration page has two tabs: System (stop, restart, backup, imports allowed,
+  simulation) and Security and Audit (access mode, IWF check, the PIN-mode access settings moved from
   System Settings, audit key and audit check). Without a control panel token it is
   still shown; the actions that need the token are disabled and say why.
 - Tokens do not reach these pages: they are not `@TokenAccessible`.
@@ -219,7 +221,8 @@ user is logged in. It is a full replacement, accounts included: anyone allowed t
 import can replace the accounts. Import is normal until the competition starts, and
 dangerous after.
 
-Direction agreed (2026-10-30), not implemented:
+Direction agreed (2026-10-30). Done: "Imports are allowed". Not implemented: the protected
+actions, the IMPORT permission, RESULTS for exports.
 
 - Terminology: a **permission** is an individual right (a base role in the code, the only
   thing `@RequiresRole` checks); a **role** is a set of permissions given to an account
@@ -230,21 +233,27 @@ Direction agreed (2026-10-30), not implemented:
   in the back end where the action runs, with the refusal audited. Today the actions on
   the Preparation page (database import and export, registration and SBDE uploads)
   check no role: any role allowed on the page can use them.
-- An **"Imports are allowed"** yes/no setting, on the Competition Supervisor page,
-  changed by the COMPETITION_SUPERVISOR permission (the Supervisor or an admin) and
-  audited. Manual, not automatic: test lifts are often done before the competition.
+- Done: an **"Imports are allowed"** yes/no setting, on the System tab of the
+  Administration page (decided 2026-10-31: the Competition Supervisor page is for
+  watching the competition, and it exists in Simple Access only with a feature switch),
+  changed by the Supervisor or an admin and audited (`application.imports-allowed`). Manual, not automatic: test lifts are often done before the competition.
   When it is off, every import is refused, whoever asks: the database (JSON) import, the
   registration upload and the SBDE upload. To use SBDE during the competition (athlete
   names, referee allocations; results are not touched), the Supervisor turns imports on,
-  uploads, and turns them off again.
+  uploads, and turns them off again. `ImportGate.requireAllowed` checks when the file
+  arrives (a dialog opened while imports were allowed is refused if they were turned off
+  since) and audits the refusal (`application.import-refused`). The startup load of a
+  checkpoint by the control panel is not checked: it replaces the database the setting
+  is stored in, and is the operator's action at the machine. Records-only mode ignores
+  the setting.
 - In PIN mode the setting applies too, but any PIN holder can change it: it prevents
   accidents, not people ("PIN mode stays naked").
 - On by default. Stored directly in `Config`, so exports carry it and an import
-  restores it. [136](done/136-CONFIG_COARSE_CONFLICT.md) protects it against stale System
-  Settings and other Config editors using versioned saves and import invalidation;
-  no `CompetitionControls` embeddable is introduced.
-- When imports are off, the import buttons are shown disabled, with helper text saying
-  why and where to turn imports back on.
+  restores it. [136](done/136-CONFIG_COARSE_CONFLICT.md) protects it: a System
+  Settings page opened before the setting changed cannot overwrite it, and an import
+  makes earlier pages stale; no `CompetitionControls` embeddable is introduced.
+- When imports are off, the three import buttons on the Preparation page are disabled,
+  and a notice at the top of the page says where to turn imports back on.
 - Database exports require the RESULTS permission (roles: Results, Competition
   Director, Competition Supervisor, External, admin). The secrets an export contains
   are protected by their hashes (see [PIN mode](#pin-mode) for the PINs).

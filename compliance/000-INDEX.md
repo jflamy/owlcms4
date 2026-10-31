@@ -50,6 +50,7 @@ tokens.
 | 330 | [Replays token](330-REPLAYS_TOKEN.md) | Video module: its own access token, generated in the app, required on replay URLs |
 | 340 | [Cloud control panel token](340-CLOUD_CONTROL_PANEL_TOKEN.md) | Cloud app: generate the control panel token as a Fly secret, recover it from a marker secret name, copy icon |
 | 350 | [Tracker rank and score columns](350-TRACKER_SCOREBOARD_RANK_COLUMNS.md) | Forward the lift-rank decision from OWLCMS; tracker Score column and medal rank, matching the OWLCMS scoreboard per championship |
+| 360 | [Tracker reverse proxy](360-TRACKER_PROXY.md) | Tracker `/proxy`: target only from configuration (no `_target` open proxy); keep OWLCMS framing protection; the supported way to show a scoreboard inside another page |
 
 Seven-person adjudication, including Tracker jury forwarding, is complete and
 archived in [SEVEN_PERSON_ADJUDICATION.md](done/SEVEN_PERSON_ADJUDICATION.md),

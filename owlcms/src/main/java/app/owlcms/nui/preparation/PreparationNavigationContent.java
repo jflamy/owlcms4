@@ -21,6 +21,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -34,6 +35,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.ImportGate;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
@@ -153,6 +155,17 @@ public class PreparationNavigationContent extends BaseNavigationContent
 			Optional<Component> exportJsonV2Button = exportJsonV2Div.getChildren().findFirst();
 			exportJsonV2Button.ifPresent(c -> ((Button) c).setWidth("100%"));
 			exportJsonV2Div.setWidthFull();
+		}
+
+		if (!ImportGate.isAllowed()) {
+			// turned off on the Administration page (System tab); the upload is refused there too
+			upload.setEnabled(false);
+			sbdeUpload.setEnabled(false);
+			uploadJson.setEnabled(false);
+			Paragraph notice = new Paragraph(Translator.translate("Imports.NotAllowed"));
+			notice.getStyle().set("color", "var(--lumo-error-text-color)");
+			notice.getStyle().set("margin", "var(--lumo-space-m) var(--lumo-space-m) 0 var(--lumo-space-m)");
+			fillH(notice, this);
 		}
 
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, editChampionships,

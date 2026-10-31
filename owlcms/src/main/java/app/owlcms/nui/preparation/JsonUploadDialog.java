@@ -18,6 +18,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.apputils.NotificationUtils;
+import app.owlcms.access.ImportsNotAllowedException;
 import app.owlcms.audit.AuditOrigin;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H5;
@@ -51,6 +52,7 @@ public class JsonUploadDialog extends Dialog {
 		// OwlcmsSession.getLocale() correctly resolves fr_CA, ru_CA, etc.
 		this.capturedLocale = OwlcmsSession.getLocale();
 		this.importOrigin = AuditOrigin.fromUi("Import Database");
+		String notAllowed = Translator.translate("Imports.NotAllowed");
 		this.restartConfirmationDialog = createRestartConfirmationDialog();
 
 		H5 label = new H5(Translator.translate(isRestartScenario ? "ImportJsonR.RestartWarning" : "ImportJson.RestartWarning"));
@@ -66,6 +68,8 @@ public class JsonUploadDialog extends Dialog {
 				processInput(metadata.fileName(), data, ta);
 				openRestartConfirmation();
 
+			} catch (ImportsNotAllowedException e) {
+				showError(ta, notAllowed);
 			} catch (Throwable e) {
 				logger.error("Error processing uploaded JSON file", e);
 				if (ui != null) {
@@ -175,12 +179,27 @@ public class JsonUploadDialog extends Dialog {
 		}
 	}
 
+	private void showError(TextArea ta, String message) {
+		if (this.ui != null) {
+			this.ui.access(() -> {
+				ta.setValue(message);
+				ta.setVisible(true);
+			});
+			this.ui.push();
+		} else {
+			ta.setValue(message);
+			ta.setVisible(true);
+		}
+	}
+
 	@SuppressWarnings("unused")
 	private void processInput(String fileName, byte[] data, TextArea ta)
 	        throws StreamReadException, DatabindException, IOException {
 		try {
 			// Use FormatDetector for automatic V1/V2 format detection; it audits the import
 			FormatDetector.importData(data, fileName, this.importOrigin);
+		} catch (ImportsNotAllowedException refused) {
+			throw refused;
 		} catch (Throwable e1) {
 			if (ui != null) {
 				ui.access(() -> {

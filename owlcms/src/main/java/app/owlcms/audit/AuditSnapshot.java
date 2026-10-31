@@ -37,13 +37,19 @@ import ch.qos.logback.classic.Logger;
 public final class AuditSnapshot {
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(AuditSnapshot.class);
 	public static final String ACTION = "audit.snapshot";
+	public static final String ANOMALY_ACTION = "audit.anomaly";
 	static final Path LOGS_DIRECTORY = Path.of("logs");
+	private static final int MAX_DESCRIPTION = 500;
 
 	public enum Scope {
-		LOGS, LOGS_AND_EXPORT, LOGS_EXPORT_AND_LOCAL;
+		EXPORT, LOGS, LOGS_AND_EXPORT, LOGS_EXPORT_AND_LOCAL;
 
 		boolean export() {
 			return this != LOGS;
+		}
+
+		boolean logs() {
+			return this != EXPORT;
 		}
 
 		boolean local() {
@@ -56,6 +62,14 @@ public final class AuditSnapshot {
 
 	/** Produced on a background thread; the reader sees a writer failure instead of a truncated zip. */
 	public static InputStream stream(Scope scope, AuditActor actor) {
+		return stream(scope, actor, null);
+	}
+
+	/**
+	 * @param anomaly what the operator saw (Capture Anomaly), recorded before the logs are sealed so the zip holds it;
+	 *                null for an ordinary backup
+	 */
+	public static InputStream stream(Scope scope, AuditActor actor, String anomaly) {
 		PipedOutputStream out = new PipedOutputStream();
 		PipedInputStream in;
 		try {
@@ -66,7 +80,7 @@ public final class AuditSnapshot {
 		AtomicReference<IOException> failure = new AtomicReference<>();
 		Thread.ofVirtual().name("AuditSnapshot").start(() -> {
 			try (out) {
-				writeTo(out, scope, actor);
+				writeTo(out, scope, actor, anomaly);
 			} catch (Throwable e) {
 				failure.set(e instanceof IOException io ? io : new IOException(e));
 				LoggerUtils.logError(logger, e);
@@ -76,7 +90,17 @@ public final class AuditSnapshot {
 	}
 
 	public static void writeTo(OutputStream out, Scope scope, AuditActor actor) throws IOException {
+		writeTo(out, scope, actor, null);
+	}
+
+	public static void writeTo(OutputStream out, Scope scope, AuditActor actor, String anomaly) throws IOException {
 		AuditActor effective = actor != null ? actor : AuditActor.system();
+		if (anomaly != null) {
+			String description = describe(anomaly);
+			logger.warn("anomaly captured by {}: {}", effective.user(), description);
+			AuditLog.write(AuditEntry.builder("competition", ANOMALY_ACTION).actor(effective)
+					.detail(AuditFormat.kv("description", description)).build());
+		}
 		String stamp = LocalDateTime.now().withNano(0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"));
 		ZipOutputStream zip = new ZipOutputStream(out);
 		if (scope.export()) {
@@ -90,8 +114,10 @@ public final class AuditSnapshot {
 		}
 		AuditLog.write(AuditEntry.builder("competition", ACTION).actor(effective)
 				.detail(AuditFormat.kv("scope", scope.name())).build());
-		Set<Path> open = AuditLog.rollover();
-		zipLogs(LOGS_DIRECTORY, open, zip);
+		if (scope.logs()) {
+			Set<Path> open = AuditLog.rollover();
+			zipLogs(LOGS_DIRECTORY, open, zip);
+		}
 		if (scope.local()) {
 			Path local = ResourceWalker.getLocalDirPath();
 			if (local != null && Files.isDirectory(local)) {
@@ -99,6 +125,15 @@ public final class AuditSnapshot {
 			}
 		}
 		zip.finish();
+	}
+
+	/** Typed text that ends up in a log line: one line, bounded. */
+	static String describe(String anomaly) {
+		String cleaned = anomaly.replaceAll("\\p{Cntrl}", " ").trim();
+		if (cleaned.isEmpty()) {
+			return "-";
+		}
+		return cleaned.length() > MAX_DESCRIPTION ? cleaned.substring(0, MAX_DESCRIPTION) : cleaned;
 	}
 
 	static void zipLogs(Path root, Set<Path> excluded, ZipOutputStream zip) throws IOException {
