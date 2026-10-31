@@ -46,6 +46,7 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.AccessUi;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
@@ -847,6 +848,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		button.getElement().setAttribute("onClick",
 		        "window.open('" + URLUtils.getUrlFromTargetClass(MedalCeremonyContent.class, null, parameters)
 		                + "','MedalCeremonyContent" + (fop != null ? "_" + fop.getName() : "") + "')");
+		button.setVisible(AccessUi.canOpen(MedalCeremonyContent.class, fop));
 		return button;
 	}
 

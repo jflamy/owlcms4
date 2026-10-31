@@ -34,6 +34,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.HasUrlParameter;
 import app.owlcms.access.AccessStartup;
+import app.owlcms.access.AccessUi;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
@@ -46,6 +47,7 @@ import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.monitors.WebSocketEventForwarder;
 import app.owlcms.nui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
@@ -182,9 +184,11 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 			// prevent grid row selection from triggering
 			technical.getElement().addEventListener("click", ignore -> {
 			}).addEventData("event.stopPropagation()");
+			technical.setVisible(AccessUi.canOpenOnPlatform(TCContent.class, p.getName()));
 			return technical;
 		})).setHeader(Translator.translate("PlatesCollarBarbell")).setAutoWidth(true).setFlexGrow(0)
-		        .setTextAlign(ColumnTextAlign.CENTER);
+		        .setTextAlign(ColumnTextAlign.CENTER)
+		        .setVisible(OwlcmsFactory.getFOPs().stream().anyMatch(fop -> AccessUi.canOpen(TCContent.class, fop)));
 		grid.addComponentColumn(platform -> createSoundMixerField(platform, crud))
 		        .setHeader(Translator.translate("Speakers")).setWidth("30em").setFlexGrow(0);
 

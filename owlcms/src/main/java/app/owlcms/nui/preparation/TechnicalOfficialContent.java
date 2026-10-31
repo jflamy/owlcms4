@@ -34,6 +34,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import app.owlcms.access.AccessUi;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
@@ -138,6 +139,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 			        String url = RouteConfiguration.forSessionScope().getUrl(TeamScheduleContent.class);
 			        UI.getCurrent().getPage().open(url, "_blank");
 		        });
+		editTeamScheduleButton.setVisible(AccessUi.canOpen(TeamScheduleContent.class, null));
 
 		// Export current officials button using the age groups pattern
 		Div exportOfficials = DownloadButtonFactory.createDynamicXLSXDownloadButton(

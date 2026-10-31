@@ -24,7 +24,7 @@ import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
-@RequiresRole(Role.ADMIN_PAGES)
+@RequiresRole({ Role.PREPARATION, Role.RESULTS })
 @Route("admin/record-federation-report")
 public class RecordFederationComparisonReport extends Composite<VerticalLayout>
         implements HasDynamicTitle {

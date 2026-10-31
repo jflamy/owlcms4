@@ -4,29 +4,43 @@ The role system is implemented. Its historical design is in
 [done/ACCESS_CONTROL_DESIGN.md](done/ACCESS_CONTROL_DESIGN.md).
 Token generation and URL protection are done: [110](done/110-ACCOUNT_TOKENS.md) and
 [120](done/120-TOKEN_PROTECTED_URLS.md).
-The items below were identified on 2026-10-22; implementation is still pending.
+The items below were identified on 2026-10-22. Done: navigation and in-page actions,
+locality, security settings, audit pages, admin password, admin pages, PIN mode (now
+"Simple Access" in the interface). Remaining: the [Database import](#database-import)
+plan (protected actions, "Imports are allowed"), the [Non-route review](#non-route-review)
+and the [Acceptance](#acceptance) checks.
 
 ## Navigation and in-page actions
 
-Gate one-off route openers with `AccessUi.canOpen(targetClass, platform)`:
+Done: buttons that open another page are shown only when the session may open the
+target (`AccessUi.canOpen`, or `AccessUi.canOpenOnPlatform` for a platform-bound
+target), as the navigation pages already did:
 
 | Source | Target |
 | --- | --- |
 | AnnouncerContent, BreakManagement | MedalCeremonyContent |
-| CompetitionEditingFormFactory, EditChampionshipsPanel, AgeGroupActionsMenu | AgeGroupContent |
-| AgeGroupContent | ChampionshipsContent |
+| EditChampionshipsPanel (also inside the Competition page) | AgeGroupContent, ChampionshipTemplateContent |
+| AgeGroupContent, TeamResultsContent | ChampionshipsContent |
 | RecordConfigEditingFormFactory, RecordsConfigContent | RecordContent |
-| PlatformContent | TCContent for that platform |
+| PlatformContent | TCContent for each platform; the column is hidden when no platform is allowed |
 | SessionContent | RegistrationContent |
-| PublicRecordsContent | preparation/records |
+| RecordContent | RecordFederationComparisonReport (PREPARATION or RESULTS, like the records page; was ADMIN_PAGES) |
+| TechnicalOfficialContent | TeamScheduleContent |
 
-Check `getPage().open(...)` in AgeGroupActionsMenu, RecordContent and
-TechnicalOfficialContent: gate route targets, not ordinary download links.
-Download authorization belongs to the target resource.
+Not gated: the Login/Edit button of `publicRecords` (records-only mode has its own
+access rules and that button is its way in), the announcer active/passive switch (same
+permission), and the Administration page buttons (ADMIN_PAGES opens their targets).
+Download links are not route targets: their authorization belongs to the resource.
+The target page still refuses entry on its own; hiding only avoids dead buttons.
 
-`AthleteGridContent.breakButtons()` must return null unless the principal has
-`BREAK_MANAGEMENT` on the current platform; callers already handle null.
-Keep the marshal Pause button and the existing announcer/timekeeper controls.
+The records page (`RecordContent`) and the record eligibility report need PREPARATION
+or RESULTS. Results users get every action on the records page, not only the export:
+they may need to fix records and recompute the new ones.
+
+The device testing page (`lifting/testing`) needs TC or COMPETITION_SUPERVISOR on its
+platform (was ADMIN_PAGES). Break buttons stay as they are: they appear only on lifting
+pages whose own permission already fits (announcer, timekeeper, marshal Pause,
+Competition Supervisor, testing).
 
 ## Non-route review
 
@@ -226,13 +240,22 @@ Direction agreed (2026-10-30), not implemented:
   uploads, and turns them off again.
 - In PIN mode the setting applies too, but any PIN holder can change it: it prevents
   accidents, not people ("PIN mode stays naked").
-- On by default for a new competition. Stored with the competition, so exports carry
-  it and an import restores it.
+- On by default. Stored directly in `Config`, so exports carry it and an import
+  restores it. [136](136-CONFIG_COARSE_CONFLICT.md) protects it against stale System
+  Settings and other Config editors using versioned saves and import invalidation;
+  no `CompetitionControls` embeddable is introduced.
+- When imports are off, the import buttons are shown disabled, with helper text saying
+  why and where to turn imports back on.
 - Database exports require the RESULTS permission (roles: Results, Competition
   Director, Competition Supervisor, External, admin). The secrets an export contains
   are protected by their hashes (see [PIN mode](#pin-mode) for the PINs).
-- The registration upload requires REGISTRATION; the SBDE upload requires PREPARATION,
-  since it also changes the technical officials and their allocations.
+- Decided 2026-10-30: the three imports (database JSON, registration, SBDE) require a new
+  IMPORT permission. It is not grantable on its own: it comes with the Preparation and
+  Registration roles, Competition Supervisor and admin (and Simple Access), not with
+  Competition Director. Accounts without it do not see the import buttons; the back end
+  checks again when the import runs and audits a refusal. The other uploads (age groups,
+  officials, coaches, team schedule, records, session results) are not imports for this
+  purpose.
 
 An import is faithful: the settings are those of the export, the access mode and the
 IWF compliance check included; nothing is kept from the running OWLCMS. A setting
@@ -264,8 +287,8 @@ weak check by design. Done.
   with no PIN lets it in, and any other page lets it in directly. Unchecking the box
   on the login page forgets the browser at once, without the PIN.
 - The officials PIN login also accepts the control panel token (constant time, throttled,
-  audited `how=control-panel-token`), so a forgotten PIN can be replaced in System
-  Settings; a notice says where. A token login is never remembered. The officials and
+  audited `how=control-panel-token`), so a forgotten PIN can be replaced on the
+  Administration page (Security and Audit tab); a notice says where. A token login is never remembered. The officials and
   display PIN logins are throttled like account logins.
 - The officials PIN, display PIN and MQTT password are hashed with PBKDF2 like account
   passwords (today a single salted SHA-256); older hashes are accepted and converted

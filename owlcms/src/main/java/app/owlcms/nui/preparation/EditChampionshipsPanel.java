@@ -31,6 +31,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 
+import app.owlcms.access.AccessUi;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -105,6 +106,7 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		Button button = new Button(Translator.translate(labelKey), icon.create());
 		button.getElement().setAttribute("onClick",
 		        "window.open('" + URLUtils.getUrlFromTargetClass(target) + "','_blank')");
+		button.setVisible(AccessUi.canOpen(target, null));
 		return button;
 	}
 

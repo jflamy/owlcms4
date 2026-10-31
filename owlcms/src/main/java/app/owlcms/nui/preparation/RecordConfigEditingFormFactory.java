@@ -47,6 +47,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Binder.Binding;
 import com.vaadin.flow.data.binder.ValidationException;
 
+import app.owlcms.access.AccessUi;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.components.fields.GridField;
 import app.owlcms.data.config.Config;
@@ -312,6 +313,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		Button editExportRecords = openInNewTabNoParam(RecordContent.class,
 		        Translator.translate("RecordEvent.EditExportRecords"));
 		editExportRecords.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		editExportRecords.setVisible(AccessUi.canOpen(RecordContent.class, null));
 		Div div = new Div();
 		H4 nativeLabel = new H4(Translator.translate("RecordConfig.LoadedRecords"));
 		nativeLabel.getStyle().set("margin", "0");

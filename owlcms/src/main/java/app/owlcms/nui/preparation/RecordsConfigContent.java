@@ -23,6 +23,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import app.owlcms.access.AccessUi;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
@@ -187,6 +188,7 @@ public class RecordsConfigContent extends Composite<VerticalLayout>
 		        buttonClickEvent -> UI.getCurrent().navigate(RecordContent.class));
 		editExportButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
 		editExportButton.getElement().getStyle().set("margin-right", "1em");
+		editExportButton.setVisible(AccessUi.canOpen(RecordContent.class, null));
 		return editExportButton;
 	}
 

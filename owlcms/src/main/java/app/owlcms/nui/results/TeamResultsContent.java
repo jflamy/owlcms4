@@ -40,6 +40,7 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.AccessUi;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
@@ -141,6 +142,7 @@ public class TeamResultsContent extends BaseContent
 			VaadinIcon.PENCIL.create());
 		editChampionshipsButton.getElement().setAttribute("onClick",
 		        "window.open('" + URLUtils.getUrlFromTargetClass(ChampionshipsContent.class) + "','_blank')");
+		editChampionshipsButton.setVisible(AccessUi.canOpen(ChampionshipsContent.class, null));
 		HorizontalLayout buttons = new HorizontalLayout(teamResultsDownloadButton, editChampionshipsButton);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 

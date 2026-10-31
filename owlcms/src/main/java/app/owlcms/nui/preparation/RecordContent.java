@@ -31,6 +31,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 
+import app.owlcms.access.AccessUi;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.components.fields.GridField;
 import app.owlcms.components.JXLSDownloader;
@@ -80,7 +81,7 @@ import ch.qos.logback.classic.Logger;
  * Defines the toolbar and the table for editing record events.
  */
 @SuppressWarnings("serial")
-@RequiresRole(Role.PREPARATION)
+@RequiresRole({ Role.PREPARATION, Role.RESULTS })
 @Route(value = "preparation/records", layout = OwlcmsLayout.class)
 public class RecordContent extends BaseContent implements CrudListener<RecordEvent>, OwlcmsContent {
 
@@ -309,6 +310,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		eligibilityReportButton.getElement().getStyle().set("margin-right", "1em");
 		eligibilityReportButton.getElement().setAttribute("title",
 		        Translator.translate("Records.EligibilityReportTooltip"));
+		eligibilityReportButton.setVisible(AccessUi.canOpen(RecordFederationComparisonReport.class, null));
 		return eligibilityReportButton;
 	}
 

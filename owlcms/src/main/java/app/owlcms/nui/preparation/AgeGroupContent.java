@@ -36,6 +36,7 @@ import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
+import app.owlcms.access.AccessUi;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
@@ -196,6 +197,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		        e -> {
 			        UI.getCurrent().navigate(ChampionshipsContent.class);
 		        });
+		editChampionships.setVisible(AccessUi.canOpen(ChampionshipsContent.class, null));
 
 		FlexLayout buttons = new FlexLayout(
 		        new NativeLabel(Translator.translate("AgeGroups.Predefined")),

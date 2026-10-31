@@ -1,6 +1,6 @@
 # Compliance Work
 
-Updated 2026-10-30. Active specs contain decisions and remaining work;
+Updated 2026-10-31. Active specs contain decisions and remaining work;
 completed designs belong in [done/](done/). Do not duplicate their requirements
 in this index.
 
@@ -13,6 +13,7 @@ None open. Lenient birth-date parsing is done: [BIRTHDATE_LENIENT_PARSE.md](done
 | Order | Document | Scope |
 | --- | --- | --- |
 | 130 | [Other access work](130-ACCESS_CONTROL_REMAINING.md) | Locality by control panel token, admin pages and admin password, navigation/action gating, infrastructure/security review |
+| 136 | [Configuration stale-save check](136-CONFIG_COARSE_CONFLICT.md) | `lastSavedAt`/`lastSavedBy` on Config, Competition and RecordConfig; detached form editing; one lock; V2 export stops saving Config; prerequisite of the 130 "Imports are allowed" switch |
 | 145 | [Signed exports](145-SIGNED_EXPORTS.md) | PEM signature inside JSON exports, import outcomes in the audit trail, support procedures with and without the key |
 | 150 | [Scheduled checkpoints](150-SCHEDULED_CHECKPOINTS.md) | Tracker timer and faithful ZIP retention over the existing WebSocket |
 | 160 | [Direct JSON boot](160-DIRECT_JSON_BOOT.md) | Control-panel checkpoint-folder launch, no-restart rule and Postgres acceptance |
@@ -46,6 +47,7 @@ tokens.
 | 320 | [Windows signing](320-WINDOWS_SIGNING.md) | Authenticode signing for control-panel and video executables |
 | 330 | [Replays token](330-REPLAYS_TOKEN.md) | Video module: its own access token, generated in the app, required on replay URLs |
 | 340 | [Cloud control panel token](340-CLOUD_CONTROL_PANEL_TOKEN.md) | Cloud app: generate the control panel token as a Fly secret, recover it from a marker secret name, copy icon |
+| 350 | [Tracker rank and score columns](350-TRACKER_SCOREBOARD_RANK_COLUMNS.md) | Forward the lift-rank decision from OWLCMS; tracker Score column and medal rank, matching the OWLCMS scoreboard per championship |
 
 Seven-person adjudication, including Tracker jury forwarding, is complete and
 archived in [SEVEN_PERSON_ADJUDICATION.md](done/SEVEN_PERSON_ADJUDICATION.md),

@@ -44,7 +44,11 @@ public final class AccessUi {
 	}
 
 	public static boolean canOpen(Class<?> target, FieldOfPlay fop) {
-		return AccessPolicy.canOpen(currentPrincipal(), PageRule.of(target),
-		        fop != null ? fop.getName() : null);
+		return canOpenOnPlatform(target, fop != null ? fop.getName() : null);
+	}
+
+	/** UI thread only: whether the current tab may open {@code target} for the named platform. */
+	public static boolean canOpenOnPlatform(Class<?> target, String platformName) {
+		return AccessPolicy.canOpen(currentPrincipal(), PageRule.of(target), platformName);
 	}
 }

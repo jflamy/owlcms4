@@ -37,6 +37,7 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.BeforeEnterEvent;
+import app.owlcms.access.AccessUi;
 import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
@@ -293,6 +294,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 			technical.getElement().addEventListener("click", ignore -> {
 			}).addEventData("event.stopPropagation()");
 			technical.addThemeVariants(ButtonVariant.LUMO_SMALL);
+			technical.setVisible(AccessUi.canOpen(RegistrationContent.class, null));
 			return new HorizontalLayout(editDetails, technical);
 		})).setHeader("").setAutoWidth(true);
 

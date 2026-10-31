@@ -48,6 +48,7 @@ import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.router.QueryParameters;
 
+import app.owlcms.access.AccessUi;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.audit.AuditFormat;
 import app.owlcms.audit.FopAudit;
@@ -514,13 +515,15 @@ public class BreakManagement extends BaseContent implements BreakController {
 		ce.add(label("BreakMgmt.IntroductionOfOfficials"));
 		ce.add(officialsButtons);
 
-		ce.add(new Hr());
-		Button medalCeremony = new Button(Translator.translate("PublicMsg.Medals"), new Icon(VaadinIcon.TROPHY));
-		QueryParameters parameters = QueryParameters.simple(Map.of("fop", this.fop.getName()));
-		medalCeremony.getElement().setAttribute("onClick",
-		        "window.open('" + URLUtils.getUrlFromTargetClass(MedalCeremonyContent.class, null, parameters)
-		                + "','MedalCeremonyContent_" + this.fop.getName() + "')");
-		ce.add(medalCeremony);
+		if (AccessUi.canOpen(MedalCeremonyContent.class, this.fop)) {
+			ce.add(new Hr());
+			Button medalCeremony = new Button(Translator.translate("PublicMsg.Medals"), new Icon(VaadinIcon.TROPHY));
+			QueryParameters parameters = QueryParameters.simple(Map.of("fop", this.fop.getName()));
+			medalCeremony.getElement().setAttribute("onClick",
+			        "window.open('" + URLUtils.getUrlFromTargetClass(MedalCeremonyContent.class, null, parameters)
+			                + "','MedalCeremonyContent_" + this.fop.getName() + "')");
+			ce.add(medalCeremony);
+		}
 
 		return ce;
 	}

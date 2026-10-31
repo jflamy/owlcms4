@@ -59,7 +59,7 @@ import java.util.TimerTask;
  * Technical Controller / Plates loading information.
  */
 @SuppressWarnings("serial")
-@RequiresRole(value = Role.ADMIN_PAGES, platformBound = true)
+@RequiresRole(value = { Role.TC, Role.COMPETITION_SUPERVISOR }, platformBound = true)
 @Route(value = "lifting/testing", layout = OwlcmsLayout.class)
 public class TestingContent extends AthleteGridContent implements HasDynamicTitle {
 
