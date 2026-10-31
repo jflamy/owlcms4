@@ -66,7 +66,11 @@ public class ZipUtils {
 					if (name.startsWith(prefix)) {
 						name = name.substring(prefix.length());
 					}
-					Path outputfilePath = target.resolve(name);
+					// an entry with "..", or an absolute name, would write outside the target ("zip slip")
+					Path outputfilePath = ResourceWalker.resolveInside(target, name);
+					if (outputfilePath == null) {
+						throw new IOException("zip entry outside the target directory: " + archiveEntry.getName());
+					}
 					Files.createDirectories(outputfilePath.getParent());
 					Files.createFile(outputfilePath);
 					logger.trace("writing {}", outputfilePath);

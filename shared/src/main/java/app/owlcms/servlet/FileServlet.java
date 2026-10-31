@@ -268,38 +268,6 @@ public class FileServlet extends HttpServlet {
 	// ------------------------------------------------------------------------------
 
 	/**
-	 * Resolves an untrusted user-specified path against the API's base directory.
-	 * Paths that try to escape the base directory are rejected.
-	 *
-	 * @param baseDirPath the absolute path of the base directory that all
-	 *                    user-specified paths should be within
-	 * @param userPath    the untrusted path provided by the API user, expected to
-	 *                    be relative to {@code baseDirPath}
-	 */
-	public Path resolvePath(final Path baseDirPath, final Path userPath) throws IllegalArgumentException {
-		if (!baseDirPath.isAbsolute()) {
-			throw new IllegalArgumentException("Base path must be absolute");
-		}
-
-		if (userPath.isAbsolute()) {
-			throw new IllegalArgumentException("User path must be relative");
-		}
-
-		// Join the two paths together, then normalize so that any ".." elements
-		// in the userPath can remove parts of baseDirPath.
-		// (e.g. "/foo/bar/baz" + "../attack" -> "/foo/bar/attack")
-		final Path resolvedPath = baseDirPath.resolve(userPath).normalize();
-
-		// Make sure the resulting path is still within the required directory.
-		// (In the example above, "/foo/bar/attack" is not.)
-		if (!resolvedPath.startsWith(baseDirPath)) {
-			throw new IllegalArgumentException("User path escapes the base path");
-		}
-
-		return resolvedPath;
-	}
-
-	/**
 	 * Process GET request.
 	 *
 	 * @see HttpServlet#doGet(HttpServletRequest, HttpServletResponse).
@@ -341,8 +309,7 @@ public class FileServlet extends HttpServlet {
 		try {
 			// URL-decode the file name (might contain spaces and on) and prepare file
 			// object.
-			// @webservlet processing takes care of preventing ../.. escaping so we don't
-			// have to.
+			// ResourceWalker refuses names that would land outside the override directory or the classpath.
 			// logger.debug("requestedFile {}", requestedFile);
 			String relativeFileName = URLDecoder.decode(requestedFile, "UTF-8");
 
@@ -358,10 +325,8 @@ public class FileServlet extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return null;
 		} catch (FileNotFoundException e) {
-			logger.error(e.getMessage());
-			// LoggerUtils.logError(logger, e);
-			response.getWriter().print(e.getLocalizedMessage());
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			logger./**/warn(e.getMessage());
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return null;
 		} catch (Exception e) {
 			LoggerUtils.logError(logger, e);

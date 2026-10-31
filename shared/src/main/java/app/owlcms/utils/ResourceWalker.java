@@ -24,6 +24,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
@@ -64,6 +65,8 @@ public class ResourceWalker {
 	static Logger logger = (Logger) LoggerFactory.getLogger(ResourceWalker.class);
 	private static boolean initializedLocalDir = false;
 	private static Path localDirPath = null;
+	/** Placeholder base for checking classpath resource names; never read. */
+	private static final Path CLASSPATH_ROOT = Paths.get("classpath-root");
 	private static Supplier<byte[]> localZipBlobSupplier;
 	private static Supplier<Locale> localeSupplier;
 	
@@ -153,9 +156,12 @@ public class ResourceWalker {
 		}
 		Path localDirPath2 = getLocalDirPath();
 		Path target = null;
+		if (!relativeName.isBlank() && resolveInside(CLASSPATH_ROOT, relativeName) == null) {
+			throw new FileNotFoundException(relativeName + " is outside the resource directories");
+		}
 		if (localDirPath2 != null) {
-			target = localDirPath2.resolve(relativeName);
-			if (logger.isEnabledFor(Level.DEBUG)) {
+			target = relativeName.isBlank() ? localDirPath2 : resolveInside(localDirPath2, relativeName);
+			if (target != null && logger.isEnabledFor(Level.DEBUG)) {
 				logger.debug("{} target={} exists={}", name, target.toAbsolutePath(), Files.exists(target));
 			}
 		}
@@ -231,10 +237,14 @@ public class ResourceWalker {
 		} else {
 			relativeName = name;
 		}
+		// the name may come from a URL (/local/*): it must stay inside the override directory or the classpath
+		if (resolveInside(CLASSPATH_ROOT, relativeName) == null) {
+			throw new FileNotFoundException(relativeName + " is outside the resource directories");
+		}
 		Path localDirPath2 = getLocalDirPath();
 		Path target = null;
 		if (localDirPath2 != null) {
-			target = localDirPath2.resolve(relativeName);
+			target = resolveInside(localDirPath2, relativeName);
 		}
 		if (target != null && Files.exists(target)) {
 			if (logger.isEnabledFor(Level.DEBUG)) {
@@ -259,6 +269,21 @@ public class ResourceWalker {
 
 		}
 		return target;
+	}
+
+	/**
+	 * The name as a path inside the base directory, or null if it would land outside it: "..", an absolute name, a
+	 * drive letter, or an invalid name. Separators are those of the operating system. Symbolic links inside the
+	 * base are followed: they are the operator's choice.
+	 */
+	public static Path resolveInside(Path base, String relativeName) {
+		Path root = base.toAbsolutePath().normalize();
+		try {
+			Path resolved = root.resolve(relativeName).normalize();
+			return resolved.startsWith(root) && !resolved.equals(root) ? resolved : null;
+		} catch (InvalidPathException e) {
+			return null;
+		}
 	}
 
 	public static Path getLocalDirPath() {

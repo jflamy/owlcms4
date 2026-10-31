@@ -45,7 +45,7 @@ Competition Supervisor, testing).
 
 | Surface | Remaining review |
 | --- | --- |
-| `/local/*` | Verify directory/classpath confinement, decoding, traversal and symlinks; exclude sensitive files |
+| `/local/*` | Done. One check, `ResourceWalker.resolveInside` (normalize, then stay inside the base, with the operating system's separators), is used by the resource lookup (`getFileOrResourcePath`, `getFileOrResource`: override directory and classpath names) and by override zip extraction (`ZipUtils.extractZip`, zip slip). Jetty already refuses encoded `/`, `%25` and `..` segments; this covers `%5c`, a separator on Windows (`..\`, `C:\...`). Symbolic links inside the override directory are followed: they are the operator's choice. |
 | MQTT broker and `/mqtt` | Done: client password no longer logged; OWLCMS's own broker connection uses a random secret (not the startup time), compared in constant time |
 | Vaadin dynamic downloads/uploads | Verify resource creation and use require the appropriate page permission |
 | Forwarded client IP | Decided: no trusted-proxy work. The officials and display address lists are PIN mode only and keep reading `X-Forwarded-For` (weak, accepted). Accounts mode does not depend on the client address (login throttling and logs only); security needs accounts. |
