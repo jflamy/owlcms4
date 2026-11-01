@@ -48,7 +48,7 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
 	Level overrideLoggerLevel = Level.INFO;
 
 	public DurationField() {
-		getWrappedTextField().setValueChangeMode(ValueChangeMode.ON_BLUR);
+		getWrappedTextField().setValueChangeMode(ValueChangeMode.ON_CHANGE);
 		getWrappedTextField().setWidth("9ch");
 	}
 

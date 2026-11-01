@@ -211,7 +211,7 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 		TextField nameField = new TextField();
 		nameField.setAriaLabel(Translator.translate("Name"));
 		nameField.setValue(platform.getName() != null ? platform.getName() : "");
-		nameField.setValueChangeMode(ValueChangeMode.ON_BLUR);
+		nameField.setValueChangeMode(ValueChangeMode.ON_CHANGE);
 		nameField.setWidthFull();
 		nameField.addValueChangeListener(event -> {
 			if (!event.isFromClient()) {
