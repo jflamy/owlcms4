@@ -119,6 +119,12 @@ public final class PinModeAuthenticator {
 		return pinExpected(config.getParamDisplayPin(), config.getDisplayPin());
 	}
 
+	/** @return true if an officials PIN is configured (an empty override disables the stored one) */
+	public static boolean officialsPinExpected() {
+		Config config = Config.getCurrent();
+		return pinExpected(config.getParamPin(), config.getPin());
+	}
+
 	/** @return true if the current request comes from a browser remembered for this PIN */
 	public static boolean isRemembered(Kind kind) {
 		return remembered(kind, Config.getCurrent());

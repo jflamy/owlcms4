@@ -3,6 +3,7 @@ package app.owlcms.access;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.apputils.AccessUtils;
+import app.owlcms.apputils.AccessUtils.PinCheck;
 import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.AuthAudit;
 import app.owlcms.data.account.UserAccountRepository;
@@ -12,9 +13,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Authorization of plain servlets that extract competition data. PIN mode: local network.
- * Accounts mode: an account token ({@code ?token=} or Authorization Bearer) whose owner holds the required role,
- * whatever the address.
+ * Authorization of plain servlets that extract competition data. Simple Access (PIN) mode: the officials PIN, from any
+ * address the officials access list allows; with no officials PIN, the local network. Accounts mode: an account token
+ * whose owner holds the required role, whatever the address. The secret is given as {@code ?token=} or Authorization
+ * Bearer.
  */
 public final class ServletTokenGuard {
 
@@ -33,18 +35,12 @@ public final class ServletTokenGuard {
 	 */
 	public static AuditActor authorize(HttpServletRequest request, HttpServletResponse response, String host,
 	        Role required, String what) {
-		if (!Config.getCurrent().isAccountsMode()) {
-			if (AccessUtils.isLocalNetwork(host)) {
-				logger.info("{} authorized {}", host, what);
-				return AuditActor.http(host);
-			}
-			logger.error("{} not on the local network, denied {}", host, what);
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-			return null;
-		}
 		String path = request.getServletPath();
 		String token = TokenAuthenticator.presentedToken(request.getParameter("token"),
 		        request.getHeader("Authorization"));
+		if (!Config.getCurrent().isAccountsMode()) {
+			return authorizeSimpleAccess(response, host, path, token, what);
+		}
 		TokenAuthenticator authenticator = new TokenAuthenticator(UserAccountRepository::findByTokenHash,
 		        LoginThrottle.shared());
 		switch (authenticator.authenticate(token, host)) {
@@ -76,6 +72,48 @@ public final class ServletTokenGuard {
 				response.setStatus(429);
 			}
 		}
+		return null;
+	}
+
+	/** Simple Access mode: the officials PIN when one is set, else the local network. */
+	private static AuditActor authorizeSimpleAccess(HttpServletResponse response, String host, String path,
+	        String pin, String what) {
+		if (!PinModeAuthenticator.officialsPinExpected()) {
+			if (AccessUtils.isLocalNetwork(host)) {
+				logger.info("{} authorized {}", host, what);
+				return AuditActor.http(host);
+			}
+			logger.error("{} not on the local network, denied {}", host, what);
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			return null;
+		}
+		if (!AccessUtils.ipIsAllowedForOfficials(host)) {
+			logger.error("{} not in the officials access list, denied {}", host, what);
+			AuthAudit.tokenRefused(host, path, "address", null, null);
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			return null;
+		}
+		if (pin == null) {
+			logger.info("{} {} refused: no officials PIN", host, what);
+			response.setHeader("WWW-Authenticate", "Bearer");
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return null;
+		}
+		PinCheck check = AccessUtils.checkOfficialsPinForServlet(pin, host);
+		if (check.accepted()) {
+			logger.info("{} {} authorized by the officials PIN", host, what);
+			return AuditActor.http(host);
+		}
+		if (check.blockedSeconds() > 0) {
+			AuthAudit.tokenRefused(host, path, "throttled", null, null);
+			response.setHeader("Retry-After", Long.toString(check.blockedSeconds()));
+			response.setStatus(429);
+			return null;
+		}
+		logger./**/warn("{} {} refused: wrong officials PIN", host, what);
+		AuthAudit.tokenRefused(host, path, "invalid", null, null);
+		response.setHeader("WWW-Authenticate", "Bearer error=\"invalid_token\"");
+		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		return null;
 	}
 }

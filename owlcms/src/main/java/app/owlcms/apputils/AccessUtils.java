@@ -80,6 +80,25 @@ public class AccessUtils {
 		return valid ? PinCheck.ACCEPTED : PinCheck.REFUSED;
 	}
 
+	/**
+	 * The officials PIN presented to a plain servlet (in {@code token} or a Bearer header). Unlike the login, no session
+	 * is read or set and the control panel token is not accepted. Attempts are throttled together with the PIN logins.
+	 */
+	public static PinCheck checkOfficialsPinForServlet(String presented, String clientIp) {
+		LoginThrottle throttle = LoginThrottle.shared();
+		long blocked = throttle.blockedSeconds(OFFICIALS_PIN_THROTTLE, clientIp);
+		if (blocked > 0) {
+			logger./**/warn("officials PIN request throttled ip={} seconds={}", clientIp, blocked);
+			return new PinCheck(false, false, blocked);
+		}
+		Config config = Config.getCurrent();
+		String storedPin = config.getPin();
+		boolean valid = checkPassword(presented, config.getParamPin(), storedPin, "TO",
+		        pin -> upgradePin("Officials", storedPin, Config::getPin, c -> c.setPin(PinHashes.hash(pin))));
+		recordAttempt(throttle, OFFICIALS_PIN_THROTTLE, clientIp, valid);
+		return valid ? PinCheck.ACCEPTED : PinCheck.REFUSED;
+	}
+
 	/** The display PIN login; attempts are throttled. */
 	public static PinCheck checkDisplayPin(String password) {
 		if (OwlcmsSession.computeDisplayAuthenticated()) {
