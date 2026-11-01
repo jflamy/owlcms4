@@ -126,6 +126,9 @@ public final class UserAccountRepository {
 	 */
 	public static void replaceAll(EntityManager em, List<UserAccount> accounts) {
 		accountsByUsername(accounts);
+		for (UserAccount account : accounts) {
+			dropUnknownRoles(account);
+		}
 		List<UserAccount> existing = em.createQuery("select a from UserAccount a", UserAccount.class).getResultList();
 		for (UserAccount account : existing) {
 			em.remove(account);
@@ -135,6 +138,13 @@ public final class UserAccountRepository {
 			em.merge(account);
 		}
 		invalidate();
+	}
+
+	/** An export from a newer version may grant a role this version does not know: that grant gives nothing here. */
+	static void dropUnknownRoles(UserAccount account) {
+		if (account.getGrants() != null && account.getGrants().removeIf(grant -> grant == null || grant.getRole() == null)) {
+			logger./**/warn("account {}: grants of a role unknown to this version were not imported", account.getUsername());
+		}
 	}
 
 	public static void renamePlatform(String oldName, String newName, AuditOrigin origin) {

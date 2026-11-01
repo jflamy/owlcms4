@@ -8,6 +8,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
 import app.owlcms.access.Role;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 /** A role held by an account, for one platform (by name) or for all platforms when the name is null. */
 @Embeddable
@@ -15,6 +16,8 @@ public class RoleGrant {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "roleName")
+	// a role from a newer version reads as null, and the import drops that grant instead of failing
+	@JsonFormat(with = JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
 	private Role role;
 
 	private String platformName;
