@@ -8,10 +8,14 @@ import java.io.PipedOutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -38,6 +42,7 @@ public final class AuditSnapshot {
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(AuditSnapshot.class);
 	public static final String ACTION = "audit.snapshot";
 	public static final String ANOMALY_ACTION = "audit.anomaly";
+	public static final String CHECKPOINT_SCOPE = "CHECKPOINT";
 	static final Path LOGS_DIRECTORY = Path.of("logs");
 	private static final int MAX_DESCRIPTION = 500;
 
@@ -127,6 +132,77 @@ public final class AuditSnapshot {
 		zip.finish();
 	}
 
+	/**
+	 * Checkpoint for the tracker: the export, then every log file modified at or after {@code since}, open or closed,
+	 * copied as it is. Nothing is rolled and no seal is awaited, so an open file may end in the middle of a record.
+	 * The caller names the zip with {@link #checkpointName(Instant)} for a time taken before calling, so a file
+	 * modified while the zip is built is sent again next time.
+	 *
+	 * @param since null for every log file
+	 */
+	public static void writeCheckpoint(OutputStream out, AuditActor actor, Instant since) throws IOException {
+		AuditActor effective = actor != null ? actor : AuditActor.system();
+		String stamp = LocalDateTime.now().withNano(0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"));
+		ZipOutputStream zip = new ZipOutputStream(out);
+		zip.putNextEntry(new ZipEntry("database_v2_" + stamp + ".json"));
+		try (ChecksummedInputStream export = new CompetitionDataV2().exportData(effective,
+		        ExportAudit.CHANNEL_HTTP)) {
+			export.transferTo(zip);
+			export.checksum();
+		}
+		zip.closeEntry();
+		AuditLog.write(AuditEntry.builder("competition", ACTION).actor(effective)
+		        .detail(AuditFormat.kvs("scope", CHECKPOINT_SCOPE, "channel", ExportAudit.CHANNEL_HTTP,
+		                "since", since != null ? checkpointStamp(since) : "-"))
+		        .build());
+		zipLogs(LOGS_DIRECTORY, file -> checkpointSelects(file, since), zip);
+		zip.finish();
+	}
+
+	/** Log files modified at or after {@code since} (all when null); hidden files such as .DS_Store are not logs. */
+	static boolean checkpointSelects(Path file, Instant since) {
+		if (file.getFileName().toString().startsWith(".")) {
+			return false;
+		}
+		return since == null || modifiedSince(file, since);
+	}
+
+	/** @return the zip name for a checkpoint selected at that time, e.g. {@code 2026-10-31T20-37-42.123Z.zip} */
+	public static String checkpointName(Instant selectedAt) {
+		return checkpointStamp(selectedAt) + ".zip";
+	}
+
+	/**
+	 * @param value a checkpoint name or its timestamp, with or without {@code .zip}, or an ISO 8601 instant
+	 * @return null for a missing value
+	 * @throws DateTimeParseException if the value is not a time
+	 */
+	public static Instant parseCheckpointTime(String value) {
+		if (value == null || value.isBlank()) {
+			return null;
+		}
+		String text = value.strip();
+		if (text.endsWith(".zip")) {
+			text = text.substring(0, text.length() - 4);
+		}
+		if (text.contains(":")) {
+			return Instant.parse(text);
+		}
+		return Instant.from(AuditFileStore.NAME_TIME.parse(text));
+	}
+
+	static String checkpointStamp(Instant time) {
+		return AuditFileStore.NAME_TIME.format(time.truncatedTo(ChronoUnit.MILLIS));
+	}
+
+	private static boolean modifiedSince(Path file, Instant since) {
+		try {
+			return !Files.getLastModifiedTime(file).toInstant().isBefore(since);
+		} catch (IOException e) {
+			return true;
+		}
+	}
+
 	/** Typed text that ends up in a log line: one line, bounded. */
 	static String describe(String anomaly) {
 		String cleaned = anomaly.replaceAll("\\p{Cntrl}", " ").trim();
@@ -137,12 +213,16 @@ public final class AuditSnapshot {
 	}
 
 	static void zipLogs(Path root, Set<Path> excluded, ZipOutputStream zip) throws IOException {
+		zipLogs(root, file -> excluded.stream().noneMatch(path -> sameFile(path, file)), zip);
+	}
+
+	static void zipLogs(Path root, Predicate<Path> included, ZipOutputStream zip) throws IOException {
 		if (!Files.isDirectory(root)) {
 			return;
 		}
 		try (Stream<Path> files = Files.walk(root)) {
 			for (Path file : files.filter(Files::isRegularFile).sorted().toList()) {
-				if (excluded.stream().anyMatch(path -> sameFile(path, file))) {
+				if (!included.test(file)) {
 					continue;
 				}
 				String name = root.getFileName().resolve(root.relativize(file)).toString().replace('\\', '/');
