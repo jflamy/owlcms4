@@ -18,7 +18,10 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.Main;
@@ -59,8 +62,15 @@ import app.owlcms.utils.RestartUtils;
  */
 @SuppressWarnings("serial")
 @RequiresRole({ Role.ADMIN_PAGES, Role.COMPETITION_SUPERVISOR })
-@Route(value = "admin", layout = OwlcmsLayout.class)
+@Route(value = AdminView.ROUTE, layout = OwlcmsLayout.class)
 public class AdminView extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
+
+	public static final String ROUTE = "admin";
+	// Zero-based tab indices. The URL uses these values directly, so "/0" is equivalent to "/".
+	public static final int SYSTEM_TAB = 0;
+	public static final int SECURITY_TAB = 1;
+
+	private final TabSheet tabs;
 
 	/** Shown to the sessions that can open the page. */
 	public static boolean isMenuEntryAvailable() {
@@ -99,6 +109,7 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 		        heading("Admin.Testing"), HomeNavigationContent.navigationGrid(simulation));
 
 		TabSheet tabs = new TabSheet();
+		this.tabs = tabs;
 		tabs.add(Translator.translate("Admin.System"), systemTab);
 		if (AccessUi.hasCapability(Capability.SECURITY_SETTINGS, null)) {
 			AccessControlForm accessControlForm = new AccessControlForm();
@@ -112,7 +123,27 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 			tabs.add(Translator.translate("Admin.SecurityAndAudit"), securityTab);
 		}
 		tabs.setWidthFull();
+		// keep the selection in the URL, so that reloading or a link opens the same tab
+		tabs.addSelectedChangeListener(event -> UI.getCurrent().getPage().getHistory()
+		        .replaceState(null, new Location(ROUTE + "/" + tabs.getSelectedIndex())));
 		add(tabs);
+	}
+
+	/** Opens directly on a tab when the URL ends with its index, as in {@code admin/1}. */
+	@Override
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		super.setParameter(event, parameter);
+		if (parameter == null || parameter.isBlank()) {
+			return;
+		}
+		try {
+			int index = Integer.parseInt(parameter);
+			if (index >= 0 && index < this.tabs.getTabCount()) {
+				this.tabs.setSelectedIndex(index);
+			}
+		} catch (NumberFormatException e) {
+			// ignore invalid tab parameter
+		}
 	}
 
 	private static VerticalLayout tab(Component... content) {

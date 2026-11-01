@@ -12,6 +12,7 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -19,6 +20,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -42,8 +44,10 @@ import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.account.RoleGrant;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
+import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.admin.AdminView;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
@@ -79,7 +83,26 @@ public class AccountsContent extends BaseContent implements OwlcmsContent {
 		// keep the selection in the URL, so that reloading or a link opens the same tab
 		this.tabSheet.addSelectedChangeListener(event -> UI.getCurrent().getPage().getHistory()
 		        .replaceState(null, new Location(ROUTE + "/" + this.tabSheet.getSelectedIndex())));
+		if (!Config.getCurrent().isAccountsMode()) {
+			add(createAccountsModeOffWarning());
+		}
 		fillHW(this.tabSheet, this);
+	}
+
+	private static Paragraph createAccountsModeOffWarning() {
+		// the translation holds the link markup; {0} is the Security tab of the Administration page
+		String adminUrl = AdminView.ROUTE + "/" + AdminView.SECURITY_TAB;
+		Paragraph warning = new Paragraph(
+		        new Html("<span>" + Translator.translate("Access.Accounts.ModeOffWarning", adminUrl) + "</span>"));
+		warning.getStyle().set("margin", "0");
+		warning.getStyle().set("padding", "0.75em 1em");
+		warning.getStyle().set("background-color", "var(--lumo-warning-color-10pct)");
+		warning.getStyle().set("border-left", "4px solid var(--lumo-warning-color)");
+		warning.getStyle().set("color", "var(--lumo-body-text-color)");
+		warning.getStyle().set("border-radius", "var(--lumo-border-radius-m)");
+		warning.getStyle().set("box-sizing", "border-box");
+		warning.setWidthFull();
+		return warning;
 	}
 
 	/** Opens directly on a tab when the URL ends with its index, as in {@code preparation/accounts/1}. */
