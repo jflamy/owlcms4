@@ -1,7 +1,7 @@
 # Direct JSON Boot
 
 Done (closed 2026-10-31). The control panel's "launch from checkpoint folder"
-moved to [150](../150-SCHEDULED_CHECKPOINTS.md); the Postgres acceptance run was
+moved to [150](150-SCHEDULED_CHECKPOINTS.md); the Postgres acceptance run was
 dropped: the startup load uses the same import as the Import Database page.
 
 Available: `OWLCMS_LOADJSON` names a `.json`/`.zip` export or a folder, in
@@ -19,7 +19,7 @@ OWLCMS loads the latest checkpoint at startup.
 
 In the controlpanel repository:
 
-- **Launch from checkpoint folder:** moved to [150](../150-SCHEDULED_CHECKPOINTS.md).
+- **Launch from checkpoint folder:** moved to [150](150-SCHEDULED_CHECKPOINTS.md).
 - **Restart rule:** never restart a child launched with `OWLCMS_LOADJSON` set,
   whether import fails or the application crashes later. Reloading would
   replace competition work. Decide from the child's launch environment, not
@@ -34,4 +34,3 @@ In the controlpanel repository:
   for that restart and later ones, so the imported database is kept. Without a
   startup load, restarts still exit with 1. In the cloud, Fly restarts with the
   same secrets, so startup loading should not be used there.
-

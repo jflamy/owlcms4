@@ -43,7 +43,7 @@ Differences from the original proposal, by decision:
   are decrypted with `~/.owlcms/apiprotection.aes`.
 This document concerns **what an export contains**, not who may download it.
 URL authorization is in [120](120-TOKEN_PROTECTED_URLS.md); checkpoint collection
-is in [150](../150-SCHEDULED_CHECKPOINTS.md).
+is in [150](150-SCHEDULED_CHECKPOINTS.md).
 
 ## Required behavior
 

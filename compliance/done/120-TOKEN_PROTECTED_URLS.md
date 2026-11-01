@@ -81,7 +81,7 @@ Implementation plan for the STREAMING role and the display pages: [120-IMPLEMENT
 | --- | --- | --- | --- |
 | `/competition/export`, `/competition/export/json/1`, `/competition/export/json/2`, `/competition/export/sbde` | RESULTS (also through EXTERNAL, COMPETITION_DIRECTOR and COMPETITION_SUPERVISOR). STREAMING refused. | Officials PIN (`token` or Bearer) from any address the officials access list allows, throttled with the PIN logins; local network when no officials PIN is set (since 2026-11-01) | Implemented |
 | `/competition/h2` (GET, HEAD) | RESULTS, as for the exports | As for the exports | Implemented |
-| `/competition/checkpoint` (GET): recovery checkpoint ([150](../150-SCHEDULED_CHECKPOINTS.md)) | COMPETITION_SUPERVISOR | As for the exports | Implemented |
+| `/competition/checkpoint` (GET): recovery checkpoint ([150](150-SCHEDULED_CHECKPOINTS.md)) | COMPETITION_SUPERVISOR | As for the exports | Implemented |
 | `/simulation/start`, `/simulation/stop` (POST), `/simulation/status` (GET): scripts | None: control panel token, as for stop | Same | Implemented |
 | `simulation` (page, not a servlet) | ADMIN_PAGES or COMPETITION_SUPERVISOR, logged in; no locality | Officials PIN | Implemented |
 | `/controlpanel/stop` (POST) | None: control panel token, else a direct loopback connection | Same | Implemented |
