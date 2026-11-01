@@ -394,14 +394,16 @@
 			<version>12.0.4</version>
 		</dependency>
 
-		<!-- The Vaadin 25 BOM manages jakarta.servlet-api to 'provided' scope,
-		which is correct for a WAR deployed to an application server, but wrong
-		for our embedded Jetty fat jar: the API would be missing at runtime and
-		startup fails with NoClassDefFoundError: jakarta/servlet/ServletContext.
-		Declaring the scope explicitly here overrides the managed scope. -->
+		<!-- Vaadin flow-server declares jakarta.servlet-api as 'provided', which
+		is correct for a WAR deployed to an application server, but wrong for our
+		embedded Jetty fat jar: the API would be missing at runtime and startup
+		fails with NoClassDefFoundError: jakarta/servlet/ServletContext.
+		Declaring it with compile scope includes it in the jar. The version is
+		explicit because the Vaadin 25.3 BOM no longer manages it (25.2 used 6.1.0). -->
 		<dependency>
 			<groupId>jakarta.servlet</groupId>
 			<artifactId>jakarta.servlet-api</artifactId>
+			<version>6.1.0</version>
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
