@@ -28,6 +28,9 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.treegrid.TreeGrid;
+import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataProvider.HierarchyFormat;
+import com.vaadin.flow.data.provider.hierarchy.TreeData;
+import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
 
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.athlete.Gender;
@@ -197,7 +200,9 @@ public class RecordManagementDialog extends Dialog {
 			        .setTextAlign(com.vaadin.flow.component.grid.ColumnTextAlign.CENTER);
 		}
 
-		this.treeGrid.setItems(buildRootNodes(), this::childNodes);
+		TreeData<RecordNode> treeData = new TreeData<>();
+		treeData.addItems(buildRootNodes(), this::childNodes);
+		this.treeGrid.setDataProvider(new TreeDataProvider<>(treeData, HierarchyFormat.NESTED));
 		this.treeGrid.asMultiSelect().addSelectionListener(event -> {
 			if (this.cascadingSelection) {
 				return;

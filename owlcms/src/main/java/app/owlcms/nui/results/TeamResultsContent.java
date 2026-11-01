@@ -36,6 +36,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
+import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataProvider.HierarchyFormat;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
@@ -332,7 +333,6 @@ public class TeamResultsContent extends BaseContent
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(TeamTreeItem.class);
 		OwlcmsCrudGrid<TeamTreeItem> crudGrid = new OwlcmsCrudGrid<>(TeamTreeItem.class, gridLayout,
 		        crudFormFactory, grid) {
-			@SuppressWarnings("deprecation")
 			@Override
 			public void refreshGrid() {
 				if (TeamResultsContent.this.topBar == null) {
@@ -340,8 +340,9 @@ public class TeamResultsContent extends BaseContent
 				}
 				TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getChampionship(),
 				        TeamResultsContent.this.genderFilter.getValue(), getTeamRanking(), false);
-				this.grid.setDataProvider(new TreeDataProvider<>(teamResultsTreeData));
-				updateScoreColumns((TreeGrid<TeamTreeItem>) this.grid);
+				TreeGrid<TeamTreeItem> treeGrid = (TreeGrid<TeamTreeItem>) this.grid;
+				treeGrid.setDataProvider(new TreeDataProvider<>(teamResultsTreeData, HierarchyFormat.NESTED));
+				updateScoreColumns(treeGrid);
 			}
 
 			@Override
@@ -464,7 +465,7 @@ public class TeamResultsContent extends BaseContent
 			public DataProvider<TeamTreeItem, ?> getDataProvider() {
 				return new TreeDataProvider<>(
 				        new TeamResultsTreeData(getAgeGroupPrefix(), getChampionship(), getGenderFilter().getValue(),
-				                getTeamRanking(), false));
+				                getTeamRanking(), false), HierarchyFormat.NESTED);
 			}
 
 			@Override

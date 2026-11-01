@@ -43,6 +43,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
+import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataProvider.HierarchyFormat;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
@@ -468,7 +469,6 @@ public class TeamSelectionContent extends BaseContent
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(TeamTreeItem.class);
 		OwlcmsCrudGrid<TeamTreeItem> crudGrid = new OwlcmsCrudGrid<>(TeamTreeItem.class, gridLayout,
 		        crudFormFactory, grid) {
-			@SuppressWarnings("deprecation")
 			@Override
 			public void refreshGrid() {
 				if (TeamSelectionContent.this.topBar == null) {
@@ -476,7 +476,8 @@ public class TeamSelectionContent extends BaseContent
 				}
 				TeamSelectionTreeData teamTreeData = new TeamSelectionTreeData(getAgeGroupPrefix(), getChampionship(),
 				        TeamSelectionContent.this.genderFilter.getValue(), Ranking.SNATCH_CJ_TOTAL, false);
-				this.grid.setDataProvider(new TreeDataProvider<>(teamTreeData));
+				((TreeGrid<TeamTreeItem>) this.grid)
+				        .setDataProvider(new TreeDataProvider<>(teamTreeData, HierarchyFormat.NESTED));
 			}
 
 			@Override
@@ -629,7 +630,7 @@ public class TeamSelectionContent extends BaseContent
 			public DataProvider<TeamTreeItem, ?> getDataProvider() {
 				return new TreeDataProvider<>(
 				        new TeamSelectionTreeData(getAgeGroupPrefix(), getChampionship(), getGenderFilter().getValue(),
-				                Ranking.SNATCH_CJ_TOTAL, false));
+				                Ranking.SNATCH_CJ_TOTAL, false), HierarchyFormat.NESTED);
 			}
 
 			@Override

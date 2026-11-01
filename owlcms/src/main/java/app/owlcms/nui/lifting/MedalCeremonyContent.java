@@ -37,6 +37,9 @@ import app.owlcms.access.RequiresRole;
 import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.treegrid.TreeGrid;
+import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataProvider.HierarchyFormat;
+import com.vaadin.flow.data.provider.hierarchy.TreeData;
+import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
@@ -335,7 +338,9 @@ public class MedalCeremonyContent extends BaseNavigationContent implements Navig
 				ui.access(() -> {
 					if (isAttached() && Objects.equals(selectedGroup, this.medalGroup)) {
 						List<AwardNode> roots = awardHierarchy(categories);
-						this.awardTree.setItems(roots, node -> node.children);
+						TreeData<AwardNode> treeData = new TreeData<>();
+						treeData.addItems(roots, node -> node.children);
+						this.awardTree.setDataProvider(new TreeDataProvider<>(treeData, HierarchyFormat.NESTED));
 						this.awardTree.expand(roots);
 						roots.forEach(root -> root.children.forEach(this::expandOversizedScopes));
 					}
