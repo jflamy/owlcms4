@@ -1,6 +1,6 @@
 # Compliance Work
 
-Updated 2026-10-31. Active specs contain decisions and remaining work;
+Updated 2026-11-01. Active specs contain decisions and remaining work;
 completed designs belong in [done/](done/). Do not duplicate their requirements
 in this index.
 
@@ -13,7 +13,6 @@ None open. Lenient birth-date parsing is done: [BIRTHDATE_LENIENT_PARSE.md](done
 | Order | Document | Scope |
 | --- | --- | --- |
 | 145 | [Signed exports](145-SIGNED_EXPORTS.md) | PEM signature inside JSON exports, import outcomes in the audit trail, support procedures with and without the key |
-| 150 | [Scheduled checkpoints](150-SCHEDULED_CHECKPOINTS.md) | Token-accessible OWLCMS backup URL; tracker plugin pulling backups (export + sealed logs) after OWLCMS sends the database and on a timer after activity; control panel launch from the checkpoint folder |
 | 170 | [Competition Director acceptance](170-COMPETITION_DIRECTOR_ACCEPTANCE.md) | Remaining accounts/passive-page browser acceptance and configuration permissions |
 | 180 | [Card dialog browser check](180-CARD_DIALOG_BROWSER_CHECK.md) | Manual check that a decision closes an athlete card together with its pending confirmation |
 
@@ -28,7 +27,9 @@ stale-save check (136), the other access work (130) and direct JSON boot (160) a
 [130-ACCESS_CONTROL_REMAINING.md](done/130-ACCESS_CONTROL_REMAINING.md),
 [160-DIRECT_JSON_BOOT.md](done/160-DIRECT_JSON_BOOT.md).
 Checkpoint collection uses existing WebSocket authentication, not personal URL
-tokens.
+tokens. Scheduled checkpoints (150), including OWLCMS collection, the tracker plugin and
+control panel launch from a checkpoint, are implemented and archived in
+[150-SCHEDULED_CHECKPOINTS.md](done/150-SCHEDULED_CHECKPOINTS.md).
 
 ## 2xx — Can wait
 
