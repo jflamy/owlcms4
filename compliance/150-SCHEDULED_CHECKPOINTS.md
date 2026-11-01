@@ -1,8 +1,8 @@
 # Scheduled Recovery Checkpoints
 
 Status: redesigned 2026-10-31. OWLCMS side implemented 2026-11-01 (new audit files at each
-start, `owlcms.log` size cap, `/competition/backup`, officials PIN for guarded servlets in
-Simple Access mode); tracker plugin implemented 2026-11-01 (`src/plugins/backup/checkpoints`);
+start, `owlcms.log` size cap, `/competition/checkpoint`, officials PIN for guarded servlets in
+Simple Access mode); tracker plugin implemented 2026-11-01 (`src/plugins/checkpoints`);
 control panel launch not implemented. Supersedes the 2026-10-17 design (a
 tracker-core change retaining the WebSocket `database_zip` bytes).
 
@@ -67,7 +67,7 @@ restored `owlcms_<date>.<index>.log` is never overwritten.
 
 ### OWLCMS: token-accessible checkpoint backup
 
-- New servlet `/competition/backup` (`/admin/backup` is the Vaadin page).
+- New servlet `/competition/checkpoint` (`/admin/backup` is the Vaadin page).
   - `since` (optional): the timestamp in the name of a previous checkpoint zip; without it,
     every log file is included (first checkpoint into an empty folder). Files modified at or
     after `since` are included (inclusive, so a file modified at the boundary is sent again
@@ -78,7 +78,7 @@ restored `owlcms_<date>.<index>.log` is never overwritten.
     caller stores it under that name and passes the name back as the next `since` (an ISO
     8601 instant is also accepted; anything else is refused with 400), so the selection uses
     the OWLCMS clock only. A file modified while the zip is built is sent again next time.
-- Authorized by `ServletTokenGuard.authorize(..., Role.COMPETITION_SUPERVISOR, "backup")`:
+- Authorized by `ServletTokenGuard.authorize(..., Role.COMPETITION_SUPERVISOR, "checkpoint")`:
   an account token whose owner is Competition Supervisor or admin; in Simple Access mode,
   the officials PIN (`token` or Bearer) from any address the officials access list allows,
   or the local network when no officials PIN is set, as for all guarded servlets
@@ -98,8 +98,8 @@ restored `owlcms_<date>.<index>.log` is never overwritten.
 
 A tracker plugin; tracker-core is not modified.
 
-- Category: `backup`, added to `DEFAULT_LANDING_PAGE_CATEGORIES`
-  (`src/lib/server/landing-page-categories.js`) as "Backup and Recovery", after
+- Category: `checkpoints`, added to `DEFAULT_LANDING_PAGE_CATEGORIES`
+  (`src/lib/server/landing-page-categories.js`) as "Checkpoints", after
   "Video Overlays".
 - **Page:** the plugin's page is where checkpoints are set up and run. Like the tracker's
   other control pages (OBS), it is not protected: the tracker is expected on a trusted
@@ -122,10 +122,10 @@ A tracker plugin; tracker-core is not modified.
   frozen folder of a lost machine is not fed by mistake; after a failover, New Folder is the
   way to checkpoint the new main.
 - **While started:** on `database:received` (OWLCMS started, reconnected or sent the
-  database; cached reloads included), pull right away and restart the interval. At each
-  interval, pull with `since` if competition activity was seen since the last pull
-  (`decision`, `fop_update` other than timer and clock changes, `database:received`); skip
-  otherwise, except that a pull is made at least every 30 minutes.
+  database; cached reloads included), pull right away and restart the interval. Pull at
+  every interval, with `since`: the tracker does not see everything that adds to the logs
+  (weigh-in, registration, settings, application log), so there is no activity filter; a
+  quiet interval costs only the export.
 - **OWLCMS not answering:** when OWLCMS starts or reconnects it sends its database, and the
   hub emits `database:received`, which triggers a pull right away. The plugin listens with
   `competitionHub.on(...)`, as the OBS plugin does for `decision`, `timer` and `fop_update`,
@@ -215,20 +215,24 @@ After owlcms.local dies and tracker.local launches from /checkpoints:
 
 ### Control panel: launch from checkpoint
 
-Moved from 160. In the controlpanel repository, just an additional menu entry:
+Moved from 160. Implemented 2026-11-01 in the controlpanel repository:
 
-- **Setting:** the checkpoint folder is a control panel property, `CHECKPOINT_FOLDER` in the
-  shared OWLCMS `env.properties`, so it carries over to newly installed versions. There is no
-  folder chooser.
-- **Offered when present:** when the control panel starts, the OWLCMS tab checks that the
-  folder exists and holds a `.json` directly inside it. If so, each installed version's
-  Options menu (`createVersionOptionsButton`, next to Port Number and Tracker Connection)
-  gets **Launch from Checkpoint**; otherwise the entry is not shown.
+- **Setting:** **Select Checkpoints Folder…** in the OWLCMS tab's Options menu opens the
+  native folder chooser and saves the folder as `CONTROLPANEL_CHECKPOINT_FOLDER` in the
+  shared OWLCMS `env.properties`, so it carries over to newly installed versions. Like the
+  other `CONTROLPANEL_` settings, it is not passed to OWLCMS.
+- **Offered when present:** whenever the version list is built (control panel start, after
+  selecting the folder), the folder is checked for a `.json` directly inside it. If there is
+  one, each installed version's Options menu (`createVersionOptionsButton`, next to Port
+  Number and Tracker Connection) gets **Launch from Checkpoint**, which asks for
+  confirmation and names the export that will replace the database; otherwise the entry is
+  not shown.
 - **One shot:** that launch alone gets `OWLCMS_LOADJSON` set to the folder, so OWLCMS loads
-  the latest `.json` in it; the variable is added to the launch environment in
-  `prepareOwlcmsLaunch` and never written to `env.properties`, so the next ordinary Launch
-  keeps the database. The existing restart rules apply (`startupimport.go`): a launch that
-  loaded an export is never restarted with the load, and exit 75 restarts without it.
+  the latest `.json` in it; the variable is added to the launch environment
+  (`launchOwlcmsLoading`) and never written to `env.properties`, so the next ordinary
+  Launch keeps the database. The existing restart rules apply (`startupimport.go`): a
+  launch that loaded an export is never restarted with the load, and exit 75 restarts
+  without it.
 
 ## Integrity
 
@@ -242,7 +246,7 @@ never decrypts anything.
 
 ## Acceptance
 
-- `/competition/backup`: refused without a token or with a token lacking Competition
+- `/competition/checkpoint`: refused without a token or with a token lacking Competition
   Supervisor; in Simple Access mode with an officials PIN, refused without it or with a
   wrong one even from the local network, accepted with it from any address the officials
   access list allows; no rollover (audit file count unchanged); without `since` all log

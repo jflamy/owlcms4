@@ -75,7 +75,7 @@ public class ServletTokenGuardTest {
 	private static HttpServletRequest request(String tokenParameter, String authorization) {
 		return (HttpServletRequest) Proxy.newProxyInstance(HttpServletRequest.class.getClassLoader(),
 		        new Class<?>[] { HttpServletRequest.class }, (p, method, args) -> switch (method.getName()) {
-			        case "getServletPath" -> "/competition/backup";
+			        case "getServletPath" -> "/competition/checkpoint";
 			        case "getParameter" -> "token".equals(args[0]) ? tokenParameter : null;
 			        case "getHeader" -> "Authorization".equals(args[0]) ? authorization : null;
 			        default -> null;
@@ -85,7 +85,7 @@ public class ServletTokenGuardTest {
 	private static Response authorize(HttpServletRequest request, String host) {
 		Response response = new Response();
 		response.authorized = ServletTokenGuard.authorize(request, response.proxy, host,
-		        Role.COMPETITION_SUPERVISOR, "backup") != null;
+		        Role.COMPETITION_SUPERVISOR, "checkpoint") != null;
 		return response;
 	}
 

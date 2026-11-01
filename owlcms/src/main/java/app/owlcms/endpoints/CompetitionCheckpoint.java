@@ -30,18 +30,18 @@ import jakarta.servlet.http.HttpServletResponse;
  * the OWLCMS time that the caller passes back as the next {@code since}. Nothing is rolled or sealed.
  */
 @SuppressWarnings("serial")
-@WebServlet(CompetitionBackup.PATH)
-public class CompetitionBackup extends HttpServlet {
+@WebServlet(CompetitionCheckpoint.PATH)
+public class CompetitionCheckpoint extends HttpServlet {
 
-	static final String PATH = "/competition/backup";
+	static final String PATH = "/competition/checkpoint";
 	static final String SINCE = "since";
-	private static final Logger logger = (Logger) LoggerFactory.getLogger(CompetitionBackup.class);
+	private static final Logger logger = (Logger) LoggerFactory.getLogger(CompetitionCheckpoint.class);
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String host = ProxyUtils.getClientIp(request);
 		AuditActor actor = ServletTokenGuard.authorize(request, response, host, Role.COMPETITION_SUPERVISOR,
-		        "backup");
+		        "checkpoint");
 		if (actor == null) {
 			response.flushBuffer();
 			return;
@@ -50,7 +50,7 @@ public class CompetitionBackup extends HttpServlet {
 		try {
 			since = AuditSnapshot.parseCheckpointTime(request.getParameter(SINCE));
 		} catch (DateTimeParseException e) {
-			logger.info("{} backup refused: since={} is not a time", host, request.getParameter(SINCE));
+			logger.info("{} checkpoint refused: since={} is not a time", host, request.getParameter(SINCE));
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}

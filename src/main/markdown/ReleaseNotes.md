@@ -11,10 +11,12 @@
 
 **Development log**
 
-- 69.0.0-beta02: Recovery checkpoints: the tracker's new "Recovery Checkpoints" page (Backup and Recovery section) copies the competition and its logs from OWLCMS to a folder on the tracker machine at regular intervals (`/competition/backup`, Competition Supervisor token or Officials password).
-  - If the OWLCMS machine is lost, OWLCMS can be started on another machine from that folder (`OWLCMS_LOADJSON`).
+- 69.0.0-beta02: Checkpoints: the tracker's new "Checkpoints" page
+  - copies the competition and its logs from OWLCMS to a folder on the tracker machine at regular intervals
+  - requires the competition supervisor token when running with accounts enabled, the Officials PIN in simple mode
+  - If the OWLCMS machine is lost, OWLCMS can be started on the checkpoint machine from that folder.
 
-- 69.0.0-beta02: In Simple Access mode, the export, H2 database and backup URLs require the Officials password (`?token=` or `Authorization: Bearer`) when one is set; the local network alone is no longer enough.
+- 69.0.0-beta02: In Simple Access mode, the export, H2 database and checkpoint URLs require the Officials password (`?token=` or `Authorization: Bearer`) when one is set; the local network alone is no longer enough.
 
 - 69.0.0-beta02: Each OWLCMS start writes new audit log files instead of appending to the previous ones, so a closed audit file never changes.
 
