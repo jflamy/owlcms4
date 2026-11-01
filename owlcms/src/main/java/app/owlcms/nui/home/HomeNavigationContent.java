@@ -99,12 +99,73 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "home", layout = OwlcmsLayout.class)
 public class HomeNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
+	private record VersionCheckResult(String referenceVersion, int comparison) {
+	}
 	private static final String USAGE_STR = "usageStr";
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(HomeNavigationContent.class);
+
 	static {
 		logger.setLevel(Level.INFO);
 	}
 
+	private static final String REPO_OWNER = "jflamy";
+	private static final String REPO_NAME = "owlcms4";
+	private static final String GITHUB_RAW_URL = "https://raw.githubusercontent.com/" + REPO_OWNER + "/" + REPO_NAME + "/master/";
+	/**
+	 * The oldest control panel this version of OWLCMS works with: it gives OWLCMS a new token at each launch. Naming a
+	 * prerelease tells users of a stable control panel that they need the prerelease.
+	 */
+	static final String MIN_CONTROL_PANEL_VERSION = "3.10.0-alpha02";
+	private static final String CONTROL_PANEL_RELEASES = "https://github.com/owlcms/owlcms-controlpanel/releases";
+	private static LocalDateTime motdEmitted = LocalDateTime.MIN;
+	/** Shared: each HttpClient carries its own connection pool and threads, and is never closed. */
+	private static final HttpClient githubClient = HttpClient.newBuilder()
+	        .connectTimeout(Duration.ofSeconds(2))
+	        .build();
+	private static final ObjectMapper objectMapper = new ObjectMapper();
+	static boolean localFileTesting = false;
+	/** @return the notice to show when the control panel is too old for this version of OWLCMS, else null */
+	public static String checkControlPanelVersion(String curVer, Locale locale) {
+		if (!isControlPanelTooOld(curVer)) {
+			return null;
+		}
+		logger./**/warn("control panel {} is too old, this version of OWLCMS requires {}", curVer, MIN_CONTROL_PANEL_VERSION);
+		return "<div><b>\u26A0 " + Translator.translate("CheckVersion.ControlPanelRequired", locale,
+		        MIN_CONTROL_PANEL_VERSION, curVer) + "</b> <a href=\"" + CONTROL_PANEL_RELEASES + "\">"
+		        + CONTROL_PANEL_RELEASES + "</a></div>";
+	}
+	public static String getMotd(String fileName) {
+		// testing
+		if (localFileTesting) {
+			try {
+				Path parentDir = Paths.get("").toAbsolutePath().getParent();
+				Path filePath = parentDir.resolve(fileName);
+				return new String(java.nio.file.Files.readAllBytes(filePath));
+			} catch (IOException e) {
+				return null;
+			}
+		}
+
+		if (LocalDateTime.now().minusHours(1).isBefore(motdEmitted)) {
+			return null;
+		}
+		motdEmitted = LocalDateTime.now();
+		HttpRequest request = HttpRequest.newBuilder()
+		        .uri(URI.create(GITHUB_RAW_URL + fileName))
+		        .timeout(Duration.ofSeconds(2))
+		        .build();
+
+		try {
+			HttpResponse<String> response = githubClient.send(request, HttpResponse.BodyHandlers.ofString());
+			if (response.statusCode() != 200) {
+				throw new IOException("Unexpected code " + response.statusCode());
+			}
+			return response.body();
+		} catch (Exception e) {
+			logger.debug("Error fetching motd: {} {}", e.getMessage(), request.uri());
+			return null;
+		}
+	}
 	/**
 	 * Navigation crudGrid.
 	 *
@@ -125,26 +186,41 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		layout.getElement().getStyle().set("padding-right", "1em");
 		return layout;
 	}
-
+	/** @return true if the control panel version is older than the one this version of OWLCMS requires */
+	static boolean isControlPanelTooOld(String curVer) {
+		String current = curVer.strip();
+		if (current.startsWith("v")) {
+			current = current.substring(1);
+		}
+		// a release requirement also accepts its prereleases and development builds; a prerelease is compared as is
+		String minimum = MIN_CONTROL_PANEL_VERSION.contains("-") ? MIN_CONTROL_PANEL_VERSION
+		        : MIN_CONTROL_PANEL_VERSION + "-alpha00";
+		return new ComparableVersion(current).compareTo(new ComparableVersion(minimum)) < 0;
+	}
 	String INFO = Translator.translate("About");
 	String PREPARE_COMPETITION = Translator.translate("PrepareCompetition");
+
 	String RESULT_DOCUMENTS = Translator.translate("Results");
+	
 	String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup");
+
 	String VIDEO_STREAMING = Translator.translate("VideoStreaming");
+
 	String START_DISPLAYS = Translator.translate("StartDisplays");
+
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
+
 	String currentVersionString = "";
+
 	private Div versionPlaceholder;
+
 	private Div releaseNoticePlaceholder;
+
 	private Div motdPlaceholder;
 	private Div controlPanelVersionPlaceholder;
 	private String remoteAddr;
 	private String motdFileName;
 	private String launcherVersion;
-
-	private record VersionCheckResult(String referenceVersion, int comparison) {
-	}
-	
 	/**
 	 * Instantiates a new main navigation content.
 	 */
@@ -175,12 +251,10 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 
 		DebugUtils.gc();
 	}
-
 	@Override
 	public String getMenuTitle() {
 		return Translator.translate("OWLCMS_Top");
 	}
-
 	/**
 	 * @see app.owlcms.nui.shared.BaseNavigationContent#getPageTitle()
 	 */
@@ -205,6 +279,59 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		return null;
 	}
 
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		UI ui = attachEvent.getUI();
+		// the language chosen on the page is kept in the session, not in the UI
+		Locale locale = OwlcmsSession.getLocale();
+		String version = this.currentVersionString;
+		VaadinService.getCurrent().getExecutor().execute(() -> {
+			String notice = ReleaseNotice.read(version, locale);
+			if (notice == null || !ui.isAttached()) {
+				return;
+			}
+			try {
+				ui.access(() -> {
+					if (isAttached()) {
+						showReleaseNotice(ReleaseNotice.kind(version), notice);
+					}
+				});
+			} catch (UIDetachedException ignored) {
+				// The UI detached after the attachment check; discard the notice.
+			}
+		});
+		VaadinService.getCurrent().getExecutor().execute(() -> {
+			VersionCheckResult versionResult = checkVersion();
+			String motd = getMotd(this.motdFileName);
+			String controlPanelVersion = this.launcherVersion == null ? null
+			        : checkControlPanelVersion(this.launcherVersion, locale);
+			if (!ui.isAttached()) {
+				return;
+			}
+			try {
+				ui.access(() -> {
+					if (!isAttached()) {
+						return;
+					}
+					if (versionResult != null) {
+						this.versionPlaceholder.removeAll();
+						this.versionPlaceholder.add(formatVersion(versionResult, locale, this.remoteAddr));
+					}
+					if (motd != null && !motd.isBlank()) {
+						this.motdPlaceholder.removeAll();
+						this.motdPlaceholder.add(new Hr(), new Html(motd));
+					}
+					if (controlPanelVersion != null && !controlPanelVersion.isBlank()) {
+						this.controlPanelVersionPlaceholder.removeAll();
+						this.controlPanelVersionPlaceholder.add(new Hr(), new Html(controlPanelVersion));
+					}
+				});
+			} catch (UIDetachedException ignored) {
+				// The UI detached after the attachment check; discard the completed results.
+			}
+		});
+	}
 	private VerticalLayout buildIntro() {
 		this.currentVersionString = OwlcmsFactory.getVersion();
 		this.versionPlaceholder = new Div();
@@ -318,84 +445,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		return intro;
 	}
 
-	/** @return the announced owlcms.local URL, or null when the name is not being announced. */
-	private String getMdnsUrl() {
-		String hostName = MdnsResponder.getRegisteredHostName();
-		if (hostName == null) {
-			return null;
-		}
-		int port = StartupUtils.getServerPort();
-		return "http://" + hostName + (port == 80 ? "" : ":" + port);
-	}
-
-	private static final String REPO_OWNER = "jflamy";
-	private static final String REPO_NAME = "owlcms4";
-	private static final String GITHUB_RAW_URL = "https://raw.githubusercontent.com/" + REPO_OWNER + "/" + REPO_NAME + "/master/";
-	/** The oldest control panel this version of OWLCMS works with: it gives OWLCMS a new token at each launch. */
-	static final String MIN_CONTROL_PANEL_VERSION = "3.10.0";
-	private static final String CONTROL_PANEL_RELEASES = "https://github.com/owlcms/owlcms-controlpanel/releases";
-	private static LocalDateTime motdEmitted = LocalDateTime.MIN;
-	/** Shared: each HttpClient carries its own connection pool and threads, and is never closed. */
-	private static final HttpClient githubClient = HttpClient.newBuilder()
-	        .connectTimeout(Duration.ofSeconds(2))
-	        .build();
-	private static final ObjectMapper objectMapper = new ObjectMapper();
-
-	/** @return true if the control panel version is older than the one this version of OWLCMS requires */
-	static boolean isControlPanelTooOld(String curVer) {
-		String current = curVer.strip();
-		if (current.startsWith("v")) {
-			current = current.substring(1);
-		}
-		// prereleases and development builds of the required version are accepted
-		return new ComparableVersion(current).compareTo(new ComparableVersion(MIN_CONTROL_PANEL_VERSION + "-alpha00")) < 0;
-	}
-
-	/** @return the notice to show when the control panel is too old for this version of OWLCMS, else null */
-	public static String checkControlPanelVersion(String curVer, Locale locale) {
-		if (!isControlPanelTooOld(curVer)) {
-			return null;
-		}
-		logger./**/warn("control panel {} is too old, this version of OWLCMS requires {}", curVer, MIN_CONTROL_PANEL_VERSION);
-		return "<div><b>\u26A0 " + Translator.translate("CheckVersion.ControlPanelRequired", locale,
-		        MIN_CONTROL_PANEL_VERSION, curVer) + "</b> <a href=\"" + CONTROL_PANEL_RELEASES + "\">"
-		        + CONTROL_PANEL_RELEASES + "</a></div>";
-	}
-
-	static boolean localFileTesting = false;
-	public static String getMotd(String fileName) {
-		// testing
-		if (localFileTesting) {
-			try {
-				Path parentDir = Paths.get("").toAbsolutePath().getParent();
-				Path filePath = parentDir.resolve(fileName);
-				return new String(java.nio.file.Files.readAllBytes(filePath));
-			} catch (IOException e) {
-				return null;
-			}
-		}
-
-		if (LocalDateTime.now().minusHours(1).isBefore(motdEmitted)) {
-			return null;
-		}
-		motdEmitted = LocalDateTime.now();
-		HttpRequest request = HttpRequest.newBuilder()
-		        .uri(URI.create(GITHUB_RAW_URL + fileName))
-		        .timeout(Duration.ofSeconds(2))
-		        .build();
-
-		try {
-			HttpResponse<String> response = githubClient.send(request, HttpResponse.BodyHandlers.ofString());
-			if (response.statusCode() != 200) {
-				throw new IOException("Unexpected code " + response.statusCode());
-			}
-			return response.body();
-		} catch (Exception e) {
-			logger.debug("Error fetching motd: {} {}", e.getMessage(), request.uri());
-			return null;
-		}
-	}
-
 	private VersionCheckResult checkVersion() {
 		String apiUrl = this.currentVersionString.contains("-")
 		        ? "https://api.github.com/repos/owlcms/prereleases/releases"
@@ -485,69 +534,14 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		return div;
 	}
 	
-	private void showReleaseNotice(String kind, String notice) {
-		boolean danger = kind.equals("snapshot") || kind.equals("alpha");
-		Markdown markdown = new Markdown(notice);
-		this.releaseNoticePlaceholder.removeAll();
-		this.releaseNoticePlaceholder.add(markdown);
-		this.releaseNoticePlaceholder.getStyle()
-		        .set("border-left", "6px solid " + (danger ? "#d32f2f" : "#f57c00"))
-		        .set("padding", "0 1em")
-		        .set("margin-bottom", "1ex");
-	}
-
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		super.onAttach(attachEvent);
-		UI ui = attachEvent.getUI();
-		// the language chosen on the page is kept in the session, not in the UI
-		Locale locale = OwlcmsSession.getLocale();
-		String version = this.currentVersionString;
-		VaadinService.getCurrent().getExecutor().execute(() -> {
-			String notice = ReleaseNotice.read(version, locale);
-			if (notice == null || !ui.isAttached()) {
-				return;
-			}
-			try {
-				ui.access(() -> {
-					if (isAttached()) {
-						showReleaseNotice(ReleaseNotice.kind(version), notice);
-					}
-				});
-			} catch (UIDetachedException ignored) {
-				// The UI detached after the attachment check; discard the notice.
-			}
-		});
-		VaadinService.getCurrent().getExecutor().execute(() -> {
-			VersionCheckResult versionResult = checkVersion();
-			String motd = getMotd(this.motdFileName);
-			String controlPanelVersion = this.launcherVersion == null ? null
-			        : checkControlPanelVersion(this.launcherVersion, locale);
-			if (!ui.isAttached()) {
-				return;
-			}
-			try {
-				ui.access(() -> {
-					if (!isAttached()) {
-						return;
-					}
-					if (versionResult != null) {
-						this.versionPlaceholder.removeAll();
-						this.versionPlaceholder.add(formatVersion(versionResult, locale, this.remoteAddr));
-					}
-					if (motd != null && !motd.isBlank()) {
-						this.motdPlaceholder.removeAll();
-						this.motdPlaceholder.add(new Hr(), new Html(motd));
-					}
-					if (controlPanelVersion != null && !controlPanelVersion.isBlank()) {
-						this.controlPanelVersionPlaceholder.removeAll();
-						this.controlPanelVersionPlaceholder.add(new Hr(), new Html(controlPanelVersion));
-					}
-				});
-			} catch (UIDetachedException ignored) {
-				// The UI detached after the attachment check; discard the completed results.
-			}
-		});
+	/** @return the announced owlcms.local URL, or null when the name is not being announced. */
+	private String getMdnsUrl() {
+		String hostName = MdnsResponder.getRegisteredHostName();
+		if (hostName == null) {
+			return null;
+		}
+		int port = StartupUtils.getServerPort();
+		return "http://" + hostName + (port == 80 ? "" : ":" + port);
 	}
 
 	private void logUsage(Locale locale) {
@@ -620,5 +614,16 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 				}
 			}
 		}).start();
+	}
+
+	private void showReleaseNotice(String kind, String notice) {
+		boolean danger = kind.equals("snapshot") || kind.equals("alpha");
+		Markdown markdown = new Markdown(notice);
+		this.releaseNoticePlaceholder.removeAll();
+		this.releaseNoticePlaceholder.add(markdown);
+		this.releaseNoticePlaceholder.getStyle()
+		        .set("border-left", "6px solid " + (danger ? "#d32f2f" : "#f57c00"))
+		        .set("padding", "0 1em")
+		        .set("margin-bottom", "1ex");
 	}
 }

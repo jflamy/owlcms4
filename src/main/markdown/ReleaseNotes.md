@@ -29,7 +29,7 @@
 
 - 69.0.0-beta02: The application log `owlcms.log` also rolls over at 10 MB (`owlcms_<date>.<index>.log`).
 
-- 69.0.0-beta02: OWLCMS 69 requires control panel 3.10.0 or later, which gives OWLCMS a new control panel token at each launch. The home page says so when an older control panel is used.
+- 69.0.0-beta02: OWLCMS 69 requires control panel 3.10.0-alpha02 (pre-release) or later, which gives OWLCMS a new control panel token at each launch. The home page says so when an older control panel is used.
 
 - 69.0.0-beta02: New Security section on the Administration page.
   - Switching the access mode between Simple Access (shared passwords) and User Accounts asks for the control panel token. Simple Access is the new name of PIN mode.
