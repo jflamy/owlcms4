@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +72,7 @@ public class AuditFileStoreTest {
 	}
 
 	@Test
-	public void plainFileFollowsItsSealedFileAcrossRestart() throws Exception {
+	public void eachRunStartsNewSealedAndPlainFiles() throws Exception {
 		Path root = temporary.getRoot().toPath();
 		try (AuditFileStore store = store(root, "run-1", AuditSealLimits.DEFAULT, new ArrayList<>())) {
 			store.append("A", List.of(record("referee.decision", "result=GOOD")), true);
@@ -80,11 +81,13 @@ public class AuditFileStoreTest {
 			store.append("A", List.of(record("clock.start", "clock=1:00")), true);
 		}
 		List<Path> sealed = files(root);
-		assertEquals(1, sealed.size());
-		List<String> plain = Files.readAllLines(plainFor(sealed.getFirst()), StandardCharsets.UTF_8);
-		assertEquals(2, plain.size());
-		assertTrue(plain.get(0).startsWith("    2 | ") && plain.get(0).contains("referee.decision"));
-		assertTrue(plain.get(1).startsWith("    2 | ") && plain.get(1).contains("clock.start"));
+		assertEquals(2, sealed.size());
+		List<String> first = Files.readAllLines(plainFor(sealed.get(0)), StandardCharsets.UTF_8);
+		List<String> second = Files.readAllLines(plainFor(sealed.get(1)), StandardCharsets.UTF_8);
+		assertEquals(1, first.size());
+		assertEquals(1, second.size());
+		assertTrue(first.get(0).startsWith("    2 | ") && first.get(0).contains("referee.decision"));
+		assertTrue(second.get(0).startsWith("    2 | ") && second.get(0).contains("clock.start"));
 		assertPlainFilesMirrorSealedEvents(root, sealed);
 	}
 
@@ -123,7 +126,7 @@ public class AuditFileStoreTest {
 	}
 
 	@Test
-	public void restartAppendsFirstAndNewRunWithoutChangingPreviousBytes() throws Exception {
+	public void restartStartsANewFileAndLeavesThePreviousOneUnchanged() throws Exception {
 		Path root = temporary.getRoot().toPath();
 		try (AuditFileStore store = store(root, "run-1", AuditSealLimits.DEFAULT, new ArrayList<>())) {
 			store.append("A", List.of(record("referee.decision", "result=GOOD")), true);
@@ -133,23 +136,21 @@ public class AuditFileStoreTest {
 		try (AuditFileStore store = store(root, "run-2", AuditSealLimits.DEFAULT, new ArrayList<>())) {
 			store.append("A", List.of(record("referee.decision", "result=NO_LIFT")), true);
 		}
-		assertEquals(1, files(root).size());
-		byte[] after = Files.readAllBytes(file);
-		assertTrue(after.length > before.length);
-		for (int i = 0; i < before.length; i++) {
-			assertEquals(before[i], after[i]);
-		}
-		List<Checked> segments = check(file);
-		assertEquals(2, segments.size());
-		assertEquals("run-1", segments.get(0).markers().getFirst().marker().identity().runId());
-		assertEquals("run-2", segments.get(1).markers().getFirst().marker().identity().runId());
-		assertTrue(segments.stream().allMatch(Checked::finalized));
-		assertTrue(segments.get(1).markers().getFirst().marker() instanceof AuditMarker.First);
-		assertEquals(2, segments.get(1).recordCount());
+		List<Path> files = files(root);
+		assertEquals(2, files.size());
+		assertEquals(file, files.getFirst());
+		assertTrue(Arrays.equals(before, Files.readAllBytes(file)));
+		List<Checked> segments = check(files.getLast());
+		assertEquals(1, segments.size());
+		assertEquals("run-2", segments.getFirst().markers().getFirst().marker().identity().runId());
+		assertTrue(segments.getFirst().finalized());
+		assertTrue(segments.getFirst().markers().getFirst().marker() instanceof AuditMarker.First);
+		assertEquals(2, segments.getFirst().recordCount());
+		assertFalse(Files.readString(files.getLast()).contains("previousFile="));
 	}
 
 	@Test
-	public void crashTailIsNotResignedWhenTheNextRunAppends() throws Exception {
+	public void crashedFileIsNotWrittenByTheNextRun() throws Exception {
 		Path root = temporary.getRoot().toPath();
 		AuditFileStore crashed = store(root, "crashed", AuditSealLimits.DEFAULT, new ArrayList<>());
 		crashed.append("A", List.of(record("athlete.change", "bodyWeight=81")), true);
@@ -159,21 +160,21 @@ public class AuditFileStoreTest {
 		List<Checked> before = check(file);
 		assertFalse(before.getFirst().finalized());
 		assertEquals(1, before.getFirst().unsealed());
-		String old = Files.readString(file);
+		byte[] old = Files.readAllBytes(file);
 		try (AuditFileStore restarted = store(root, "restarted", AuditSealLimits.DEFAULT, new ArrayList<>())) {
 			restarted.append("A", List.of(record("clock.stop", "clock=0:52")), false);
 		}
-		assertTrue(Files.readString(file).startsWith(old));
-		List<Checked> segments = check(file);
-		assertEquals(2, segments.size());
-		assertFalse(segments.getFirst().finalized());
-		assertEquals(1, segments.getFirst().unsealed());
-		assertTrue(segments.getLast().finalized());
-		assertEquals(0, segments.getLast().unsealed());
+		assertTrue(Arrays.equals(old, Files.readAllBytes(file)));
+		List<Path> files = files(root);
+		assertEquals(2, files.size());
+		List<Checked> next = check(files.getLast());
+		assertEquals(1, next.size());
+		assertTrue(next.getFirst().finalized());
+		assertEquals(0, next.getFirst().unsealed());
 	}
 
 	@Test
-	public void incompleteLastLineIsPreservedAndNewHeaderStartsOnANewLine() throws Exception {
+	public void fileCutInTheMiddleOfARecordIsLeftAsItIs() throws Exception {
 		Path root = temporary.getRoot().toPath();
 		try (AuditFileStore store = store(root, "old", AuditSealLimits.DEFAULT, new ArrayList<>())) {
 			store.append("A", List.of(record("clock.start", "clock=1:00")), true);
@@ -184,9 +185,10 @@ public class AuditFileStoreTest {
 		try (AuditFileStore store = store(root, "new", AuditSealLimits.DEFAULT, new ArrayList<>())) {
 			store.append("A", List.of(record("clock.stop", "clock=0:59")), true);
 		}
-		String after = Files.readString(file);
-		assertTrue(after.startsWith(before + "\n    1 | "));
-		assertTrue(after.contains("runId=new"));
+		assertEquals(before, Files.readString(file));
+		String next = Files.readString(files(root).getLast());
+		assertTrue(next.startsWith("    1 | "));
+		assertTrue(next.contains("runId=new"));
 	}
 
 	@Test

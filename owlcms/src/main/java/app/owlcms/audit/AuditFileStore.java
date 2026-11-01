@@ -84,7 +84,8 @@ public final class AuditFileStore implements AutoCloseable {
 			}
 			OffsetDateTime openedAt = records.isEmpty() ? OffsetDateTime.now(this.clock)
 					: records.getFirst().timestamp();
-			state = open(stream, latest(prefix), null, null, openedAt);
+			// each run starts new files: a file left by a stop, a crash or a restore is never written again
+			state = open(stream, null, null, openedAt);
 			this.streams.put(stream, state);
 		}
 		for (AuditRecordSnapshot record : records) {
@@ -218,12 +219,12 @@ public final class AuditFileStore implements AutoCloseable {
 		state.plain.close();
 		verifyCurrentSegment(state);
 		String previousHash = state.segment.lastBlockHash();
-		FileState next = open(stream, null, state.path.getFileName().toString(), previousHash, openedAt);
+		FileState next = open(stream, state.path.getFileName().toString(), previousHash, openedAt);
 		this.streams.put(stream, next);
 		return next;
 	}
 
-	private FileState open(String stream, Path latest, String previousFile, String previousHash,
+	private FileState open(String stream, String previousFile, String previousHash,
 			OffsetDateTime requestedOpenedAt) throws IOException {
 		OffsetDateTime previousStamp = this.lastTimestamps.get(stream);
 		OffsetDateTime openedAt = requestedOpenedAt != null ? requestedOpenedAt : OffsetDateTime.now(this.clock);
@@ -233,41 +234,27 @@ public final class AuditFileStore implements AutoCloseable {
 		String prefix = sanitize(stream);
 		Path path;
 		FileChannel channel;
-		if (latest != null && Files.size(latest) < this.limits.fileBytes()) {
-			path = latest;
-			channel = FileChannel.open(path, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
-		} else {
-			Instant stamp = this.clock.instant().truncatedTo(ChronoUnit.MILLIS);
-			Path newest = latest(prefix);
-			if (newest != null) {
-				String name = newest.getFileName().toString();
-				Instant lastStamp = Instant.from(NAME_TIME.parse(
-						name.substring(prefix.length() + SEALED_INFIX.length(), name.length() - 4)));
-				if (!stamp.isAfter(lastStamp)) {
-					stamp = lastStamp.plusMillis(1);
-				}
-			}
-			while (true) {
-				path = this.directory.resolve(prefix + SEALED_INFIX + NAME_TIME.format(stamp) + ".log");
-				try {
-					channel = FileChannel.open(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
-					break;
-				} catch (FileAlreadyExistsException e) {
-					stamp = stamp.plusMillis(1);
-				}
+		Instant stamp = this.clock.instant().truncatedTo(ChronoUnit.MILLIS);
+		Path newest = latest(prefix);
+		if (newest != null) {
+			String name = newest.getFileName().toString();
+			Instant lastStamp = Instant.from(NAME_TIME.parse(
+					name.substring(prefix.length() + SEALED_INFIX.length(), name.length() - 4)));
+			if (!stamp.isAfter(lastStamp)) {
+				stamp = lastStamp.plusMillis(1);
 			}
 		}
-		ChannelOutput output = new ChannelOutput(channel, channel.size());
-		try {
-			if (output.bytes > 0) {
-				try (FileChannel read = FileChannel.open(path, StandardOpenOption.READ)) {
-					ByteBuffer last = ByteBuffer.allocate(1);
-					read.read(last, output.bytes - 1);
-					if (last.array()[0] != '\n') {
-						output.write('\n');
-					}
-				}
+		while (true) {
+			path = this.directory.resolve(prefix + SEALED_INFIX + NAME_TIME.format(stamp) + ".log");
+			try {
+				channel = FileChannel.open(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+				break;
+			} catch (FileAlreadyExistsException e) {
+				stamp = stamp.plusMillis(1);
 			}
+		}
+		ChannelOutput output = new ChannelOutput(channel, 0);
+		try {
 			long start = output.bytes;
 			String detail = AuditFormat.kvs("version", this.version, "runId", this.runId,
 					"publicKey", this.key.publicKeyBase64(), "keyFingerprint", this.key.fingerprint(),

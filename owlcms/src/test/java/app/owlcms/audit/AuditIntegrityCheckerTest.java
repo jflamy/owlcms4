@@ -78,6 +78,24 @@ public class AuditIntegrityCheckerTest {
 	}
 
 	@Test
+	public void copyCutInTheMiddleOfARecordIsIntactButPartial() throws Exception {
+		Path root = temporary.newFolder().toPath();
+		AuditFileStore store = store(root, AuditSigningKey.builtin(), "copied", AuditSealLimits.DEFAULT);
+		store.append("A", List.of(record("athlete.change", "change=1")), true);
+		store.append("A", List.of(record("clock.start", "clock=1:00")), false);
+		store.abort();
+		Path file = AuditFileStoreTest.files(root).getFirst();
+		String text = Files.readString(file);
+		Files.writeString(file, text.substring(0, text.lastIndexOf("clock=1:00") + 3));
+
+		Report report = AuditIntegrityChecker.check(root);
+
+		assertEquals(report.failures().toString(), Integrity.INTACT, report.integrity());
+		assertEquals(Coverage.PARTIAL, report.coverage());
+		assertFalse(report.segments().getFirst().finalized());
+	}
+
+	@Test
 	public void fileOpenInThisProcessIsReportedAsBeingWritten() throws Exception {
 		Path root = temporary.newFolder().toPath();
 		try (AuditFileStore store = store(root, AuditSigningKey.builtin(), "live", AuditSealLimits.DEFAULT)) {

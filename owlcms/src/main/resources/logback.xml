@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- production logback file, writes to logs/owlcms.log, creates new files daily -->
+<!-- production logback file, writes to logs/owlcms.log, creates new files daily and every 10 MB -->
 <!-- Docker: detailed logs with source locations to logs/owlcms.log -->
 <!-- Control Panel: detailed logs to logs/owlcms.log + logs/startup.log (when OWLCMS_CONTROLPANEL or OWLCMS_LAUNCHER is set) -->
 <configuration scan="true" debug="false">
@@ -9,9 +9,10 @@
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/owlcms.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- daily rollover -->
-            <fileNamePattern>logs/owlcms_%d{yyyy-MM-dd}.log</fileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- daily rollover, and at 10 MB so that recovery checkpoints copy a bounded active file -->
+            <fileNamePattern>logs/owlcms_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>

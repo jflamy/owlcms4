@@ -396,7 +396,7 @@ The public-key fingerprint is the full SHA-256 of the Ed25519 public key's DER S
 
 Each segment starts with `audit.open` at sequence 1 and repeats the run ID, Base64 SubjectPublicKeyInfo public key, full fingerprint and `keySource` (`builtin` when the built-in default key of §3.0 is used, `configured` otherwise).
 
-A file may hold several runs. A restart appends a new `audit.open` and `FIRST` to the latest file for that stream when it remains below the rollover size. If the previous run was stopped abruptly, its last lines are unsealed and are reported as not validated (§2.4). The checker splits a file at every `audit.open`, not only at its first line.
+Each run starts new files: the first record of a stream after a start opens a new `_sealed_` file (and its plain companion), whatever the size of that stream's latest file. A file left by an orderly stop, a crash, or a restore from a checkpoint is never written again; if the run was stopped abruptly, its last lines are unsealed and are reported as not validated (§2.4). Files written before this change may still hold several runs, so the checker splits a file at every `audit.open`, not only at its first line.
 
 At process start or restart, `audit.open` has no predecessor fields and is sealed immediately by `FIRST`. After size rollover in the same process run, the new file's `audit.open` also names the previous file and repeats the previous signed `FINAL` line's `lastBlockSha256`; it is sealed immediately by `CONTINUE`. The filename plus that last-block hash is the link to the previous file. If the process crashes before the next `SEAL`, the segment still has a validated header identifying the run and key. A restart may use the same key or a different key. Block chains do not cross process runs, and verification selects the applicable key separately for each run.
 
@@ -422,11 +422,11 @@ A_sealed_2026-10-08T14-05-02.481Z.log
 competition_sealed_2026-10-08T09-16-40.127Z.log
 ```
 
-Plain companions use the same names with `_plain_` in place of `_sealed_`. The ISO date-time sorts correctly, so `cat A_plain_*` lists a stream's events in order. When a later run appends to a sealed file (below), its plain companion is appended too, so sequence numbers restart within the file at each run.
+Plain companions use the same names with `_plain_` in place of `_sealed_`. The ISO date-time sorts correctly, so `cat A_plain_*` lists a stream's events in order.
 
 The ISO date-time makes sequencing implicit and the file is created with create-new semantics so an existing file is never overwritten. The signed `previousFile` plus `previousBlockSha256` link remains the authoritative order if the system clock is adjusted. Time does not trigger rollover.
 
-At orderly shutdown, close the partial batch, drain pending seals and append the signed `FINAL` line containing the current run's total audit-record count (§2.2). The file may be reopened in append mode by a later run if it remains below the rollover target; the previous `FINAL` then ends that run segment, not necessarily the physical file forever.
+At orderly shutdown, close the partial batch, drain pending seals and append the signed `FINAL` line containing the current run's total audit-record count (§2.2). The file is then closed for good: the next run starts new files (§2.3).
 
 The audit logging component owns this: it registers its own JVM shutdown hook to write `FINAL`, and does not depend on Logback stopping its appenders or on any other part of the application. Each line is written to its file as it is produced, so records already written survive any exit. The hook runs on a normal exit, Ctrl-C or SIGTERM, but not on a forced kill, a JVM crash or a power loss, so `FINAL` is best-effort and is never relied upon.
 
@@ -799,9 +799,9 @@ The About page ([InfoNavigationContent.java](../../owlcms/src/main/java/app/owlc
 
 ### 8.4 Existing Log When a Key Is Prepared
 
-Preparing a key does not rewrite or re-sign existing audit records. The normal restart closes the current run as far as possible, and the restarted process appends a new `audit.open` and `FIRST` using the newly loaded key.
+Preparing a key does not rewrite or re-sign existing audit records. The normal restart closes the current run as far as possible, and the restarted process opens new files whose `audit.open` and `FIRST` use the newly loaded key.
 
-The same daily log may therefore contain consecutive ranges signed by different keys:
+The same day's logs may therefore contain consecutive files signed by different keys:
 
 - ranges written by earlier versions without sealing are unsealed and are reported as `UNSEALED / NOT_ASSESSED / NONE`;
 - if no PEM existed before preparation, the earlier ranges are signed with the built-in key and are reported as `INTACT / COMPLETE / BUILTIN` when otherwise complete;

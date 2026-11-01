@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -91,21 +92,26 @@ public class AuditLogPersistenceTest {
 	}
 
 	@Test
-	public void forcedProcessStopPreservesUnsealedTailAcrossRestart() throws Exception {
+	public void forcedProcessStopLeavesTheCrashedFileUnchangedAcrossRestart() throws Exception {
 		Path root = temporary.newFolder().toPath();
 		runFixture(root, "crash");
-		Path file = AuditFileStoreTest.files(root.resolve("logs/audit")).getFirst();
-		String before = Files.readString(file);
+		List<Path> crashedFiles = AuditFileStoreTest.files(root.resolve("logs/audit"));
+		Path file = crashedFiles.getFirst();
+		byte[] before = Files.readAllBytes(file);
 		AuditFileStoreTest.Checked crashed = AuditFileStoreTest.check(file).getFirst();
 		assertFalse(crashed.finalized());
 		assertEquals(1, crashed.unsealed());
 		runFixture(root, "sealed");
-		assertTrue(Files.readString(file).startsWith(before));
+		assertTrue(Arrays.equals(before, Files.readAllBytes(file)));
 		List<AuditFileStoreTest.Checked> segments = AuditFileStoreTest.check(file);
-		assertEquals(2, segments.size());
+		assertEquals(1, segments.size());
 		assertFalse(segments.getFirst().finalized());
 		assertEquals(1, segments.getFirst().unsealed());
-		assertTrue(segments.getLast().finalized());
+		for (Path next : AuditFileStoreTest.files(root.resolve("logs/audit"))) {
+			if (!crashedFiles.contains(next)) {
+				assertTrue(AuditFileStoreTest.check(next).getFirst().finalized());
+			}
+		}
 	}
 
 	@Test
