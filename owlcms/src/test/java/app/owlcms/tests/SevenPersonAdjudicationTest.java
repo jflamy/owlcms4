@@ -241,6 +241,15 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
+	public void juryDecisionsEnabledDoesNotHoldDecisionWithoutJury() {
+		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, true);
+		this.fop.setJurySize(0);
+		lift(W, W, W);
+		assertFalse(this.fop.isJuryVotesAwaited());
+		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+	}
+
+	@Test
 	public void reviewStartsWhenTheHeldDecisionClears() {
 		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, true);
 		lift(W, W, W);

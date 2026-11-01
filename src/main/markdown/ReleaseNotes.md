@@ -11,6 +11,13 @@
 
 **Development log**
 
+- 69.0.0-beta02: Attempt boards show jury votes by default when a jury is configured; the display option can turn them off for an individual board.
+  - With the feature on, the decision stays visible while jury votes are pending; a supervisor can override the clock start if needed.
+
+- 69.0.0-beta02: Scoreboards show jury decisions by default (`juryDecisionsOnScoreboard` feature switch is now on by default).
+
+- 69.0.0-beta02: Warmup scoreboards show the bottom decision section by default (`decisionSectionOnWarmupScoreboard` feature switch is now on by default).
+
 - 69.0.0-beta02: Checkpoints: the tracker's new "Checkpoints" page
   - copies the competition and its logs from OWLCMS to a folder on the tracker machine at regular intervals
   - requires the competition supervisor token when running with accounts enabled, the Officials PIN in simple mode

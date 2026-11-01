@@ -150,9 +150,9 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage
 	}
 
 	private void setShowJuryDecisions(boolean show) {
-		this.showJuryDecisions = show;
+		this.showJuryDecisions = DecisionDisplayRules.showJuryDecisionsOnAttemptBoard(getJurySize(), show);
 		if (getBoard() instanceof AttemptBoard board) {
-			board.getDecisions().setShowJuryDecisions(show);
+			board.getDecisions().setShowJuryDecisions(this.showJuryDecisions);
 		}
 	}
 

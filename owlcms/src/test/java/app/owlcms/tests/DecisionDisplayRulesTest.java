@@ -25,10 +25,14 @@ public class DecisionDisplayRulesTest {
 	}
 
 	@Test
-	public void attemptBoardJuryDecisionsRequireJuryAndFeature() {
+	public void attemptBoardJuryDecisionsRequireJuryAndSelection() {
+		assertFalse(DecisionDisplayRules.showJuryDecisionsOnAttemptBoard(-1, true));
 		assertFalse(DecisionDisplayRules.showJuryDecisionsOnAttemptBoard(0, false));
 		assertFalse(DecisionDisplayRules.showJuryDecisionsOnAttemptBoard(0, true));
 		assertFalse(DecisionDisplayRules.showJuryDecisionsOnAttemptBoard(3, false));
+		assertTrue(DecisionDisplayRules.showJuryDecisionsOnAttemptBoard(1, true));
 		assertTrue(DecisionDisplayRules.showJuryDecisionsOnAttemptBoard(3, true));
+		assertTrue(DecisionDisplayRules.showJuryDecisionsOnAttemptBoard(4, true));
+		assertTrue(DecisionDisplayRules.showJuryDecisionsOnAttemptBoard(5, true));
 	}
 }
