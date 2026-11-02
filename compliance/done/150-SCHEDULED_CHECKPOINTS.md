@@ -138,11 +138,12 @@ A tracker plugin; tracker-core is not modified.
   error. A wrong PIN retried every minute would keep the officials PIN locked out for
   everyone (the servlet counts failures with the PIN logins); the operator fixes the secret
   and presses Start again.
-- **Storage:** see the checkpoint folder below. Download to a temporary name that does not
-  end in `.json` or `.zip`, check that it is a complete ZIP with a `.json` entry and no entry
-  outside its own tree (no absolute path, no `..`), then rename it into `zips/` under the
-  name OWLCMS sent, so names sort in time order, and unpack it. A failed or incomplete
-  transfer changes nothing.
+- **Storage:** see the checkpoint folder below. Download to a `.part` name, reject entries
+  outside the checkpoint tree (absolute paths, `..`) and extract once into a hidden pending
+  folder. If extraction fails, discard it. Move the new database into the checkpoint folder
+  first, then merge the changed logs, remove older databases last, and only then rename the
+  ZIP to the name OWLCMS sent. Until that final rename, the cursor does not advance; after a
+  tracker restart the pending ZIP is completed before another request is made.
 
 ### Checkpoint folder: a ready image
 
@@ -153,15 +154,18 @@ A tracker plugin; tracker-core is not modified.
   zips/2026-10-31T20-37-42.123Z.zip    every checkpoint, as received
 ```
 
-- **Unpack:** each stored zip is extracted over the folder, each file written to a
-  temporary name and then renamed, so newer copies replace older ones and an interrupted
-  unpack leaves whole files. Then the older `database_v2_*.json` files are deleted. The
-  folder is always the most recent image: one export and the newest copy of every log file.
+- **Unpack:** each received ZIP is extracted once into a hidden pending folder. Its new
+  database is moved into the checkpoint folder first, then its changed logs are moved over
+  older copies; unchanged logs remain where they are. Older `database_v2_*.json` files are
+  deleted only after the log merge. An interrupted merge may temporarily leave both the old
+  and new complete exports, and is repeated from the pending ZIP; after completion the folder
+  has one export and the newest copy of every log file.
 - **Stash:** the zips stay in `zips/`, kept as received, so any earlier state can be
   recovered and the image can be rebuilt by unpacking them in name order.
   `OWLCMS_LOADJSON` lists only the files directly in the folder, so it never sees them.
-- **Cursor:** `since` is the timestamp in the name of the newest zip in `zips/`. A failed
-  transfer stores nothing, so the cursor does not move and nothing is skipped. The cursor
+- **Cursor:** `since` is the timestamp in the name of the newest completed zip in `zips/`.
+  A failed transfer or merge does not complete its `.part` ZIP, so the cursor does not move
+  and nothing is skipped. The cursor
   survives OWLCMS restarts: files closed when OWLCMS stopped are newer than it, so the first
   checkpoint after the restart brings them. Only the first call into an empty folder has no
   `since`.
@@ -260,10 +264,11 @@ never decrypts anything.
   Start names; a tracker restart resumes polling only if it was started; pull on
   `database:received` and at every interval whether or not activity occurred; while OWLCMS
   does not answer, one attempt per minute until it does; a 401, 403 or 429 stops polling
-  with the error shown; failed or interrupted
-  transfer leaves the folder unchanged; stored zips are byte-identical to what OWLCMS sent;
-  after each unpack the folder holds exactly one `.json`, the latest; a zip with an entry
-  outside its tree is rejected.
+  with the error shown; a corrupt pending ZIP is discarded and requested again from the
+  previous cursor; an interrupted merge makes the new database available first and is
+  completed before another request; completed zips are byte-identical to what OWLCMS sent;
+  after each completed unpack the folder holds exactly one `.json`, the latest; a zip with
+  an entry outside its tree is rejected.
 - Logs: a file closed by size, by a Backup page rollover or by an OWLCMS stop reaches
   `logs/` with the next checkpoint and is not sent again; a failed transfer delays it to the
   following checkpoint without losing it; once OWLCMS has stopped and the next checkpoint is

@@ -21,13 +21,13 @@
 .bar {
 	height: 1.5ex;
 	width: 2.5em;
-	background-color: grey;
+	background-color: var(--bar-tint, grey);
 }
 
 .barInner {
 	height: 4.5ex;
 	width: 1em;
-	background-color: grey;
+	background-color: var(--bar-tint, grey);
 	-moz-border-radius: 0.2em;
 	-webkit-border-radius: 0.2em;
 	border-radius: 0.2em;
@@ -36,7 +36,11 @@
 .barOuter {
 	height: 2.5ex;
 	width: 1.5em;
-	background-color: grey;
+	background-color: var(--bar-tint, grey);
+}
+
+.bore-hole {
+	display: none;
 }
 
 .L_25 {
@@ -126,6 +130,330 @@
 	width: 0.65em;
 	background-color: white;
 }
+
+/* === 3D Attempt Board Look (FeatureSwitch.THREE_D_ATTEMPT_BOARD / 3DattemptBoard) === */
+
+.barbell:has(> .loadChart.threeD) {
+	justify-self: stretch;
+	align-self: stretch;
+	place-items: center;
+	width: 100%;
+	height: 100%;
+	min-width: 0;
+	min-height: 0;
+	container-type: size;
+	overflow: hidden;
+}
+
+.loadChart.threeD {
+	--width-ratio: calc(0.28 + var(--sleeve-mm, 320) / 450);
+	--diameter: min(100cqh, calc(100cqw / var(--width-ratio)));
+	--face-aspect: 0.27;
+	--label-scale-x: 0.55;
+	--bar-diameter: calc(var(--diameter) * 0.062);
+	--flange-diameter: calc(var(--diameter) * 80 / 450);
+	--flange-width: calc(var(--diameter) * 30 / 450);
+	--sleeve-diameter: calc(var(--diameter) * 50 / 450);
+	--sleeve-length: calc(var(--diameter) * var(--sleeve-mm, 320) / 450);
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	width: calc(var(--diameter) * 0.18 + var(--flange-width) + var(--sleeve-length));
+	height: 100%;
+	box-sizing: border-box;
+}
+
+#loadchart.threeD {
+	--diameter: 12em;
+}
+
+.loadChart.threeD > * {
+	position: relative;
+	flex: 0 1 auto;
+	min-width: 0;
+	box-sizing: border-box;
+}
+
+.loadChart.threeD .plate {
+	--size: 1;
+	--thickness: calc(39 / 450);
+	--rx: calc(var(--diameter) * var(--size) * var(--face-aspect) * 0.5);
+	--side-shading:
+		linear-gradient(to left, rgba(255, 255, 255, 0.1) 0%, transparent 35%, rgba(0, 0, 0, 0.32) 100%),
+		linear-gradient(to bottom,
+			color-mix(in srgb, var(--plate-color) 72%, var(--plate-dark)) 0%,
+			var(--plate-light) 18%,
+			var(--plate-color) 42%,
+			var(--plate-color) 62%,
+			color-mix(in srgb, var(--plate-color) 45%, var(--plate-dark)) 82%,
+			var(--plate-dark) 100%);
+	z-index: var(--stack-order);
+	width: calc(var(--diameter) * var(--thickness) + 2 * var(--rx));
+	height: calc(var(--diameter) * var(--size));
+	margin-block: 0;
+	margin-inline: calc(-1 * var(--rx));
+	border: none;
+	border-radius: var(--rx) / 50%;
+	background: var(--side-shading);
+	box-shadow: inset 2px 0 4px rgba(0, 0, 0, 0.55);
+	overflow: visible;
+}
+
+.loadChart.threeD .plate::before {
+	content: var(--plate-label);
+	position: absolute;
+	left: calc(100% - var(--rx));
+	top: 0;
+	box-sizing: border-box;
+	height: 100%;
+	aspect-ratio: calc(var(--face-aspect) / var(--label-scale-x));
+	padding-top: calc(var(--diameter) * var(--size) * 0.09);
+	transform: translateX(-50%) scaleX(var(--label-scale-x));
+	border-radius: 50%;
+	background:
+		radial-gradient(closest-side, transparent 78%, rgba(255, 255, 255, 0.12) 79%, rgba(0, 0, 0, 0.22) 81%, transparent 82%),
+		radial-gradient(ellipse at 38% 28%, var(--plate-light) 0%, var(--plate-color) 52%, var(--plate-dark) 100%);
+	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.5), inset 2px 0 4px rgba(255, 255, 255, 0.14);
+	text-align: center;
+	color: var(--mark-color, rgba(255, 255, 255, 0.78));
+	font-family: Arial, sans-serif;
+	font-size: calc(var(--diameter) * var(--size) * 0.095);
+	font-weight: 700;
+	line-height: 0.9;
+	text-shadow: var(--mark-shadow, 0 1px 2px rgba(0, 0, 0, 0.75));
+}
+
+.loadChart.threeD .plate::after {
+	content: 'KG';
+	position: absolute;
+	left: calc(100% - var(--rx));
+	top: calc(var(--diameter) * var(--size) * 0.178);
+	transform: translateX(-50%) scaleX(var(--label-scale-x));
+	text-align: center;
+	color: var(--mark-color, rgba(255, 255, 255, 0.78));
+	font-family: Arial, sans-serif;
+	font-size: calc(var(--diameter) * var(--size) * 0.04);
+	font-weight: 700;
+	line-height: 0.9;
+	letter-spacing: 0.04em;
+	text-shadow: var(--mark-shadow, 0 1px 2px rgba(0, 0, 0, 0.75));
+	pointer-events: none;
+}
+
+.loadChart.threeD .bar,
+.loadChart.threeD .barInner,
+.loadChart.threeD .barOuter {
+	--bar-shading: linear-gradient(to bottom, #3c4548, #9ea9aa 18%, #f3f5f1 36%,
+		var(--bar-tint, #a4afb0) 48%, #535f62 66%, #d2d8d5 82%, #313a3d);
+}
+
+.loadChart.threeD .bar {
+	--rx: calc(var(--bar-diameter) * 0.22);
+	flex: 0 0 calc(var(--diameter) * 0.18 + 2 * var(--rx));
+	width: calc(var(--diameter) * 0.18 + 2 * var(--rx));
+	height: var(--bar-diameter);
+	margin-inline: calc(-1 * var(--rx));
+	border-radius: calc(var(--bar-diameter) * 0.36) / 50%;
+	background:
+		linear-gradient(to right, rgba(0, 0, 0, 0.42) 0%, rgba(255, 255, 255, 0.18) 6%, transparent 16%),
+		var(--bar-shading);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.7), inset 2px 0 3px rgba(0, 0, 0, 0.65);
+}
+
+.loadChart.threeD .barInner {
+	--rx: calc(var(--flange-diameter) * var(--face-aspect) * 0.5);
+	z-index: var(--stack-order);
+	flex: 0 0 calc(var(--flange-width) + 2 * var(--rx));
+	width: calc(var(--flange-width) + 2 * var(--rx));
+	height: var(--flange-diameter);
+	margin-inline: calc(-1 * var(--rx));
+	border-radius: var(--rx) / 50%;
+	background:
+		linear-gradient(to left, rgba(255, 255, 255, 0.14) 0%, transparent 35%, rgba(0, 0, 0, 0.35) 100%),
+		var(--bar-shading);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.7), inset 2px 0 3px rgba(0, 0, 0, 0.5);
+}
+
+.loadChart.threeD .barInner::after {
+	content: '';
+	position: absolute;
+	left: calc(100% - var(--rx));
+	top: 0;
+	height: 100%;
+	aspect-ratio: var(--face-aspect);
+	transform: translateX(-50%);
+	border-radius: 50%;
+	background: radial-gradient(ellipse at 36% 32%, #f3f5f1 0%, var(--bar-tint, #a4afb0) 52%, #343e40 100%);
+	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.5), inset 2px 0 4px rgba(255, 255, 255, 0.14);
+}
+
+.loadChart.threeD .barOuter {
+	--rx: calc(var(--sleeve-diameter) * var(--face-aspect) * 0.5);
+	z-index: 1000;
+	flex: 1 0 calc(var(--diameter) * 0.04 + 2 * var(--rx));
+	width: auto;
+	height: var(--sleeve-diameter);
+	margin-inline: calc(-1 * var(--rx));
+	border-radius: var(--rx) / 50%;
+	background:
+		linear-gradient(to right, rgba(0, 0, 0, 0.38) 0%, transparent 10%),
+		linear-gradient(to left, rgba(0, 0, 0, 0.35) 0%, rgba(255, 255, 255, 0.16) 10%, transparent 28%),
+		var(--bar-shading);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.7), inset 2px 0 3px rgba(0, 0, 0, 0.45);
+}
+
+.loadChart.threeD .barOuter::before {
+	content: '';
+	position: absolute;
+	left: calc(100% - var(--rx));
+	top: 0;
+	height: 100%;
+	aspect-ratio: var(--face-aspect);
+	transform: translateX(-50%);
+	border-radius: 50%;
+	background: radial-gradient(ellipse at 35% 32%, #ffffff 0%, #e4e9e8 28%, var(--bar-tint, #9aa5a6) 62%, #2c3537 100%);
+	box-shadow: -2px 0 3px rgba(0, 0, 0, 0.45), inset 0 0 0 1.5px rgba(25, 32, 34, 0.75), inset 2px 0 4px rgba(255, 255, 255, 0.45);
+}
+
+.loadChart.threeD .barOuter::after {
+	content: '';
+	position: absolute;
+	left: calc(100% - var(--rx));
+	top: 16%;
+	height: 68%;
+	aspect-ratio: var(--face-aspect);
+	transform: translateX(-50%);
+	border-radius: 50%;
+	border: 1px solid rgba(40, 48, 50, 0.45);
+	background: radial-gradient(ellipse at 40% 38%, #f7f9f8 0%, var(--bar-tint, #8f9a9b) 65%, #3c4648 100%);
+}
+
+.loadChart.threeD .bore-hole {
+	--bore-diameter: calc(var(--diameter) * 58 / 450);
+	display: block;
+	position: relative;
+	flex: 0 0 0;
+	width: 0;
+	height: var(--bore-diameter);
+	z-index: var(--stack-order);
+}
+
+.loadChart.threeD .bore-hole::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	box-sizing: border-box;
+	height: 100%;
+	aspect-ratio: var(--face-aspect);
+	transform: translateX(-50%);
+	border-radius: 50%;
+	background: radial-gradient(ellipse at 62% 55%, #1d2223 0%, #090b0c 68%, #020303 100%);
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	box-shadow:
+		inset 2px 0 3px rgba(0, 0, 0, 0.9),
+		0 0 2px rgba(0, 0, 0, 0.65);
+}
+
+.loadChart.threeD .C_2_5 {
+	--size: calc(120 / 450);
+	--thickness: calc(60 / 450);
+	--rx: calc(var(--diameter) * var(--size) * var(--face-aspect) * 0.5);
+	--plate-color: #5b6463;
+	--plate-light: #9ea8a6;
+	--plate-dark: #232929;
+	--side-shading:
+		linear-gradient(to left, rgba(255, 255, 255, 0.12) 0%, transparent 35%, rgba(0, 0, 0, 0.34) 100%),
+		linear-gradient(to bottom,
+			color-mix(in srgb, var(--plate-color) 72%, var(--plate-dark)) 0%,
+			var(--plate-light) 18%,
+			var(--plate-color) 42%,
+			var(--plate-color) 62%,
+			color-mix(in srgb, var(--plate-color) 45%, var(--plate-dark)) 82%,
+			var(--plate-dark) 100%);
+	z-index: var(--stack-order);
+	width: calc(var(--diameter) * var(--thickness) + 2 * var(--rx));
+	height: calc(var(--diameter) * var(--size));
+	margin-block: 0;
+	margin-inline: calc(-1 * var(--rx));
+	border: none;
+	border-radius: var(--rx) / 50%;
+	background: var(--side-shading);
+	box-shadow: inset 2px 0 4px rgba(0, 0, 0, 0.55);
+}
+
+.loadChart.threeD .C_2_5::before {
+	content: '';
+	position: absolute;
+	left: calc(100% - var(--rx));
+	top: 0;
+	height: 100%;
+	aspect-ratio: var(--face-aspect);
+	transform: translateX(-50%);
+	border-radius: 50%;
+	background: radial-gradient(ellipse at 38% 28%, var(--plate-light) 0%, var(--plate-color) 52%, var(--plate-dark) 100%);
+	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.5), inset 2px 0 4px rgba(255, 255, 255, 0.14);
+}
+
+.loadChart.threeD .C_2_5::after {
+	content: '';
+	position: absolute;
+	left: calc(100% - var(--rx));
+	top: 23%;
+	height: 54%;
+	aspect-ratio: var(--face-aspect);
+	transform: translateX(-50%);
+	border-radius: 50%;
+	border: 1px solid rgba(255, 255, 255, 0.14);
+	box-shadow: inset 1px 0 2px rgba(0, 0, 0, 0.3);
+}
+
+.loadChart.threeD :is(.L_25, .L_2_5, .S_2_5) {
+	--plate-color: #9d2832;
+	--plate-light: #d65b60;
+	--plate-dark: #4a101a;
+}
+
+.loadChart.threeD :is(.L_20, .S_2) {
+	--plate-color: #205680;
+	--plate-light: #5e95bc;
+	--plate-dark: #102b46;
+}
+
+.loadChart.threeD :is(.L_15, .S_1_5) {
+	--plate-color: #b39320;
+	--plate-light: #f0d563;
+	--plate-dark: #5c4a0b;
+	--mark-color: #29230d;
+	--mark-shadow: 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+
+.loadChart.threeD :is(.L_10, .S_1) {
+	--plate-color: #286541;
+	--plate-light: #63a879;
+	--plate-dark: #123620;
+}
+
+.loadChart.threeD :is(.L_5, .S_5, .S_0_5) {
+	--plate-color: #d6dcda;
+	--plate-light: #ffffff;
+	--plate-dark: #727d7b;
+	--mark-color: #303837;
+	--mark-shadow: 0 1px 1px rgba(255, 255, 255, 0.6);
+}
+
+.loadChart.threeD .L_25 { --thickness: calc(58 / 450); --plate-label: '25'; }
+.loadChart.threeD .L_20 { --thickness: calc(50 / 450); --plate-label: '20'; }
+.loadChart.threeD .L_15 { --thickness: calc(39 / 450); --plate-label: '15'; }
+.loadChart.threeD .L_10 { --thickness: calc(35 / 450); --plate-label: '10'; }
+.loadChart.threeD .L_5 { --thickness: calc(26 / 450); --plate-label: '5'; }
+.loadChart.threeD .L_2_5 { --thickness: calc(19 / 450); --plate-label: '2.5'; }
+.loadChart.threeD .S_5 { --size: 0.58; --thickness: calc(26 / 450); --plate-label: '5'; }
+.loadChart.threeD .S_2_5 { --size: 0.50; --thickness: calc(19 / 450); --plate-label: '2.5'; }
+.loadChart.threeD .S_2 { --size: 0.46; --thickness: calc(19 / 450); --plate-label: '2'; }
+.loadChart.threeD .S_1_5 { --size: 0.42; --thickness: calc(19 / 450); --plate-label: '1.5'; }
+.loadChart.threeD .S_1 { --size: 0.38; --thickness: calc(19 / 450); --plate-label: '1'; }
+.loadChart.threeD .S_0_5 { --size: 0.34; --thickness: calc(12.5 / 450); --plate-label: '0.5'; }
 
 h1,h2,h3,h4,h5,h6 { margin-top: 1.25em; }
 h1 { margin-bottom: 0.75em; }

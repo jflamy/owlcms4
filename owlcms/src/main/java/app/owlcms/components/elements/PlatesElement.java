@@ -13,6 +13,7 @@ import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -69,7 +70,8 @@ public class PlatesElement extends FlexLayout {
 			NativeLabel plate = new NativeLabel();
 			plate.setSizeUndefined();
 			plate.getElement().getClassList().add(style);
-			if (!style.startsWith("bar") && !style.startsWith("C")) {
+			plate.getElement().getStyle().set("--stack-order", Integer.toString(this.getComponentCount() + 1));
+			if (!style.startsWith("bar") && !style.startsWith("C") && !style.equals("bore-hole")) {
 				plate.getElement().getClassList().add("plate");
 			} else if (fop.isLightBarInUse() && (style.startsWith("bar"))) {
 				int barWeight = fop.getBarWeight();
@@ -79,19 +81,23 @@ public class PlatesElement extends FlexLayout {
 					plate.getElement().getStyle().set("outline-style", "solid");
 				}
 
+				String barColor = null;
 				// brown is used for non-standard bar (typically 15lb, 7kg)
 				if (barWeight < 4.99) {
-					plate.getElement().getStyle().set("background-color", "brown");
+					barColor = "brown";
 				} else if (barWeight <= 5) {
-					plate.getElement().getStyle().set("background-color", "white");
+					barColor = "white";
 				} else if (barWeight < 9.99) {
-					plate.getElement().getStyle().set("background-color", "brown");
+					barColor = "brown";
 				} else if (barWeight <= 10) {
-					plate.getElement().getStyle().set("background-color", "limegreen");
+					barColor = "limegreen";
 				} else if (barWeight <= 15) {
-					plate.getElement().getStyle().set("background-color", "yellow");
+					barColor = "yellow";
 				} else if (barWeight <= 20) {
-					plate.getElement().getStyle().set("background-color", "blue");
+					barColor = "blue";
+				}
+				if (barColor != null) {
+					plate.getElement().getStyle().set("--bar-tint", barColor);
 				}
 			}
 			this.add(plate);
@@ -115,13 +121,18 @@ public class PlatesElement extends FlexLayout {
 		Platform platform = fop.getPlatform();
 		boolean outline = caption != null && !caption.isBlank();
 
-		if (this.getWeight() == 0) {
+		int totalWeight = this.getWeight();
+		if (totalWeight == 0) {
 			return;
 			// compute the bar and collar first.
 		}
 
+		int sleeveMm = totalWeight <= 150 ? 320 : totalWeight <= 210 ? 350 : 420;
+		this.getElement().getStyle().set("--sleeve-mm", Integer.toString(sleeveMm));
+		this.getElement().getClassList().set("threeD", FeatureSwitch.THREE_D_ATTEMPT_BOARD.isEffective());
+
 		// logger.debug("barWeight {}",barWeight);
-		int nonBarWeight = this.getWeight() - barWeight;
+		int nonBarWeight = totalWeight - barWeight;
 
 		addPlates(1, "bar", barWeight, fop, outline);
 
@@ -179,6 +190,9 @@ public class PlatesElement extends FlexLayout {
 				addPlates(platform.getNbS_1_5(), "S_1_5", 2 * 1.5, fop, outline);
 				addPlates(platform.getNbS_1(), "S_1", 2 * 1, fop, outline);
 				addPlates(platform.getNbS_0_5(), "S_0_5", 2 * 0.5, fop, outline);
+			if (this.getComponentCount() > 2) {
+				addPlates(1, "bore-hole", 0, fop, false);
+			}
 			addPlates(1, "barOuter", 0, fop, outline);
 		}
 	}
