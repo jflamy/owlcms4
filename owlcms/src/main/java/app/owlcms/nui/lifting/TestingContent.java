@@ -41,6 +41,7 @@ import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
+import app.owlcms.monitors.MQTTInterceptHandlers;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -342,19 +343,25 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 		for (Object o : globalClients) {
 			if (o == null) continue;
 			String s = o.toString();
-			if (s.contains("_owlcms_") || s.toLowerCase().contains("configmonitor")) continue;
-			// hide config connections: raw id starts with config_f OR descriptor starts with 'config'
-			try {
-				if (s.toLowerCase().startsWith("config_f")) continue;
-				String desc = lookupDescriptorForId(descriptors, s);
-				if (desc != null && desc.toLowerCase().startsWith("config")) continue;
-			} catch (Throwable t) {
-				// ignore and fall back to showing the id
-			}
+			if (isNotADevice(s, descriptors)) continue;
 			list.add(s);
 		}
 		java.util.Collections.sort(list);
 		return list;
+	}
+
+	/** Server connections and configuration channels (e.g. firmata's config monitor) are not devices. */
+	private boolean isNotADevice(String clientId, java.util.Map<String, String> descriptors) {
+		if (clientId.contains("_owlcms_") || clientId.toLowerCase().contains("configmonitor")
+		        || MQTTInterceptHandlers.isConfigClientId(clientId)) {
+			return true;
+		}
+		try {
+			String desc = lookupDescriptorForId(descriptors, clientId);
+			return desc != null && desc.toLowerCase().startsWith("config");
+		} catch (Throwable t) {
+			return false;
+		}
 	}
 
 	private void populateDevicesContainer(java.util.List<String> ids) {
@@ -460,12 +467,12 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 		startTesting.getElement().setAttribute("title", Translator.translate("StopCompetition"));
 
 
-		resumeCompetition = new Button(Translator.translate("ResumeCompetition"), new Icon(VaadinIcon.MICROPHONE),
+		resumeCompetition = new Button(Translator.translate("EndBreak"), new Icon(VaadinIcon.MICROPHONE),
 		        (e) -> {
 			        fop.fopEventPost(new FOPEvent.StartLifting(this));
 		        });
 		resumeCompetition.getElement().setAttribute("theme", "primary success");
-		resumeCompetition.getElement().setAttribute("title", Translator.translate("ResumeCompetition"));
+		resumeCompetition.getElement().setAttribute("title", Translator.translate("EndBreak"));
 		
 		startTesting.addClickListener(e -> {
 			startTesting.setEnabled(false);
@@ -492,7 +499,6 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 						}).start();
 			        });
 			//testDown.getElement().setAttribute("theme", "primary");
-			testDown.getElement().setAttribute("title", Translator.translate("ResumeCompetition"));
 			buttons.add(startTesting, resumeCompetition, testDown);
 		} else {
 			buttons.add(startTesting, resumeCompetition);
@@ -512,15 +518,7 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 		int count = 0;
 		for (Object o : globalClients) {
 			if (o == null) continue;
-			String s = o.toString();
-			if (s.contains("_owlcms_") || s.toLowerCase().contains("configmonitor")) continue;
-			try {
-				if (s.toLowerCase().startsWith("config_f")) continue;
-				String desc = lookupDescriptorForId(descriptors, s);
-				if (desc != null && desc.toLowerCase().startsWith("config")) continue;
-			} catch (Throwable t) {
-				// ignore and count the client
-			}
+			if (isNotADevice(o.toString(), descriptors)) continue;
 			count++;
 		}
 		return count;

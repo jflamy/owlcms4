@@ -1710,6 +1710,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	}
 
 	private void publishMqttDownSignal() throws MqttException, MqttPersistenceException {
+		logger.debug("{}MQTT down", FieldOfPlay.getLoggingName(this.getFop()));
 		String topic = "owlcms/fop/down/" + this.getFop().getName();
 		publish(topic, new MqttMessage());
 	}

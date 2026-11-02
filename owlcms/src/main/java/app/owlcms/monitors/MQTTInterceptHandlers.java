@@ -309,7 +309,7 @@ public class MQTTInterceptHandlers {
 		if (clientId == null) {
 			return false;
 		}
-		return clientId.toLowerCase().startsWith("config") && !clientId.toLowerCase().startsWith("config_f");
+		return clientId.toLowerCase().startsWith("config");
 	}
 
 	public static boolean isGenericClientId(String clientId) {
