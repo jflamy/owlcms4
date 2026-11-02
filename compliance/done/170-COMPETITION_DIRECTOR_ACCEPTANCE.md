@@ -1,19 +1,15 @@
-# Competition Director and Passive Speaker — Remaining Acceptance
+# Competition Director and Passive Speaker — Acceptance
 
-Status: implemented; focused Maven verification passes; translation keys are in
-`translation4.csv`. The implementation plan is archived in
-[done/COMPETITION_DIRECTOR_PAGE_IMPLEMENTATION_PLAN.md](done/COMPETITION_DIRECTOR_PAGE_IMPLEMENTATION_PLAN.md)
+Status: done. Implemented, and every browser acceptance check passed on 2026-11-02 (see
+[Results](#results--accounts-mode-run-2026-11-02)). The implementation plan is archived in
+[COMPETITION_DIRECTOR_PAGE_IMPLEMENTATION_PLAN.md](COMPETITION_DIRECTOR_PAGE_IMPLEMENTATION_PLAN.md)
 (analysis in
-[done/COMPETITION_DIRECTOR_PASSIVE_ANNOUNCER_ANALYSIS.md](done/COMPETITION_DIRECTOR_PASSIVE_ANNOUNCER_ANALYSIS.md)).
+[COMPETITION_DIRECTOR_PASSIVE_ANNOUNCER_ANALYSIS.md](COMPETITION_DIRECTOR_PASSIVE_ANNOUNCER_ANALYSIS.md)).
 
-Remaining:
-
-1. Browser acceptance: all checks passed on 2026-11-02 (see
-   [Results](#results--accounts-mode-run-2026-11-02)). An automated
-   version could still be added as a check in the `playwright` module (Java Playwright, like
-   `UpdateCheck`) launched with `OWLCMS_LOADJSON` pointing at the
-   `competition-director-acceptance.json` V2 fixture
-   ([DIRECT_JSON_BOOT.md](done/160-DIRECT_JSON_BOOT.md)).
+Possible follow-up, not required: an automated version of these checks in the `playwright`
+module (Java Playwright, like `UpdateCheck`), launched with `OWLCMS_LOADJSON` pointing at
+the `competition-director-acceptance.json` V2 fixture
+([DIRECT_JSON_BOOT.md](160-DIRECT_JSON_BOOT.md)).
 
 Configuration access (decided 2026-11-02): the Competition Supervisor needs every tab of
 Language and System Settings (Language and Time Zone, Connections, Features,

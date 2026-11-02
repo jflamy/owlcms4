@@ -13,7 +13,6 @@ None open. Lenient birth-date parsing is done: [BIRTHDATE_LENIENT_PARSE.md](done
 | Order | Document | Scope |
 | --- | --- | --- |
 | 145 | [Signed exports](145-SIGNED_EXPORTS.md) | PEM signature inside JSON exports, import outcomes in the audit trail, support procedures with and without the key |
-| 170 | [Competition Director acceptance](170-COMPETITION_DIRECTOR_ACCEPTANCE.md) | Remaining accounts/passive-page browser acceptance and configuration permissions |
 
 PEM-based account mode (100), account tokens (110), token-protected URLs (120) and
 export credential protection (140) are done:
@@ -28,6 +27,9 @@ stale-save check (136), the other access work (130) and direct JSON boot (160) a
 The browser check that a decision closes an athlete card, together with its pending
 confirmation, passed for announcer and referee decisions (180):
 [180-CARD_DIALOG_BROWSER_CHECK.md](done/180-CARD_DIALOG_BROWSER_CHECK.md).
+The Competition Supervisor page and the passive speaker passed browser acceptance in
+accounts and Simple Access modes, and the supervisor's configuration access is decided
+(170): [170-COMPETITION_DIRECTOR_ACCEPTANCE.md](done/170-COMPETITION_DIRECTOR_ACCEPTANCE.md).
 Checkpoint collection uses existing WebSocket authentication, not personal URL
 tokens. Scheduled checkpoints (150), including OWLCMS collection, the tracker plugin and
 control panel launch from a checkpoint, are implemented and archived in
