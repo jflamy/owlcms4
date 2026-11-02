@@ -52,8 +52,8 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
-import app.owlcms.access.RequiresRole;
-import app.owlcms.access.Role;
+import app.owlcms.access.Permission;
+import app.owlcms.access.RequiresPermission;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.NotificationUtils;
@@ -97,7 +97,7 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-@RequiresRole(Role.WEIGHIN)
+@RequiresPermission(Permission.WEIGHIN)
 @Route(value = "preparation/weighin", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/shared-styles.css")
 public class WeighinContent extends BaseContent

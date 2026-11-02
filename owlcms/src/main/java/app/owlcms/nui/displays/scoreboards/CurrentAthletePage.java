@@ -17,8 +17,8 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.QueryParameters;
-import app.owlcms.access.RequiresRole;
-import app.owlcms.access.Role;
+import app.owlcms.access.Permission;
+import app.owlcms.access.RequiresPermission;
 import app.owlcms.access.TokenAccessible;
 import com.vaadin.flow.router.Route;
 
@@ -32,7 +32,7 @@ import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@RequiresRole(value = { Role.DISPLAYS, Role.STREAMING }, platformBound = true)
+@RequiresPermission(value = { Permission.DISPLAYS, Permission.STREAMING }, platformBound = true)
 @TokenAccessible
 @Route("displays/currentathlete")
 

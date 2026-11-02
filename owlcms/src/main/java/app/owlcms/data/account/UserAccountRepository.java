@@ -217,7 +217,7 @@ public final class UserAccountRepository {
 		List<ExpectedAccount> expected = new ArrayList<>();
 		for (Role role : Role.values()) {
 			// the rules-defined Competition Director often does not use the system; grant it by hand when needed
-			if (!role.isGrantable() || role == Role.COMPETITION_DIRECTOR) {
+			if (role == Role.COMPETITION_DIRECTOR) {
 				continue;
 			}
 			List<String> scopes = role.isPlatformScopable() ? platforms : Collections.singletonList(null);

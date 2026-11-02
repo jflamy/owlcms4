@@ -38,9 +38,9 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
-import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Permission;
+import app.owlcms.access.RequiresPermission;
 import app.owlcms.access.AccessUi;
-import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
@@ -60,7 +60,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings({ "serial", "deprecation" })
-@RequiresRole(value = Role.JURY, platformBound = true)
+@RequiresPermission(value = Permission.JURY, platformBound = true)
 @Route(value = "jury")
 @CssImport(value = "./styles/shared-styles.css")
 public class JuryMobileContent extends BaseContent implements FOPParametersReader, SafeEventBusRegistration,
@@ -190,12 +190,12 @@ public class JuryMobileContent extends BaseContent implements FOPParametersReade
 
 	protected ComboBox<FieldOfPlay> createFopSelect() {
 		ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
-		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Role.JURY));
+		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Permission.JURY));
 		fopSelect.setPlaceholder(Translator.translate("SelectPlatform"));
 		fopSelect.setItems(fops);
 		fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
 		fopSelect.setWidth("10rem");
-		fopSelect.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Role.JURY), fops));
+		fopSelect.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Permission.JURY), fops));
 		return fopSelect;
 	}
 

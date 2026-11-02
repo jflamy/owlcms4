@@ -31,8 +31,8 @@ import app.owlcms.access.AccountModeAuthenticator;
 import app.owlcms.access.Capability;
 import app.owlcms.access.ImportGate;
 import app.owlcms.access.Principal;
-import app.owlcms.access.RequiresRole;
-import app.owlcms.access.Role;
+import app.owlcms.access.Permission;
+import app.owlcms.access.RequiresPermission;
 import app.owlcms.access.SameMachineProof;
 import app.owlcms.access.SecuritySettings;
 import app.owlcms.access.SecuritySettings.Outcome;
@@ -61,7 +61,7 @@ import app.owlcms.utils.RestartUtils;
  * Competition Supervisor sees only the System tab.
  */
 @SuppressWarnings("serial")
-@RequiresRole({ Role.ADMIN_PAGES, Role.COMPETITION_SUPERVISOR })
+@RequiresPermission({ Permission.ADMIN_PAGES, Permission.COMPETITION_SUPERVISOR })
 @Route(value = AdminView.ROUTE, layout = OwlcmsLayout.class)
 public class AdminView extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 

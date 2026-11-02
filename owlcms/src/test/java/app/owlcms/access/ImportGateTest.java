@@ -130,7 +130,6 @@ public class ImportGateTest {
 		}
 		assertTrue("Simple Access", AccessPolicy.hasCapability(Principal.admin(AuthSource.OFFICIALS_PIN), Capability.IMPORT_DATA,
 		        null));
-		assertFalse("not grantable on its own", Role.IMPORT.isGrantable());
 	}
 
 	@Test

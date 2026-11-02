@@ -5,8 +5,8 @@ import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.access.RequiresFeature;
-import app.owlcms.access.RequiresRole;
-import app.owlcms.access.Role;
+import app.owlcms.access.Permission;
+import app.owlcms.access.RequiresPermission;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -14,7 +14,7 @@ import app.owlcms.nui.shared.IwfComplianceDisplay;
 import app.owlcms.nui.shared.OwlcmsLayout;
 
 @SuppressWarnings("serial")
-@RequiresRole(value = Role.COMPETITION_SUPERVISOR, platformBound = true)
+@RequiresPermission(value = Permission.COMPETITION_SUPERVISOR, platformBound = true)
 @RequiresFeature(FeatureSwitch.COMPETITION_DIRECTOR_PAGE)
 @Route(value = "lifting/competition-director", layout = OwlcmsLayout.class)
 public class CompetitionDirectorContent extends AnnouncerContent {

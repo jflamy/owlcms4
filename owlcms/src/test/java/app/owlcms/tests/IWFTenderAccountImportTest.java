@@ -19,6 +19,7 @@ import app.owlcms.access.AccessPolicy;
 import app.owlcms.access.AccountAuthenticator;
 import app.owlcms.access.LoginThrottle;
 import app.owlcms.access.PageRule;
+import app.owlcms.access.Permission;
 import app.owlcms.access.Principal;
 import app.owlcms.access.Role;
 import app.owlcms.data.account.RoleGrant;
@@ -74,28 +75,28 @@ public class IWFTenderAccountImportTest {
 		}
 
 		Principal admin = login("admin");
-		assertTrue(AccessPolicy.canOpen(admin, page(Role.ADMIN_PAGES, false), null));
-		assertTrue(AccessPolicy.canOpen(admin, page(Role.ANNOUNCER, true), "B"));
+		assertTrue(AccessPolicy.canOpen(admin, page(Permission.ADMIN_PAGES, false), null));
+		assertTrue(AccessPolicy.canOpen(admin, page(Permission.ANNOUNCER, true), "B"));
 
 		Principal results = login("results");
-		assertTrue(AccessPolicy.canOpen(results, page(Role.RESULTS, false), null));
-		assertFalse(AccessPolicy.canOpen(results, page(Role.STREAMING, true), "B"));
-		assertFalse(AccessPolicy.canOpen(results, page(Role.DISPLAYS, true), "B"));
-		assertFalse(AccessPolicy.canOpen(results, page(Role.ANNOUNCER, true), "B"));
+		assertTrue(AccessPolicy.canOpen(results, page(Permission.RESULTS, false), null));
+		assertFalse(AccessPolicy.canOpen(results, page(Permission.STREAMING, true), "B"));
+		assertFalse(AccessPolicy.canOpen(results, page(Permission.DISPLAYS, true), "B"));
+		assertFalse(AccessPolicy.canOpen(results, page(Permission.ANNOUNCER, true), "B"));
 
 		for (Role role : List.of(Role.ANNOUNCER, Role.MARSHAL, Role.TIMEKEEPER, Role.TC, Role.JURY, Role.REFEREE,
 		        Role.DISPLAYS)) {
 			Principal account = login(role.name().toLowerCase() + "a");
-			assertTrue(AccessPolicy.canOpen(account, page(role, true), "A"));
-			assertFalse(AccessPolicy.canOpen(account, page(role, true), "B"));
+			assertTrue(AccessPolicy.canOpen(account, page(role.permissions().iterator().next(), true), "A"));
+			assertFalse(AccessPolicy.canOpen(account, page(role.permissions().iterator().next(), true), "B"));
 			assertEquals(role != Role.DISPLAYS, AccessPolicy.requiresPlatformChoice(account));
 		}
 
 		Principal platformA = login("platforma");
-		assertTrue(AccessPolicy.canOpen(platformA, page(Role.ANNOUNCER, true), "A"));
-		assertTrue(AccessPolicy.canOpen(platformA, page(Role.TIMEKEEPER, true), "A"));
-		assertTrue(AccessPolicy.canOpen(platformA, page(Role.DISPLAYS, true), "A"));
-		assertFalse(AccessPolicy.canOpen(platformA, page(Role.ANNOUNCER, true), "B"));
+		assertTrue(AccessPolicy.canOpen(platformA, page(Permission.ANNOUNCER, true), "A"));
+		assertTrue(AccessPolicy.canOpen(platformA, page(Permission.TIMEKEEPER, true), "A"));
+		assertTrue(AccessPolicy.canOpen(platformA, page(Permission.DISPLAYS, true), "A"));
+		assertFalse(AccessPolicy.canOpen(platformA, page(Permission.ANNOUNCER, true), "B"));
 	}
 
 	private static void assertGrantAndPassword(String username, Role role, String platform) {
@@ -111,7 +112,7 @@ public class IWFTenderAccountImportTest {
 		return Principal.of(((AccountAuthenticator.Result.Success) result).account(), null);
 	}
 
-	private static PageRule page(Role role, boolean platformBound) {
-		return PageRule.roles(Set.of(role), platformBound);
+	private static PageRule page(Permission permission, boolean platformBound) {
+		return PageRule.permissions(Set.of(permission), platformBound);
 	}
 }

@@ -38,8 +38,8 @@ import com.vaadin.flow.router.QueryParameters;
 import app.owlcms.access.AccessUi;
 import app.owlcms.access.Capability;
 import app.owlcms.access.ImportGate;
-import app.owlcms.access.RequiresRole;
-import app.owlcms.access.Role;
+import app.owlcms.access.Permission;
+import app.owlcms.access.RequiresPermission;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
@@ -63,7 +63,7 @@ import ch.qos.logback.classic.Logger;
  * The Class PreparationNavigationContent.
  */
 @SuppressWarnings("serial")
-@RequiresRole({ Role.PREPARATION, Role.REGISTRATION, Role.WEIGHIN, Role.RESULTS })
+@RequiresPermission({ Permission.PREPARATION, Permission.REGISTRATION, Permission.WEIGHIN, Permission.RESULTS })
 @Route(value = "preparation", layout = OwlcmsLayout.class)
 public class PreparationNavigationContent extends BaseNavigationContent
 		implements NavigationPage, HasDynamicTitle, BeforeEnterObserver {

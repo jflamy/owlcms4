@@ -22,9 +22,9 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
-import app.owlcms.access.RequiresRole;
+import app.owlcms.access.Permission;
+import app.owlcms.access.RequiresPermission;
 import app.owlcms.access.AccessUi;
-import app.owlcms.access.Role;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.FOPParameters;
@@ -41,7 +41,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
  * Selects a jury member device or the jury keypad for one field of play.
  */
 @SuppressWarnings("serial")
-@RequiresRole(value = Role.JURY, platformBound = true)
+@RequiresPermission(value = Permission.JURY, platformBound = true)
 @Route(value = "mobile/juryhome", layout = OwlcmsLayout.class)
 public class JuryNavigationContent extends BaseNavigationContent implements HasDynamicTitle {
 	private boolean platformSelected;
@@ -131,13 +131,13 @@ public class JuryNavigationContent extends BaseNavigationContent implements HasD
 
 	private ComboBox<FieldOfPlay> createFopSelector(FieldOfPlay selectedFop) {
 		ComboBox<FieldOfPlay> fopSelector = new ComboBox<>(Translator.translate("CompetitionPlatform"));
-		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Role.JURY));
+		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Permission.JURY));
 		fopSelector.setItems(fops);
 		fopSelector.setItemLabelGenerator(FieldOfPlay::getName);
 		fopSelector.setPlaceholder(Translator.translate("SelectPlatform"));
 		fopSelector.setValue(fops.contains(selectedFop) ? selectedFop : null);
 		fopSelector.setWidthFull();
-		fopSelector.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Role.JURY), fops));
+		fopSelector.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Permission.JURY), fops));
 		fopSelector.addClassName("referee-jury-home-platform-selector");
 		fopSelector.addValueChangeListener(event -> {
 			if (event.isFromClient() && event.getValue() != null) {

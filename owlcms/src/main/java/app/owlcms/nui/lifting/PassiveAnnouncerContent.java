@@ -2,14 +2,14 @@ package app.owlcms.nui.lifting;
 
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.access.RequiresRole;
-import app.owlcms.access.Role;
+import app.owlcms.access.Permission;
+import app.owlcms.access.RequiresPermission;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.shared.OwlcmsLayout;
 
 @SuppressWarnings("serial")
-@RequiresRole(value = Role.ANNOUNCER, platformBound = true)
+@RequiresPermission(value = Permission.ANNOUNCER, platformBound = true)
 @Route(value = "lifting/announcer/passive", layout = OwlcmsLayout.class)
 public class PassiveAnnouncerContent extends AnnouncerContent {
 

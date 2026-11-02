@@ -22,7 +22,7 @@ public class RoleAccountInitializationTest {
 		List<UserAccount> accounts = UserAccountRepository.missingRoleAccounts(List.of(), List.of("A", "B"));
 		assertEquals(24, accounts.size());
 		for (Role role : Role.values()) {
-			if (!role.isGrantable() || role == Role.COMPETITION_DIRECTOR) {
+			if (role == Role.COMPETITION_DIRECTOR) {
 				assertFalse(role.name(), accounts.stream().anyMatch(a -> a.getGrants().stream()
 				        .anyMatch(g -> g.getRole() == role)));
 				continue;

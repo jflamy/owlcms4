@@ -47,11 +47,9 @@ public class AccountLandingPolicyTest {
 		        Map.entry(Role.STREAMING, WorkPage.HOME),
 		        Map.entry(Role.EXTERNAL, WorkPage.HOME));
 		for (Role role : Role.values()) {
-			if (role.isGrantable()) {
-				Principal principal = new Principal(AuthSource.ACCOUNT, 1L, "user",
-				        List.of(new RoleGrant(role, null)), null);
-				assertEquals(role.name(), defaults.get(role), AccountLandingPolicy.singleWorkPage(principal).orElseThrow());
-			}
+			Principal principal = new Principal(AuthSource.ACCOUNT, 1L, "user",
+			        List.of(new RoleGrant(role, null)), null);
+			assertEquals(role.name(), defaults.get(role), AccountLandingPolicy.singleWorkPage(principal).orElseThrow());
 		}
 	}
 

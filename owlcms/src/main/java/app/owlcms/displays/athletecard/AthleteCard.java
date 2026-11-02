@@ -26,8 +26,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
-import app.owlcms.access.RequiresRole;
-import app.owlcms.access.Role;
+import app.owlcms.access.Permission;
+import app.owlcms.access.RequiresPermission;
 import com.vaadin.flow.router.Route;
 
 import tools.jackson.databind.node.ObjectNode;
@@ -52,7 +52,7 @@ import ch.qos.logback.classic.Logger;
 @Tag("athlete-card-template")
 @JsModule("./components/AthleteCard.js")
 @CssImport(value = "./styles/shared-styles.css")
-@RequiresRole({ Role.REGISTRATION, Role.WEIGHIN })
+@RequiresPermission({ Permission.REGISTRATION, Permission.WEIGHIN })
 @Route("weighin/AthleteCard")
 
 public class AthleteCard extends LitTemplate

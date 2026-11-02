@@ -23,8 +23,8 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-import app.owlcms.access.RequiresRole;
-import app.owlcms.access.Role;
+import app.owlcms.access.Permission;
+import app.owlcms.access.RequiresPermission;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.config.Config;
@@ -42,7 +42,7 @@ import ch.qos.logback.classic.Logger;
  * Class PreparationNavigationContent.
  */
 @SuppressWarnings("serial")
-@RequiresRole({ Role.ADMIN_PAGES, Role.COMPETITION_SUPERVISOR })
+@RequiresPermission({ Permission.ADMIN_PAGES, Permission.COMPETITION_SUPERVISOR })
 @Route(value = "preparation/config/:tab?", layout = OwlcmsLayout.class)
 public class ConfigContent extends Composite<VerticalLayout>
 	implements CrudLayout, OwlcmsContent, CrudListener<Config>, BeforeEnterObserver {

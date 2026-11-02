@@ -186,12 +186,12 @@ public abstract class BaseNavigationContent extends BaseContent
 
 	protected ComboBox<FieldOfPlay> createFopSelect(String placeHolder) {
 		ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
-		List<FieldOfPlay> fops = AccessUi.selectableFops(PageRule.of(getClass()).roles());
+		List<FieldOfPlay> fops = AccessUi.selectableFops(PageRule.of(getClass()).permissions());
 		fopSelect.setPlaceholder(placeHolder);
 		fopSelect.setItems(fops);
 		fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
 		fopSelect.setWidth("10rem");
-		fopSelect.setReadOnly(AccessUi.fopSelectorReadOnly(PageRule.of(getClass()).roles(), fops));
+		fopSelect.setReadOnly(AccessUi.fopSelectorReadOnly(PageRule.of(getClass()).permissions(), fops));
 		return fopSelect;
 	}
 

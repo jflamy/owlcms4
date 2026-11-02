@@ -28,8 +28,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.QueryParameters;
-import app.owlcms.access.RequiresRole;
-import app.owlcms.access.Role;
+import app.owlcms.access.Permission;
+import app.owlcms.access.RequiresPermission;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
@@ -73,7 +73,7 @@ import ch.qos.logback.classic.Logger;
  * The Class DisplayNavigationContent.
  */
 @SuppressWarnings("serial")
-@RequiresRole({ Role.DISPLAYS, Role.STREAMING })
+@RequiresPermission({ Permission.DISPLAYS, Permission.STREAMING })
 @Route(value = "video", layout = OwlcmsLayout.class)
 public class VideoNavigationContent extends BaseNavigationContent
         implements NavigationPage, HasDynamicTitle {

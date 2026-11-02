@@ -12,8 +12,8 @@ import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.access.RequiresRole;
-import app.owlcms.access.Role;
+import app.owlcms.access.Permission;
+import app.owlcms.access.RequiresPermission;
 import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.AuditSnapshot;
 import app.owlcms.audit.AuditSnapshot.Scope;
@@ -23,7 +23,7 @@ import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.nui.shared.OwlcmsLayout;
 
 @SuppressWarnings("serial")
-@RequiresRole({ Role.ADMIN_PAGES, Role.COMPETITION_SUPERVISOR })
+@RequiresPermission({ Permission.ADMIN_PAGES, Permission.COMPETITION_SUPERVISOR })
 @Route(value = "admin/backup", layout = OwlcmsLayout.class)
 public class BackupView extends Composite<VerticalLayout>
 		implements HasDynamicTitle {

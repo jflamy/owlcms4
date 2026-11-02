@@ -18,8 +18,8 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 
-import app.owlcms.access.RequiresRole;
-import app.owlcms.access.Role;
+import app.owlcms.access.Permission;
+import app.owlcms.access.RequiresPermission;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.shared.ContentWrapping;
@@ -29,7 +29,7 @@ import app.owlcms.simulation.SimulationControl;
 
 /** Starts and stops the competition simulation. Requires a login: the page is not token-accessible. */
 @SuppressWarnings("serial")
-@RequiresRole({ Role.ADMIN_PAGES, Role.COMPETITION_SUPERVISOR })
+@RequiresPermission({ Permission.ADMIN_PAGES, Permission.COMPETITION_SUPERVISOR })
 @Route(value = "simulation", layout = OwlcmsLayout.class)
 public class SimulationView extends Composite<VerticalLayout>
         implements OwlcmsLayoutAware, ContentWrapping, HasDynamicTitle {

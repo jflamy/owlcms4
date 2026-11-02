@@ -14,16 +14,16 @@ public final class AccessPolicy {
 	private AccessPolicy() {
 	}
 
-	/** Roles effective on a platform; a null platform means platform-independent. */
-	public static Set<Role> expandedRoles(Principal principal, String platform) {
-		Set<Role> result = EnumSet.noneOf(Role.class);
+	/** permissions effective on a platform; a null platform means platform-independent. */
+	public static Set<Permission> effectivePermissions(Principal principal, String platform) {
+		Set<Permission> result = EnumSet.noneOf(Permission.class);
 		if (principal == null) {
 			return result;
 		}
 		for (RoleGrant grant : principal.grants()) {
-			for (Role role : grant.getRole().expand()) {
-				if (scopeMatches(grant, role, platform) && lockMatches(principal, role, platform)) {
-					result.add(role);
+			for (Permission permission : grant.getRole().permissions()) {
+				if (scopeMatches(grant, permission, platform) && lockMatches(principal, permission, platform)) {
+					result.add(permission);
 				}
 			}
 		}
@@ -35,14 +35,16 @@ public final class AccessPolicy {
 			case PUBLIC -> true;
 			case NONE -> false;
 			case AUTHENTICATED -> principal != null;
-			case ROLES -> principal != null && canOpenWithRoles(principal, rule, targetPlatform);
+			case PERMISSIONS -> principal != null && canOpenWithPermissions(principal, rule, targetPlatform);
 		};
 	}
 
-	/** Platforms among {@code allPlatforms} on which the principal may operate a page needing one of the roles. */
-	public static List<String> selectablePlatforms(Principal principal, Set<Role> pageRoles,
+	/**
+	 * Platforms among {@code allPlatforms} on which the principal may operate a page needing one of the permissions.
+	 */
+	public static List<String> selectablePlatforms(Principal principal, Set<Permission> pagePermissions,
 	        List<String> allPlatforms) {
-		PageRule rule = PageRule.roles(pageRoles, true);
+		PageRule rule = PageRule.permissions(pagePermissions, true);
 		List<String> result = new ArrayList<>();
 		for (String name : allPlatforms) {
 			if (canOpen(principal, rule, name)) {
@@ -52,11 +54,11 @@ public final class AccessPolicy {
 		return result;
 	}
 
-	/** Real platforms on which the principal has at least one effective platform-scopable role. */
+	/** Real platforms on which the principal has at least one effective platform-scopable permission. */
 	public static List<String> platformsWithAccess(Principal principal, List<String> allPlatforms) {
 		List<String> result = new ArrayList<>();
 		for (String name : allPlatforms) {
-			if (expandedRoles(principal, name).stream().anyMatch(Role::isPlatformScopable)) {
+			if (effectivePermissions(principal, name).stream().anyMatch(Permission::isPlatformScopable)) {
 				result.add(name);
 			}
 		}
@@ -67,12 +69,13 @@ public final class AccessPolicy {
 		return canOpen(principal, capability.asRule(), platform);
 	}
 
-	/** True for accounts that hold a lockable role and are not administrators. */
+	/** True for accounts that hold a lockable permission and are not administrators. */
 	public static boolean requiresPlatformChoice(Principal principal) {
 		if (principal == null || principal.source() != Principal.AuthSource.ACCOUNT || hasUnrestrictedPlatforms(principal)) {
 			return false;
 		}
-		return principal.grants().stream().anyMatch(g -> g.getRole().expand().stream().anyMatch(Role::isLockable));
+		return principal.grants().stream()
+		        .anyMatch(g -> g.getRole().permissions().stream().anyMatch(Permission::isLockable));
 	}
 
 	public static List<String> loginPlatformChoices(Principal principal, List<String> allPlatforms) {
@@ -81,7 +84,7 @@ public final class AccessPolicy {
 			return List.of();
 		}
 		for (RoleGrant grant : principal.grants()) {
-			boolean lockable = grant.getRole().expand().stream().anyMatch(Role::isLockable);
+			boolean lockable = grant.getRole().permissions().stream().anyMatch(Permission::isLockable);
 			if (!lockable) {
 				continue;
 			}
@@ -110,8 +113,8 @@ public final class AccessPolicy {
 		Set<String> result = new LinkedHashSet<>();
 		result.add(principal.loginPlatform());
 		for (RoleGrant grant : principal.grants()) {
-			for (Role role : grant.getRole().expand()) {
-				if (role.isPlatformScopable() && !role.isLockable()) {
+			for (Permission permission : grant.getRole().permissions()) {
+				if (permission.isPlatformScopable() && !permission.isLockable()) {
 					for (String name : allPlatforms) {
 						if (grant.getPlatformName() == null || grant.getPlatformName().equals(name)) {
 							result.add(name);
@@ -123,16 +126,17 @@ public final class AccessPolicy {
 		return new ArrayList<>(result);
 	}
 
-	private static boolean canOpenWithRoles(Principal principal, PageRule rule, String targetPlatform) {
+	private static boolean canOpenWithPermissions(Principal principal, PageRule rule, String targetPlatform) {
 		for (RoleGrant grant : principal.grants()) {
-			for (Role role : grant.getRole().expand()) {
-				if (!rule.roles().contains(role)) {
+			for (Permission permission : grant.getRole().permissions()) {
+				if (!rule.permissions().contains(permission)) {
 					continue;
 				}
 				if (!rule.platformBound()) {
 					return true;
 				}
-				if (scopeMatches(grant, role, targetPlatform) && lockMatches(principal, role, targetPlatform)) {
+				if (scopeMatches(grant, permission, targetPlatform)
+				        && lockMatches(principal, permission, targetPlatform)) {
 					return true;
 				}
 			}
@@ -140,15 +144,15 @@ public final class AccessPolicy {
 		return false;
 	}
 
-	private static boolean scopeMatches(RoleGrant grant, Role role, String platform) {
-		if (grant.getPlatformName() == null || !role.isPlatformScopable()) {
+	private static boolean scopeMatches(RoleGrant grant, Permission permission, String platform) {
+		if (grant.getPlatformName() == null || !permission.isPlatformScopable()) {
 			return true;
 		}
 		return grant.getPlatformName().equals(platform);
 	}
 
-	private static boolean lockMatches(Principal principal, Role role, String platform) {
-		return platform == null || !role.isLockable() || principal.loginPlatform() == null || hasUnrestrictedPlatforms(principal)
-		        || principal.loginPlatform().equals(platform);
+	private static boolean lockMatches(Principal principal, Permission permission, String platform) {
+		return platform == null || !permission.isLockable() || principal.loginPlatform() == null
+		        || hasUnrestrictedPlatforms(principal) || principal.loginPlatform().equals(platform);
 	}
 }

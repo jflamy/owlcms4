@@ -146,12 +146,6 @@ class GrantsField extends CustomField<List<RoleGrant>> {
 	}
 
 	private static List<Role> grantableRoles() {
-		List<Role> result = new ArrayList<>();
-		for (Role role : Role.values()) {
-			if (role.isGrantable()) {
-				result.add(role);
-			}
-		}
-		return result;
+		return List.of(Role.values());
 	}
 }

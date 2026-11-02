@@ -1,70 +1,54 @@
 package app.owlcms.access;
 
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 /**
- * Roles known to the access control. Pages only reference base roles; grantable roles may be composite and expand to
- * base roles in {@link #expand()}.
- * <p>
- * DISPLAYS is for the competition venue's own screens. STREAMING is for what a streaming client may show. Every page
- * naming STREAMING also names DISPLAYS. RESULTS gives results access only; EXTERNAL expands to RESULTS and STREAMING.
+ * Roles are what is granted to accounts and stored in account data. Each role declares the permissions it grants; that
+ * declaration is the only link between roles and permissions. A role and a permission that share a name are otherwise
+ * unrelated: matching names are for readability only and must not be relied on.
  */
 public enum Role {
-	ADMIN(true, false, false, false),
-	ADMIN_PAGES(false, false, false, true),
+	ADMIN(false, Permission.values()),
 	/** The TIS operator who supervises the competition from the Competition Supervisor page. */
-	COMPETITION_SUPERVISOR(true, false, false, true),
+	COMPETITION_SUPERVISOR(false, Permission.COMPETITION_SUPERVISOR, Permission.PREPARATION, Permission.REGISTRATION,
+	        Permission.IMPORT, Permission.WEIGHIN, Permission.RESULTS, Permission.ANNOUNCER, Permission.MARSHAL,
+	        Permission.TIMEKEEPER, Permission.TC, Permission.JURY, Permission.REFEREE, Permission.DISPLAYS,
+	        Permission.STREAMING),
 	/** The rules-defined official, who often does not use the system: preparation and results only. */
-	COMPETITION_DIRECTOR(true, false, false, false),
-	PREPARATION(true, false, false, true),
-	REGISTRATION(true, false, false, true),
-	/**
-	 * Registration, SBDE and database imports. Not granted alone: it comes with the Preparation and Registration
-	 * roles, Competition Supervisor and admin, not with the Competition Director.
-	 */
-	IMPORT(false, false, false, true),
-	WEIGHIN(true, false, false, true),
-	RESULTS(true, false, false, true),
-	PLATFORM(true, true, false, false),
-	ANNOUNCER(true, true, true, true),
-	MARSHAL(true, true, true, true),
-	TIMEKEEPER(true, true, true, true),
-	TC(true, true, true, true),
-	JURY(true, true, true, true),
-	REFEREE(true, true, true, true),
-	DISPLAYS(true, true, false, true),
-	STREAMING(true, false, false, true),
-	EXTERNAL(true, false, false, false);
+	COMPETITION_DIRECTOR(false, Permission.PREPARATION, Permission.RESULTS, Permission.DISPLAYS),
+	PREPARATION(false, Permission.PREPARATION, Permission.IMPORT),
+	REGISTRATION(false, Permission.REGISTRATION, Permission.IMPORT),
+	WEIGHIN(false, Permission.WEIGHIN),
+	RESULTS(false, Permission.RESULTS),
+	PLATFORM(true, Permission.ANNOUNCER, Permission.MARSHAL, Permission.TIMEKEEPER, Permission.TC,
+	        Permission.DISPLAYS),
+	ANNOUNCER(true, Permission.ANNOUNCER),
+	MARSHAL(true, Permission.MARSHAL),
+	TIMEKEEPER(true, Permission.TIMEKEEPER),
+	TC(true, Permission.TC),
+	JURY(true, Permission.JURY),
+	REFEREE(true, Permission.REFEREE),
+	DISPLAYS(true, Permission.DISPLAYS),
+	STREAMING(false, Permission.STREAMING),
+	EXTERNAL(false, Permission.RESULTS, Permission.STREAMING);
 
-	private final boolean grantable;
 	private final boolean platformScopable;
-	private final boolean lockable;
-	private final boolean base;
+	private final Set<Permission> permissions;
 
-	Role(boolean grantable, boolean platformScopable, boolean lockable, boolean base) {
-		this.grantable = grantable;
+	/**
+	 * @param platformScopable whether a grant of this role may be limited to one platform
+	 * @param permissions      the permissions the role grants
+	 */
+	Role(boolean platformScopable, Permission... permissions) {
 		this.platformScopable = platformScopable;
-		this.lockable = lockable;
-		this.base = base;
-	}
-
-	public boolean isGrantable() {
-		return this.grantable;
+		this.permissions = Collections.unmodifiableSet(EnumSet.copyOf(List.of(permissions)));
 	}
 
 	public boolean isPlatformScopable() {
 		return this.platformScopable;
-	}
-
-	/** Effective only on the platform chosen at login (accounts mode). */
-	public boolean isLockable() {
-		return this.lockable;
-	}
-
-	/** Base roles are the only ones pages refer to. */
-	public boolean isBase() {
-		return this.base;
 	}
 
 	/**
@@ -72,30 +56,14 @@ public enum Role {
 	 * of the granted role, not of its permissions.
 	 */
 	public boolean coversAllPlatforms() {
-		return this == ADMIN || this == COMPETITION_SUPERVISOR;
+		return this == Role.ADMIN || this == Role.COMPETITION_SUPERVISOR;
 	}
 
-	public Set<Role> expand() {
-		return switch (this) {
-			case ADMIN -> baseRoles();
-			case COMPETITION_SUPERVISOR -> EnumSet.of(COMPETITION_SUPERVISOR, PREPARATION, REGISTRATION, IMPORT,
-			        WEIGHIN, RESULTS, ANNOUNCER, MARSHAL, TIMEKEEPER, TC, JURY, REFEREE, DISPLAYS, STREAMING);
-			case COMPETITION_DIRECTOR -> EnumSet.of(PREPARATION, RESULTS, DISPLAYS);
-			case PLATFORM -> EnumSet.of(ANNOUNCER, MARSHAL, TIMEKEEPER, TC, DISPLAYS);
-			case EXTERNAL -> EnumSet.of(RESULTS, STREAMING);
-			case PREPARATION -> EnumSet.of(PREPARATION, IMPORT);
-			case REGISTRATION -> EnumSet.of(REGISTRATION, IMPORT);
-			default -> EnumSet.of(this);
-		};
-	}
-
-	public static Set<Role> baseRoles() {
-		Set<Role> result = EnumSet.noneOf(Role.class);
-		for (Role role : values()) {
-			if (role.base) {
-				result.add(role);
-			}
-		}
-		return result;
+	/**
+	 * The permissions declared for this role. A role does not imply the permission of the same name unless it is
+	 * declared here.
+	 */
+	public Set<Permission> permissions() {
+		return this.permissions;
 	}
 }

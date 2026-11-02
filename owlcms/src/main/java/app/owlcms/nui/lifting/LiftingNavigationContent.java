@@ -24,8 +24,8 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
-import app.owlcms.access.RequiresRole;
-import app.owlcms.access.Role;
+import app.owlcms.access.Permission;
+import app.owlcms.access.RequiresPermission;
 import app.owlcms.access.AccessUi;
 import com.vaadin.flow.router.Route;
 
@@ -50,7 +50,8 @@ import ch.qos.logback.classic.Logger;
  * The Class LiftingNavigationContent.
  */
 @SuppressWarnings("serial")
-@RequiresRole({ Role.ANNOUNCER, Role.MARSHAL, Role.TIMEKEEPER, Role.TC, Role.JURY, Role.REFEREE, Role.WEIGHIN })
+@RequiresPermission({ Permission.ANNOUNCER, Permission.MARSHAL, Permission.TIMEKEEPER, Permission.TC,
+        Permission.JURY, Permission.REFEREE, Permission.WEIGHIN })
 @Route(value = "lifting", layout = OwlcmsLayout.class)
 public class LiftingNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 

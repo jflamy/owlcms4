@@ -29,20 +29,20 @@ public final class AccountLandingPolicy {
 
 	private static WorkPage defaultWorkPage(Role role) {
 		return switch (role) {
-			case ADMIN, ADMIN_PAGES, IMPORT, EXTERNAL, STREAMING, COMPETITION_DIRECTOR -> WorkPage.HOME;
-			case COMPETITION_SUPERVISOR -> WorkPage.COMPETITION_SUPERVISOR;
-			case PREPARATION -> WorkPage.PREPARATION;
-			case REGISTRATION -> WorkPage.REGISTRATION;
-			case WEIGHIN -> WorkPage.WEIGHIN;
-			case RESULTS -> WorkPage.RESULTS;
-			case PLATFORM -> WorkPage.LIFTING;
-			case ANNOUNCER -> WorkPage.ANNOUNCER;
-			case MARSHAL -> WorkPage.MARSHAL;
-			case TIMEKEEPER -> WorkPage.TIMEKEEPER;
-			case TC -> WorkPage.TC;
-			case JURY -> WorkPage.JURY_CONTROL;
-			case REFEREE -> WorkPage.REFEREE_NAVIGATION;
-			case DISPLAYS -> WorkPage.DISPLAY_NAVIGATION;
+			case Role.ADMIN, Role.EXTERNAL, Role.STREAMING, Role.COMPETITION_DIRECTOR -> WorkPage.HOME;
+			case Role.COMPETITION_SUPERVISOR -> WorkPage.COMPETITION_SUPERVISOR;
+			case Role.PREPARATION -> WorkPage.PREPARATION;
+			case Role.REGISTRATION -> WorkPage.REGISTRATION;
+			case Role.WEIGHIN -> WorkPage.WEIGHIN;
+			case Role.RESULTS -> WorkPage.RESULTS;
+			case Role.PLATFORM -> WorkPage.LIFTING;
+			case Role.ANNOUNCER -> WorkPage.ANNOUNCER;
+			case Role.MARSHAL -> WorkPage.MARSHAL;
+			case Role.TIMEKEEPER -> WorkPage.TIMEKEEPER;
+			case Role.TC -> WorkPage.TC;
+			case Role.JURY -> WorkPage.JURY_CONTROL;
+			case Role.REFEREE -> WorkPage.REFEREE_NAVIGATION;
+			case Role.DISPLAYS -> WorkPage.DISPLAY_NAVIGATION;
 		};
 	}
 }

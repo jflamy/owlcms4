@@ -23,8 +23,8 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
-import app.owlcms.access.RequiresRole;
-import app.owlcms.access.Role;
+import app.owlcms.access.Permission;
+import app.owlcms.access.RequiresPermission;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
@@ -48,7 +48,7 @@ import ch.qos.logback.classic.Logger;
  * The Class ResultsNavigationContent.
  */
 @SuppressWarnings("serial")
-@RequiresRole(Role.RESULTS)
+@RequiresPermission(Permission.RESULTS)
 @Route(value = "results", layout = OwlcmsLayout.class)
 public class ResultsNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
