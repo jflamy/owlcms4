@@ -168,12 +168,17 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 
 		@Subscribe
 		public void onDownSignal(UIEvent.DownSignal e) {
-			closeIfCurrent(e);
+			FieldOfPlay fop = e.getFop();
+			closeIfCardAthlete(e, fop == null ? null : fop.getCurAthlete());
 		}
 
+		/**
+		 * The lifting order moves to the next athlete right after the decision, so the current athlete may already be
+		 * someone else. The event carries the athlete the decision is about.
+		 */
 		@Subscribe
 		public void onDecision(UIEvent.Decision e) {
-			closeIfCurrent(e);
+			closeIfCardAthlete(e, e.getAthlete());
 		}
 
 		private void subscribe() {
@@ -193,11 +198,11 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			}
 		}
 
-		private void closeIfCurrent(UIEvent e) {
+		private void closeIfCardAthlete(UIEvent e, Athlete liftingAthlete) {
 			UIEventProcessor.uiAccess(this, this.fopUiEventBus, e, () -> {
 				FieldOfPlay fop = e.getFop();
 				if (!isAttached() || fop == null || this.cardAthlete == null
-				        || !this.cardAthlete.equals(fop.getCurAthlete())) {
+				        || !this.cardAthlete.equals(liftingAthlete)) {
 					return;
 				}
 				logger.info("{}Athlete card closed on event {} for athlete {}", FieldOfPlay.getLoggingName(fop),
