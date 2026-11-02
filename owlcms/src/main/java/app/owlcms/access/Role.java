@@ -67,6 +67,14 @@ public enum Role {
 		return this.base;
 	}
 
+	/**
+	 * Operates on every platform: never locked to the platform chosen at login and not asked to choose one. A property
+	 * of the granted role, not of its permissions.
+	 */
+	public boolean coversAllPlatforms() {
+		return this == ADMIN || this == COMPETITION_SUPERVISOR;
+	}
+
 	public Set<Role> expand() {
 		return switch (this) {
 			case ADMIN -> baseRoles();

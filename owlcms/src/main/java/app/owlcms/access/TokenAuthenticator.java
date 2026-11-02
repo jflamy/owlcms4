@@ -81,8 +81,8 @@ public final class TokenAuthenticator {
 		return new Result.Authenticated(account, record);
 	}
 
-	/** True if the account holds the role, directly or through a composite role, on any platform. */
-	public static boolean holds(UserAccount account, Role role) {
-		return AccessPolicy.expandedRoles(Principal.of(account, null), null).contains(role);
+	/** True if the account has the capability, through any of its roles, on any platform. */
+	public static boolean holds(UserAccount account, Capability capability) {
+		return AccessPolicy.hasCapability(Principal.of(account, null), capability, null);
 	}
 }

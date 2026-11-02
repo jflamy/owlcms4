@@ -11,6 +11,10 @@
 
 **Development log**
 
+- 69.0.0-beta03: Fixes for edge cases when closing the athlete card on decisions.
+
+- 69.0.0-beta03: The Competition Supervisor can open Language and System Settings, and the Security and Audit tab of the Administration page (access mode, IWF compliance check, shared passwords). Audit key initialization, audit integrity verification and account management remain admin-only.
+
 - 69.0.0-beta02: Attempt boards show jury votes by default when a jury is configured; the display option can turn them off for an individual board.
   - With the feature on, the decision stays visible while jury votes are pending; a supervisor can override the clock start if needed.
 

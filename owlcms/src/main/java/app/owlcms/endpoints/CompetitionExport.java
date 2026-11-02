@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.access.Role;
+import app.owlcms.access.Capability;
 import app.owlcms.access.ServletTokenGuard;
 import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.ExportAudit;
@@ -143,7 +143,7 @@ public class CompetitionExport extends HttpServlet {
 		logger.info("processing competition export request {}", request.getServletPath());
 		// use proxyutils because this is a plain servlet, not a Vaadin servlet
 		String host = ProxyUtils.getClientIp(request);
-		AuditActor actor = ServletTokenGuard.authorize(request, response, host, Role.RESULTS, "export");
+		AuditActor actor = ServletTokenGuard.authorize(request, response, host, Capability.EXPORT_DATA, "export");
 		if (actor == null) {
 			response.flushBuffer();
 			return;

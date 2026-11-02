@@ -23,6 +23,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 
 import app.owlcms.access.AccessUi;
+import app.owlcms.access.Capability;
 import app.owlcms.access.Principal;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.data.competition.Competition;
@@ -135,7 +136,7 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage
 		if (fop == null) {
 			return;
 		}
-		if (!AccessUi.displayInputAllowed(fop)) {
+		if (!AccessUi.hasCapability(Capability.DISPLAY_INPUT, fop)) {
 			Principal principal = AccessUi.currentPrincipal();
 			this.logger.info("{}ignored decision input from read-only display user={}",
 			        FieldOfPlay.getLoggingName(fop), principal != null ? principal.username() : null);

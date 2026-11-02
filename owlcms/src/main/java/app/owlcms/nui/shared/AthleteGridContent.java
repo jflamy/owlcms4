@@ -244,6 +244,10 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	private void handleAttemptClick(Athlete athlete, int liftNumber, double attemptBoxLeft, double attemptBoxTop) {
+		// same rule as row clicks: the passive speaker cannot open the athlete card
+		if (isPassiveSpeaker()) {
+			return;
+		}
 		Integer lift = athlete.getActualLiftOrNull(liftNumber);
 		if (isLiftReversalEnabled() && lift != null && lift != 0) {
 			openLiftReversalDialog(athlete, liftNumber, attemptBoxLeft, attemptBoxTop);

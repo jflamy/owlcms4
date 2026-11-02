@@ -63,11 +63,6 @@ public final class AccessPolicy {
 		return result;
 	}
 
-	/** Keyboard input on displays is reserved to principals holding DISPLAYS on the platform. */
-	public static boolean displayInputAllowed(Principal principal, String platform) {
-		return expandedRoles(principal, platform).contains(Role.DISPLAYS);
-	}
-
 	public static boolean hasCapability(Principal principal, Capability capability, String platform) {
 		return canOpen(principal, capability.asRule(), platform);
 	}
@@ -99,13 +94,8 @@ public final class AccessPolicy {
 		return new ArrayList<>(result);
 	}
 
-	public static boolean isAdmin(Principal principal) {
-		return principal != null && principal.grants().stream().anyMatch(g -> g.getRole() == Role.ADMIN);
-	}
-
 	private static boolean hasUnrestrictedPlatforms(Principal principal) {
-		return isAdmin(principal) || principal != null
-		        && principal.grants().stream().anyMatch(grant -> grant.getRole() == Role.COMPETITION_SUPERVISOR);
+		return principal != null && principal.grants().stream().anyMatch(grant -> grant.getRole().coversAllPlatforms());
 	}
 
 	public static boolean isLocked(Principal principal) {

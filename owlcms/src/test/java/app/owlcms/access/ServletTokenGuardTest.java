@@ -85,7 +85,7 @@ public class ServletTokenGuardTest {
 	private static Response authorize(HttpServletRequest request, String host) {
 		Response response = new Response();
 		response.authorized = ServletTokenGuard.authorize(request, response.proxy, host,
-		        Role.COMPETITION_SUPERVISOR, "checkpoint") != null;
+		        Capability.CHECKPOINT, "checkpoint") != null;
 		return response;
 	}
 

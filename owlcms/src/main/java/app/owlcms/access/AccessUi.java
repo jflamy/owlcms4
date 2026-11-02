@@ -38,11 +38,6 @@ public final class AccessUi {
 		return fops.size() <= 1 || (AccessPolicy.isLocked(principal) && lockablePage);
 	}
 
-	/** UI thread only: uses the current tab's identity. */
-	public static boolean displayInputAllowed(FieldOfPlay fop) {
-		return AccessPolicy.displayInputAllowed(currentPrincipal(), fop != null ? fop.getName() : null);
-	}
-
 	public static boolean canOpen(Class<?> target, FieldOfPlay fop) {
 		return canOpenOnPlatform(target, fop != null ? fop.getName() : null);
 	}

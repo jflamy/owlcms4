@@ -115,8 +115,10 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 			AccessControlForm accessControlForm = new AccessControlForm();
 			VerticalLayout securityTab = tab(heading("Config.AccessControlTitle"), securityStatus(),
 			        securityControls(token, accessControlForm::refreshIfClean),
-			        accessControlForm,
-			        heading("Admin.AuditTrail"), HomeNavigationContent.navigationGrid(auditKey, auditCheck));
+			        accessControlForm);
+			if (AccessUi.hasCapability(Capability.AUDIT_KEYS, null)) {
+				securityTab.add(heading("Admin.AuditTrail"), HomeNavigationContent.navigationGrid(auditKey, auditCheck));
+			}
 			if (!token) {
 				securityTab.add(helperText("Access.ControlPanelTokenNotSet"));
 			}

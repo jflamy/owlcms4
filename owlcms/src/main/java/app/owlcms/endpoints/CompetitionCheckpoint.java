@@ -13,7 +13,7 @@ import java.time.format.DateTimeParseException;
 
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.access.Role;
+import app.owlcms.access.Capability;
 import app.owlcms.access.ServletTokenGuard;
 import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.AuditSnapshot;
@@ -40,7 +40,7 @@ public class CompetitionCheckpoint extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String host = ProxyUtils.getClientIp(request);
-		AuditActor actor = ServletTokenGuard.authorize(request, response, host, Role.COMPETITION_SUPERVISOR,
+		AuditActor actor = ServletTokenGuard.authorize(request, response, host, Capability.CHECKPOINT,
 		        "checkpoint");
 		if (actor == null) {
 			response.flushBuffer();

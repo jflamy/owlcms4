@@ -42,7 +42,7 @@ import ch.qos.logback.classic.Logger;
  * Class PreparationNavigationContent.
  */
 @SuppressWarnings("serial")
-@RequiresRole(Role.ADMIN_PAGES)
+@RequiresRole({ Role.ADMIN_PAGES, Role.COMPETITION_SUPERVISOR })
 @Route(value = "preparation/config/:tab?", layout = OwlcmsLayout.class)
 public class ConfigContent extends Composite<VerticalLayout>
 	implements CrudLayout, OwlcmsContent, CrudListener<Config>, BeforeEnterObserver {

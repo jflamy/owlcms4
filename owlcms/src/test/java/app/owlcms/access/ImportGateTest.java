@@ -33,6 +33,8 @@ import app.owlcms.data.export.FormatDetector;
 import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.nui.admin.AdminView;
+import app.owlcms.nui.admin.AuditIntegrityCheckView;
+import app.owlcms.nui.preparation.ConfigContent;
 
 /**
  * "Imports are allowed" (compliance item 130). No UI objects: the Administration page is checked through its page
@@ -148,14 +150,19 @@ public class ImportGateTest {
 	}
 
 	@Test
-	public void supervisorOpensTheAdministrationPageButNotTheSecurityTab() {
+	public void supervisorOpensTheSecurityTabButNotTheAuditKeys() {
 		Principal supervisor = new Principal(AuthSource.ACCOUNT, 1L, "supervisor",
 		        List.of(new RoleGrant(Role.COMPETITION_SUPERVISOR, null)), null);
 		Principal admin = new Principal(AuthSource.ACCOUNT, 2L, "admin", List.of(new RoleGrant(Role.ADMIN, null)), null);
 		PageRule adminPage = PageRule.of(AdminView.class);
 		assertTrue(AccessPolicy.canOpen(supervisor, adminPage, null));
-		assertFalse(AccessPolicy.hasCapability(supervisor, Capability.SECURITY_SETTINGS, null));
+		assertTrue(AccessPolicy.hasCapability(supervisor, Capability.SECURITY_SETTINGS, null));
+		assertFalse(AccessPolicy.hasCapability(supervisor, Capability.AUDIT_KEYS, null));
+		assertFalse(AccessPolicy.canOpen(supervisor, PageRule.of(AuditIntegrityCheckView.class), null));
 		assertTrue(AccessPolicy.canOpen(admin, adminPage, null));
 		assertTrue(AccessPolicy.hasCapability(admin, Capability.SECURITY_SETTINGS, null));
+		assertTrue(AccessPolicy.hasCapability(admin, Capability.AUDIT_KEYS, null));
+		assertTrue(AccessPolicy.canOpen(admin, PageRule.of(AuditIntegrityCheckView.class), null));
+		assertTrue(AccessPolicy.canOpen(supervisor, PageRule.of(ConfigContent.class), null));
 	}
 }

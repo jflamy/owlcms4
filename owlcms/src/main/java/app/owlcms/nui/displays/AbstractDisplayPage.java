@@ -25,6 +25,7 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.access.AccessUi;
+import app.owlcms.access.Capability;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.apputils.queryparameters.FOPParameters;
@@ -93,7 +94,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	/** Shortcuts are registered only for users with display input rights; call this instead of addKeyboardShortcuts(). */
 	protected final void registerKeyboardShortcuts() {
-		if (AccessUi.displayInputAllowed(getFop())) {
+		if (AccessUi.hasCapability(Capability.DISPLAY_INPUT, getFop())) {
 			addKeyboardShortcuts();
 		}
 	}

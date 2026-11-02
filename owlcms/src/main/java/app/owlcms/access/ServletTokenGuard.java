@@ -15,8 +15,8 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Authorization of plain servlets that extract competition data. Simple Access (PIN) mode: the officials PIN, from any
  * address the officials access list allows; with no officials PIN, the local network. Accounts mode: an account token
- * whose owner holds the required role, whatever the address. The secret is given as {@code ?token=} or Authorization
- * Bearer.
+ * whose owner has the required capability, whatever the address. The secret is given as {@code ?token=} or
+ * Authorization Bearer.
  */
 public final class ServletTokenGuard {
 
@@ -29,12 +29,12 @@ public final class ServletTokenGuard {
 	 * Sets the refusal status and headers itself.
 	 *
 	 * @param host     the client address, for the audit and PIN mode
-	 * @param required the role the token's owner must hold, directly or through a composite role
+	 * @param required the capability the token's owner must have, through any of its roles
 	 * @param what     what is requested, for the log
 	 * @return the audit actor of the request, or null when refused
 	 */
 	public static AuditActor authorize(HttpServletRequest request, HttpServletResponse response, String host,
-	        Role required, String what) {
+	        Capability required, String what) {
 		String path = request.getServletPath();
 		String token = TokenAuthenticator.presentedToken(request.getParameter("token"),
 		        request.getHeader("Authorization"));
@@ -51,8 +51,8 @@ public final class ServletTokenGuard {
 					logger.info("{} {} authorized by token id={} of account {}", host, what, tokenId, username);
 					return AuditActor.token(username, tokenId, host);
 				}
-				logger./**/warn("{} {} refused: token id={} of account {} does not hold the {} role", host, what,
-				        tokenId, username, required);
+				logger./**/warn("{} {} refused: token id={} of account {} does not have the {} capability", host,
+				        what, tokenId, username, required);
 				AuthAudit.tokenRefused(host, path, "forbidden", username, tokenId);
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			}

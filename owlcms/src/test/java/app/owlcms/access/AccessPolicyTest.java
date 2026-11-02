@@ -141,7 +141,6 @@ public class AccessPolicyTest {
 		assertFalse(AccessPolicy.canOpen(Principal.displays(), directorPage, "A"));
 		assertFalse(AccessPolicy.requiresPlatformChoice(director));
 		assertFalse(AccessPolicy.isLocked(director));
-		assertFalse(AccessPolicy.isAdmin(director));
 		assertEquals(PLATFORMS, AccessPolicy.allowedSessionPlatforms(director, PLATFORMS));
 		assertTrue(AccessPolicy.canOpen(director, page(true, Role.ANNOUNCER), "C"));
 		assertFalse(AccessPolicy.canOpen(director, page(false, Role.ADMIN_PAGES), null));
@@ -257,7 +256,7 @@ public class AccessPolicyTest {
 			Principal principal = account(null, new RoleGrant(role, null));
 
 			assertFalse(role + " needs no platform choice", AccessPolicy.requiresPlatformChoice(principal));
-			assertFalse(role + " has no display input", AccessPolicy.displayInputAllowed(principal, "A"));
+			assertFalse(role + " has no display input", AccessPolicy.hasCapability(principal, Capability.DISPLAY_INPUT, "A"));
 		}
 	}
 
@@ -265,21 +264,21 @@ public class AccessPolicyTest {
 	public void displayInputIsReservedToDisplaysHolders() {
 		for (Role role : List.of(Role.DISPLAYS, Role.PLATFORM, Role.ADMIN)) {
 			assertTrue(role + " keeps display input",
-			        AccessPolicy.displayInputAllowed(account(null, new RoleGrant(role, null)), "A"));
+			        AccessPolicy.hasCapability(account(null, new RoleGrant(role, null)), Capability.DISPLAY_INPUT, "A"));
 		}
 		for (Role role : List.of(Role.RESULTS, Role.STREAMING, Role.EXTERNAL)) {
 			assertFalse(role + " has no display input",
-			        AccessPolicy.displayInputAllowed(account(null, new RoleGrant(role, null)), "A"));
+			        AccessPolicy.hasCapability(account(null, new RoleGrant(role, null)), Capability.DISPLAY_INPUT, "A"));
 		}
-		assertFalse(AccessPolicy.displayInputAllowed(null, "A"));
+		assertFalse(AccessPolicy.hasCapability(null, Capability.DISPLAY_INPUT, "A"));
 	}
 
 	@Test
 	public void externalWithScopedDisplaysHasInputOnlyOnThatPlatform() {
 		Principal mixed = account(null, new RoleGrant(Role.EXTERNAL, null), new RoleGrant(Role.DISPLAYS, "A"));
 
-		assertTrue(AccessPolicy.displayInputAllowed(mixed, "A"));
-		assertFalse(AccessPolicy.displayInputAllowed(mixed, "B"));
+		assertTrue(AccessPolicy.hasCapability(mixed, Capability.DISPLAY_INPUT, "A"));
+		assertFalse(AccessPolicy.hasCapability(mixed, Capability.DISPLAY_INPUT, "B"));
 	}
 
 	@Test
@@ -292,6 +291,26 @@ public class AccessPolicyTest {
 		for (Role role : List.of(Role.PREPARATION, Role.REGISTRATION, Role.WEIGHIN, Role.PLATFORM, Role.DISPLAYS)) {
 			assertFalse(role.name(), AccessPolicy.hasCapability(account(null, new RoleGrant(role, null)),
 			        Capability.EXPORT_DATA, null));
+		}
+	}
+
+	@Test
+	public void checkpointsNeedTheCompetitionSupervisor() {
+		for (Role role : List.of(Role.COMPETITION_SUPERVISOR, Role.ADMIN)) {
+			assertTrue(role.name(), AccessPolicy.hasCapability(account(null, new RoleGrant(role, null)),
+			        Capability.CHECKPOINT, null));
+		}
+		for (Role role : List.of(Role.RESULTS, Role.EXTERNAL, Role.COMPETITION_DIRECTOR, Role.PLATFORM)) {
+			assertFalse(role.name(), AccessPolicy.hasCapability(account(null, new RoleGrant(role, null)),
+			        Capability.CHECKPOINT, null));
+		}
+	}
+
+	@Test
+	public void onlyAdminAndCompetitionSupervisorCoverAllPlatforms() {
+		for (Role role : Role.values()) {
+			assertEquals(role.name(), role == Role.ADMIN || role == Role.COMPETITION_SUPERVISOR,
+			        role.coversAllPlatforms());
 		}
 	}
 }
