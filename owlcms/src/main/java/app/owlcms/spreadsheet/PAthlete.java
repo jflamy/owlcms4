@@ -492,6 +492,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 		return this.a.getCleanJerkTotal();
 	}
 
+	@Deprecated
 	@Override
 	public String getClub() {
 		return this.a.getClub();

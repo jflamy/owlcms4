@@ -28,7 +28,7 @@ import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.export.AthleteSessionDataReader;
-import app.owlcms.data.export.v2.AthleteDTO;
+import app.owlcms.data.export.v2.V2Json;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -163,7 +163,7 @@ public class AthleteLiftTimeTest {
 		boolean previous = Athlete.isSkipValidationsDuringImport();
 		try {
 			Athlete.setSkipValidationsDuringImport(true);
-			Athlete restored = AthleteDTO.fromAthlete(source).toAthlete(null);
+			Athlete restored = V2Json.toAthlete(V2Json.toJson(source), null, null);
 			assertEquals(times(source), times(restored));
 			Athlete copied = new Athlete();
 			Athlete.conditionalCopy(copied, source, true, true, false);

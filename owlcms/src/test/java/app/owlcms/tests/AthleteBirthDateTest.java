@@ -14,10 +14,12 @@ import org.junit.Test;
 import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.config.Config;
-import app.owlcms.data.export.v2.AthleteDTO;
+import app.owlcms.data.export.v2.V2Json;
 import app.owlcms.data.jpa.JPAService;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 public class AthleteBirthDateTest {
 
@@ -102,27 +104,29 @@ public class AthleteBirthDateTest {
 	}
 
 	@Test
-	public void v2DtoRoundTripPreservesYearOnlyPrecision() {
+	public void v2RoundTripPreservesYearOnlyPrecision() {
 		Athlete athlete = new Athlete();
 		athlete.setIsoBirthDate("2003");
 
-		AthleteDTO dto = AthleteDTO.fromAthlete(athlete);
-		Athlete roundTripped = dto.toAthlete(null);
+		JsonNode json = V2Json.toJson(athlete);
+		Athlete roundTripped = V2Json.toAthlete(json, null, null);
 
-		assertEquals("2003", dto.getIsoBirthDate());
-		assertEquals(LocalDate.of(2003, 1, 1), dto.getFullBirthDate());
+		assertEquals("2003", json.get("isoBirthDate").asString());
+		assertEquals("2003-01-01", json.get("fullBirthDate").asString());
 		assertEquals("2003", roundTripped.getIsoBirthDate());
 	}
 
 	@Test
-	public void v2DtoIsoBirthDateWinsOverConflictingLegacyDate() {
+	public void v2IsoBirthDateWinsOverConflictingLegacyDate() {
 		Athlete source = new Athlete();
 		source.setFullBirthDate(LocalDate.of(2003, 12, 2));
-		AthleteDTO dto = AthleteDTO.fromAthlete(source);
-		dto.setFullBirthDate(LocalDate.of(2003, 12, 2));
-		dto.setIsoBirthDate("2004");
+		ObjectNode json = (ObjectNode) V2Json.toJson(source);
+		// the legacy full date after the year, so that it is read last
+		json.remove("fullBirthDate");
+		json.put("isoBirthDate", "2004");
+		json.put("fullBirthDate", "2003-12-02");
 
-		Athlete athlete = dto.toAthlete(null);
+		Athlete athlete = V2Json.toAthlete(json, null, null);
 
 		assertEquals("2004", athlete.getIsoBirthDate());
 		assertEquals(LocalDate.of(2004, 1, 1), athlete.getFullBirthDate());

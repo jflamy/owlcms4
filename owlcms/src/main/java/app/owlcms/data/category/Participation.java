@@ -303,6 +303,15 @@ public class Participation implements IRankHolder {
 		this.athlete = athlete;
 	}
 
+	/**
+	 * Links a participation read from an export to its athlete. The id is derived from the athlete and the category,
+	 * as in {@link #Participation(Athlete, Category)}.
+	 */
+	public void attachImported(Athlete athlete) {
+		this.athlete = athlete;
+		this.id = new ParticipationId(athlete.getId(), this.category.getId());
+	}
+
 	public void setCategory(Category category) {
 		this.category = category;
 	}

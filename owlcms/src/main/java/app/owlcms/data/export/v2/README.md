@@ -11,10 +11,12 @@ This package provides an alternative JSON export format (V2) for competition dat
 2. **Group renamed to Session**: The `Group` entity is exported as `sessions` instead of `groups` in the JSON structure.
 
 3. **Code/Name References**: Instead of using database IDs for relationships, V2 uses human-readable codes and names:
-   - Athletes reference groups by **group name** instead of group ID
-   - Athletes reference categories by **category code** instead of category ID
-   - Sessions reference platforms by **platform name** instead of platform ID
-   - Athletes reference teams by **team ID** (hashcode of team name) with a separate teams collection
+   - Athletes reference sessions by **session name** (`sessionName`) instead of group ID
+   - Athletes and their participations reference categories by **category code** (`categoryCode`) instead of category ID
+   - Sessions reference platforms by **platform name** (`platformName`) instead of platform ID
+   - Timetable entries reference sessions by **session name** (`sessionName`)
+   - Athletes reference teams by **team ID** (hashcode of team name) with a separate teams collection; the team name
+     itself is also written as `teamName` (and as the deprecated `club`, still read by version 68)
 
 4. **Numeric Lifts**: In the Athlete data, lift values are stored as **Integer** instead of String:
    - `null` represents an empty/not-yet-declared lift (instead of empty string)
@@ -26,14 +28,13 @@ This package provides an alternative JSON export format (V2) for competition dat
 **On Export** (Domain → V2 JSON):
 
 - Empty string lift values (`""`) in the database are converted to `null` in the JSON
-- The `parseWeight()` method returns `null` for empty or null strings
-- In JSON, `null` lifts may be omitted entirely by Jackson (reducing file size) or explicitly represented as `null`
+- `V2Json.parseWeight()` returns `null` for empty or null strings
+- In JSON, `null` lifts are written explicitly as `null`
 
 **On Import** (V2 JSON → Domain):
 
 - `null` values in JSON are converted back to empty strings (`""`) for storage in the database
 - Missing fields are treated as `null` and converted to empty strings
-- The `formatWeight()` method converts `null` Integer values to empty string `""`
 - This preserves the existing database schema where lifts are stored as strings
 
 **Example**:
@@ -87,24 +88,33 @@ String version = FormatDetector.detectVersion(inputStream);
 
 ## Implementation Details
 
-### DTO Classes
+### Classes
 
-- **CompetitionDataV2**: Main export/import class containing all competition data
-- **SessionDTO**: DTO for Group entity (renamed to Session in export)
-- **AthleteDTO**: DTO for Athlete entity with numeric lifts and code/name references
-- **TeamDTO**: DTO for Team (synthetic entity created from team name strings with ID as hashcode)
+- **CompetitionDataV2**: the export file; restores it in one transaction.
+- **V2Json**: converts entities to and from their V2 JSON. Jackson writes every property that has both a getter and
+  a setter, as V1 does, so a property added to an entity is exported and restored without further code.
+- **V2Mixins**: the only differences from V1, as Jackson mixins:
+  - database ids are not written; references are written as names or codes
+  - nested objects (categories in age groups, participations in athletes) do not refer back to their parent
+  - attempt weights are numbers; the team is a numeric id into the `teams` table
+  - computed values that external readers use are written explicitly (`key`, `bestSnatch`, `bestCleanJerk`,
+    `presumedBodyWeight`, `forcedAsCurrent`, the participations' scores and ranks, the categories' `code` and
+    `categoryName`)
+- **TeamDTO**: an entry of the `teams` table. There is no team entity: an athlete's team is a name. External readers
+  rely on the ids; `TeamDTO.idCollisions` reports team names that share one, which the export logs as an error.
 
-### Conversion Logic
+References by name or code (session, platform, category) are resolved with the import's own entity manager: the
+entities they refer to were written earlier in the same transaction and are not committed yet. An unknown reference
+is logged as a warning.
 
-**Domain to DTO (Export)**:
+### Format Rules
 
-- `AthleteDTO.fromAthlete()`: Converts Athlete to DTO with numeric lifts
-- `SessionDTO.fromGroup()`: Converts Group to DTO with platform name
-
-**DTO to Domain (Import)**:
-
-- `AthleteDTO.toAthlete()`: Converts DTO back to Athlete, resolving names to IDs
-- `SessionDTO.toGroup()`: Converts DTO back to Group, resolving platform name to reference
+- V2 carries every property that V1 round-trips (getter and setter), with database ids replaced by names or codes.
+- External readers rely on the format: existing fields keep their names and value types; fields may be added, and
+  readers ignore those they don't know.
+- `V2FormatCoverageTest` checks that every property V1 round-trips is in V2 (renames and dropped ids are listed
+  there); `V2FixtureRoundTripTest` checks that a fresh export keeps every field of the fixture and that export,
+  reload and export give the same file.
 
 ### Format Detection
 
@@ -139,9 +149,10 @@ The `FormatDetector` class uses the following logic:
     {
       "lastName": "Smith",
       "firstName": "John",
-      "groupName": "A",
+      "sessionName": "A",
       "categoryCode": "M81",
       "team": 12345678,
+      "teamName": "Barbell Club",
       "snatch1Declaration": 100,
       "snatch1ActualLift": -100,
       "snatch2Declaration": 105,

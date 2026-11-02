@@ -8,16 +8,19 @@ package app.owlcms.data.export.v2;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.json.JsonMapper;
@@ -38,6 +41,7 @@ import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.RankingConfig;
+import app.owlcms.data.athleteSort.RegistrationOrderComparator;
 import app.owlcms.data.coach.Coach;
 import app.owlcms.data.coach.CoachRepository;
 import app.owlcms.data.competition.Competition;
@@ -96,23 +100,31 @@ import ch.qos.logback.classic.Logger;
 public class CompetitionDataV2 {
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(CompetitionDataV2.class);
+
+	private static final Comparator<AgeGroup> AGE_GROUP_EXPORT_ORDER = Comparator
+	        .comparing(AgeGroup::getAgeDivision, Comparator.nullsLast(Comparator.naturalOrder()))
+	        .thenComparing(AgeGroup::getMinAge, Comparator.nullsLast(Comparator.naturalOrder()))
+	        .thenComparing(AgeGroup::getMaxAge, Comparator.nullsLast(Comparator.naturalOrder()))
+	        .thenComparing(AgeGroup::getGender, Comparator.nullsLast(Comparator.naturalOrder()))
+	        .thenComparing(AgeGroup::getCode, Comparator.nullsLast(Comparator.naturalOrder()));
 	
 	private String formatVersion = "2.0";
 	private String exportDate;
 	private Competition competition;
 	private Config config;
 	private List<UserAccount> accounts;
-	private List<ChampionshipDTO> championships;
-	private List<AgeGroupDTO> ageGroups;
+	// sections written by V2Json: bound to entities during the import transaction, where references are resolved
+	private List<JsonNode> championships;
+	private List<JsonNode> ageGroups;
 	private List<TeamDTO> teams;
 	private List<Coach> coaches;
-	private List<SessionDTO> sessions;
-	private List<AthleteDTO> athletes;
+	private List<JsonNode> sessions;
+	private List<JsonNode> athletes;
 	private List<Platform> platforms;
 	private List<RecordEvent> records;
 	private RecordConfig recordConfig;
 	private List<TechnicalOfficial> technicalOfficials;
-	private List<TimetableEntryDTO> technicalOfficialsTimetable;
+	private List<JsonNode> technicalOfficialsTimetable;
 
 	public CompetitionDataV2() {
 	}
@@ -169,38 +181,42 @@ public class CompetitionDataV2 {
 		// Read championships through the cache (Championship.findAllIncludingTemplate) rather than
 		// the per-call DB query in ChampionshipRepository.
 		setChampionships(Championship.findAllIncludingTemplate().stream()
-			.map(ChampionshipDTO::fromChampionship)
+			.map(V2Json::toJson)
 			.collect(Collectors.toList()));
 		
-		// Convert AgeGroups to DTOs with category codes
+		// lists are written in a canonical order, so that exporting the same data twice gives the same file
 		setAgeGroups(AgeGroupRepository.findAll().stream()
-			.map(AgeGroupDTO::fromAgeGroup)
+			.sorted(AGE_GROUP_EXPORT_ORDER)
+			.map(V2Json::toJson)
 			.collect(Collectors.toList()));
 		
 		List<Athlete> allAthletes = AthleteRepository.findAll()
 		        .stream()
+		        .sorted(RegistrationOrderComparator.athleteRegistrationOrderComparator
+		                .thenComparing(Athlete::getKey))
 		        .collect(Collectors.toList());
 		
-		// Build team map from unique team names
-		Map<String, TeamDTO> teamMap = new HashMap<>();
+		// the teams table: external readers look up the athletes' numeric team ids in it
+		Set<String> teamNames = new TreeSet<>();
 		for (Athlete athlete : allAthletes) {
 			String teamName = athlete.getTeam();
-			if (teamName != null && !teamName.trim().isEmpty() && !teamMap.containsKey(teamName)) {
-				teamMap.put(teamName, new TeamDTO(teamName));
+			if (teamName != null && !teamName.isBlank()) {
+				teamNames.add(teamName);
 			}
 		}
-		setTeams(teamMap.values().stream().collect(Collectors.toList()));
+		setTeams(teamNames.stream().map(TeamDTO::new).collect(Collectors.toList()));
+		TeamDTO.idCollisions(teamNames).forEach((id, names) -> logger.error(
+		        "V2 export: teams {} share the id {}; readers using the teams table will merge them", names, id));
 		setCoaches(CoachRepository.findAll());
 		
 		// Convert sessions first so athletes can reference sessions on import
 		List<Group> allGroups = GroupRepository.findAll();
 		setSessions(allGroups.stream()
-			.map(SessionDTO::fromGroup)
+			.map(V2Json::toJson)
 			.collect(Collectors.toList()));
 
-		// Convert athletes with team references (after sessions)
 		setAthletes(allAthletes.stream()
-			.map(a -> AthleteDTO.fromAthlete(a, teamMap))
+			.map(V2Json::toJson)
 			.collect(Collectors.toList()));
 		
 		setPlatforms(PlatformRepository.findAll());
@@ -215,10 +231,9 @@ public class CompetitionDataV2 {
 		setRecordConfig(RecordConfig.getCurrent());
 		setTechnicalOfficials(TechnicalOfficialRepository.findAll());
         
-		// Convert timetable entries from V2 format (DTO with session names)
 		setTechnicalOfficialsTimetable(
 			JPAService.runInTransaction(em -> TechnicalOfficialsTimetableRepository.findAll(em)).stream()
-				.map(TimetableEntryDTO::fromEntity)
+				.map(V2Json::toJson)
 				.collect(Collectors.toList())
 		);
 		
@@ -230,8 +245,6 @@ public class CompetitionDataV2 {
 		CompetitionDataV2 newData;
 		try {
 			newData = mapper.readValue(serialized, CompetitionDataV2.class);
-			normalizeChampionshipOrder(newData.getChampionships());
-			normalizeTeamPointsPolicies(newData.getChampionships());
 			RecordConfig.normalizeImportedRecordNames(newData.getRecords(), newData.getRecordConfig());
 			newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), null));
 			logger.info("V2 import: {} ageGroups, {} teams, {} sessions, {} athletes, {} platforms", 
@@ -248,27 +261,19 @@ public class CompetitionDataV2 {
 		}
 	}
 
-	private static void normalizeTeamPointsPolicies(List<ChampionshipDTO> championships) {
-		if (championships != null) {
-			championships.stream().filter(Objects::nonNull).forEach(ChampionshipDTO::normalizeTeamPointsPolicy);
+	/**
+	 * The championships as the import restores them, as the V1 import does: missing orders follow the highest, and
+	 * team-points policies are made consistent.
+	 */
+	public List<Championship> importedChampionships() {
+		if (this.championships == null) {
+			return List.of();
 		}
-	}
-
-	private static void normalizeChampionshipOrder(List<ChampionshipDTO> championships) {
-		if (championships == null) {
-			return;
-		}
-		int nextOrder = championships.stream()
-		        .filter(championship -> championship != null && !championship.isCompetitionTemplate()
-		                && championship.getOrder() != null)
-		        .mapToInt(ChampionshipDTO::getOrder)
-		        .max()
-		        .orElse(-1) + 1;
-		for (ChampionshipDTO championship : championships) {
-			if (championship != null && !championship.isCompetitionTemplate() && championship.getOrder() == null) {
-				championship.setOrder(nextOrder++);
-			}
-		}
+		List<Championship> result = this.championships.stream().map(V2Json::toChampionship)
+		        .collect(Collectors.toList());
+		Championship.assignMissingOrder(result);
+		result.forEach(Championship::normalizeTeamPointsPolicy);
+		return result;
 	}
 
 	public void restore(InputStream inputStream) {
@@ -304,50 +309,26 @@ public class CompetitionDataV2 {
 				Competition.setCurrent(competition);			// Recompute mustCompute rankings based on imported Competition and age groups
 			RankingConfig.updateMustCompute();
 			if (updated.getChampionships() != null) {
-				for (ChampionshipDTO championshipDto : updated.getChampionships()) {
-					Championship championship = championshipDto.toChampionship();
+				for (Championship championship : updated.importedChampionships()) {
+					if (championship.isCompetitionTemplate()) {
+						championship.setName(Championship.COMPETITION_TEMPLATE_NAME);
+					}
 					Championship existing = championship.isCompetitionTemplate()
 					        ? ChampionshipRepository.ensureCompetitionTemplate(em)
 					        : ChampionshipRepository.findByName(championship.getName());
 					if (existing == null) {
 						em.persist(championship);
 					} else {
-						existing.setCompetitionTemplate(championship.isCompetitionTemplate());
-						existing.setOrder(championship.getOrder());
-						existing.setType(championship.getType());
-						existing.setScoringSystem(championship.getScoringSystem());
-						existing.setBestAthleteScoringSystem(championship.getBestAthleteScoringSystem());
-						existing.setBestSnatchScoringSystem(championship.getBestSnatchScoringSystem());
-						existing.setBestCJScoringSystem(championship.getBestCJScoringSystem());
-						existing.setSnatchCJTotalMedals(championship.isSnatchCJTotalMedals());
-						existing.setMedalPolicy(championship.getMedalPolicy());
-						existing.setTeamPointsPolicy(championship.getTeamPointsPolicy());
-						existing.setTeamPoints1st(championship.getTeamPoints1st());
-						existing.setTeamPoints2nd(championship.getTeamPoints2nd());
-						existing.setTeamPoints3rd(championship.getTeamPoints3rd());
-						existing.setMensBestN(championship.getMensBestN());
-						existing.setWomensBestN(championship.getWomensBestN());
-						existing.setMixedMensBestN(championship.getMixedMensBestN());
-						existing.setMixedWomensBestN(championship.getMixedWomensBestN());
-						existing.setMixedBestN(championship.getMixedBestN());
-						existing.setExplicitTeamSize(championship.getExplicitTeamSize());
-						existing.setMaxTeamSize(championship.getMaxTeamSize());
-						existing.setMaxPerCategory(championship.getMaxPerCategory());
-						existing.setExplicitMixedTeamMembers(championship.isExplicitMixedTeamMembers());
-						existing.setGenderedTeamsEnabled(championship.isGenderedTeamsEnabled());
-						existing.setMixedTeamEnabled(championship.isMixedTeamEnabled());
-						existing.setTeamScoringSystem(championship.getTeamScoringSystem());
-						existing.setMixedTeamScoringSystem(championship.getMixedTeamScoringSystem());
+						// championships are not deleted before an import: the stored row takes the imported values
+						V2Json.copyChampionship(championship, existing);
 						em.merge(existing);
 					}
 				}
 				em.flush();
 			}
-			for (AgeGroupDTO agDto : updated.getAgeGroups()) {
-				// Convert DTO to entity
-				AgeGroup ag = agDto.toAgeGroup();
-			em.persist(ag);
-		}
+			for (JsonNode ageGroup : updated.getAgeGroups()) {
+				em.persist(V2Json.toAgeGroup(ageGroup));
+			}
 		// Flush to ensure categories from AgeGroups are available for lookup
 		em.flush();
 
@@ -374,15 +355,16 @@ public class CompetitionDataV2 {
 
 		// IMPORTANT: Groups/Sessions must be created BEFORE Athletes
 		// Athletes reference Groups via GroupRepository.findByName() during toAthlete()
-		for (SessionDTO sDto : updated.getSessions()) {
-			Group g = sDto.toGroup(em);
+		for (JsonNode session : updated.getSessions()) {
+			Group g = V2Json.toSession(session, em);
 			g.cleanImportedOfficialNames();
 			em.merge(g);
 		}
 
 		// Now create Athletes which will look up their Groups by name
-		for (AthleteDTO aDto : updated.getAthletes()) {
-			Athlete a = aDto.toAthlete(em, teamIdToNameMap);
+		for (JsonNode athlete : updated.getAthletes()) {
+			Athlete a = V2Json.toAthlete(athlete, em, teamIdToNameMap);
+			a.cleanImportedText();
 			em.persist(a);
 		}
 
@@ -414,15 +396,14 @@ public class CompetitionDataV2 {
 			}
 		}
 		
-		// Restore timetable entries: convert DTOs to entities, looking up Groups by session name
+		// timetable entries refer to sessions by name, resolved with the import's entity manager
 		if (updated.getTechnicalOfficialsTimetable() != null) {
-			for (TimetableEntryDTO dto : updated.getTechnicalOfficialsTimetable()) {
-				if (dto.getSessionName() != null) {
-					Group group = GroupRepository.findByName(dto.getSessionName());
-					if (group != null) {
-						TechnicalOfficialsTimetable entity = dto.toEntity(group);
-						em.merge(entity);
-					}
+			for (JsonNode node : updated.getTechnicalOfficialsTimetable()) {
+				TechnicalOfficialsTimetable entry = V2Json.toTimetableEntry(node, em);
+				if (entry.getGroup() != null) {
+					em.merge(entry);
+				} else {
+					logger./**/warn("V2 import: timetable entry without a known session ignored: {}", node);
 				}
 			}
 		}
@@ -478,27 +459,28 @@ public class CompetitionDataV2 {
 		this.exportDate = exportDate;
 	}
 
-	public List<ChampionshipDTO> getChampionships() {
+	public List<JsonNode> getChampionships() {
 		return championships;
 	}
 
-	public void setChampionships(List<ChampionshipDTO> championships) {
+	public void setChampionships(List<JsonNode> championships) {
 		this.championships = championships;
 	}
 
-	public List<AgeGroupDTO> getAgeGroups() {
+	public List<JsonNode> getAgeGroups() {
 		return ageGroups;
 	}
 
-	public void setAgeGroups(List<AgeGroupDTO> ageGroups) {
+	public void setAgeGroups(List<JsonNode> ageGroups) {
 		this.ageGroups = ageGroups;
 	}
 
-	public List<AthleteDTO> getAthletes() {
+	/** Athletes in their V2 form; {@link V2Json#toAthlete} binds them. */
+	public List<JsonNode> getAthletes() {
 		return athletes;
 	}
 
-	public void setAthletes(List<AthleteDTO> athletes) {
+	public void setAthletes(List<JsonNode> athletes) {
 		this.athletes = athletes;
 	}
 
@@ -541,11 +523,12 @@ public class CompetitionDataV2 {
 		this.accounts = accounts;
 	}
 
-	public List<SessionDTO> getSessions() {
+	/** Sessions in their V2 form, see {@link V2Json}; bound to entities during the import transaction. */
+	public List<JsonNode> getSessions() {
 		return sessions;
 	}
 
-	public void setSessions(List<SessionDTO> sessions) {
+	public void setSessions(List<JsonNode> sessions) {
 		this.sessions = sessions;
 	}
 
@@ -597,11 +580,11 @@ public class CompetitionDataV2 {
 		this.technicalOfficials = technicalOfficials;
 	}
 
-	public List<TimetableEntryDTO> getTechnicalOfficialsTimetable() {
+	public List<JsonNode> getTechnicalOfficialsTimetable() {
 		return technicalOfficialsTimetable;
 	}
 
-	public void setTechnicalOfficialsTimetable(List<TimetableEntryDTO> timetable) {
+	public void setTechnicalOfficialsTimetable(List<JsonNode> timetable) {
 		this.technicalOfficialsTimetable = timetable;
 	}
 }

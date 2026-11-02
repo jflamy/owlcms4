@@ -225,7 +225,8 @@ directly.
 Update:
 
 - the `Championships` worksheet reader and writer;
-- JSON V2 `ChampionshipDTO` conversion;
+- JSON V2: championships are written from their stored fields by `V2Json`, so new fields need no conversion code;
+  check the fixture round trip (`V2FixtureRoundTripTest`);
 - stored-field JSON export behavior;
 - championship normalization and migration;
 - age-group definition documentation;

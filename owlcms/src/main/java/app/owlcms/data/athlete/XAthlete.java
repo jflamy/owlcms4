@@ -492,6 +492,7 @@ public class XAthlete extends Athlete {
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getClub()
 	 */
+	@Deprecated
 	@Override
 	public String getClub() {
 		return this.a.getClub();
@@ -1590,6 +1591,7 @@ public class XAthlete extends Athlete {
 	 * @param club
 	 * @see app.owlcms.data.athlete.Athlete#setClub(java.lang.String)
 	 */
+	@Deprecated
 	@Override
 	public void setClub(String club) {
 		this.a.setClub(club);

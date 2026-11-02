@@ -1616,9 +1616,19 @@ public class Group implements Comparable<Group> {
 		this.firstSnatchTime = now;
 	}
 
+	/** Bean setter, so that exports restore the value. */
+	public void setFirstSnatchTime(LocalDateTime firstSnatchTime) {
+		this.firstSnatchTime = firstSnatchTime;
+	}
+
 	public void setFirstCJTime(LocalDateTime now, FieldOfPlay fop) {
 		logger.debug("{} {} setFirstCJTime {} {}", FieldOfPlay.getLoggingName(fop), this, now, LoggerUtils.whereFrom());
 		this.firstCJTime = now;
+	}
+
+	/** Bean setter, so that exports restore the value. */
+	public void setFirstCJTime(LocalDateTime firstCJTime) {
+		this.firstCJTime = firstCJTime;
 	}
 
 	public void setLastSnatchDecisionTime(LocalDateTime now, Group session, FieldOfPlay fop) {
@@ -1626,9 +1636,19 @@ public class Group implements Comparable<Group> {
 		this.lastSnatchDecisionTime = now;
 	}
 
+	/** Bean setter, so that exports restore the value. */
+	public void setLastSnatchDecisionTime(LocalDateTime lastSnatchDecisionTime) {
+		this.lastSnatchDecisionTime = lastSnatchDecisionTime;
+	}
+
 	public void setLastCJDecisionTime(LocalDateTime now, Group session, FieldOfPlay fop) {
 		logger.debug("{} {} setLastCJDecision {} {}", FieldOfPlay.getLoggingName(fop), this, now, LoggerUtils.whereFrom());
 		this.lastCJDecisionTime = now;
+	}
+
+	/** Bean setter, so that exports restore the value. */
+	public void setLastCJDecisionTime(LocalDateTime lastCJDecisionTime) {
+		this.lastCJDecisionTime = lastCJDecisionTime;
 	}
 
 	public void setFirstSnatchExcelTime(double ignored) {

@@ -43,8 +43,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ForwardingConnection;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.export.CompetitionData;
-import app.owlcms.data.export.v2.AthleteDTO;
-import app.owlcms.data.export.v2.ChampionshipDTO;
+import app.owlcms.data.export.v2.V2Json;
 import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
@@ -323,9 +322,9 @@ public class JSONExportImportTest {
                 new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
 
         assertNotNull(imported);
-        assertEquals(Integer.valueOf(5), imported.getChampionships().get(0).getOrder());
-        assertEquals(Integer.valueOf(6), imported.getChampionships().get(1).getOrder());
-        assertEquals(Integer.valueOf(7), imported.getChampionships().get(2).getOrder());
+        assertEquals(Integer.valueOf(5), imported.importedChampionships().get(0).getOrder());
+        assertEquals(Integer.valueOf(6), imported.importedChampionships().get(1).getOrder());
+        assertEquals(Integer.valueOf(7), imported.importedChampionships().get(2).getOrder());
     }
 
     @Test
@@ -353,7 +352,7 @@ public class JSONExportImportTest {
         source.setScaleWeight(81.37);
         source.setIndividualEligibilityStatus(EligibleForIndividualRankingStatus.OOC_DID_NOT_MAKE_WEIGHT);
 
-        Athlete restored = AthleteDTO.fromAthlete(source).toAthlete(null);
+        Athlete restored = V2Json.toAthlete(V2Json.toJson(source), null, null);
 
         assertEquals(Double.valueOf(81.37), restored.getScaleWeight());
         assertEquals(EligibleForIndividualRankingStatus.OOC_DID_NOT_MAKE_WEIGHT,
@@ -377,7 +376,7 @@ public class JSONExportImportTest {
 
         CompetitionDataV2 exported = new CompetitionDataV2();
         exported.setConfig(Config.getCurrent());
-        exported.setAthletes(List.of(AthleteDTO.fromAthlete(source)));
+        exported.setAthletes(List.of(V2Json.toJson(source)));
         exported.setPlatforms(List.of());
         String json = new String(exported.exportData().readAllBytes(), StandardCharsets.UTF_8);
         JsonNode athlete = JsonMapper.builder().build().readTree(json).get("athletes").get(0);
@@ -395,7 +394,7 @@ public class JSONExportImportTest {
 
         CompetitionDataV2 imported = new CompetitionDataV2().importData(
                 new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
-        Athlete restored = imported.getAthletes().get(0).toAthlete(null);
+        Athlete restored = V2Json.toAthlete(imported.getAthletes().get(0), null, null);
 
         assertEquals(List.of(false, true, false), restored.getSnatch1Decisions());
         assertEquals(Boolean.FALSE, restored.getSnatch1JuryDeliberation());
@@ -474,10 +473,10 @@ public class JSONExportImportTest {
                 new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
 
         assertNotNull(imported);
-        assertEquals(TeamPointsPolicy.ALL_THREE, imported.getChampionships().get(0).getTeamPointsPolicy());
-        assertEquals(TeamPointsPolicy.TOTAL_ONLY, imported.getChampionships().get(1).getTeamPointsPolicy());
-        assertEquals(MedalPolicy.ALL_THREE, imported.getChampionships().get(0).getMedalPolicy());
-        assertEquals(MedalPolicy.TOTAL_ONLY, imported.getChampionships().get(1).getMedalPolicy());
+        assertEquals(TeamPointsPolicy.ALL_THREE, imported.importedChampionships().get(0).getTeamPointsPolicy());
+        assertEquals(TeamPointsPolicy.TOTAL_ONLY, imported.importedChampionships().get(1).getTeamPointsPolicy());
+        assertEquals(MedalPolicy.ALL_THREE, imported.importedChampionships().get(0).getMedalPolicy());
+        assertEquals(MedalPolicy.TOTAL_ONLY, imported.importedChampionships().get(1).getMedalPolicy());
     }
 
     @Test
@@ -526,7 +525,7 @@ public class JSONExportImportTest {
             CompetitionDataV2 imported = new CompetitionDataV2().importData(
                     new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
             assertNotNull(imported);
-            Championship restored = imported.getChampionships().get(0).toChampionship();
+            Championship restored = imported.importedChampionships().get(0);
             for (Championship championship : List.of(legacy, restored)) {
                 assertEquals(MedalPolicy.LIFTS_ONLY, championship.getMedalPolicy());
                 assertEquals(TeamPointsPolicy.TOTAL_ONLY, championship.getTeamPointsPolicy());
@@ -585,7 +584,7 @@ public class JSONExportImportTest {
 
         Championship copy = new Championship("Lifts", null);
         copy.copyCompetitionSettingsFrom(template);
-        Championship restored = ChampionshipDTO.fromChampionship(copy).toChampionship();
+        Championship restored = V2Json.toChampionship(V2Json.toJson(copy));
 
         assertEquals(MedalPolicy.LIFTS_ONLY, restored.getMedalPolicy());
         assertEquals(TeamPointsPolicy.ALL_THREE, restored.getTeamPointsPolicy());
@@ -601,7 +600,7 @@ public class JSONExportImportTest {
         championship.setSnatchCJTotalMedals(true);
         championship.setTeamPointsPolicy(TeamPointsPolicy.LIFTS_ONLY);
 
-        Championship restored = ChampionshipDTO.fromChampionship(championship).toChampionship();
+        Championship restored = V2Json.toChampionship(V2Json.toJson(championship));
 
         assertEquals(TeamPointsPolicy.LIFTS_ONLY, restored.getTeamPointsPolicy());
     }
@@ -611,10 +610,10 @@ public class JSONExportImportTest {
         Championship championship = new Championship("Senior", null);
         championship.setOrder(3);
 
-        ChampionshipDTO dto = ChampionshipDTO.fromChampionship(championship);
-        Championship restored = dto.toChampionship();
+        JsonNode json = V2Json.toJson(championship);
+        Championship restored = V2Json.toChampionship(json);
 
-        assertEquals(Integer.valueOf(3), dto.getOrder());
+        assertEquals(3, json.get("order").asInt());
         assertEquals(Integer.valueOf(3), restored.getOrder());
     }
 

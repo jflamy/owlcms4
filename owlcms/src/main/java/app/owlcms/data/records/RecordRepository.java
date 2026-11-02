@@ -1100,7 +1100,7 @@ public class RecordRepository {
 		nmr.setAthleteAge(ali.getA().getAge());
 		nmr.setAthleteBW(ali.getA().getBodyWeight());
 		nmr.setGender(ali.getA().getGender());
-		nmr.setNation(ali.getA().getClub());
+		nmr.setNation(ali.getA().getTeamName());
 
 		nmr.setAgeGrp(mr.getAgeGrp());
 		nmr.setAgeGrpLower(mr.getAgeGrpLower());

@@ -19,8 +19,9 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
-import app.owlcms.data.export.v2.AthleteDTO;
+import app.owlcms.data.export.v2.V2Json;
 import app.owlcms.data.export.v2.TeamDTO;
+import tools.jackson.databind.JsonNode;
 import app.owlcms.data.team.Team;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.URLUtils;
@@ -44,23 +45,21 @@ public class AthleteExporter {
 			return Collections.emptyList();
 		}
 
-		// Build team map for consistent team ID references
-		Map<String, TeamDTO> teamMap = buildTeamMap(athletes);
-		
 		// Determine current and next athlete IDs from lifting order for classname
 		long currentId = (liftingOrder != null && liftingOrder.size() > 0) ? liftingOrder.get(0).getId() : -1L;
 		long nextId = (liftingOrder != null && liftingOrder.size() > 1) ? liftingOrder.get(1).getId() : -1L;
 
 		List<Map<String, Object>> result = new ArrayList<>();
 		for (Athlete athlete : athletes) {
-			AthleteDTO dto = AthleteDTO.fromAthlete(athlete, teamMap);
+			// the athlete as in the V2 export
+			JsonNode dto = V2Json.toJson(athlete);
 			
 			// Determine this athlete's position in lifting order for attempt status
 			int liftOrderRank = (athlete.getId() == currentId) ? 1 : ((athlete.getId() == nextId) ? 2 : 0);
 			int attemptsDone = athlete.getAttemptsDone();
 
 			// Build displayInfo with all precomputed display values
-			Map<String, Object> displayInfo = buildDisplayInfo(athlete, dto, liftOrderRank, attemptsDone);
+			Map<String, Object> displayInfo = buildDisplayInfo(athlete, liftOrderRank, attemptsDone);
 
 			Map<String, Object> sessionAthlete = new LinkedHashMap<>();
 			// Add top-level athleteKey for readability (redundant with athlete.key inside)
@@ -270,7 +269,7 @@ public class AthleteExporter {
 	/**
 	 * Build displayInfo map with all precomputed display values for an athlete.
 	 */
-	private static Map<String, Object> buildDisplayInfo(Athlete athlete, AthleteDTO dto, int liftOrderRank, int attemptsDone) {
+	private static Map<String, Object> buildDisplayInfo(Athlete athlete, int liftOrderRank, int attemptsDone) {
 		Map<String, Object> displayInfo = new HashMap<>();
 
 		// Only the active lift phase (snatch vs clean&jerk) may have the "current" or "next" markers.
@@ -281,9 +280,9 @@ public class AthleteExporter {
 		// Snatch1 has no automatic progression (first attempt)
 		List<Map<String, Object>> sattemptsList = new ArrayList<>();
 		int snatchLiftOrderRank = inCjPhase ? 0 : liftOrderRank;
-		sattemptsList.add(buildAttemptInfo(dto.getSnatch1ActualLift(), dto.getSnatch1Change2(), dto.getSnatch1Change1(), dto.getSnatch1Declaration(), null, snatchLiftOrderRank));
-		sattemptsList.add(buildAttemptInfo(dto.getSnatch2ActualLift(), dto.getSnatch2Change2(), dto.getSnatch2Change1(), dto.getSnatch2Declaration(), parseAutoProgression(dto.getSnatch2AutomaticProgression()), snatchLiftOrderRank));
-		sattemptsList.add(buildAttemptInfo(dto.getSnatch3ActualLift(), dto.getSnatch3Change2(), dto.getSnatch3Change1(), dto.getSnatch3Declaration(), parseAutoProgression(dto.getSnatch3AutomaticProgression()), snatchLiftOrderRank));
+		sattemptsList.add(buildAttemptInfo(V2Json.parseWeight(athlete.getSnatch1ActualLift()), V2Json.parseWeight(athlete.getSnatch1Change2()), V2Json.parseWeight(athlete.getSnatch1Change1()), V2Json.parseWeight(athlete.getSnatch1Declaration()), null, snatchLiftOrderRank));
+		sattemptsList.add(buildAttemptInfo(V2Json.parseWeight(athlete.getSnatch2ActualLift()), V2Json.parseWeight(athlete.getSnatch2Change2()), V2Json.parseWeight(athlete.getSnatch2Change1()), V2Json.parseWeight(athlete.getSnatch2Declaration()), parseAutoProgression(athlete.getSnatch2AutomaticProgression()), snatchLiftOrderRank));
+		sattemptsList.add(buildAttemptInfo(V2Json.parseWeight(athlete.getSnatch3ActualLift()), V2Json.parseWeight(athlete.getSnatch3Change2()), V2Json.parseWeight(athlete.getSnatch3Change1()), V2Json.parseWeight(athlete.getSnatch3Declaration()), parseAutoProgression(athlete.getSnatch3AutomaticProgression()), snatchLiftOrderRank));
 		// Only the first pending attempt should have a status; subsequent pending attempts are empty
 		enforceFirstPendingOnly(sattemptsList);
 		displayInfo.put("sattempts", sattemptsList);
@@ -291,9 +290,9 @@ public class AthleteExporter {
 		// CleanJerk1 has no automatic progression (first C&J attempt)
 		List<Map<String, Object>> cattemptsList = new ArrayList<>();
 		int cjLiftOrderRank = inCjPhase ? liftOrderRank : 0;
-		cattemptsList.add(buildAttemptInfo(dto.getCleanJerk1ActualLift(), dto.getCleanJerk1Change2(), dto.getCleanJerk1Change1(), dto.getCleanJerk1Declaration(), null, cjLiftOrderRank));
-		cattemptsList.add(buildAttemptInfo(dto.getCleanJerk2ActualLift(), dto.getCleanJerk2Change2(), dto.getCleanJerk2Change1(), dto.getCleanJerk2Declaration(), parseAutoProgression(dto.getCleanJerk2AutomaticProgression()), cjLiftOrderRank));
-		cattemptsList.add(buildAttemptInfo(dto.getCleanJerk3ActualLift(), dto.getCleanJerk3Change2(), dto.getCleanJerk3Change1(), dto.getCleanJerk3Declaration(), parseAutoProgression(dto.getCleanJerk3AutomaticProgression()), cjLiftOrderRank));
+		cattemptsList.add(buildAttemptInfo(V2Json.parseWeight(athlete.getCleanJerk1ActualLift()), V2Json.parseWeight(athlete.getCleanJerk1Change2()), V2Json.parseWeight(athlete.getCleanJerk1Change1()), V2Json.parseWeight(athlete.getCleanJerk1Declaration()), null, cjLiftOrderRank));
+		cattemptsList.add(buildAttemptInfo(V2Json.parseWeight(athlete.getCleanJerk2ActualLift()), V2Json.parseWeight(athlete.getCleanJerk2Change2()), V2Json.parseWeight(athlete.getCleanJerk2Change1()), V2Json.parseWeight(athlete.getCleanJerk2Declaration()), parseAutoProgression(athlete.getCleanJerk2AutomaticProgression()), cjLiftOrderRank));
+		cattemptsList.add(buildAttemptInfo(V2Json.parseWeight(athlete.getCleanJerk3ActualLift()), V2Json.parseWeight(athlete.getCleanJerk3Change2()), V2Json.parseWeight(athlete.getCleanJerk3Change1()), V2Json.parseWeight(athlete.getCleanJerk3Declaration()), parseAutoProgression(athlete.getCleanJerk3AutomaticProgression()), cjLiftOrderRank));
 		// Only the first pending attempt should have a status; subsequent pending attempts are empty
 		enforceFirstPendingOnly(cattemptsList);
 		displayInfo.put("cattempts", cattemptsList);

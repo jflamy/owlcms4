@@ -256,18 +256,21 @@ public class PlatformRepository {
 	 * @param string the string
 	 * @return the platform
 	 */
-	@SuppressWarnings("unchecked")
 	public static Platform findByName(String string) {
+		return JPAService.runInTransaction(em -> doFindByName(string, em));
+	}
+
+	/** @param em the caller's entity manager, which sees the caller's uncommitted platforms (e.g. during an import) */
+	@SuppressWarnings("unchecked")
+	public static Platform doFindByName(String string, EntityManager em) {
 		String normalizedName = normalizeName(string);
 		if (normalizedName == null || normalizedName.isBlank()) {
 			return null;
 		}
-		return JPAService.runInTransaction(em -> {
-			Query query = em.createQuery("select c from Platform c where lower(name) = lower(:string)");
-			query.setParameter("string", normalizedName);
-			List<Platform> resultList = query.getResultList();
-			return resultList.isEmpty() ? null : resultList.get(0);
-		});
+		Query query = em.createQuery("select c from Platform c where lower(name) = lower(:string)");
+		query.setParameter("string", normalizedName);
+		List<Platform> resultList = query.getResultList();
+		return resultList.isEmpty() ? null : resultList.get(0);
 	}
 
 	public static boolean hasDuplicateName(Platform platform) {

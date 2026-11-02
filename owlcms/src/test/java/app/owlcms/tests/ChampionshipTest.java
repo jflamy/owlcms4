@@ -70,7 +70,8 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.category.ParticipationId;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.export.v2.ChampionshipDTO;
+import app.owlcms.data.export.v2.V2Json;
+import tools.jackson.databind.JsonNode;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
@@ -1371,8 +1372,10 @@ public class ChampionshipTest {
             athletesBefore = List.of(new LiveAthleteSnapshot(juniorAthlete), new LiveAthleteSnapshot(seniorAthlete));
             ranksBefore = snapshotBestAthleteRanks();
             for (Championship championship : List.of(senior, junior)) {
+                // the stored value, not the one resolved through the competition defaults
+                JsonNode stored = V2Json.toJson(championship).get("bestAthleteScoringSystem");
                 systemsBefore.put(championship.getId(),
-                        ChampionshipDTO.fromChampionship(championship).getBestAthleteScoringSystem());
+                        stored == null || stored.isNull() ? null : Ranking.valueOf(stored.asString()));
             }
             JPAService.runInTransaction(em -> {
                 systemsBefore.keySet().forEach(id ->

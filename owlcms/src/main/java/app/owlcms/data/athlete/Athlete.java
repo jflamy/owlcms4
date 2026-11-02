@@ -2068,10 +2068,10 @@ public class Athlete {
 	}
 
 	/**
-	 * Gets the club.
-	 *
-	 * @return the club
+	 * @return the team name
+	 * @deprecated use {@link #getTeamName()}; still exported so that version 68 can read exports from 69
 	 */
+	@Deprecated
 	public String getClub() {
 		return getTeam();
 	}
@@ -3681,6 +3681,19 @@ public class Athlete {
 		return this.team;
 	}
 
+	/**
+	 * The team as exported: V2 writes {@code team} as a numeric id for external readers, and the name here.
+	 *
+	 * @return the team name
+	 */
+	public String getTeamName() {
+		return getTeam();
+	}
+
+	public void setTeamName(String teamName) {
+		setTeam(teamName);
+	}
+
 	@JsonIgnore
 	public String getTeamFlagPath() {
 		// use the same approach as URLUtils to find the flag
@@ -4548,10 +4561,10 @@ public class Athlete {
 	}
 
 	/**
-	 * Sets the club.
-	 *
-	 * @param club the club to set
+	 * @param club the team name
+	 * @deprecated use {@link #setTeamName(String)}; still imported so that version 68 can read exports from 69
 	 */
+	@Deprecated
 	public void setClub(String club) {
 		setTeam(club);
 	}

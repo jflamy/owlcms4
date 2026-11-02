@@ -29,7 +29,8 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.export.v2.ParticipationDTO;
+import app.owlcms.data.export.v2.V2Json;
+import tools.jackson.databind.JsonNode;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
@@ -346,11 +347,11 @@ public class ScoreboardRankDataTest {
 			assertFalse(fields.containsKey("sinclairMedal"));
 			assertFalse(fields.containsKey("totalMedal"));
 
-			ParticipationDTO exported = ParticipationDTO.fromParticipation(participation);
-			assertEquals(Integer.valueOf(4), exported.getTotalRank());
-			assertEquals(Integer.valueOf(2), exported.getCategoryScoreRank());
-			assertEquals(Integer.valueOf(11), exported.getBestAthleteRank());
-			assertEquals(participation.getCategoryScore(), exported.getCategoryScore());
+			JsonNode exported = V2Json.toJson(participation);
+			assertEquals(4, exported.get("totalRank").asInt());
+			assertEquals(2, exported.get("categoryScoreRank").asInt());
+			assertEquals(11, exported.get("bestAthleteRank").asInt());
+			assertEquals(participation.getCategoryScore(), Double.valueOf(exported.get("categoryScore").asDouble()));
 
 			championship.setScoringSystem(Ranking.TOTAL);
 			participation.setCategoryScoreRank(4);
