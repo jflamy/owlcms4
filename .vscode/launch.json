@@ -203,6 +203,7 @@
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_LOADJSON": "${input:loadJson}",
         "OWLCMS_ENABLEEVENTFORWARDING": "false",
+        "OWLCMS_PORT": "8081"
       }
     },
     {
