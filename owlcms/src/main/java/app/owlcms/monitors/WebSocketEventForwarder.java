@@ -78,6 +78,7 @@ import app.owlcms.utils.FlagsZipHelper;
 import app.owlcms.utils.GamxZipHelper;
 import app.owlcms.utils.LogosZipHelper;
 import app.owlcms.utils.PicturesZipHelper;
+import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.TranslationsZipHelper;
 import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.LoggerUtils;
@@ -2373,6 +2374,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			Runnable onOpenCallback = () -> {
 				logger.info("{}WebSocket connection established to {}, proactively sending database and startup data",
 				        FieldOfPlay.getLoggingName(getFop()), baseUrl);
+				sendServerInfo();
 				sendDatabase();
 				sendStartupDataZipBytes();
 			};
@@ -2655,6 +2657,19 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		}
 	}
 
+	private static void sendServerInfo(WebSocketEventSender sender) {
+		sender.send("server_info", Map.of(
+		        "port", StartupUtils.getServerPort(),
+		        "scheme", "http"));
+	}
+
+	private void sendServerInfo() {
+		WebSocketEventSender sender = WebSocketEventSender.getOrCreate(baseUrl, () -> baseUrl, null, updateKey);
+		if (sender != null) {
+			sendServerInfo(sender);
+		}
+	}
+
 	private record DatabaseZipExport(byte[] zipBytes, String databaseChecksum) {
 	}
 
@@ -2702,6 +2717,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 				sender.setOnOpenCallback(() -> {
 					logger.info("WebSocket connected to {}, sending startup data (mode=BINARY)", url);
+					sendServerInfo(sender);
 					DatabaseZipExport export = createFreshDatabaseZipExport(url);
 					if (export != null) {
 						sendDatabaseMetadata(sender, export.databaseChecksum());

@@ -11,6 +11,8 @@
 
 **Development log**
 
+- 69.0.0-beta03: Tracker connections report the OWLCMS web port so Tracker displays can open pages from the OWLCMS instance that is sending their data.
+
 - 69.0.0-beta03: Fixes for edge cases when closing the athlete card on decisions.
 
 - 69.0.0-beta03: Confirmed behavior of the passive speaker role when the competition director role is enabled (feature toggle, or accounts mode active)
