@@ -1059,6 +1059,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		Element element = plates.getElement();
 		element.getStyle().set("font-size", "3.3vh");
 		element.getClassList().set("dark", true);
+		element.getClassList().set("threeD", FeatureSwitch.THREE_D_ATTEMPT_BOARD.isEffective());
 		return element.getOuterHTML();
 	}
 

@@ -2678,7 +2678,9 @@ public class FieldOfPlay implements IUnregister {
 	 * updated before displaying.
 	 */
 	public void recomputeBarInUse() {
-		changePlatformEquipment(this.curAthlete, this.curWeight);
+		int weight = this.curWeight > 0 ? this.curWeight
+				: (this.curAthlete != null ? this.curAthlete.getNextAttemptRequestedWeight() : 0);
+		changePlatformEquipment(this.curAthlete, weight);
 	}
 
 	private void changePlatformEquipment(Athlete a, Integer newWeight) {
@@ -5343,7 +5345,7 @@ public class FieldOfPlay implements IUnregister {
 
 	private void uiShowPlates(BarbellOrPlatesChanged e) {
 		if (e.getOrigin() != this) {
-			changePlatformEquipment(this.curAthlete, this.curWeight);
+			recomputeBarInUse();
 		}
 		pushOutUIEvent(new UIEvent.BarbellOrPlatesChanged(e.getOrigin(), this));
 	}

@@ -41,6 +41,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.platform.Platform;
 import app.owlcms.data.team.Team;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -580,6 +581,14 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 	public void setTeamFlags(Boolean teamFlags) {
 		this.teamFlags = teamFlags;
+	}
+
+	/** Plates, collars or bars changed on the technical controller page: the update carries the new equipment. */
+	@Subscribe
+	public void slaveBarbellOrPlatesChanged(UIEvent.BarbellOrPlatesChanged e) {
+		if (!isActive()) return;
+		uiLog(e);
+		pushUpdate(e);
 	}
 
 	@Subscribe
@@ -1343,6 +1352,15 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		mapPut(sb, "attempt", this.attempt);
 		mapPut(sb, "attemptNumber", this.attemptNumber != null ? this.attemptNumber.toString() : null); // 1..3
 		mapPut(sb, "weight", this.weight != null ? this.weight.toString() : null);
+		if (getFop() != null) {
+			mapPut(sb, "barWeight", Integer.toString(getFop().getBarWeight()));
+			mapPut(sb, "lightBarInUse", Boolean.toString(getFop().isLightBarInUse()));
+			mapPut(sb, "useCollars", Boolean.toString(getFop().isUseCollarsIfAvailable()));
+			Platform platform = getFop().getPlatform();
+			if (platform != null) {
+				sb.put("platformEquipment", platformEquipment(platform));
+			}
+		}
 		mapPut(sb, "timeAllowed", this.timeAllowed != null ? this.timeAllowed.toString() : null);
 
 		// current session
@@ -2481,6 +2499,35 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		FOPState state = getFopState();
 		String value = state != null ? state.toString() : FOPState.INACTIVE.name();
 		mapPut(sb, "fopState", value);
+	}
+
+	/**
+	 * Plate, collar and bar inventory of the platform, sent with every update so a technical controller change
+	 * reaches the trackers without resending the database.
+	 */
+	private static Map<String, Object> platformEquipment(Platform platform) {
+		Map<String, Object> equipment = new LinkedHashMap<>();
+		equipment.put("nbL_25", platform.getNbL_25());
+		equipment.put("nbL_20", platform.getNbL_20());
+		equipment.put("nbL_15", platform.getNbL_15());
+		equipment.put("nbL_10", platform.getNbL_10());
+		equipment.put("nbL_5", platform.getNbL_5());
+		equipment.put("nbL_2_5", platform.getNbL_2_5());
+		equipment.put("nbS_5", platform.getNbS_5());
+		equipment.put("nbS_2_5", platform.getNbS_2_5());
+		equipment.put("nbS_2", platform.getNbS_2());
+		equipment.put("nbS_1_5", platform.getNbS_1_5());
+		equipment.put("nbS_1", platform.getNbS_1());
+		equipment.put("nbS_0_5", platform.getNbS_0_5());
+		equipment.put("nbC_2_5", platform.getNbC_2_5());
+		equipment.put("nbB_20", platform.getNbB_20());
+		equipment.put("nbB_15", platform.getNbB_15());
+		equipment.put("nbB_10", platform.getNbB_10());
+		equipment.put("nbB_5", platform.getNbB_5());
+		equipment.put("nonStandardBarAvailable", platform.isUseNonStandardBar());
+		equipment.put("nonStandardBarWeight", platform.getNonStandardBarWeight());
+		equipment.put("collarThreshold", platform.getCollarThreshold());
+		return equipment;
 	}
 
 	private void setMapFopStateObject(Map<String, Object> sb) {

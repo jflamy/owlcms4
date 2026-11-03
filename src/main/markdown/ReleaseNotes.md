@@ -15,6 +15,10 @@
 
 - 69.0.0-beta03: The Competition Supervisor can open Language and System Settings, and the Security and Audit tab of the Administration page (access mode, IWF compliance check, shared passwords). Audit key initialization, audit integrity verification and account management remain admin-only.
 
+- 69.0.0-beta03: Fixed: plate, collar and bar changes made on the technical controller page were not sent to the tracker. The tracker now receives the platform equipment and the bar selected by OWLCMS with every update.
+
+- 69.0.0-beta03: New `3DattemptBoard` feature switch: the attempt board shows the bar and plates in 3D, with real plate thicknesses and markings. Light bars are shown in color (5 kg purple, 10 kg green, 15 kg gold, other non-standard bars bronze). The technical controller page keeps the flat display.
+
 - 69.0.0-beta02: Attempt boards show jury votes by default when a jury is configured; the display option can turn them off for an individual board.
   - With the feature on, the decision stays visible while jury votes are pending; a supervisor can override the clock start if needed.
 

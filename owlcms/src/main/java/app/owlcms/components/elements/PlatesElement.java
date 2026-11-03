@@ -13,7 +13,6 @@ import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -82,22 +81,24 @@ public class PlatesElement extends FlexLayout {
 				}
 
 				String barColor = null;
-				// brown is used for non-standard bar (typically 15lb, 7kg)
-				if (barWeight < 4.99) {
-					barColor = "brown";
-				} else if (barWeight <= 5) {
-					barColor = "white";
-				} else if (barWeight < 9.99) {
-					barColor = "brown";
-				} else if (barWeight <= 10) {
+				String barTint = null;
+				if (barWeight == 5) {
+					barColor = "purple";
+					barTint = "#8a4baf";
+				} else if (barWeight == 10) {
 					barColor = "limegreen";
-				} else if (barWeight <= 15) {
+					barTint = "#3da65a";
+				} else if (barWeight == 15) {
 					barColor = "yellow";
-				} else if (barWeight <= 20) {
-					barColor = "blue";
+					barTint = "#d8b238";
+				} else if (barWeight != 20) {
+					// bronze is used for non-standard bar (typically 15lb, 7kg)
+					barColor = "#7a4b26";
+					barTint = "#7a4b26";
 				}
 				if (barColor != null) {
-					plate.getElement().getStyle().set("--bar-tint", barColor);
+					plate.getElement().getStyle().set("background-color", barColor);
+					plate.getElement().getStyle().set("--bar-tint", barTint);
 				}
 			}
 			this.add(plate);
@@ -129,7 +130,6 @@ public class PlatesElement extends FlexLayout {
 
 		int sleeveMm = totalWeight <= 150 ? 320 : totalWeight <= 210 ? 350 : 420;
 		this.getElement().getStyle().set("--sleeve-mm", Integer.toString(sleeveMm));
-		this.getElement().getClassList().set("threeD", FeatureSwitch.THREE_D_ATTEMPT_BOARD.isEffective());
 
 		// logger.debug("barWeight {}",barWeight);
 		int nonBarWeight = totalWeight - barWeight;
