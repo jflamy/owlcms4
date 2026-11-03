@@ -40,9 +40,10 @@ control panel launch from a checkpoint, are implemented and archived in
 | Order | Document | Scope |
 | --- | --- | --- |
 | 200 | [Age-group editing](200-AGEGROUP_EDIT_CONFIRMATION.md) | Target behavior for age-group edits and athlete reassignment per championship; stops the data loss. Current behavior unchanged since version 65; not blocking for a beta |
-| 210 | [Scoped dark dialogs](210-SCOPED_DARK_DIALOGS.md) | Stop display-page dark styling from leaking into ordinary pages |
 | 220 | [Store panel decisions](220-STORE_PANEL_DECISIONS.md) | Persist detailed review votes and circumstances for later reports |
 | 230 | [Document template settings](230-DOCUMENT_TEMPLATE_SETTINGS.md) | Store per-document template choices apart from `Competition`, so printing never counts as a change to the competition settings |
+
+Scoped dark dialogs (210) are done: [210-SCOPED_DARK_DIALOGS.md](done/210-SCOPED_DARK_DIALOGS.md).
 
 ## 3xx — Nice to have
 
@@ -51,12 +52,14 @@ control panel launch from a checkpoint, are implemented and archived in
 | 300 | [Medal eligibility](300-MEDAL_ELIGIBILITY.md) | Per-championship qualification, entry-total and team-point policies for mixed-rule competitions |
 | 310 | [Personal best records](310-PERSONAL_BEST_RECORDS.md) | Move live PB tracking into the record-event system |
 | 320 | [Windows signing](320-WINDOWS_SIGNING.md) | Authenticode signing for control-panel and video executables |
-| 330 | [Replays token](330-REPLAYS_TOKEN.md) | Video module: its own access token, generated in the app, required on replay URLs |
+| 330 | [Video replays token](330-VIDEO_REPLAYS_TOKEN.md) | Video module: its own access token, generated in the app, required on replay URLs |
 | 340 | [Cloud control panel token](340-CLOUD_CONTROL_PANEL_TOKEN.md) | Cloud app: generate the control panel token as a Fly secret, recover it from a marker secret name, copy icon |
 | 350 | [Tracker rank and score columns](350-TRACKER_SCOREBOARD_RANK_COLUMNS.md) | Forward the lift-rank decision from OWLCMS; tracker Score column and medal rank, matching the OWLCMS scoreboard per championship |
-| 360 | [Tracker reverse proxy](360-TRACKER_PROXY.md) | Tracker `/proxy`: target only from configuration (no `_target` open proxy); keep OWLCMS framing protection; the supported way to show a scoreboard inside another page |
 
 Seven-person adjudication, including Tracker jury forwarding, is complete and
 archived in [SEVEN_PERSON_ADJUDICATION.md](done/SEVEN_PERSON_ADJUDICATION.md),
 [TRACKER_JURY_VOTES.md](done/TRACKER_JURY_VOTES.md) and
 [phase-b-referee-lights-mqtt.md](done/phase-b-referee-lights-mqtt.md).
+
+The Tracker reverse proxy (360) is complete and archived in
+[360-TRACKER_PROXY.md](done/360-TRACKER_PROXY.md).

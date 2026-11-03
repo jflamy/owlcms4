@@ -255,7 +255,7 @@ disconnected on revocation.
 ## Replays
 
 Replays, in the video module, does not check OWLCMS account tokens. It gets its own
-token, generated in the video application: see [330](../330-REPLAYS_TOKEN.md).
+token, generated in the video application: see [330](../330-VIDEO_REPLAYS_TOKEN.md).
 
 ## Later work
 

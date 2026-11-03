@@ -10,7 +10,7 @@ locality, security settings, audit pages, admin password, admin pages, PIN mode 
 The [Database import](#database-import) plan is done, including the list of
 [protected actions](#protected-actions). Closed on 2026-10-31: the acceptance checks added that
 day passed; the original ones (PLATFORM(A), combined REGISTRATION/WEIGHIN/RESULTS, break
-controls) were not run. The tracker proxy review is [360](../360-TRACKER_PROXY.md).
+controls) were not run. The tracker proxy review is [360](360-TRACKER_PROXY.md).
 
 ## Navigation and in-page actions
 
@@ -52,7 +52,7 @@ Competition Supervisor, testing).
 | Vaadin dynamic downloads/uploads | Done, no change needed. All use `DownloadHandler`/`UploadHandler` (no legacy `StreamResource`/`StreamReceiver`); Flow serves them only within the owning session, and refuses (403) when the owning component is detached, hidden, disabled or inert; uploads also check a per-component key in constant time. Uploads are created inside dialogs opened by a button, or on a page with its own role (System Settings laptop override restore); downloads are created on click or inside a dialog. A protected action is therefore unreachable once its button is hidden or disabled, or its dialog is not opened; the protected-actions plan ([Database import](#database-import)) still checks again where the action runs. |
 | Forwarded client IP | Decided: no trusted-proxy work. The officials and display address lists are PIN mode only and keep reading `X-Forwarded-For` (weak, accepted). Accounts mode does not depend on the client address (login throttling and logs only); security needs accounts. |
 | CorsFilter | Done: removed. It answered any site with credentials on Vaadin UIDL, heartbeat and build requests, and tried to make the session cookie `SameSite=None` (only for `JSESSIONID`; the cookie is named `owlcms`, so it never applied). It was added to let another site show a scoreboard in an iframe, which CORS does not govern: a framed page talks to its own server. Decided 2026-10-31: framing OWLCMS from another site is not supported (Vaadin sends `X-Frame-Options: SAMEORIGIN` since 25.2, and the session cookie is not sent in a cross-site frame). To show a scoreboard inside another page, use the tracker's reverse proxy (`/proxy`, used by the celebrations plugin): the frame is then same-origin with the tracker page. |
-| Tracker `/proxy` (tracker repository) | Moved to [360](../360-TRACKER_PROXY.md): open proxy through `_target`, and framing protection stripped from proxied OWLCMS pages. |
+| Tracker `/proxy` (tracker repository) | Moved to [360](360-TRACKER_PROXY.md): open proxy through `_target`, and framing protection stripped from proxied OWLCMS pages. |
 
 ## Locality: the control panel token
 
