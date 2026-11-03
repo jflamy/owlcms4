@@ -221,7 +221,7 @@
 }
 
 .loadChart.threeD .plate::after {
-	content: 'KG';
+	content: 'kg';
 	position: absolute;
 	left: calc(100% - var(--rx));
 	top: calc(var(--diameter) * var(--size) * (var(--mark-top) + 0.084));
