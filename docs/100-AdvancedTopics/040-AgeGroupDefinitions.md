@@ -101,6 +101,6 @@ So in this example
 
 ## Loading the Age Group  Definition File
 
-The drop-down at the top of the page shows the available files.  After loading the file, the athletes will automatically be reassigned.
+The drop-down at the top of the page shows the available files.  After loading the file, all eligibilities are recomputed: every athlete is assigned to every category they now qualify for (age, gender, body weight and qualifying total), in all active age groups, and athletes who no longer qualify are removed.
 
 ![image-20260718103332522](img/040-AgeGroupDefinitions/image-20260718103332522.png)

@@ -83,6 +83,7 @@ import app.owlcms.data.athlete.RuleViolationException;
 import app.owlcms.data.athlete.RegistrationEditCheck;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.category.RegistrationQtHelper;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
@@ -780,8 +781,9 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		this.eligibleField = new CheckboxGroup<>();
 		bindField(this.binder.forField(this.eligibleField), this.eligibleField, Athlete::getEligibleCategories,
+
 		        Athlete::setEligibleCategories);
-		this.eligibleField.setRenderer(new TextRenderer<>(Category::getDisplayName));
+		this.eligibleField.setRenderer(new TextRenderer<>(this::eligibleCategoryLabel));
 		FormItem fi1 = layoutAddFormItem(layout, this.eligibleField,
 		        Translator.translate("Weighin.EligibleCategories"));
 		layout.setColspan(fi1, NB_COLUMNS - 1);
@@ -1166,8 +1168,14 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		bb3.withValidator(v3);
 		Validator<Integer> v3a = Validator.from((entryTotal) -> {
 			try {
-				Category category = this.categoryField != null ? this.categoryField.getValue() : null;
-				return isIgnoreErrors() || category == null || !category.requiresEntryTotalConfirmation(entryTotal);
+				Set<Category> selected = new LinkedHashSet<>();
+				if (this.categoryField != null && this.categoryField.getValue() != null) {
+					selected.add(this.categoryField.getValue());
+				}
+				if (this.eligibleField != null && this.eligibleField.getValue() != null) {
+					selected.addAll(this.eligibleField.getValue());
+				}
+				return isIgnoreErrors() || RegistrationQtHelper.categoriesFailingQt(selected, entryTotal).isEmpty();
 			} catch (Exception e) {
 				LoggerUtils.logError(logger, e);
 			}
@@ -1175,6 +1183,12 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		}, Translator.translate("EntryTotalBelowCategoryQualifyingTotal_MustForce"));
 		bb3.withValidator(v3a);
 		bindField(bb3, this.qualifyingTotalField, Athlete::getQualifyingTotal, Athlete::setQualifyingTotal);
+		this.qualifyingTotalField.addValueChangeListener(ev -> {
+			// repaint the eligible category labels so the QT marker follows the entry total
+			if (this.eligibleField != null) {
+				this.eligibleField.getDataProvider().refreshAll();
+			}
+		});
 		layoutAddFormItem(layout, this.qualifyingTotalField, Translator.translate("EntryTotal"));
 
 		return layout;
@@ -1515,6 +1529,21 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	private boolean isIgnoreErrors() {
 		return BooleanUtils.isTrue(this.ignoreErrorsCheckbox == null ? null : this.ignoreErrorsCheckbox.getValue());
+	}
+
+	// marks eligible categories whose qualifying total exceeds the current entry total
+	private String eligibleCategoryLabel(Category category) {
+		Integer entryTotal = null;
+		try {
+			entryTotal = this.qualifyingTotalField != null ? this.qualifyingTotalField.getValue() : null;
+		} catch (Exception e) {
+			entryTotal = null;
+		}
+		if (category != null && category.requiresEntryTotalConfirmation(entryTotal)) {
+			return category.getDisplayName() + " "
+			        + Translator.translate("EntryTotalBelowCategoryQualifyingTotal_Suffix");
+		}
+		return category != null ? category.getDisplayName() : "";
 	}
 
 	private FormItem layoutAddFormItem(FormLayout layout, Component field,

@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -210,6 +211,14 @@ public class OwlcmsFactory {
 	public static FieldOfPlay getFOPSessionInProgress(Group proposed, Group stored) {
 		FieldOfPlay fop = getFOPSessionInProgress(proposed);
 		return fop != null ? fop : getFOPSessionInProgress(stored);
+	}
+
+	/** @return every platform whose selected session is in progress (see {@link FieldOfPlay#isSessionInProgress()}). */
+	public static List<FieldOfPlay> getFOPsWithSessionInProgress() {
+		if (getFopByName() == null) {
+			return List.of();
+		}
+		return getFOPs().stream().filter(FieldOfPlay::isSessionInProgress).toList();
 	}
 
 	public static String getVersion() {

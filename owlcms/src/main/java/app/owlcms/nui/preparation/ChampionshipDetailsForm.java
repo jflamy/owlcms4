@@ -29,6 +29,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -461,7 +462,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			championship.setMaxTeamSize(maxTeamSizeField.getValue());
 			championship.setMaxPerCategory(maxPerCategoryField.getValue());
 			if (!templateMode && !updatedName.equals(championship.getName())) {
-				championship.rename(updatedName);
+				championship.rename(updatedName, AuditOrigin.fromUi("championship details"));
 			}
 		};
 

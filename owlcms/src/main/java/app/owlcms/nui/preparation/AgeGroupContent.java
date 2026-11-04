@@ -15,8 +15,11 @@ import java.util.Objects;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
+import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -48,7 +51,6 @@ import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
-import app.owlcms.data.agegroup.AssignedAthletesException;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -93,10 +95,9 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 	private GridCrud<AgeGroup> crud;
 	// private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
 	private TextField nameFilter = new TextField();
-	private Button resetCats;
+	private Button reassignWithin;
 	private OwlcmsLayout routerLayout;
 	private FlexLayout topBar;
-	private Button clearEligibles;
 	private boolean applyingUrlFilter;
 
 	/**
@@ -122,29 +123,28 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 	@Override
 	public FlexLayout createMenuArea() {
 		this.topBar = new FlexLayout();
-		this.resetCats = new Button(Translator.translate("ResetCategories.ResetAthletes"), (e) -> {
-			new ConfirmationDialog(
-			        Translator.translate("ResetCategories.ResetCategories"),
-			        Translator.translate("ResetCategories.Warning_ResetCategories"),
-			        Translator.translate("ResetCategories.CategoriesReset"), () -> {
-				        resetCategories();
-			        }).open();
+		this.reassignWithin = new Button(Translator.translate("AgeGroup.ReassignWithin.Label"), (e) -> {
+			AgeGroupSaveFlow.globalAction(UI.getCurrent(), AuditOrigin.fromUi("reassign within championships"), false,
+			        () -> {
+				        this.getCrud().refreshGrid();
+				        unHighlightReassignWithinButton();
+			        });
 		});
-		this.resetCats.getElement().setAttribute("title", Translator.translate("ResetCategories.ResetCategoriesMouseOver"));
-		HorizontalLayout resetButton = new HorizontalLayout(this.resetCats);
-		resetButton.setMargin(false);
-		
-		this.clearEligibles = new Button(Translator.translate("ResetCategories.ClearEligibles"), (e) -> {
-			new ConfirmationDialog(
-			        Translator.translate("ResetCategories.ClearEligibles"),
-			        Translator.translate("ResetCategories.Warning_ClearEligibles"),
-			        Translator.translate("ResetCategories.ClearEligibles"), () -> {
-				        clearEligibleCategories();
-			        }).open();
+		this.reassignWithin.setId("agegroup-reassign-within");
+		this.reassignWithin.getElement().setAttribute("title",
+		        Translator.translate("AgeGroup.ReassignWithin.MouseOver"));
+		HorizontalLayout reassignWithinButton = new HorizontalLayout(this.reassignWithin);
+		reassignWithinButton.setMargin(false);
+
+		Button recomputeAll = new Button(Translator.translate("AgeGroup.RecomputeAll.Label"), (e) -> {
+			AgeGroupSaveFlow.globalAction(UI.getCurrent(), AuditOrigin.fromUi("recompute all eligibilities"), true,
+			        () -> this.getCrud().refreshGrid());
 		});
-		this.clearEligibles.setTooltipText(Translator.translate("ResetCategories.Warning_ClearEligibles"));
-		HorizontalLayout clearEligiblesButton = new HorizontalLayout(this.clearEligibles);
-		clearEligiblesButton.setMargin(false);
+		recomputeAll.setId("agegroup-recompute-all");
+		recomputeAll.getElement().setAttribute("title",
+		        Translator.translate("AgeGroup.RecomputeAll.MouseOver"));
+		HorizontalLayout recomputeAllButton = new HorizontalLayout(recomputeAll);
+		recomputeAllButton.setMargin(false);
 
 		this.ageGroupDefinitionSelect = new ComboBox<>();
 		this.ageGroupDefinitionSelect.setPlaceholder(Translator.translate("ResetCategories.AvailableDefinitions"));
@@ -167,10 +167,11 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 				String labelText = Translator.translate("ResetCategories.PleaseSelectDefinitionFile");
 				NotificationUtils.errorNotification(labelText);
 			} else {
+				AuditOrigin loadOrigin = AuditOrigin.fromUi("age group definitions load");
 				new ConfirmationDialog(Translator.translate("ResetCategories.ResetCategories"),
 				        Translator.translate("ResetCategories.Warning_ResetCategories"),
 				        Translator.translate("ResetCategories.CategoriesReset"), () -> {
-					        AgeGroupRepository.reloadDefinitions(definitions.getFileName());
+					        AgeGroupRepository.reloadDefinitions(definitions.getFileName(), loadOrigin);
 					        resetCategories();
 				        }).open();
 			}
@@ -209,7 +210,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		        exportAgeGroups, uploadCustom, editChampionships,
 		        hr(),
 		        new NativeLabel(Translator.translate("AgeGroups.Reassign")),
-		        resetButton, clearEligiblesButton);
+		        reassignWithinButton, recomputeAllButton);
 		buttons.getStyle().set("flex-wrap", "wrap");
 		buttons.getStyle().set("gap", "1ex");
 		buttons.getStyle().set("margin-left", "5em");
@@ -225,7 +226,8 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 
 	@Override
 	public void delete(AgeGroup domainObjectToDelete) {
-		getAgeGroupEditingFormFactory().delete(domainObjectToDelete);
+		AgeGroupSaveFlow.deleteAgeGroup(UI.getCurrent(), domainObjectToDelete,
+		        AuditOrigin.fromUi("age group delete"), () -> this.getCrud().refreshGrid());
 	}
 
 	/**
@@ -289,8 +291,8 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		return true;
 	}
 
-	public void highlightResetButton() {
-		this.resetCats.setThemeName("primary error");
+	public void highlightReassignWithinButton() {
+		this.reassignWithin.setThemeName("primary error");
 	}
 
 	public void setCrud(GridCrud<AgeGroup> crud) {
@@ -313,8 +315,8 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 
 	@Override
 	public AgeGroup update(AgeGroup domainObjectToUpdate) {
-		AgeGroup ageGroup = getAgeGroupEditingFormFactory().update(domainObjectToUpdate);
-		return ageGroup;
+		// unreachable: the form factory routes updates through AgeGroupSaveFlow
+		throw new IllegalStateException("age group updates go through AgeGroupSaveFlow");
 	}
 
 	/**
@@ -329,17 +331,21 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		grid.addColumn(new ComponentRenderer<>(ag -> {
 			Checkbox activeBox = new Checkbox("Name");
 			activeBox.setLabel(null);
+			activeBox.getElement().setAttribute("data-agegroup", String.valueOf(ag.getCode()) + "_" + ag.getGender());
+			activeBox.addClassName("agegroup-active");
 			activeBox.getElement().getThemeList().set("secondary", true);
+			// the checkbox shows the stored value until the change is confirmed (spec 3.5)
 			activeBox.setValue(ag.isActive());
 			activeBox.addValueChangeListener(click -> {
-				activeBox.setValue(click.getValue());
-				ag.setActive(click.getValue());
-				try {
-					AgeGroupRepository.save(ag);
-				} catch (AssignedAthletesException e) {
-					// ignore -- saving the active flag cannot trigger this exception
+				if (!click.isFromClient()) {
+					return;
 				}
-				grid.getDataProvider().refreshItem(ag);
+				activeBox.setValue(ag.isActive());
+				AgeGroupSaveFlow.toggleActive(UI.getCurrent(), ag, click.getValue(),
+				        AuditOrigin.fromUi("age group active toggle"),
+				        () -> this.getCrud().refreshGrid(),
+				        () -> highlightReassignWithinButton(),
+				        () -> activeBox.setValue(ag.isActive()));
 			});
 			// prevent getting the row selection involved.
 			activeBox.getElement().addEventListener("click", ignore -> {
@@ -383,8 +389,20 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		grid.addColumn(AgeGroup::getCategoriesAsString).setAutoWidth(true)
 		        .setHeader(Translator.translate("BodyWeightCategories"));
 
-		this.setCrud(new OwlcmsCrudGrid<>(AgeGroup.class, new OwlcmsGridLayout(AgeGroup.class),
-		        crudFormFactory, grid));
+		this.setCrud(new OwlcmsCrudGrid<AgeGroup>(AgeGroup.class, new OwlcmsGridLayout(AgeGroup.class),
+		        crudFormFactory, grid) {
+			// edit opens a detached scratchpad fetched in a worker; the grid item is never mutated (spec 3.4)
+			@Override
+			protected void showForm(CrudOperation operation, AgeGroup item, boolean readOnly, String successMessage,
+			        ComponentEventListener<ClickEvent<Button>> unused) {
+				if (operation == CrudOperation.UPDATE && item != null && item.getId() != null) {
+					AgeGroupSaveFlow.loadScratchpad(UI.getCurrent(), item.getId(),
+					        scratch -> super.showForm(operation, scratch, readOnly, successMessage, unused));
+					return;
+				}
+				super.showForm(operation, item, readOnly, successMessage, unused);
+			}
+		});
 		this.getCrud().setCrudListener(this);
 		this.getCrud().setClickRowToUpdate(true);
 		return this.getCrud();
@@ -486,13 +504,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 	private void resetCategories() {
 		AthleteRepository.resetParticipations(false, true);
 		this.getCrud().refreshGrid();
-		unHighlightResetButton();
-	}
-	
-	private void clearEligibleCategories() {
-		AthleteRepository.resetParticipations(true, false);
-		this.getCrud().refreshGrid();
-		unHighlightResetButton();
+		unHighlightReassignWithinButton();
 	}
 
 
@@ -525,8 +537,8 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		this.ageGroupDefinitionSelect.setValue(found);
 	}
 
-	private void unHighlightResetButton() {
-		this.resetCats.setThemeName("");
+	private void unHighlightReassignWithinButton() {
+		this.reassignWithin.setThemeName("");
 	}
 
 }

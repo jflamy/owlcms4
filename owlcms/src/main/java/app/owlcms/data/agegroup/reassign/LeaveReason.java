@@ -4,9 +4,16 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.data.agegroup;
+package app.owlcms.data.agegroup.reassign;
 
-@SuppressWarnings("serial")
-public class AssignedAthletesException extends Exception {
-
+/**
+ * Why an athlete fits no category of a championship after a definition change. Order in the reassignment dialog.
+ */
+public enum LeaveReason {
+	AGE,
+	GENDER,
+	QT,
+	INACTIVE,
+	MISSING_BIRTH_DATE,
+	MISSING_BODY_WEIGHT
 }

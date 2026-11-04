@@ -212,7 +212,7 @@ public class CategoryRepository {
 	@SuppressWarnings("unchecked")
 	public static List<Category> findAll() {
 		return JPAService
-		        .runInTransaction(em -> em.createQuery("select c from Category c order by c.name").getResultList());
+		        .runInTransaction(em -> em.createQuery("select c from Category c order by c.code").getResultList());
 	}
 
 	/**

@@ -11,6 +11,14 @@
 
 **Development log**
 
+- 69.0.0-beta03: Editing an age group no longer silently drops athletes: when the changes affect eligibility (ages, gender, categories, qualifying totals), a dialog previews the athletes added and removed per championship before saving.
+  - **Apply** reassigns the athletes immediately; **Reassign Later** saves the categories and leaves the athletes as they are (not available when categories are being deleted); **Cancel** discards the changes.
+  - Deleting an age group and moving an age group to another championship now ask for confirmation with an explanation of the consequences.
+
+- 69.0.0-beta03: New "Reassign Within Current Championships" and "Recompute All Eligibilities" buttons on the Define Age Groups and Categories page, replacing the previous Reset buttons. Both show the athletes added and removed before applying.
+
+- 69.0.0-beta03: Athletes whose entry total is below a category's qualifying total are no longer assigned to that category when importing a registration file or editing a registration; the import reports these cases as warnings.
+
 - 69.0.0-beta03: Tracker connections report the OWLCMS web port so Tracker displays can open pages from the OWLCMS instance that is sending their data.
 
 - 69.0.0-beta03: Fixes for edge cases when closing the athlete card on decisions.

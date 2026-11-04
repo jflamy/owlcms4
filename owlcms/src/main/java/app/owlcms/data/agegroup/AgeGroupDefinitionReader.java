@@ -33,6 +33,7 @@ import com.vaadin.flow.component.UI;
 
 import app.owlcms.Main;
 import app.owlcms.apputils.NotificationUtils;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
@@ -68,14 +69,24 @@ public class AgeGroupDefinitionReader {
 	}
 
 	public static void doInsertAgeGroups(InputStream ageGroupStream) {
+		doInsertAgeGroups(ageGroupStream, AuditOrigin.system("definitions-load"));
+	}
+
+	public static void doInsertAgeGroups(InputStream ageGroupStream, AuditOrigin origin) {
 		Logger mainLogger = Main.getStartupLogger();
-		loadAgeGroupStream(null, "custom upload", mainLogger, ageGroupStream);
+		loadAgeGroupStream(null, "custom upload", mainLogger, ageGroupStream, origin);
+	}
+
+	static void createAgeGroups(Workbook workbook,
+	        EnumSet<ChampionshipType> forcedInsertion,
+	        String localizedName) {
+		createAgeGroups(workbook, forcedInsertion, localizedName, AuditOrigin.system("definitions-load"));
 	}
 
 	@SuppressWarnings("null")
 	static void createAgeGroups(Workbook workbook,
 	        EnumSet<ChampionshipType> forcedInsertion,
-	        String localizedName) {
+	        String localizedName, AuditOrigin origin) {
 
 		defaultChampionshipName = null;
 		JPAService.runInTransaction(em -> {
@@ -180,6 +191,7 @@ public class AgeGroupDefinitionReader {
 					if (ag.getStoredChampionshipType() == null) {
 						ag.setChampionshipType(ChampionshipType.U);
 					}
+					ag.stamp(origin, null);
 					em.persist(ag);
 				}
 				iRow++;
@@ -648,9 +660,14 @@ public class AgeGroupDefinitionReader {
 	}
 
 	static void doInsertAgeGroups(EnumSet<ChampionshipType> forcedInsertion, String localizedFileName) {
+		doInsertAgeGroups(forcedInsertion, localizedFileName, AuditOrigin.system("definitions-load"));
+	}
+
+	static void doInsertAgeGroups(EnumSet<ChampionshipType> forcedInsertion, String localizedFileName,
+	        AuditOrigin origin) {
 		Logger mainLogger = Main.getStartupLogger();
 		InputStream ageGroupStream = findAgeGroupFile(localizedFileName, mainLogger);
-		loadAgeGroupStream(forcedInsertion, localizedFileName, mainLogger, ageGroupStream);
+		loadAgeGroupStream(forcedInsertion, localizedFileName, mainLogger, ageGroupStream, origin);
 	}
 
 	private static Object cellName(int iColumn, int iRow) {
@@ -669,14 +686,14 @@ public class AgeGroupDefinitionReader {
 	}
 
 	private static void loadAgeGroupStream(EnumSet<ChampionshipType> forcedInsertion, String localizedName,
-	        Logger mainLogger, InputStream localizedResourceAsStream1) {
+	        Logger mainLogger, InputStream localizedResourceAsStream1, AuditOrigin origin) {
 		try (Workbook workbook = WorkbookFactory
 		        .create(localizedResourceAsStream1)) {
 			logger.info("loading age group configuration file {}", localizedName);
 			mainLogger.info("loading age group definitions {}", localizedName);
 			ageGroupByCodeGender.clear();
 			CategoryRepository.clearCodeMap();
-			createAgeGroups(workbook, forcedInsertion, localizedName);
+			createAgeGroups(workbook, forcedInsertion, localizedName, origin);
 			Championship.reset();
 			Championship.recomputeParticipantCounts();
 			CategoryRepository.resetCodeMap();

@@ -15,7 +15,8 @@ public class StaleSingletonException extends RuntimeException {
 	public enum Kind {
 		CONFIG,
 		COMPETITION,
-		RECORD_CONFIG
+		RECORD_CONFIG,
+		AGE_GROUP
 	}
 
 	private final Kind kind;

@@ -7,7 +7,16 @@ import app.owlcms.audit.AthleteDiff.Change;
 import app.owlcms.data.athlete.Athlete;
 
 public final class AthleteAudit {
+	/** An athlete changed by another committed action, such as an age group change; that action writes the entries. */
+	public record Changed(Athlete athlete, String platform, List<Change> changes) {
+	}
+
 	private AthleteAudit() {
+	}
+
+	public static String platformOf(Athlete athlete) {
+		return athlete.getGroup() != null && athlete.getGroup().getPlatform() != null
+				? athlete.getGroup().getPlatform().getName() : "competition";
 	}
 
 	public static void write(Athlete athlete, List<Change> changes) {

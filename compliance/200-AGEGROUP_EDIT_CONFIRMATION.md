@@ -1,6 +1,7 @@
 # Age Group Definitions and Athlete Reassignment — Target Behavior
 
-Status: target behavior agreed 2026-10-27, to be reimplemented. This replaces the earlier bug-fix
+Status: target behavior agreed 2026-10-27, to be reimplemented. Implementation plan:
+[200-IMPLEMENTATION_PLAN.md](200-IMPLEMENTATION_PLAN.md). This replaces the earlier bug-fix
 plan (git history). "Today" notes describe dev69 where it differs from the target. Section 9
 lists what is still open.
 
@@ -75,7 +76,7 @@ entry total, exactly like changing the age range.
 
 ### 3.1 What can be edited
 
-- Age group: code/name, gender, age range, active, championship, medals, scoring, already-gendered.
+- Age group: code/name, gender, age range, active, championship, medals, and already-gendered.
 - Categories, with exactly three operations:
   - **add an upper limit** (a new category, starting with QT 0);
   - **delete a category** (never the unlimited one);
@@ -86,6 +87,10 @@ A category's lower limit is not edited: it is always the upper limit of the cate
 identity; deleting every finite limit leaves it covering 0 to 999. Because the categories are
 contiguous by construction, there is never a body-weight gap. Adding an upper limit that already
 exists is refused.
+
+The scoring model is not edited on the age-group form. Effective scoring is a championship
+setting and is edited on the championship form. The current age-group spreadsheet files do not
+include a scoring-system field, so import and export need no separate handling here.
 
 Today: a duplicate upper limit is not refused.
 
@@ -150,8 +155,8 @@ false.
 | Change | Effect |
 | --- | --- |
 | Age range, gender, active flag, a category QT, an upper limit added or a category deleted | The age group's championship is reassigned (section 4) |
-| Code/name, already-gendered, medals, scoring | Saved directly; participations untouched; category codes recomputed |
-| Championship association | Signaled and confirmed (section 3.4); the age group and its participants then move to the other championship as they are, with no reassignment |
+| Code/name, already-gendered, medals | Saved directly; participations untouched; category codes recomputed |
+| Championship association | If it is the only pending change, it is confirmed and saved immediately; the age group and its participants move to the other championship as they are, with no reassignment. If other changes are pending, the save is refused |
 
 Today: the decision compares a hash of category codes, weights and QT, and a plain rename may
 also trigger it if the category codes change. Changes to the age range, gender or active flag
@@ -166,17 +171,30 @@ changes are applied to the stored age group (section 3.2) and, with Apply, the c
 reassigned, in the same transaction. On Cancel, at any step, the scratchpad is thrown away and
 nothing is stored.
 
-A change that doesn't reassign is saved and the editor closes. A change of championship
-association is signaled first: the confirmation names the age group, the two championships and
-the number of athletes moving, and runs the age-gap check on both championships (the one losing
-the age group and the one gaining it). Confirm / Cancel.
+A change that doesn't reassign is saved and the editor closes. A championship association change
+has a separate clean-object flow. It is clean when the championship is the only pending change:
+the age group, its categories and every other field still match the stored object. The
+confirmation names the age group, the two championships and the number of athletes moving, and
+runs the age-gap check on both championships (the one losing the age group and the one gaining
+it). Confirm saves the championship change immediately, without reassignment, and Cancel throws
+away the pending change.
+
+If the championship association is changed while any other field or category change is pending,
+the confirmation is a refusal rather than an offer to combine the changes. It explains that the
+championship must be changed and saved separately, and writes nothing.
 
 A change that reassigns goes through these steps:
 
 1. **Age-gap check**, always first, even when nobody is registered. For each gender, the active
    age groups of the championship must cover a continuous range of ages, from the lowest minimum
    to the highest maximum. If there is a hole, warn first, for example "Masters no longer covers
-   men aged 39". Continue / Cancel. Overlaps are allowed, and inactive age groups do not count.
+   men aged 39". Continue / Cancel. Inactive age groups do not count. The same dialog also lists
+   every **overlap** of the championship, as it would be after the change: two active age groups of
+   the same gender share ages, for example "Senior Masters: VM60 overlaps M65 for Men aged 65."
+   Gaps and overlaps are always listed in full, not only those of the age group being changed, so
+   that everything left to fix is visible. Overlaps are always reported, whatever the type of the
+   championship (nothing tells a Masters championship, where an overlap is a mistake, from one
+   where it is intended), and always as a warning with Continue / Cancel, never a refusal.
 2. **Reassignment dialog**, when the championship has participants. A dry run computes the
    result, and the dialog names the championship and lists the athletes who would leave it
    because they fit nothing in it. For each, it gives the reason: age, gender, QT, inactive,
@@ -187,7 +205,9 @@ A change that reassigns goes through these steps:
      categories are removed, because their participations would point to deleted rows.
    - **Cancel**: the scratchpad is thrown away; nothing is saved.
    When the championship has no participants, the change is saved directly.
-3. Apply recomputes everything from current data when saving; the dry run is only a preview.
+3. Apply recomputes everything from current data when saving; the dry run shown before Apply is
+   advisory and may differ if athlete data changes before saving. The save-time computation and
+   the applied changes use the same snapshot.
 
 The editor closes only after a successful save.
 
@@ -217,9 +237,18 @@ Today: the checkbox saves directly with no confirmation, and participations stay
 
 ### 3.6 Deleting an age group
 
-Deletion uses the existing CRUD delete confirmation, with text specific to age groups. In a
-single transaction, its participations are removed, and athletes whose registration category was
-in it get the preferred one among their remaining participations, or none.
+Deletion uses the existing CRUD delete confirmation, with text specific to age groups. It then
+follows the same steps as a reassigning edit: the age-gap warning when the delete opens a hole
+(below), then a dry run listing the athletes of the championship who are added to or removed from
+categories as if the group's categories no longer existed, with Delete / Cancel. When nobody is
+affected the delete goes ahead without the list. In a single transaction, the athletes are
+reassigned as in the dry run, and the age group and its categories are removed; athletes whose
+registration category was in it get the preferred one among their remaining participations, or none.
+
+If deleting an active age group opens a hole in the ages covered inside its championship (the
+check of section 3.4 step 1, ignoring holes that were already there), the age-gap warning is shown
+after the delete confirmation, with Continue / Cancel; Cancel deletes nothing. Deleting the lowest
+or highest age group opens no hole.
 
 Today: the registration category is moved to a remaining participation, and then a cleanup runs
 over the whole database.
@@ -245,32 +274,39 @@ actions. It is checked when the action is requested and
 again when the transaction starts (section 11, step 1). Medals already presented and printed
 results are outside OWLCMS.
 
+**Accepted risk (2026-11-03).** A session could start after the transaction's session check but
+before commit. During a competition, the competition supervisor normally performs both the
+definition edits and session startup, so this overlap is very unlikely. Both checks remain
+required, but no shared synchronization between session startup and the save transaction is
+required. The guard is a practical safeguard, not an absolute concurrency guarantee.
+
 Today: nothing prevents these changes during a session. The athlete forms already refuse edits
 of an athlete whose session is under way (`LiftingSessionGuard`).
 
-### 3.8 One user at a time on the age-group page
+### 3.8 Stale-save check per age group
 
-The age-group page has a single global lock: only one user at a time can have it open.
+The age group is the object being edited, so it carries the stamp, as `Config` and
+`Competition` do: each `AgeGroup` row has `lastSavedAt` and `lastSavedBy`. Several users and
+browser tabs may edit at the same time. Opening the editor, or showing the row in the grid,
+records the age group's stamp; nothing is reserved or locked.
 
-- **Taking the lock.** Opening the page takes the lock when nobody holds it.
-- **Lock already held.** The page does not open. A dialog names the holder and since when, with
-  **Break the glass** and **Back**. The holder is shown as the account user name in accounts
-  mode; in PIN mode, where there are no names, as the browser's address and session tag (as in
-  the audit log, `AuditActor`).
-- **Breaking the glass.** After a confirmation, the lock passes to the new user and the page
-  opens. The previous holder's editor or dialog closes, their scratchpad is thrown away, and
-  their page shows the lock dialog naming the new holder, so they can break the glass in turn
-  or go back. A save already running finishes first. The takeover is written to the audit log
-  with both users.
-- **Releasing the lock.** Leaving the page, closing the browser tab or the end of the browser
-  session releases it. A lock left by a crashed browser is released when the server notices the
-  browser is gone, or can be broken.
-- **Coverage.** The lock covers everything on the page: the editor, the Active checkbox,
-  deleting an age group and the global actions.
-- The lock is held in transient fields of the `Competition` singleton; it is never stored, and a
-  restart clears it (section 11).
+- Every write to an age-group row or its categories advances that row's stamp and records the
+  saver's `AuditOrigin`: an editor save, an Active toggle, a championship move (from this page
+  or the championship page).
+- A save made from a draft whose stamp no longer matches the row, or whose row no longer exists
+  (deleted, or replaced by loading or importing definitions), is refused in the same way as the
+  Config and Competition stale-save checks. Nothing is written, and the editor keeps its
+  scratchpad so the user can reload and redo the change.
+- The check is coarse per age group: it does not compare fields or merge changes. Any accepted
+  save of that age group makes older drafts of it stale. Saves of other age groups do not:
+  the save copies only this age group's fields, and reassignment is recomputed from current data.
+- The global actions change participations, not age-group rows, so they do not stamp.
+- The stamp is persistent and survives a restart. It is re-read from the database while saving,
+  under the shared save lock used by the singleton stale-save checks. It is not exported.
 
-Every save or action first checks that the user still holds the lock (section 11, step 1).
+Every save compares the draft's stamp before it starts its transaction (section 11, step 1), and
+the transaction compares it again before writing. There is no browser-session ownership, page
+takeover, lock-release listener or lock-lost event.
 
 Today: several users can edit age groups at the same time, and the last save wins.
 
@@ -352,13 +388,13 @@ clears mixed-team membership.
 - No other championship's data changes, and there is no database-wide cleanup.
 - Opening the editor or computing a preview writes nothing. Championship rows are created only by
   an accepted save.
-- Only the user holding the page lock can save (section 3.8). Athlete data is read again when
-  saving.
+- Only a draft whose age-group stamp is current can save (section 3.8). Athlete data is read
+  again when saving.
 - After a change, participant counts are updated and rankings are recomputed.
 - The Vaadin UI thread never waits on database work.
 
 Today: there are several transactions and a global cleanup; the championship row is created
-before confirmation; there is no protection against concurrent edits.
+before confirmation; there is no coarse protection against concurrent edits.
 
 ## 7. Differences from current behavior
 
@@ -374,9 +410,9 @@ before confirmation; there is no protection against concurrent edits.
 | Registration category | Cleared (edit) or recomputed (reset) | Recomputed for the championship's athletes: most preferred of all their participations, in every championship |
 | Confirmation | Confirm / Cancel, generic text | Gap check, then a list of athletes leaving, Apply / Later / Cancel |
 | Editor changes | Championship row created when the form opens; Cancel can leave it behind | Kept in a scratchpad; applied only when confirmed, thrown away on Cancel |
-| Championship association | Saved silently | Signaled, gap check on both championships, Confirm / Cancel |
+| Championship association | Saved silently | If it is the only pending change, confirmation, gap check on both championships, and immediate save; otherwise a refusal and no write |
 | During a session | Allowed | Refused while a session is under way on any platform |
-| Concurrent users | Several users edit at once; the last save wins | One user at a time on the page; others can break the glass |
+| Concurrent users | Several users edit at once; the last save wins | Several users may edit at once; an older draft of the same age group is refused by its stamp |
 | Active checkbox | Saved silently | Same flow as an edit |
 | Global actions | "Reassign athletes" and "Keep Main Registration Category" (broken) | "Reassign within championships" and "Recompute all eligibilities" |
 | Side effects | Database-wide cleanup; championship row on Cancel | None outside the championship; nothing written before acceptance |
@@ -400,10 +436,11 @@ Add the keys through a translation TSV; never edit `translation4.csv` directly. 
 Also needed:
 - the reasons for leaving: age, gender, QT, inactive, missing birth date, missing body weight;
 - the confirmation of a championship change (age group, both championships, athletes moving);
+- the refusal when a championship change is combined with other pending changes;
 - the labels and warnings of the two global actions;
 - the dry-run texts for "Recompute all eligibilities" (athletes gaining or losing a championship);
-- the page-lock dialog (holder and since when, Break the glass, Back), its confirmation, and the
-  notice to a user whose lock was taken;
+- the stale-save notification naming the actor who saved the age-group definitions after the
+  page was opened;
 - a message refusing a change while sessions are under way, naming each session and its platform
   (as `SessionInProgress.CannotEditRegistration` does for athletes);
 - a message when an upper limit that already exists is added.
@@ -419,14 +456,15 @@ Also needed:
   - While a save runs, the dialog buttons are disabled and a progress indicator is shown.
   - A failure closes the dialog and shows the error; Apply is never offered again on a stale
     dry run. The editor stays open with the scratchpad values.
-  - Saving again starts over: lock check, session check, gap check and a fresh dry run.
-  - A user who lost the lock (section 3.8) cannot save again: the editor closes.
+  - Saving again starts over: stale-save check, session check, gap check and a fresh dry run.
+  - A stale page cannot save again until it is reloaded; its scratchpad remains available for
+    the user to redo after reloading.
 
 ## 10. Acceptance tests
 
 Tests use domain code and fixtures, never Vaadin objects.
 
-- **Data preservation.** A QT edit, a rename, a change of medals or scoring, and a change of
+- **Data preservation.** A QT edit, a rename, a change of medals, and a change of
   championship keep every category id, participation and team flag except those the rules
   change. Registration categories change only as section 4 says. This is the regression test for the 40 → 0 case.
 - **Classification.** Every change in section 3.3 is classified correctly.
@@ -446,7 +484,7 @@ Tests use domain code and fixtures, never Vaadin objects.
   - Editing the copy (QT, added limit, deleted category, age range, Active) and then cancelling
     or never confirming leaves every stored row unchanged: ids, limits, QTs, participations,
     team flags, registration categories, and no new championship row.
-  - Each age-group field (code/name, gender, age range, active, championship, medals, scoring,
+  - Each age-group field (code/name, gender, age range, active, championship, medals,
     already-gendered) is copied to the stored age group, and only that age group changes.
   - One save combining a QT change on M81, adding 85 and deleting 73 gives exactly: M81 same id
     with the new QT, M85 new, M73 gone, M89 and +89 same ids. The lower limits of M81, M85, M89
@@ -463,7 +501,9 @@ Tests use domain code and fixtures, never Vaadin objects.
   - Before a category is removed (step 7), no participation and no registration category
     points to it; after commit, no reference to a deleted category remains.
   - With Later, steps 1–5 run, step 6 does not: participations are identical before and after.
-  - A change of championship goes through steps 1–3 only; participations are identical.
+  - A clean change of championship prompts, saves immediately on confirmation, and goes through
+    steps 1–3 only; participations are identical. A championship change combined with any other
+    pending change is refused and writes nothing.
   - A failure injected after each of steps 3 to 7 rolls everything back to the state before the
     save.
   - Participant counts and rankings are updated after commit, and not on failure.
@@ -504,7 +544,8 @@ Tests use domain code and fixtures, never Vaadin objects.
   - It is cleared when nothing is left.
   - It is repaired before a category or an age group is deleted.
 - **Age gap.** A hole is reported per gender with the missing ages; overlaps are not gaps;
-  inactive age groups are ignored.
+  inactive age groups are ignored. Every overlap of the championship is reported too, with the
+  shared ages and the codes of the two age groups, and is never refused.
 - **During the competition.**
   - An athlete with recorded lifts who is moved to another category keeps every lift, and gets
     the same ranks in the new category as a full recomputation from scratch would give. The old
@@ -516,28 +557,32 @@ Tests use domain code and fixtures, never Vaadin objects.
     transaction is caught at step 1.
   - Regression for the reason of the refusal: after a reassignment made with no session under
     way, starting a session and recording lifts does not recreate any removed participation.
-- **Dry run.** It writes nothing, and the athletes it lists are exactly the ones Apply removes.
+- **Dry run.** The preview writes nothing and is advisory: changes to athlete data before Apply
+  may change the displayed list. At save time, the dry run and Apply use the same fresh snapshot,
+  so the athletes reported by that save-time computation are exactly the ones removed.
 - **Later.** Later keeps participations and is refused when categories are removed. The M35/M40
   example works with Later, then "Reassign within championships".
 - **Atomicity.** A failure injected after championship creation, after the definition changes or
   after the participation changes rolls everything back. This includes deleting an age group,
   toggling Active and both global actions.
-- **Page lock.**
-  - A second user opening the page gets the dialog naming the holder (user name in accounts
-    mode, browser address in PIN mode) and cannot edit.
-  - Breaking the glass gives the lock to the second user and posts
-    `AppEvent.LockHasBeenLost`. Only the first user's page reacts: its editor closes and it
-    shows the lock dialog naming the second user. A save the first user attempts afterwards is
-    refused, even if the event was missed. The audit log records the takeover.
-  - Leaving the page or ending the browser session releases the lock.
-  - A save already running when the glass is broken completes, and the new holder sees its
-    result.
-  - Saving the competition settings while the page is open keeps the lock.
+- **Stale-save check per age group.**
+  - Two users or two tabs can edit detached copies of the same age group.
+  - After the first accepted save, the second is refused because its stamp is stale; none of
+    its changes are written.
+  - The refusal identifies the actor who advanced the stamp when that actor can be named.
+  - A championship-page move or an Active toggle of that age group also refuses older drafts.
+  - A draft of an age group that was deleted, or replaced by loading or importing definitions,
+    is refused and inserts nothing.
+  - A save of another age group, or a global action, does not refuse the draft.
+  - A save already running completes under the shared save lock; a later stale save is refused.
+  - The stamp is not in the V1 or V2 JSON exports.
 - **No writes before acceptance.** Opening the editor or computing a preview creates no
   championship row and changes nothing. Cancel at any step leaves the stored age group,
   categories and participations exactly as before.
-- **Championship change.** Moving an age group to another championship asks for confirmation,
-  reports an age gap in either championship, and keeps its participations as they are.
+- **Championship change.** Moving an otherwise-clean age group to another championship asks for
+  confirmation, reports an age gap in either championship, saves immediately on confirmation,
+  and keeps its participations as they are. Combining the move with any other pending change
+  shows a refusal and saves nothing.
 - **Browser checks.**
   - The editor closes only after a successful save.
   - Cancel saves nothing, and there is no double delete confirmation.
@@ -552,13 +597,16 @@ Tests use domain code and fixtures, never Vaadin objects.
 - **Scratchpad.** The editor binds to a detached copy of the age group and its categories. It is
   never persisted or merged. On confirmation, one transaction walks the copy explicitly and
   updates the stored rows:
-  1. Read the stored age group and its categories, and check that the user still holds the page
-     lock (section 3.8) and that no session is under way on any platform (section 3.7).
+  1. Read the stored age group and its categories, compare the draft's stamp with the fresh
+     row's stamp (section 3.8), and check that no session is under way on any
+     platform (section 3.7). A championship-only change uses the clean-object flow; a
+     championship change combined with any other pending change is refused before this
+     transaction.
   2. Take the snapshot of the championship's athletes (age, gender, body weight including
      presumed weight, entry total, participations, team flags, registration category).
   3. Copy the age-group fields from the copy to the stored age group: code/name, gender, age
-     range, active, championship, medals, scoring, already-gendered. Create the championship row
-     here if it is new.
+     range, active, championship, medals, already-gendered. Create the championship row here if
+     it is new. The scoring model is not copied here; it is edited on the championship.
   4. Match the categories by upper limit:
      - in both: copy the QT onto the stored category, which keeps its id;
      - only in the copy: create a new category in the stored age group;
@@ -574,30 +622,18 @@ Tests use domain code and fixtures, never Vaadin objects.
 
   Never merge the copy instead: it would bring new ids, and its empty participation lists
   combined with `orphanRemoval` would delete the real participations.
-- **Page lock.** Additional `@Transient` and `@JsonIgnore` fields on the `Competition`
-  singleton: the holder (an `AuditActor`, for the name shown and the audit log), the holder's
-  browser session (to release the lock when it ends), and since when.
-  - `CompetitionRepository.save` replaces the singleton through `Competition.setCurrent` with the
-    merged copy, whose transient fields are empty. `setCurrent` must carry the lock fields over,
-    otherwise saving the competition settings silently drops the lock.
-  - Take, break and release the lock under one class-level monitor, not the instance, since the
-    instance can be replaced.
-  - Release the lock from the page's detach and the browser session's destroy listeners.
-- **Lock-lost event.** Breaking the glass posts a new `AppEvent.LockHasBeenLost` on the
-  application bus `OwlcmsFactory.getAppUIBus()`, which is not tied to a platform. This is the bus
-  and the event family (`AppEvent`) once used for the demo-mode shutdown notices; nothing posts
-  to it today. It is created lazily without synchronization, so create it eagerly.
-  - The event carries the lock (the age-group page), the new holder (`AuditActor`) and the
-    previous holder's browser session.
-  - The age-group page registers on attach and unregisters on detach. It ignores events for
-    another browser session.
-  - The bus calls subscribers on the thread that breaks the glass. The handler must use the UI
-    captured when the page attached, never `UI.getCurrent()` (which would be the new holder's
-    UI). The existing `AppEvent` classes make that mistake and must not be copied.
-  - The previous holder's page closes its editor or dialog, discards the scratchpad, and shows
-    the lock dialog naming the new holder (section 3.8), all in a short `ui.access` block.
-  - The event is only a notice: a save is protected by the lock check of step 1, not by the
-    event arriving in time.
+- **Stale-save check.** Add `lastSavedAt`/`lastSavedBy` columns to `AgeGroup`, with the same
+  pattern as Config and Competition (`SingletonSaves.nextStamp`, `savedByLabel`).
+  - The draft is a fresh copy of the row (bypass the second-level cache) and carries its stamp.
+  - Compare the stamp and write the new stamp, the definition changes and the reassignment under
+    `SingletonSaves.LOCK`, in one transaction. A missing row is refused, never inserted.
+  - Every writer of an age-group row or its categories stamps it: editor save, Active toggle,
+    championship move (both pages). Definitions loaders and database import create rows with a
+    fresh stamp. Global actions do not stamp.
+  - Exclude the columns from the JSON exports (`@JsonIgnore`, and the V2 mixins / format
+    coverage test).
+  - A stale save throws the standard stale exception before any write and reports the
+    saved-by label.
 - **Session check.** `OwlcmsFactory.getFOPSessionInProgress(Group)` only looks at the platform
   running a given session. Add a check that goes through all of `OwlcmsFactory.getFOPs()` and
   returns every platform where `isSessionInProgress()` is true, and use it for every action of

@@ -61,11 +61,13 @@ import app.owlcms.access.RequiresPermission;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.audit.AuditLog;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.AgeGroupDefinitionService;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
@@ -1169,7 +1171,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	}
 
 	private void resetCategories() {
-		AthleteRepository.resetParticipations(false, true);
+		new AgeGroupDefinitionService().recomputeAllEligibilities(AuditOrigin.fromUi("recompute all eligibilities"));
 		this.setChampionshipItems(Championship.findAllVisible(true));
 		this.getChampionshipFilter().setItems(this.getChampionshipItems());
 		refreshCrudGrid();

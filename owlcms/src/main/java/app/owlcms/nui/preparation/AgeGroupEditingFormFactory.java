@@ -18,13 +18,17 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -37,15 +41,13 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 
-import app.owlcms.components.ConfirmationDialog;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.components.fields.CategoryGridField;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
-import app.owlcms.data.agegroup.AssignedAthletesException;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
@@ -67,13 +69,14 @@ public class AgeGroupEditingFormFactory
 	AgeGroupEditingFormFactory(Class<AgeGroup> domainType, AgeGroupContent origin) {
 		super(domainType);
 		this.origin = origin;
+		// the fields show their own errors
+		this.showValidationErrorNotification = false;
 	}
 
 	@Override
 	public AgeGroup add(AgeGroup ageGroup) {
-		ChampionshipRepository.materializeIfRequired(ageGroup);
-		AgeGroupRepository.add(ageGroup);
-		return ageGroup;
+		// unreachable: performOperationAndCallback routes ADD through AgeGroupSaveFlow.createFromEditor
+		throw new IllegalStateException("age group adds go through AgeGroupSaveFlow");
 	}
 
 	@Override
@@ -158,7 +161,6 @@ public class AgeGroupEditingFormFactory
 		codeInfo.setAlignItems(Alignment.CENTER);
 		formLayout.addFormItem(codeInfo, createLabel(Translator.translate("AgeGroupCode")));
 
-		ChampionshipRepository.materializeIfRequired(aFromDb);
 		ComboBox<Championship> championshipField = new ComboBox<>();
 		List<Championship> list = new ArrayList<>(Championship.findAll());
 		championshipField.setItems(new ListDataProvider<>(list));
@@ -328,12 +330,17 @@ public class AgeGroupEditingFormFactory
 	@Override
 	public Button buildOperationButton(CrudOperation operation, AgeGroup domainObject,
 	        ComponentEventListener<ClickEvent<Button>> gridCallBackAction) {
-		return super.buildOperationButton(operation, domainObject, gridCallBackAction);
+		Button button = super.buildOperationButton(operation, domainObject, gridCallBackAction);
+		if (button != null) {
+			button.setId("agegroup-editor-" + operation.name().toLowerCase());
+		}
+		return button;
 	}
 
 	@Override
 	public void delete(AgeGroup ageGroup) {
-		AgeGroupRepository.delete(ageGroup);
+		// unreachable: AgeGroupContent.delete routes deletes through AgeGroupSaveFlow.deleteAgeGroup
+		throw new IllegalStateException("age group deletes go through AgeGroupSaveFlow");
 	}
 
 	// @Override
@@ -354,40 +361,65 @@ public class AgeGroupEditingFormFactory
 	}
 
 	/**
+	 * Updates run through the worker flow: classify the scratchpad against the stored row, then the matching
+	 * confirmation dialogs, then the service save. The update runnable is intentionally not invoked; completed runs
+	 * once, in ui.access, after commit.
+	 */
+	@Override
+	protected void confirmUpdate(AgeGroup scratch, Runnable update, Runnable completed) {
+		AgeGroupSaveFlow.saveFromEditor(UI.getCurrent(), scratch, AuditOrigin.fromUi("age group edit"), completed,
+		        () -> this.origin.highlightReassignWithinButton());
+	}
+
+	/**
+	 * ADD is not covered by confirmUpdate, so it is intercepted here: validate the binder, then create in a worker;
+	 * the grid callback runs after commit. All other operations keep the superclass behavior (UPDATE reaches
+	 * confirmUpdate above; DELETE is confirmed by buildConfirmDialog below).
+	 */
+	@Override
+	protected void performOperationAndCallback(CrudOperation operation, AgeGroup domainObject,
+	        ComponentEventListener<ClickEvent<Button>> gridCallback, boolean ignoreErrors) {
+		if (operation == CrudOperation.ADD) {
+			boolean valid = this.binder.writeBeanIfValid(domainObject);
+			setValid(valid);
+			if (!valid) {
+				return;
+			}
+			AgeGroupSaveFlow.createFromEditor(UI.getCurrent(), domainObject, AuditOrigin.fromUi("age group add"),
+			        () -> gridCallback.onComponentEvent(this.operationTriggerEvent));
+			return;
+		}
+		super.performOperationAndCallback(operation, domainObject, gridCallback, ignoreErrors);
+	}
+
+	/** The age-group-specific delete warning (spec 3.6). */
+	@Override
+	protected Dialog buildConfirmDialog(CrudOperation operation, AgeGroup domainObject,
+	        ComponentEventListener<ClickEvent<Button>> clickListener) {
+		Dialog dialog = new Dialog();
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+		dialog.setWidth("min(28em, 95vw)");
+		VerticalLayout body = new VerticalLayout(
+		        new H3(Translator.translate("DeleteConfirmation", domainObject.getName())),
+		        new Paragraph(Translator.translate("AgeGroup.Delete.Warning")));
+		Button confirmButton = doBuildButton(operation);
+		confirmButton.addClickListener(click -> {
+			clickListener.onComponentEvent(click);
+			dialog.close();
+		});
+		Button cancelButton = new Button(Translator.translate("Cancel"), event -> dialog.close());
+		dialog.add(new VerticalLayout(body, new HorizontalLayout(confirmButton, cancelButton)));
+		return dialog;
+	}
+
+	/**
 	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
 	 */
 	@Override
 	public AgeGroup update(AgeGroup ageGroup) {
-		ChampionshipRepository.materializeIfRequired(ageGroup);
-
-		// array is used to workaround Java language restriction on setting variables in lambda
-		AgeGroup[] saved = new AgeGroup[1];
-		try {
-			saved[0] = AgeGroupRepository.save(ageGroup);
-			RankingConfig.updateMustCompute();
-			this.origin.closeDialog();
-			this.origin.highlightResetButton();
-			return saved[0];
-		} catch (AssignedAthletesException e) {
-			ConfirmationDialog cd = new ConfirmationDialog(
-			        Translator.translate("CategoryAssignment.Title"),
-			        Translator.translate("CategoryAssignment.Warning"),
-			        null,
-			        () -> {
-				        ageGroup.setForceSave(true);
-				        try {
-					        saved[0] = AgeGroupRepository.save(ageGroup);
-					        RankingConfig.updateMustCompute();
-				        } catch (AssignedAthletesException e1) {
-					        saved[0] = ageGroup;
-				        }
-				        this.origin.closeDialog();
-				        this.origin.getCrud().refreshGrid();
-				        this.origin.highlightResetButton();
-			        });
-			cd.open();
-			return saved[0];
-		}
+		// unreachable: confirmUpdate routes updates through AgeGroupSaveFlow.saveFromEditor
+		throw new IllegalStateException("age group updates go through AgeGroupSaveFlow");
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

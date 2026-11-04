@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
@@ -817,6 +818,14 @@ public class Championship implements Comparable<Championship>, Serializable {
 	 * Must only be called on fully-constructed, managed entities.
 	 */
 	public void rename(String newName) {
+		rename(newName, AuditOrigin.system("championship-rename"));
+	}
+
+	/**
+	 * Rename a championship, recording who did it on the affected age groups.
+	 * Must only be called on fully-constructed, managed entities.
+	 */
+	public void rename(String newName, AuditOrigin origin) {
 		if (newName == null) {
 			return;
 		}
@@ -826,7 +835,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 		}
 
 		String oldName = this.name;
-		Championship renamed = this.id != null ? ChampionshipRepository.rename(this, canonicalNewName) : null;
+		Championship renamed = this.id != null ? ChampionshipRepository.rename(this, canonicalNewName, origin) : null;
 		this.name = renamed != null ? renamed.getName() : canonicalNewName;
 
 		if (allChampionshipsMap != null) {

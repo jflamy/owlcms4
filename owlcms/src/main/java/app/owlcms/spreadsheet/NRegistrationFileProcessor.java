@@ -126,6 +126,7 @@ public class NRegistrationFileProcessor {
 				RCompetition.resetAthleteToEligibles();
 				RCompetition.resetAthleteToTeams();
 				RCompetition.resetAthleteToMixedTeams();
+				RCompetition.resetAthleteToRegistration();
 			}
 
 			List<RAthlete> athletes = new ArrayList<>();
@@ -228,6 +229,8 @@ public class NRegistrationFileProcessor {
 					        RCompetition.putEligibles(a.getId(), new LinkedHashSet<>(a.getEligibleCategories()));
 					        RCompetition.putTeams(a.getId(), a.computeTeams());
 							RCompetition.putMixedTeams(a.getId(), a.computeMixedTeams());
+						// clear any registration category resolved by a previous import of this JVM run
+						RCompetition.putRegistration(a.getId(), null);
 					        a.getParticipations().clear();
 
 					        if (isDeleteSessions()) {
@@ -253,12 +256,12 @@ public class NRegistrationFileProcessor {
 			Athlete sbdeAthlete = r.getAthlete();
 			String athleteKey = athleteKey(sbdeAthlete);
 
-			// Capture eligibles/teams from the SBDE athlete now, before the next
-			// SBDE athlete overwrites the null-keyed entry in the RCompetition maps.
-			// (All SBDE athletes have id==null since they are not yet persisted.)
+			// Capture eligibles/teams from the SBDE athlete before the updateExistingAthlete
+			// path re-keys them to the existing athlete's id (parsed athletes carry their own id).
 			LinkedHashSet<Category> sbdeEligibles = RCompetition.getEligibles(sbdeAthlete.getId());
 			LinkedHashSet<Category> sbdeTeams = RCompetition.getTeams(sbdeAthlete.getId());
 			LinkedHashSet<Category> sbdeMixedTeams = RCompetition.getMixedTeams(sbdeAthlete.getId());
+			Category sbdeRegistration = RCompetition.getRegistration(sbdeAthlete.getId());
 
 			Athlete existingAthlete = findPriorAthlete(sbdeAthlete);
 			if (existingAthlete != null) {
@@ -268,7 +271,7 @@ public class NRegistrationFileProcessor {
 					// can't happen, mutually exclusive from enclosing conditions, paranoia.
 					if (!isOnlyAddAthletes()) {
 						updateExistingAthlete(existingAthlete, sbdeAthlete,
-						        sbdeEligibles, sbdeTeams, sbdeMixedTeams);
+						        sbdeEligibles, sbdeTeams, sbdeMixedTeams, sbdeRegistration);
 						toBeMerged.add(existingAthlete);
 					}
 				} else {
@@ -277,8 +280,6 @@ public class NRegistrationFileProcessor {
 				}
 			} else {
 				sbdeAthlete.setCategoryFinished(false);
-				// Store eligibles under a temporary negative key so they survive the loop.
-				// New athletes will get a real ID after persist; step 3 will find them by ID.
 				toBeMerged.add(sbdeAthlete);
 			}
 		});
@@ -325,7 +326,8 @@ public class NRegistrationFileProcessor {
 				}
 				// logger.debug("athlete {} eligibles {}", a2.getId(), eligibles);
 				if (eligibles != null) {
-					Category first = eligibles.stream().findFirst().orElse(null);
+					Category resolved = RCompetition.getRegistration(a2.getId());
+					Category first = resolved != null ? resolved : eligibles.stream().findFirst().orElse(null);
 					a2.setCategory(first);
 					a2.setCategoryFinished(false);
 
@@ -390,7 +392,7 @@ public class NRegistrationFileProcessor {
 	 */
 	private void updateExistingAthlete(Athlete existingAthlete, Athlete sbdeAthlete,
 	        LinkedHashSet<Category> sbdeEligibles, LinkedHashSet<Category> sbdeTeams,
-	        LinkedHashSet<Category> sbdeMixedTeams) {
+	        LinkedHashSet<Category> sbdeMixedTeams, Category sbdeRegistration) {
 		// keep the bw, declarations, changes, and actual lifts from the existing athlete
 		// must fix participations to point to the existing athlete, not the sbde athlete.
 		Athlete.conditionalCopy(existingAthlete, sbdeAthlete, false, false, false);
@@ -398,6 +400,9 @@ public class NRegistrationFileProcessor {
 		// If the SBDE carries categories, use them; otherwise preserve the existing ones from step 1.
 		if (sbdeEligibles != null) {
 			RCompetition.putEligibles(existingAthlete.getId(), sbdeEligibles);
+		}
+		if (sbdeRegistration != null) {
+			RCompetition.putRegistration(existingAthlete.getId(), sbdeRegistration);
 		}
 		boolean explicitTeams = FeatureSwitch.EXPLICIT_TEAMS.isEffective();
 		if (sbdeTeams != null) {
@@ -1384,6 +1389,14 @@ public class NRegistrationFileProcessor {
 						}
 						this.setterForColumn[setterColumn].accept(ra, value, delayedSetterCells[delayedOrder]);
 					}
+				}
+				for (String importWarning : ra.drainImportWarnings()) {
+					Cell categoryCell = delayedSetterCells[DelayedSetter.CATEGORY.ordinal()];
+					String prefixed = (categoryCell != null ? categoryCell.getAddress() + " " : "") + importWarning;
+					if (errorConsumer != null) {
+						errorConsumer.accept(prefixed + System.lineSeparator());
+					}
+					this.logger.warn(prefixed);
 				}
 				String lastName = ra.getAthlete().getLastName();
 				String firstName = ra.getAthlete().getFirstName();

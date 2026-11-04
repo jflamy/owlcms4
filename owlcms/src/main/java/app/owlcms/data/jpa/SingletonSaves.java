@@ -68,6 +68,24 @@ public final class SingletonSaves {
 		return id == null ? null : em.find(type, id, BYPASS_CACHE);
 	}
 
+	/**
+	 * Runs the work in a transaction that is always rolled back: a dry run reads consistent data and can exercise
+	 * the real write path, yet nothing is written or bootstrapped.
+	 */
+	public static <T> T inRollbackOnlyTransaction(Function<EntityManager, T> work) {
+		EntityManager em = JPAService.getFactory().createEntityManager();
+		EntityTransaction tx = em.getTransaction();
+		try {
+			tx.begin();
+			return work.apply(em);
+		} finally {
+			if (tx.isActive()) {
+				tx.rollback();
+			}
+			em.close();
+		}
+	}
+
 	/** Strictly increasing: two saves in the same millisecond still get different stamps. */
 	public static long nextStamp(Long previous) {
 		long now = System.currentTimeMillis();

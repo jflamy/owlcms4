@@ -314,9 +314,9 @@ public class NRegistrationFileProcessorTest {
         NRegistrationFileProcessor processor = new NRegistrationFileProcessor(false, Locale.ENGLISH);
         Method updateMethod = NRegistrationFileProcessor.class.getDeclaredMethod(
                 "updateExistingAthlete", Athlete.class, Athlete.class,
-                LinkedHashSet.class, LinkedHashSet.class, LinkedHashSet.class);
+                LinkedHashSet.class, LinkedHashSet.class, LinkedHashSet.class, Category.class);
         updateMethod.setAccessible(true);
-        updateMethod.invoke(processor, existingAthlete, incomingAthlete, eligibles, teams, mixedTeams);
+        updateMethod.invoke(processor, existingAthlete, incomingAthlete, eligibles, teams, mixedTeams, null);
 
         assertSame("The updated athlete should keep the captured eligible-category set", eligibles,
                 RCompetition.getEligibles(existingAthlete.getId()));
@@ -336,7 +336,7 @@ public class NRegistrationFileProcessorTest {
         NRegistrationFileProcessor processor = new NRegistrationFileProcessor(false, Locale.ENGLISH);
         Method updateMethod = NRegistrationFileProcessor.class.getDeclaredMethod(
                 "updateExistingAthlete", Athlete.class, Athlete.class,
-                LinkedHashSet.class, LinkedHashSet.class, LinkedHashSet.class);
+                LinkedHashSet.class, LinkedHashSet.class, LinkedHashSet.class, Category.class);
         updateMethod.setAccessible(true);
         Config config = Config.getCurrent();
         boolean previousExplicitTeams = config.featureSwitch(FeatureSwitch.EXPLICIT_TEAMS);
@@ -353,7 +353,7 @@ public class NRegistrationFileProcessorTest {
                             : new LinkedHashSet<>(List.of(incomingCategory));
 
                     updateMethod.invoke(processor, existingAthlete, incomingAthlete,
-                            null, incomingTeams, incomingTeams);
+                            null, incomingTeams, incomingTeams, null);
 
                     LinkedHashSet<Category> expected = incomingTeams != null ? incomingTeams
                             : explicitTeams ? new LinkedHashSet<>() : priorTeams;

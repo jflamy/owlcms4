@@ -52,7 +52,18 @@ After Deletion, the categories are adjusted. The changes to the age group are on
 
 ### Reassigning the athletes
 
-After updating an age group with new categories, the program highlights the `Reassign Athletes` button at the top.  *Note that you will need to review team memberships after reassignment*.
+When you click "Update" and your changes affect which athletes qualify (age range, gender, qualifying totals, or added/removed body weight categories), the program shows a preview dialog before saving. The dialog lists, for each championship, which athletes would be added and which would be removed because they no longer qualify for any of its categories.
+
+- **Apply** saves the changes and reassigns the athletes immediately.
+- **Reassign Later** saves the changes but leaves the athletes in their current categories. This is useful when you have several age groups to edit and want to reassign everyone at the end. *Note that you will need to review team memberships after reassignment*.
+- **Cancel** discards the changes.
+
+If body weight categories are being deleted, athletes must be reassigned immediately and the "Reassign Later" option is not offered.
+
+Two buttons at the top of the page perform global actions:
+
+- **Reassign Within Current Championships** reassigns every athlete to the categories they now qualify for, inside the championships they are already in. No athlete is added to another championship. Use this after having saved age group changes with "Reassign Later". The program shows the list of athletes that will be removed before applying.
+- **Recompute All Eligibilities** starts from scratch: every athlete is assigned to every category they qualify for, in all active age groups, and athletes may be added to or removed from championships. The program shows the full list of additions and removals before applying.
 
 ![70](img/040-DefineAgeGroupsAndCategories/70.png)
 

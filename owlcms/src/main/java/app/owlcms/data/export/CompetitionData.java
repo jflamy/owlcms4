@@ -305,6 +305,7 @@ public class CompetitionData {
 				Competition competition = updated.getCompetition();
 
 				for (AgeGroup ag : updated.getAgeGroups()) {
+					ag.stamp(origin, null);
 					em.persist(ag);
 				}
 

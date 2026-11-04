@@ -24,6 +24,8 @@ import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.category.RegistrationPreferenceComparator;
+import app.owlcms.data.category.RegistrationQtHelper;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
@@ -50,6 +52,7 @@ public class RAthlete {
 	private static final String YesMixedValue = "YesMixed";
 	private static final String NoMixedValue = "NoMixed";
 	private Pattern legacyPattern;
+	private final List<String> importWarnings = new ArrayList<>();
 	Athlete a;
 	final Logger logger = (Logger) LoggerFactory.getLogger(RAthlete.class);
 
@@ -123,7 +126,15 @@ public class RAthlete {
 				p.setTeamMember(teamMember);
 				p.setMixedTeamMember(false);
 			});
-			if (this.a.getCategory() == null) {
+			LinkedHashSet<Category> surviving = qtSurvivors(this.a.getEligibleCategories());
+			Category registration = this.a.getCategory();
+			boolean registrationOverridden = false;
+			if (registration != null && registration.requiresEntryTotalConfirmation(this.a.getQualifyingTotal())) {
+				registration = surviving.stream().min(new RegistrationPreferenceComparator()).orElse(null);
+				this.a.setCategory(registration);
+				registrationOverridden = true;
+			}
+			if (registration == null) {
 				Integer athleteAge = null;
 				try {
 					athleteAge = this.a.getAge();
@@ -134,8 +145,11 @@ public class RAthlete {
 					this.a.getGender() != null ? this.a.getGender().toString() : "?",
 					this.a.getBodyWeight() != null ? this.a.getBodyWeight().toString() : "?"));
 			}
-			RCompetition.putEligibles(this.a.getId(), new LinkedHashSet<>(this.a.getEligibleCategories()));
-			RCompetition.putTeams(this.a.getId(), this.a.computeTeams());
+			RCompetition.putEligibles(this.a.getId(), surviving);
+			if (registrationOverridden) {
+				RCompetition.putRegistration(this.a.getId(), registration);
+			}
+			RCompetition.putTeams(this.a.getId(), teamMember ? new LinkedHashSet<>(surviving) : new LinkedHashSet<>());
 			RCompetition.putMixedTeams(this.a.getId(), new LinkedHashSet<>());
 			this.a.setEligibleCategories(Set.of());
 			this.a.computeMainRankings();
@@ -424,10 +438,12 @@ public class RAthlete {
 	private Category findByAgeBW(Matcher legacyResult, double searchBodyWeight, int age, int qualifyingTotal,
 	        boolean teamMember, boolean mixedTeamMember)
 	        throws Exception {
-		List<Category> eligibles = CategoryRepository.doFindEligibleCategories(this.a, this.a.getGender(), age,
+		List<Category> candidates = CategoryRepository.doFindEligibleCategories(this.a, this.a.getGender(), age,
 		        searchBodyWeight, qualifyingTotal);
-		
-		RCompetition.putEligibles(this.a.getId(), new LinkedHashSet<>(eligibles));
+		// the candidate query enforces age, body weight, gender and active; only the qualifying total remains.
+		LinkedHashSet<Category> eligibles = qtSurvivors(candidates);
+
+		RCompetition.putEligibles(this.a.getId(), eligibles);
 		RCompetition.putTeams(this.a.getId(), teamMember ? new LinkedHashSet<>(eligibles) : new LinkedHashSet<>());
 		LinkedHashSet<Category> mixedTeams = new LinkedHashSet<>();
 		if (mixedTeamMember) {
@@ -435,13 +451,17 @@ public class RAthlete {
 		}
 		RCompetition.putMixedTeams(this.a.getId(), mixedTeams);
 
-		Category category = eligibles.size() > 0 ? eligibles.get(0) : null;
+		Category category = eligibles.stream().findFirst().orElse(null);
 		if (category == null) {
 			// The short-hand notation was provided but doesn't match any category
 			String notation = legacyResult.group(2) + legacyResult.group(3);
 			throw new Exception(
 			        Translator.translate(
 			                "Upload.CategoryNotFoundByName", notation + " (" + this.a.getGender() + ", age " + age + ")"));
+		}
+		if (eligibles.size() != candidates.size() && !category.equals(candidates.stream().findFirst().orElse(null))) {
+			// the most preferred candidate was skipped on QT; record the resolved registration category
+			RCompetition.putRegistration(this.a.getId(), category);
 		}
 		return category;
 	}
@@ -529,16 +549,19 @@ public class RAthlete {
 			        c.getDisplayName() + "/" + YesMixedMarker));
 		}
 
-		boolean addedToMainCat = addIfEligible(eligibleCategories, teams, athleteQTotal, athleteAge,
-		        mainCategoryTeamMember, c);
-		if (!addedToMainCat) {
-			throw new Exception(Translator.translate("Upload.AthleteNotEligibleForCategory", c.getDisplayName(), 
-				athleteAge != null ? athleteAge.toString() : "?", 
-				athleteQTotal != null ? athleteQTotal.toString() : "0"));
-		} else {
-			this.a.setCategory(c);
-			if (mainCategoryMixedTeamMember) {
-				mixedTeams.add(c);
+		boolean mainSkipped = skipIfOnlyQtFails(c, athleteQTotal, athleteAge);
+		if (!mainSkipped) {
+			boolean addedToMainCat = addIfEligible(eligibleCategories, teams, athleteQTotal, athleteAge,
+			        mainCategoryTeamMember, c);
+			if (!addedToMainCat) {
+				throw new Exception(Translator.translate("Upload.AthleteNotEligibleForCategory", c.getDisplayName(), 
+					athleteAge != null ? athleteAge.toString() : "?", 
+					athleteQTotal != null ? athleteQTotal.toString() : "0"));
+			} else {
+				this.a.setCategory(c);
+				if (mainCategoryMixedTeamMember) {
+					mixedTeams.add(c);
+				}
 			}
 		}
 
@@ -553,6 +576,9 @@ public class RAthlete {
 					if (participationSpec.mixedTeamMember && !c2.getAgeGroup().isMixedTeams()) {
 						throw new Exception(Translator.translate("Upload.CategoryNotFoundByName",
 							        participationSpec.categoryName + "/" + YesMixedMarker));
+					}
+					if (skipIfOnlyQtFails(c2, athleteQTotal, athleteAge)) {
+						continue;
 					}
 					boolean addedToEligible = addIfEligible(eligibleCategories, teams, athleteQTotal, athleteAge,
 					        participationSpec.teamMember, c2);
@@ -579,6 +605,68 @@ public class RAthlete {
 		RCompetition.putEligibles(this.a.getId(), eligibleCategories);
 		RCompetition.putTeams(this.a.getId(), teams);
 		RCompetition.putMixedTeams(this.a.getId(), mixedTeams);
+
+		if (mainSkipped) {
+			// the skipped first category was the registration category: the preferred survivor takes over.
+			Category resolved = eligibleCategories.stream().min(new RegistrationPreferenceComparator()).orElse(null);
+			this.a.setCategory(resolved);
+			RCompetition.putRegistration(this.a.getId(), resolved);
+			if (resolved != null) {
+				addImportWarning(Translator.translate("Upload.RegistrationCategoryAfterQtSkip",
+				        athleteDisplayName(), resolved.getDisplayName()));
+			} else {
+				addImportWarning(Translator.translate("Upload.RegistrationCategoryNoneAfterQtSkip",
+				        athleteDisplayName()));
+			}
+		}
+	}
+
+	// The candidate queries enforce age, body weight, gender and active; only the qualifying total can still fail.
+	private LinkedHashSet<Category> qtSurvivors(java.util.Collection<Category> candidates) {
+		LinkedHashSet<Category> surviving = new LinkedHashSet<>();
+		Integer athleteQTotal = this.a.getQualifyingTotal();
+		for (Category candidate : candidates) {
+			if (candidate != null && candidate.requiresEntryTotalConfirmation(athleteQTotal)) {
+				addQtSkipWarning(candidate, athleteQTotal);
+				continue;
+			}
+			surviving.add(candidate);
+		}
+		return surviving;
+	}
+
+	// An explicit category failing only the qualifying total is skipped with a warning; any other failure
+	// keeps the historical behavior of refusing the whole line.
+	private boolean skipIfOnlyQtFails(Category c, Integer athleteQTotal, Integer athleteAge) {
+		if (!RegistrationQtHelper.failsOnlyQt(c, athleteQTotal, athleteAge)) {
+			return false;
+		}
+		addQtSkipWarning(c, athleteQTotal);
+		return true;
+	}
+
+	private void addQtSkipWarning(Category c, Integer athleteQTotal) {
+		addImportWarning(Translator.translate("Upload.CategorySkippedBelowQt", c.getDisplayName(),
+		        athleteDisplayName(), athleteQTotal != null ? athleteQTotal.toString() : "0",
+		        String.valueOf(c.getQualifyingTotal())));
+	}
+
+	private String athleteDisplayName() {
+		String last = this.a.getLastName();
+		String first = this.a.getFirstName();
+		String name = ((last != null ? last : "") + " " + (first != null ? first : "")).trim();
+		return name.isEmpty() ? "?" : name;
+	}
+
+	private void addImportWarning(String warning) {
+		this.importWarnings.add(warning);
+	}
+
+	/** Warnings collected while parsing the category cell; the processor drains them once per row. */
+	public List<String> drainImportWarnings() {
+		List<String> drained = new ArrayList<>(this.importWarnings);
+		this.importWarnings.clear();
+		return drained;
 	}
 
 	// When a cell lists several categories explicitly, a single athlete must fit all of them at once:

@@ -32,11 +32,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.data.jpa.SingletonSaves;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
@@ -145,16 +147,42 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	@Column(columnDefinition = "boolean default false")
 	private Boolean alreadyGendered = false;
 	private Ranking scoringSystem;
-	@Transient
-	@JsonIgnore
-	private Boolean forceSave = null;
 	private ChampionshipType championshipType;
 	private Ranking bestAthleteScoringSystem;
 	@Column(columnDefinition = "boolean default true")
 	private Boolean medals = true;
-	
+
+	/** Stale-save check: time of the last save of this row (epoch ms). Never exported. */
+	@JsonIgnore
+	private Long lastSavedAt;
+	/** Stale-save check: who made the last save of this row. Never exported. */
+	@JsonIgnore
+	private String lastSavedBy;
+
 	public AgeGroup() {
 		this.id = IdUtils.getTimeBasedId();
+	}
+
+	/** When the stored row was last saved (epoch milliseconds); null if never saved since this check exists. */
+	@JsonIgnore
+	public Long getLastSavedAt() {
+		return this.lastSavedAt;
+	}
+
+	/** Who made the last save of the stored row. */
+	@JsonIgnore
+	public String getLastSavedBy() {
+		return this.lastSavedBy;
+	}
+
+	/**
+	 * Marks this instance as saved now. Persistence use only (repository, import, migrations).
+	 *
+	 * @param previous the stamp of the row being replaced, null if none
+	 */
+	public void stamp(AuditOrigin origin, Long previous) {
+		this.lastSavedAt = SingletonSaves.nextStamp(previous);
+		this.lastSavedBy = SingletonSaves.savedByLabel(origin);
 	}
 
 	public AgeGroup(String code, boolean active, Integer minAge, Integer maxAge, Gender gender,
@@ -168,6 +196,34 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		this.gender = gender;
 		this.setQualificationTotal(qualificationTotal);
 		this.alreadyGendered = false;
+	}
+
+	/**
+	 * Editor scratchpad copy: same id and stamps, with the field values. The categories are copies with new ids and
+	 * no participations, so a cancelled edit can never delete stored rows by cascade.
+	 */
+	public AgeGroup(AgeGroup source) {
+		this();
+		this.id = source.getId();
+		this.active = source.active;
+		this.code = source.code;
+		this.key = source.key;
+		this.maxAge = source.maxAge;
+		this.minAge = source.minAge;
+		this.ageDivision = source.ageDivision;
+		this.championshipName = source.championshipName;
+		this.championshipType = source.championshipType;
+		this.gender = source.gender;
+		this.qualificationTotal = source.qualificationTotal;
+		this.alreadyGendered = source.alreadyGendered;
+		this.scoringSystem = source.scoringSystem;
+		this.bestAthleteScoringSystem = source.bestAthleteScoringSystem;
+		this.medals = source.medals;
+		this.lastSavedAt = source.lastSavedAt;
+		this.lastSavedBy = source.lastSavedBy;
+		for (Category category : source.getAllCategories()) {
+			addCategory(new Category(category));
+		}
 	}
 
 	public void addCategory(Category category) {
@@ -353,10 +409,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		return value;
 	}
 
-	public Boolean getForceSave() {
-		return this.forceSave;
-	}
-
 	public Gender getGender() {
 		return this.gender;
 	}
@@ -452,21 +504,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		return this.alreadyGendered == null ? false : this.alreadyGendered;
 	}
 
-	/**
-	 * @return a code that changes if the categories were edited in a way that requires reassigning athletes
-	 */
-	public int reassignmentHashCode() {
-		List<Category> a = getCategories();
-		if (a == null) {
-			return 0;
-		}
-		int result = 1;
-		for (Category element : a) {
-			result = 31 * result + (element == null ? 0 : element.reassignmentHashCode());
-		}
-		return result;
-	}
-
 	public void removeCategory(Category category) {
 		if (category != null) {
 			category.setAgeGroup(null);
@@ -533,11 +570,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 	public void setCode(String code) {
 		this.code = code;
-	}
-
-	@JsonIgnore
-	public void setForceSave(boolean b) {
-		this.forceSave = true;
 	}
 
 	public void setGender(Gender gender) {

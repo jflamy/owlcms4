@@ -9,14 +9,15 @@ package app.owlcms.data.agegroup;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -26,16 +27,23 @@ import javax.persistence.TypedQuery;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.audit.AgeGroupAudit;
+import app.owlcms.audit.AthleteAudit;
+import app.owlcms.audit.AthleteDiff;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.athleteSort.BestAthleteRankingService;
 import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.category.RegistrationPreferenceComparator;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.jpa.SingletonSaves;
+import app.owlcms.data.jpa.StaleSingletonException;
+import app.owlcms.data.jpa.StaleSingletonException.Kind;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
@@ -58,20 +66,32 @@ public class AgeGroupRepository {
 	 * @return the group
 	 */
 	public static AgeGroup add(AgeGroup ageGroup) {
-		// first clean up the age group
-		AgeGroup nAgeGroup = JPAService.runInTransaction(em -> {
+		return add(ageGroup, AuditOrigin.system("agegroup-add"));
+	}
+
+	public static AgeGroup add(AgeGroup ageGroup, AuditOrigin origin) {
+		List<Map<String, Object>> added = new ArrayList<>();
+		// runInTransaction swallows commit errors and returns null, so require an explicit success marker
+		Boolean committed = JPAService.runInTransaction(em -> {
+			added.clear();
 			try {
 				if (hasDuplicateCodeGender(ageGroup, em)) {
 					logger.error("duplicate age group code+gender: {} {}", ageGroup.getCode(), ageGroup.getGender());
-					return null;
+					return Boolean.FALSE;
 				}
+				ageGroup.stamp(origin, null);
 				em.persist(ageGroup);
+				em.flush();
+				added.add(AgeGroupAudit.snapshot(ageGroup));
 			} catch (Exception e) {
 				LoggerUtils.logError(logger, e);
 			}
-			return null;
+			return Boolean.TRUE;
 		});
-		return nAgeGroup;
+		if (Boolean.TRUE.equals(committed) && !added.isEmpty()) {
+			AgeGroupAudit.added(origin, added.get(0));
+		}
+		return null;
 	}
 
 	public static List<String> allActiveChampionshipsNames(boolean activeOnly) {
@@ -422,9 +442,14 @@ public class AgeGroupRepository {
 	}
 
 	public static void insertAgeGroups(EntityManager em, EnumSet<ChampionshipType> forcedInsertion) {
+		insertAgeGroups(em, forcedInsertion, AuditOrigin.system("definitions-load"));
+	}
+
+	public static void insertAgeGroups(EntityManager em, EnumSet<ChampionshipType> forcedInsertion,
+	        AuditOrigin origin) {
 		try {
 			String localizedName = ResourceWalker.getLocalizedResourceName(DEFAULT_AGE_GROUP_RESOURCE_NAME);
-			AgeGroupDefinitionReader.doInsertAgeGroups(forcedInsertion, localizedName);
+			AgeGroupDefinitionReader.doInsertAgeGroups(forcedInsertion, localizedName, origin);
 			RankingConfig.updateMustCompute();
 		} catch (FileNotFoundException e1) {
 			// ignore
@@ -432,9 +457,14 @@ public class AgeGroupRepository {
 	}
 
 	public static void insertAgeGroups(EntityManager em, EnumSet<ChampionshipType> forcedInsertion, String resourceName) {
+		insertAgeGroups(em, forcedInsertion, resourceName, AuditOrigin.system("definitions-load"));
+	}
+
+	public static void insertAgeGroups(EntityManager em, EnumSet<ChampionshipType> forcedInsertion, String resourceName,
+	        AuditOrigin origin) {
 		try {
 			String localizedName = ResourceWalker.getLocalizedResourceName(resourceName);
-			AgeGroupDefinitionReader.doInsertAgeGroups(forcedInsertion, localizedName);
+			AgeGroupDefinitionReader.doInsertAgeGroups(forcedInsertion, localizedName, origin);
 			RankingConfig.updateMustCompute();
 		} catch (FileNotFoundException e1) {
 			throw new RuntimeException(e1);
@@ -442,164 +472,115 @@ public class AgeGroupRepository {
 	}
 
 	public static void reloadDefinitions(InputStream inputStream) {
-		cleanUpExisting();
-		AgeGroupDefinitionReader.doInsertAgeGroups(inputStream);
-		AthleteRepository.resetParticipations(false, true);
-		RankingConfig.updateMustCompute();
+		reloadDefinitions(inputStream, AuditOrigin.system("definitions-load"));
+	}
+
+	public static void reloadDefinitions(InputStream inputStream, AuditOrigin origin) {
+		reload(origin, null, () -> {
+			cleanUpExisting();
+			AgeGroupDefinitionReader.doInsertAgeGroups(inputStream, origin);
+		});
 	}
 
 	public static void reloadDefinitions(InputStream inputStream, Consumer<String> errorCollector) {
-		cleanUpExisting();
-		try {
-			AgeGroupDefinitionReader.setErrorCollector(errorCollector);
-			AgeGroupDefinitionReader.doInsertAgeGroups(inputStream);
-		} finally {
-			AgeGroupDefinitionReader.setErrorCollector(null);
-		}
-		AthleteRepository.resetParticipations(false, true);
-		RankingConfig.updateMustCompute();
+		reloadDefinitions(inputStream, errorCollector, AuditOrigin.system("definitions-load"), null);
+	}
+
+	/** @param source the uploaded file name, for the audit log */
+	public static void reloadDefinitions(InputStream inputStream, Consumer<String> errorCollector,
+	        AuditOrigin origin, String source) {
+		reload(origin, source, () -> {
+			cleanUpExisting();
+			try {
+				AgeGroupDefinitionReader.setErrorCollector(errorCollector);
+				AgeGroupDefinitionReader.doInsertAgeGroups(inputStream, origin);
+			} finally {
+				AgeGroupDefinitionReader.setErrorCollector(null);
+			}
+		});
 	}
 
 	public static void reloadDefinitions(String localizedFileName) {
-		cleanUpExisting();
-		AgeGroupDefinitionReader.doInsertAgeGroups(null, "/agegroups/" + localizedFileName);
+		reloadDefinitions(localizedFileName, AuditOrigin.system("definitions-load"));
+	}
+
+	public static void reloadDefinitions(String localizedFileName, AuditOrigin origin) {
+		reload(origin, localizedFileName, () -> {
+			cleanUpExisting();
+			AgeGroupDefinitionReader.doInsertAgeGroups(null, "/agegroups/" + localizedFileName, origin);
+		});
+	}
+
+	/** Replaces every age group, reassigns every athlete, and audits the athletes whose categories changed. */
+	private static void reload(AuditOrigin origin, String source, Runnable replaceDefinitions) {
+		Map<Long, AthleteDiff.Snapshot> before = SingletonSaves.inTransaction(em -> AgeGroupDefinitionService
+		        .athletesBefore(em, em.createQuery("select a.id from Athlete a", Long.class).getResultList()));
+		replaceDefinitions.run();
 		AthleteRepository.resetParticipations(false, true);
+		List<AthleteAudit.Changed> changed = SingletonSaves
+		        .inTransaction(em -> AgeGroupDefinitionService.athletesChanged(em, before));
+		Long ageGroups = SingletonSaves.inTransaction(
+		        em -> em.createQuery("select count(ag) from AgeGroup ag", Long.class).getSingleResult());
+		AgeGroupAudit.definitionsLoaded(origin, source, ageGroups, changed);
 		RankingConfig.updateMustCompute();
 	}
 
-	/**
-	 * Move age groups to another championship and recompute best-athlete ranks, in a single transaction.
-	 * Only the championship name is changed; categories and athlete assignments are not affected.
-	 */
-	public static void moveToChampionship(List<Long> ageGroupIds, String championshipName) {
-		// runInTransaction swallows Postgres errors and returns null, so require an explicit success marker
-		Boolean committed = JPAService.runInTransaction(em -> {
-			for (Long id : ageGroupIds) {
-				AgeGroup ageGroup = em.find(AgeGroup.class, id);
-				if (ageGroup == null) {
-					throw new IllegalStateException("age group " + id + " not found");
-				}
-				ageGroup.setChampionshipName(championshipName);
+	/** A detached copy of the stored row for an editor: fresh from the database, categories initialized. */
+	public static AgeGroup loadForEdit(Long id) {
+		return SingletonSaves.inTransaction(em -> {
+			AgeGroup row = SingletonSaves.findFresh(em, AgeGroup.class, id);
+			if (row != null) {
+				// touching the lazy collection loads it before the EntityManager closes
+				row.getAllCategories();
 			}
-			em.flush();
-			BestAthleteRankingService.recomputeAll(em);
-			return Boolean.TRUE;
+			return row;
 		});
-		if (!Boolean.TRUE.equals(committed)) {
-			throw new IllegalStateException("moving age groups to " + championshipName + " failed");
-		}
-		RankingConfig.updateMustCompute();
 	}
 
 	/**
-	 * Save.
+	 * Read-only preflight: refuses a missing row or a draft older than the stored row. Reserves nothing; the check
+	 * inside {@link #write} remains authoritative.
 	 *
-	 * @param AgeGroup the group
-	 * @return the group
-	 * @throws AssignedAthletesException
+	 * @throws StaleSingletonException when the row is gone or was saved since the draft was loaded
 	 */
-	public static AgeGroup save(AgeGroup ageGroup) throws AssignedAthletesException {
-		boolean duplicate = JPAService.runInTransaction(em -> hasDuplicateCodeGender(ageGroup, em));
-		if (duplicate) {
-			logger.error("duplicate age group code+gender: {} {}", ageGroup.getCode(), ageGroup.getGender());
-			throw new IllegalArgumentException("Duplicate Age Group Code+Gender");
-		}
-		AgeGroup existing = JPAService.runInTransaction(em -> {
-			AgeGroup ag = null;
-			try {
-				ag = em.find(AgeGroup.class, ageGroup.getId());
-			} catch (Exception e) {
-				LoggerUtils.logError(logger, e);
-			}
-			return ag;
+	public static void assertCurrent(Long id, Long draftStamp) {
+		SingletonSaves.inTransaction(em -> {
+			AgeGroup row = SingletonSaves.findFresh(em, AgeGroup.class, id);
+			checkCurrent(row, draftStamp);
+			return null;
 		});
+	}
 
-		boolean needCleanUp = requiresAthleteReassignment(existing, ageGroup);
-
-		List<Athlete> assignedAthletes = AthleteRepository.findAthletesForAgeGroup(ageGroup);
-
-		if (needCleanUp) {
-			boolean empty = assignedAthletes.isEmpty();
-			Boolean forceSave = ageGroup.getForceSave();
-			// logger.debug("empty {} needCleanup {} isForcedSave {}", empty, needCleanUp, forceSave);
-			if (!empty && forceSave == null) {
-				logger.info("athletes present in age group {} need confirmation", ageGroup);
-				throw new AssignedAthletesException();
-			}
-
-			if (forceSave != null && !forceSave) {
-				logger.info("not saving age group {}", ageGroup);
-				return ageGroup;
-			}
-
-			// categories are obsolete and will need to be reassigned.
-			logger.info("cleaning up categories for age group {}", ageGroup);
-			AgeGroup nAgeGroup = JPAService.runInTransaction(em -> {
-				try {
-					return cleanUp(ageGroup, em);
-				} catch (Exception e) {
-					// must not commit: a partial cleanup leaves categories detached from their age group
-					LoggerUtils.logError(logger, e);
-					throw new RuntimeException(e);
+	/**
+	 * Runs the work on the stored row, unless it was saved after the draft was loaded, then stamps the row. The
+	 * callback and its helpers must use the supplied EntityManager and must not open another transaction. A row
+	 * removed by the callback is not stamped.
+	 *
+	 * @throws StaleSingletonException when the row is gone or was saved since the draft was loaded; nothing is written
+	 */
+	public static <T> T write(Long id, Long draftStamp, AuditOrigin origin,
+	        BiFunction<EntityManager, AgeGroup, T> work) {
+		synchronized (SingletonSaves.LOCK) {
+			return SingletonSaves.inTransaction(em -> {
+				AgeGroup row = SingletonSaves.findFresh(em, AgeGroup.class, id);
+				checkCurrent(row, draftStamp);
+				T result = work.apply(em, row);
+				if (em.contains(row)) {
+					row.stamp(origin, row.getLastSavedAt());
 				}
+				return result;
 			});
-			AthleteRepository.removeBrokenParticipationsAndCategories();
-			return nAgeGroup;
-		} else {
-			// no need to change the categories
-			logger.debug("categories not changing");
-			AgeGroup nAgeGroup = JPAService.runInTransaction(em -> {
-				AgeGroup nag = null;
-				try {
-					ageGroup.setCategories(existing.getAllCategories());
-					nag = em.merge(ageGroup);
-					return nag;
-				} catch (Exception e) {
-					LoggerUtils.logError(logger, e);
-				}
-				return nag;
-			});
-			return nAgeGroup;
 		}
-
 	}
 
-	private static boolean requiresAthleteReassignment(AgeGroup existing, AgeGroup updated) {
-		if (existing == null || updated == null) {
-			return false;
+	private static void checkCurrent(AgeGroup row, Long draftStamp) {
+		// a missing row must not fall back to an insert
+		if (row == null || !Objects.equals(row.getLastSavedAt(), draftStamp)) {
+			throw new StaleSingletonException(Kind.AGE_GROUP, row != null ? row.getLastSavedBy() : null);
 		}
-
-		// Championship-level edits do not affect age-group category assignment.
-		return !Objects.equals(updated.getMinAge(), existing.getMinAge())
-		        || !Objects.equals(updated.getMaxAge(), existing.getMaxAge())
-		        || updated.getGender() != existing.getGender()
-		        || !sameReassignmentCategories(existing, updated);
 	}
 
-	private static boolean sameReassignmentCategories(AgeGroup existing, AgeGroup updated) {
-		List<Category> existingCategories = normalizedCategoriesForReassignment(existing);
-		List<Category> updatedCategories = normalizedCategoriesForReassignment(updated);
-
-		if (existingCategories.size() != updatedCategories.size()) {
-			return false;
-		}
-
-		for (int index = 0; index < existingCategories.size(); index++) {
-			if (existingCategories.get(index).reassignmentHashCode() != updatedCategories.get(index).reassignmentHashCode()) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	private static List<Category> normalizedCategoriesForReassignment(AgeGroup ageGroup) {
-		return ageGroup.getCategories().stream()
-		        .sorted(Comparator.naturalOrder())
-		        .collect(Collectors.toList());
-	}
-
-	private static boolean hasDuplicateCodeGender(AgeGroup ageGroup, EntityManager em) {
+	static boolean hasDuplicateCodeGender(AgeGroup ageGroup, EntityManager em) {
 		if (ageGroup == null || em == null) {
 			return false;
 		}
@@ -677,76 +658,9 @@ public class AgeGroupRepository {
 		return athlete.getParticipations().stream()
 		        .map(Participation::getCategory)
 		        .filter(c -> c != null && !deletedCategoryIds.contains(c.getId()) && Boolean.TRUE.equals(c.isActive()))
-		        .sorted(Category.specificityComparator)
+		        .sorted(Category.specificityComparator.thenComparing(new RegistrationPreferenceComparator()))
 		        .findFirst()
 		        .orElse(null);
-	}
-
-	@SuppressWarnings("unchecked")
-	private static void cascadeAthleteCategoryDisconnect(EntityManager em, Category c) {
-		Category nc = em.merge(c);
-
-		String qlString = "select a from Athlete a where a.category = :category";
-		Query query = em.createQuery(qlString);
-		query.setParameter("category", nc);
-		List<Athlete> as = query.getResultList();
-		for (Athlete a : as) {
-			logger.debug("removing athlete {} from category {}", a, nc.getId());
-			Athlete na = em.contains(a) ? a : em.merge(a);
-			na.computeCategory(null);
-		}
-	}
-
-	private static AgeGroup cleanUp(AgeGroup ageGroup, EntityManager em) {
-		// cascade carefully the deleted categories.
-		Long id = ageGroup.getId();
-		if (id == null) {
-			return null;
-		}
-		AgeGroup old = em.find(AgeGroup.class, id);
-		List<Category> oldCats = old.getAllCategories();
-		// logger.debug("old categories {}", oldCats);
-		List<Category> newCats = ageGroup.getAllCategories();
-		// logger.debug("new categories {}", newCats);
-
-		List<Category> obsolete = new ArrayList<>();
-		for (Category oldC : oldCats) {
-			boolean found = false;
-			for (Category newC : newCats) {
-				Long newId = newC.getId();
-				if (newId == null) {
-					// new category without an Id. Not obsolete.
-					continue;
-				}
-				found = Long.compare(newId, oldC.getId()) == 0;
-				if (found) {
-					break;
-				}
-			}
-			if (!found) {
-				obsolete.add(oldC);
-			}
-		}
-
-		for (Category newC : newCats) {
-			newC.setAgeGroup(ageGroup);
-			newC.setGender(ageGroup.getGender());
-			newC.setCode(newC.getComputedCode());
-			em.merge(newC);
-		}
-
-		// logger.debug("obsolete categories {}",obsolete);
-		for (Category obs : obsolete) {
-			cascadeAthleteCategoryDisconnect(em, obs);
-			cascadeCategoryRemoval(em, old, obs);
-		}
-
-		AgeGroup mAgeGroup = em.merge(ageGroup);
-		// List<Category> mergedCats = mAgeGroup.getCategories();
-		// logger.debug("merged categories {}", mergedCats);
-
-		em.flush();
-		return mAgeGroup;
 	}
 
 	@SuppressWarnings("unused")

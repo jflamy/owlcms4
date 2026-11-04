@@ -16,6 +16,7 @@ import javax.persistence.TypedQuery;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.audit.AgeGroupAudit;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.athleteSort.BestAthleteRankingService;
 import app.owlcms.data.athleteSort.Ranking;
@@ -23,6 +24,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.jpa.SingletonSaves;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -273,41 +275,65 @@ public class ChampionshipRepository {
 	}
 
 	public static Championship rename(Championship championship, String newName) {
+		return rename(championship, newName, AuditOrigin.system("championship-rename"));
+	}
+
+	/**
+	 * Renames a championship and every associated age group under the shared save lock. The renamed age groups are
+	 * writers of age-group rows: each is stamped, so open age-group drafts of them become stale.
+	 */
+	public static Championship rename(Championship championship, String newName, AuditOrigin origin) {
 		if (championship == null || newName == null) {
 			return championship;
 		}
 		String canonicalNewName = Championship.canonicalizeChampionshipName(newName.trim());
-		return JPAService.runInTransaction(em -> {
-			Championship managed = championship.getId() != null ? em.find(Championship.class, championship.getId()) : championship;
-			if (managed == null) {
-				return null;
-			}
-			String oldName = managed.getName();
-			if (oldName != null && oldName.equals(canonicalNewName)) {
-				return managed;
-			}
-			TypedQuery<Championship> duplicateQuery = em.createQuery(
-			        "select c from Championship c where lower(trim(c.name)) = :name", Championship.class);
-			duplicateQuery.setParameter("name", canonicalNewName.trim().toLowerCase());
-			for (Championship duplicate : duplicateQuery.getResultList()) {
-				if (!duplicate.getId().equals(managed.getId())) {
-					logger.warn("Rejected championship rename from '{}' to '{}': duplicate championship '{}' already exists",
-					        oldName, canonicalNewName, duplicate.getName());
-					throw new IllegalArgumentException("Championship " + canonicalNewName + " already exists");
+		String[] oldNameHolder = new String[1];
+		boolean[] changed = new boolean[1];
+		List<String> renamedAgeGroups = new ArrayList<>();
+		Championship renamed;
+		synchronized (SingletonSaves.LOCK) {
+			renamed = SingletonSaves.inTransaction(em -> {
+				changed[0] = false;
+				renamedAgeGroups.clear();
+				Championship managed = championship.getId() != null ? em.find(Championship.class, championship.getId()) : championship;
+				if (managed == null) {
+					return null;
 				}
-			}
+				String oldName = managed.getName();
+				if (oldName != null && oldName.equals(canonicalNewName)) {
+					return managed;
+				}
+				TypedQuery<Championship> duplicateQuery = em.createQuery(
+				        "select c from Championship c where lower(trim(c.name)) = :name", Championship.class);
+				duplicateQuery.setParameter("name", canonicalNewName.trim().toLowerCase());
+				for (Championship duplicate : duplicateQuery.getResultList()) {
+					if (!duplicate.getId().equals(managed.getId())) {
+						logger.warn("Rejected championship rename from '{}' to '{}': duplicate championship '{}' already exists",
+						        oldName, canonicalNewName, duplicate.getName());
+						throw new IllegalArgumentException("Championship " + canonicalNewName + " already exists");
+					}
+				}
 
-			TypedQuery<AgeGroup> query = em.createQuery(
-			        "select ag from AgeGroup ag where lower(trim(ag.championshipName)) = :championshipName",
-			        AgeGroup.class);
-			query.setParameter("championshipName", oldName != null ? oldName.trim().toLowerCase() : null);
-			for (AgeGroup ageGroup : query.getResultList()) {
-				ageGroup.setChampionshipName(canonicalNewName);
-			}
+				TypedQuery<AgeGroup> query = em.createQuery(
+				        "select ag from AgeGroup ag where lower(trim(ag.championshipName)) = :championshipName",
+				        AgeGroup.class);
+				query.setParameter("championshipName", oldName != null ? oldName.trim().toLowerCase() : null);
+				for (AgeGroup ageGroup : query.getResultList()) {
+					ageGroup.setChampionshipName(canonicalNewName);
+					ageGroup.stamp(origin, ageGroup.getLastSavedAt());
+					renamedAgeGroups.add(ageGroup.getCode() + "/" + ageGroup.getGender());
+				}
 
-			managed.setName(canonicalNewName);
-			return em.merge(managed);
-		});
+				managed.setName(canonicalNewName);
+				oldNameHolder[0] = oldName;
+				changed[0] = true;
+				return em.merge(managed);
+			});
+		}
+		if (changed[0]) {
+			AgeGroupAudit.championshipRenamed(origin, oldNameHolder[0], canonicalNewName, renamedAgeGroups);
+		}
+		return renamed;
 	}
 
 	public static Championship resetToCompetitionDefaults(Championship championship) {
@@ -459,18 +485,27 @@ public class ChampionshipRepository {
 		if (ageGroup == null) {
 			return null;
 		}
-		Championship championship = JPAService.runInTransaction(em -> {
-			TypedQuery<AgeGroup> aq = em.createQuery("select ag from AgeGroup ag order by ag.id", AgeGroup.class);
-			List<AgeGroup> ageGroups = aq.getResultList();
-			TypedQuery<Championship> cq = em.createQuery(
-			        "select c from Championship c where c.competitionTemplate = false order by c.id", Championship.class);
-			List<Championship> championships = cq.getResultList();
-			Championship template = ensureCompetitionTemplate(em);
-			return materializeChampionship(em, template, effectiveChampionshipName(ageGroup),
-			        ageGroup.getConfiguredChampionshipType(), ageGroups, championships);
-		});
+		Championship championship = JPAService.runInTransaction(em -> materializeForAgeGroupIn(em, ageGroup));
 		Championship.reset();
 		return championship;
+	}
+
+	/**
+	 * Same as {@link #materializeForAgeGroup(AgeGroup)} but inside the caller's transaction, with no cache reset.
+	 * The caller resets the championship cache after its own commit.
+	 */
+	static Championship materializeForAgeGroupIn(EntityManager em, AgeGroup ageGroup) {
+		if (ageGroup == null) {
+			return null;
+		}
+		TypedQuery<AgeGroup> aq = em.createQuery("select ag from AgeGroup ag order by ag.id", AgeGroup.class);
+		List<AgeGroup> ageGroups = aq.getResultList();
+		TypedQuery<Championship> cq = em.createQuery(
+		        "select c from Championship c where c.competitionTemplate = false order by c.id", Championship.class);
+		List<Championship> championships = cq.getResultList();
+		Championship template = ensureCompetitionTemplate(em);
+		return materializeChampionship(em, template, effectiveChampionshipName(ageGroup),
+		        ageGroup.getConfiguredChampionshipType(), ageGroups, championships);
 	}
 
 	public static void materializeIfRequired(AgeGroup ageGroup) {

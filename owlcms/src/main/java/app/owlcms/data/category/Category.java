@@ -539,13 +539,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		        + ", code=" + this.code + "]";
 	}
 
-	/**
-	 * @return a code that changes if the category was edited in a way that requires reassigning athletes
-	 */
-	public int reassignmentHashCode() {
-		return Objects.hash(this.code, this.gender, this.maximumWeight, this.minimumWeight, this.qualifyingTotal);
-	}
-
 	public boolean sameAs(Category prevCat) {
 		return this.compareTo(prevCat) == 0;
 	}

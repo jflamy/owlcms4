@@ -17,22 +17,25 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Gender;
@@ -43,12 +46,11 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class CategoryGridField extends CustomField<List<Category>> {
 
-	private static final String CAT_WIDTH = "12.0ch";
 	private static final String QT_WIDTH = "5ch";
 	Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
 	Logger logger = (Logger) LoggerFactory.getLogger(CategoryGridField.class);
 	private AgeGroup ageGroup;
-	private VerticalLayout catGrid;
+	private Grid<Category> catGrid;
 	private List<Category> presentationCategories = new ArrayList<>();
 	private Div validationStatus;
 
@@ -58,13 +60,23 @@ public class CategoryGridField extends CustomField<List<Category>> {
 
 		this.validationStatus = new Div();
 
-		this.catGrid = new VerticalLayout();
-		// NativeLabel l = new NativeLabel(Translator.translate("LimitForCategory"));
-		this.catGrid.setWidth("50em");
+		this.catGrid = new Grid<>(Category.class, false);
+		this.catGrid.addThemeVariants(GridVariant.LUMO_COMPACT, GridVariant.LUMO_ROW_STRIPES);
+		this.catGrid.setAllRowsVisible(true);
+		this.catGrid.setWidth("fit-content");
+		this.catGrid.addColumn(new ComponentRenderer<>(pc -> {
+			Span name = new Span(pc.getDisplayName());
+			name.getStyle().set("font-weight", "bold");
+			return name;
+		})).setHeader(Translator.translate("Category")).setAutoWidth(true).setFlexGrow(0);
+		this.catGrid.addColumn(new ComponentRenderer<>(this::qualifyingTotalField))
+		        .setHeader(Translator.translate("Category.QualificationTotal")).setAutoWidth(true).setFlexGrow(0)
+		        .setTextAlign(ColumnTextAlign.CENTER);
+		this.catGrid.addColumn(new ComponentRenderer<>(this::deleteButton)).setAutoWidth(true).setFlexGrow(0);
 
 		HorizontalLayout adder = new HorizontalLayout();
-		adder.getStyle().set("margin-top", "0.5em");
-		adder.getStyle().set("margin-bottom", "1em");
+		adder.getStyle().set("margin-top", "0");
+		adder.getStyle().set("margin-bottom", "0.25em");
 		TextField newCategoryField = new TextField();
 		newCategoryField.setPlaceholder(Translator.translate("LimitForCategory"));
 		newCategoryField.setAllowedCharPattern("[0-9]");
@@ -95,12 +107,8 @@ public class CategoryGridField extends CustomField<List<Category>> {
 
 	@Override
 	protected List<Category> generateModelValue() {
-		// the presentation objects are already model values and no conversion is
-		// necessary
-		// the business model can use them as is; the model ignores the categories with
-		// no age group
-		// the database ids are also preserved in the copy, and used to update the
-		// database
+		// the presentation objects are the scratchpad's categories, edited in place;
+		// the save service matches them to stored rows by upper limit, not by id
 		return this.presentationCategories;
 	}
 
@@ -116,57 +124,40 @@ public class CategoryGridField extends CustomField<List<Category>> {
 		this.presentationCategories.add(newCat);
 	}
 
-	private void populateGrid(VerticalLayout catGrid2, List<Category> presentationCategories2) {
-		this.catGrid.removeAll();
-		Div filler = new Div();
-		filler.getElement().setProperty("innerHtml", "&nbsp;");
-		filler.setWidth(CAT_WIDTH);
-		HorizontalLayout title = new HorizontalLayout(filler,
-		        new Text(Translator.translate("Category.QualificationTotal")));
-		this.catGrid.add(title);
-		for (Category pc : presentationCategories2) {
+	private TextField qualifyingTotalField(Category pc) {
+		TextField qualTotField = new TextField();
+		qualTotField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
+		qualTotField.setAllowedCharPattern("[0-9]");
+		qualTotField.setWidth(QT_WIDTH);
+		Binder<Category> catBinder = new Binder<>(Category.class);
+		catBinder
+		        .forField(qualTotField)
+		        .withConverter(
+		                new StringToIntegerConverter("Qualifying total must be a number."))
+		        .withStatusLabel(this.validationStatus).bind("qualifyingTotal");
+		catBinder.setBean(pc);
+		return qualTotField;
+	}
 
-			HorizontalLayout hl = new HorizontalLayout();
-			NativeLabel nativeLabel = new NativeLabel(pc.getDisplayName());
-			nativeLabel.getStyle().set("font-weight", "bold");
-			nativeLabel.setWidth(CAT_WIDTH);
-			hl.add(nativeLabel);
-			TextField qualTotField = new TextField();
-			qualTotField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_RIGHT);
-			qualTotField.setAllowedCharPattern("[0-9]");
-			qualTotField.setWidth(QT_WIDTH);
-			Binder<Category> catBinder = new Binder<>(Category.class);
-			catBinder
-			        .forField(qualTotField)
-			        .withConverter(
-			                new StringToIntegerConverter("Qualifying total must be a number."))
-			        .withStatusLabel(this.validationStatus).bind("qualifyingTotal");
-			catBinder.setBean(pc);
-			hl.add(qualTotField);
-
-			Button delete = new Button(Translator.translate("Delete"));
-			delete.addClassName("delete");
-			delete.addClickListener(e -> {
-				// logger.trace("deleting {} {}",cat != null ? cat.shortDump() : null,
-				// presentationCategories.contains(cat));
-				if (pc.getMaximumWeight() >= 998.9D && (pc.getMinimumWeight() <= 998.0D)) {
-					// old bug created false sentinels 999 999
-					return; // leave the sentinel.
-				}
-				pc.setMaximumWeight(0D); // disconnect
-				updatePresentation();
-				updateValue();
-			});
-			delete.getStyle().set("margin-left", "2em");
-
-			if (pc.getMaximumWeight() <= 998 && pc.getMinimumWeight() <= 200.0D) {
-				hl.add(delete);
-			} else if (pc.getMaximumWeight() >= 998.9D && (pc.getMinimumWeight() >= 998.0D)) {
-				// work around historical bug where false 999 999 sentient categories were created
-				hl.add(delete); 
-			}
-			catGrid2.add(hl);
+	private Component deleteButton(Category pc) {
+		boolean deletable = (pc.getMaximumWeight() <= 998 && pc.getMinimumWeight() <= 200.0D)
+		        // historical bug created false 999 999 sentinel categories
+		        || (pc.getMaximumWeight() >= 998.9D && pc.getMinimumWeight() >= 998.0D);
+		if (!deletable) {
+			return new Div();
 		}
+		Button delete = new Button(Translator.translate("Delete"));
+		delete.addClassName("delete");
+		delete.addClickListener(e -> {
+			if (pc.getMaximumWeight() >= 998.9D && (pc.getMinimumWeight() <= 998.0D)) {
+				// old bug created false sentinels 999 999
+				return; // leave the sentinel.
+			}
+			pc.setMaximumWeight(0D); // disconnect
+			updatePresentation();
+			updateValue();
+		});
+		return delete;
 	}
 
 	private void react(AgeGroup ag, TextField newCategoryField) {
@@ -181,6 +172,15 @@ public class CategoryGridField extends CustomField<List<Category>> {
 			return;
 		}
 		double newMax = Double.parseDouble(value);
+		boolean duplicate = this.presentationCategories.stream()
+		        .anyMatch(c -> c.getMaximumWeight() != null && Math.abs(c.getMaximumWeight() - newMax) < 0.01);
+		if (duplicate) {
+			Notification notif = new Notification();
+			notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			notif.setText(Translator.translate("AgeGroup.DuplicateUpperLimit", value.trim()));
+			notif.open();
+			return;
+		}
 		Category newCat = new Category(0.0, newMax, ag.getGender(), true,
 		        0, 0, 0, ag, 0);
 		this.presentationCategories.add(newCat);
@@ -218,8 +218,7 @@ public class CategoryGridField extends CustomField<List<Category>> {
 			prevDouble = maximumWeight;
 
 		}
-		populateGrid(this.catGrid, this.presentationCategories);
-		this.catGrid.setSizeUndefined();
+		this.catGrid.setItems(new ArrayList<>(this.presentationCategories));
 	}
 
 }

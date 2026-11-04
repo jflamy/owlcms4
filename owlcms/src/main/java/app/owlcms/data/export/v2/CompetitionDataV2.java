@@ -327,7 +327,9 @@ public class CompetitionDataV2 {
 				em.flush();
 			}
 			for (JsonNode ageGroup : updated.getAgeGroups()) {
-				em.persist(V2Json.toAgeGroup(ageGroup));
+				AgeGroup imported = V2Json.toAgeGroup(ageGroup);
+				imported.stamp(origin, null);
+				em.persist(imported);
 			}
 		// Flush to ensure categories from AgeGroups are available for lookup
 		em.flush();

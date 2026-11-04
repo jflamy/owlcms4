@@ -15,6 +15,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -242,6 +243,11 @@ public class NRegistrationFileProcessorCategoryAssignmentTest {
 	}
 
 	private Athlete importMembershipRow(String categorySpec) throws Exception {
+		return importRow(4, categorySpec, "Schreiber", "Erik", new StringBuilder());
+	}
+
+	private Athlete importRow(int sourceRowIndex, String categorySpec, String lastName, String firstName,
+		StringBuilder messages) throws Exception {
 		try (InputStream input = getClass().getResourceAsStream(REGISTRATION_FILE);
 			Workbook source = WorkbookFactory.create(input);
 			Workbook workbook = new XSSFWorkbook();
@@ -249,7 +255,7 @@ public class NRegistrationFileProcessorCategoryAssignmentTest {
 			Sheet sheet = workbook.createSheet();
 			DataFormatter formatter = new DataFormatter(Locale.ENGLISH);
 			for (int rowIndex = 0; rowIndex < 2; rowIndex++) {
-				Row sourceRow = source.getSheetAt(0).getRow(rowIndex == 0 ? 0 : 4);
+				Row sourceRow = source.getSheetAt(0).getRow(rowIndex == 0 ? 0 : sourceRowIndex);
 				Row destination = sheet.createRow(rowIndex);
 				sourceRow.forEach(cell -> destination.createCell(cell.getColumnIndex()).setCellValue(formatter.formatCellValue(cell)));
 			}
@@ -258,14 +264,160 @@ public class NRegistrationFileProcessorCategoryAssignmentTest {
 			NRegistrationFileProcessor processor = new NRegistrationFileProcessor(false, Locale.ENGLISH);
 			processor.setSessionOptions(NRegistrationFileProcessor.SessionOptions.IGNORE_SESSIONS);
 			processor.setAthleteOptions(NRegistrationFileProcessor.AthleteOptions.UPDATE_ADD_ATHLETES);
-			StringBuilder messages = new StringBuilder();
 			int processed = processor.doProcessAthletes(
 				new ByteArrayInputStream(output.toByteArray()), false,
 				message -> messages.append(message).append('\n'), () -> { });
 			assertEquals("Expected one imported row: " + categorySpec + "\n" + messages + importDiagnostics(), 1, processed);
 			assertFalse(messages.toString(), messages.toString().contains(Translator.translate("Upload.CannotDetermineRegistrationCategory")));
-			return findAthlete("Schreiber", "Erik");
+			return findAthlete(lastName, firstName);
 		}
+	}
+
+	private void setQualifyingTotal(Category category, int qualifyingTotal) {
+		JPAService.runInTransaction(em -> {
+			Category managed = em.find(Category.class, category.getId());
+			assertNotNull("Category not found in test database: " + category.getCode(), managed);
+			managed.setQualifyingTotal(qualifyingTotal);
+			em.merge(managed);
+			return null;
+		});
+	}
+
+	private Category findCategoryInAgeGroup(String ageGroupCode, double upperLimit) {
+		List<Category> all = JPAService.runInTransaction(
+			em -> em.createQuery("select c from Category c", Category.class).getResultList());
+		return all.stream()
+			.filter(c -> c.getAgeGroup() != null && ageGroupCode.equals(c.getAgeGroup().getCode()))
+			.filter(c -> c.getGender() == Gender.M)
+			.filter(c -> c.getMaximumWeight() != null && Math.abs(c.getMaximumWeight() - upperLimit) < 0.01)
+			.findFirst()
+			.orElse(null);
+	}
+
+	private Set<String> eligibleCodes(Athlete athlete) {
+		return athlete.getEligibleCategories().stream().map(Category::getCode).collect(Collectors.toSet());
+	}
+
+	// Bromley (M, 1981, entry total 245) fits every M45 category by age; the explicit path has no body-weight check.
+	// The remaining categories must share one weight class (disjoint weight classes are rejected), so the
+	// "not next in line" check uses Open 95 and M45 95: M45 is the more specific age group and wins
+	// even though it is second in the input.
+	@Test
+	public void qtSkippedExplicitRegistrationUsesPreferredSurvivorNotNextInLine() throws Exception {
+		configureMaleAgeGroups("Open", "M45");
+		configureSessionGroups("2", "3", "4");
+		Category m45_95 = findCategoryInAgeGroup("M45", 95.0);
+		Category m45_110 = findCategoryInAgeGroup("M45", 110.0);
+		Category open95 = findCategoryInAgeGroup("Open", 95.0);
+		assertNotNull("M45 95 category expected in the test data", m45_95);
+		assertNotNull("M45 110 category expected in the test data", m45_110);
+		assertNotNull("M 95 category expected in the test data", open95);
+		setQualifyingTotal(m45_110, 300);
+
+		StringBuilder messages = new StringBuilder();
+		Athlete bromley = importRow(5, "M45 110;M 95;M45 95", "Bromley", "Chip", messages);
+
+		assertNotNull("Bromley should be imported with a surviving registration category", bromley.getCategory());
+		assertEquals("registration should be the preferred survivor, not the first remaining input",
+			m45_95.getCode(), bromley.getCategory().getCode());
+		assertEquals("only the surviving categories become participations",
+			Set.of(open95.getCode(), m45_95.getCode()), eligibleCodes(bromley));
+		String msg = messages.toString();
+		assertTrue("skip warning should name the athlete and the skipped category: " + msg,
+			msg.contains(Translator.translate("Upload.CategorySkippedBelowQt",
+				m45_110.getDisplayName(), "Bromley Chip", "245", "300")));
+		assertTrue("the new registration category should be reported: " + msg,
+			msg.contains(Translator.translate("Upload.RegistrationCategoryAfterQtSkip",
+				"Bromley Chip", m45_95.getDisplayName())));
+	}
+
+	@Test
+	public void qtSurvivingExplicitRegistrationCategoryIsKept() throws Exception {
+		configureMaleAgeGroups("Open", "M45");
+		configureSessionGroups("2", "3", "4");
+		Category open95 = findCategoryInAgeGroup("Open", 95.0);
+		Category m45_95 = findCategoryInAgeGroup("M45", 95.0);
+		assertNotNull("M 95 category expected in the test data", open95);
+		assertNotNull("M45 95 category expected in the test data", m45_95);
+		setQualifyingTotal(m45_95, 300);
+
+		StringBuilder messages = new StringBuilder();
+		Athlete bromley = importRow(5, "M 95;M45 95", "Bromley", "Chip", messages);
+
+		assertEquals("a surviving explicit registration category must stay intact",
+			open95.getCode(), bromley.getCategory().getCode());
+		assertEquals(Set.of(open95.getCode()), eligibleCodes(bromley));
+		String msg = messages.toString();
+		assertTrue("skip warning should name the skipped category: " + msg,
+			msg.contains(Translator.translate("Upload.CategorySkippedBelowQt",
+				m45_95.getDisplayName(), "Bromley Chip", "245", "300")));
+		assertFalse("registration did not change, no reassignment warning expected: " + msg,
+			msg.contains(Translator.translate("Upload.RegistrationCategoryAfterQtSkip",
+				"Bromley Chip", m45_95.getDisplayName())));
+	}
+
+	@Test
+	public void qtSkippingEveryExplicitCategoryImportsAthleteWithNoCategory() throws Exception {
+		configureMaleAgeGroups("Open", "M45");
+		configureSessionGroups("2", "3", "4");
+		Category m45_95 = findCategoryInAgeGroup("M45", 95.0);
+		assertNotNull("M45 95 category expected in the test data", m45_95);
+		setQualifyingTotal(m45_95, 300);
+
+		StringBuilder messages = new StringBuilder();
+		Athlete bromley = importRow(5, "M45 95", "Bromley", "Chip", messages);
+
+		assertNull("no surviving category, no registration category", bromley.getCategory());
+		assertTrue("no participations should remain", bromley.getParticipations().isEmpty());
+		String msg = messages.toString();
+		assertTrue("skip warning expected: " + msg,
+			msg.contains(Translator.translate("Upload.CategorySkippedBelowQt",
+				m45_95.getDisplayName(), "Bromley Chip", "245", "300")));
+		assertTrue("the missing registration category should be reported: " + msg,
+			msg.contains(Translator.translate("Upload.RegistrationCategoryNoneAfterQtSkip", "Bromley Chip")));
+	}
+
+	// Schreiber (M, 1984, entry total 240, body weight 93.5) matches the 95 kg class; age 42 fits M40 and Open.
+	@Test
+	public void qtShorthandFallsToTheNextCandidate() throws Exception {
+		configureMaleAgeGroups("Open", "M40");
+		configureSessionGroups("2", "3", "4");
+		Category m40_95 = findCategoryInAgeGroup("M40", 95.0);
+		Category open95 = findCategoryInAgeGroup("Open", 95.0);
+		assertNotNull("M40 95 category expected in the test data", m40_95);
+		assertNotNull("M 95 category expected in the test data", open95);
+		setQualifyingTotal(m40_95, 250);
+
+		StringBuilder messages = new StringBuilder();
+		Athlete schreiber = importRow(4, "95", "Schreiber", "Erik", messages);
+
+		assertEquals("the surviving candidate becomes the registration category",
+			open95.getCode(), schreiber.getCategory().getCode());
+		assertEquals(Set.of(open95.getCode()), eligibleCodes(schreiber));
+		assertTrue("skip warning should name the skipped candidate: " + messages,
+			messages.toString().contains(Translator.translate("Upload.CategorySkippedBelowQt",
+				m40_95.getDisplayName(), "Schreiber Erik", "240", "250")));
+	}
+
+	@Test
+	public void qtShorthandAllCandidatesFailLeavesNoCategory() throws Exception {
+		configureMaleAgeGroups("Open");
+		configureSessionGroups("2", "3", "4");
+		Category open95 = findCategoryInAgeGroup("Open", 95.0);
+		assertNotNull("M 95 category expected in the test data", open95);
+		setQualifyingTotal(open95, 250);
+
+		StringBuilder messages = new StringBuilder();
+		Athlete schreiber = importRow(4, "95", "Schreiber", "Erik", messages);
+
+		assertNull("every candidate failed the qualifying total", schreiber.getCategory());
+		assertTrue(schreiber.getParticipations().isEmpty());
+		String msg = messages.toString();
+		assertTrue("skip warning expected: " + msg,
+			msg.contains(Translator.translate("Upload.CategorySkippedBelowQt",
+				open95.getDisplayName(), "Schreiber Erik", "240", "250")));
+		assertTrue("the unresolved shorthand should be reported: " + msg,
+			msg.contains("95 (M, age "));
 	}
 
 	private void assertMembership(Athlete athlete, Category category, boolean teamMember, boolean mixedTeamMember) {

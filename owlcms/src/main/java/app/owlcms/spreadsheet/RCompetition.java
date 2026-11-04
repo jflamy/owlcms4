@@ -28,6 +28,7 @@ public class RCompetition {
 	static Map<Long, LinkedHashSet<Category>> athleteToEligibles = new HashMap<>();
 	static Map<Long, LinkedHashSet<Category>> athleteToTeams = new HashMap<>();
 	static Map<Long, LinkedHashSet<Category>> athleteToMixedTeams = new HashMap<>();
+	static Map<Long, Category> athleteToRegistration = new HashMap<>();
 	static Map<Long, String> athleteToSession = new HashMap<>();
 	static Logger logger = (Logger) LoggerFactory.getLogger(RCompetition.class);
 
@@ -80,6 +81,10 @@ public class RCompetition {
 
 	public static void resetAthleteToMixedTeams() {
 		athleteToMixedTeams = new HashMap<>();
+	}
+
+	public static void resetAthleteToRegistration() {
+		athleteToRegistration = new HashMap<>();
 	}
 
 	Competition c = new Competition();
@@ -211,6 +216,18 @@ public class RCompetition {
 
 	public static LinkedHashSet<Category> getMixedTeams(Long id) {
 		return athleteToMixedTeams.get(id);
+	}
+
+	public static void putRegistration(Long id, Category registrationCategory) {
+		if (registrationCategory != null) {
+			athleteToRegistration.put(id, registrationCategory);
+		} else {
+			athleteToRegistration.remove(id);
+		}
+	}
+
+	public static Category getRegistration(Long id) {
+		return athleteToRegistration.get(id);
 	}
 
 	public static void putSessionCode(Long id, String sessionName) {

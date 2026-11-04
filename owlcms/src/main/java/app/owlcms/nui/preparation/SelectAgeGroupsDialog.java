@@ -7,7 +7,9 @@
 package app.owlcms.nui.preparation;
 
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,8 +29,9 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
-import app.owlcms.components.ConfirmationDialog;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.AgeGroupDefinitionService;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.i18n.Translator;
@@ -40,8 +43,8 @@ import ch.qos.logback.classic.Logger;
  * Selects the age groups that belong to a championship.
  *
  * Age groups already in the championship are shown selected and cannot be removed (an age group always
- * belongs to exactly one championship). Selecting an age group from another championship moves it here,
- * after a confirmation whose default is Cancel.
+ * belongs to exactly one championship). Selecting an age group from another championship moves it here when
+ * Update is pressed.
  */
 @SuppressWarnings("serial")
 public class SelectAgeGroupsDialog extends Dialog {
@@ -67,7 +70,7 @@ public class SelectAgeGroupsDialog extends Dialog {
 		configureGrid();
 		add(this.grid);
 
-		Button updateButton = new Button(Translator.translate("Update"), e -> confirmAndApply());
+		Button updateButton = new Button(Translator.translate("Update"), e -> apply());
 		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		Button cancelButton = new Button(Translator.translate("Cancel"), e -> close());
 		HorizontalLayout buttons = new HorizontalLayout(updateButton, cancelButton);
@@ -109,46 +112,33 @@ public class SelectAgeGroupsDialog extends Dialog {
 		all.stream().filter(ag -> this.currentIds.contains(ag.getId())).forEach(this.grid::select);
 	}
 
-	private void confirmAndApply() {
+	private void apply() {
 		List<AgeGroup> toMove = this.grid.getSelectedItems().stream()
 		        .filter(ag -> !this.currentIds.contains(ag.getId()))
-		        .sorted(Comparator.comparing(AgeGroup::getDisplayName))
 		        .toList();
 		if (toMove.isEmpty()) {
 			close();
 			return;
 		}
-
-		String targetName = this.target.translate();
-		String warning = toMove.stream()
-		        .map(ag -> Translator.translate("Championship.MoveAgeGroupWarning",
-		                ag.getDisplayName(),
-		                championshipLabel(ag),
-		                targetName))
-		        .collect(Collectors.joining("<br>"));
-
-		new ConfirmationDialog(
-		        Translator.translate("Championship.SelectAgeGroups"),
-		        warning,
-		        null,
-		        () -> {
-			        try {
-				        AgeGroupRepository.moveToChampionship(toMove.stream().map(AgeGroup::getId).toList(),
-				                this.target.getName());
-			        } catch (RuntimeException e) {
-				        // nothing was saved; keep this dialog open so the user can retry or cancel
-				        LoggerUtils.logError(logger, e);
-				        Notification notification = Notification.show(Translator.translate("Error"), 5000,
-				                Position.MIDDLE);
-				        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-				        return;
-			        }
-			        WebSocketEventForwarder.sendDatabaseToAll();
-			        close();
-			        if (this.onSaved != null) {
-				        this.onSaved.run();
-			        }
-		        }).open();
+		AuditOrigin origin = AuditOrigin.fromUi("championship select age groups");
+		Map<Long, Long> stampsById = new LinkedHashMap<>();
+		for (AgeGroup ag : toMove) {
+			stampsById.put(ag.getId(), ag.getLastSavedAt());
+		}
+		try {
+			new AgeGroupDefinitionService().moveToChampionship(origin, stampsById, this.target.getName());
+		} catch (RuntimeException e) {
+			// nothing was saved; keep this dialog open so the user can retry or cancel
+			LoggerUtils.logError(logger, e);
+			Notification notification = Notification.show(Translator.translate("Error"), 5000, Position.MIDDLE);
+			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			return;
+		}
+		WebSocketEventForwarder.sendDatabaseToAll();
+		close();
+		if (this.onSaved != null) {
+			this.onSaved.run();
+		}
 	}
 
 	private static String championshipLabel(AgeGroup ageGroup) {

@@ -19,6 +19,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.server.streams.UploadHandler;
 
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
@@ -40,6 +41,7 @@ public class AgeGroupsFileUploadDialog extends Dialog {
 		ta.setWidth("80em");
 		ta.setVisible(false);
 
+		AuditOrigin uploadOrigin = AuditOrigin.fromUi("age group definitions upload");
 		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, data) -> {
 			// Process the uploaded file data
 			try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data)) {
@@ -50,7 +52,7 @@ public class AgeGroupsFileUploadDialog extends Dialog {
 						errorsSb.append(s).append('\n');
 					}
 				};
-				AgeGroupRepository.reloadDefinitions(inputStream, errorCollector);
+				AgeGroupRepository.reloadDefinitions(inputStream, errorCollector, uploadOrigin, metadata.fileName());
 				updateDisplay(ta, errorsSb);
 				getCallback().run();
 			} catch (Exception e) {
