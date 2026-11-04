@@ -18,6 +18,8 @@ const BASE = typeof BASE_OVERRIDE !== 'undefined' ? BASE_OVERRIDE : 'http://loca
 const SHOTS = typeof SHOTS_OVERRIDE !== 'undefined' ? SHOTS_OVERRIDE : '/tmp/200-scenario';
 // standalone runner: audit log offsets at each event, to show the entries written between screenshots
 const MARK = typeof MARK_OVERRIDE !== 'undefined' && MARK_OVERRIDE ? MARK_OVERRIDE : () => null;
+// standalone runner, EXPORT_DIR set: the definitions exported while V55 and V60 are mistyped (gap at 59, overlap at 65)
+const EXPORT_DIR = typeof EXPORT_OVERRIDE !== 'undefined' ? EXPORT_OVERRIDE : null;
 const JUNIOR = 'Junior Masters';
 const SENIOR = 'Senior Masters';
 const GENDERS = [
@@ -174,6 +176,13 @@ const openAgeGroups = async () => {
 	await page.goto(`${BASE}/preparation/agegroup`);
 	await page.waitForSelector('.agegroup-active');
 	await settle();
+};
+/** Saves the Export Definitions download under the given name; no screenshot, no event. */
+const exportDefinitions = async fileName => {
+	await openAgeGroups();
+	const download = page.waitForEvent('download');
+	await page.getByRole('button', { name: 'Export Definitions' }).click();
+	await (await download).saveAs(`${EXPORT_DIR}/${fileName}`);
 };
 const filterName = async text => {
 	await page.locator('vaadin-text-field[placeholder="Name"] input').fill(text);
@@ -449,6 +458,7 @@ const scenarios = {
 				}
 			}
 
+			if (g.slip55 && EXPORT_DIR) await exportDefinitions('AgeGroups_gaps-and-overlaps.xlsx');
 			if (g.slip55) {
 				// the check lists everything left to fix: after V55 only the overlap at 65 remains, after V60 nothing
 				for (const [tmp, max] of [[g.tmp55, 59], [g.tmp60, 64]]) {

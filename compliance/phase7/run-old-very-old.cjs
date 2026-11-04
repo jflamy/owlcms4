@@ -8,7 +8,8 @@
 //
 // Environment: OWLCMS_URL (default http://localhost:8080), ONLY=S0,S1 to run chosen scenarios, HEADED=1 to watch,
 // OWLCMS_AUDIT_DIR (default ../../owlcms/logs/audit) to show the audit entries written during the run, RENDER=1 to
-// rebuild the pages from old-very-old/run.json without running (after editing the story text).
+// rebuild the pages from old-very-old/run.json without running (after editing the story text). EXPORT_DIR=/some/dir saves
+// the exported age group definitions at the moment the story has gaps and an overlap (AgeGroups_gaps-and-overlaps.xlsx).
 // Output: index.html (the tutorial, with every screenshot in order), old-very-old/REPORT.md (the test report: checks,
 // screenshots and audit entries in order), old-very-old/*.png and run.json. Exit code 1 when a scenario fails.
 
@@ -278,8 +279,8 @@ const writePages = data => {
 	page.on('console', m => { if (m.type() === 'error' && !/WebSocket|push/i.test(m.text())) pageErrors.push(`console: ${m.text()}`); });
 
 	const body = fs.readFileSync(path.join(__dirname, 'old-very-old.scenario.js'), 'utf8');
-	const run = new AsyncFunction('page', 'ONLY_OVERRIDE', 'BASE_OVERRIDE', 'SHOTS_OVERRIDE', 'MARK_OVERRIDE', body);
-	const result = await run(page, ONLY, BASE, OUT, auditMark);
+	const run = new AsyncFunction('page', 'ONLY_OVERRIDE', 'BASE_OVERRIDE', 'SHOTS_OVERRIDE', 'MARK_OVERRIDE', 'EXPORT_OVERRIDE', body);
+	const result = await run(page, ONLY, BASE, OUT, auditMark, process.env.EXPORT_DIR || null);
 	// the last entries of a save can land after its screen updated
 	await new Promise(r => setTimeout(r, 1000));
 	const endMark = auditMark();
