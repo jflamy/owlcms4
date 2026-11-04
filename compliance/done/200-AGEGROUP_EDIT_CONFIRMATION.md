@@ -1,9 +1,9 @@
 # Age Group Definitions and Athlete Reassignment — Target Behavior
 
-Status: target behavior agreed 2026-10-27, to be reimplemented. Implementation plan:
-[200-IMPLEMENTATION_PLAN.md](200-IMPLEMENTATION_PLAN.md). This replaces the earlier bug-fix
-plan (git history). "Today" notes describe dev69 where it differs from the target. Section 9
-lists what is still open.
+Status: done 2026-11-04 (target behavior agreed 2026-10-27), archived. Implementation plan:
+[200-IMPLEMENTATION_PLAN.md](200-IMPLEMENTATION_PLAN.md). This replaced the earlier bug-fix
+plan (git history). "Today" notes describe dev69 before the change. Section 9 records the
+proposal on save progress and failures as it stood.
 
 Priority: can wait. The current behavior has been the same since version 65 and has been lived
 with; it is not on the blocking path for a beta.

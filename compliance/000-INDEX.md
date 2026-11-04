@@ -1,6 +1,6 @@
 # Compliance Work
 
-Updated 2026-11-02. Active specs contain decisions and remaining work;
+Updated 2026-11-04. Active specs contain decisions and remaining work;
 completed designs belong in [done/](done/). Do not duplicate their requirements
 in this index.
 
@@ -39,10 +39,11 @@ control panel launch from a checkpoint, are implemented and archived in
 
 | Order | Document | Scope |
 | --- | --- | --- |
-| 200 | [Age-group editing](200-AGEGROUP_EDIT_CONFIRMATION.md) | Target behavior for age-group edits and athlete reassignment per championship; stops the data loss. Current behavior unchanged since version 65; not blocking for a beta |
 | 220 | [Store panel decisions](220-STORE_PANEL_DECISIONS.md) | Persist detailed review votes and circumstances for later reports |
-| 230 | [Document template settings](230-DOCUMENT_TEMPLATE_SETTINGS.md) | Store per-document template choices apart from `Competition`, so printing never counts as a change to the competition settings |
 
+Age-group editing (200) is done: [200-AGEGROUP_EDIT_CONFIRMATION.md](done/200-AGEGROUP_EDIT_CONFIRMATION.md),
+with its [implementation plan](done/200-IMPLEMENTATION_PLAN.md) and
+[acceptance story](done/200-SCENARIO_OLD_AND_VERY_OLD.md).
 Scoped dark dialogs (210) are done: [210-SCOPED_DARK_DIALOGS.md](done/210-SCOPED_DARK_DIALOGS.md).
 
 ## 3xx — Nice to have
@@ -55,6 +56,7 @@ Scoped dark dialogs (210) are done: [210-SCOPED_DARK_DIALOGS.md](done/210-SCOPED
 | 330 | [Video replays token](330-VIDEO_REPLAYS_TOKEN.md) | Video module: its own access token, generated in the app, required on replay URLs |
 | 340 | [Cloud control panel token](340-CLOUD_CONTROL_PANEL_TOKEN.md) | Cloud app: generate the control panel token as a Fly secret, recover it from a marker secret name, copy icon |
 | 350 | [Tracker rank and score columns](350-TRACKER_SCOREBOARD_RANK_COLUMNS.md) | Forward the lift-rank decision from OWLCMS; tracker Score column and medal rank, matching the OWLCMS scoreboard per championship |
+| 370 | [Document template settings](370-DOCUMENT_TEMPLATE_SETTINGS.md) | Store per-document template choices apart from `Competition`, so printing never counts as a change to the competition settings |
 
 Seven-person adjudication, including Tracker jury forwarding, is complete and
 archived in [SEVEN_PERSON_ADJUDICATION.md](done/SEVEN_PERSON_ADJUDICATION.md),

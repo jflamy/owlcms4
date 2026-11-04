@@ -174,7 +174,7 @@ ${story.intro}
 ${out.join('\n')}
 <h2 id="how">How these screenshots were made</h2>
 ${story.howMade}
-<footer>Compliance item 200, Phase 7. Story: <code>compliance/200-SCENARIO_OLD_AND_VERY_OLD.md</code>; specification: <code>compliance/200-AGEGROUP_EDIT_CONFIRMATION.md</code>.</footer>
+<footer>Compliance item 200, Phase 7. Story: <code>compliance/done/200-SCENARIO_OLD_AND_VERY_OLD.md</code>; specification: <code>compliance/done/200-AGEGROUP_EDIT_CONFIRMATION.md</code>.</footer>
 </main>
 </body>
 </html>

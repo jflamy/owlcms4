@@ -1,5 +1,7 @@
 # Item 200: acceptance story, "Junior Masters" and "Senior Masters"
 
+Status: done 2026-11-04, archived with item 200.
+
 A realistic end-to-end story for Phase 7 browser acceptance. It exercises, with a believable
 sequence of mistakes: moving age groups between championships, renaming a championship, creating
 age groups, the age-gap check on delete, the delete dry run, and "Recompute all eligibilities".

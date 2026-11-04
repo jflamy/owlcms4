@@ -1,6 +1,6 @@
 # 200 Implementation Plan: Age-group editing and championship reassignment
 
-Status: revised after review; ready to execute phase 1.
+Status: done 2026-11-04, archived.
 
 Implements [200-AGEGROUP_EDIT_CONFIRMATION.md](200-AGEGROUP_EDIT_CONFIRMATION.md) (the spec).
 The spec says what; this plan says how and in what order. Section references (§) are to the

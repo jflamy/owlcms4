@@ -1,4 +1,4 @@
-// Item 200 acceptance story "Junior and Senior Masters" (compliance/200-SCENARIO_OLD_AND_VERY_OLD.md).
+// Item 200 acceptance story "Junior and Senior Masters" (compliance/done/200-SCENARIO_OLD_AND_VERY_OLD.md).
 //
 // One source, two ways to run it. The file is an async function body: `page` is in scope and the last
 // expression returned is {summary, failures, timeline, events, inventories}.
