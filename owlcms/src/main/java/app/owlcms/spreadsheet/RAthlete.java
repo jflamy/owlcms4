@@ -554,8 +554,8 @@ public class RAthlete {
 			boolean addedToMainCat = addIfEligible(eligibleCategories, teams, athleteQTotal, athleteAge,
 			        mainCategoryTeamMember, c);
 			if (!addedToMainCat) {
-				throw new Exception(Translator.translate("Upload.AthleteNotEligibleForCategory", c.getDisplayName(), 
-					athleteAge != null ? athleteAge.toString() : "?", 
+				throw new Exception(Translator.translate("Upload.AthleteNotEligibleForCategory", c.getDisplayName(),
+					athleteAge != null ? athleteAge.toString() : "?",
 					athleteQTotal != null ? athleteQTotal.toString() : "0"));
 			} else {
 				this.a.setCategory(c);
