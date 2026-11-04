@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -362,8 +361,15 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	@Override
 	public Athlete update(Athlete athlete) {
 		logger.trace("updating athlete {}", athlete.toString());
+		logger.debug("{}update before save {} same as edited={} eligibles={} participations={} category={}",
+		        FieldOfPlay.getLoggingName(null), athlete.getShortName(), athlete == this.editedAthlete,
+		        codes(athlete.getEligibleCategories()), athlete.getParticipations().size(),
+		        athlete.getCategory() != null ? athlete.getCategory().getCode() : null);
 		athlete.enforceCategoryIsEligible();
-		AthleteRepository.save(athlete);
+		Athlete saved = AthleteRepository.save(athlete);
+		logger.debug("{}update after save {} eligibles={} reloaded eligibles={}", FieldOfPlay.getLoggingName(null),
+		        athlete.getShortName(), codes(saved.getEligibleCategories()),
+		        codes(AthleteRepository.findById(athlete.getId()).getEligibleCategories()));
 		return athlete;
 	}
 
@@ -638,6 +644,10 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				        FieldOfPlay.getLoggingName(OwlcmsSession.getFop()), this.getEditedAthlete().getShortName());
 				// binder.validate();
 				this.binder.writeBeanAsDraft(this.editedAthlete, true);
+				logger.debug("{}after ignore-errors draft field={} athlete eligibles={} category={}",
+				        FieldOfPlay.getLoggingName(OwlcmsSession.getFop()), codes(this.eligibleField.getValue()),
+				        codes(this.editedAthlete.getEligibleCategories()),
+				        this.editedAthlete.getCategory() != null ? this.editedAthlete.getCategory().getCode() : null);
 			}
 
 		});
@@ -738,7 +748,28 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	private void clearErrors(LocalizedIntegerField cleanJerk1DeclarationField2,
 	        LocalizedIntegerField qualifyingTotalField2) {
 		cleanJerk1DeclarationField2.setInvalid(false);
-		qualifyingTotalField2.setInvalid(false);
+		// a passing 20kg rule must not hide the entry total QT error
+		if (qualifyingTotalField2 != this.qualifyingTotalField
+		        || entryTotalMeetsSelectedQt(this.qualifyingTotalField.getValue())) {
+			qualifyingTotalField2.setInvalid(false);
+		}
+		logger.debug("{}clearErrors entry total {}", FieldOfPlay.getLoggingName(null), LoggerUtils.whereFrom(1));
+	}
+
+	private boolean entryTotalMeetsSelectedQt(Integer entryTotal) {
+		try {
+			Set<Category> selected = new LinkedHashSet<>();
+			if (this.categoryField != null && this.categoryField.getValue() != null) {
+				selected.add(this.categoryField.getValue());
+			}
+			if (this.eligibleField != null && this.eligibleField.getValue() != null) {
+				selected.addAll(this.eligibleField.getValue());
+			}
+			return isIgnoreErrors() || RegistrationQtHelper.categoriesFailingQt(selected, entryTotal).isEmpty();
+		} catch (Exception e) {
+			LoggerUtils.logError(logger, e);
+		}
+		return true;
 	}
 
 	private String computeDesc(Group g) {
@@ -1166,21 +1197,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			        this.snatch1DeclarationField);
 		});
 		bb3.withValidator(v3);
-		Validator<Integer> v3a = Validator.from((entryTotal) -> {
-			try {
-				Set<Category> selected = new LinkedHashSet<>();
-				if (this.categoryField != null && this.categoryField.getValue() != null) {
-					selected.add(this.categoryField.getValue());
-				}
-				if (this.eligibleField != null && this.eligibleField.getValue() != null) {
-					selected.addAll(this.eligibleField.getValue());
-				}
-				return isIgnoreErrors() || RegistrationQtHelper.categoriesFailingQt(selected, entryTotal).isEmpty();
-			} catch (Exception e) {
-				LoggerUtils.logError(logger, e);
-			}
-			return true;
-		}, Translator.translate("EntryTotalBelowCategoryQualifyingTotal_MustForce"));
+		Validator<Integer> v3a = Validator.from(this::entryTotalMeetsSelectedQt,
+		        Translator.translate("EntryTotalBelowCategoryQualifyingTotal_MustForce"));
 		bb3.withValidator(v3a);
 		bindField(bb3, this.qualifyingTotalField, Athlete::getQualifyingTotal, Athlete::setQualifyingTotal);
 		this.qualifyingTotalField.addValueChangeListener(ev -> {
@@ -1329,13 +1347,17 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			// this.allEligible = CategoryRepository.doFindEligibleCategories(this.getEditedAthlete(), genderField.getValue(),
 			// getAgeFromFields(), inferBWFromCat(this.bodyWeightField.getValue(), categor), zeroIfNull(qualifyingTotalField));
 
-			if (selectedEligibilityCategories.isEmpty()) {
-				setEligibleField(new HashSet<>(this.allEligible));
-			}
+			logger.debug("{}eligibleField change fromClient={} old={} new={} category={} allEligible={}",
+			        FieldOfPlay.getLoggingName(OwlcmsSession.getFop()), vc.isFromClient(), codes(vc.getOldValue()),
+			        codes(selectedEligibilityCategories), categor != null ? categor.getCode() : null, codes(this.allEligible));
 			Stream<Category> filter = this.allEligible.stream().filter(c -> c.sameAsAny(selectedEligibilityCategories));
 			Category category2 = filter.findFirst().orElse(null);
 			setCategoryFieldValue(category2);
 			refreshTeamMembershipFields();
+			revalidateEntryTotal();
+			logger.debug("{}eligibleField after change eligible={} category={}", FieldOfPlay.getLoggingName(OwlcmsSession.getFop()),
+			        codes(this.eligibleField.getValue()),
+			        this.categoryField.getValue() != null ? this.categoryField.getValue().getCode() : null);
 			setChangeListenersEnabled(true);
 		});
 
@@ -1990,6 +2012,26 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	public void setEligibleField(Set<Category> newEligibles) {
 		//logger.debug("setEligibleField {} {}", newEligibles.size(), newEligibles.stream().map(v -> v.longDump()).collect(Collectors.toList()));
 		eligibleField.setValue(newEligibles);
+		logger.debug("{}setEligibleField {} {}", FieldOfPlay.getLoggingName(null), codes(newEligibles), LoggerUtils.whereFrom());
+		revalidateEntryTotal();
+	}
+
+	// the entry total validator also checks the qualified categories against their qualifying totals
+	private void revalidateEntryTotal() {
+		Binding<Athlete, ?> binding = this.fieldToBinding.get(this.qualifyingTotalField);
+		if (binding != null) {
+			BindingValidationStatus<?> status = binding.validate();
+			logger.debug("{}revalidateEntryTotal error={} message={} fieldInvalid={} entryTotal={} eligibles={} {}",
+			        FieldOfPlay.getLoggingName(null), status.isError(), status.getMessage().orElse(null),
+			        this.qualifyingTotalField.isInvalid(), this.qualifyingTotalField.getValue(),
+			        codes(this.eligibleField.getValue()), LoggerUtils.whereFrom(1));
+		} else {
+			logger.debug("{}revalidateEntryTotal no binding yet", FieldOfPlay.getLoggingName(null));
+		}
+	}
+
+	private static List<String> codes(Collection<Category> categories) {
+		return categories == null ? null : categories.stream().map(c -> c != null ? c.getCode() : "null").toList();
 	}
 
 	private boolean validateStartingTotals(
