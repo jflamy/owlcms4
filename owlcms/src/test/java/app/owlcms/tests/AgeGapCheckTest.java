@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import app.owlcms.data.agegroup.AgeGapCheck;
 import app.owlcms.data.agegroup.AgeGapCheck.Gap;
+import app.owlcms.data.agegroup.AgeGapCheck.Finding;
 import app.owlcms.data.agegroup.AgeGapCheck.Overlap;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Gender;
@@ -131,6 +132,35 @@ public class AgeGapCheckTest {
 		        named("M30", Gender.M, 30, 35), named("M35", Gender.M, 35, 39), named("M40", Gender.M, 38, 44)));
 		assertEquals(List.of(new Overlap(Gender.M, "M30", "M35", 35, 35), new Overlap(Gender.M, "M35", "M40", 38, 39)),
 		        overlaps);
+	}
+
+	@Test
+	public void findingsAreGroupedPerChampionshipAndIgnoreInactiveGroups() {
+		AgeGroup m35 = inChampionship("Masters", named("M35", Gender.M, 35, 39));
+		AgeGroup m40 = inChampionship("Masters", named("M40", Gender.M, 40, 44));
+		m40.setActive(false);
+		AgeGroup m45 = inChampionship("Masters", named("M45", Gender.M, 45, 49));
+		AgeGroup u15 = inChampionship("Youth", named("U15", Gender.M, 13, 15));
+		AgeGroup u17 = inChampionship("Youth", named("U17", Gender.M, 15, 17));
+		AgeGroup tidy = inChampionship("Open", named("OPEN", Gender.M, 0, 999));
+
+		List<Finding> findings = AgeGapCheck.findings(List.of(m35, m40, m45, u15, u17, tidy));
+
+		assertEquals(2, findings.size());
+		assertEquals(new Finding("Masters", List.of(new Gap(Gender.M, 40, 44)), List.of()), findings.get(0));
+		assertEquals(new Finding("Youth", List.of(), List.of(new Overlap(Gender.M, "U15", "U17", 15, 15))),
+		        findings.get(1));
+	}
+
+	@Test
+	public void agesAreWrittenAsOneNumberOrARange() {
+		assertEquals("59", AgeGapCheck.ages(59, 59));
+		assertEquals("60-64", AgeGapCheck.ages(60, 64));
+	}
+
+	private AgeGroup inChampionship(String championshipName, AgeGroup ageGroup) {
+		ageGroup.setChampionshipName(championshipName);
+		return ageGroup;
 	}
 
 	private AgeGroup named(String code, Gender gender, int minAge, int maxAge) {

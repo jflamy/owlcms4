@@ -41,15 +41,24 @@ public enum Gender {
 	private static final EnumMap<Gender, String> translatedGenderCodeMap = new EnumMap<>(Gender.class);
 
 	public String asGenderName() {
+		return Translator.translate(genderNameKey());
+	}
+
+	/** For code that runs outside the UI thread, with the locale captured beforehand. */
+	public String asGenderName(Locale locale) {
+		return Translator.translate(genderNameKey(), locale);
+	}
+
+	private String genderNameKey() {
 		switch (this) {
 			case F:
-				return (Translator.translate("Gender.Women"));
+				return "Gender.Women";
 			case I:
-				return (Translator.translate("Gender.Inclusive"));
+				return "Gender.Inclusive";
 			case M:
-				return (Translator.translate("Gender.Men"));
+				return "Gender.Men";
 			case MF:
-				return (Translator.translate("Gender.Mixed"));
+				return "Gender.Mixed";
 			default:
 				throw new IllegalStateException();
 		}

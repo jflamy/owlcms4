@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import app.owlcms.data.athlete.Gender;
@@ -34,6 +35,35 @@ public final class AgeGapCheck {
 	}
 
 	private AgeGapCheck() {
+	}
+
+	/** The gaps and overlaps of one championship. */
+	public record Finding(String championshipName, List<Gap> gaps, List<Overlap> overlaps) {
+	}
+
+	/** The gaps and overlaps of each championship, from all the age groups; inactive age groups are ignored. */
+	public static List<Finding> findings(List<AgeGroup> ageGroups) {
+		Map<String, List<AgeGroup>> byChampionship = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		for (AgeGroup ageGroup : ageGroups) {
+			String name = ageGroup.getChampionshipName();
+			if (ageGroup.isActive() && name != null && !name.isBlank()) {
+				byChampionship.computeIfAbsent(name.trim(), k -> new ArrayList<>()).add(ageGroup);
+			}
+		}
+		List<Finding> findings = new ArrayList<>();
+		for (Map.Entry<String, List<AgeGroup>> entry : byChampionship.entrySet()) {
+			List<Gap> gaps = gaps(entry.getValue());
+			List<Overlap> overlaps = overlaps(entry.getValue());
+			if (!gaps.isEmpty() || !overlaps.isEmpty()) {
+				findings.add(new Finding(entry.getKey(), gaps, overlaps));
+			}
+		}
+		return findings;
+	}
+
+	/** "59" for a single age, "60-64" for a range. */
+	public static String ages(int fromAge, int toAge) {
+		return fromAge == toAge ? String.valueOf(fromAge) : fromAge + "-" + toAge;
 	}
 
 	/** Every pair of age groups of the same gender that share ages, with the ages they share. */

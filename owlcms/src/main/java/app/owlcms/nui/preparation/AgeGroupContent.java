@@ -25,15 +25,19 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
@@ -50,6 +54,7 @@ import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.AgeGroupDefinitionChecks;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -168,11 +173,13 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 				NotificationUtils.errorNotification(labelText);
 			} else {
 				AuditOrigin loadOrigin = AuditOrigin.fromUi("age group definitions load");
+				Locale loadLocale = OwlcmsSession.getLocale();
 				new ConfirmationDialog(Translator.translate("ResetCategories.ResetCategories"),
 				        Translator.translate("ResetCategories.Warning_ResetCategories"),
 				        Translator.translate("ResetCategories.CategoriesReset"), () -> {
 					        AgeGroupRepository.reloadDefinitions(definitions.getFileName(), loadOrigin);
 					        resetCategories();
+					        showDefinitionWarnings(AgeGroupDefinitionChecks.warnings(loadLocale));
 				        }).open();
 			}
 		});
@@ -505,6 +512,28 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		AthleteRepository.resetParticipations(false, true);
 		this.getCrud().refreshGrid();
 		unHighlightReassignWithinButton();
+	}
+
+	/** Gaps and overlaps in the definitions just loaded: a warning only, the definitions are already in place. */
+	private void showDefinitionWarnings(AgeGroupDefinitionChecks.Warnings warnings) {
+		if (warnings.lines().isEmpty()) {
+			return;
+		}
+		UI ui = UI.getCurrent();
+		Dialog dialog = new Dialog();
+		VerticalLayout body = new VerticalLayout();
+		warnings.lines().forEach(line -> body.add(new Paragraph(line)));
+		Button close = new Button(Translator.translate("Close"), e -> dialog.close());
+		dialog.add(new VerticalLayout(new H3(Translator.translate(
+		        warnings.hasGaps() ? "AgeGroup.AgeGap.Title" : "AgeGroup.AgeOverlap.Title")), body, close));
+		// opened from the confirmation dialog's callback: attach to the UI, not to the dialog that is closing
+		ui.add(dialog);
+		dialog.addOpenedChangeListener(e -> {
+			if (!e.isOpened()) {
+				dialog.getElement().removeFromParent();
+			}
+		});
+		dialog.open();
 	}
 
 

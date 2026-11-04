@@ -626,8 +626,7 @@ public class AgeGroupSaveFlow {
 	}
 
 	private static String overlapAges(Overlap overlap) {
-		return overlap.fromAge() == overlap.toAge() ? String.valueOf(overlap.fromAge())
-		        : overlap.fromAge() + "-" + overlap.toAge();
+		return AgeGapCheck.ages(overlap.fromAge(), overlap.toAge());
 	}
 
 	/** Same holes, worded as the consequence of deleting the named age group. */
@@ -640,7 +639,7 @@ public class AgeGroupSaveFlow {
 	}
 
 	private static String gapAges(Gap gap) {
-		return gap.fromAge() == gap.toAge() ? String.valueOf(gap.fromAge()) : gap.fromAge() + "-" + gap.toAge();
+		return AgeGapCheck.ages(gap.fromAge(), gap.toAge());
 	}
 
 	private static List<AgeGroup> activeAgeGroupsOf(String championshipName) {

@@ -9,6 +9,7 @@ package app.owlcms.nui.preparation;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 import com.vaadin.flow.component.Html;
@@ -20,8 +21,10 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.server.streams.UploadHandler;
 
 import app.owlcms.audit.AuditOrigin;
+import app.owlcms.data.agegroup.AgeGroupDefinitionChecks;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -42,6 +45,7 @@ public class AgeGroupsFileUploadDialog extends Dialog {
 		ta.setVisible(false);
 
 		AuditOrigin uploadOrigin = AuditOrigin.fromUi("age group definitions upload");
+		Locale locale = OwlcmsSession.getLocale();
 		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, data) -> {
 			// Process the uploaded file data
 			try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data)) {
@@ -53,6 +57,7 @@ public class AgeGroupsFileUploadDialog extends Dialog {
 					}
 				};
 				AgeGroupRepository.reloadDefinitions(inputStream, errorCollector, uploadOrigin, metadata.fileName());
+				AgeGroupDefinitionChecks.warnings(locale).lines().forEach(errorCollector);
 				updateDisplay(ta, errorsSb);
 				getCallback().run();
 			} catch (Exception e) {
