@@ -1,4 +1,5 @@
 node_modules/
 index.html
-old-very-old/
+old-very-old/*
+!old-very-old/AgeGroups_gaps-and-overlaps.xlsx
 Junior Masters and Senior Masters_ a tutorial.pdf
