@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.form.CrudFormConfiguration;
@@ -36,12 +35,13 @@ import com.vaadin.flow.component.HasValue.ValueChangeListener;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
@@ -61,6 +61,7 @@ import com.vaadin.flow.data.binder.Binder.BindingBuilder;
 import com.vaadin.flow.data.binder.BindingValidationStatus;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.data.binder.Validator;
+import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
@@ -133,7 +134,14 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	private boolean genderCatOk;
 	private ComboBox<Gender> genderField;
 	private ComboBox<Group> groupField;
-	private Checkbox ignoreErrorsCheckbox;
+	private Button operationButton;
+	private Button acceptWarningsButton;
+	private Button cancelButton;
+	private String cancelButtonTheme;
+	private Component footerLayout;
+	private boolean acceptingWarnings;
+	private boolean updateRefused;
+	private boolean warningRefreshPending;
 	private Category initialCategory;
 	private TextField lastNameField;
 	private LocalizedIntegerField lotNumberField;
@@ -219,10 +227,20 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		}
 
 		Button deleteButton = buildDeleteButton(CrudOperation.DELETE, athlete, deleteButtonClickListener);
-		Checkbox validateEntries = buildIgnoreErrorsCheckbox();
 		Button cancelButton = buildCancelButton(cancelButtonClickListener);
+		this.operationButton = operationButton;
+		this.acceptWarningsButton = operationButton != null
+		        ? buildAcceptWarningsButton(operation, athlete, postOperationCallBack)
+		        : null;
+		this.cancelButton = cancelButton;
+		this.cancelButtonTheme = cancelButton != null ? cancelButton.getElement().getAttribute("theme") : null;
+		this.updateRefused = false;
+		this.warningRefreshPending = false;
 
 		HorizontalLayout footerLayout = new HorizontalLayout();
+		this.footerLayout = footerLayout;
+		// the initial validation runs before the form is attached
+		footerLayout.addAttachListener(e -> scheduleWarningRefresh());
 		footerLayout.setWidth("100%");
 		footerLayout.setSpacing(true);
 		footerLayout.setPadding(false);
@@ -233,18 +251,16 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		NativeLabel spacer = new NativeLabel();
 		footerLayout.add(spacer);// , operationTrigger);
-		VerticalLayout vl = new VerticalLayout();
-		vl.setSizeUndefined();
-		vl.setPadding(false);
-		vl.setMargin(false);
-		vl.add(validateEntries);
-		footerLayout.add(vl);
 		footerLayout.setAlignItems(Alignment.CENTER);
 
 		if (buttons != null) {
 			for (Button b : buttons) {
 				footerLayout.add(b);
 			}
+		}
+		// in warning mode: accept, then cancel; otherwise: cancel, then update
+		if (this.acceptWarningsButton != null) {
+			footerLayout.add(this.acceptWarningsButton);
 		}
 		if (cancelButton != null) {
 			footerLayout.add(cancelButton);
@@ -352,6 +368,9 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			}
 			setValid(!s.hasErrors());
 			s.notifyBindingValidationStatusHandlers();
+			// a new validation supersedes an earlier refusal; a refusal in progress sets it after this
+			this.updateRefused = false;
+			scheduleWarningRefresh();
 		});
 	}
 
@@ -637,22 +656,84 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		return bindingBuilder;
 	}
 
-	private Checkbox buildIgnoreErrorsCheckbox() {
-		this.ignoreErrorsCheckbox = new Checkbox(Translator.translate("RuleViolation.ignoreErrors"), e -> {
-			if (BooleanUtils.isTrue(isIgnoreErrors())) {
-				logger./**/warn/**/("{}!Errors ignored - checkbox override for athlete {}",
-				        FieldOfPlay.getLoggingName(OwlcmsSession.getFop()), this.getEditedAthlete().getShortName());
-				// binder.validate();
-				this.binder.writeBeanAsDraft(this.editedAthlete, true);
-				logger.debug("{}after ignore-errors draft field={} athlete eligibles={} category={}",
-				        FieldOfPlay.getLoggingName(OwlcmsSession.getFop()), codes(this.eligibleField.getValue()),
-				        codes(this.editedAthlete.getEligibleCategories()),
-				        this.editedAthlete.getCategory() != null ? this.editedAthlete.getCategory().getCode() : null);
+	// same look as the athlete card "Accept Change" button
+	private Button buildAcceptWarningsButton(CrudOperation operation, Athlete athlete,
+	        ComponentEventListener<ClickEvent<Button>> callBack) {
+		Button button = new Button(Translator.translate("AcceptWarningsAndUpdate"), new Icon(VaadinIcon.WARNING));
+		button.getElement().setAttribute("theme", "primary contrast");
+		button.getStyle().set("background-color", "#FFC107");
+		button.getStyle().set("color", "#000000");
+		button.setVisible(false);
+		button.addClickListener(e -> {
+			logger./**/warn/**/("{}!Errors ignored - warnings accepted for athlete {}",
+			        FieldOfPlay.getLoggingName(OwlcmsSession.getFop()), this.getEditedAthlete().getShortName());
+			// validators pass while accepting warnings
+			this.acceptingWarnings = true;
+			try {
+				performOperationAndCallback(operation, athlete, callBack, false);
+			} finally {
+				this.acceptingWarnings = false;
 			}
-
 		});
-		this.ignoreErrorsCheckbox.getStyle().set("margin-left", "3em");
-		return this.ignoreErrorsCheckbox;
+		return button;
+	}
+
+	@Override
+	protected void performOperationAndCallback(CrudOperation operation, Athlete domainObject,
+	        ComponentEventListener<ClickEvent<Button>> gridCallback, boolean ignoreErrors) {
+		super.performOperationAndCallback(operation, domainObject, gridCallback, ignoreErrors);
+		if (operation != CrudOperation.DELETE && !ignoreErrors && !isValid()) {
+			// the refusal is authoritative even when no field is shown invalid
+			this.updateRefused = true;
+			logger.debug("{}update refused acceptingWarnings={}", FieldOfPlay.getLoggingName(null),
+			        this.acceptingWarnings);
+			scheduleWarningRefresh();
+		}
+	}
+
+	// recompute once per round trip, after all the validators have updated the fields
+	private void scheduleWarningRefresh() {
+		if (this.warningRefreshPending || this.footerLayout == null) {
+			return;
+		}
+		this.footerLayout.getUI().ifPresent(ui -> {
+			this.warningRefreshPending = true;
+			ui.beforeClientResponse(this.footerLayout, ctx -> {
+				this.warningRefreshPending = false;
+				refreshWarningMode();
+			});
+		});
+	}
+
+	private void refreshWarningMode() {
+		// fieldToBinding also holds the fields of earlier openings of this reused factory
+		List<String> invalidFields = this.binder.getFields()
+		        .filter(f -> f instanceof HasValidation hv && hv.isInvalid())
+		        .map(f -> f.getClass().getSimpleName() + "@" + System.identityHashCode(f) + ":"
+		                + ((HasValidation) f).getErrorMessage())
+		        .toList();
+		boolean warnings = !invalidFields.isEmpty() || this.updateRefused;
+		logger.debug("{}refreshWarningMode warnings={} updateRefused={} invalidFields={}",
+		        FieldOfPlay.getLoggingName(null), warnings, this.updateRefused, invalidFields);
+		setWarningMode(warnings);
+	}
+
+	private void setWarningMode(boolean warnings) {
+		if (this.operationButton == null || this.acceptWarningsButton == null) {
+			return;
+		}
+		// the Enter shortcut belongs to the operation button and is inactive while it is hidden
+		this.operationButton.setVisible(!warnings);
+		this.acceptWarningsButton.setVisible(warnings);
+		if (this.cancelButton != null) {
+			if (warnings) {
+				this.cancelButton.getElement().setAttribute("theme", "primary");
+			} else if (this.cancelButtonTheme == null) {
+				this.cancelButton.getElement().removeAttribute("theme");
+			} else {
+				this.cancelButton.getElement().setAttribute("theme", this.cancelButtonTheme);
+			}
+		}
 	}
 
 	private boolean categoryIsEligible(Category category, List<Category> eligibles) {
@@ -753,6 +834,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		        || entryTotalMeetsSelectedQt(this.qualifyingTotalField.getValue())) {
 			qualifyingTotalField2.setInvalid(false);
 		}
+		scheduleWarningRefresh();
 		logger.debug("{}clearErrors entry total {}", FieldOfPlay.getLoggingName(null), LoggerUtils.whereFrom(1));
 	}
 
@@ -764,6 +846,10 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			}
 			if (this.eligibleField != null && this.eligibleField.getValue() != null) {
 				selected.addAll(this.eligibleField.getValue());
+			}
+			if (selected.isEmpty() && this.allEligible != null) {
+				// nothing selected: check the offered categories, as their (ET<QT) markers do
+				selected.addAll(this.allEligible);
 			}
 			return isIgnoreErrors() || RegistrationQtHelper.categoriesFailingQt(selected, entryTotal).isEmpty();
 		} catch (Exception e) {
@@ -1203,8 +1289,10 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		bindField(bb3, this.qualifyingTotalField, Athlete::getQualifyingTotal, Athlete::setQualifyingTotal);
 		this.qualifyingTotalField.addValueChangeListener(ev -> {
 			// repaint the eligible category labels so the QT marker follows the entry total
+			// refreshAll() would discard the selection, refreshing each item keeps it
 			if (this.eligibleField != null) {
-				this.eligibleField.getDataProvider().refreshAll();
+				DataProvider<Category, ?> dp = this.eligibleField.getDataProvider();
+				this.eligibleField.getGenericDataView().getItems().toList().forEach(dp::refreshItem);
 			}
 		});
 		layoutAddFormItem(layout, this.qualifyingTotalField, Translator.translate("EntryTotal"));
@@ -1550,7 +1638,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	}
 
 	private boolean isIgnoreErrors() {
-		return BooleanUtils.isTrue(this.ignoreErrorsCheckbox == null ? null : this.ignoreErrorsCheckbox.getValue());
+		return this.acceptingWarnings;
 	}
 
 	// marks eligible categories whose qualifying total exceeds the current entry total

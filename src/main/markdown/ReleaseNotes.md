@@ -11,19 +11,20 @@
 
 **Development log**
 
-- 69.0.0-beta03: Editing an age group no longer silently drops athletes: when the changes affect eligibility (ages, gender, categories, qualifying totals), a dialog previews the athletes added and removed per championship before saving.
-  - **Apply** reassigns the athletes immediately; **Reassign Later** saves the categories and leaves the athletes as they are (not available when categories are being deleted); **Cancel** discards the changes.
-  - Deleting an age group, or changing its championship in the age group editor, now asks for confirmation with an explanation of the consequences.
+- 69.0.0-beta04: Age Group/Categories editing robustness fixes
+  - Editing an age group: when the changes affect eligibility, a dialog previews the athletes added and removed per championship. **Apply** reassigns immediately, **Reassign Later** keeps the athletes as they are (not available when categories are deleted), **Cancel** discards the changes.
+  - Deleting an age group, or changing its championship, asks for confirmation and explains the consequences.
+  - The "Reassign Within Current Championships" and "Recompute All Eligibilities" buttons replace the Reset buttons and also show the athletes added and removed before applying.
+  - Activating an age group, changing its ages, or moving it to another championship warns about every age gap and overlap in the championship.
+  - The audit log now records age group changes (added, edited, activated, deleted, moved, championship renamed, definitions loaded) and the athletes whose categories change as a result.
 
-- 69.0.0-beta03: New "Reassign Within Current Championships" and "Recompute All Eligibilities" buttons on the Define Age Groups and Categories page, replacing the previous Reset buttons. Both show the athletes added and removed before applying.
+- 69.0.0-beta04: Athletes whose entry total is below a category's qualifying total are no longer assigned to that category when importing a registration file
+  - When editing an athlete, such categories are marked (ET<QT) and the Entry Total field shows the warning as soon as the form opens.
 
-- 69.0.0-beta03: Activating an age group, changing its ages, or moving it to another championship now warns about every age gap and every overlap in the championship, so everything to fix is visible at once. These are warnings only: Continue or Cancel.
+- 69.0.0-beta04: The athlete registration and weigh-in forms replace the "Ignore message and allow saving" checkbox with a yellow **Accept Warnings and Update** button, shown instead of **Update** while a field shows a warning.
+  - The Enter key does not save while warnings are shown.
 
-- 69.0.0-beta03: The audit log now records age group changes (added, edited, activated, deleted, moved, championship renamed, definitions loaded) and the athletes whose categories change as a result.
-
-- 69.0.0-beta03: Athletes whose entry total is below a category's qualifying total are no longer assigned to that category when importing a registration file or editing a registration; the import reports these cases as warnings.
-
-- 69.0.0-beta03: Tracker connections report the OWLCMS web port so Tracker displays can open pages from the OWLCMS instance that is sending their data.
+- 69.0.0-beta04: Tracker connections report the OWLCMS web port so Tracker displays can open pages from the OWLCMS instance that is sending their data.
 
 - 69.0.0-beta03: Fixes for edge cases when closing the athlete card on decisions.
 
