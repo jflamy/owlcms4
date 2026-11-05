@@ -80,7 +80,7 @@ Run in the VS Code built-in browser against a PEM-configured development server.
    and Log out (3c8d242f3).
 
 Detecting an admin reset done through a modified export, and the support
-procedures, are in [145](../145-SIGNED_EXPORTS.md).
+procedures, are in [145](145-SIGNED_EXPORTS.md).
 
 Cloud note: on a hosted deployment, read `owlcms.log` inside the container, for
 example through `fly ssh console`.

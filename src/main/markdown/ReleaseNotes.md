@@ -11,6 +11,14 @@
 
 **Development log**
 
+- 69.0.0-beta05: V2 database exports are signed, so changes made to the file after the export can be detected.
+  - The signature uses the audit key. Without a configured key, the built-in key only shows that the file is intact, not who produced it. V1 exports are not signed.
+  - Imports record in the audit log whether the file was signed, and with which key. Files are not refused for signature reasons; this is an integrity check for auditing.
+  -  The Audit Integrity Verification page can check the signature of an exported database file (JSON, or a ZIP containing one). The file is not imported.
+
+- 69.0.0-beta05: New "IWF Requirements" section in the feature switches, with `tcrrCompliance`, `v2Export` and the new `noV1Export`, which removes the unsigned V1 database export and shows the V2 export instead.
+  - "Check IWF compliance" also lists TCRR compliance mode and signed exports.
+
 - 69.0.0-beta04: Age Group/Categories editing robustness fixes
   - Editing an age group: when the changes affect eligibility, a dialog previews the athletes added and removed per championship. **Apply** reassigns immediately, **Reassign Later** keeps the athletes as they are (not available when categories are deleted), **Cancel** discards the changes.
   - Deleting an age group, or changing its championship, asks for confirmation and explains the consequences.

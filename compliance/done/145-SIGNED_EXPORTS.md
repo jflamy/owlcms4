@@ -1,12 +1,12 @@
 # Signed Exports
 
-Status: proposed 2026-10-28. Implementation plan:
+Status: implemented 2026-11-04 (proposed 2026-10-28). Implementation plan:
 [145-IMPLEMENTATION_PLAN.md](145-IMPLEMENTATION_PLAN.md) (exact wire format).
 
 Make a JSON export show whether it is the unmodified output of a server holding
 a given PEM key. This gives evidence of tampering; it does not control who may
 load an export or recover admin access.
-Forwarding-key encryption is in [140](done/140-EXPORT_CREDENTIAL_PROTECTION.md).
+Forwarding-key encryption is in [140](140-EXPORT_CREDENTIAL_PROTECTION.md).
 
 Scope: V2 exports only. V1 exports are unchanged and never signed; a V1 import
 is recorded as unsigned. The `noV1Export` feature switch (IWF Requirements

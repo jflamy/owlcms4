@@ -10,9 +10,7 @@ None open. Lenient birth-date parsing is done: [BIRTHDATE_LENIENT_PARSE.md](done
 
 ## 1xx — Technical RFP compliance
 
-| Order | Document | Scope |
-| --- | --- | --- |
-| 145 | [Signed exports](145-SIGNED_EXPORTS.md) ([plan](145-IMPLEMENTATION_PLAN.md)) | PEM signature inside JSON exports, import outcomes in the audit trail, support procedures with and without the key |
+None open.
 
 PEM-based account mode (100), account tokens (110), token-protected URLs (120) and
 export credential protection (140) are done:
@@ -24,6 +22,8 @@ stale-save check (136), the other access work (130) and direct JSON boot (160) a
 [136-CONFIG_COARSE_CONFLICT.md](done/136-CONFIG_COARSE_CONFLICT.md),
 [130-ACCESS_CONTROL_REMAINING.md](done/130-ACCESS_CONTROL_REMAINING.md),
 [160-DIRECT_JSON_BOOT.md](done/160-DIRECT_JSON_BOOT.md).
+Signed exports (145) are done: [145-SIGNED_EXPORTS.md](done/145-SIGNED_EXPORTS.md), with its
+[implementation plan](done/145-IMPLEMENTATION_PLAN.md).
 The browser check that a decision closes an athlete card, together with its pending
 confirmation, passed for announcer and referee decisions (180):
 [180-CARD_DIALOG_BROWSER_CHECK.md](done/180-CARD_DIALOG_BROWSER_CHECK.md).

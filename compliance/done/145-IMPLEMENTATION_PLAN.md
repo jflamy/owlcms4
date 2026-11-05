@@ -1,9 +1,10 @@
 # 145 Implementation Plan: Signed V2 exports
 
-Status: in progress 2026-11-04. Done: phase 1 (`ExportSignature`,
+Status: implemented and accepted 2026-11-04. Done: phase 1 (`ExportSignature`,
 `ExportSignatureTest`), phase 2 (signed V2 export), phase 3 (import outcome in
 the audit trail), phase 4 (export check section on `admin/audit/check`,
-`ExportCheckText`, `export_check_translations.tsv`). Remaining: phase 5. Decided with the
+`ExportCheckText`, `export_check_translations.tsv`), phase 5 (tracker-core
+`tests/v2-signature-test.js`, release notes), final acceptance (manual check done by the maintainer). Decided with the
 maintainer on 2026-11-04 (already reflected below):
 
 - Always sign, with the audit signing key, built-in included (invariant 4).
@@ -356,7 +357,7 @@ running tracker-core tests if unsure how.
 - [145-SIGNED_EXPORTS.md](145-SIGNED_EXPORTS.md): set status to implemented,
   note any deviation decided with the maintainer. Move both files to `done/`
   only when the maintainer says so, and fix the links in
-  [000-INDEX.md](000-INDEX.md).
+  [000-INDEX.md](../000-INDEX.md).
 - Release notes: skill `update-release-notes`. One entry: V2 exports are
   signed (with the audit key; the built-in key only shows the file is intact);
   the audit check page can check an export's signature; imports record the
@@ -367,15 +368,13 @@ Stop. Report.
 
 ## Final acceptance (manual, with the maintainer)
 
-On a dev server with a configured PEM, then without:
+Automated: the unit tests cover the codec, the signed stream, the audit
+details, the check texts and the import of signed and edited exports.
+`AuditLogPersistenceTest.realV2ExportIsSignedAndAnEditedImportIsRecordedInvalid`
+(slow category, separate JVM) runs the real V2 export with a configured key,
+checks it is signed with that key, imports an edited copy, and checks both
+audit records.
 
-1. Download a V2 export; the file ends with the 365-byte trailer; the export
-   check on the audit check page shows a valid signature with this server's
-   key.
-2. Edit one athlete value in the file: the export check shows an invalid
-   signature; import succeeds and is recorded `signature=invalid,reason=checksum`.
-3. Check it on the server without a PEM: valid, another key, same fingerprint.
-4. Export without a PEM: signed with the built-in key, shown as such. V1
-   export: no trailer.
-5. Tracker checkpoint ZIP: its JSON validates; tracker reloads only on data
-   changes, not on every export.
+Manual, on the dev server: download a V2 export and check it in the Export
+Signature Check section of the audit check page. This covers the page and the
+download button.

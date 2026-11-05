@@ -140,6 +140,23 @@ public class AuditLogPersistenceTest {
 		assertTrue("expected several lifts, got " + decisions, decisions > 1);
 	}
 
+	@Test
+	public void realV2ExportIsSignedAndAnEditedImportIsRecordedInvalid() throws Exception {
+		Path root = temporary.newFolder().toPath();
+		runFixture(root, ExportSigningFixture.class);
+		String fingerprint = Files.readString(root.resolve("fingerprint.txt"));
+		StringBuilder trail = new StringBuilder();
+		for (Path file : AuditFileStoreTest.files(root.resolve("logs/audit"))) {
+			trail.append(Files.readString(file));
+		}
+		List<String> lines = trail.toString().lines().toList();
+		assertTrue("export.json records the key", lines.stream().anyMatch(line -> line.contains("export.json")
+				&& line.contains("format=2,channel=download") && line.contains(",signature=" + fingerprint)));
+		assertTrue("the edited import is recorded invalid", lines.stream().anyMatch(line -> line.contains(
+				"application.import") && line.contains("source=edited.json")
+				&& line.contains(",signature=invalid,reason=checksum,key=-,fingerprint=" + fingerprint)));
+	}
+
 	private static void runFixture(Path root, String mode) throws Exception {
 		runFixture(root, AuditProcessFixture.class, mode);
 	}

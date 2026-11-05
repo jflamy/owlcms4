@@ -1,6 +1,5 @@
 package app.owlcms.audit;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
@@ -108,9 +107,8 @@ public class ExportSignatureTest {
 		assertEquals(Status.INVALID, result.status());
 		assertEquals(Reason.CHECKSUM, result.reason());
 		assertEquals(key.fingerprint(), result.fingerprint());
-		assertEquals(AuditBlockHash.sha256(Arrays.copyOf(file, file.length - ExportSignature.TRAILER_LENGTH + 1)
-				.length == 0 ? new byte[0] : concat(Arrays.copyOf(file, file.length - ExportSignature.TRAILER_LENGTH),
-						utf8("}"))), result.sha256());
+		byte[] editedBody = concat(Arrays.copyOf(file, file.length - ExportSignature.TRAILER_LENGTH), utf8("}"));
+		assertEquals(AuditBlockHash.sha256(editedBody), result.sha256());
 	}
 
 	@Test
@@ -119,7 +117,7 @@ public class ExportSignatureTest {
 		byte[] file = signed(BODY, key);
 		String edited = BODY.replace("Fixture", "Fixtur2");
 		String claimed = field(text(file), "sha256");
-		String forged = text(Arrays.copyOf(file, file.length)).replace(BODY.substring(0, BODY.length() - 1),
+		String forged = text(file).replace(BODY.substring(0, BODY.length() - 1),
 				edited.substring(0, edited.length() - 1));
 		forged = replaceField(forged, "sha256", claimed, AuditBlockHash.sha256(utf8(edited)));
 		Result result = ExportSignature.verify(utf8(forged));
@@ -209,8 +207,7 @@ public class ExportSignatureTest {
 		assertNeverValid(concat(file, utf8("x")));
 		assertNeverValid(concat(file, ExportSignature.trailer(AuditBlockHash.sha256(utf8(BODY)), key)));
 		assertNeverValid(utf8(text.replace("\"alg\":\"Ed25519\",", "\"alg\":\"Ed25519\",\"extra\":\"1\",")));
-		assertNeverValid(utf8(text.replace("\"alg\":\"Ed25519\"}}", "\"alg\":\"Ed25519\"}}")
-				.replace(",\"signature\":{", ", \"signature\":{")));
+		assertNeverValid(utf8(text.replace(",\"signature\":{", ", \"signature\":{")));
 		assertNeverValid(utf8(text.replace("\"alg\":", "\"alg\": ")));
 		assertNeverValid(utf8(text.replace("\"sha256\":", "\"value\":\"x\",\"sha256\":")));
 		assertNeverValid(Arrays.copyOf(file, file.length - 1));
@@ -250,6 +247,5 @@ public class ExportSignatureTest {
 			assertEquals(input == null ? 0 : input.length, result.bytes());
 		}
 		assertEquals(AuditBlockHash.sha256(new byte[0]), ExportSignature.verify(new byte[0]).sha256());
-		assertArrayEquals(new byte[0], new byte[0]);
 	}
 }
