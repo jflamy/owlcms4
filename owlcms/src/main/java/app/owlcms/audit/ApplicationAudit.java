@@ -1,6 +1,11 @@
 package app.owlcms.audit;
 
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import app.owlcms.audit.ExportSignature.KeyMatch;
+import app.owlcms.audit.ExportSignature.Reason;
+import app.owlcms.audit.ExportSignature.Result;
 
 public final class ApplicationAudit {
 	private static final AtomicBoolean STOPPING = new AtomicBoolean();
@@ -13,21 +18,35 @@ public final class ApplicationAudit {
 				.actor(AuditActor.system()).build());
 	}
 
-	/** Records the export that replaced the competition at startup; the SHA-256 is of the exact JSON bytes imported. */
-	public static void startupImport(String source, String sha256) {
+	/** Records the export that replaced the competition at startup, with the outcome of its signature check. */
+	public static void startupImport(String source, Result signature, KeyMatch match) {
 		AuditLog.write(AuditEntry.builder("competition", "application.startup-import")
-				.actor(AuditActor.system()).detail(AuditFormat.kvs("source", source, "sha256", sha256)).build());
+				.actor(AuditActor.system()).detail(importDetail(source, signature, match)).build());
 	}
 
 	/**
-	 * Records an export that replaced the competition while running (Import Database). The SHA-256 is of the exact
-	 * JSON bytes imported, so the file can be identified whatever version produced it.
+	 * Records an export that replaced the competition while running (Import Database), with the outcome of its
+	 * signature check. The import is never refused because of the signature.
 	 */
-	public static void imported(AuditOrigin origin, String source, int bytes, String sha256) {
+	public static void imported(AuditOrigin origin, String source, Result signature, KeyMatch match) {
 		AuditLog.write(AuditEntry.builder("competition", "application.import").actor(origin.actor())
-				.cause(origin.cause())
-				.detail(AuditFormat.kvs("source", AuthAudit.clean(source), "bytes", bytes, "sha256", sha256))
-				.build());
+				.cause(origin.cause()).detail(importDetail(AuthAudit.clean(source), signature, match)).build());
+	}
+
+	/**
+	 * The SHA-256 is the locally computed body checksum (the whole file when unsigned), never the value claimed by
+	 * the file, so the file can be identified whatever version produced it.
+	 */
+	static String importDetail(String source, Result signature, KeyMatch match) {
+		return AuditFormat.kvs("source", source, "bytes", signature.bytes(), "sha256", signature.sha256(),
+				"signature", lower(signature.status()),
+				"reason", signature.reason() == Reason.NONE ? "-" : lower(signature.reason()),
+				"key", match == KeyMatch.NONE ? "-" : lower(match),
+				"fingerprint", signature.fingerprint() == null ? "-" : signature.fingerprint());
+	}
+
+	private static String lower(Enum<?> value) {
+		return value.name().toLowerCase(Locale.ROOT);
 	}
 
 	/** "Imports are allowed" was turned on or off (Administration page). */

@@ -12,7 +12,7 @@ None open. Lenient birth-date parsing is done: [BIRTHDATE_LENIENT_PARSE.md](done
 
 | Order | Document | Scope |
 | --- | --- | --- |
-| 145 | [Signed exports](145-SIGNED_EXPORTS.md) | PEM signature inside JSON exports, import outcomes in the audit trail, support procedures with and without the key |
+| 145 | [Signed exports](145-SIGNED_EXPORTS.md) ([plan](145-IMPLEMENTATION_PLAN.md)) | PEM signature inside JSON exports, import outcomes in the audit trail, support procedures with and without the key |
 
 PEM-based account mode (100), account tokens (110), token-protected URLs (120) and
 export credential protection (140) are done:

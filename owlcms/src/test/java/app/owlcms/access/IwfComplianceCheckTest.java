@@ -19,24 +19,36 @@ public class IwfComplianceCheckTest {
 
 	@Test
 	public void everyRequirementMet() {
-		List<Item> items = IwfComplianceCheck.evaluate(true, true, false, true);
-		assertEquals(3, items.size());
+		List<Item> items = IwfComplianceCheck.evaluate(true, true, false, true, true, true, true);
+		assertEquals(5, items.size());
 		assertTrue(items.stream().allMatch(Item::isMet));
 	}
 
 	@Test
 	public void eachRequirementIsReportedOnItsOwn() {
-		List<Item> items = IwfComplianceCheck.evaluate(false, false, false, false);
+		List<Item> items = IwfComplianceCheck.evaluate(false, false, false, false, false, false, false);
 		assertEquals(Status.NOT_MET, status(items, Requirement.USER_ACCOUNTS));
 		assertEquals("the built-in key does not count", Status.NOT_MET, status(items, Requirement.AUDIT_KEY));
 		assertEquals(Status.NOT_MET, status(items, Requirement.CONTROL_PANEL_TOKEN));
+		assertEquals(Status.NOT_MET, status(items, Requirement.TCRR_RULES));
+		assertEquals(Status.NOT_MET, status(items, Requirement.SIGNED_EXPORTS));
 	}
 
 	@Test
 	public void aPendingKeyCountsAfterTheNextRestart() {
 		assertEquals(Status.AFTER_RESTART,
-		        status(IwfComplianceCheck.evaluate(true, false, true, true), Requirement.AUDIT_KEY));
+		        status(IwfComplianceCheck.evaluate(true, false, true, true, true, true, true), Requirement.AUDIT_KEY));
 		assertEquals("a real key in use wins", Status.MET,
-		        status(IwfComplianceCheck.evaluate(true, true, true, true), Requirement.AUDIT_KEY));
+		        status(IwfComplianceCheck.evaluate(true, true, true, true, true, true, true), Requirement.AUDIT_KEY));
+	}
+
+	@Test
+	public void aTcrrSwitchTurnedOnCountsAfterTheNextRestart() {
+		assertEquals(Status.AFTER_RESTART,
+		        status(IwfComplianceCheck.evaluate(true, true, false, true, false, true, true),
+		                Requirement.TCRR_RULES));
+		assertEquals(Status.NOT_MET,
+		        status(IwfComplianceCheck.evaluate(true, true, false, true, false, false, true),
+		                Requirement.TCRR_RULES));
 	}
 }

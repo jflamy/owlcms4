@@ -26,6 +26,22 @@ public class TrackerDatabaseChecksumTest {
 	}
 
 	@Test
+	public void ignoresTheExportSignature() {
+		String first = """
+				{"formatVersion":"2.0","exportDate":"2026-10-07T20:00:00Z",
+				"athletes":[{"id":1,"name":"Athlete"}],
+				"signature":{"alg":"Ed25519","sha256":"first","value":"first"}}
+				""";
+		String second = """
+				{"formatVersion":"2.0","exportDate":"2026-10-07T20:01:00Z",
+				"athletes":[{"id":1,"name":"Athlete"}],
+				"signature":{"alg":"Ed25519","sha256":"second","value":"second"}}
+				""";
+
+		assertEquals(checksum(first), checksum(second));
+	}
+
+	@Test
 	public void changesWhenTrackerRelevantStateChanges() {
 		String first = """
 				{"formatVersion":"2.0","exportDate":"2026-10-07T20:00:00Z",

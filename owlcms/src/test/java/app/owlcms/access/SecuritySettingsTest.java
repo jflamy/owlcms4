@@ -15,6 +15,7 @@ import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.jpa.JPAService;
 
 public class SecuritySettingsTest {
@@ -40,6 +41,8 @@ public class SecuritySettingsTest {
 		setAdminPassword(null);
 		Config config = Config.getCurrent();
 		config.setIwfCompliance(false);
+		config.setFeatureSwitchValue(FeatureSwitch.NO_V1_EXPORT, false);
+		config.setFeatureSwitchValue(FeatureSwitch.V2_EXPORT, false);
 		config.setAccessMode(AccessMode.PIN);
 		Config.setCurrentTesting(config, ORIGIN);
 	}
@@ -76,5 +79,29 @@ public class SecuritySettingsTest {
 
 		assertEquals(Outcome.CHANGED, SecuritySettings.setIwfComplianceCheck(false, ORIGIN));
 		assertFalse(Config.getCurrent().isIwfComplianceChecked());
+	}
+
+	@Test
+	public void theNoV1ExportSwitchWithdrawsUnsignedV1Exports() {
+		Principal admin = Principal.of(UserAccountRepository.findByUsername(UserAccount.BUILT_IN_ADMIN), null);
+		assertTrue(AccessPolicy.hasCapability(admin, Capability.EXPORT_V1, null));
+
+		assertEquals(Outcome.CHANGED, SecuritySettings.setIwfComplianceCheck(true, ORIGIN));
+		assertTrue("the IWF check only reports", AccessPolicy.hasCapability(admin, Capability.EXPORT_V1, null));
+
+		setFeatureSwitch(FeatureSwitch.NO_V1_EXPORT, true);
+		assertFalse("V1 exports are never signed", AccessPolicy.hasCapability(admin, Capability.EXPORT_V1, null));
+		assertTrue(AccessPolicy.hasCapability(admin, Capability.EXPORT_DATA, null));
+		assertTrue("V2 replaces V1", FeatureSwitch.V2_EXPORT.isEffective());
+
+		setFeatureSwitch(FeatureSwitch.NO_V1_EXPORT, false);
+		assertTrue(AccessPolicy.hasCapability(admin, Capability.EXPORT_V1, null));
+		assertFalse(FeatureSwitch.V2_EXPORT.isEffective());
+	}
+
+	private static void setFeatureSwitch(FeatureSwitch featureSwitch, boolean enabled) {
+		Config config = Config.getCurrent();
+		config.setFeatureSwitchValue(featureSwitch, enabled);
+		Config.setCurrentTesting(config, ORIGIN);
 	}
 }

@@ -76,12 +76,17 @@ public class DownloadButtonFactory {
 	}
 
 	/**
-	 * Database exports need the RESULTS permission: checked when the stream is produced, with the session that
-	 * clicked, and audited when refused.
+	 * Database exports need the RESULTS permission, and V1 exports need V1 to be available: checked when the stream
+	 * is produced, with the session that clicked, and audited when refused.
 	 */
 	private static void requireExportPermission(Principal exporter, AuditActor actor, int format) {
-		if (!AccessPolicy.hasCapability(exporter, Capability.EXPORT_DATA, null)) {
-			ExportAudit.refused(actor, format, ExportAudit.CHANNEL_DOWNLOAD);
+		Capability required = format == 1 ? Capability.EXPORT_V1 : Capability.EXPORT_DATA;
+		if (!required.isAvailable()) {
+			ExportAudit.refused(actor, format, ExportAudit.CHANNEL_DOWNLOAD, ExportAudit.REASON_UNAVAILABLE);
+			throw new IllegalStateException("database export refused: format " + format + " is not available");
+		}
+		if (!AccessPolicy.hasCapability(exporter, required, null)) {
+			ExportAudit.refused(actor, format, ExportAudit.CHANNEL_DOWNLOAD, ExportAudit.REASON_NO_PERMISSION);
 			throw new IllegalStateException("database export refused: no RESULTS permission");
 		}
 	}

@@ -2,6 +2,8 @@ package app.owlcms.access;
 
 import java.util.Set;
 
+import app.owlcms.data.config.FeatureSwitch;
+
 /** In-page functions and URLs: any one of the listed permissions. */
 public enum Capability {
 	/** The Security and Audit tab of the Administration page: access mode, IWF compliance check, shared passwords. */
@@ -15,6 +17,16 @@ public enum Capability {
 	 * Competition Supervisor and External roles, admin.
 	 */
 	EXPORT_DATA(Set.of(Permission.RESULTS), false),
+	/**
+	 * V1 database (JSON) exports, from the buttons and the V1 export URLs. V1 exports are never signed; the
+	 * {@code noV1Export} feature switch withdraws them.
+	 */
+	EXPORT_V1(Set.of(Permission.RESULTS), false) {
+		@Override
+		public boolean isAvailable() {
+			return !FeatureSwitch.NO_V1_EXPORT.isEffective();
+		}
+	},
 	/** The tracker's recovery checkpoint URL: the export plus the log files. */
 	CHECKPOINT(Set.of(Permission.COMPETITION_SUPERVISOR), false),
 	/** Keyboard input on a display page, on the display's platform. */
@@ -26,6 +38,11 @@ public enum Capability {
 	Capability(Set<Permission> permissions, boolean platformBound) {
 		this.permissions = permissions;
 		this.platformBound = platformBound;
+	}
+
+	/** @return false when the configuration withholds the capability from everyone, whatever their permissions */
+	public boolean isAvailable() {
+		return true;
 	}
 
 	public PageRule asRule() {

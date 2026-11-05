@@ -143,7 +143,8 @@ public class CompetitionExport extends HttpServlet {
 		logger.info("processing competition export request {}", request.getServletPath());
 		// use proxyutils because this is a plain servlet, not a Vaadin servlet
 		String host = ProxyUtils.getClientIp(request);
-		AuditActor actor = ServletTokenGuard.authorize(request, response, host, Capability.EXPORT_DATA, "export");
+		Capability required = isJsonV1(request.getServletPath()) ? Capability.EXPORT_V1 : Capability.EXPORT_DATA;
+		AuditActor actor = ServletTokenGuard.authorize(request, response, host, required, "export");
 		if (actor == null) {
 			response.flushBuffer();
 			return;
@@ -200,8 +201,12 @@ public class CompetitionExport extends HttpServlet {
 		}
 	}
 
+	private static boolean isJsonV1(String path) {
+		return LEGACY_JSON_V1_PATH.equals(path) || JSON_V1_PATH.equals(path);
+	}
+
 	private ExportPayload createPayload(String path, AuditActor actor) {
-		if (LEGACY_JSON_V1_PATH.equals(path) || JSON_V1_PATH.equals(path)) {
+		if (isJsonV1(path)) {
 			return new ExportPayload(() -> new CompetitionData().exportData(actor, ExportAudit.CHANNEL_HTTP),
 			        JSON_CONTENT_TYPE, null, true);
 		}

@@ -10,10 +10,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.HexFormat;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -27,7 +24,9 @@ import app.owlcms.access.ImportGate;
 import app.owlcms.access.Principal;
 import app.owlcms.audit.ApplicationAudit;
 import app.owlcms.audit.AuditContext;
+import app.owlcms.audit.AuditIntegrity;
 import app.owlcms.audit.AuditOrigin;
+import app.owlcms.audit.ExportSignature;
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.config.FeatureSwitch;
@@ -74,12 +73,10 @@ public class FormatDetector {
 	        throws Exception {
 		ImportGate.requireAllowed(ImportGate.Kind.DATABASE, principal, origin);
 		byte[] json = readJsonBytes(new ByteArrayInputStream(uploaded));
+		ExportSignature.Result signature = ExportSignature.verify(json);
 		importData(new ByteArrayInputStream(json), origin);
-		ApplicationAudit.imported(origin, source, json.length, sha256(json));
-	}
-
-	private static String sha256(byte[] bytes) throws NoSuchAlgorithmException {
-		return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
+		ApplicationAudit.imported(origin, source, signature, ExportSignature.match(signature,
+				AuditIntegrity.isInitialized() ? AuditIntegrity.current().signingKey() : null));
 	}
 
 	/**

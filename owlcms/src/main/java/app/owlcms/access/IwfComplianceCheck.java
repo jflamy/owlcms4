@@ -11,6 +11,7 @@ import app.owlcms.audit.AuditKeyFiles;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.audit.AuthAudit;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -23,25 +24,43 @@ public final class IwfComplianceCheck {
 		/** Every user logs in with an account. */
 		USER_ACCOUNTS("IwfCheck.UserAccounts"),
 		/** The audit trail is signed with a real key (a key file, or the key secret in the cloud), not the built-in one. */
-		AUDIT_KEY("IwfCheck.AuditKey"),
+		AUDIT_KEY("IwfCheck.AuditKey", "IwfCheck.AfterRestart"),
 		/** OWLCMS was started by the control panel (or, in the cloud, with the token secret). */
-		CONTROL_PANEL_TOKEN("IwfCheck.ControlPanelToken");
+		CONTROL_PANEL_TOKEN("IwfCheck.ControlPanelToken"),
+		/** The TCRR rules are applied ({@code tcrrCompliance} feature switch). */
+		TCRR_RULES("IwfCheck.TcrrRules", "IwfCheck.TcrrAfterRestart"),
+		/**
+		 * Every database export offered is signed: the {@code noV1Export} feature switch withdraws the unsigned V1
+		 * export and turns on V2, which is always signed.
+		 */
+		SIGNED_EXPORTS("IwfCheck.SignedExports");
 
 		private final String translationKey;
+		private final String afterRestartKey;
 
 		Requirement(String translationKey) {
+			this(translationKey, null);
+		}
+
+		Requirement(String translationKey, String afterRestartKey) {
 			this.translationKey = translationKey;
+			this.afterRestartKey = afterRestartKey;
 		}
 
 		public String getTranslationKey() {
 			return this.translationKey;
+		}
+
+		/** @return the explanation shown with {@link Status#AFTER_RESTART}, null if the status does not apply */
+		public String getAfterRestartKey() {
+			return this.afterRestartKey;
 		}
 	}
 
 	public enum Status {
 		MET,
 		NOT_MET,
-		/** A new audit key is waiting: it is used after the next restart. */
+		/** The change is made (a new audit key, the TCRR switch) but only takes effect after the next restart. */
 		AFTER_RESTART
 	}
 
@@ -61,7 +80,9 @@ public final class IwfComplianceCheck {
 		AuditIntegrity.State state = AuditIntegrity.isInitialized() ? AuditIntegrity.current() : null;
 		boolean realKey = state != null && !state.signingKey().isBuiltin();
 		return evaluate(Config.getCurrent().isAccountsMode(), realKey, pendingKey(state),
-		        SameMachineProof.configuredToken() != null);
+		        SameMachineProof.configuredToken() != null, FeatureSwitch.TCRR_COMPLIANCE.isEffective(),
+		        Config.getCurrent().requestedFeatureSwitch(FeatureSwitch.TCRR_COMPLIANCE),
+		        FeatureSwitch.NO_V1_EXPORT.isEffective());
 	}
 
 	private static boolean pendingKey(AuditIntegrity.State state) {
@@ -77,12 +98,22 @@ public final class IwfComplianceCheck {
 		}
 	}
 
-	static List<Item> evaluate(boolean accountsMode, boolean realKey, boolean pendingKey, boolean controlPanelToken) {
-		Status key = realKey ? Status.MET : pendingKey ? Status.AFTER_RESTART : Status.NOT_MET;
+	static List<Item> evaluate(boolean accountsMode, boolean realKey, boolean pendingKey, boolean controlPanelToken,
+	        boolean tcrrRules, boolean tcrrRequested, boolean signedExports) {
 		return List.of(
-		        new Item(Requirement.USER_ACCOUNTS, accountsMode ? Status.MET : Status.NOT_MET),
-		        new Item(Requirement.AUDIT_KEY, key),
-		        new Item(Requirement.CONTROL_PANEL_TOKEN, controlPanelToken ? Status.MET : Status.NOT_MET));
+		        new Item(Requirement.USER_ACCOUNTS, met(accountsMode)),
+		        new Item(Requirement.AUDIT_KEY, met(realKey, pendingKey)),
+		        new Item(Requirement.CONTROL_PANEL_TOKEN, met(controlPanelToken)),
+		        new Item(Requirement.TCRR_RULES, met(tcrrRules, tcrrRequested)),
+		        new Item(Requirement.SIGNED_EXPORTS, met(signedExports)));
+	}
+
+	private static Status met(boolean condition) {
+		return condition ? Status.MET : Status.NOT_MET;
+	}
+
+	private static Status met(boolean inEffect, boolean afterRestart) {
+		return inEffect ? Status.MET : afterRestart ? Status.AFTER_RESTART : Status.NOT_MET;
 	}
 
 	/** @return the requirements not met when the check is on, else an empty list */

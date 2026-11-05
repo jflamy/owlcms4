@@ -13,12 +13,9 @@ import java.io.InputStream;
 import java.net.BindException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 // ...existing imports...
 import java.util.EnumSet;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -36,6 +33,7 @@ import app.owlcms.audit.ApplicationAudit;
 import app.owlcms.audit.AuditIntegrity;
 import app.owlcms.audit.AuditContext;
 import app.owlcms.audit.AuditOrigin;
+import app.owlcms.audit.ExportSignature;
 import app.owlcms.utils.BrowserUtils;
 import app.owlcms.apputils.LogbackConfigReloader;
 import app.owlcms.data.agegroup.AgeGroup;
@@ -252,21 +250,20 @@ public class Main {
             try (InputStream in = Files.newInputStream(source)) {
                 json = FormatDetector.readJsonBytes(in);
             }
-            String sha256 = sha256(json);
-            logger.info("Importing {} ({} bytes of JSON, sha256 {})", source.toAbsolutePath(), json.length, sha256);
+            ExportSignature.Result signature = ExportSignature.verify(json);
+            logger.info("Importing {} ({} bytes of JSON, sha256 {}, signature {})", source.toAbsolutePath(),
+                    json.length, signature.sha256(), signature.status());
             FormatDetector.importData(new ByteArrayInputStream(json));
 
+            // the server key is only known once audit integrity is initialized, after the import
             completeConfig();
-            ApplicationAudit.startupImport(name, sha256);
+            ApplicationAudit.startupImport(name, signature,
+                    ExportSignature.match(signature, AuditIntegrity.current().signingKey()));
             startupImportLoaded = true;
             initData();
         } catch (Throwable e) {
             failStartupImport(source, e);
         }
-    }
-
-    private static String sha256(byte[] bytes) throws NoSuchAlgorithmException {
-        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
     }
 
     /** One attempt only: report the cause and stop. Never serve partial data, never fall back to an empty competition. */

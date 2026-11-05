@@ -10,8 +10,7 @@
   "stylesDirectory": "css/nogrid",
   "videoStylesDirectory": "transparent",
   "enableColorOverrides": false,
-  "localDateTimeUtcNormalized": true,
-  "timeZone": "Europe/Athens"
+  "localDateTimeUtcNormalized": true
  },
  "competition": {
   "id": 39,

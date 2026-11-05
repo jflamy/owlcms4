@@ -12,8 +12,16 @@ public class ExportAuditTest {
 	@Test
 	public void successDetailCarriesFormatChannelLengthAndDigest() {
 		String sha = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08";
-		assertEquals("format=2,channel=download,bytes=2948571,sha256=" + sha,
-				ExportAudit.successDetail(2, ExportAudit.CHANNEL_DOWNLOAD, 2948571L, sha));
+		assertEquals("format=1,channel=download,bytes=2948571,sha256=" + sha + ",signature=none",
+				ExportAudit.successDetail(1, ExportAudit.CHANNEL_DOWNLOAD, 2948571L, sha, null));
+	}
+
+	@Test
+	public void signedExportRecordsTheKeyFingerprint() {
+		String sha = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08";
+		String fingerprint = "a".repeat(64);
+		assertEquals("format=2,channel=download,bytes=2948571,sha256=" + sha + ",signature=" + fingerprint,
+				ExportAudit.successDetail(2, ExportAudit.CHANNEL_DOWNLOAD, 2948571L, sha, fingerprint));
 	}
 
 	@Test

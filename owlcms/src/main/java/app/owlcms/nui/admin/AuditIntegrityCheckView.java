@@ -1,5 +1,6 @@
 package app.owlcms.nui.admin;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -23,17 +24,24 @@ import com.vaadin.flow.component.html.Pre;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.streams.UploadHandler;
 
 import app.owlcms.access.Permission;
 import app.owlcms.access.RequiresPermission;
+import app.owlcms.audit.AuditIntegrity;
 import app.owlcms.audit.AuditIntegrityChecker;
 import app.owlcms.audit.AuditIntegrityChecker.KeyProtection;
 import app.owlcms.audit.AuditIntegrityChecker.Report;
 import app.owlcms.audit.AuditIntegrityReportText;
 import app.owlcms.audit.AuditIntegrityReportText.FingerprintSummary;
 import app.owlcms.audit.AuditLog;
+import app.owlcms.audit.ExportCheckText;
+import app.owlcms.audit.ExportSignature;
+import app.owlcms.audit.ExportSignature.KeyMatch;
+import app.owlcms.data.export.FormatDetector;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -52,6 +60,7 @@ public class AuditIntegrityCheckView extends Composite<VerticalLayout>
 	private final Button check = new Button(Translator.translate("AuditCheck.Check"));
 	private final Paragraph status = new Paragraph();
 	private final Div result = new Div();
+	private final Div exportResult = new Div();
 
 	public AuditIntegrityCheckView() {
 		this.evidence.setValue(AuditLog.DIRECTORY.toAbsolutePath().normalize().toString());
@@ -63,6 +72,44 @@ public class AuditIntegrityCheckView extends Composite<VerticalLayout>
 				new Paragraph(Translator.translate("AuditCheck.Description")),
 				new Paragraph(Translator.translate("AuditCheck.Caution")),
 				this.evidence, this.token, this.check, this.status, this.result);
+		addExportCheck();
+	}
+
+	/**
+	 * Checks the signature of an uploaded export: the same upload as the database import, but nothing is imported.
+	 * Only the uploaded bytes are read, so no control panel token is needed.
+	 */
+	private void addExportCheck() {
+		// the built-in handlers call back on the UI thread; the file is in memory and the check only hashes it
+		Upload upload = new Upload(UploadHandler.inMemory((metadata, data) -> checkExport(metadata.fileName(), data)));
+		upload.setWidth("40em");
+		upload.setAcceptedMimeTypes("application/json");
+		this.exportResult.setWidthFull();
+		getContent().add(new H3(Translator.translate("ExportCheck.Title")),
+				new Paragraph(Translator.translate("ExportCheck.Description")), upload, this.exportResult);
+	}
+
+	private void checkExport(String fileName, byte[] data) {
+		this.exportResult.removeAll();
+		ExportSignature.Result checked;
+		try {
+			checked = ExportSignature.verify(FormatDetector.readJsonBytes(new ByteArrayInputStream(data)));
+		} catch (IOException e) {
+			logger.info("export signature check could not read {}: {}", fileName, e.getMessage());
+			this.exportResult.add(alert(Translator.translate("ExportCheck.Failed") + " " + e.getMessage(),
+					"var(--lumo-error-text-color)"));
+			return;
+		}
+		KeyMatch match = ExportSignature.match(checked,
+				AuditIntegrity.isInitialized() ? AuditIntegrity.current().signingKey() : null);
+		logger.info("export signature check of {}: {} {} {}", fileName, checked.status(), checked.reason(), match);
+		boolean compare = ExportCheckText.compareFingerprint(checked, match);
+		this.exportResult.add(alert(Translator.translate(ExportCheckText.verdictKey(checked, match)),
+				compare ? "var(--lumo-success-text-color)" : "var(--lumo-error-text-color)"),
+				preformatted(ExportCheckText.details(fileName, checked, Translator::translate)));
+		if (compare) {
+			this.exportResult.add(new Paragraph(Translator.translate("ExportCheck.CompareFingerprint")));
+		}
 	}
 
 	// runs on the request thread, like the challenge it starts with

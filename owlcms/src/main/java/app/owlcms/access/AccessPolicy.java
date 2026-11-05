@@ -8,7 +8,10 @@ import java.util.Set;
 
 import app.owlcms.data.account.RoleGrant;
 
-/** Pure access logic: no Vaadin types, no session, unit-tested. */
+/**
+ * Pure access logic: no Vaadin types, no session, unit-tested. The one exception is
+ * {@link Capability#isAvailable()}, which may read the configuration.
+ */
 public final class AccessPolicy {
 
 	private AccessPolicy() {
@@ -65,8 +68,9 @@ public final class AccessPolicy {
 		return result;
 	}
 
+	/** Also false when the capability is not available in the current configuration ({@link Capability#isAvailable()}). */
 	public static boolean hasCapability(Principal principal, Capability capability, String platform) {
-		return canOpen(principal, capability.asRule(), platform);
+		return capability.isAvailable() && canOpen(principal, capability.asRule(), platform);
 	}
 
 	/** True for accounts that hold a lockable permission and are not administrators. */

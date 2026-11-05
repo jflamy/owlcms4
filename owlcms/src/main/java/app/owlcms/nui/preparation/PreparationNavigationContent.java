@@ -159,6 +159,10 @@ public class PreparationNavigationContent extends BaseNavigationContent
 			exportJsonV2Div.setWidthFull();
 		}
 
+		if (!AccessUi.hasCapability(Capability.EXPORT_V1, null)) {
+			// withdrawn by the noV1Export feature switch: V1 exports are never signed
+			DownloadButtonFactory.hide(exportJsonDiv);
+		}
 		if (!AccessUi.hasCapability(Capability.EXPORT_DATA, null)) {
 			// no RESULTS permission: database and SBDE exports would be refused
 			DownloadButtonFactory.hide(exportJsonDiv);

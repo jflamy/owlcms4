@@ -67,9 +67,20 @@ public enum FeatureSwitch {
     NO_COLLARS_5KG_BAR("noCollars5kgBar", FeatureSwitchSection.GENERAL_OPTIONS, true),
     CHILDREN_EQUIPMENT("childrenEquipment", FeatureSwitchSection.GENERAL_OPTIONS),
 
+    // reported by the IWF compliance check (IwfComplianceCheck)
+    TCRR_COMPLIANCE("tcrrCompliance", FeatureSwitchSection.IWF_REQUIREMENTS),
+    V2_EXPORT("v2Export", FeatureSwitchSection.IWF_REQUIREMENTS) {
+        // without V1, V2 is the only database export left
+        @Override
+        public boolean isEffective(Config config) {
+            return super.isEffective(config) || NO_V1_EXPORT.isEffective(config);
+        }
+    },
+    /** Withdraws the unsigned V1 database export (Capability.EXPORT_V1). */
+    NO_V1_EXPORT("noV1Export", FeatureSwitchSection.IWF_REQUIREMENTS),
+
     USAW_SESSION_BLOCKS("usawSessionBlocks", FeatureSwitchSection.SPECIALTY_FEATURES),
     USAW_COLLARS("usawCollars", FeatureSwitchSection.SPECIALTY_FEATURES),
-    TCRR_COMPLIANCE("tcrrCompliance", FeatureSwitchSection.SPECIALTY_FEATURES),
     MQTT_DOWN_SIGNAL("mqttDownSignal", FeatureSwitchSection.SPECIALTY_FEATURES),
     BREAK_TIMER_SOUNDS("breakTimerSounds", FeatureSwitchSection.SPECIALTY_FEATURES),
     BLACK_STOP_BUTTON("blackStopButton", FeatureSwitchSection.SPECIALTY_FEATURES),
@@ -85,7 +96,6 @@ public enum FeatureSwitch {
     },
     RECORD_NAME_IS_CATEGORY("recordNameIsCategory", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     SINCLAIR_MEET("SinclairMeet", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
-    V2_EXPORT("v2Export", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     NO_FORWARDER_KEEP_ALIVE("noForwarderKeepAlive", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     IWF_LOOK("iwfLook", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
 

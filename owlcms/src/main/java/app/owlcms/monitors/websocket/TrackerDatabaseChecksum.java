@@ -9,7 +9,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * Cache-busting token sent to the tracker with a database payload. Ignores {@code exportDate} and the encrypted
+ * Cache-busting token sent to the tracker with a database payload. Ignores {@code exportDate}, the export {@code signature} and the encrypted
  * {@code updateKey} values (re-encrypted with a fresh nonce on every serialization) so that it only changes when
  * the competition data does. Distinct from the audited SHA-256 of the exact exported bytes.
  */
@@ -24,6 +24,7 @@ public final class TrackerDatabaseChecksum {
 			JsonNode root = MAPPER.readTree(jsonBytes);
 			if (root instanceof ObjectNode object) {
 				object.remove("exportDate");
+				object.remove("signature");
 			}
 			removeUpdateKeys(root);
 			return HexFormat.of().formatHex(sha256().digest(MAPPER.writeValueAsBytes(root)));

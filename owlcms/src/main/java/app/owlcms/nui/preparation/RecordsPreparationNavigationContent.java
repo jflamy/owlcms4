@@ -87,6 +87,10 @@ public class RecordsPreparationNavigationContent extends BaseNavigationContent
 			exportJsonV2Div.setWidthFull();
 		}
 
+		if (!AccessUi.hasCapability(Capability.EXPORT_V1, null)) {
+			// withdrawn by the noV1Export feature switch: V1 exports are never signed
+			DownloadButtonFactory.hide(exportJsonDiv);
+		}
 		if (!AccessUi.hasCapability(Capability.EXPORT_DATA, null)) {
 			DownloadButtonFactory.hide(exportJsonDiv);
 			DownloadButtonFactory.hide(exportJsonV2Div);

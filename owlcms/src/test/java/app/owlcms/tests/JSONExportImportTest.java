@@ -25,6 +25,8 @@ import org.junit.Test;
 import app.owlcms.access.AccessMode;
 import app.owlcms.access.AccessStartup;
 import app.owlcms.audit.AuditOrigin;
+import app.owlcms.audit.AuditSigningKey;
+import app.owlcms.audit.ExportSignature;
 import app.owlcms.Main;
 import app.owlcms.access.PasswordHasher;
 import app.owlcms.access.Role;
@@ -42,6 +44,9 @@ import app.owlcms.data.coach.Coach;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ForwardingConnection;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.export.ChecksummedJsonExport;
+import app.owlcms.data.export.ChecksummedJsonExport.Checksum;
+import app.owlcms.data.export.ChecksummedJsonExport.Listener;
 import app.owlcms.data.export.CompetitionData;
 import app.owlcms.data.export.v2.V2Json;
 import app.owlcms.data.export.v2.CompetitionDataV2;
@@ -118,6 +123,32 @@ public class JSONExportImportTest {
         assertTrue(importedV2.getAccounts().stream()
                 .anyMatch(imported -> imported.getUsername().equals("fixtureuser")
                         && PasswordHasher.verify("fixtureuser", imported.getPasswordHash())));
+    }
+
+    @Test
+    public void signedV2ExportImports() throws Exception {
+        byte[] unsigned = new CompetitionDataV2().fromDatabase().exportData().readAllBytes();
+        Listener ignored = new Listener() {
+            @Override
+            public void succeeded(Checksum checksum) {
+            }
+
+            @Override
+            public void failed(Throwable error) {
+            }
+        };
+        byte[] signed = ChecksummedJsonExport.stream(out -> out.write(unsigned), ignored, AuditSigningKey.generate())
+                .readAllBytes();
+        assertEquals(ExportSignature.Status.VALID, ExportSignature.verify(signed).status());
+
+        CompetitionDataV2 imported = new CompetitionDataV2().importData(new ByteArrayInputStream(signed));
+        assertNotNull("the signature is an unknown top-level field, ignored by the import", imported);
+
+        // still valid JSON, but no longer the signed bytes: the import is never refused because of the signature
+        int indent = new String(signed, StandardCharsets.ISO_8859_1).indexOf("\n ") + 1;
+        signed[indent] = '\t';
+        assertEquals(ExportSignature.Status.INVALID, ExportSignature.verify(signed).status());
+        assertNotNull(new CompetitionDataV2().importData(new ByteArrayInputStream(signed)));
     }
 
     @Test

@@ -89,7 +89,7 @@ public final class IwfComplianceDisplay {
 		return switch (status) {
 			case MET -> icon(VaadinIcon.CHECK_CIRCLE, SUCCESS_COLOR);
 			case NOT_MET -> icon(VaadinIcon.CLOSE_CIRCLE, ERROR_COLOR);
-			// a new key is ready but only used after the next restart
+			// made, but only in effect after the next restart
 			case AFTER_RESTART -> icon(VaadinIcon.WARNING, WARNING_COLOR);
 		};
 	}
@@ -106,7 +106,9 @@ public final class IwfComplianceDisplay {
 
 	private static String text(Item item) {
 		String text = Translator.translate(item.requirement().getTranslationKey());
-		return item.status() == Status.AFTER_RESTART ? text + " " + Translator.translate("IwfCheck.AfterRestart")
+		String afterRestartKey = item.requirement().getAfterRestartKey();
+		return item.status() == Status.AFTER_RESTART && afterRestartKey != null
+		        ? text + " " + Translator.translate(afterRestartKey)
 		        : text;
 	}
 }

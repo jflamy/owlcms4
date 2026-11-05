@@ -30,7 +30,9 @@ import com.vaadin.flow.component.notification.Notification;
 import java.time.Instant;
 
 import app.owlcms.audit.AuditActor;
+import app.owlcms.audit.AuditIntegrity;
 import app.owlcms.audit.AuditOrigin;
+import app.owlcms.audit.AuditSigningKey;
 import app.owlcms.audit.ExportAudit;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -159,8 +161,10 @@ public class CompetitionDataV2 {
 			ui.access(() -> notification.open());
 		}
 		ObjectWriter writerWithDefaultPrettyPrinter = createMapper().writerWithDefaultPrettyPrinter();
+		// captured here, on the caller's thread, for the writer thread
+		AuditSigningKey signingKey = AuditIntegrity.isInitialized() ? AuditIntegrity.current().signingKey() : null;
 		try {
-			return ChecksummedJsonExport.audited(2, channel, actor, out -> {
+			return ChecksummedJsonExport.audited(2, channel, actor, signingKey, out -> {
 				try {
 					writerWithDefaultPrettyPrinter.writeValue(out, fromDatabase ? this.fromDatabase() : this);
 				} finally {

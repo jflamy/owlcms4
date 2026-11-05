@@ -11,6 +11,7 @@ public enum FeatureSwitchSection {
 	SCOREBOARD_OPTIONS("FeatureSwitchSection.ScoreboardOptions"),
 	JURY_OPTIONS("FeatureSwitchSection.JuryOptions"),
 	GENERAL_OPTIONS("FeatureSwitchSection.GeneralOptions"),
+	IWF_REQUIREMENTS("FeatureSwitchSection.IwfRequirements"),
 	SPECIALTY_FEATURES("FeatureSwitchSection.SpecialtyFeatures"),
 	CURRENT_FEATURES("FeatureSwitchSection.CurrentFeatures"),
 	USE_AT_YOUR_OWN_RISK("FeatureSwitchSection.UseAtYourOwnRisk"),

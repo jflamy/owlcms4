@@ -38,6 +38,14 @@ public final class ServletTokenGuard {
 		String path = request.getServletPath();
 		String token = TokenAuthenticator.presentedToken(request.getParameter("token"),
 		        request.getHeader("Authorization"));
+		if (!required.isAvailable()) {
+			// refused in both access modes: Simple Access does not check capabilities
+			logger./**/warn("{} {} refused: the {} capability is not available in this configuration", host, what,
+			        required);
+			AuthAudit.tokenRefused(host, path, "unavailable", null, null);
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			return null;
+		}
 		if (!Config.getCurrent().isAccountsMode()) {
 			return authorizeSimpleAccess(response, host, path, token, what);
 		}

@@ -23,6 +23,8 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.Capability;
 import app.owlcms.access.Permission;
 import app.owlcms.access.RequiresPermission;
 import com.vaadin.flow.router.Route;
@@ -133,6 +135,10 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 			Optional<Component> exportJsonV2Button = exportJsonV2Div.getChildren().findFirst();
 			exportJsonV2Button.ifPresent(c -> ((Button) c).setWidth("100%"));
 			exportJsonV2Div.setWidthFull();
+		}
+		if (!AccessUi.hasCapability(Capability.EXPORT_V1, null)) {
+			// withdrawn by the noV1Export feature switch: V1 exports are never signed
+			DownloadButtonFactory.hide(exportJsonDiv);
 		}
 
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(groupResults, medalScheduleDiv);
