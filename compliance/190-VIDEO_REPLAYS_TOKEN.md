@@ -5,8 +5,9 @@ automated tests pass (Video `go test ./...`, Tracker `npm test`). Video and
 Tracker behave as before when no token is configured, checked by comparing
 responses and URLs against the code preceding this work. Verified by hand so
 far: token generation and the show-once dialog, sign-in from the browser form
-and sign-out, tokens surviving a Video restart. Remaining from 1.8: Control
-Panel upgrade, Tracker jury replays with a token, revoke/regenerate with two
+and sign-out, tokens surviving a Video restart. Remaining from 1.8: a Video
+update installed through the Control Panel (tokens must survive the change of
+version folder), Tracker jury replays with a token, revoke/regenerate with two
 signed-in browsers, and a corrupt token file.
 
 The replay request log records the path without the query string
