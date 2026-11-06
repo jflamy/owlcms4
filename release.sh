@@ -46,6 +46,7 @@ done
 #     (so CI builds what you see)
 #   - Runs the workflow on the current git branch
 #   - After a successful run, does a safe git pull --ff-only from origin/<current branch>
+#   - Retries interrupted monitoring; reports failure only after confirming the run's conclusion
 
 if [[ -z "${REVISION}" ]]; then
   echo "ERROR: REVISION must be defined or passed as the first argument: ./release.sh 65.0.0-beta01" >&2
@@ -241,20 +242,68 @@ echo "Run ID: ${RUN_ID}"
 echo "Run URL: https://github.com/${REPO}/actions/runs/${RUN_ID}"
 echo "Watching run (Ctrl+C to detach)…"
 
+RUN_CONCLUSION=""
+for WATCH_ATTEMPT in {1..3}; do
+  if gh run watch --repo "${REPO}" "${RUN_ID}" --exit-status; then
+    RUN_CONCLUSION="success"
+    break
+  else
+    WATCH_EXIT=$?
+  fi
+
+  if [[ "${WATCH_EXIT}" -eq 130 ]]; then
+    echo "Stopped watching. The workflow may still be running: https://github.com/${REPO}/actions/runs/${RUN_ID}"
+    exit "${WATCH_EXIT}"
+  fi
+
+  echo "WARNING: Monitoring stopped (exit ${WATCH_EXIT}); checking the workflow's actual status." >&2
+  if RUN_STATE="$(gh run view --repo "${REPO}" "${RUN_ID}" \
+    --json status,conclusion \
+    -q 'if .status == "completed" then "completed:" + .conclusion else .status end')"; then
+    case "${RUN_STATE}" in
+      completed:*)
+        RUN_CONCLUSION="${RUN_STATE#completed:}"
+        break
+        ;;
+      *)
+        echo "Workflow status: ${RUN_STATE}; no completed conclusion yet."
+        ;;
+    esac
+  else
+    echo "WARNING: Could not retrieve the workflow status." >&2
+  fi
+
+  if [[ "${WATCH_ATTEMPT}" -lt 3 ]]; then
+    echo "Retrying monitoring in 5 seconds (attempt $((WATCH_ATTEMPT + 1))/3)…"
+    sleep 5
+  fi
+done
+
+if [[ -z "${RUN_CONCLUSION}" ]]; then
+  echo "ERROR: Unable to confirm the workflow outcome; this does not mean the run failed." >&2
+  echo "View this run on GitHub: https://github.com/${REPO}/actions/runs/${RUN_ID}" >&2
+  exit 1
+fi
+
 RUN_FAILED=false
-if ! gh run watch --repo "${REPO}" "${RUN_ID}" --exit-status; then
+if [[ "${RUN_CONCLUSION}" != "success" ]]; then
   RUN_FAILED=true
   echo ""
   echo "╔════════════════════════════════════════════════════════════════════════════╗"
   echo "║ Run FAILED                                                                 ║"
   echo "╚════════════════════════════════════════════════════════════════════════════╝"
+  echo "Conclusion: ${RUN_CONCLUSION}"
   echo "View this run on GitHub: https://github.com/${REPO}/actions/runs/${RUN_ID}"
   echo ""
   echo "Showing failed logs…"
-  gh run view --repo "${REPO}" "${RUN_ID}" --log-failed || true
+  if ! gh run view --repo "${REPO}" "${RUN_ID}" --log-failed; then
+    echo "WARNING: Could not retrieve failed logs; use the run URL above." >&2
+  fi
 else
   echo "Run finished. Showing summary…"
-  gh run view --repo "${REPO}" "${RUN_ID}"
+  if ! gh run view --repo "${REPO}" "${RUN_ID}"; then
+    echo "WARNING: The run succeeded, but its summary could not be retrieved; use the run URL above." >&2
+  fi
 fi
 
 if [[ "${DO_GIT_PULL}" == "true" ]]; then
