@@ -959,13 +959,13 @@ public abstract class AthleteGridContent extends BaseContent
 		String fopName = FieldOfPlay.getLoggingName(e.getFop());
 		String screen = traceScreenId();
 		long receivedAt = System.currentTimeMillis();
-		logger.warn("{}DOWNTRACE {} refereeUpdate now={} refs=[{},{},{}]", fopName, screen, receivedAt, e.ref1,
+		logger.debug("{}DOWNTRACE {} refereeUpdate now={} refs=[{},{},{}]", fopName, screen, receivedAt, e.ref1,
 		        e.ref2, e.ref3);
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			passiveLiveDecisionShow(e);
 			long accessAt = System.currentTimeMillis();
 			boolean shown = isLiveLights() && this.decisionDisplay != null;
-			logger.warn("{}DOWNTRACE {} lights ui.access now={} waitedMs={} liveLights={}", fopName, screen, accessAt,
+			logger.debug("{}DOWNTRACE {} lights ui.access now={} waitedMs={} liveLights={}", fopName, screen, accessAt,
 			        accessAt - receivedAt, shown);
 			if (!shown) {
 				return;
@@ -979,10 +979,10 @@ public abstract class AthleteGridContent extends BaseContent
 			        """).then(String.class,
 			        value -> {
 				        long now = System.currentTimeMillis();
-				        logger.warn("{}DOWNTRACE {} lights browser ack now={} roundTripMs={} {}", fopName, screen, now,
+				        logger.debug("{}DOWNTRACE {} lights browser ack now={} roundTripMs={} {}", fopName, screen, now,
 				                now - accessAt, value);
 			        },
-			        error -> logger.warn("{}DOWNTRACE {} lights browser error now={} {}", fopName, screen,
+			        error -> logger.debug("{}DOWNTRACE {} lights browser error now={} {}", fopName, screen,
 			                System.currentTimeMillis(), error));
 		});
 	}

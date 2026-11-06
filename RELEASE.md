@@ -40,6 +40,13 @@ Optionally update the prefix pages (used for alpha/beta/rc/final headers):
 
 Do **not** manually edit the root `ReleaseNotes.md` for a release. That file is assembled by the workflow and pushed back.
 
+The translation comparison reads `GOOGLE_SHEETS_API_KEY` from the environment. Plain API keys need no local
+protection file. For an `enc:v1:` value, the matching key must be available as `~/.owlcms/apiprotection.aes`
+for the user running the release. The control panel's `secret encrypt` command can create and use the separate
+named key `apiprotection.aes`; existing values encrypted with the former installation key require that
+matching key at the new path. Do not commit the protection key. Use `--skipTranslations` only when intentionally
+skipping the Google Sheets comparison.
+
 ### 4) Commit your changes
 
 Commit your edits on the prerelease branch.

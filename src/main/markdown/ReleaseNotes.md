@@ -10,7 +10,9 @@
 
 **Maintenance Log**
 
-- 68.0.6: Additional logging for the down signal sound on the announcer screen.
+- 68.0.6: The best-athlete scoring selector no longer lists championship scoring systems twice.
+
+- 68.0.6: Fixed the color and positioning of the break countdown on current-athlete displays.
 
 - 68.0.5: Regression fix: The best-athlete selector can again be cleared to use each participation's age-group scoring system in results and exports.
 

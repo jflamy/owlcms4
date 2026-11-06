@@ -52,7 +52,7 @@ Notes
 - GitHub Codespaces uses the same devcontainer configuration. When creating a Codespace for this repo, the devcontainer defined in `.devcontainer/devcontainer.json` will be used and the same extensions and setup steps will be applied.
 - On GitHub, use **Code → Codespaces → Create codespace on `<branch>`**; the devcontainer on that branch is used.
 - In Codespaces, the `onCreateCommand` and `postCreateCommand` are executed during provisioning.
-- To reload translations from Google Sheets, add `GOOGLE_SHEETS_API_KEY` as a Codespaces secret (GitHub Settings → Codespaces → Secrets) with the plain key; `enc:v1:` values only decrypt on the computer that encrypted them.
+- To reload translations from Google Sheets, add `GOOGLE_SHEETS_API_KEY` as a Codespaces secret (GitHub Settings → Codespaces → Secrets) with the plain key. An `enc:v1:` value instead requires the matching `~/.owlcms/apiprotection.aes` file inside the container.
 - Ports forwarded by the devcontainer (`8080`, `8081`, `1883`) will be mapped in Codespaces' forwarded ports view automatically.
 
 Persistent Maven cache (cross-platform)
