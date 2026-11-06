@@ -10,7 +10,9 @@ None open. Lenient birth-date parsing is done: [BIRTHDATE_LENIENT_PARSE.md](done
 
 ## 1xx — Technical RFP compliance
 
-None open.
+| Order | Document | Scope |
+| --- | --- | --- |
+| 190 | [Video replays tokens](190-VIDEO_REPLAYS_TOKEN.md) | Phase 1: named, revocable viewer tokens managed in the Video app; sign-in page and token URLs; Tracker clients |
 
 PEM-based account mode (100), account tokens (110), token-protected URLs (120) and
 export credential protection (140) are done:
@@ -40,6 +42,7 @@ control panel launch from a checkpoint, are implemented and archived in
 | Order | Document | Scope |
 | --- | --- | --- |
 | 220 | [Store panel decisions](220-STORE_PANEL_DECISIONS.md) | Persist detailed review votes and circumstances for later reports |
+| 230 | [Video access, deferred](230-VIDEO_ACCESS_DEFERRED.md) | Cameras configuration token; several Video instances on one machine; Caddy external-access acceptance |
 
 Age-group editing (200) is done: [200-AGEGROUP_EDIT_CONFIRMATION.md](done/200-AGEGROUP_EDIT_CONFIRMATION.md),
 with its [implementation plan](done/200-IMPLEMENTATION_PLAN.md) and
@@ -53,7 +56,6 @@ Scoped dark dialogs (210) are done: [210-SCOPED_DARK_DIALOGS.md](done/210-SCOPED
 | 300 | [Medal eligibility](300-MEDAL_ELIGIBILITY.md) | Per-championship qualification, entry-total and team-point policies for mixed-rule competitions |
 | 310 | [Personal best records](310-PERSONAL_BEST_RECORDS.md) | Move live PB tracking into the record-event system |
 | 320 | [Windows signing](320-WINDOWS_SIGNING.md) | Authenticode signing for control-panel and video executables |
-| 330 | [Video replays token](330-VIDEO_REPLAYS_TOKEN.md) | Video module: its own access token, generated in the app, required on replay URLs |
 | 340 | [Cloud control panel token](340-CLOUD_CONTROL_PANEL_TOKEN.md) | Cloud app: generate the control panel token as a Fly secret, recover it from a marker secret name, copy icon |
 | 350 | [Tracker rank and score columns](350-TRACKER_SCOREBOARD_RANK_COLUMNS.md) | Forward the lift-rank decision from OWLCMS; tracker Score column and medal rank, matching the OWLCMS scoreboard per championship |
 | 370 | [Document template settings](370-DOCUMENT_TEMPLATE_SETTINGS.md) | Store per-document template choices apart from `Competition`, so printing never counts as a change to the competition settings |
