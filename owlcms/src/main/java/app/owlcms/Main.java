@@ -282,6 +282,15 @@ public class Main {
         Config.protectForwardingKeysAtStartup();
         ResourceMonitor.start();
         AccessStartup.run();
+        // version 69 added the Competition save stamp; a stored row without one comes from an older database
+        List<Competition> competitions = CompetitionRepository.findAll();
+        if (!competitions.isEmpty() && competitions.get(0).getLastSavedAt() == null) {
+            logger.info("database older than version 69: setting jury size to 0 and video replays off");
+            CompetitionRepository.apply(c -> {
+                c.setJurySize(0);
+                c.setVideoPlaybackTechnology(false);
+            }, AuditOrigin.system("version 69 upgrade"));
+        }
         IwfComplianceCheck.reportAtStartup();
 
         // Run UTC normalization migration after JPAService and Config are initialized

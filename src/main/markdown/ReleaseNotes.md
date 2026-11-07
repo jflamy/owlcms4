@@ -90,6 +90,8 @@
 - New Backup page in the Admin section.
   - "Capture Anomaly" (System tab) also does a backup: asks what happened, records it in the audit trail and the application log, then downloads the database export and the logs.
 
+- A database last used with a version older than 69 starts with jury size 0 and video replays off. The settings can be changed afterwards on the Competition page.
+
 - MQTT refereeing devices are told when a competition has no jury (jury size 0) instead of being sent a jury size of 3.
   - Blue Owl versions up to 3.0.0 treat it as a jury of 3, as before.
 
