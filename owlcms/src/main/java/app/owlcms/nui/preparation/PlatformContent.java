@@ -19,6 +19,7 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -191,6 +192,8 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 		        .setVisible(OwlcmsFactory.getFOPs().stream().anyMatch(fop -> AccessUi.canOpen(TCContent.class, fop)));
 		grid.addComponentColumn(platform -> createSoundMixerField(platform, crud))
 		        .setHeader(Translator.translate("Speakers")).setWidth("30em").setFlexGrow(0);
+		grid.addComponentColumn(platform -> createDeleteButton(platform, crud))
+		        .setHeader("").setAutoWidth(true).setFlexGrow(0);
 
 		grid.setRowsDraggable(true);
 		grid.addDragStartListener(event -> {
@@ -205,6 +208,23 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 		crud.setCrudListener(this);
 		crud.setClickRowToUpdate(false);
 		return crud;
+	}
+
+	private Button createDeleteButton(Platform platform, PlatformGrid crud) {
+		Button deleteButton = new Button(Translator.translate("Delete"), VaadinIcon.TRASH.create(), event -> {
+			new ConfirmationDialog(
+			        Translator.translate("Delete"),
+			        Translator.translate("DeleteConfirmation", platform.getName()),
+			        Translator.translate("Delete"), null, () -> {
+				        delete(platform);
+				        crud.getGrid().deselectAll();
+				        crud.refreshGrid();
+			        }).open();
+		});
+		deleteButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ERROR);
+		deleteButton.getElement().addEventListener("click", ignore -> {
+		}).addEventData("event.stopPropagation()");
+		return deleteButton;
 	}
 
 	private TextField createNameField(Platform platform, PlatformGrid crud) {
