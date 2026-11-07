@@ -50,9 +50,6 @@ import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.access.AccessUi;
 import app.owlcms.apputils.queryparameters.BaseContent;
-import app.owlcms.audit.AuditFormat;
-import app.owlcms.audit.FopAudit;
-import app.owlcms.audit.SettingsAudit;
 import app.owlcms.components.fields.DurationField;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.BreakController;
@@ -430,38 +427,15 @@ public class BreakManagement extends BaseContent implements BreakController {
 		        	}
 		        	masterEndCeremony(currentFop, CeremonyType.INTRODUCTION);
 
-		        	boolean switchToSnatch = true;
-		        	if (switchToSnatch) {
-		        		this.durationField.setValue(DEFAULT_DURATION);
-		        		this.countdownTypeRadios.setValue(CountdownType.DURATION);
-		        		this.countdownRadios.setValue(BreakType.FIRST_SNATCH);
-		        		setBreakType(BreakType.FIRST_SNATCH);
-		        		setCountdownType(CountdownType.DURATION);
-		        		setBreakTimerFromFields(false);
-		        		FieldOfPlay fopForSnatch = this.fop;
-		        		if (fopForSnatch != null && fopForSnatch.getState() == FOPState.BREAK) {
-					SettingsAudit.event(fopForSnatch.getName(), "break.set", null, fopForSnatch.getCurAthlete(),
-							"breakType", fopForSnatch.getBreakType(), BreakType.FIRST_SNATCH,
-							AuditFormat.kv("remaining", FopAudit.formatClock(
-									this.timeRemaining != null ? (Integer) this.timeRemaining.intValue() : null)));
-		        			fopForSnatch.setBreakType(BreakType.FIRST_SNATCH);
-		        			fopForSnatch.setCountdownType(CountdownType.DURATION);
-		        			if (this.timeRemaining != null) {
-		        				fopForSnatch.getUiEventBus().post(new UIEvent.BreakStarted(
-		        				        this.timeRemaining.intValue(),
-		        				        this.getOrigin(),
-		        				        false,
-		        				        BreakType.FIRST_SNATCH,
-		        				        CountdownType.DURATION,
-		        				        LoggerUtils.stackTrace(),
-		        				        false,
-		        				        fopForSnatch));
-		        			}
-		        		} else {
-		        			masterStartBreak(false);
-		        		}
-		        		this.startCountdown.setEnabled(false);
-		        	}
+				this.durationField.setValue(DEFAULT_DURATION);
+				this.countdownTypeRadios.setValue(CountdownType.DURATION);
+				this.countdownRadios.setValue(BreakType.FIRST_SNATCH);
+				setBreakType(BreakType.FIRST_SNATCH);
+				setCountdownType(CountdownType.DURATION);
+				this.timeRemaining = DEFAULT_DURATION.toMillis();
+				currentFop.startCountdown(BreakType.FIRST_SNATCH,
+				        Math.toIntExact(this.timeRemaining), getOrigin());
+				this.startCountdown.setEnabled(false);
 		        });
 		this.endIntroButton.setTabIndex(-1);
 		this.startIntroButton.getThemeNames().add("secondary contrast");

@@ -413,6 +413,18 @@ public class FieldOfPlay implements IUnregister {
 		handleFOPEvent(e);
 	}
 
+	/** Start a fresh duration countdown rather than resume the preceding break's clock. */
+	public synchronized void startCountdown(BreakType breakType, int durationMillis, Object origin) {
+		setBreakType(null);
+		setCountdownType(CountdownType.DURATION);
+		IBreakTimer timer = getBreakTimer();
+		timer.setTimeRemaining(durationMillis, false);
+		timer.setBreakDuration(durationMillis);
+		timer.setEnd(null);
+		fopEventPost(new FOPEvent.BreakStarted(breakType, CountdownType.DURATION,
+		        durationMillis, null, false, origin));
+	}
+
 	public LinkedHashMap<String, Participation> getAgeGroupMap() {
 		return this.ageGroupMap;
 	}
@@ -5091,9 +5103,6 @@ public class FieldOfPlay implements IUnregister {
 				// logger.debug("{}forced break from breakmgmt", getLoggingName());
 				setBreakType(newBreak);
 				getBreakTimer().start();
-
-				pushOutUIEvent(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak,
-						CountdownType.DURATION, e.getStackTrace(), getBreakTimer().isIndefinite(), this));
 				return;
 			} else if ((newBreak != getBreakType() || newCountdownType != getCountdownType())) {
 				// changing the kind of break

@@ -11,6 +11,8 @@
 
 **Development log**
 
+- 69.0.0-beta06: Ending athlete introductions starts a fresh ten-minute before-snatch countdown on OWLCMS and Tracker displays, and automatically starts lifting when it expires.
+
 - 69.0.0-beta06: A database last used with a version older than 69 starts with jury size 0 and video replays off.
 
 - 69.0.0-beta06: Weigh-in and registration forms

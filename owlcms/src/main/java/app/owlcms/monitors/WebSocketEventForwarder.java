@@ -624,8 +624,9 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		uiLog(e);
 		setHidden(false);
 		doBreak(e);
-		pushUpdate(e);
+		// The update must use this countdown's anchor, not the preceding timer message.
 		pushTimer(e);
+		pushUpdate(e);
 	}
 
 	@Subscribe

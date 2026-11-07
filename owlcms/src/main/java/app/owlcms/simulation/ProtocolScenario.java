@@ -28,7 +28,6 @@ import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import ch.qos.logback.classic.Logger;
@@ -282,18 +281,8 @@ public class ProtocolScenario implements BreakController {
 		step("session done");
 	}
 
-	/**
-	 * Start a countdown with the simulation duration: the dialog sets the break timer
-	 * and the countdown type before posting the event, because the FOP does not take them from the event when starting
-	 * a break from no break, or when switching the before snatch break from no clock to a countdown.
-	 */
 	private void startCountdown(BreakType breakType, int durationMillis) {
-		IBreakTimer breakTimer = this.fop.getBreakTimer();
-		breakTimer.setTimeRemaining(durationMillis, false);
-		breakTimer.setBreakDuration(durationMillis);
-		breakTimer.setEnd(null);
-		this.fop.setCountdownType(CountdownType.DURATION);
-		post(new FOPEvent.BreakStarted(breakType, CountdownType.DURATION, durationMillis, null, false, this));
+		this.fop.startCountdown(breakType, durationMillis, this);
 	}
 
 	private void awaitCeremony(CeremonyType ceremony, long timeoutMillis) throws InterruptedException {
