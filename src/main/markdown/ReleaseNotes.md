@@ -11,6 +11,12 @@
 
 **Development log**
 
+- 69.0.0-beta06: A database last used with a version older than 69 starts with jury size 0 and video replays off.
+
+- 69.0.0-beta06: Weigh-in and registration forms
+  - Changing the snatch, the C&J or the entry total updates the 20 kg rule warning on all three fields.
+  - Enter saves on the first press when the value just typed clears the warning (for example, the C&J completing the 20 kg rule). Enter never accepts warnings.
+
 - 69.0.0-beta05: V2 database exports are signed, so changes made to the file after the export can be detected.
   - The signature uses the audit key. Without a configured key, the built-in key only shows that the file is intact, not who produced it. V1 exports are not signed.
   - Imports record in the audit log whether the file was signed, and with which key. Files are not refused for signature reasons; this is an integrity check for auditing.

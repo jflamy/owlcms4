@@ -33,7 +33,6 @@ import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.HasValue.ValueChangeEvent;
 import com.vaadin.flow.component.HasValue.ValueChangeListener;
 import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -222,10 +221,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		} else if (operation == CrudOperation.ADD) {
 			operationButton = buildOperationButton(CrudOperation.ADD, athlete, postOperationCallBack);
 		}
-		if (operationButton != null) {
-			operationButton.addClickShortcut(Key.ENTER);
-		}
-
 		Button deleteButton = buildDeleteButton(CrudOperation.DELETE, athlete, deleteButtonClickListener);
 		Button cancelButton = buildCancelButton(cancelButtonClickListener);
 		this.operationButton = operationButton;
@@ -274,10 +269,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		}
 		if (operationButton != null) {
 			footerLayout.add(operationButton);
-			if (operation == CrudOperation.UPDATE && shortcutEnter) {
-				ShortcutRegistration reg = operationButton.addClickShortcut(Key.ENTER);
-				reg.allowBrowserDefault();
-			}
+			footerLayout.add(buildEnterButton(operation, athlete, postOperationCallBack));
 		}
 		footerLayout.setFlexGrow(1.0, spacer);
 		return footerLayout;
@@ -656,6 +648,21 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		return bindingBuilder;
 	}
 
+	/**
+	 * Holds the Enter shortcut. The operation button is hidden while a warning is shown, and a shortcut on a hidden
+	 * button is ignored; the value typed before Enter (e.g. the C&J completing the 20 kg rule) only clears the warning
+	 * in that same round trip. This button is hidden by its style only, so its shortcut stays active: Enter attempts
+	 * the update with the current values, never accepts warnings, and a refused update shows them again.
+	 */
+	private Button buildEnterButton(CrudOperation operation, Athlete athlete,
+	        ComponentEventListener<ClickEvent<Button>> callBack) {
+		Button button = new Button();
+		button.getStyle().set("display", "none");
+		button.addClickListener(e -> performOperationAndCallback(operation, athlete, callBack, false));
+		button.addClickShortcut(Key.ENTER);
+		return button;
+	}
+
 	// same look as the athlete card "Accept Change" button
 	private Button buildAcceptWarningsButton(CrudOperation operation, Athlete athlete,
 	        ComponentEventListener<ClickEvent<Button>> callBack) {
@@ -722,7 +729,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		if (this.operationButton == null || this.acceptWarningsButton == null) {
 			return;
 		}
-		// the Enter shortcut belongs to the operation button and is inactive while it is hidden
+		// Enter stays active in warning mode (see buildEnterButton)
 		this.operationButton.setVisible(!warnings);
 		this.acceptWarningsButton.setVisible(warnings);
 		if (this.cancelButton != null) {
@@ -873,7 +880,9 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		textField.setValueChangeMode(ValueChangeMode.ON_CHANGE);
 		textField.setPattern("^(-?\\d+)|()$"); // optional minus and at least one digit, or empty.
 		textField.setAllowedCharPattern("[0-9-]");
-		textField.addValueChangeListener((e) -> {
+		// on the field itself, registered before the binding: the other two fields must be revalidated by the
+		// validation that this change triggers (a listener on the wrapped text field runs after it)
+		field.addValueChangeListener((e) -> {
 			if (!isChangeListenersEnabled()) {
 				return;
 			}
