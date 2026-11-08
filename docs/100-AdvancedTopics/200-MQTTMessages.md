@@ -40,12 +40,12 @@
    A referee has made a decision.  The jury devices shows the decision if it has the red/white LEDs.
    - `ref` is 1 2 or 3
     - `decision` is `good`, `bad` or `hidden`
-    - `hidden` is sent during the review vote of the seven-person Adjudication Panel, when the `panelVoteDeviceIndicators` feature switch is on: the referee has voted and the device shows a green LED; the actual `good` or `bad` is sent for each referee when the last of the seven votes is in.  Devices that do not know `hidden` must ignore it (Blue Owl devices need an updated firmware before `panelVoteDeviceIndicators` is turned on).
+    - `hidden` is sent during the review vote of the seven-person Adjudication Panel: the referee has voted and the device shows a green LED; the actual `good` or `bad` is sent for each referee when the last of the seven votes is in.  Devices that do not know `hidden` must ignore it (Blue Owl devices need an updated firmware).
 
 #### Subscribed by jury devices
 
 - `owlcms/fop/juryMemberDecision/A :juryMember :decision`: 
-   A jury member has made a decision.  Decisions are not shown until all jury members have voted The jury devices shows `hidden` as a green LED, and good/bad as white/red.  This message is emitted as hidden when the jury member votes, and on the last vote the message is emitted again with the actual decision. The last jury member to vote is not given `hidden`.
+   A jury member has made a decision.  Decisions are not shown until all jury members have voted The jury devices shows `hidden` as a green LED, and good/bad as white/red.  This message is emitted as `hidden` each time a jury member votes, including during the review vote of the seven-person Adjudication Panel.  When all jury members have voted, the message is emitted again for every member with the actual decision (during a review vote, when the result of the vote is known).
    A jury device may perform this processing autonomously and ignore these messages.
    - `juryMember ` is 1 2 3 4 or 5
     - `decision` is `hidden` `good` or `bad`

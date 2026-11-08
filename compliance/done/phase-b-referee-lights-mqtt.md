@@ -23,11 +23,11 @@ No new MQTT topic is introduced. Referee lights use the existing
 ## Timeline (VPT on)
 
 "Current box" = a blue-owl-core 1.4.0 or firmata jury box receiving the
-owlcms messages of the working tree, with the switch
-`panelVoteDeviceIndicators` **off** (the only safe setting for a blue-owl-core
-1.4.0 box; a firmata box ignores `hidden` on `fop/decision` and is safe either
-way). "Planned box" = after the updated blue-owl-core or the updated firmata jury
-workbooks are deployed and the switch is **on**. Where the two
+owlcms messages of the working tree (a firmata box ignores `hidden` on
+`fop/decision`; a blue-owl-core 1.4.0 box misreads it, see Compatibility).
+"Planned box" = after the updated blue-owl-core or the updated firmata jury
+workbooks are deployed. The former `panelVoteDeviceIndicators` switch has been
+removed: the green indicators are always sent. Where the two
 columns are identical the behaviour does not depend on the device update.
 
 | Step | owlcms MQTT messages | Physical jury box: current | Physical jury box: planned | Referee boxes | Jury Control page | Attempt board | Scoreboard decision block |
@@ -37,8 +37,8 @@ columns are identical the behaviour does not depend on the device update.
 | Phase A: 4th jury vote | `juryMemberDecision N good/bad` ×4 | 4 juror LEDs white/red | same | — | 4 circles revealed | 4 circles revealed | same |
 | 7-person majority opposes referees → automatic "Adjudication Panel Review" break | `summon 1,2,3` only (**no** `juryDeliberation`: the Phase A votes are kept) | all 7 LEDs keep the Phase A pattern until Call for Votes | same | summon beep | Phase A pattern kept; Call for Votes highlighted | "Adjudication Panel Review" + Phase A pattern | same |
 | Chair presses Call for Votes (or Summon all) | `resetDecisions`, `summon 1,2,3` | all 7 LEDs off | same | re-armed, buzz, "enter decision" | 7 cells empty; Call for Votes blue (restart) | 7 cells empty | same |
-| Each referee review vote | switch off: nothing. Switch on: `fop/decision N hidden` | **stays off** (firmata: ignored; blue-owl-core 1.4.0: wrong, see Compatibility) | referee LED **green** | current: no confirmation. Planned: same feedback as the initial vote | referee cell grey "voted" | referee cell grey "voted" | same |
-| Each jury review vote | switch off: nothing. Switch on: `juryMemberDecision N hidden` | **stays off** | juror LED **green** | — | juror cell grey "voted" | juror cell grey "voted" | same |
+| Each referee review vote | `fop/decision N hidden` | **stays off** (firmata: ignored; blue-owl-core 1.4.0: wrong, see Compatibility) | referee LED **green** | current: no confirmation. Planned: same feedback as the initial vote | referee cell grey "voted" | referee cell grey "voted" | same |
+| Each jury review vote | `juryMemberDecision N hidden` | **stays off** | juror LED **green** | — | juror cell grey "voted" | juror cell grey "voted" | same |
 | 7th vote cast (result known) | `fop/decision N good/bad` ×3, `juryMemberDecision N good/bad` ×4 | **all 7 LEDs white/red** (jury-private reveal, works on current devices) | same | own vote shown; no second confirmation | all 7 revealed, votes locked; result screen opens (Confirm Good Lift, or the rule dialog for a No Lift; Cancel vote result) | 7 grey "voted" until the Chair confirms (decided 2026-10-22; today all 7 are revealed here) | same as attempt board |
 | Good Lift: Chair confirms (Confirm Good Lift, or Good Lift on the jury box), decision applied (decided 2026-10-22; today automatic after 1.5 s) | `refereesDecision good` | unchanged | same | lights off (decision displayed) | result shown | 7 white/red + Good Lift card (5 s) | 7 white/red + "Good Lift" |
 | No Lift: Chair selects the rule, decision applied | `refereesDecision bad` | unchanged | same | lights off | result shown | 7 white/red + No Lift card with rule (5 s) | 7 white/red + "No Lift – rule" |
@@ -87,7 +87,7 @@ Translation rows for the new switches and the section are in
 |---|---|---|---|
 | Jury size 4 | 0 | Four-member jury. With VPT: the seven-person Adjudication Panel (7-person majority stops the competition, 7-person review vote). Without VPT: 4-member jury, unanimity rules (7.5.8), Call for Votes reopens the 4 jury votes only. Decision display held for the jury, Speaker never waits, rule shown with a No Lift. | implemented |
 | `automaticBreakNoVPT` | **off** | Without VPT only. When on, a unanimous jury opposite to the referees stops the competition automatically for a "Jury Deliberation" (same mechanics as the VPT automatic break, without summoning the referees). When off (TCRR 7.5.8: the deliberation is manual), the jury votes on the lift are only recorded; the Chair presses Jury Deliberation and Call for Votes by hand. Changes nothing else: the second vote, the rule, the reveal and the Resume behaviour are the same. | implemented |
-| `panelVoteDeviceIndicators` | **off** | Temporary. Gates only the physical green "vote received" LEDs during a Phase B vote: referee `fop/decision N hidden` and jury `juryMemberDecision N hidden`. Off: physical LEDs stay dark from Call for Votes to the 7th vote; Jury Control is the progress display. The red/white reveal at the 7th vote is not gated. Enable only after the updated blue-owl-core is deployed (blue-owl-core 1.4.0 misreads `hidden`; firmata ignores it harmlessly). | implemented |
+| `panelVoteDeviceIndicators` | — | Removed. The green "vote received" indicators are always sent during a Phase B vote: referee `fop/decision N hidden` (VPT only) and jury `juryMemberDecision N hidden`. Blue Owl devices need the updated blue-owl-core (1.4.0 misreads `hidden`); firmata ignores the referee `hidden`. | removed |
 | `juryDecisionsOnAttemptBoard` | off | Existing. Shows the jury circles on the attempt board and holds the decision display until the jury has voted (no time limit for a four-member jury). | existing |
 | `requireJuryPresidentDecision` | off | Former 3/5-member jury option, now removed: every jury vote result waits for the Jury Chair. | removed |
 | `noJuryAlphabeticalShortcuts` | off | Jury Control: when on, the letter shortcuts are not registered (D deliberation, C challenge, T technical, H/I/J/K summon, V Call for Votes), so a stray key on the Jury Control computer cannot start a break or summon the referees. The digit shortcuts used by USB jury keypads remain. Takes effect when the Jury Control page is (re)loaded. | implemented |
@@ -116,11 +116,11 @@ Status of the owlcms side (all in the working tree, not yet committed):
 | 2 | Jury-private reveal at the last vote: `FieldOfPlay.checkPanelVoteComplete` sets `panelVoteRevealed`, pushes the 7 votes, and `showJuryMemberDecisionsNow` reveals the jury circles on Jury Control. Without VPT the referees' initial decision is copied into the review votes at that point | `FieldOfPlay` | implemented |
 | 3 | Reveal at the 7th vote on all displays: `DecisionElementState` (attempt boards) and `Results` (scoreboard decision block) use `getVotes()` as soon as it is non-null. `doJuryDecision` sets `panelVotePubliclyRevealed` (`isPublicReveal()`), used by MQTT to avoid sending the referee lights twice | `FieldOfPlay`, `DecisionElementState`, `Results` | implemented |
 | 4 | MQTT reveal of the 3 referee lights at the last vote: `fop/decision N good/bad` via `publishMqttRefereeLight` (individual lights, not the collective `fop/refereesDecision`) | `MQTTMonitor.slavePanelVoteUpdate` | implemented |
-| 5 | MQTT green indicators, gated by `panelVoteDeviceIndicators`: `fop/decision N hidden` per referee review vote (VPT only); `juryMemberDecision N hidden` suppressed during a Phase B vote when the switch is off | `MQTTMonitor.slavePanelVoteUpdate`, `slaveJuryUpdate` | implemented, switch default off |
+| 5 | MQTT green indicators, always sent (the `panelVoteDeviceIndicators` switch was removed): `fop/decision N hidden` per referee review vote (VPT only); `juryMemberDecision N hidden` per jury vote | `MQTTMonitor.slavePanelVoteUpdate`, `slaveJuryUpdate` | implemented, switch default off |
 | 6 | Call for Votes publishes `resetDecisions` in both 4-member modes (clears and re-arms every device); `summon` only with VPT. No new topic | `MQTTMonitor.slavePanelVoteCalled` | implemented |
 | 6b | `juryDeliberation` / `challenge` are not published when the Phase A votes are kept for the review (`getPanelReviewInitialVotes() != null`): the devices clear their jury lights on those topics. Published as before for a manual deliberation or a challenge without VPT, where owlcms clears the votes too | `MQTTMonitor.slaveJuryNotification` | implemented |
 | 7 | Automatic `StartLifting` after the 3.5 s display does not clear the jury box; explicit Resume or the next clock start does (`JuryResume` → `JuryDisplayReset` → `resetDecisions`) | `FieldOfPlay.doJuryResume`, `MQTTMonitor` | implemented (committed in `530297387`) |
-| 8 | Feature switches `panelVoteDeviceIndicators` and `automaticBreakNoVPT` (USE_AT_YOUR_OWN_RISK) and their translation rows; see "Jury behaviour toggle switches" | `FeatureSwitch`, `shared/.../jury_behaviour_switches_translations.tsv` | implemented; TSV awaits import |
+| 8 | Feature switch `automaticBreakNoVPT` (USE_AT_YOUR_OWN_RISK; `panelVoteDeviceIndicators` was later removed) and their translation rows; see "Jury behaviour toggle switches" | `FeatureSwitch`, `shared/.../jury_behaviour_switches_translations.tsv` | implemented; TSV awaits import |
 | 8b | Without VPT, the automatic stop on a unanimous jury is gated by `automaticBreakNoVPT` (default off); otherwise the Chair starts the deliberation by hand | `FieldOfPlay.evaluatePanel` | implemented |
 | 9 | Tests: jury-private reveal at the 7th vote, public reveal only with the decision (Good Lift after grace, No Lift after the rule), Resume states | `SevenPersonAdjudicationTest` | implemented |
 | 10 | Tests for the MQTT messages themselves (`hidden` only with the switch, individual `good/bad` at the last vote, nothing for referees without VPT) | `MQTTMonitor` test with a stub publisher | **planned** |
@@ -232,18 +232,16 @@ reset timing, `resetDecisions`, summon and reveal behave as today.
 
 ## Compatibility
 
-`hidden` on `fop/decision` is only sent during a Phase B vote with VPT and
-`panelVoteDeviceIndicators` on. Keep the temporary switch off until physical
-devices are updated:
+`hidden` on `fop/decision` is only sent during a Phase B vote with VPT. It is
+always sent (the former `panelVoteDeviceIndicators` switch has been removed), so
+physical devices must be updated:
 
-| Switch | Device | Result during Phase B |
+| Indicators | Device | Result during Phase B |
 |---|---|---|
-| off | any | physical LEDs remain off while voting; Jury Control shows progress; physical red/white reveal occurs at the last vote |
 | on | firmata with the updated jury workbooks | green per referee/juror during the vote; red/white reveal at the last vote |
 | on | firmata with the previous jury workbooks | referee `hidden` ignored (LED dark), juror LEDs green; red/white reveal at the last vote |
 | on | blue-owl-core with the change | jury positions 1–4; green referee/jury LEDs; referee box feedback identical to the initial vote; red/white reveal at the last vote |
 | on | blue-owl-core 1.4.0 | **wrong**: jury box RGB referee LED red, separate-LED jury box throws, refbox shows a red / "bad" confirmation or throws (`confirmation-leds.ts`) |
 
 Release notes for owlcms and blue-owl-electron must state that Blue Owl
-devices need the updated blue-owl-core before
-`panelVoteDeviceIndicators` is enabled.
+devices need the updated blue-owl-core for the seven-person review vote.

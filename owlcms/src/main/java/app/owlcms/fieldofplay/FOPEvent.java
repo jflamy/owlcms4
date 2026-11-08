@@ -603,6 +603,27 @@ public class FOPEvent {
 			this.decision = decision;
 		}
 
+		// members vote at the same moment from the same origin: the member and the vote tell the events apart
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (!super.equals(obj) || (getClass() != obj.getClass())) {
+				return false;
+			}
+			JuryMemberDecisionUpdate other = (JuryMemberDecisionUpdate) obj;
+			return this.decision == other.decision && this.refIndex == other.refIndex;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			result = prime * result + Objects.hash(this.decision, this.refIndex);
+			return result;
+		}
+
 	}
 
 	/**

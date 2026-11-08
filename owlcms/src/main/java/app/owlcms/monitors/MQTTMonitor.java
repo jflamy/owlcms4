@@ -46,7 +46,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
-import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.PlatformRepository;
@@ -1388,11 +1387,6 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	public void slaveJuryUpdate(UIEvent.JuryUpdate e) {
 		if (e.getCollective() == null) {
 			// individual decision hidden
-			FieldOfPlay eventFop = e.getFop();
-			if (eventFop != null && eventFop.isPanelVoteOpen()
-			        && !FeatureSwitch.PANEL_VOTE_DEVICE_INDICATORS.isEffective()) {
-				return;
-			}
 			publishMqttJuryMemberDecision(e.getJuryMemberUpdated());
 		} else {
 			Boolean[] decisions = e.getJuryMemberDecision();
@@ -1488,8 +1482,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	public void slavePanelVoteUpdate(UIEvent.PanelVoteUpdate e) {
 		FieldOfPlay eventFop = e.getFop();
 		Integer refereeUpdated = e.getRefereeUpdated();
-		if (eventFop != null && eventFop.isPanelProcedure() && e.isOpen() && refereeUpdated != null
-		        && FeatureSwitch.PANEL_VOTE_DEVICE_INDICATORS.isEffective()) {
+		if (eventFop != null && eventFop.isPanelProcedure() && e.isOpen() && refereeUpdated != null) {
 			publishMqttRefereeLight(refereeUpdated + 1, "hidden");
 		}
 		if (eventFop != null && eventFop.hasJuryReviewVote() && e.isComplete() && !e.isPublicReveal()) {

@@ -53,7 +53,6 @@ public enum FeatureSwitch {
     JURY_DECISIONS_ON_ATTEMPT_BOARD("juryDecisionsOnAttemptBoard", FeatureSwitchSection.JURY_OPTIONS, true),
     JURY_DECISIONS_ON_SCOREBOARD("juryDecisionsOnScoreboard", FeatureSwitchSection.JURY_OPTIONS, true),
     AUTOMATIC_BREAK_NO_VPT("automaticBreakNoVPT", FeatureSwitchSection.JURY_OPTIONS),
-    PANEL_VOTE_DEVICE_INDICATORS("panelVoteDeviceIndicators", FeatureSwitchSection.JURY_OPTIONS),
     NO_JURY_ALPHABETICAL_SHORTCUTS("noJuryAlphabeticalShortcuts", FeatureSwitchSection.JURY_OPTIONS),
 
     MANUAL_START_NUMBERS("manualStartNumbers", FeatureSwitchSection.GENERAL_OPTIONS),
