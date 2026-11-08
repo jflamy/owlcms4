@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -75,6 +76,7 @@ import app.owlcms.access.AccessUi;
 import app.owlcms.access.Principal;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.audit.AuditOrigin;
+import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.components.fields.LocalizedIntegerField;
@@ -94,6 +96,7 @@ import app.owlcms.data.athlete.RuleViolationException;
 import app.owlcms.data.athlete.RegistrationEditCheck;
 import app.owlcms.data.athlete.RegistrationTabPolicy;
 import app.owlcms.data.athlete.RegistrationTabPolicy.CardEntry;
+import app.owlcms.nui.shared.AthleteMetadataForm.EmbeddedEditor;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.RegistrationQtHelper;
@@ -179,6 +182,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	private boolean keepOpen;
 	private boolean cardSelected;
 	private Opening metadataOpening;
+	private Map<HasValue<?, ?>, Object> registrationFieldBaseline = Map.of();
+	private BooleanSupplier hasIndependentDraftChanges = () -> false;
 
 	public NAthleteRegistrationFormFactory(Class<Athlete> domainType, Group group,
 	        NextAthleteAble parentGrid) {
@@ -333,8 +338,12 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		        AthleteMetadataEdit.normalize(AthleteMetadata.from(getEditedAthlete())),
 		        getEditedAthlete().getMetadataUpdatedAt());
 		this.cardSelected = false;
+		this.hasIndependentDraftChanges = () -> false;
 		this.fieldToBinding.clear();
 		this.cancelListener = cancelButtonClickListener;
+		if (this.cardOrigin != null) {
+			this.cardOrigin.setDialogCloseAction(() -> closeImplicitly(this.cardOrigin));
+		}
 		boolean existingAthlete = operation == CrudOperation.UPDATE;
 		RegistrationTabPolicy.Layout layout = existingAthlete
 		        ? RegistrationTabPolicy.choose(this.cardEntry, getEditedAthlete())
@@ -374,6 +383,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		// binder has read bean.
 		filterCategories(getEditedAthlete().getCategory(), operation != CrudOperation.ADD);
+		captureRegistrationFieldBaseline();
+		this.hasIndependentDraftChanges = this::hasRegistrationFieldChanges;
 		applyEditingAccess();
 
 		setFocus(form);
@@ -472,6 +483,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				if (this.keepOpen) {
 					setEditedAthlete(result.athlete());
 					this.binder.readBean(result.athlete());
+					captureRegistrationFieldBaseline();
 					applyEditingAccess();
 					NotificationUtils.saved();
 					refreshGridBehind();
@@ -1227,11 +1239,16 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		        .set("margin-top", "var(--lumo-space-m)").set("overflow", "auto");
 		FlexLayout mainLayout = new FlexLayout(tabs, panels);
 		this.saveTask = new FormSaveTask(mainLayout);
-		Component information = layout.cardTab()
-		        ? AthleteMetadataForm.createEmbedded(getEditedAthlete(), () -> cancelListener.onComponentEvent(null),
-		                this::refreshGridBehind, readOnly, this.saveTask)
-		        : AthleteMetadataForm.create(getEditedAthlete(), () -> cancelListener.onComponentEvent(null),
-		                () -> doneListener.onComponentEvent(null), readOnly);
+		Component information;
+		if (layout.cardTab()) {
+			EmbeddedEditor editor = AthleteMetadataForm.createEmbedded(getEditedAthlete(),
+			        () -> cancelListener.onComponentEvent(null), this::refreshGridBehind, readOnly, this.saveTask);
+			information = editor.component();
+			this.hasIndependentDraftChanges = editor.hasChanges();
+		} else {
+			information = AthleteMetadataForm.create(getEditedAthlete(), () -> cancelListener.onComponentEvent(null),
+			        () -> doneListener.onComponentEvent(null), readOnly);
+		}
 		linkRestrictedPanel(informationTab, information);
 		if (layout.cardTab()) {
 			// Zero intrinsic width, then stretched: the Card alone sets the column width, so the panel never widens the dialog.
@@ -1366,6 +1383,28 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		}
 	}
 
+	private void captureRegistrationFieldBaseline() {
+		Map<HasValue<?, ?>, Object> baseline = new LinkedHashMap<>();
+		this.binder.getFields().forEach(field -> baseline.put(field, snapshotFieldValue(field.getValue())));
+		this.registrationFieldBaseline = baseline;
+	}
+
+	private boolean hasRegistrationFieldChanges() {
+		return this.binder.getFields()
+		        .anyMatch(field -> !Objects.equals(this.registrationFieldBaseline.get(field),
+		                snapshotFieldValue(field.getValue())));
+	}
+
+	private Object snapshotFieldValue(Object value) {
+		if (value instanceof Set<?> set) {
+			return new LinkedHashSet<>(set);
+		}
+		if (value instanceof Collection<?> collection) {
+			return new ArrayList<>(collection);
+		}
+		return value;
+	}
+
 	private AthleteCardFormFactory openCard(Div container, Long athleteId, AtomicReference<AthleteCardFormFactory> card,
 	        boolean readOnly, boolean allowInProgress) {
 		try {
@@ -1404,9 +1443,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			};
 			Runnable saved = () -> {
 				refreshGridBehind();
-				if (this.resultsEntry && page != null) {
-					page.closeDialog();
-				}
+				closeAfterCardSave(page);
 			};
 			AthleteCardFormFactory cardFactory = new AthleteCardFormFactory(Athlete.class, origin)
 			        .setResultsUnlocked(page instanceof AnnouncerContent)
@@ -1417,6 +1454,41 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		} catch (RuntimeException e) {
 			NotificationUtils.unexpectedError(logger, e, null, athleteId);
 			throw e;
+		}
+	}
+
+	private void closeAfterCardSave(IAthleteEditing page) {
+		if (!this.hasIndependentDraftChanges.getAsBoolean()) {
+			closeSharedEditor(page);
+			return;
+		}
+		confirmDiscardChanges(page, "Athlete.CardSavedUnsavedChanges.Message");
+	}
+
+	private void closeImplicitly(IAthleteEditing page) {
+		if (!this.hasIndependentDraftChanges.getAsBoolean()) {
+			closeSharedEditor(page);
+			return;
+		}
+		confirmDiscardChanges(page, "Athlete.UnsavedChanges.ExitMessage");
+	}
+
+	private void confirmDiscardChanges(IAthleteEditing page, String messageKey) {
+		new ConfirmationDialog(
+		        Translator.translate("Athlete.CardSavedUnsavedChanges.Title"),
+		        Translator.translate(messageKey),
+		        Translator.translate("Athlete.CardSavedUnsavedChanges.Discard"),
+		        Translator.translate("Athlete.CardSavedUnsavedChanges.Continue"),
+		        null,
+		        () -> closeSharedEditor(page))
+		        .open();
+	}
+
+	private void closeSharedEditor(IAthleteEditing page) {
+		if (page != null) {
+			page.closeDialog();
+		} else if (this.cancelListener != null) {
+			this.cancelListener.onComponentEvent(null);
 		}
 	}
 

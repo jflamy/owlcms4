@@ -9,6 +9,8 @@ package app.owlcms.nui.shared;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +56,9 @@ public final class AthleteMetadataForm {
 
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(AthleteMetadataForm.class);
 
+	public record EmbeddedEditor(Component component, BooleanSupplier hasChanges) {
+	}
+
 	private AthleteMetadataForm() {
 	}
 
@@ -67,16 +72,16 @@ public final class AthleteMetadataForm {
 	}
 
 	public static Component create(Athlete stored, Runnable cancel, Runnable saved, boolean readOnly) {
-		return create(stored, cancel, saved, readOnly, null);
+		return createEditor(stored, cancel, saved, readOnly, null).component();
 	}
 
 	/** Shares the owning editor's save lock and keeps both drafts open after an information save. */
-	public static Component createEmbedded(Athlete stored, Runnable cancel, Runnable saved, boolean readOnly,
+	public static EmbeddedEditor createEmbedded(Athlete stored, Runnable cancel, Runnable saved, boolean readOnly,
 	        FormSaveTask task) {
-		return create(stored, cancel, saved, readOnly, task);
+		return createEditor(stored, cancel, saved, readOnly, task);
 	}
 
-	private static Component create(Athlete stored, Runnable cancel, Runnable saved, boolean readOnly,
+	private static EmbeddedEditor createEditor(Athlete stored, Runnable cancel, Runnable saved, boolean readOnly,
 	        FormSaveTask sharedTask) {
 		Principal editor = AccessUi.currentPrincipal();
 		boolean editable = !readOnly && AthleteEditAccess.metadata(editor);
@@ -117,6 +122,8 @@ public final class AthleteMetadataForm {
 		eligibility.setAllowCustomValue(false);
 		eligibility.setValue(initial.individualEligibilityStatus());
 		eligibility.setWidthFull();
+		Supplier<AthleteMetadata> currentValues = () -> AthleteMetadataEdit.fromForm(firstName.getValue(),
+		        lastName.getValue(), team.getValue(), federationCodes.getValue(), eligibility.getValue());
 
 		FormLayout layout = new FormLayout();
 		layout.setResponsiveSteps(new ResponsiveStep("0", 1));
@@ -145,8 +152,7 @@ public final class AthleteMetadataForm {
 				eligibility.setErrorMessage(Translator.translate("ThisFieldIsRequired"));
 				return;
 			}
-			AthleteMetadata values = AthleteMetadataEdit.fromForm(firstName.getValue(), lastName.getValue(),
-			        team.getValue(), federationCodes.getValue(), eligibility.getValue());
+			AthleteMetadata values = currentValues.get();
 			if (values.equals(submitted.values())) {
 				if (!keepOpen) {
 					cancel.run();
@@ -189,6 +195,6 @@ public final class AthleteMetadataForm {
 		if (!keepOpen) {
 			content.addAttachListener(e -> lastName.focus());
 		}
-		return content;
+		return new EmbeddedEditor(content, () -> !currentValues.get().equals(baseline.get().values()));
 	}
 }

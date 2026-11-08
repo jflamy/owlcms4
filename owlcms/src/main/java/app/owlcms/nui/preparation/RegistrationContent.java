@@ -85,6 +85,7 @@ import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.results.IFilterCascade;
 import app.owlcms.nui.shared.NAthleteRegistrationFormFactory;
+import app.owlcms.nui.shared.IAthleteEditing;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCategoriesListDocs;
@@ -105,7 +106,8 @@ import ch.qos.logback.classic.Logger;
 @RequiresPermission(Permission.REGISTRATION)
 @Route(value = "preparation/athletes", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/shared-styles.css")
-public class RegistrationContent extends BaseContent implements CrudListener<Athlete>, OwlcmsContent, IFilterCascade {
+public class RegistrationContent extends BaseContent
+        implements CrudListener<Athlete>, OwlcmsContent, IFilterCascade, IAthleteEditing {
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationContent.class);
 	static {
@@ -314,6 +316,27 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	@Override
 	public OwlcmsCrudGrid<Athlete> getCrudGrid() {
 		return this.crudGrid;
+	}
+
+	@Override
+	public OwlcmsCrudGrid<?> getEditingGrid() {
+		return this.crudGrid;
+	}
+
+	@Override
+	public void closeDialog() {
+		this.crudGrid.getCrudLayout().hideForm();
+		this.crudGrid.getGrid().asSingleSelect().clear();
+	}
+
+	@Override
+	public void setDialogCloseOnOutsideClick(boolean closeOnOutsideClick) {
+		this.crudGrid.getOwlcmsGridLayout().setDialogCloseOnOutsideClick(closeOnOutsideClick);
+	}
+
+	@Override
+	public void setDialogCloseAction(Runnable closeAction) {
+		this.crudGrid.getOwlcmsGridLayout().setDialogCloseAction(closeAction);
 	}
 
 	@Override
@@ -648,7 +671,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	 */
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
 		this.athleteEditingFormFactory = new NAthleteRegistrationFormFactory(Athlete.class,
-		        getGroup(), null).setCardEntry(CardEntry.AVAILABLE, null);
+		        getGroup(), null).setCardEntry(CardEntry.AVAILABLE, this);
 		// createFormLayout(athleteEditingFormFactory);
 		return this.athleteEditingFormFactory;
 	}

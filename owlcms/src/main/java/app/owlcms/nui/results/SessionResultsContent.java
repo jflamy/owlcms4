@@ -402,7 +402,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 			// most recently finished session when no session is active, instead of
 			// showing hundreds of athletes at the end of each of the groups
 			// (which has a noticeable impact on slower machines)
-			List<Group> groups = startedResultGroups();
+			List<Group> groups = resultGroups();
 			groups = SessionResultsGroupSelectionMenu.sortedGroups(groups, OwlcmsFactory.getFOPs());
 			this.setCurrentGroup((groups.size() > 0 ? groups.get(0) : null));
 		}
@@ -466,7 +466,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		// hidden field in the crudGrid part of the page so we just set that
 		// filter.
 
-		List<Group> groups = startedResultGroups();
+		List<Group> groups = resultGroups();
 
 		OwlcmsSession.withFop(fop -> {
 			// logger.debug("top bar setting group to {} {}", this.getCurrentGroup(), LoggerUtils.whereFrom());
@@ -481,10 +481,8 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		});
 	}
 
-	private static List<Group> startedResultGroups() {
-		return GroupRepository.findAll().stream()
-		        .filter(group -> group.getNbAttemptedLifts() > 0)
-		        .collect(Collectors.toList());
+	private static List<Group> resultGroups() {
+		return GroupRepository.findAll().stream().collect(Collectors.toList());
 	}
 
 	/**
@@ -497,7 +495,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		// logger.debug("defineFilters {} - {}\n{}", getGroup(), currentGroup,LoggerUtils.stackTrace());
 
 		getGroupFilter().setPlaceholder(Translator.translate("Group"));
-		List<Group> groups = startedResultGroups();
+		List<Group> groups = resultGroups();
 		groups.sort(new NaturalOrderComparator<>());
 		getGroupFilter().setItems(groups);
 		getGroupFilter().setValue(this.currentGroup);
