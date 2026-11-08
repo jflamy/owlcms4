@@ -337,6 +337,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 		triggeringItem = domainObject;
 
 		OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory = (OwlcmsCrudFormFactory<T>) this.getCrudFormFactory();
+		owlcmsCrudFormFactory.setGridRefresher(this::refreshGrid);
 		Component form = owlcmsCrudFormFactory.buildNewForm(operation, domainObject, readOnly,
 		        cancelButtonClickEvent -> {
 			        cancelCallback();

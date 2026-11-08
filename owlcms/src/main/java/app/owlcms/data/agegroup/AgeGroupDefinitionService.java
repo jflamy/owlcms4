@@ -37,6 +37,7 @@ import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.jpa.JpaTransactions;
 import app.owlcms.data.jpa.SingletonSaves;
 import app.owlcms.data.jpa.StaleSingletonException;
 import app.owlcms.data.jpa.StaleSingletonException.Kind;
@@ -173,7 +174,7 @@ public class AgeGroupDefinitionService {
 		boolean[] created = new boolean[1];
 		List<Map<String, Object>> added = new ArrayList<>();
 		synchronized (SingletonSaves.LOCK) {
-			SingletonSaves.inTransaction(em -> {
+			JpaTransactions.inTransaction(em -> {
 				added.clear();
 				if (AgeGroupRepository.hasDuplicateCodeGender(scratch, em)) {
 					throw new IllegalArgumentException(
@@ -228,7 +229,7 @@ public class AgeGroupDefinitionService {
 	/** Delete an age group: athletes reassigned as in the dry run, then the group and its categories removed, one transaction. */
 	public SaveOutcome delete(Long draftStamp, AuditOrigin origin, Long ageGroupId) {
 		AgeGroupRepository.assertCurrent(ageGroupId, draftStamp);
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			AgeGroup stored = SingletonSaves.findFresh(em, AgeGroup.class, ageGroupId);
 			if (stored != null) {
 				assertNoSessionConflict(em, List.of(stored.getChampionshipName()));
@@ -263,7 +264,7 @@ public class AgeGroupDefinitionService {
 		List<Map<String, Object>> before = new ArrayList<>();
 		List<Map<String, Object>> after = new ArrayList<>();
 		synchronized (SingletonSaves.LOCK) {
-			SingletonSaves.inTransaction(em -> {
+			JpaTransactions.inTransaction(em -> {
 				before.clear();
 				after.clear();
 				List<AgeGroup> rows = new ArrayList<>();
@@ -324,7 +325,7 @@ public class AgeGroupDefinitionService {
 
 	/** Read-only preflight for the UI: refuse if the change can touch an athlete of a session in progress. */
 	public static void assertNoSessionConflict(Collection<String> championshipNames) {
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			assertNoSessionConflict(em, championshipNames);
 			return null;
 		});
@@ -390,7 +391,7 @@ public class AgeGroupDefinitionService {
 
 	/** Read-only preflight: classify against a fresh row and check the session guard before the dialog flow. */
 	private void preflight(Long id, Long draftStamp, AgeGroup scratch) {
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			AgeGroup stored = SingletonSaves.findFresh(em, AgeGroup.class, id);
 			AgeGroupChange.Kind kind = AgeGroupChange.classify(stored, scratch);
 			assertNoSessionConflict(em, affectedChampionships(stored, scratch, kind));
@@ -597,7 +598,7 @@ public class AgeGroupDefinitionService {
 	private SaveOutcome globalReassign(AuditOrigin origin, Mode mode) {
 		List<AthleteAudit.Changed> reassigned = new ArrayList<>();
 		synchronized (SingletonSaves.LOCK) {
-			SingletonSaves.inTransaction(em -> {
+			JpaTransactions.inTransaction(em -> {
 				reassigned.clear();
 				if (mode == Mode.ALL) {
 					assertNoAthleteInStartedSession(em);
@@ -658,7 +659,7 @@ public class AgeGroupDefinitionService {
 
 	/** A read-compute-discard transaction for dry runs: never commits, so nothing is written or bootstrapped. */
 	private static <T> T inRollbackPreview(Function<EntityManager, T> work) {
-		return SingletonSaves.inRollbackOnlyTransaction(work);
+		return JpaTransactions.inRollbackOnlyTransaction(work);
 	}
 
 	private static void afterStep(int step) {
@@ -686,7 +687,7 @@ public class AgeGroupDefinitionService {
 		}
 		runRefresh(failures, "participantCounts", Championship::recomputeParticipantCounts);
 		runRefresh(failures, "bestAthleteRanks",
-		        () -> SingletonSaves.inTransaction(em -> {
+		        () -> JpaTransactions.inTransaction(em -> {
 			        BestAthleteRankingService.recomputeAll(em);
 			        return null;
 		        }));

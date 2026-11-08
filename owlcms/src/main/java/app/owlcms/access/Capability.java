@@ -12,6 +12,8 @@ public enum Capability {
 	AUDIT_KEYS(Set.of(Permission.ADMIN_PAGES), false),
 	/** Registration, SBDE and database imports; see {@link ImportGate}. */
 	IMPORT_DATA(Set.of(Permission.IMPORT), false),
+	METADATA_EDITING(Set.of(Permission.METADATA_EDITING), false),
+	ATHLETE_CARD_EDITING(Set.of(Permission.ATHLETE_CARD_EDITING), true),
 	/**
 	 * Database (JSON) and SBDE exports, and the export and H2 backup URLs: the Results, Competition Director,
 	 * Competition Supervisor and External roles, admin.

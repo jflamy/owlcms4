@@ -1485,6 +1485,10 @@ public class UIEvent {
 			return this.notificationString;
 		}
 
+		public String getTitle() {
+			return this.title;
+		}
+
 		public boolean isNewRecord() {
 			return this.newRecord;
 		}

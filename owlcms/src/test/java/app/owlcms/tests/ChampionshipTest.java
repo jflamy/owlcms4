@@ -51,6 +51,7 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.Main;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
@@ -59,6 +60,7 @@ import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.agegroup.MedalPolicy;
 import app.owlcms.data.agegroup.TeamPointsPolicy;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteMetadata;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.Gender;
@@ -1307,6 +1309,49 @@ public class ChampionshipTest {
                     persistedBestAthleteRank(fixture.seniorParticipation));
             assertEquals("a metadata-only save must preserve all official ranks",
                     before, snapshotBestAthleteRanks());
+        }
+    }
+
+    @Test
+    public void testMetadataEligibilitySaveReranksAffectedChampionships() {
+        try (LiveBestAthleteFixture fixture = new LiveBestAthleteFixture(400)) {
+            Athlete lifter = AthleteRepository.findById(fixture.juniorAthleteId);
+            lifter.setValidation(false);
+            lifter.setCleanJerk3ActualLift("1000");
+            lifter = AthleteRepository.save(lifter);
+            assertEquals(1, persistedBestAthleteRank(fixture.juniorSeniorParticipation));
+            assertEquals(1, persistedBestAthleteRank(fixture.juniorParticipation));
+            int otherSessionRank = persistedBestAthleteRank(fixture.seniorParticipation);
+            List<String> lifts = BestAthleteRankingService.inputs(lifter).lifts();
+            AthleteMetadata original = AthleteMetadata.from(lifter);
+            AthleteMetadata excluded = new AthleteMetadata(original.firstName(), original.lastName(), original.team(),
+                    original.federationCodes(), false, EligibleForIndividualRankingStatus.OOC_INVITED);
+            AuditOrigin origin = AuditOrigin.system("metadata eligibility regression");
+
+            var result = AthleteRepository.saveMetadata(lifter.getId(), excluded, lifter.getMetadataUpdatedAt(),
+                    origin);
+
+            assertTrue(result.saved());
+            assertEquals(-1, persistedBestAthleteRank(fixture.juniorSeniorParticipation));
+            assertEquals(-1, persistedBestAthleteRank(fixture.juniorParticipation));
+            assertEquals("the competitor in another session moves up when the leader is excluded",
+                    otherSessionRank - 1, persistedBestAthleteRank(fixture.seniorParticipation));
+            Athlete reloaded = AthleteRepository.findById(lifter.getId());
+            assertEquals(EligibleForIndividualRankingStatus.OOC_INVITED, reloaded.getIndividualEligibilityStatus());
+            assertFalse(reloaded.isEligibleForIndividualRanking());
+            assertEquals("metadata editing must not change lifts", lifts,
+                    BestAthleteRankingService.inputs(reloaded).lifts());
+
+            var restored = AthleteRepository.saveMetadata(lifter.getId(), original,
+                    reloaded.getMetadataUpdatedAt(), origin);
+
+            assertTrue(restored.saved());
+            assertTrue(restored.athlete().getMetadataUpdatedAt() > reloaded.getMetadataUpdatedAt());
+            assertEquals(1, persistedBestAthleteRank(fixture.juniorSeniorParticipation));
+            assertEquals(1, persistedBestAthleteRank(fixture.juniorParticipation));
+            assertEquals(otherSessionRank, persistedBestAthleteRank(fixture.seniorParticipation));
+            assertEquals(lifts, BestAthleteRankingService.inputs(
+                    AthleteRepository.findById(lifter.getId())).lifts());
         }
     }
 

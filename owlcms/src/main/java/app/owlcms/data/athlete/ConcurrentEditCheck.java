@@ -14,24 +14,25 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import app.owlcms.audit.AthleteDiff;
 import app.owlcms.audit.AthleteDiff.Snapshot;
+import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.init.OwlcmsFactory;
 
 /**
  * Detects that saving an athlete card would overwrite changes saved by someone else (another card, or the field of
  * play) since the card was opened.
  *
- * The card writes back every field of the copy it loaded when opened, so any change made in between would be silently
- * lost. The card keeps one instance per opening and checks and saves under its platform's monitor.
+ * The card keeps one instance per opening and checks and saves its own editable inputs under its platform's monitor.
  */
 public final class ConcurrentEditCheck {
 
 	/**
-	 * Fields the card writes back from its copy, i.e. those transferred by
-	 * {@link Athlete#conditionalCopy(Athlete, Athlete, boolean, boolean, boolean)}. Automatic progressions are left out
-	 * since they are computed from the previous lift.
+	 * Inputs copied by {@link AthleteCardValues}. Registration fields and adjudication evidence are preserved from
+	 * current stored state, and automatic progressions are computed from previous lifts.
 	 */
 	public static final Set<String> FIELDS = cardFields();
 
@@ -63,7 +64,6 @@ public final class ConcurrentEditCheck {
 			values.put("coach", athlete.getCoach());
 			values.put("custom1", athlete.getCustom1());
 			values.put("custom2", athlete.getCustom2());
-			values.put("federationCodes", athlete.getFederationCodes());
 			values.put("customScore", athlete.getCustomScore());
 		}
 		values.keySet().retainAll(FIELDS);
@@ -102,19 +102,34 @@ public final class ConcurrentEditCheck {
 	}
 
 	/**
+	 * Resolve the owning platform at each save attempt, including Save anyway. A card opened from registration has
+	 * no UI-origin FOP, but must still check, save and notify under the platform holding its session.
+	 */
+	public SaveAttempt trySave(Athlete formValues, Snapshot accepted, BooleanSupplier active,
+	        Consumer<FieldOfPlay> save) {
+		if (!active.getAsBoolean()) {
+			return new SaveAttempt(null, List.of(), false);
+		}
+		Athlete current = loadCurrent();
+		FieldOfPlay fop = OwlcmsFactory.getFOPWithGroup(current.getGroup());
+		Object monitor = fop != null ? fop : ConcurrentEditCheck.class;
+		return trySave(monitor, formValues, accepted, active, () -> {
+			if (OwlcmsFactory.getFOPWithGroup(current.getGroup()) != fop) {
+				throw new IllegalStateException("Platform selection changed while saving athlete " + this.athleteId);
+			}
+			save.accept(fop);
+		});
+	}
+
+	/**
 	 * The save callback contains persistence/FOP work only, and returns after the database commit.
 	 * No UI work or user confirmation may run under the monitor.
 	 */
 	public SaveAttempt trySave(Object monitor, Athlete formValues, Snapshot accepted, BooleanSupplier active,
 	        Runnable save) {
 		Snapshot reference = accepted != null ? accepted : this.baseline;
-		SaveAttempt result = trySave(monitor, reference, snapshot(formValues), () -> {
-			Athlete current = AthleteRepository.findById(this.athleteId);
-			if (current == null) {
-				throw new IllegalStateException("Athlete no longer exists: " + this.athleteId);
-			}
-			return snapshot(current);
-		}, active, save);
+		SaveAttempt result = trySave(monitor, reference, snapshot(formValues), () -> snapshot(loadCurrent()),
+		        active, save);
 		if (result.saved()) {
 			this.baseline = snapshot(formValues);
 		} else if (accepted != null && !result.conflicts().isEmpty()) {
@@ -130,6 +145,14 @@ public final class ConcurrentEditCheck {
 			return new SaveAttempt(result.current(), List.copyOf(displayed.values()), false);
 		}
 		return result;
+	}
+
+	private Athlete loadCurrent() {
+		Athlete current = AthleteRepository.findById(this.athleteId);
+		if (current == null) {
+			throw new IllegalStateException("Athlete no longer exists: " + this.athleteId);
+		}
+		return current;
 	}
 
 	static SaveAttempt trySave(Object monitor, Snapshot reference, Snapshot formValues, Supplier<Snapshot> load,
@@ -153,9 +176,7 @@ public final class ConcurrentEditCheck {
 	}
 
 	private static Set<String> cardFields() {
-		Set<String> fields = new HashSet<>(Set.of("lastName", "firstName", "birthDate", "birthYear", "session",
-		        "category", "startNumber", "lotNumber", "entryTotal", "bodyWeight", "forcedAsCurrent", "coach",
-		        "custom1", "custom2", "federationCodes", "customScore"));
+		Set<String> fields = new HashSet<>(Set.of("forcedAsCurrent", "customScore"));
 		for (String attempt : List.of("snatch1", "snatch2", "snatch3", "cleanJerk1", "cleanJerk2", "cleanJerk3")) {
 			for (String part : List.of("declaration", "change1", "change2", "actualLift")) {
 				fields.add(attempt + "." + part);

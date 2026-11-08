@@ -9,6 +9,7 @@ package app.owlcms.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -25,16 +26,21 @@ import org.junit.Test;
 import com.google.common.eventbus.Subscribe;
 
 import app.owlcms.Main;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteMetadata;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.data.records.RecordEvent;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.MockFieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
@@ -115,6 +121,151 @@ public class DecisionEventAthleteTest {
         assertDecisionAbout(recorder, fop, lifter);
     }
 
+    @Test
+    public void announcerDecisionKeepsMetadataCorrectedWhileThePlatformHeldTheOldCopy() throws InterruptedException {
+        FieldOfPlay fop = startFop(false);
+        DecisionRecorder recorder = new DecisionRecorder(fop);
+        Athlete lifter = fop.getCurAthlete();
+        Corrected corrected = correctMetadata(lifter);
+
+        fop.fopEventPost(new FOPEvent.ExplicitDecision(lifter, this, true, true, true, true));
+
+        assertTrue("no Decision event", recorder.await());
+        assertCorrectedAndLifted(lifter, corrected);
+    }
+
+    @Test
+    public void refereeDecisionKeepsMetadataCorrectedWhileThePlatformHeldTheOldCopy() throws InterruptedException {
+        FieldOfPlay fop = startFop(false);
+        DecisionRecorder recorder = new DecisionRecorder(fop);
+        Athlete lifter = fop.getCurAthlete();
+        Corrected corrected = correctMetadata(lifter);
+
+        refereesGiveGoodLift(fop);
+
+        assertTrue("no Decision event", recorder.await());
+        assertCorrectedAndLifted(lifter, corrected);
+    }
+
+    @Test
+    public void delayedRecordNotificationKeepsTheDecidedAthleteAndRecords() throws InterruptedException {
+        checkDelayedRecordNotification(false);
+    }
+
+    @Test
+    public void delayedRecordNotificationSurvivesTheNextDecisionClearingItsEvidence() throws InterruptedException {
+        checkDelayedRecordNotification(true);
+    }
+
+    @Test
+    public void delayedJuryRecordNotificationSurvivesTheNextClockStart() throws InterruptedException {
+        FieldOfPlay fop = startFop(false);
+        RecordNotificationRecorder recorder = new RecordNotificationRecorder(fop);
+        Athlete lifter = fop.getCurAthlete();
+        String nameAtDecision = lifter.getFullName();
+        fop.setChallengedRecords(List.of(record("National")));
+        fop.fopEventPost(new FOPEvent.ExplicitDecision(lifter, this, true, false, false, false));
+        assertEquals(lifter, fop.getAthleteUnderReview());
+        assertEquals(1, fop.getLastChallengedRecords().size());
+
+        fop.setDecisionTimingForTests(0, 0, 1000, 0, 0);
+        fop.setTestingMode(false);
+        fop.fopEventPost(new FOPEvent.JuryDecision(lifter, this, true, true));
+        fop.setTestingMode(true);
+        fop.fopEventPost(new FOPEvent.StartLifting(this));
+        fop.fopEventPost(new FOPEvent.TimeStarted(this));
+
+        assertNotEquals(lifter, fop.getCurAthlete());
+        assertTrue("the next clock clears the jury record evidence", fop.getLastChallengedRecords().isEmpty());
+        assertNull("the notification must still be pending", recorder.notification.get());
+        assertRecordNotification(recorder, lifter, nameAtDecision);
+    }
+
+    private void checkDelayedRecordNotification(boolean nextDecision) throws InterruptedException {
+        FieldOfPlay fop = startFop(false);
+        DecisionRecorder decisions = new DecisionRecorder(fop);
+        RecordNotificationRecorder recorder = new RecordNotificationRecorder(fop);
+        Athlete lifter = fop.getCurAthlete();
+        String nameAtDecision = lifter.getFullName();
+        fop.setChallengedRecords(List.of(record("National")));
+        fop.setDecisionTimingForTests(0, 0, 0, 0, 1000);
+        fop.setTestingMode(false);
+        fop.fopEventPost(new FOPEvent.ExplicitDecision(lifter, this, true, true, true, true));
+        assertTrue("no Decision event", decisions.await());
+
+        synchronized (fop) {
+            fop.setTestingMode(true);
+            if (fop.getState() == FOPState.DECISION_VISIBLE) {
+                fop.fopEventPost(new FOPEvent.DecisionReset(this));
+            }
+            Athlete next = fop.getCurAthlete();
+            assertNotEquals(lifter, next);
+            if (nextDecision) {
+                fop.setChallengedRecords(List.of());
+                fop.fopEventPost(new FOPEvent.ExplicitDecision(next, this, true, false, false, false));
+                assertEquals("the FOP now reviews a different athlete", next, fop.getAthleteUnderReview());
+                assertTrue(fop.getLastChallengedRecords().isEmpty());
+            } else {
+                fop.setChallengedRecords(List.of(record("Regional")));
+            }
+        }
+
+        assertNull("the notification must still be pending", recorder.notification.get());
+        assertRecordNotification(recorder, lifter, nameAtDecision);
+    }
+
+    private void assertRecordNotification(RecordNotificationRecorder recorder, Athlete lifter, String name)
+            throws InterruptedException {
+        assertTrue("no new-record notification", recorder.received.await(3, TimeUnit.SECONDS));
+        UIEvent.RecordNotification notification = recorder.notification.get();
+        assertEquals(lifter, notification.getAthlete());
+        assertTrue(notification.getTitle(), notification.getTitle().contains(name));
+        assertTrue(notification.getTitle(), notification.getTitle().contains("60"));
+        assertTrue(notification.getNotificationString(), notification.getNotificationString().contains("National"));
+        assertTrue(notification.getNotificationString(), notification.getNotificationString().contains("50"));
+        assertEquals(UIEvent.RecordNotification.Level.SUCCESS, notification.getLevel());
+    }
+
+    private RecordEvent record(String name) {
+        RecordEvent record = new RecordEvent();
+        record.setRecordFederation("TEST");
+        record.setRecordName(name);
+        record.setRecordLift(Ranking.SNATCH);
+        record.setRecordValue(50.0D);
+        record.setGender(this.athletes.get(0).getGender());
+        record.setAgeGrp("SR");
+        record.setAgeGrpLower(0);
+        record.setAgeGrpUpper(999);
+        record.setBwCatLower(0);
+        record.setBwCatUpper(999);
+        record.setFileName("generated");
+        return record;
+    }
+
+    private record Corrected(AthleteMetadata metadata, Long stamp) {
+    }
+
+    /** The speaker's correction is saved after the platform loaded the athlete, so the platform's copy is stale. */
+    private Corrected correctMetadata(Athlete lifter) {
+        Athlete stored = AthleteRepository.findById(lifter.getId());
+        AthleteMetadata original = AthleteMetadata.from(stored);
+        AthleteMetadata corrected = new AthleteMetadata("Fixed", "Corrected", "Other team", "IWF,EWF",
+                original.eligibleForIndividualRanking(), original.individualEligibilityStatus());
+        AthleteRepository.MetadataSaveResult result = AthleteRepository.saveMetadata(lifter.getId(), corrected,
+                stored.getMetadataUpdatedAt(), AuditOrigin.system("metadata test"));
+        assertTrue(result.saved());
+        return new Corrected(corrected, result.athlete().getMetadataUpdatedAt());
+    }
+
+    private void assertCorrectedAndLifted(Athlete lifter, Corrected corrected) {
+        Athlete reloaded = AthleteRepository.findById(lifter.getId());
+        assertEquals("the lift was committed", 1, reloaded.getAttemptsDone().intValue());
+        assertEquals("the decision did not write back the platform's old metadata", corrected.metadata(),
+                AthleteMetadata.from(reloaded));
+        assertEquals("the decision did not touch the metadata stamp", corrected.stamp(),
+                reloaded.getMetadataUpdatedAt());
+    }
+
     private void assertDecisionAbout(DecisionRecorder recorder, FieldOfPlay fop, Athlete lifter)
             throws InterruptedException {
         assertTrue("no Decision event", recorder.await());
@@ -191,6 +342,22 @@ public class DecisionEventAthleteTest {
 
         boolean await() throws InterruptedException {
             return this.received.await(3, TimeUnit.SECONDS);
+        }
+    }
+
+    public static class RecordNotificationRecorder {
+        private final AtomicReference<UIEvent.RecordNotification> notification = new AtomicReference<>();
+        private final CountDownLatch received = new CountDownLatch(1);
+
+        RecordNotificationRecorder(FieldOfPlay fop) {
+            fop.getUiEventBus().register(this);
+        }
+
+        @Subscribe
+        public void onRecordNotification(UIEvent.RecordNotification e) {
+            if (e.isNewRecord() && this.notification.compareAndSet(null, e)) {
+                this.received.countDown();
+            }
         }
     }
 }

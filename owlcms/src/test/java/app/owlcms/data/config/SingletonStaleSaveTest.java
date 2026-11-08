@@ -35,6 +35,7 @@ import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.export.FormatDetector;
 import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.jpa.JpaTransactions;
 import app.owlcms.data.jpa.SingletonSaves;
 import app.owlcms.data.jpa.StaleSingletonException;
 import app.owlcms.data.jpa.StaleSingletonException.Kind;
@@ -111,7 +112,7 @@ public class SingletonStaleSaveTest {
 
 	@Test
 	public void aRowNeverStampedSavesNormally() {
-		SingletonSaves.inTransaction(em -> em.createNativeQuery("update Config set lastSavedAt = null")
+		JpaTransactions.inTransaction(em -> em.createNativeQuery("update Config set lastSavedAt = null")
 		        .executeUpdate());
 		Config draft = ConfigRepository.loadForEdit();
 		draft.setIpAccessList("10.0.0.5");
@@ -148,7 +149,7 @@ public class SingletonStaleSaveTest {
 	@Test
 	public void competitionDraftWhoseRowIsGoneIsRefusedWithoutInsertingAnotherRow() {
 		Competition draft = CompetitionRepository.loadForEdit();
-		SingletonSaves.inTransaction(em -> em.createQuery("delete from Competition").executeUpdate());
+		JpaTransactions.inTransaction(em -> em.createQuery("delete from Competition").executeUpdate());
 		assertThrows(StaleSingletonException.class, () -> CompetitionRepository.saveEdited(draft, SECOND));
 		assertTrue(CompetitionRepository.findAll().isEmpty());
 	}

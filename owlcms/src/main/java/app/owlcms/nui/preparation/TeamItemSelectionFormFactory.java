@@ -19,6 +19,7 @@ import com.vaadin.flow.data.binder.BinderValidationStatus;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.RegistrationTabPolicy.CardEntry;
 import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
@@ -35,8 +36,19 @@ public class TeamItemSelectionFormFactory
 	private NAthleteRegistrationFormFactory acff;
 
 	public TeamItemSelectionFormFactory(Class<TeamTreeItem> domainType, IAthleteEditing origin) {
+		this(domainType, origin, CardEntry.NONE);
+	}
+
+	public TeamItemSelectionFormFactory(Class<TeamTreeItem> domainType, IAthleteEditing origin, CardEntry entry) {
 		super(domainType);
-		this.acff = new NAthleteRegistrationFormFactory(Athlete.class, null, null);
+		this.acff = new NAthleteRegistrationFormFactory(Athlete.class, null, null)
+		        .setCardEntry(entry, origin);
+	}
+
+	@Override
+	public void setGridRefresher(Runnable gridRefresher) {
+		super.setGridRefresher(gridRefresher);
+		this.acff.setGridRefresher(gridRefresher);
 	}
 
 	@Override

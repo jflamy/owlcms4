@@ -32,12 +32,15 @@ import app.owlcms.data.category.UnfinishedCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.jpa.JpaTransactions;
+import app.owlcms.data.jpa.SingletonSaves;
 import app.owlcms.spreadsheet.PAthlete;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import app.owlcms.audit.AthleteAudit;
 import app.owlcms.audit.AthleteDiff;
 import app.owlcms.audit.AthleteDiff.Change;
+import app.owlcms.audit.AuditOrigin;
 
 /**
  * The Class AthleteRepository.
@@ -507,36 +510,117 @@ public class AthleteRepository {
 	}
 
 	/**
-	 * Save an athlete
-	 *
-	 * @param athlete the athlete
-	 * @return the athlete
+	 * Full registration/create save. Callers retain their registration stale/session checks.
+	 * Metadata changes advance their own timestamp; lifting writers must use {@link #saveNoMetadata(Athlete)}.
 	 */
 	public static Athlete save(Athlete athlete) {
 		if (athlete == null) {
 			return athlete;
 		}
-		SaveResult result = JPAService.runInTransaction((em) -> {
-			Athlete persisted = getById(athlete.getId(), em);
-			AthleteDiff.Snapshot beforeSnapshot = AthleteDiff.snapshot(persisted);
-			Competition.getCurrent().setRankingsInvalid(true);
-			var before = BestAthleteRankingService.inputs(persisted);
-			var after = BestAthleteRankingService.inputs(athlete);
-			Set<BestAthleteRankingService.Scope> scopes = new HashSet<>(after.scopes());
-			if (before != null) {
-				scopes.addAll(before.scopes());
+		return save(athlete, false);
+	}
+
+	/** New registration athlete: a plain merge as before, with the metadata timestamp initialized. */
+	public static Athlete create(Athlete athlete) {
+		athlete.setMetadataUpdatedAt(SingletonSaves.nextStamp(null));
+		return JpaTransactions.inTransaction(em -> em.merge(athlete));
+	}
+
+	/**
+	 * Preserve the current metadata and its timestamp before saving lifting/adjudication changes.
+	 * Live callers hold their platform's FOP monitor from conflict checking through commit.
+	 */
+	public static Athlete saveNoMetadata(Athlete athleteToSave) {
+		return save(Objects.requireNonNull(athleteToSave), true);
+	}
+
+	/** Also used by bulk no-metadata merges inside their existing transaction. */
+	public static void copyMetadata(Athlete storedAthlete, Athlete athleteToSave) {
+		AthleteMetadata.from(storedAthlete).copyTo(athleteToSave);
+		athleteToSave.setMetadataUpdatedAt(storedAthlete.getMetadataUpdatedAt());
+	}
+
+	private static Athlete save(Athlete athleteToSave, boolean noMetadata) {
+		Objects.requireNonNull(athleteToSave.getId(), "Athlete id");
+		SaveResult result = JpaTransactions.inTransaction(em -> {
+			Athlete storedAthlete = noMetadata ? requireStored(athleteToSave.getId(), em)
+			        : getById(athleteToSave.getId(), em);
+			AthleteDiff.Snapshot beforeSnapshot = AthleteDiff.snapshot(storedAthlete);
+			var before = BestAthleteRankingService.inputs(storedAthlete);
+			if (noMetadata) {
+				copyMetadata(storedAthlete, athleteToSave);
+			} else {
+				Long previous = storedAthlete != null ? storedAthlete.getMetadataUpdatedAt() : null;
+				boolean changed = storedAthlete == null
+				        || !AthleteMetadata.from(storedAthlete).equals(AthleteMetadata.from(athleteToSave));
+				athleteToSave.setMetadataUpdatedAt(changed ? Long.valueOf(SingletonSaves.nextStamp(previous)) : previous);
 			}
-			BestAthleteRankingService.preserveRanks(persisted, athlete);
-			Athlete merged = em.merge(athlete);
-			em.flush();
-			if (!Objects.equals(before, after)) {
-				BestAthleteRankingService.recompute(em, scopes);
-			}
-			List<Change> changes = AthleteDiff.diff(beforeSnapshot, AthleteDiff.snapshot(merged));
-			return new SaveResult(merged, changes);
+			BestAthleteRankingService.preserveRanks(storedAthlete, athleteToSave);
+			Athlete merged = em.merge(athleteToSave);
+			return finishSave(em, merged, beforeSnapshot, before);
 		});
 		AthleteAudit.write(result.athlete(), result.changes());
 		return result.athlete();
+	}
+
+	/** The caller serializes this timestamp check and commit under the owning FOP monitor. No SQL locks are added. */
+	public static MetadataSaveResult saveMetadata(Long athleteId, AthleteMetadata metadata, Long expectedUpdatedAt,
+	        AuditOrigin origin) {
+		Objects.requireNonNull(athleteId, "Athlete id");
+		Objects.requireNonNull(metadata, "Athlete metadata");
+		Objects.requireNonNull(origin, "Audit origin");
+		if (metadata.individualEligibilityStatus() != null
+		        && metadata.eligibleForIndividualRanking() != metadata.individualEligibilityStatus().isInclusion()) {
+			throw new IllegalArgumentException("Individual eligibility boolean does not match its status");
+		}
+		MetadataTransactionResult result = JpaTransactions.inTransaction(em -> {
+			Athlete storedAthlete = requireStored(athleteId, em);
+			if (!Objects.equals(expectedUpdatedAt, storedAthlete.getMetadataUpdatedAt())) {
+				return new MetadataTransactionResult(new MetadataSaveResult(storedAthlete, true), List.of());
+			}
+			AthleteDiff.Snapshot beforeSnapshot = AthleteDiff.snapshot(storedAthlete);
+			var before = BestAthleteRankingService.inputs(storedAthlete);
+			metadata.copyTo(storedAthlete);
+			storedAthlete.setMetadataUpdatedAt(SingletonSaves.nextStamp(expectedUpdatedAt));
+			SaveResult saved = finishSave(em, storedAthlete, beforeSnapshot, before);
+			return new MetadataTransactionResult(new MetadataSaveResult(saved.athlete(), false), saved.changes());
+		});
+		if (result.outcome().saved()) {
+			AthleteAudit.write(result.outcome().athlete(), result.changes(), origin);
+		}
+		return result.outcome();
+	}
+
+	private static Athlete requireStored(Long id, EntityManager em) {
+		Athlete storedAthlete = getById(id, em);
+		if (storedAthlete == null) {
+			throw new IllegalStateException("Athlete no longer exists: " + id);
+		}
+		return storedAthlete;
+	}
+
+	private static SaveResult finishSave(EntityManager em, Athlete savedAthlete, AthleteDiff.Snapshot beforeSnapshot,
+	        BestAthleteRankingService.Inputs before) {
+		Competition.getCurrent().setRankingsInvalid(true);
+		var after = BestAthleteRankingService.inputs(savedAthlete);
+		Set<BestAthleteRankingService.Scope> scopes = new HashSet<>(after.scopes());
+		if (before != null) {
+			scopes.addAll(before.scopes());
+		}
+		em.flush();
+		if (!Objects.equals(before, after)) {
+			BestAthleteRankingService.recompute(em, scopes);
+		}
+		return new SaveResult(savedAthlete, AthleteDiff.diff(beforeSnapshot, AthleteDiff.snapshot(savedAthlete)));
+	}
+
+	public record MetadataSaveResult(Athlete athlete, boolean stale) {
+		public boolean saved() {
+			return !this.stale;
+		}
+	}
+
+	private record MetadataTransactionResult(MetadataSaveResult outcome, List<Change> changes) {
 	}
 
 	private record SaveResult(Athlete athlete, List<Change> changes) {

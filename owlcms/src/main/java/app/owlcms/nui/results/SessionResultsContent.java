@@ -51,6 +51,7 @@ import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athlete.RegistrationTabPolicy.CardEntry;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
@@ -59,7 +60,6 @@ import app.owlcms.data.category.UnfinishedCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
@@ -67,7 +67,7 @@ import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.AthleteCrudGrid;
 import app.owlcms.nui.shared.AthleteGridContent;
-import app.owlcms.nui.shared.LiftingSessionGuard;
+import app.owlcms.nui.shared.NAthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSMedalsSheet;
 import app.owlcms.spreadsheet.JXLSResultSheet;
@@ -214,14 +214,6 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 					this.crudLayout.addToolbarComponent(reset);
 					Element toolbar = reset.getParent().get().getElement();
 					toolbar.getStyle().set("flex-wrap", "wrap").set("align-content", "center");
-				}
-			}
-
-			@Override
-			protected void updateButtonClicked() {
-				// only edit non-lifting groups
-				if (!checkFOP()) {
-					super.updateButtonClicked();
 				}
 			}
 
@@ -579,19 +571,10 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 	protected void onAttach(AttachEvent attachEvent) {
 	}
 
-	/**
-	 * @return true if the current group is safe for editing -- i.e. not lifting currently
-	 */
-	private boolean checkFOP() {
-		FieldOfPlay liftingFop = OwlcmsFactory.getFOPSessionInProgress(this.getCurrentGroup());
-		if (liftingFop != null) {
-			LiftingSessionGuard.notifyLifting(liftingFop, LiftingSessionGuard.CANNOT_EDIT_RESULTS);
-			logger.debug(Translator.translate("CannotEditResults_logging"), this.getCurrentGroup(), liftingFop);
-			// subscribeIfLifting(currentGroup);
-		} else {
-			logger.debug(Translator.translate("EditingResults_logging"), this.getCurrentGroup(), liftingFop);
-		}
-		return liftingFop != null;
+	@Override
+	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
+		return new NAthleteRegistrationFormFactory(Athlete.class, null, null)
+		        .setCardEntry(CardEntry.CARD_FIRST, this);
 	}
 
 	private Ranking computeScoringSystem() {

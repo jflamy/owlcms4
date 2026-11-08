@@ -36,7 +36,7 @@ import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.data.jpa.JPAService;
-import app.owlcms.data.jpa.SingletonSaves;
+import app.owlcms.data.jpa.JpaTransactions;
 import app.owlcms.data.jpa.StaleSingletonException;
 import app.owlcms.data.jpa.StaleSingletonException.Kind;
 import tools.jackson.databind.json.JsonMapper;
@@ -150,7 +150,7 @@ public class AgeGroupStampTest {
 	public void draftWhoseRowWasDeletedIsRefusedWithoutInsertingARow() {
 		Long id = newAgeGroup();
 		AgeGroup draft = AgeGroupRepository.loadForEdit(id);
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			em.remove(em.find(AgeGroup.class, id));
 			return null;
 		});
@@ -197,7 +197,7 @@ public class AgeGroupStampTest {
 	public void assertCurrentRefusesAMissingRow() {
 		Long id = newAgeGroup();
 		AgeGroup draft = AgeGroupRepository.loadForEdit(id);
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			em.remove(em.find(AgeGroup.class, id));
 			return null;
 		});
@@ -207,7 +207,7 @@ public class AgeGroupStampTest {
 	@Test
 	public void aRowWithoutStampIsWrittenOnceThenRefused() {
 		Long id = newAgeGroup();
-		SingletonSaves.inTransaction(em -> em.createNativeQuery("update AgeGroup set lastSavedAt = null where id = ?1")
+		JpaTransactions.inTransaction(em -> em.createNativeQuery("update AgeGroup set lastSavedAt = null where id = ?1")
 		        .setParameter(1, id).executeUpdate());
 		AgeGroup legacy = AgeGroupRepository.loadForEdit(id);
 		assertNull(legacy.getLastSavedAt());

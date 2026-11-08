@@ -21,6 +21,9 @@ public enum Permission {
 	IMPORT(false, false),
 	WEIGHIN(false, false),
 	RESULTS(false, false),
+	/** In-page actions, not navigation permissions. */
+	METADATA_EDITING(false, false),
+	ATHLETE_CARD_EDITING(true, true),
 	ANNOUNCER(true, true),
 	MARSHAL(true, true),
 	TIMEKEEPER(true, true),

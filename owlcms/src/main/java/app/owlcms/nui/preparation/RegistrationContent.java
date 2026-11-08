@@ -23,22 +23,16 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
-import org.vaadin.crudui.crud.CrudOperation;
 
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ModalityMode;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.GridSortOrder;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -73,6 +67,7 @@ import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athlete.RegistrationTabPolicy.CardEntry;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.RegistrationOrderComparator;
 import app.owlcms.data.category.Category;
@@ -82,17 +77,13 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
-import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
-import app.owlcms.nui.lifting.AthleteCardFormFactory;
 import app.owlcms.nui.results.IFilterCascade;
-import app.owlcms.nui.shared.IAthleteEditing;
-import app.owlcms.nui.shared.LiftingSessionGuard;
 import app.owlcms.nui.shared.NAthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -626,13 +617,6 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		        .setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn("federationCodes").setHeader(Translator.translate("Preparation.Records"))
 		        .setAutoWidth(true);
-		grid.addComponentColumn(athlete -> {
-			Button cardButton = new Button(Translator.translate("Card"), VaadinIcon.CLIPBOARD_TEXT.create(),
-			        e -> openAthleteCard(athlete));
-			cardButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
-			return cardButton;
-		}).setAutoWidth(true).setFlexGrow(0);
-
 		List<GridSortOrder<Athlete>> sortOrder = new ArrayList<>();
 		// groupWeighinTimeComparator implements traditional platform name comparisons e.g. USAW.
 		groupCol.setComparator((a, b) -> Group.groupWeighinTimeComparator.compare(a.getGroup(), b.getGroup()));
@@ -650,17 +634,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 				OwlcmsSession.setAttribute("weighIn", null);
 			}
 		},
-		        crudFormFactory, grid) {
-			@Override
-			protected void updateButtonClicked() {
-				Athlete athlete = this.grid.asSingleSelect().getValue();
-				if (athlete != null
-				        && LiftingSessionGuard.refuseIfLifting(athlete.getGroup(), LiftingSessionGuard.CANNOT_EDIT_REGISTRATION)) {
-					return;
-				}
-				super.updateButtonClicked();
-			}
-		};
+		        crudFormFactory, grid);
 		
 		crudGrid.setCrudListener(this);
 		crudGrid.setClickRowToUpdate(true);
@@ -674,45 +648,9 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	 */
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
 		this.athleteEditingFormFactory = new NAthleteRegistrationFormFactory(Athlete.class,
-		        getGroup(), null);
+		        getGroup(), null).setCardEntry(CardEntry.AVAILABLE, null);
 		// createFormLayout(athleteEditingFormFactory);
 		return this.athleteEditingFormFactory;
-	}
-
-	private void openAthleteCard(Athlete athlete) {
-		Dialog dialog = new Dialog();
-		dialog.setModality(ModalityMode.STRICT);
-		IAthleteEditing origin = new IAthleteEditing() {
-			@Override
-			public void closeDialog() {
-				dialog.close();
-				RegistrationContent.this.crudGrid.refreshGrid();
-			}
-
-			@Override
-			public OwlcmsCrudGrid<?> getEditingGrid() {
-				return RegistrationContent.this.crudGrid;
-			}
-
-			@Override
-			public FieldOfPlay getFop() {
-				return null;
-			}
-		};
-		AthleteCardFormFactory cardFactory = new AthleteCardFormFactory(Athlete.class, origin);
-		Component form = cardFactory.buildNewForm(CrudOperation.UPDATE, athlete, false,
-		        cancel -> origin.closeDialog(),
-		        update -> origin.closeDialog(),
-		        null);
-		VerticalLayout dialogLayout = new VerticalLayout(form);
-		dialogLayout.setWidth("100%");
-		dialogLayout.setMargin(false);
-		dialogLayout.setPadding(false);
-		H3 dialogCaption = new H3(cardFactory.buildCaption(CrudOperation.UPDATE, athlete));
-		dialogCaption.getStyle().set("margin-top", "0");
-		dialogCaption.getStyle().set("margin-bottom", "0");
-		dialog.add(dialogCaption, dialogLayout);
-		dialog.open();
 	}
 
 	protected Button createTeamsListButton() {

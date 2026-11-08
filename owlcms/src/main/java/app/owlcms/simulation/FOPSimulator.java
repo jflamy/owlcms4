@@ -424,35 +424,38 @@ public class FOPSimulator implements SafeEventBusRegistration {
 			return;
 		}
 
-		List<Athlete> order = this.fop.getLiftingOrder();
-		Athlete athlete = order.size() > 0 ? order.get(0) : null;
-		if (athlete == null) {
-			return;
-		}
+		boolean declared = false;
+		synchronized (this.fop) {
+			List<Athlete> order = this.fop.getLiftingOrder();
+			Athlete athlete = order.size() > 0 ? order.get(0) : null;
+			if (athlete == null || skipLiftDuringBreak(athlete, "before declaration")) {
+				return;
+			}
 
-		String declaration = athlete.getCurrentDeclaration();
-		String automatic = athlete.getCurrentAutomatic();
-		if ((declaration == null || declaration.isBlank()) && shouldDeclareRandomJump()) {
-			if (automatic != null && !automatic.isBlank()) {
-				try {
-					int autoAsInt = Integer.parseInt(automatic);
-					doDeclaration(athlete, Integer.toString(autoAsInt + declarationIncrement()));
-					Athlete declaredAthlete = athlete;
-					AuditActor marshal = simulatedActor("MARSHAL", null);
-					AuditContext.run(marshal, "simulated declaration", () -> AthleteRepository.save(declaredAthlete));
-					postSimulatedEvent(new FOPEvent.WeightChange(this, declaredAthlete, false), marshal);
-					if (!sleepQuietly(MIN_ACTION_INTERVAL_MILLIS)) {
-						return;
+			String declaration = athlete.getCurrentDeclaration();
+			String automatic = athlete.getCurrentAutomatic();
+			if ((declaration == null || declaration.isBlank()) && shouldDeclareRandomJump()) {
+				if (automatic != null && !automatic.isBlank()) {
+					try {
+						int autoAsInt = Integer.parseInt(automatic);
+						doDeclaration(athlete, Integer.toString(autoAsInt + declarationIncrement()));
+						AuditActor marshal = simulatedActor("MARSHAL", null);
+						AuditContext.run(marshal, "simulated declaration", () -> AthleteRepository.saveNoMetadata(athlete));
+						postSimulatedEvent(new FOPEvent.WeightChange(this, athlete, false), marshal);
+						declared = true;
+					} catch (NumberFormatException e1) {
+						// ignore
 					}
-				} catch (NumberFormatException e1) {
-					// ignore
 				}
 			}
 		}
+		if (declared && !sleepQuietly(MIN_ACTION_INTERVAL_MILLIS)) {
+			return;
+		}
 
 		// recompute lifting order based on exception
-		order = this.fop.getLiftingOrder();
-		athlete = order.size() > 0 ? order.get(0) : null;
+		List<Athlete> order = this.fop.getLiftingOrder();
+		Athlete athlete = order.size() > 0 ? order.get(0) : null;
 		if (skipLiftDuringBreak(athlete, "before declared lift")) {
 			return;
 		}
@@ -495,59 +498,62 @@ public class FOPSimulator implements SafeEventBusRegistration {
 		if (!sleepQuietly(phase == MarshalChangePhase.CLOCK_RUNNING ? 500 + r.nextInt(800) : 200 + r.nextInt(400))) {
 			return;
 		}
-		boolean changeCurrentAthlete = allowsAttemptedAthleteChange(phase) && r.nextFloat() < 0.75F;
-		if (phase == MarshalChangePhase.BEFORE_CLOCK
-		        && this.fop.getState() != FOPState.CURRENT_ATHLETE_DISPLAYED) {
-			return;
-		}
-		if (phase == MarshalChangePhase.CLOCK_RUNNING && changeCurrentAthlete && (attemptedAthlete == null
-		        || this.fop.getState() != FOPState.TIME_RUNNING || !this.fop.getAthleteTimer().isRunning()
-		        || !attemptedAthlete.equals(this.fop.getCurAthlete())
-		        || !attemptedAthlete.equals(this.fop.getClockOwner()))) {
-			return;
-		}
-		if (phase == MarshalChangePhase.DURING_DECISION
-		        && this.fop.getState() != FOPState.DOWN_SIGNAL_VISIBLE
-		        && this.fop.getState() != FOPState.DECISION_VISIBLE) {
-			return;
-		}
-		Athlete target = changeCurrentAthlete ? this.fop.getCurAthlete() : null;
-		if (target == null) {
-			Athlete currentAthlete = this.fop.getCurAthlete();
-			Athlete currentClockOwner = this.fop.getClockOwner();
-			List<Athlete> candidates = this.fop.getLiftingOrder().stream()
-			        .filter(athlete -> !allowsAttemptedAthleteChange(phase)
-			                ? !athlete.equals(attemptedAthlete)
-			                : !athlete.equals(currentAthlete) && !athlete.equals(currentClockOwner))
-			        .limit(3).toList();
-			if (candidates.isEmpty()) {
+		synchronized (this.fop) {
+			boolean changeCurrentAthlete = allowsAttemptedAthleteChange(phase) && r.nextFloat() < 0.75F;
+			if (phase == MarshalChangePhase.BEFORE_CLOCK
+			        && this.fop.getState() != FOPState.CURRENT_ATHLETE_DISPLAYED) {
 				return;
 			}
-			target = candidates.get(r.nextInt(candidates.size()));
-		}
-		if (target == null || target.getAttemptsDone() >= 6) {
-			return;
-		}
-		Integer requested = target.getNextAttemptRequestedWeight();
-		if (requested == null || requested <= 0) {
-			return;
-		}
-		String newWeight = Integer.toString(requested + 1 + r.nextInt(2));
-		try {
-			if (!doChange(target, newWeight)) {
+			if (phase == MarshalChangePhase.CLOCK_RUNNING && changeCurrentAthlete && (attemptedAthlete == null
+			        || this.fop.getState() != FOPState.TIME_RUNNING || !this.fop.getAthleteTimer().isRunning()
+			        || !attemptedAthlete.equals(this.fop.getCurAthlete())
+			        || !attemptedAthlete.equals(this.fop.getClockOwner()))) {
 				return;
 			}
-			Athlete changedAthlete = target;
-			AuditActor marshal = simulatedActor("MARSHAL", null);
-			AuditContext.run(marshal, "simulated weight change", () -> AthleteRepository.save(changedAthlete));
-			this.logger.warn("{}simulated marshal change {} -> {} ({} {})", FieldOfPlay.getLoggingName(this.fop),
-			        target.getShortName(), newWeight, phase, changeCurrentAthlete ? "current athlete" : "other athlete");
-			postSimulatedEvent(new FOPEvent.WeightChange(this, changedAthlete, false), marshal);
-			sleepQuietly(MIN_ACTION_INTERVAL_MILLIS);
-		} catch (RuntimeException e1) {
-			this.logger.warn("{}simulated marshal change rejected: {}", FieldOfPlay.getLoggingName(this.fop),
-			        e1.getMessage());
+			if (phase == MarshalChangePhase.DURING_DECISION
+			        && this.fop.getState() != FOPState.DOWN_SIGNAL_VISIBLE
+			        && this.fop.getState() != FOPState.DECISION_VISIBLE) {
+				return;
+			}
+			Athlete target = changeCurrentAthlete ? this.fop.getCurAthlete() : null;
+			if (target == null) {
+				Athlete currentAthlete = this.fop.getCurAthlete();
+				Athlete currentClockOwner = this.fop.getClockOwner();
+				List<Athlete> candidates = this.fop.getLiftingOrder().stream()
+				        .filter(athlete -> !allowsAttemptedAthleteChange(phase)
+				                ? !athlete.equals(attemptedAthlete)
+				                : !athlete.equals(currentAthlete) && !athlete.equals(currentClockOwner))
+				        .limit(3).toList();
+				if (candidates.isEmpty()) {
+					return;
+				}
+				target = candidates.get(r.nextInt(candidates.size()));
+			}
+			if (target == null || target.getAttemptsDone() >= 6) {
+				return;
+			}
+			Integer requested = target.getNextAttemptRequestedWeight();
+			if (requested == null || requested <= 0) {
+				return;
+			}
+			String newWeight = Integer.toString(requested + 1 + r.nextInt(2));
+			try {
+				if (!doChange(target, newWeight)) {
+					return;
+				}
+				Athlete changedAthlete = target;
+				AuditActor marshal = simulatedActor("MARSHAL", null);
+				AuditContext.run(marshal, "simulated weight change", () -> AthleteRepository.saveNoMetadata(changedAthlete));
+				this.logger.warn("{}simulated marshal change {} -> {} ({} {})", FieldOfPlay.getLoggingName(this.fop),
+				        target.getShortName(), newWeight, phase, changeCurrentAthlete ? "current athlete" : "other athlete");
+				postSimulatedEvent(new FOPEvent.WeightChange(this, changedAthlete, false), marshal);
+			} catch (RuntimeException e1) {
+				this.logger.warn("{}simulated marshal change rejected: {}", FieldOfPlay.getLoggingName(this.fop),
+				        e1.getMessage());
+				return;
+			}
 		}
+		sleepQuietly(MIN_ACTION_INTERVAL_MILLIS);
 	}
 
 	static boolean allowsAttemptedAthleteChange(MarshalChangePhase phase) {

@@ -39,6 +39,10 @@ public final class FormSaveTask {
 		return this.active.get();
 	}
 
+	public boolean isPending() {
+		return this.pending;
+	}
+
 	public <T> void execute(Supplier<T> operation, Consumer<T> completed, Consumer<Exception> failed) {
 		if (this.pending || !this.active.get()) {
 			return;

@@ -52,6 +52,7 @@ import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athlete.RegistrationTabPolicy.CardEntry;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -65,6 +66,7 @@ import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.preparation.ChampionshipsContent;
+import app.owlcms.nui.preparation.TeamItemSelectionFormFactory;
 import app.owlcms.nui.shared.IAthleteEditing;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -352,7 +354,7 @@ public class TeamResultsContent extends BaseContent
 			@Override
 			protected void updateButtonClicked() {
 				TeamTreeItem item = this.grid.asSingleSelect().getValue();
-				if (item.getAthlete() == null) {
+				if (item == null || item.getAthlete() == null) {
 					return;
 				}
 
@@ -440,7 +442,8 @@ public class TeamResultsContent extends BaseContent
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory = new TeamItemResultsFormFactory(TeamTreeItem.class, this);
+		OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory = new TeamItemSelectionFormFactory(TeamTreeItem.class, this,
+		        CardEntry.CARD_FIRST);
 		this.crudGrid = createCrudGrid(crudFormFactory);
 		fillHW(this.crudGrid, this);
 		Championship value = (this.adItems != null && this.adItems.size() == 1) ? this.adItems.get(0) : null;

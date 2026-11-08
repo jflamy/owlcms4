@@ -23,6 +23,7 @@ public final class AthleteDiff {
 		values.put("lastName", athlete.getLastName());
 		values.put("firstName", athlete.getFirstName());
 		values.put("team", athlete.getTeam());
+		values.put("federationCodes", athlete.getFederationCodes());
 		values.put("gender", athlete.getGender());
 		values.put("birthDate", athlete.getFullBirthDate());
 		values.put("birthYear", athlete.getYearOfBirth());
@@ -33,6 +34,7 @@ public final class AthleteDiff {
 				: new TreeSet<>(athlete.getEligibleCategories().stream().map(category -> category.getCode()).toList()));
 		values.put("participations", participations(athlete.getParticipations()));
 		values.put("eligibleForIndividualRanking", athlete.isEligibleForIndividualRanking());
+		values.put("individualEligibilityStatus", athlete.getIndividualEligibilityStatus());
 		values.put("eligibleForTeamRanking", athlete.isEligibleForTeamRanking());
 		values.put("startNumber", athlete.getStartNumber());
 		values.put("lotNumber", athlete.getLotNumber());

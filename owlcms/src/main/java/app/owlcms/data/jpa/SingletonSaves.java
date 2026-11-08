@@ -7,11 +7,9 @@
 package app.owlcms.data.jpa;
 
 import java.util.Map;
-import java.util.function.Function;
 
 import javax.persistence.CacheRetrieveMode;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 
 import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.AuditOrigin;
@@ -37,53 +35,9 @@ public final class SingletonSaves {
 	private SingletonSaves() {
 	}
 
-	/**
-	 * Runs the work in one transaction. Unlike {@link JPAService#runInTransaction}, a failure is never swallowed: the
-	 * transaction is rolled back and the exception propagates.
-	 */
-	public static <T> T inTransaction(Function<EntityManager, T> work) {
-		EntityManager em = JPAService.getFactory().createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		try {
-			tx.begin();
-			T result = work.apply(em);
-			tx.commit();
-			return result;
-		} catch (RuntimeException e) {
-			try {
-				if (tx.isActive()) {
-					tx.rollback();
-				}
-			} catch (RuntimeException rollbackFailure) {
-				e.addSuppressed(rollbackFailure);
-			}
-			throw e;
-		} finally {
-			em.close();
-		}
-	}
-
 	/** Reads the row from the database, not from the second-level cache. */
 	public static <T> T findFresh(EntityManager em, Class<T> type, Object id) {
 		return id == null ? null : em.find(type, id, BYPASS_CACHE);
-	}
-
-	/**
-	 * Runs the work in a transaction that is always rolled back: a dry run reads consistent data and can exercise
-	 * the real write path, yet nothing is written or bootstrapped.
-	 */
-	public static <T> T inRollbackOnlyTransaction(Function<EntityManager, T> work) {
-		EntityManager em = JPAService.getFactory().createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		try {
-			tx.begin();
-			return work.apply(em);
-		} finally {
-			if (tx.isActive()) {
-				tx.rollback();
-			}
-			em.close();
-		}
 	}
 
 	/** Strictly increasing: two saves in the same millisecond still get different stamps. */

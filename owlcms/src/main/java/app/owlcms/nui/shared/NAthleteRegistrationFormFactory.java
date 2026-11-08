@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,7 +53,9 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
+import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.Autocomplete;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -67,6 +71,10 @@ import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.ValueProvider;
 
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.Principal;
+import app.owlcms.apputils.NotificationUtils;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.components.fields.LocalizedIntegerField;
@@ -75,11 +83,17 @@ import app.owlcms.components.fields.WrappedTextField;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteEditAccess;
+import app.owlcms.data.athlete.AthleteMetadata;
+import app.owlcms.data.athlete.AthleteMetadataEdit;
+import app.owlcms.data.athlete.AthleteMetadataEdit.Opening;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athlete.RuleViolationException;
 import app.owlcms.data.athlete.RegistrationEditCheck;
+import app.owlcms.data.athlete.RegistrationTabPolicy;
+import app.owlcms.data.athlete.RegistrationTabPolicy.CardEntry;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.RegistrationQtHelper;
@@ -88,11 +102,13 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.nui.crudui.OwlcmsCrudGrid;
+import app.owlcms.nui.lifting.AnnouncerContent;
+import app.owlcms.nui.lifting.AthleteCardFormFactory;
 import app.owlcms.nui.lifting.NextAthleteAble;
 import app.owlcms.nui.lifting.WeighinContent;
 import app.owlcms.utils.LoggerUtils;
@@ -154,6 +170,15 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	private ComboBox<EligibleForIndividualRankingStatus> individualEligibilityField;
 	private TextField subCategoryField;
 	private NextAthleteAble previousNext;
+	private CardEntry cardEntry = CardEntry.NONE;
+	private boolean resultsEntry;
+	private IAthleteEditing cardOrigin;
+	private Principal editor;
+	private boolean registrationWritable;
+	private boolean metadataWritable;
+	private boolean keepOpen;
+	private boolean cardSelected;
+	private Opening metadataOpening;
 
 	public NAthleteRegistrationFormFactory(Class<Athlete> domainType, Group group,
 	        NextAthleteAble parentGrid) {
@@ -164,14 +189,27 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	}
 
 	/**
+	 * Ask for the independent lifting card after lifting has started (see {@link RegistrationTabPolicy}).
+	 * Without this call there is no Card tab, as in weigh-in.
+	 *
+	 * @param entry      what the opening page wants
+	 * @param pageOrigin the page, when its field of play and results editing must be kept for the card; null otherwise.
+	 *                   A Card-first form closes after a successful save; an available Card tab remains open.
+	 */
+	public NAthleteRegistrationFormFactory setCardEntry(CardEntry entry, IAthleteEditing pageOrigin) {
+		this.cardEntry = entry != null ? entry : CardEntry.NONE;
+		this.cardOrigin = pageOrigin;
+		this.resultsEntry = entry == CardEntry.CARD_FIRST;
+		return this;
+	}
+
+	/**
 	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
 	 */
 	@Override
 	public Athlete add(Athlete athlete) {
-		Athlete nAthlete = JPAService.runInTransaction((em) -> {
-			return em.merge(athlete);
-		});
-		return nAthlete;
+		requireRegistration();
+		return AthleteRepository.create(athlete);
 	}
 
 	/**
@@ -224,7 +262,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		Button deleteButton = buildDeleteButton(CrudOperation.DELETE, athlete, deleteButtonClickListener);
 		Button cancelButton = buildCancelButton(cancelButtonClickListener);
 		this.operationButton = operationButton;
-		this.acceptWarningsButton = operationButton != null
+		this.acceptWarningsButton = operationButton != null && this.registrationWritable
 		        ? buildAcceptWarningsButton(operation, athlete, postOperationCallBack)
 		        : null;
 		this.cancelButton = cancelButton;
@@ -287,7 +325,26 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	        ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
 
 		setupAthlete(operation, aFromList);
+		this.editor = AccessUi.currentPrincipal();
+		this.registrationWritable = !readOnly && AthleteEditAccess.registration(this.editor,
+		        this.previousNext instanceof WeighinContent, this.resultsEntry);
+		this.metadataWritable = !readOnly && AthleteEditAccess.metadata(this.editor);
+		this.metadataOpening = new Opening(getEditedAthlete().getId(), getEditedAthlete().getFullName(),
+		        AthleteMetadataEdit.normalize(AthleteMetadata.from(getEditedAthlete())),
+		        getEditedAthlete().getMetadataUpdatedAt());
+		this.cardSelected = false;
+		this.fieldToBinding.clear();
 		this.cancelListener = cancelButtonClickListener;
+		boolean existingAthlete = operation == CrudOperation.UPDATE;
+		RegistrationTabPolicy.Layout layout = existingAthlete
+		        ? RegistrationTabPolicy.choose(this.cardEntry, getEditedAthlete())
+		        : RegistrationTabPolicy.forNewAthlete();
+		if (layout.restrictedRegistration()) {
+			return createRestrictedForm(layout, cancelButtonClickListener, operationButtonClickListener, readOnly);
+		}
+		this.keepOpen = layout.cardTab();
+		// the session the athlete is stored in; the form below may later change the athlete's session
+		Group storedGroup = getEditedAthlete().getGroup();
 		this.binder = buildBinder(operation, getEditedAthlete());
 
 		// when in weigh-in, the validations need to ignore the weight that was last
@@ -298,19 +355,26 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		setChangeListenersEnabled(false);
 
 		Component footer = this.buildFooter(operation, getEditedAthlete(), cancelButtonClickListener,
-		        operationButtonClickListener, deleteButtonClickListener, false);
+		        this.registrationWritable || this.metadataWritable ? operationButtonClickListener : null,
+		        this.registrationWritable ? deleteButtonClickListener : null, false);
 
 		dumpCategories(aFromList, null, new ArrayList<Category>(aFromList.getEligibleCategories()));
 
-		Component form = createTabSheets(footer);
-		this.saveTask = new FormSaveTask(form);
-		if (this.getCurrentGroup() != null && !this.getCurrentGroup().getName().equals("*")) {
+		Component form = createTabSheets(footer, layout, readOnly);
+		if (existingAthlete) {
+			new RegistrationSessionWatcher(form, storedGroup, fop -> {
+				cancelButtonClickListener.onComponentEvent(null);
+				LiftingSessionGuard.notifyLifting(fop, LiftingSessionGuard.REGISTRATION_CLOSED);
+			});
+		}
+		if (this.registrationWritable && this.getCurrentGroup() != null && !this.getCurrentGroup().getName().equals("*")) {
 			getEditedAthlete().setGroup(getCurrentGroup());
 		}
 		this.binder.readBean(getEditedAthlete());
 
 		// binder has read bean.
 		filterCategories(getEditedAthlete().getCategory(), operation != CrudOperation.ADD);
+		applyEditingAccess();
 
 		setFocus(form);
 		return form;
@@ -321,6 +385,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	 */
 	@Override
 	public void delete(Athlete athlete) {
+		requireRegistration();
 		AthleteRepository.delete(athlete);
 	}
 
@@ -371,6 +436,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	 */
 	@Override
 	public Athlete update(Athlete athlete) {
+		requireRegistration();
 		logger.trace("updating athlete {}", athlete.toString());
 		logger.debug("{}update before save {} same as edited={} eligibles={} participations={} category={}",
 		        FieldOfPlay.getLoggingName(null), athlete.getShortName(), athlete == this.editedAthlete,
@@ -381,26 +447,37 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		logger.debug("{}update after save {} eligibles={} reloaded eligibles={}", FieldOfPlay.getLoggingName(null),
 		        athlete.getShortName(), codes(saved.getEligibleCategories()),
 		        codes(AthleteRepository.findById(athlete.getId()).getEligibleCategories()));
-		return athlete;
+		return saved;
 	}
 
 	/**
-	 * Athletes of a session in progress are edited with the athlete card only; the session may have started
-	 * since this form was opened, or the athlete may be moved into such a session.
+	 * A full form is not downgraded during save: the session may have started since opening, or the athlete may be
+	 * moved into a live session. Refuse and require reopening the restricted form instead.
 	 */
 	@Override
 	protected void confirmUpdate(Athlete athlete, Runnable update, Runnable completed) {
 		RegistrationEditCheck check = this.registrationEditCheck;
 		FormSaveTask task = this.saveTask;
 		String athleteName = athlete.getFullName();
-		task.execute(() -> check.trySave(athlete, task::isActive, update), result -> {
+		task.execute(() -> {
+			requireRegistration();
+			return check.trySave(athlete, task::isActive, this::update);
+		}, result -> {
 			if (result.lifting() != null) {
-				LiftingSessionGuard.notifyLifting(result.lifting(), LiftingSessionGuard.CANNOT_EDIT_REGISTRATION);
+				LiftingSessionGuard.notifyLifting(result.lifting(), LiftingSessionGuard.CANNOT_SAVE_REGISTRATION);
 			} else if (result.stale()) {
 				ConcurrentEditDialog.refuseRegistration(athleteName,
 				        () -> this.cancelListener.onComponentEvent(null));
 			} else if (result.saved()) {
-				completed.run();
+				if (this.keepOpen) {
+					setEditedAthlete(result.athlete());
+					this.binder.readBean(result.athlete());
+					applyEditingAccess();
+					NotificationUtils.saved();
+					refreshGridBehind();
+				} else {
+					completed.run();
+				}
 			}
 		}, e -> showError(CrudOperation.UPDATE, e));
 	}
@@ -688,6 +765,16 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	@Override
 	protected void performOperationAndCallback(CrudOperation operation, Athlete domainObject,
 	        ComponentEventListener<ClickEvent<Button>> gridCallback, boolean ignoreErrors) {
+		if (this.cardSelected) {
+			return;
+		}
+		if (this.saveTask != null && this.saveTask.isPending()) {
+			return;
+		}
+		if (!this.registrationWritable) {
+			saveMetadataOnly(gridCallback);
+			return;
+		}
 		super.performOperationAndCallback(operation, domainObject, gridCallback, ignoreErrors);
 		if (operation != CrudOperation.DELETE && !ignoreErrors && !isValid()) {
 			// the refusal is authoritative even when no field is shown invalid
@@ -713,6 +800,10 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	}
 
 	private void refreshWarningMode() {
+		applyEditingAccess();
+		if (!this.registrationWritable) {
+			return;
+		}
 		// fieldToBinding also holds the fields of earlier openings of this reused factory
 		List<String> invalidFields = this.binder.getFields()
 		        .filter(f -> f instanceof HasValidation hv && hv.isInvalid())
@@ -1101,8 +1192,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		this.federationCodesField.setSizeFull();
 		this.federationCodesField.setHelperText(Translator.translate("Registration.FederationCodes"));
 		bindField(this.binder.forField(this.federationCodesField), this.federationCodesField,
-		        Athlete::getFederationCodes,
-		        Athlete::setFederationCodes);
+		        Athlete::getFederationCodes, Athlete::setFederationCodes);
 		FormItem formItem2 = layoutAddFormItem(layout, this.federationCodesField,
 		        Translator.translate("Registration.Federations"));
 		layout.setColspan(formItem2, 2);
@@ -1126,43 +1216,262 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		return layout;
 	}
 
-	private FlexLayout createTabSheets(Component footer) {
+	private Component createRestrictedForm(RegistrationTabPolicy.Layout layout,
+	        ComponentEventListener<ClickEvent<Button>> cancelListener,
+	        ComponentEventListener<ClickEvent<Button>> doneListener, boolean readOnly) {
+		Tab informationTab = new Tab(Translator.translate("Athlete.InformationTab"));
+		Tabs tabs = new Tabs(informationTab);
+		Div panels = new Div();
+		// Both panels contribute their natural size; switching tabs must not resize or stretch the Card.
+		panels.getStyle().set("display", "grid").set("grid-template-columns", "max-content")
+		        .set("margin-top", "var(--lumo-space-m)").set("overflow", "auto");
+		FlexLayout mainLayout = new FlexLayout(tabs, panels);
+		this.saveTask = new FormSaveTask(mainLayout);
+		Component information = layout.cardTab()
+		        ? AthleteMetadataForm.createEmbedded(getEditedAthlete(), () -> cancelListener.onComponentEvent(null),
+		                this::refreshGridBehind, readOnly, this.saveTask)
+		        : AthleteMetadataForm.create(getEditedAthlete(), () -> cancelListener.onComponentEvent(null),
+		                () -> doneListener.onComponentEvent(null), readOnly);
+		linkRestrictedPanel(informationTab, information);
+		if (layout.cardTab()) {
+			// Zero intrinsic width, then stretched: the Card alone sets the column width, so the panel never widens the dialog.
+			information.getStyle().set("width", "0").set("min-width", "100%");
+		} else {
+			information.getStyle().set("width", "auto").set("min-width", "40em");
+		}
+		information.getStyle().set("align-self", "stretch").set("justify-self", "stretch");
+		panels.add(information);
+		if (layout.cardTab()) {
+			Tab cardTab = new Tab(Translator.translate("Card"));
+			Div cardContent = new Div();
+			cardContent.setWidth("max-content");
+			linkRestrictedPanel(cardTab, cardContent);
+			panels.add(cardContent);
+			tabs.add(cardTab);
+			this.cardSelected = layout.initialTab() == RegistrationTabPolicy.Tab.CARD;
+			AtomicReference<AthleteCardFormFactory> card = new AtomicReference<>();
+			Runnable selectPanel = () -> {
+				setRestrictedPanelSelected(information, !this.cardSelected);
+				setRestrictedPanelSelected(cardContent, this.cardSelected);
+				if (card.get() != null) {
+					card.get().setCardTabSelected(this.cardSelected);
+				}
+			};
+			tabs.addSelectedChangeListener(e -> {
+				this.cardSelected = e.getSelectedTab() == cardTab;
+				selectPanel.run();
+			});
+			tabs.setSelectedTab(this.cardSelected ? cardTab : informationTab);
+			selectPanel.run();
+			card.set(openCard(cardContent, getEditedAthlete().getId(), card, readOnly, true));
+			card.get().setCardTabSelected(this.cardSelected);
+		}
+		mainLayout.setFlexDirection(FlexDirection.COLUMN);
+		mainLayout.setWidth("max-content");
+		mainLayout.setMaxWidth("95vw");
+		return mainLayout;
+	}
+
+	private void linkRestrictedPanel(Tab tab, Component panel) {
+		String id = "athlete-panel-" + UUID.randomUUID();
+		tab.setId(id + "-tab");
+		tab.getElement().setAttribute("aria-controls", id);
+		panel.setId(id);
+		panel.getElement().setAttribute("role", "tabpanel");
+		panel.getElement().setAttribute("aria-labelledby", id + "-tab");
+		panel.getStyle().set("grid-area", "1 / 1").set("align-self", "start").set("justify-self", "start");
+	}
+
+	private void setRestrictedPanelSelected(Component panel, boolean selected) {
+		// Keep inactive Vaadin fields rendered so a Card-first dialog can initialize the Information panel.
+		panel.getStyle().remove("visibility");
+		panel.getStyle().set("opacity", selected ? "1" : "0")
+		        .set("pointer-events", selected ? "auto" : "none");
+		panel.getElement().setAttribute("aria-hidden", Boolean.toString(!selected));
+		if (selected) {
+			panel.getElement().removeAttribute("inert");
+		} else {
+			panel.getElement().setAttribute("inert", "");
+		}
+	}
+
+	private FlexLayout createTabSheets(Component footer, RegistrationTabPolicy.Layout layout, boolean readOnly) {
 		TabSheet ts = new TabSheet();
+		FlexLayout mainLayout = new FlexLayout(ts, footer);
+		this.saveTask = new FormSaveTask(mainLayout);
 
-		FormLayout idLayout = createIdForm();
-		FormLayout weighInLayout = createWeighInForm();
-		FormLayout groupCatLayout = createCategoryAndSessionForm();
-
-		VerticalLayout content = new VerticalLayout(new Div(),
-		        idLayout,
+		VerticalLayout registrationContent = new VerticalLayout(new Div(),
+		        createIdForm(),
 		        separator(),
-		        weighInLayout,
+		        createWeighInForm(),
 		        separator(),
-		        groupCatLayout);
-		ts.add(Translator.translate("Athlete.IdTab"),
-		        content);
-
-		FormLayout infoLayout = createInfoForm();
-		FormLayout personalBestLayout = createRecordForm();
-		FormLayout drawLayout = createDrawForm();
-		VerticalLayout content2 = new VerticalLayout(new Div(),
-		        infoLayout,
+		        createCategoryAndSessionForm());
+		ts.add(Translator.translate("Athlete.IdTab"), registrationContent);
+		VerticalLayout additionalContent = new VerticalLayout(new Div(),
+		        createInfoForm(),
 		        separator(),
-		        personalBestLayout,
+		        createRecordForm(),
 		        separator(),
-		        drawLayout);
-		ts.add(Translator.translate("Athlete.InfoTab"),
-		        content2);
-		FlexLayout mainLayout = new FlexLayout(
-		        ts, footer);
-
+		        createDrawForm());
+		ts.add(Translator.translate("Athlete.InfoTab"), additionalContent);
+		if (layout.cardTab()) {
+			addCardTab(ts, footer, layout, getEditedAthlete().getId(), readOnly);
+		}
 		mainLayout.setFlexDirection(FlexDirection.COLUMN);
 		mainLayout.setFlexGrow(1.0D, ts);
 		// 37rem is the dialog height for the first tab - fits on a 1366x768 laptop with
 		// bookmark bar open. We don't need bigger than 37rem
-		mainLayout.setHeight("calc(min(\"100%\",\"37rem\"))");
+		mainLayout.setHeight("min(85vh, 37rem)");
 		mainLayout.setWidth("60rem");
+		mainLayout.setMaxWidth("95vw");
 		return mainLayout;
+	}
+
+	/**
+	 * The lifting card as a tab. It is an independent editor with its own buttons, saved through its own conflict
+	 * check: while it is shown, the buttons of the registration form are disabled, and "Update" never saves it. It is
+	 * retained across tab switches. Cancel reloads only this editor, not the registration draft.
+	 */
+	private void addCardTab(TabSheet ts, Component footer, RegistrationTabPolicy.Layout layout, Long athleteId,
+	        boolean readOnly) {
+		Div cardContent = new Div();
+		cardContent.setWidth("max-content");
+		cardContent.setMaxWidth("100%");
+		cardContent.getStyle().set("overflow-y", "auto");
+		AtomicReference<AthleteCardFormFactory> card = new AtomicReference<>();
+		Runnable load = () -> {
+			card.set(openCard(cardContent, athleteId, card, readOnly, layout.restrictedRegistration()));
+			card.get().setCardTabSelected(this.cardSelected);
+		};
+		Tab cardTab = ts.add(Translator.translate("Card"), cardContent);
+		ts.addSelectedChangeListener(e -> {
+			this.cardSelected = e.getSelectedTab() == cardTab;
+			footer.getElement().setEnabled(!this.cardSelected);
+			if (this.cardSelected && card.get() == null) {
+				load.run();
+			}
+			if (card.get() != null) {
+				card.get().setCardTabSelected(this.cardSelected);
+			}
+		});
+		cardContent.addAttachListener(e -> {
+			if (card.get() == null) {
+				load.run();
+			}
+		});
+		if (layout.initialTab() == RegistrationTabPolicy.Tab.CARD) {
+			this.cardSelected = true;
+			ts.setSelectedTab(cardTab);
+			footer.getElement().setEnabled(false);
+		}
+	}
+
+	private AthleteCardFormFactory openCard(Div container, Long athleteId, AtomicReference<AthleteCardFormFactory> card,
+	        boolean readOnly, boolean allowInProgress) {
+		try {
+			container.removeAll();
+			Athlete stored = AthleteRepository.findById(athleteId);
+			if (stored == null) {
+				throw new IllegalStateException("Athlete no longer exists: " + athleteId);
+			}
+			IAthleteEditing page = this.cardOrigin;
+			// Saving the card leaves the form open: the page's closing behavior is for a card opened on its own.
+			IAthleteEditing origin = new IAthleteEditing() {
+				@Override
+				public void closeDialog() {
+				}
+
+				@Override
+				public void setDialogCloseOnOutsideClick(boolean closeOnOutsideClick) {
+					if (page != null) {
+						page.setDialogCloseOnOutsideClick(closeOnOutsideClick);
+					}
+				}
+
+				@Override
+				public OwlcmsCrudGrid<?> getEditingGrid() {
+					return page != null ? page.getEditingGrid() : null;
+				}
+
+				@Override
+				public FieldOfPlay getFop() {
+					return page != null ? page.getFop() : null;
+				}
+			};
+			Runnable discard = () -> {
+				card.set(openCard(container, athleteId, card, readOnly, allowInProgress));
+				card.get().setCardTabSelected(this.cardSelected);
+			};
+			Runnable saved = () -> {
+				refreshGridBehind();
+				if (this.resultsEntry && page != null) {
+					page.closeDialog();
+				}
+			};
+			AthleteCardFormFactory cardFactory = new AthleteCardFormFactory(Athlete.class, origin)
+			        .setResultsUnlocked(page instanceof AnnouncerContent)
+			        .setSharedEditor(this.saveTask, saved, discard, allowInProgress);
+			container.add(cardFactory.buildNewForm(CrudOperation.UPDATE, stored, readOnly,
+			        e -> discard.run(), e -> {}, null));
+			return cardFactory;
+		} catch (RuntimeException e) {
+			NotificationUtils.unexpectedError(logger, e, null, athleteId);
+			throw e;
+		}
+	}
+
+	private void requireRegistration() {
+		if (!this.registrationWritable || !AthleteEditAccess.registration(this.editor,
+		        this.previousNext instanceof WeighinContent, this.resultsEntry)) {
+			throw new SecurityException("Athlete registration editing is not permitted");
+		}
+	}
+
+	private void applyEditingAccess() {
+		if (this.binder == null || this.registrationWritable) {
+			return;
+		}
+		this.binder.getFields().forEach(field -> field.setReadOnly(true));
+		if (this.metadataWritable) {
+			this.firstNameField.setReadOnly(false);
+			this.lastNameField.setReadOnly(false);
+			this.teamField.setReadOnly(false);
+			this.federationCodesField.setReadOnly(false);
+			this.individualEligibilityField.setReadOnly(false);
+		}
+	}
+
+	private void saveMetadataOnly(ComponentEventListener<ClickEvent<Button>> completed) {
+		AuditOrigin origin = AuditOrigin.fromUi("Athlete name, team and records form");
+		Opening opening = this.metadataOpening;
+		if (this.individualEligibilityField.isEmpty()) {
+			this.individualEligibilityField.setInvalid(true);
+			this.individualEligibilityField.setErrorMessage(Translator.translate("ThisFieldIsRequired"));
+			return;
+		}
+		AthleteMetadata values = AthleteMetadataEdit.fromForm(this.firstNameField.getValue(), this.lastNameField.getValue(),
+		        this.teamField.getValue(), this.federationCodesField.getValue(), this.individualEligibilityField.getValue());
+		this.saveTask.execute(() -> {
+			if (!this.metadataWritable) {
+				throw new SecurityException("Athlete metadata is read-only");
+			}
+			AthleteEditAccess.requireMetadata(this.editor);
+			return AthleteMetadataEdit.save(opening, values, origin);
+		}, result -> {
+			if (result.stale()) {
+				NotificationUtils.centeredError(Translator.translate("Athlete.MetadataStale", opening.fullName()));
+			} else {
+				this.metadataOpening = new Opening(opening.athleteId(), result.athlete().getFullName(),
+				        AthleteMetadataEdit.normalize(AthleteMetadata.from(result.athlete())),
+				        result.athlete().getMetadataUpdatedAt());
+				NotificationUtils.saved();
+				if (this.keepOpen) {
+					refreshGridBehind();
+				} else {
+					completed.onComponentEvent(null);
+				}
+			}
+		}, error -> NotificationUtils.unexpectedError(logger, error, null, opening.athleteId()));
 	}
 
 	private Component createTitle(String string) {
@@ -1190,11 +1499,12 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		logger.trace("{} deduct250g initial state={} (expect false to hide scaleWeight)", LoggerUtils.whereFrom(), deduct250g);
 		if (deduct250g) {
 			logger.trace("{} deduct250g=true -> adding scaleWeight field", LoggerUtils.whereFrom());
-			this.bodyWeightField.setReadOnly(true);
+			if (this.registrationWritable) {
+				this.bodyWeightField.setReadOnly(true);
+			}
 			layoutAddFormItem(layout, this.scaleWeightField, Translator.translate("ScaleWeight"));
 		} else {
 			logger.trace("{} deduct250g=false -> not adding scaleWeight field", LoggerUtils.whereFrom());
-			this.bodyWeightField.setReadOnly(false);
 		}
 		this.bodyWeightField.getWrappedTextField().setAllowedCharPattern("[0-9.,]");
 		this.bodyWeightField.getWrappedTextField().setValueChangeMode(ValueChangeMode.ON_CHANGE);
@@ -1210,12 +1520,14 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			logger.debug("{} scaleWeight value change old={} new={}", LoggerUtils.whereFrom(), v.getOldValue(), v.getValue());
 			if (v.getOldValue() != null && v.getValue() == null) {
 				this.bodyWeightField.setValue(null);
-				this.bodyWeightField.setReadOnly(false);
+				if (this.registrationWritable) {
+					this.bodyWeightField.setReadOnly(false);
+				}
 			}
 			if (v.getValue() != null) {
 				boolean deduct250gCurrent = Boolean.TRUE.equals(Competition.getCurrent().getDeduct250g());
 				logger.debug("{} deduct250g current state={} on value change", LoggerUtils.whereFrom(), deduct250gCurrent);
-				if (deduct250gCurrent) {
+				if (deduct250gCurrent && this.registrationWritable) {
 					this.bodyWeightField.setValue(v.getValue() - 0.250);
 				}
 				try {
@@ -1226,11 +1538,15 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 					        this.qualifyingTotalField);
 				} catch (Exception e) {
 				}
-				this.bodyWeightField.setReadOnly(true);
-			} else {
+				if (this.registrationWritable) {
+					this.bodyWeightField.setReadOnly(true);
+				}
+			} else if (this.registrationWritable) {
 				this.bodyWeightField.setReadOnly(false);
 			}
-			this.bodyWeightField.setReadOnly(Boolean.TRUE.equals(Competition.getCurrent().getDeduct250g()));
+			if (this.registrationWritable) {
+				this.bodyWeightField.setReadOnly(Boolean.TRUE.equals(Competition.getCurrent().getDeduct250g()));
+			}
 		});
 
 		if (!Boolean.TRUE.equals(Competition.getCurrent().getDeduct250g())) {

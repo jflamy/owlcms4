@@ -21,6 +21,7 @@ import app.owlcms.access.AccessStartup;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.audit.AuthAudit;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.jpa.JpaTransactions;
 import app.owlcms.data.jpa.SingletonSaves;
 import app.owlcms.data.jpa.StaleSingletonException;
 import app.owlcms.data.jpa.StaleSingletonException.Kind;
@@ -89,7 +90,7 @@ public class ConfigRepository {
 	 */
 	public static Config loadForEdit() {
 		Config published = Config.getCurrent();
-		Config draft = SingletonSaves.inTransaction(em -> SingletonSaves.findFresh(em, Config.class, published.getId()));
+		Config draft = JpaTransactions.inTransaction(em -> SingletonSaves.findFresh(em, Config.class, published.getId()));
 		if (draft == null) {
 			throw new IllegalStateException("no stored Config");
 		}
@@ -115,7 +116,7 @@ public class ConfigRepository {
 		synchronized (SingletonSaves.LOCK) {
 			Config published = Config.peekCurrent();
 			Long id = published != null ? published.getId() : DEFAULT_ID;
-			result = SingletonSaves.inTransaction(em -> {
+			result = JpaTransactions.inTransaction(em -> {
 				Config row = SingletonSaves.findFresh(em, Config.class, id);
 				if (row == null) {
 					throw new IllegalStateException("no stored Config");
@@ -164,7 +165,7 @@ public class ConfigRepository {
 			Config published = Config.peekCurrent();
 			config.prepareForSave();
 			preserveLocalOverride(config);
-			result = SingletonSaves.inTransaction(em -> {
+			result = JpaTransactions.inTransaction(em -> {
 				// raw values only: the effective mode needs the account cache, which must not be read in here
 				Config row = SingletonSaves.findFresh(em, Config.class, config.getId());
 				if (mode == Mode.EDIT && (row == null || !Objects.equals(row.getLastSavedAt(), config.getLastSavedAt()))) {

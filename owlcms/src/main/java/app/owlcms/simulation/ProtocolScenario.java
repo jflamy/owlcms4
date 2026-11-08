@@ -393,44 +393,48 @@ public class ProtocolScenario implements BreakController {
 	}
 
 	/** A weight change entered on the athlete card (first change of the next attempt), as the marshal does. */
-	private void changeWeight(Athlete athlete, int newWeight) throws InterruptedException {
-		Athlete a = this.fop.getDisplayOrder().stream()
-		        .filter(x -> x.getId().equals(athlete.getId()))
-		        .findFirst().orElse(athlete);
-		String weight = Integer.toString(newWeight);
-		switch (a.getAttemptsDone() + 1) {
-			case 1 -> a.setSnatch1Change1(weight);
-			case 2 -> a.setSnatch2Change1(weight);
-			case 3 -> a.setSnatch3Change1(weight);
-			case 4 -> a.setCleanJerk1Change1(weight);
-			case 5 -> a.setCleanJerk2Change1(weight);
-			case 6 -> a.setCleanJerk3Change1(weight);
-			default -> {
-				return;
+	void changeWeight(Athlete athlete, int newWeight) throws InterruptedException {
+		synchronized (this.fop) {
+			Athlete a = this.fop.getDisplayOrder().stream()
+			        .filter(x -> x.getId().equals(athlete.getId()))
+			        .findFirst().orElse(athlete);
+			String weight = Integer.toString(newWeight);
+			switch (a.getAttemptsDone() + 1) {
+				case 1 -> a.setSnatch1Change1(weight);
+				case 2 -> a.setSnatch2Change1(weight);
+				case 3 -> a.setSnatch3Change1(weight);
+				case 4 -> a.setCleanJerk1Change1(weight);
+				case 5 -> a.setCleanJerk2Change1(weight);
+				case 6 -> a.setCleanJerk3Change1(weight);
+				default -> {
+					return;
+				}
 			}
+			AthleteRepository.saveNoMetadata(a);
+			post(new FOPEvent.WeightChange(this, a, false));
 		}
-		AthleteRepository.save(a);
-		post(new FOPEvent.WeightChange(this, a, false));
 		this.pacer.pause(this.settleMillis);
 	}
 
 	/** The athlete withdraws from the competition, as with the athlete card's Withdraw button. */
-	private void withdraw(Athlete athlete) throws InterruptedException {
+	void withdraw(Athlete athlete) throws InterruptedException {
 		if (athlete == null) {
 			return;
 		}
-		Athlete other = this.fop.getDisplayOrder().stream()
-		        .filter(a -> a.getId().equals(athlete.getId()))
-		        .findFirst().orElse(athlete);
-		// Athlete.withdraw() only sets empty results; the athlete card's fields give "" where the database has null
-		for (int liftNo = other.getAttemptsDone() + 1; liftNo <= 6; liftNo++) {
-			if (other.getActualLiftOrNull(liftNo) == null) {
-				other.setActualLift(liftNo, "");
+		synchronized (this.fop) {
+			Athlete other = this.fop.getDisplayOrder().stream()
+			        .filter(a -> a.getId().equals(athlete.getId()))
+			        .findFirst().orElse(athlete);
+			// Athlete.withdraw() only sets empty results; the athlete card's fields give "" where the database has null
+			for (int liftNo = other.getAttemptsDone() + 1; liftNo <= 6; liftNo++) {
+				if (other.getActualLiftOrNull(liftNo) == null) {
+					other.setActualLift(liftNo, "");
+				}
 			}
+			other.withdraw();
+			AthleteRepository.saveNoMetadata(other);
+			post(new FOPEvent.WeightChange(this, other, true));
 		}
-		other.withdraw();
-		AthleteRepository.save(other);
-		post(new FOPEvent.WeightChange(this, other, true));
 		this.pacer.pause(this.settleMillis);
 	}
 

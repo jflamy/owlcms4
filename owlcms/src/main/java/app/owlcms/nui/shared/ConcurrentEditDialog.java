@@ -25,6 +25,7 @@ import app.owlcms.data.athlete.ConcurrentEditCheck;
 import app.owlcms.data.athlete.ConcurrentEditCheck.Conflict;
 import app.owlcms.data.athlete.ConcurrentEditCheck.SaveAttempt;
 import app.owlcms.audit.AthleteDiff.Snapshot;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 
 /**
@@ -68,29 +69,29 @@ public final class ConcurrentEditDialog {
 	 * @param save        the normal save action of the form
 	 * @param discard     closes the form without saving
 	 */
-	public static void saveUnlessConflicting(FormSaveTask task, ConcurrentEditCheck check, Object monitor,
-	        Athlete formValues, String athleteName, BooleanSupplier valid, Runnable save, Runnable saved, Runnable discard,
+	public static void saveUnlessConflicting(FormSaveTask task, ConcurrentEditCheck check,
+	        Athlete formValues, String athleteName, BooleanSupplier valid, Consumer<FieldOfPlay> save, Runnable saved, Runnable discard,
 	        Consumer<Exception> failed) {
-		attemptSave(task, check, monitor, formValues, athleteName, null, valid, save, saved, discard, failed);
+		attemptSave(task, check, formValues, athleteName, null, valid, save, saved, discard, failed);
 	}
 
-	private static void attemptSave(FormSaveTask task, ConcurrentEditCheck check, Object monitor, Athlete formValues,
-	        String athleteName, Snapshot accepted, BooleanSupplier valid, Runnable save, Runnable saved, Runnable discard,
+	private static void attemptSave(FormSaveTask task, ConcurrentEditCheck check, Athlete formValues,
+	        String athleteName, Snapshot accepted, BooleanSupplier valid, Consumer<FieldOfPlay> save, Runnable saved, Runnable discard,
 	        Consumer<Exception> failed) {
 		if (!valid.getAsBoolean()) {
 			return;
 		}
-		task.execute(() -> check.trySave(monitor, formValues, accepted, task::isActive, save), result -> {
+		task.execute(() -> check.trySave(formValues, accepted, task::isActive, save), result -> {
 			if (result.saved()) {
 				saved.run();
 			} else if (!result.conflicts().isEmpty()) {
-				showConflicts(task, check, monitor, formValues, athleteName, result, valid, save, saved, discard, failed);
+				showConflicts(task, check, formValues, athleteName, result, valid, save, saved, discard, failed);
 			}
 		}, failed);
 	}
 
-	private static void showConflicts(FormSaveTask task, ConcurrentEditCheck check, Object monitor, Athlete formValues,
-	        String athleteName, SaveAttempt attempt, BooleanSupplier valid, Runnable save, Runnable saved, Runnable discard,
+	private static void showConflicts(FormSaveTask task, ConcurrentEditCheck check, Athlete formValues,
+	        String athleteName, SaveAttempt attempt, BooleanSupplier valid, Consumer<FieldOfPlay> save, Runnable saved, Runnable discard,
 	        Consumer<Exception> failed) {
 		Dialog dialog = new Dialog();
 		dialog.setHeaderTitle(Translator.translate("ConcurrentEdit.Title"));
@@ -117,7 +118,7 @@ public final class ConcurrentEditDialog {
 
 		Button saveAnyway = new Button(Translator.translate("ConcurrentEdit.SaveAnyway"), e -> {
 			dialog.close();
-			attemptSave(task, check, monitor, formValues, athleteName, attempt.current(), valid, save, saved, discard, failed);
+			attemptSave(task, check, formValues, athleteName, attempt.current(), valid, save, saved, discard, failed);
 		});
 		saveAnyway.addThemeVariants(ButtonVariant.LUMO_ERROR);
 		// the default is to reload the card (decided 2026-10-22): the stale values are discarded

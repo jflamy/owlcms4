@@ -19,6 +19,7 @@ import app.owlcms.audit.AuditOrigin;
 import app.owlcms.audit.SettingsAudit;
 import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.jpa.JpaTransactions;
 import app.owlcms.data.jpa.SingletonSaves;
 import app.owlcms.data.jpa.StaleSingletonException;
 import app.owlcms.data.jpa.StaleSingletonException.Kind;
@@ -114,7 +115,7 @@ public class CompetitionRepository {
 	 */
 	public static Competition loadForEdit() {
 		Competition published = Competition.getCurrent();
-		Competition draft = SingletonSaves.inTransaction(
+		Competition draft = JpaTransactions.inTransaction(
 		        em -> SingletonSaves.findFresh(em, Competition.class, published.getId()));
 		if (draft == null) {
 			throw new IllegalStateException("no stored Competition");
@@ -138,7 +139,7 @@ public class CompetitionRepository {
 		WriteResult result;
 		synchronized (SingletonSaves.LOCK) {
 			Competition published = Competition.getCurrent();
-			result = SingletonSaves.inTransaction(em -> {
+			result = JpaTransactions.inTransaction(em -> {
 				Competition row = SingletonSaves.findFresh(em, Competition.class, published.getId());
 				if (row == null) {
 					throw new StaleSingletonException(Kind.COMPETITION, null);
@@ -178,7 +179,7 @@ public class CompetitionRepository {
 		WriteResult result;
 		synchronized (SingletonSaves.LOCK) {
 			Competition published = Competition.peekCurrent();
-			result = SingletonSaves.inTransaction(em -> {
+			result = JpaTransactions.inTransaction(em -> {
 				Competition row = SingletonSaves.findFresh(em, Competition.class, competition.getId());
 				if (mode == Mode.EDIT && (row == null
 				        || !Objects.equals(row.getLastSavedAt(), competition.getLastSavedAt()))) {

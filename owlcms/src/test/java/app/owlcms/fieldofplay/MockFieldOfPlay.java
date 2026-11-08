@@ -11,6 +11,7 @@ import java.util.List;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.data.records.RecordEvent;
 
 /**
  * Test-only factory for {@link FieldOfPlay} instances. Lives in the test source tree so that the
@@ -35,5 +36,10 @@ public final class MockFieldOfPlay {
 		m.init(athletes, timer, breakTimer, true);
 		m.getFopEventBus().register(m);
 		return m;
+	}
+
+	/** The records the platform currently considers eligible for the athlete. */
+	public static List<RecordEvent> eligibleRecords(FieldOfPlay fop, Athlete athlete) {
+		return fop.eligibleRecordsByAthlete.getOrDefault(athlete, List.of());
 	}
 }

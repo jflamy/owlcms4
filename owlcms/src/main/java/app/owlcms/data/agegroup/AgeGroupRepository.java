@@ -41,6 +41,7 @@ import app.owlcms.data.category.RegistrationPreferenceComparator;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.jpa.JpaTransactions;
 import app.owlcms.data.jpa.SingletonSaves;
 import app.owlcms.data.jpa.StaleSingletonException;
 import app.owlcms.data.jpa.StaleSingletonException.Kind;
@@ -513,13 +514,13 @@ public class AgeGroupRepository {
 
 	/** Replaces every age group, reassigns every athlete, and audits the athletes whose categories changed. */
 	private static void reload(AuditOrigin origin, String source, Runnable replaceDefinitions) {
-		Map<Long, AthleteDiff.Snapshot> before = SingletonSaves.inTransaction(em -> AgeGroupDefinitionService
+		Map<Long, AthleteDiff.Snapshot> before = JpaTransactions.inTransaction(em -> AgeGroupDefinitionService
 		        .athletesBefore(em, em.createQuery("select a.id from Athlete a", Long.class).getResultList()));
 		replaceDefinitions.run();
 		AthleteRepository.resetParticipations(false, true);
-		List<AthleteAudit.Changed> changed = SingletonSaves
+		List<AthleteAudit.Changed> changed = JpaTransactions
 		        .inTransaction(em -> AgeGroupDefinitionService.athletesChanged(em, before));
-		Long ageGroups = SingletonSaves.inTransaction(
+		Long ageGroups = JpaTransactions.inTransaction(
 		        em -> em.createQuery("select count(ag) from AgeGroup ag", Long.class).getSingleResult());
 		AgeGroupAudit.definitionsLoaded(origin, source, ageGroups, changed);
 		RankingConfig.updateMustCompute();
@@ -527,7 +528,7 @@ public class AgeGroupRepository {
 
 	/** A detached copy of the stored row for an editor: fresh from the database, categories initialized. */
 	public static AgeGroup loadForEdit(Long id) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			AgeGroup row = SingletonSaves.findFresh(em, AgeGroup.class, id);
 			if (row != null) {
 				// touching the lazy collection loads it before the EntityManager closes
@@ -544,7 +545,7 @@ public class AgeGroupRepository {
 	 * @throws StaleSingletonException when the row is gone or was saved since the draft was loaded
 	 */
 	public static void assertCurrent(Long id, Long draftStamp) {
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			AgeGroup row = SingletonSaves.findFresh(em, AgeGroup.class, id);
 			checkCurrent(row, draftStamp);
 			return null;
@@ -561,7 +562,7 @@ public class AgeGroupRepository {
 	public static <T> T write(Long id, Long draftStamp, AuditOrigin origin,
 	        BiFunction<EntityManager, AgeGroup, T> work) {
 		synchronized (SingletonSaves.LOCK) {
-			return SingletonSaves.inTransaction(em -> {
+			return JpaTransactions.inTransaction(em -> {
 				AgeGroup row = SingletonSaves.findFresh(em, AgeGroup.class, id);
 				checkCurrent(row, draftStamp);
 				T result = work.apply(em, row);

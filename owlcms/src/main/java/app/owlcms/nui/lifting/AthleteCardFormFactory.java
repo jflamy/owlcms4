@@ -50,11 +50,16 @@ import com.vaadin.flow.data.converter.StringToDoubleConverter;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.ClassList;
 
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.Principal;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteCardValues;
+import app.owlcms.data.athlete.AthleteEditAccess;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.ConcurrentEditCheck;
+import app.owlcms.data.athlete.RegistrationEditCheck;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.FOPEvent;
@@ -149,6 +154,28 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	private TextField snatch3Declaration;
 	private BinderValidationStatus<Athlete> status;
 	private Boolean updatingResults;
+	private boolean resultsUnlocked;
+	private Principal editor;
+	private boolean editable;
+	private boolean sharedEditor;
+	private boolean allowSessionInProgress;
+	private Runnable cardSaved;
+	private Runnable cardDiscarded;
+	private boolean cardTabSelected = true;
+
+	public void setCardTabSelected(boolean selected) {
+		this.cardTabSelected = selected;
+	}
+
+	public AthleteCardFormFactory setSharedEditor(FormSaveTask task, Runnable saved, Runnable discarded,
+	        boolean allowSessionInProgress) {
+		this.sharedEditor = true;
+		this.allowSessionInProgress = allowSessionInProgress;
+		this.saveTask = task;
+		this.cardSaved = saved;
+		this.cardDiscarded = discarded;
+		return this;
+	}
 
 	/**
 	 * Card body. While it is attached, it listens on the FOP UI bus so that the card closes when its athlete gets the
@@ -182,6 +209,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		}
 
 		private void subscribe() {
+			if (AthleteCardFormFactory.this.sharedEditor) {
+				return;
+			}
 			FieldOfPlay fop = AthleteCardFormFactory.this.origin.getFop();
 			if (fop == null) {
 				return;
@@ -215,6 +245,15 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	public AthleteCardFormFactory(Class<Athlete> domainType, IAthleteEditing origin) {
 		super(domainType);
 		this.origin = origin;
+	}
+
+	/**
+	 * Open with the result fields editable, as on the announcer pages, even if the origin is not one of them (the card
+	 * is a tab of another form).
+	 */
+	public AthleteCardFormFactory setResultsUnlocked(boolean resultsUnlocked) {
+		this.resultsUnlocked = resultsUnlocked;
+		return this;
 	}
 
 	/**
@@ -271,6 +310,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	        ComponentEventListener<ClickEvent<Button>> unused2, ComponentEventListener<ClickEvent<Button>> unused3,
 	        boolean shortcutEnter,
 	        Button... buttons) {
+		if (!this.editable) {
+			return new HorizontalLayout(buildCancelButton(cancelButtonClickListener));
+		}
 		ComponentEventListener<ClickEvent<Button>> postOperationCallBack = (e) -> {
 		};
 		setOperationShortcutEnabled(false);
@@ -357,7 +399,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		if (this.operationShortcutAllowed && this.operationButton != null) {
 			this.operationShortcut = Shortcuts.addShortcutListener(footerLayout, () -> {
 				boolean valid = this.binder.validate().isOk();
-				if (valid && this.operationShortcutEnabled) {
+				if (valid && this.operationShortcutEnabled && this.cardTabSelected) {
 					this.operationButton.click();
 				}
 			}, Key.ENTER);
@@ -376,6 +418,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	        ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
 	        ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
 	        ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
+		this.editor = AccessUi.currentPrincipal();
+		this.editable = !readOnly && AthleteEditAccess.card(this.editor, AthleteRepository.findById(aFromList.getId()));
 		this.setLiftResultChanged(false);
 		this.startingWeightConfirmationRequired = false;
 		this.startingWeightRecheckPending = false;
@@ -385,7 +429,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		if (this.responsiveSteps != null) {
 			formLayout.setResponsiveSteps(this.responsiveSteps);
 		}
-		setUpdatingResults(this.origin instanceof AnnouncerContent);
+		setUpdatingResults(this.editable && (this.resultsUnlocked || this.origin instanceof AnnouncerContent));
 
 		this.gridLayout = setupGrid();
 		this.errorLabel = new Paragraph("initial");
@@ -439,7 +483,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		        updateButtonClickListener, deleteButtonClickListener, true);
 
 		FormComponent mainLayout = new FormComponent(this.originalAthlete);
-		this.saveTask = new FormSaveTask(mainLayout);
+		if (!this.sharedEditor) {
+			this.saveTask = new FormSaveTask(mainLayout);
+		}
 		mainLayout.add(formLayout);
 		mainLayout.add(this.gridLayout);
 		mainLayout.add(labelWrapper);
@@ -464,7 +510,11 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			        sb);
 		}
 
-		setFocus(getEditedAthlete(), this.initialValidationStatus.hasErrors());
+		if (this.editable) {
+			setFocus(getEditedAthlete(), this.initialValidationStatus.hasErrors());
+		} else {
+			this.binder.setReadOnly(true);
+		}
 
 		return mainLayout;
 	}
@@ -1330,31 +1380,53 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	private void saveCard(Consumer<Athlete> mutation, boolean validate, boolean resultChanged, String notificationKey,
 	        Runnable completed) {
 		Athlete values = new Athlete();
-		Athlete.conditionalCopy(values, getEditedAthlete(), true, true, true);
+		Athlete.conditionalCopy(values, getEditedAthlete(), true, true, true, false);
 		values.setValidation(false);
-		FieldOfPlay fop = this.origin.getFop();
-		// Off-platform cards retain their existing behavior, but serialize with each other.
-		Object monitor = fop != null ? fop : ConcurrentEditCheck.class;
-		Athlete original = this.originalAthlete;
 		Object eventOrigin = getOrigin();
-		FOPEvent.WeightChange weightChange = new FOPEvent.WeightChange(eventOrigin, original, resultChanged);
 		boolean accepting = this.acceptingStartingWeightViolation;
-		ConcurrentEditDialog.saveUnlessConflicting(this.saveTask, this.concurrentEditCheck, monitor, values,
-		        original.getFullName(), () -> !validate || validateCard(accepting), () -> {
-			        Athlete.conditionalCopy(original, values, true, true, true);
-			        mutation.accept(original);
-			        AthleteRepository.save(original);
+		ConcurrentEditDialog.saveUnlessConflicting(this.saveTask, this.concurrentEditCheck, values,
+		        this.originalAthlete.getFullName(), () -> !validate || validateCard(accepting), fop -> {
+			        Athlete current = AthleteRepository.findById(values.getId());
+			        if (!this.editable) {
+				        throw new SecurityException("Athlete card is read-only");
+			        }
+			        AthleteEditAccess.requireCard(this.editor, current);
+			        if (this.sharedEditor && !this.allowSessionInProgress
+			                && RegistrationEditCheck.requiresMetadataForm(current)) {
+				        throw new IllegalStateException("The athlete's session is in progress");
+			        }
+			        AthleteCardValues.copyTo(values, current);
+			        mutation.accept(current);
+			        if (validate && !accepting) {
+				        current.validateStartingTotalsRule();
+			        }
+			        Athlete saved = AthleteRepository.saveNoMetadata(current);
+			        AthleteCardValues.copyTo(saved, values);
+			        // Keep the originating operational object current without submitting its old registration copy.
+			        Athlete.conditionalCopy(this.originalAthlete, saved, true, true, true);
 			        if (fop != null) {
 				        if (notificationKey != null) {
-					        fop.pushOutUIEvent(new UIEvent.Notification(original, this, Notification.Level.WARNING,
-					                notificationKey, 5000, fop, original.getFullName()));
+					        fop.pushOutUIEvent(new UIEvent.Notification(saved, this, Notification.Level.WARNING,
+					                notificationKey, 5000, fop, saved.getFullName()));
 				        }
-				        fop.fopEventPost(weightChange);
+				        fop.fopEventPost(new FOPEvent.WeightChange(eventOrigin, this.originalAthlete, resultChanged));
 			        }
 		        }, () -> {
-			        this.origin.closeDialog();
+			        if (this.sharedEditor) {
+				        Athlete.conditionalCopy(getEditedAthlete(), this.originalAthlete, true, true, true);
+				        this.binder.setBean(getEditedAthlete());
+				        this.cardSaved.run();
+			        } else {
+				        this.origin.closeDialog();
+			        }
 			        completed.run();
-		        }, () -> this.origin.closeDialog(), e -> showError(CrudOperation.UPDATE, e));
+		        }, () -> {
+			        if (this.sharedEditor) {
+				        this.cardDiscarded.run();
+			        } else {
+				        this.origin.closeDialog();
+			        }
+		        }, e -> showError(CrudOperation.UPDATE, e));
 	}
 
 	private boolean validateCard(boolean accepting) {
@@ -1449,6 +1521,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	}
 
 	private void resetReadOnlyFields() {
+		if (!this.editable) {
+			this.binder.getFields().forEach(field -> field.setReadOnly(true));
+			return;
+		}
 		// setErrorLabel undoes the readOnly status of fields
 		this.snatch2AutomaticProgression.setReadOnly(true);
 		this.snatch3AutomaticProgression.setReadOnly(true);

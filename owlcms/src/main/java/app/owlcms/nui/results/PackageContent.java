@@ -52,6 +52,7 @@ import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athlete.RegistrationTabPolicy.CardEntry;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
@@ -59,15 +60,13 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
-import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.AthleteCrudGrid;
 import app.owlcms.nui.shared.AthleteGridContent;
-import app.owlcms.nui.shared.LiftingSessionGuard;
+import app.owlcms.nui.shared.NAthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
 import app.owlcms.spreadsheet.JXLSWinningSheet;
@@ -177,7 +176,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	private void applyUrlFiltersToUI() {
 		Championship urlAD = getChampionship();
 		String urlAG = getAgeGroupPrefix();
-		Category urlCat = getCategoryValue();
+		Category urlCat = getCategory();
 		Gender urlGender = getGender();
 
 		// Apply championship filter
@@ -540,14 +539,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			}
 
 			@Override
-			protected void updateButtonClicked() {
-				// only edit non-lifting groups
-				if (!checkFOP()) {
-					super.updateButtonClicked();
-				}
-			}
-
-			@Override
 			protected void updateButtons() {
 			}
 		};
@@ -665,18 +656,10 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		// logger.debug("update URL {} {} {}",agp,ad,cat);
 	}
 
-	/**
-	 * @return true if the current group is safe for editing -- i.e. not lifting currently
-	 */
-	private boolean checkFOP() {
-		FieldOfPlay liftingFop = OwlcmsFactory.getFOPSessionInProgress(this.currentGroup);
-		if (liftingFop != null) {
-			LiftingSessionGuard.notifyLifting(liftingFop, LiftingSessionGuard.CANNOT_EDIT_RESULTS);
-			logger.debug(Translator.translate("CannotEditResults_logging"), this.currentGroup, liftingFop);
-		} else {
-			logger.debug(Translator.translate("EditingResults_logging"), this.currentGroup, liftingFop);
-		}
-		return liftingFop != null;
+	@Override
+	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
+		return new NAthleteRegistrationFormFactory(Athlete.class, null, null)
+		        .setCardEntry(CardEntry.CARD_FIRST, this);
 	}
 
 	private Ranking computeScoringSystem() {

@@ -76,7 +76,7 @@ public class RegistrationEditCheckTest {
 	}
 
 	@Test
-	public void hiddenResultsStillMakeTheFormStaleAfterUnselection() {
+	public void cardResultsDoNotMakeRegistrationStale() {
 		Athlete form = athlete();
 		AthleteRepository.save(form);
 		RegistrationEditCheck check = RegistrationEditCheck.open(form);
@@ -85,7 +85,7 @@ public class RegistrationEditCheckTest {
 		lifted.setSnatch1ActualLift("90");
 		AthleteRepository.save(lifted);
 		// Selection belongs to the FOP, not the athlete. Unselecting cannot change this database comparison.
-		assertTrue(check.isStale(check.loadCurrent()));
+		assertFalse(check.isStale(check.loadCurrent()));
 		assertFalse(RegistrationEditCheck.open(check.loadCurrent()).isStale(check.loadCurrent()));
 	}
 
@@ -93,6 +93,10 @@ public class RegistrationEditCheckTest {
 	public void registrationAndHiddenMetadataChangesAreDetected() {
 		List<Consumer<Athlete>> changes = List.of(
 		        a -> a.setTeam("New team"),
+		        a -> a.setFirstName("Other first name"),
+		        a -> a.setLastName("Other last name"),
+		        a -> a.setFederationCodes("IWF,EWF"),
+		        a -> a.setMetadataUpdatedAt(7L),
 		        a -> a.setMembership("New membership"),
 		        a -> a.setScaleWeight(80.1),
 		        a -> a.setQualifyingTotal(200),
@@ -100,7 +104,19 @@ public class RegistrationEditCheckTest {
 		        a -> a.setIndividualEligibilityStatus(EligibleForIndividualRankingStatus.values()[0]),
 		        a -> a.setPersonalBestSnatch(100),
 		        a -> a.setPersonalBestCleanJerk(120),
-		        a -> a.setPersonalBestTotal(220),
+		        a -> a.setPersonalBestTotal(220));
+		for (Consumer<Athlete> change : changes) {
+			Athlete stored = athlete();
+			stored.setValidation(false);
+			RegistrationEditCheck check = RegistrationEditCheck.open(stored);
+			change.accept(stored);
+			assertTrue(check.isStale(stored));
+		}
+	}
+
+	@Test
+	public void cardAndAdjudicationChangesAreOutsideRegistration() {
+		List<Consumer<Athlete>> changes = List.of(
 		        a -> a.setCustomScore(4.0),
 		        a -> a.setSnatch2Change1("95"),
 		        a -> a.setCleanJerk3ActualLift("-120"),
@@ -113,17 +129,17 @@ public class RegistrationEditCheckTest {
 			stored.setValidation(false);
 			RegistrationEditCheck check = RegistrationEditCheck.open(stored);
 			change.accept(stored);
-			assertTrue(check.isStale(stored));
+			assertFalse(check.isStale(stored));
 		}
 	}
 
 	@Test
-	public void decisionListsAreCopiedIntoTheBaseline() {
+	public void decisionListsAreNotRegistrationInputs() {
 		Athlete stored = athlete();
 		stored.setSnatch1Decisions(new ArrayList<>(Arrays.asList(true, null, false)));
 		RegistrationEditCheck check = RegistrationEditCheck.open(stored);
 		stored.getSnatch1Decisions().set(1, true);
-		assertTrue(check.isStale(stored));
+		assertFalse(check.isStale(stored));
 	}
 
 	@Test
@@ -165,7 +181,10 @@ public class RegistrationEditCheckTest {
 		current.setCoach("Director");
 		AthleteRepository.save(current);
 		AtomicInteger writes = new AtomicInteger();
-		RegistrationEditCheck.SaveResult result = check.trySave(form, () -> true, writes::incrementAndGet);
+		RegistrationEditCheck.SaveResult result = check.trySave(form, () -> true, candidate -> {
+			writes.incrementAndGet();
+			return candidate;
+		});
 		assertTrue(result.stale());
 		assertFalse(result.saved());
 		assertEquals(0, writes.get());
@@ -178,7 +197,7 @@ public class RegistrationEditCheckTest {
 		RegistrationEditCheck check = RegistrationEditCheck.open(form);
 		form.setCoach("My new coach");
 		RegistrationEditCheck.SaveResult result = check.trySave(form, () -> true,
-		        () -> AthleteRepository.save(form));
+		        AthleteRepository::save);
 		assertTrue(result.saved());
 		assertFalse(result.stale());
 		assertEquals("My new coach", check.loadCurrent().getCoach());
@@ -189,7 +208,77 @@ public class RegistrationEditCheckTest {
 		Athlete form = athlete();
 		RegistrationEditCheck check = RegistrationEditCheck.open(form);
 		RegistrationEditCheck.SaveResult result = check.trySave(form, () -> false,
-		        () -> { throw new AssertionError("Closed form must not save"); });
+		        candidate -> { throw new AssertionError("Closed form must not save"); });
 		assertFalse(result.saved());
+	}
+
+	@Test
+	public void independentDraftsSaveInEitherOrderWithoutReopening() {
+		for (boolean cardFirst : List.of(true, false)) {
+			Athlete opened = AthleteRepository.save(athlete());
+			Athlete registration = AthleteRepository.findById(opened.getId());
+			Athlete card = AthleteRepository.findById(opened.getId());
+			RegistrationEditCheck registrationCheck = RegistrationEditCheck.open(registration);
+			ConcurrentEditCheck cardCheck = ConcurrentEditCheck.open(card);
+			registration.setLastName("Corrected registration");
+			registration.setCoach("New coach");
+			card.setSnatch1ActualLift("90");
+			Runnable saveRegistration = () -> assertTrue(registrationCheck.trySave(registration, () -> true,
+			        AthleteRepository::save).saved());
+			Runnable saveCard = () -> assertTrue(cardCheck.trySave(card, null, () -> true, fop -> {
+				Athlete current = AthleteRepository.findById(opened.getId());
+				AthleteCardValues.copyTo(card, current);
+				AthleteRepository.saveNoMetadata(current);
+			}).saved());
+			if (cardFirst) {
+				saveCard.run();
+				assertEquals("Registration", AthleteRepository.findById(opened.getId()).getLastName());
+				saveRegistration.run();
+			} else {
+				saveRegistration.run();
+				assertEquals("", AthleteRepository.findById(opened.getId()).getSnatch1ActualLift());
+				saveCard.run();
+			}
+			Athlete stored = AthleteRepository.findById(opened.getId());
+			assertEquals("Corrected registration", stored.getLastName());
+			assertEquals("New coach", stored.getCoach());
+			assertEquals("90", stored.getSnatch1ActualLift());
+			registration.setMetadataUpdatedAt(stored.getMetadataUpdatedAt());
+			registration.setCoach("Second save");
+			assertTrue(registrationCheck.trySave(registration, () -> true, AthleteRepository::save).saved());
+			assertEquals("90", AthleteRepository.findById(opened.getId()).getSnatch1ActualLift());
+		}
+	}
+
+	@Test
+	public void registrationPreservesNewDecisionsAndUntouchedSharedDeclaration() {
+		Athlete opened = AthleteRepository.save(athlete());
+		RegistrationEditCheck check = RegistrationEditCheck.open(opened);
+		Athlete current = check.loadCurrent();
+		current.setSnatch1Declaration("95");
+		current.setSnatch1ActualLift("95");
+		current.setSnatch1Decisions(new ArrayList<>(Arrays.asList(true, false, true)));
+		current.setSnatch1LiftTime(LocalDateTime.of(2026, 11, 7, 12, 0));
+		AthleteRepository.saveNoMetadata(current);
+		opened.setCoach("Registration only");
+		assertTrue(check.trySave(opened, () -> true, AthleteRepository::save).saved());
+		Athlete saved = check.loadCurrent();
+		assertEquals("95", saved.getSnatch1Declaration());
+		assertEquals("95", saved.getSnatch1ActualLift());
+		assertEquals(current.getSnatch1Decisions(), saved.getSnatch1Decisions());
+		assertEquals(current.getSnatch1LiftTime(), saved.getSnatch1LiftTime());
+	}
+
+	@Test
+	public void competingEditsToSharedDeclarationStillConflict() {
+		Athlete form = AthleteRepository.save(athlete());
+		RegistrationEditCheck check = RegistrationEditCheck.open(form);
+		Athlete stored = check.loadCurrent();
+		stored.setSnatch1Declaration("95");
+		AthleteRepository.saveNoMetadata(stored);
+		form.setSnatch1Declaration("97");
+		assertTrue(check.trySave(form, () -> true, candidate -> {
+			throw new AssertionError("Conflicting declaration must not save");
+		}).stale());
 	}
 }

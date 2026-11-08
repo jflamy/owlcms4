@@ -57,6 +57,7 @@ import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.AuditContext;
 import app.owlcms.audit.AuditFormat;
 import app.owlcms.audit.AuditLog;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.audit.FopAudit;
 import app.owlcms.audit.RecordAudit;
 import app.owlcms.audit.RecordChallengeTracker;
@@ -67,7 +68,9 @@ import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.DefaultChampionship;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteMetadata;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.AthleteRepository.MetadataSaveResult;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -307,6 +310,8 @@ public class FieldOfPlay implements IUnregister {
 	Map<Athlete, List<RecordEvent>> displayableRecordsByAthlete = new HashMap<>();
 	Map<Athlete, List<RecordEvent>> eligibleRecordsByAthlete = new HashMap<>();
 	Set<RecordEvent> groupRecords = new HashSet<>();
+	// set by a metadata save; the record maps are rebuilt from the refetched athletes at the next recomputation
+	private volatile boolean recordMapsStale;
 	private boolean clockStoppedDecisionsAllowed;
 	private boolean decisionReceivedWithoutClock;
 	private Group videoGroup;
@@ -2249,6 +2254,28 @@ public class FieldOfPlay implements IUnregister {
 		}
 	}
 
+	/**
+	 * Saves a name, team, federation or individual-eligibility correction while this platform may be lifting.
+	 * <p>
+	 * Only the six metadata columns are written, so the lift, decision, clock and jury state are not touched and
+	 * nothing is reloaded. The athletes retained here, and the record maps, pick up the change when the lifting order
+	 * is next recomputed. Holding the platform monitor serializes this save with the other live writers. Failures
+	 * propagate; a stale result means nothing was written.
+	 *
+	 * @param expectedUpdatedAt the metadata stamp the form was opened with
+	 * @param origin            captured on the UI thread where the action started
+	 */
+	public synchronized MetadataSaveResult updateAthlete(Long athleteId, AthleteMetadata metadata,
+	        Long expectedUpdatedAt, AuditOrigin origin) {
+		MetadataSaveResult result = AthleteRepository.saveMetadata(athleteId, metadata, expectedUpdatedAt, origin);
+		if (result.saved()) {
+			this.recordMapsStale = true;
+		}
+		this.logger.info("{}athlete {} metadata {}", FieldOfPlay.getLoggingName(this), athleteId,
+		        result.stale() ? "stale, not saved" : "saved");
+		return result;
+	}
+
 	public void recomputeRecords(Athlete curAthlete) {
 		if (curAthlete == null) {
 			this.recordChallengeTracker.clear();
@@ -2938,11 +2965,17 @@ public class FieldOfPlay implements IUnregister {
 			} else if (getBreakType() == BreakType.JURY) {
 				a.setJuryDeliberation(attempt, e.success);
 			}
-			AthleteRepository.save(a);
+			AthleteRepository.saveNoMetadata(a);
 
 			// reversal from bad to good should add records
 			// reversal from good to bad must remove records
 			setNewRecords(updateRecords(a, e.success, getLastChallengedRecords(), getLastNewRecords()));
+			if (reversalToGood) {
+				setLastNewRecords(getNewRecords());
+			}
+			UIEvent.RecordNotification recordNotification = reversalToGood
+					? createRecordNotification(a, getLastChallengedRecords(), true, curValue)
+					: null;
 
 			recomputeLiftingOrder(true, true);
 
@@ -2952,10 +2985,8 @@ public class FieldOfPlay implements IUnregister {
 			// tell ourself to reset after 3 secs.
 			new DelayTimer(isTestingMode()).schedule(() -> {
 				// fopEventPost(new DecisionReset(this));
-				if (reversalToGood) {
-					// the new record notification shows the records that were broken
-					notifyRecords(getLastChallengedRecords(), true, curValue);
-					setLastNewRecords(getNewRecords());
+				if (recordNotification != null) {
+					pushOutUIEvent(recordNotification);
 				}
 				synchronized (FieldOfPlay.this) {
 					// a clock start may already have ended the display
@@ -3389,14 +3420,15 @@ public class FieldOfPlay implements IUnregister {
 		return true;
 	}
 
-	private void notifyRecords(List<RecordEvent> records, boolean newRecord, int newRecordValue) {
+	/** Capture the notification before any delay, while the athlete and record evidence still belong to this lift. */
+	private UIEvent.RecordNotification createRecordNotification(Athlete athlete, List<RecordEvent> records,
+			boolean newRecord, int newRecordValue) {
 		if (records == null || records.isEmpty()) {
-			return;
+			return null;
 		}
 		String title = Translator.translate("Scoreboard." + (newRecord ? "NewRecord(s)" : "RecordAttempt(s)"),
 				records.size());
-		String name = newRecord ? getAthleteUnderReview().getFullName() : curAthlete.getFullName();
-		title = Translator.translate("RecordNotification.Title", title, newRecordValue, name);
+		title = Translator.translate("RecordNotification.Title", title, newRecordValue, athlete.getFullName());
 		StringBuilder sb = new StringBuilder();
 		int i = 0;
 		for (RecordEvent rec : records) {
@@ -3429,16 +3461,15 @@ public class FieldOfPlay implements IUnregister {
 				sb.append(" ").append(Translator.translate("RecordNotification.DateOrHolder", okDate ? date : holder));
 			}
 		}
-		pushOutUIEvent(
-				new UIEvent.RecordNotification(
-						this.getCurAthlete(),
-						this,
-						newRecord ? UIEvent.RecordNotification.Level.SUCCESS : UIEvent.RecordNotification.Level.INFO,
-						title,
-						sb.toString(),
-						newRecord ? 10000 : 0,
-						newRecord,
-						this));
+		return new UIEvent.RecordNotification(
+				athlete,
+				this,
+				newRecord ? UIEvent.RecordNotification.Level.SUCCESS : UIEvent.RecordNotification.Level.INFO,
+				title,
+				sb.toString(),
+				newRecord ? 10000 : 0,
+				newRecord,
+				this);
 	}
 
 	private void prepareDownSignal() {
@@ -4262,6 +4293,12 @@ public class FieldOfPlay implements IUnregister {
 				a.setFop(this);
 			}
 
+			if (this.recordMapsStale) {
+				// rebuilds from the refetched athletes; other rebuilds use the retained, possibly older, copies
+				this.recordMapsStale = false;
+				recomputeRecordsMap(currentGroupAthletes);
+			}
+
 			AthleteSorter.displayOrder(currentGroupAthletes);
 			// Trace athlete IDs after fetching/refetching
 			// logger.debug("currentGroupAthletes IDs: {}",
@@ -4297,7 +4334,7 @@ public class FieldOfPlay implements IUnregister {
 			}
 			if (nextCurrentAthlete != null && nextCurrentAthlete.isForcedAsCurrent()) {
 				nextCurrentAthlete.resetForcedAsCurrent();
-				AthleteRepository.save(nextCurrentAthlete);
+				AthleteRepository.saveNoMetadata(nextCurrentAthlete);
 			}
 			setCurAthlete(nextCurrentAthlete);
 			setNextAthlete(liftingOrder2 != null && liftingOrder2.size() > 1 ? liftingOrder2.get(1) : null);
@@ -4969,17 +5006,18 @@ public class FieldOfPlay implements IUnregister {
 		AuditActor decisionActor = AuditContext.actor() != null ? AuditContext.actor() : AuditActor.system();
 		List<RecordEvent> newRecords = AuditContext.call(
 				decisionActor.atStation(decisionStation, null, false), decisionCause, () -> {
-					AthleteRepository.save(getCurAthlete());
+					AthleteRepository.saveNoMetadata(getCurAthlete());
 					return updateRecords(getCurAthlete(), getGoodLift(), getChallengedRecords(), List.of());
 				});
 		setNewRecords(newRecords);
 		setLastNewRecords(newRecords);
-		new DelayTimer(isTestingMode()).schedule(
-				() -> {
-					boolean recordsBroken = !newRecords.isEmpty();
-					notifyRecords(recordsBroken ? getChallengedRecords() : List.of(),
-							recordsBroken, attempted);
-				}, this.recordNotificationDelayMs);
+		UIEvent.RecordNotification recordNotification = !newRecords.isEmpty()
+				? createRecordNotification(getAthleteUnderReview(), getLastChallengedRecords(), true, attempted)
+				: null;
+		if (recordNotification != null) {
+			new DelayTimer(isTestingMode()).schedule(() -> pushOutUIEvent(recordNotification),
+					this.recordNotificationDelayMs);
+		}
 		this.auditLiftBoundary = true;
 		if (this.auditEventDepth == 0) {
 			this.auditLiftBoundary = false;
@@ -5315,7 +5353,11 @@ public class FieldOfPlay implements IUnregister {
 				clock,
 				getClockOwnerInitialTimeAllowed());
 
-		notifyRecords(getChallengedRecords(), false, this.curWeight);
+		UIEvent.RecordNotification recordNotification = createRecordNotification(curAthlete2, getChallengedRecords(),
+				false, this.curWeight);
+		if (recordNotification != null) {
+			pushOutUIEvent(recordNotification);
+		}
 
 		if (attempts >= 6) {
 			pushOutDone();

@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import app.owlcms.apputils.JpaJsonConverter;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.jpa.JpaTransactions;
 import app.owlcms.data.jpa.SingletonSaves;
 import app.owlcms.data.jpa.StaleSingletonException;
 import app.owlcms.data.jpa.StaleSingletonException.Kind;
@@ -66,7 +67,7 @@ public class RecordConfig {
 
 	/** A fresh copy for a form, read from the database; it carries the stamp {@link #saveEdited} compares with the row. */
 	public static RecordConfig loadForEdit() {
-		RecordConfig rc = SingletonSaves.inTransaction(em -> SingletonSaves.findFresh(em, RecordConfig.class, 1L));
+		RecordConfig rc = JpaTransactions.inTransaction(em -> SingletonSaves.findFresh(em, RecordConfig.class, 1L));
 		if (rc == null) {
 			rc = createIfAbsent();
 		}
@@ -80,7 +81,7 @@ public class RecordConfig {
 	 */
 	public static RecordConfig saveEdited(RecordConfig draft, AuditOrigin origin) {
 		synchronized (SingletonSaves.LOCK) {
-			RecordConfig merged = SingletonSaves.inTransaction(em -> {
+			RecordConfig merged = JpaTransactions.inTransaction(em -> {
 				RecordConfig row = SingletonSaves.findFresh(em, RecordConfig.class, draft.id);
 				if (row == null || !Objects.equals(row.getLastSavedAt(), draft.getLastSavedAt())) {
 					throw new StaleSingletonException(Kind.RECORD_CONFIG, row != null ? row.getLastSavedBy() : null);
@@ -95,7 +96,7 @@ public class RecordConfig {
 	/** Immediate change (no form): loads the stored row under the save lock, applies the change and saves. */
 	public static RecordConfig apply(Consumer<RecordConfig> change, AuditOrigin origin) {
 		synchronized (SingletonSaves.LOCK) {
-			RecordConfig saved = SingletonSaves.inTransaction(em -> {
+			RecordConfig saved = JpaTransactions.inTransaction(em -> {
 				RecordConfig row = SingletonSaves.findFresh(em, RecordConfig.class, 1L);
 				if (row == null) {
 					row = new RecordConfig();
@@ -113,7 +114,7 @@ public class RecordConfig {
 
 	private static RecordConfig createIfAbsent() {
 		synchronized (SingletonSaves.LOCK) {
-			return SingletonSaves.inTransaction(em -> {
+			return JpaTransactions.inTransaction(em -> {
 				RecordConfig row = SingletonSaves.findFresh(em, RecordConfig.class, 1L);
 				if (row != null) {
 					return row;

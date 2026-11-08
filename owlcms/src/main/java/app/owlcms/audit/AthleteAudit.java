@@ -30,6 +30,14 @@ public final class AthleteAudit {
 		if (actor == null) {
 			return;
 		}
+		write(athlete, changes, new AuditOrigin(actor, AuditContext.cause()));
+	}
+
+	public static void write(Athlete athlete, List<Change> changes, AuditOrigin origin) {
+		if (changes.isEmpty() || AuditContext.isSuppressed()) {
+			return;
+		}
+		AuditActor actor = origin.actor();
 		String platform = athlete.getGroup() != null && athlete.getGroup().getPlatform() != null
 				? athlete.getGroup().getPlatform().getName() : "competition";
 		List<AuditEntry> entries = new ArrayList<>();
@@ -41,7 +49,7 @@ public final class AthleteAudit {
 					.field(change.field())
 					.oldValue(change.oldValue())
 					.newValue(annotate(athlete, change))
-					.cause(AuditContext.cause())
+					.cause(origin.cause())
 					.build());
 		}
 		AuditLog.writeBatch(entries, sealsSave(actor));

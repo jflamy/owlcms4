@@ -59,7 +59,7 @@ import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
-import app.owlcms.data.jpa.SingletonSaves;
+import app.owlcms.data.jpa.JpaTransactions;
 import app.owlcms.data.jpa.StaleSingletonException;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -127,7 +127,7 @@ public class AgeGroupDefinitionSaveTest {
 
 	private static Long newAgeGroup(String code, String championship, Gender gender, int minAge, int maxAge,
 	        boolean active, int qualifyingTotal, double... upperLimits) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			AgeGroup ageGroup = new AgeGroup(code, active, minAge, maxAge, gender, "U", 0);
 			ageGroup.setChampionshipName(championship);
 			double lower = 0.0;
@@ -143,7 +143,7 @@ public class AgeGroupDefinitionSaveTest {
 	}
 
 	private static Long newAthlete(String lastName, Gender gender, Integer age, Double bodyWeight, Integer entryTotal) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			Athlete athlete = new Athlete();
 			athlete.setLastName(lastName);
 			athlete.setFirstName("T");
@@ -164,7 +164,7 @@ public class AgeGroupDefinitionSaveTest {
 	}
 
 	private static void participate(Long athleteId, Long categoryId, boolean team, boolean mixed) {
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			Athlete athlete = em.find(Athlete.class, athleteId);
 			Category category = em.find(Category.class, categoryId);
 			athlete.addEligibleCategory(category, team, mixed);
@@ -174,7 +174,7 @@ public class AgeGroupDefinitionSaveTest {
 	}
 
 	private static void setRegistration(Long athleteId, Long categoryId) {
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			Athlete athlete = em.find(Athlete.class, athleteId);
 			athlete.setCategory(categoryId != null ? em.find(Category.class, categoryId) : null);
 			em.flush();
@@ -183,7 +183,7 @@ public class AgeGroupDefinitionSaveTest {
 	}
 
 	private static void setSnatchRank(Long athleteId, Long categoryId, int rank) {
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			for (Participation p : em.find(Athlete.class, athleteId).getParticipations()) {
 				if (p.getCategory() != null && p.getCategory().getId().equals(categoryId)) {
 					p.setSnatchRank(rank);
@@ -204,7 +204,7 @@ public class AgeGroupDefinitionSaveTest {
 	}
 
 	private static Map<Double, Long> categoryIdsByMax(Long ageGroupId) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			Map<Double, Long> result = new LinkedHashMap<>();
 			for (Category c : em.find(AgeGroup.class, ageGroupId).getAllCategories()) {
 				result.put(c.getMaximumWeight(), c.getId());
@@ -214,7 +214,7 @@ public class AgeGroupDefinitionSaveTest {
 	}
 
 	private static Double minimumWeightOf(Long ageGroupId, double maxWeight) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			for (Category c : em.find(AgeGroup.class, ageGroupId).getAllCategories()) {
 				if (c.getMaximumWeight() == maxWeight) {
 					return c.getMinimumWeight();
@@ -225,7 +225,7 @@ public class AgeGroupDefinitionSaveTest {
 	}
 
 	private static Integer storedQt(Long ageGroupId, double maxWeight) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			for (Category c : em.find(AgeGroup.class, ageGroupId).getAllCategories()) {
 				if (c.getMaximumWeight() == maxWeight) {
 					return c.getQualifyingTotal();
@@ -236,15 +236,15 @@ public class AgeGroupDefinitionSaveTest {
 	}
 
 	private static String storedCode(Long categoryId) {
-		return SingletonSaves.inTransaction(em -> em.find(Category.class, categoryId).getCode());
+		return JpaTransactions.inTransaction(em -> em.find(Category.class, categoryId).getCode());
 	}
 
 	private static String storedChampionshipName(Long ageGroupId) {
-		return SingletonSaves.inTransaction(em -> em.find(AgeGroup.class, ageGroupId).getChampionshipName());
+		return JpaTransactions.inTransaction(em -> em.find(AgeGroup.class, ageGroupId).getChampionshipName());
 	}
 
 	private static Map<Long, boolean[]> flagsByCategoryId(Long athleteId) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			Map<Long, boolean[]> result = new LinkedHashMap<>();
 			for (Participation p : em.find(Athlete.class, athleteId).getParticipations()) {
 				result.put(p.getCategory().getId(), new boolean[] { p.getTeamMember(), p.getMixedTeamMember() });
@@ -254,7 +254,7 @@ public class AgeGroupDefinitionSaveTest {
 	}
 
 	private static Integer snatchRank(Long athleteId, Long categoryId) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			for (Participation p : em.find(Athlete.class, athleteId).getParticipations()) {
 				if (p.getCategory() != null && p.getCategory().getId().equals(categoryId)) {
 					return p.getSnatchRank();
@@ -265,32 +265,32 @@ public class AgeGroupDefinitionSaveTest {
 	}
 
 	private static Long registrationId(Long athleteId) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			Category registration = em.find(Athlete.class, athleteId).getCategory();
 			return registration != null ? registration.getId() : null;
 		});
 	}
 
 	private static int categoryParticipationCount(Long categoryId) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			Category category = em.find(Category.class, categoryId);
 			return category != null ? category.getParticipations().size() : 0;
 		});
 	}
 
 	private static boolean championshipExists(String name) {
-		return SingletonSaves.inTransaction(em -> !em.createQuery(
+		return JpaTransactions.inTransaction(em -> !em.createQuery(
 		        "select c from Championship c where lower(trim(c.name)) = :name", Championship.class)
 		        .setParameter("name", name.trim().toLowerCase()).getResultList().isEmpty());
 	}
 
 	private static long championshipRowCount() {
-		return SingletonSaves.inTransaction(em -> em
+		return JpaTransactions.inTransaction(em -> em
 		        .createQuery("select count(c) from Championship c", Long.class).getSingleResult());
 	}
 
 	private static boolean ageGroupExists(Long id) {
-		return SingletonSaves.inTransaction(em -> em.find(AgeGroup.class, id) != null);
+		return JpaTransactions.inTransaction(em -> em.find(AgeGroup.class, id) != null);
 	}
 
 	private static void setCategoryQt(AgeGroup scratch, double maxWeight, int qt) {
@@ -774,7 +774,7 @@ public class AgeGroupDefinitionSaveTest {
 			Long mastersAg = newAgeGroup("SEMAS", "SessMasters", Gender.M, 35, 39, true, 0, 999);
 			Long mastersCat = categoryIdsByMax(mastersAg).get(999.0);
 
-			Long[] ids = SingletonSaves.inTransaction(em -> {
+			Long[] ids = JpaTransactions.inTransaction(em -> {
 				// MockFieldOfPlay.create expects the test group "A" as its initial session
 				em.persist(new Group("A"));
 				Group morning = new Group("SessMorning");
@@ -806,7 +806,7 @@ public class AgeGroupDefinitionSaveTest {
 			setRegistration(ids[0], childCat);
 			setRegistration(ids[1], mastersCat);
 
-			Group morning = SingletonSaves.inTransaction(em -> em.find(Group.class, ids[2]));
+			Group morning = JpaTransactions.inTransaction(em -> em.find(Group.class, ids[2]));
 			FieldOfPlay fop = MockFieldOfPlay.create(AthleteRepository.findAll(), new MockCountdownTimer(),
 			        new MockCountdownTimer());
 			OwlcmsFactory.getFopByName().put("test", fop);
@@ -1058,7 +1058,7 @@ public class AgeGroupDefinitionSaveTest {
 	public void legacyNullStampSavesOnce() {
 		newChampionshipRow("LegacyM", false);
 		Long ag = newAgeGroup("LGM35", "LegacyM", Gender.M, 35, 39, true, 0, 73, 999);
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			em.createQuery("update AgeGroup ag set ag.lastSavedAt = null, ag.lastSavedBy = null where ag.id = :id")
 			        .setParameter("id", ag).executeUpdate();
 			return null;
@@ -1079,14 +1079,14 @@ public class AgeGroupDefinitionSaveTest {
 	}
 
 	private static Long findIdByCodeGender(String code, Gender gender) {
-		return SingletonSaves.inTransaction(em -> em
+		return JpaTransactions.inTransaction(em -> em
 		        .createQuery("select ag.id from AgeGroup ag where ag.code = :code and ag.gender = :gender", Long.class)
 		        .setParameter("code", code).setParameter("gender", gender)
 		        .getResultList().stream().findFirst().orElse(null));
 	}
 
 	private void newChampionshipRow(String name, boolean explicitMixed) {
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			Championship championship = new Championship();
 			championship.setName(name);
 			championship.setExplicitMixedTeamMembers(explicitMixed);

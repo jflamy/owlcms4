@@ -25,7 +25,7 @@ public final class AccessPolicy {
 		}
 		for (RoleGrant grant : principal.grants()) {
 			for (Permission permission : grant.getRole().permissions()) {
-				if (scopeMatches(grant, permission, platform) && lockMatches(principal, permission, platform)) {
+				if (scopeMatches(grant, permission, platform) && lockMatches(principal, grant, permission, platform)) {
 					result.add(permission);
 				}
 			}
@@ -61,7 +61,8 @@ public final class AccessPolicy {
 	public static List<String> platformsWithAccess(Principal principal, List<String> allPlatforms) {
 		List<String> result = new ArrayList<>();
 		for (String name : allPlatforms) {
-			if (effectivePermissions(principal, name).stream().anyMatch(Permission::isPlatformScopable)) {
+			if (effectivePermissions(principal, name).stream().anyMatch(Permission::isPlatformScopable)
+			        && hasPlatformOperatingGrant(principal, name)) {
 				result.add(name);
 			}
 		}
@@ -79,6 +80,7 @@ public final class AccessPolicy {
 			return false;
 		}
 		return principal.grants().stream()
+		        .filter(g -> operatesOnPlatforms(g.getRole()))
 		        .anyMatch(g -> g.getRole().permissions().stream().anyMatch(Permission::isLockable));
 	}
 
@@ -89,7 +91,7 @@ public final class AccessPolicy {
 		}
 		for (RoleGrant grant : principal.grants()) {
 			boolean lockable = grant.getRole().permissions().stream().anyMatch(Permission::isLockable);
-			if (!lockable) {
+			if (!lockable || !operatesOnPlatforms(grant.getRole())) {
 				continue;
 			}
 			for (String name : allPlatforms) {
@@ -140,7 +142,7 @@ public final class AccessPolicy {
 					return true;
 				}
 				if (scopeMatches(grant, permission, targetPlatform)
-				        && lockMatches(principal, permission, targetPlatform)) {
+				        && lockMatches(principal, grant, permission, targetPlatform)) {
 					return true;
 				}
 			}
@@ -155,8 +157,32 @@ public final class AccessPolicy {
 		return grant.getPlatformName().equals(platform);
 	}
 
-	private static boolean lockMatches(Principal principal, Permission permission, String platform) {
-		return platform == null || !permission.isLockable() || principal.loginPlatform() == null
-		        || hasUnrestrictedPlatforms(principal) || principal.loginPlatform().equals(platform);
+	/**
+	 * Platform scope and login-platform locks come from operator roles (and the all-platform roles). A global role
+	 * that merely carries a scopable permission, such as Preparation with athlete card editing, is neither scoped nor
+	 * locked, and does not make the account choose a platform.
+	 */
+	private static boolean operatesOnPlatforms(Role role) {
+		return role.isPlatformScopable() || role.coversAllPlatforms();
+	}
+
+	private static boolean hasPlatformOperatingGrant(Principal principal, String platform) {
+		for (RoleGrant grant : principal.grants()) {
+			if (operatesOnPlatforms(grant.getRole())) {
+				for (Permission permission : grant.getRole().permissions()) {
+					if (permission.isPlatformScopable() && scopeMatches(grant, permission, platform)
+					        && lockMatches(principal, grant, permission, platform)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private static boolean lockMatches(Principal principal, RoleGrant grant, Permission permission, String platform) {
+		return platform == null || !permission.isLockable() || !operatesOnPlatforms(grant.getRole())
+		        || principal.loginPlatform() == null || hasUnrestrictedPlatforms(principal)
+		        || principal.loginPlatform().equals(platform);
 	}
 }

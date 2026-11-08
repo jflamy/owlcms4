@@ -32,14 +32,62 @@ public class AccessPolicyTest {
 		assertTrue(Role.ADMIN.permissions().contains(Permission.ADMIN_PAGES));
 		assertTrue(Role.ADMIN.permissions().containsAll(EnumSet.of(Permission.PREPARATION, Permission.DISPLAYS, Permission.REFEREE)));
 		assertEquals(EnumSet.of(Permission.RESULTS), Role.RESULTS.permissions());
-		assertEquals(EnumSet.of(Permission.ANNOUNCER, Permission.MARSHAL, Permission.TIMEKEEPER, Permission.TC, Permission.DISPLAYS),
+		assertEquals(EnumSet.of(Permission.ANNOUNCER, Permission.MARSHAL, Permission.TIMEKEEPER, Permission.TC, Permission.DISPLAYS,
+		        Permission.ATHLETE_CARD_EDITING),
 		        Role.PLATFORM.permissions());
 		assertEquals(EnumSet.of(Permission.JURY), Role.JURY.permissions());
 		assertEquals(EnumSet.of(Permission.RESULTS, Permission.STREAMING), Role.EXTERNAL.permissions());
 		assertEquals(EnumSet.of(Permission.STREAMING), Role.STREAMING.permissions());
 		assertTrue(Role.ADMIN.permissions().contains(Permission.STREAMING));
 		assertTrue(Role.COMPETITION_SUPERVISOR.permissions().contains(Permission.STREAMING));
-		assertEquals(EnumSet.of(Permission.PREPARATION, Permission.RESULTS, Permission.DISPLAYS), Role.COMPETITION_DIRECTOR.permissions());
+		assertEquals(EnumSet.of(Permission.PREPARATION, Permission.RESULTS, Permission.DISPLAYS,
+		        Permission.METADATA_EDITING), Role.COMPETITION_DIRECTOR.permissions());
+	}
+
+	@Test
+	public void athleteEditingCapabilitiesDoNotGrantNavigation() {
+		for (Role role : List.of(Role.PREPARATION, Role.REGISTRATION, Role.WEIGHIN,
+		        Role.COMPETITION_DIRECTOR, Role.COMPETITION_SUPERVISOR, Role.ADMIN)) {
+			Principal user = account(null, new RoleGrant(role, null));
+			assertTrue(role.name(), AccessPolicy.hasCapability(user, Capability.METADATA_EDITING, null));
+		}
+		for (Role role : List.of(Role.PREPARATION, Role.ANNOUNCER, Role.MARSHAL, Role.PLATFORM,
+		        Role.COMPETITION_SUPERVISOR, Role.ADMIN)) {
+			assertTrue(role.name(), AccessPolicy.hasCapability(account(null, new RoleGrant(role, null)),
+			        Capability.ATHLETE_CARD_EDITING, "A"));
+		}
+		for (Role role : List.of(Role.RESULTS, Role.EXTERNAL, Role.TC, Role.TIMEKEEPER, Role.REFEREE, Role.JURY)) {
+			Principal user = account(null, new RoleGrant(role, null));
+			assertFalse(role.name(), AccessPolicy.hasCapability(user, Capability.METADATA_EDITING, "A"));
+			assertFalse(role.name(), AccessPolicy.hasCapability(user, Capability.ATHLETE_CARD_EDITING, "A"));
+		}
+		assertFalse("metadata only: no Card writes",
+		        AccessPolicy.hasCapability(account(null, new RoleGrant(Role.COMPETITION_DIRECTOR, null)),
+		                Capability.ATHLETE_CARD_EDITING, "A"));
+		for (Role role : List.of(Role.REGISTRATION, Role.WEIGHIN)) {
+			assertFalse(role.name(), AccessPolicy.hasCapability(account(null, new RoleGrant(role, null)),
+			        Capability.ATHLETE_CARD_EDITING, "A"));
+		}
+		Principal preparation = account(null, new RoleGrant(Role.PREPARATION, null));
+		assertFalse(AccessPolicy.canOpen(preparation, page(false, Permission.RESULTS), null));
+		assertFalse(AccessPolicy.canOpen(preparation, page(false, Permission.REGISTRATION), null));
+		assertFalse(AccessPolicy.requiresPlatformChoice(preparation));
+		assertTrue(AccessPolicy.loginPlatformChoices(preparation, PLATFORMS).isEmpty());
+	}
+
+	@Test
+	public void cardEditingRespectsOperatorScopeButPreparationRemainsGlobal() {
+		Principal marshal = account("A", new RoleGrant(Role.MARSHAL, null), new RoleGrant(Role.RESULTS, null));
+		assertTrue(AccessPolicy.hasCapability(marshal, Capability.ATHLETE_CARD_EDITING, "A"));
+		assertFalse(AccessPolicy.hasCapability(marshal, Capability.ATHLETE_CARD_EDITING, "B"));
+		Principal scoped = account(null, new RoleGrant(Role.MARSHAL, "A"));
+		assertFalse(AccessPolicy.hasCapability(scoped, Capability.ATHLETE_CARD_EDITING, "B"));
+		assertTrue(AccessPolicy.hasCapability(account(null, new RoleGrant(Role.PREPARATION, null)),
+		        Capability.ATHLETE_CARD_EDITING, "B"));
+		Principal token = new Principal(AuthSource.TOKEN, 1L, "token",
+		        List.of(new RoleGrant(Role.MARSHAL, "A")), null);
+		assertTrue(AccessPolicy.hasCapability(token, Capability.ATHLETE_CARD_EDITING, "A"));
+		assertFalse(AccessPolicy.hasCapability(token, Capability.ATHLETE_CARD_EDITING, "B"));
 	}
 
 	@Test

@@ -7,10 +7,14 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.access.RequiresFeature;
 import app.owlcms.access.Permission;
 import app.owlcms.access.RequiresPermission;
+import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.RegistrationTabPolicy.CardEntry;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
+import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.IwfComplianceDisplay;
+import app.owlcms.nui.shared.NAthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsLayout;
 
 @SuppressWarnings("serial")
@@ -21,6 +25,17 @@ public class CompetitionDirectorContent extends AnnouncerContent {
 
 	@Override
 	protected void addSpeakerModeSwitch(SubMenu settings) {
+	}
+
+	/**
+	 * The supervisor corrects athletes through the registration form, with the card as a tab (first for athletes that
+	 * have lifted). During the session the registration side is restricted to athlete information; the independent
+	 * Card remains available.
+	 */
+	@Override
+	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
+		return new NAthleteRegistrationFormFactory(Athlete.class, null, null)
+		        .setCardEntry(CardEntry.CARD_FIRST, this);
 	}
 
 	@Override

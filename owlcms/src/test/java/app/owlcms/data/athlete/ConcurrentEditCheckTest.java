@@ -11,6 +11,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +24,7 @@ import org.junit.Test;
 
 import app.owlcms.Main;
 import app.owlcms.audit.AthleteDiff.Snapshot;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.athlete.ConcurrentEditCheck.Conflict;
 import app.owlcms.data.athlete.ConcurrentEditCheck.SaveAttempt;
 import app.owlcms.data.config.Config;
@@ -122,6 +124,56 @@ public class ConcurrentEditCheckTest {
 	}
 
 	@Test
+	public void namesAndFederationCodesAreNotCardFields() {
+		Athlete opened = athlete("Coach", 80.0, "90");
+		opened.setFirstName("First");
+		opened.setFederationCodes("IWF");
+		Athlete stored = athlete("Coach", 80.0, "90");
+		stored.setLastName("Corrected");
+		stored.setFirstName("Other");
+		stored.setFederationCodes("IWF,EWF");
+		Athlete form = athlete("Coach", 80.0, "90");
+
+		assertEquals(List.of(), conflicts(opened, stored, form));
+		Set<String> fields = ConcurrentEditCheck.snapshot(opened).values().keySet();
+		assertFalse(fields.contains("lastName"));
+		assertFalse(fields.contains("firstName"));
+		assertFalse(fields.contains("federationCodes"));
+	}
+
+	@Test
+	public void aCardSaveKeepsMetadataCorrectedAfterTheCardOpened() {
+		Athlete created = athlete("Coach", 80.0, "90");
+		created.setFirstName("First");
+		AthleteRepository.save(created);
+		ConcurrentEditCheck card = ConcurrentEditCheck.open(created);
+		Athlete platformCopy = AthleteRepository.findById(created.getId());
+		Athlete cardDraft = AthleteRepository.findById(created.getId());
+		cardDraft.setSnatch1Declaration("95");
+
+		AthleteMetadata original = AthleteMetadata.from(platformCopy);
+		AthleteMetadata corrected = new AthleteMetadata("Fixed", "Corrected", "Other team", "IWF,EWF",
+		        original.eligibleForIndividualRanking(), original.individualEligibilityStatus());
+		AthleteRepository.MetadataSaveResult correction = AthleteRepository.saveMetadata(created.getId(), corrected,
+		        platformCopy.getMetadataUpdatedAt(), AuditOrigin.system("metadata test"));
+		assertTrue(correction.saved());
+
+		// as AthleteCardFormFactory.saveCard does: copy the card's lifting values onto the platform's copy and save
+		Athlete values = new Athlete();
+		Athlete.conditionalCopy(values, cardDraft, true, true, true, false);
+		SaveAttempt attempt = card.trySave(new FieldOfPlay(), values, null, () -> true, () -> {
+			Athlete.conditionalCopy(platformCopy, values, true, true, true, false);
+			AthleteRepository.saveNoMetadata(platformCopy);
+		});
+
+		assertTrue("a metadata correction is not a card conflict", attempt.saved());
+		Athlete result = AthleteRepository.findById(created.getId());
+		assertEquals("95", result.getSnatch1Declaration());
+		assertEquals(corrected, AthleteMetadata.from(result));
+		assertEquals(correction.athlete().getMetadataUpdatedAt(), result.getMetadataUpdatedAt());
+	}
+
+	@Test
 	public void liftDecisionReportsOnlyTheLiftNotTheProgression() {
 		Athlete opened = athlete("Coach", 80.0, "90");
 		Athlete stored = athlete("Coach", 80.0, "90");
@@ -139,8 +191,22 @@ public class ConcurrentEditCheckTest {
 		assertFalse(snapshot.values().containsKey("eligibleForIndividualRanking"));
 		assertFalse(snapshot.values().containsKey("withdrawnFromSnatch"));
 		assertFalse(snapshot.values().containsKey("snatch2.automatic"));
-		assertTrue(snapshot.values().containsKey("coach"));
+		assertFalse(snapshot.values().containsKey("coach"));
 		assertEquals(ConcurrentEditCheck.FIELDS, snapshot.values().keySet());
+	}
+
+	@Test
+	public void cardCopyPreservesRegistrationAndAdjudicationFields() {
+		Athlete draft = athlete("Old coach", 80.0, "90");
+		Athlete current = athlete("New coach", 81.0, "90");
+		current.setSnatch1Decisions(List.of(true, false, true));
+		assertTrue(conflicts(draft, current, draft).isEmpty());
+		draft.setSnatch1ActualLift("90");
+		AthleteCardValues.copyTo(draft, current);
+		assertEquals("New coach", current.getCoach());
+		assertEquals(81.0, current.getBodyWeight(), 0.0);
+		assertEquals(List.of(true, false, true), current.getSnatch1Decisions());
+		assertEquals("90", current.getSnatch1ActualLift());
 	}
 
 	@Test
@@ -227,13 +293,13 @@ public class ConcurrentEditCheckTest {
 		Athlete opened = athlete("Coach", 80.0, "90");
 		Athlete stored = athlete("Coach", 80.0, "95");
 		Snapshot shown = ConcurrentEditCheck.snapshot(stored);
-		stored.setCoach("Director");
+		stored.setCustomScore(12.0);
 		SaveAttempt result = ConcurrentEditCheck.trySave(new FieldOfPlay(), shown,
 		        ConcurrentEditCheck.snapshot(opened), () -> ConcurrentEditCheck.snapshot(stored),
 		        () -> true, () -> { throw new AssertionError("Unexpected save"); });
 		assertFalse(result.saved());
 		assertEquals(1, result.conflicts().size());
-		assertEquals("coach", result.conflicts().get(0).field());
+		assertEquals("customScore", result.conflicts().get(0).field());
 	}
 
 	@Test

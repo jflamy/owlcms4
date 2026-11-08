@@ -72,6 +72,18 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 	protected ResponsiveStep[] responsiveSteps;
 	private boolean valid = false;
 	protected boolean showValidationErrorNotification = true;
+	private Runnable gridRefresher = () -> {
+	};
+
+	/** The grid that opens the form tells it how to reload itself, for forms that stay open after saving. */
+	public void setGridRefresher(Runnable gridRefresher) {
+		this.gridRefresher = gridRefresher != null ? gridRefresher : () -> {
+		};
+	}
+
+	protected void refreshGridBehind() {
+		this.gridRefresher.run();
+	}
 
 	/**
 	 * Instantiates a new Form Factory

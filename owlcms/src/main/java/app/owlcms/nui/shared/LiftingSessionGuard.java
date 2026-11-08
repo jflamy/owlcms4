@@ -21,6 +21,18 @@ public final class LiftingSessionGuard {
 
 	/** Message key; {0} is the session, {1} the platform. */
 	public static final String CANNOT_EDIT_REGISTRATION = "SessionInProgress.CannotEditRegistration";
+	/**
+	 * Message key; {0} is the session, {1} the platform. A full registration form was closed because its athlete's
+	 * session started; its unsaved changes were discarded.
+	 */
+	public static final String REGISTRATION_CLOSED = "SessionInProgress.RegistrationClosed";
+	/**
+	 * Message key; {0} is the session, {1} the platform. A full registration form could not be saved because its
+	 * session is in progress; the restricted form is offered instead when the athlete is opened again.
+	 */
+	public static final String CANNOT_SAVE_REGISTRATION = "SessionInProgress.CannotSaveRegistration";
+	/** Message key; {0} is the session, {1} the platform. Shown at the top of the restricted form. */
+	public static final String SESSION_IN_PROGRESS_NOTICE = "Athlete.SessionInProgressNotice";
 	/** Message key; {0} is the session, {1} the platform. */
 	public static final String CANNOT_EDIT_RESULTS = "SessionInProgress.CannotEditResults";
 
@@ -42,8 +54,13 @@ public final class LiftingSessionGuard {
 	}
 
 	public static void notifyLifting(FieldOfPlay fop, String messageKey) {
+		NotificationUtils.centeredError(message(fop, messageKey));
+	}
+
+	/** @return the translated message with the session as {0} and the platform as {1}. */
+	public static String message(FieldOfPlay fop, String messageKey) {
 		Group group = fop.getGroup();
 		String session = group != null ? group.getName() : "";
-		NotificationUtils.centeredError(Translator.translate(messageKey, session, fop.getName()));
+		return Translator.translate(messageKey, session, fop.getName());
 	}
 }

@@ -40,6 +40,7 @@ import javax.persistence.Transient;
 
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.hibernate.annotations.DynamicUpdate;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -129,6 +130,7 @@ import ch.qos.logback.classic.Logger;
 // must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 @Cacheable
+@DynamicUpdate
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 @JsonPropertyOrder({ "id", "participations", "category", "ligibleForIndividualRanking", "individualEligibilityStatus" })
@@ -151,6 +153,15 @@ public class Athlete {
 
 	public static void conditionalCopy(Athlete dest, Athlete src, boolean copyResults, boolean copyChanges,
 			boolean copyId) {
+		conditionalCopy(dest, src, copyResults, copyChanges, copyId, true);
+	}
+
+	/**
+	 * @param copyMetadata false when saving lifting data: names and federation codes belong to the metadata save and
+	 *                     must not be written back from a copy made when a form was opened.
+	 */
+	public static void conditionalCopy(Athlete dest, Athlete src, boolean copyResults, boolean copyChanges,
+			boolean copyId, boolean copyMetadata) {
 		// System.err./**/println("> conditionalCopy");
 		boolean validation = dest.isValidation();
 		Level prevSrcLevel = src.getLogger().getLevel();
@@ -169,8 +180,10 @@ public class Athlete {
 			// p.getAthlete="+p.getAthlete().getId());
 			// });
 
-			dest.setLastName(src.getLastName());
-			dest.setFirstName(src.getFirstName());
+			if (copyMetadata) {
+				dest.setLastName(src.getLastName());
+				dest.setFirstName(src.getFirstName());
+			}
 			dest.setIsoBirthDate(src.getIsoBirthDate());
 
 			if (copyChanges) {
@@ -279,7 +292,9 @@ public class Athlete {
 			dest.setCoach(src.getCoach());
 			dest.setCustom1(src.getCustom1());
 			dest.setCustom2(src.getCustom2());
-			dest.setFederationCodes(src.getFederationCodes());
+			if (copyMetadata) {
+				dest.setFederationCodes(src.getFederationCodes());
+			}
 
 			if (copyResults) {
 				// Category-specific results are in the participation objects
@@ -501,6 +516,8 @@ public class Athlete {
 	private String lastName = "";
 	private Integer lotNumber = null;
 	private String membership = "";
+	@JsonIgnore
+	private Long metadataUpdatedAt;
 	@Transient
 	@JsonIgnore
 	private final Level NORMAL_LEVEL = Level.INFO;
@@ -4696,6 +4713,31 @@ public class Athlete {
 		if (status != null) {
 			this.eligibleForIndividualRanking = (status == EligibleForIndividualRankingStatus.ELIGIBLE);
 		}
+	}
+
+	@JsonIgnore
+	public Long getMetadataUpdatedAt() {
+		return this.metadataUpdatedAt;
+	}
+
+	void setMetadataUpdatedAt(Long metadataUpdatedAt) {
+		this.metadataUpdatedAt = metadataUpdatedAt;
+	}
+
+	/** Raw stored values: the public getters trim names, may fix their case, and derive the eligibility boolean. */
+	AthleteMetadata metadata() {
+		return new AthleteMetadata(this.firstName, this.lastName, this.team, this.federationCodes,
+		        this.eligibleForIndividualRanking, this.individualEligibilityStatus);
+	}
+
+	/** Bypass the coupled eligibility setters so preservation retains the exact stored boolean and nullable enum. */
+	void applyMetadata(AthleteMetadata metadata) {
+		this.firstName = metadata.firstName();
+		this.lastName = metadata.lastName();
+		this.team = metadata.team();
+		this.federationCodes = metadata.federationCodes();
+		this.eligibleForIndividualRanking = metadata.eligibleForIndividualRanking();
+		this.individualEligibilityStatus = metadata.individualEligibilityStatus();
 	}
 
 	public void setEligibleForTeamRanking(boolean eligibleForTeamRanking) {

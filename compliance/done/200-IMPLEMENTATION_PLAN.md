@@ -76,7 +76,7 @@ spec. Where they disagree, stop and ask the maintainer.
   `write` remains authoritative.
 - `AgeGroupRepository.write(Long id, Long draftStamp, AuditOrigin origin,
   BiFunction<EntityManager, AgeGroup, T> work)`: under `SingletonSaves.LOCK`, in one
-  `SingletonSaves.inTransaction`: read the row fresh; if missing or `lastSavedAt` differs from
+  `JpaTransactions.inTransaction`: read the row fresh; if missing or `lastSavedAt` differs from
   `draftStamp`, throw `StaleSingletonException(AGE_GROUP, row != null ? row.getLastSavedBy() :
   null)`; run `work.apply(em, managedRow)`; stamp the surviving row with
   `row.stamp(origin, row.getLastSavedAt())`; return the result after commit. A delete callback
@@ -88,8 +88,8 @@ spec. Where they disagree, stop and ask the maintainer.
 - Rows that existed before the upgrade have a null `lastSavedAt`. A draft loaded from such a row
   carries null, the comparison treats null = null as current, and the first save stamps the row.
 - `write` owns the lock and transaction. Its callback and all helpers use the supplied
-  `EntityManager`; they must not call either `SingletonSaves.inTransaction` or
-  `JPAService.runInTransaction`. Use the exception-propagating `SingletonSaves.inTransaction`
+  `EntityManager`; they must not call either `JpaTransactions.inTransaction` or
+  `JPAService.runInTransaction`. Use the exception-propagating `JpaTransactions.inTransaction`
   only at the outer transaction boundary.
 
 ### 1.2 Session check
@@ -266,7 +266,7 @@ Implement §11 steps 1–7 inside one `write`; step 8 runs only after it has com
    collection. `getCategories()` returns a copy: removing from its result does not persist.
 8. After commit, in this order: `Competition.getCurrent().setRankingsInvalid(true)`,
    `Championship.reset()` if a championship row was created, `Championship.recomputeParticipantCounts()`,
-   `BestAthleteRankingService.recomputeAll(em)` inside its own `SingletonSaves.inTransaction`
+   `BestAthleteRankingService.recomputeAll(em)` inside its own `JpaTransactions.inTransaction`
    (the no-argument `recomputeAll()` uses `JPAService.runInTransaction`, which swallows
    failures), then `RankingConfig.updateMustCompute()`. Run each step even if an earlier one
    failed, and collect the failures into the result.

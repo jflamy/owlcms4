@@ -69,6 +69,7 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
+import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.apputils.queryparameters.SoundParametersReader;
 import app.owlcms.components.ConfirmationDialog;
@@ -259,6 +260,22 @@ public abstract class AthleteGridContent extends BaseContent
 		getCrudGrid().showUpdateForm(athlete);
 	}
 
+	/**
+	 * A single-athlete correction: the change, its metadata-preserving save and the platform notification run together
+	 * under the platform's FOP monitor. A failure is shown to the user with its time, to be matched with the log.
+	 */
+	private void saveLiftCorrection(FieldOfPlay fop, Athlete athlete, Runnable correction) {
+		try {
+			synchronized (fop) {
+				correction.run();
+				AthleteRepository.saveNoMetadata(athlete);
+				fop.fopEventPost(new FOPEvent.WeightChange(this, athlete, true));
+			}
+		} catch (RuntimeException e) {
+			NotificationUtils.unexpectedError(logger, e, fop, athlete.getId());
+		}
+	}
+
 	private void openLiftReversalDialog(Athlete clickedAthlete, int liftNumber, double attemptBoxLeft,
 	        double attemptBoxTop) {
 		FieldOfPlay fop = getFop();
@@ -329,10 +346,8 @@ public abstract class AthleteGridContent extends BaseContent
 
 		Button cancel = new Button(Translator.translate("Cancel"), event -> dialog.close());
 		Button clear = new Button(Translator.translate("Clear"), event -> {
-			athlete.clearLift(liftNumber);
-			AthleteRepository.save(athlete);
-			fop.fopEventPost(new FOPEvent.WeightChange(this, athlete, true));
 			dialog.close();
+			saveLiftCorrection(fop, athlete, () -> athlete.clearLift(liftNumber));
 		});
 		Button athleteCard = new Button(Translator.translate("Card"), event -> {
 			dialog.close();
@@ -342,9 +357,7 @@ public abstract class AthleteGridContent extends BaseContent
 			Integer lift = athlete.getActualLiftOrNull(liftNumber);
 			if (lift != null && lift != 0) {
 				int correctedLift = changeToGoodLift ? Math.abs(lift) : -Math.abs(lift);
-				athlete.doLift(liftNumber, Integer.toString(correctedLift));
-				AthleteRepository.save(athlete);
-				fop.fopEventPost(new FOPEvent.WeightChange(this, athlete, true));
+				saveLiftCorrection(fop, athlete, () -> athlete.doLift(liftNumber, Integer.toString(correctedLift)));
 			}
 			dialog.close();
 		});
@@ -509,7 +522,7 @@ public abstract class AthleteGridContent extends BaseContent
 	protected EventBus uiEventBus;
 	protected H3 warning;
 	protected H2 weight;
-	private AthleteCardFormFactory athleteEditingFormFactory;
+	private OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory;
 	private Athlete displayedAthlete;
 	private H3 firstNameWrapper;
 	/**
@@ -1445,8 +1458,7 @@ public abstract class AthleteGridContent extends BaseContent
 	 * @return the form factory that will create the actual form on demand
 	 */
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-		this.athleteEditingFormFactory = new AthleteCardFormFactory(Athlete.class, this);
-		return this.athleteEditingFormFactory;
+		return new AthleteCardFormFactory(Athlete.class, this);
 	}
 
 	protected FlexLayout createInitialBar() {
@@ -2103,6 +2115,7 @@ public abstract class AthleteGridContent extends BaseContent
 	protected void init() {
 		this.id = IdUtils.getTimeBasedId();
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
+		this.athleteEditingFormFactory = crudFormFactory;
 		this.setCrudGrid(createCrudGrid(crudFormFactory));
 		this.crudLayout = (OwlcmsGridLayout) this.getCrudGrid().getCrudLayout();
 		defineFilters(this.getCrudGrid());
@@ -2324,7 +2337,7 @@ public abstract class AthleteGridContent extends BaseContent
 	/**
 	 * @return the athleteEditingFormFactory
 	 */
-	private AthleteCardFormFactory getAthleteEditingFormFactory() {
+	private OwlcmsCrudFormFactory<Athlete> getAthleteEditingFormFactory() {
 		return this.athleteEditingFormFactory;
 	}
 

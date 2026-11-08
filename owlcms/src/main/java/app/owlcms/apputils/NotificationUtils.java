@@ -6,6 +6,11 @@
  *******************************************************************************/
 package app.owlcms.apputils;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+import org.slf4j.Logger;
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -17,8 +22,20 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 import app.owlcms.i18n.Translator;
+import app.owlcms.fieldofplay.FieldOfPlay;
 
 public class NotificationUtils {
+
+	/**
+	 * Call on the UI thread after leaving the FOP monitor. Reports an unexpected failure without claiming whether
+	 * persistence completed or attempting recovery. The displayed timestamp is also included in the error log.
+	 */
+	public static void unexpectedError(Logger logger, Throwable error, FieldOfPlay fop, Long athleteId) {
+		String occurredAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+		logger.error("{}Unexpected error at {} athleteId={}", FieldOfPlay.getLoggingName(fop), occurredAt, athleteId,
+		        error);
+		centeredError(Translator.translate("Error.UnexpectedAt", occurredAt));
+	}
 
 	public static void errorNotification(String labelText) {
 		Notification error = new Notification();

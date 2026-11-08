@@ -24,6 +24,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.jpa.JpaTransactions;
 import app.owlcms.data.jpa.SingletonSaves;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
@@ -292,7 +293,7 @@ public class ChampionshipRepository {
 		List<String> renamedAgeGroups = new ArrayList<>();
 		Championship renamed;
 		synchronized (SingletonSaves.LOCK) {
-			renamed = SingletonSaves.inTransaction(em -> {
+			renamed = JpaTransactions.inTransaction(em -> {
 				changed[0] = false;
 				renamedAgeGroups.clear();
 				Championship managed = championship.getId() != null ? em.find(Championship.class, championship.getId()) : championship;

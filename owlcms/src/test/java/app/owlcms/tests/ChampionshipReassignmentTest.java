@@ -60,7 +60,7 @@ import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.jpa.JPAService;
-import app.owlcms.data.jpa.SingletonSaves;
+import app.owlcms.data.jpa.JpaTransactions;
 
 /**
  * Championship reassignment engine (compliance item 200, phase 2). Domain code only, no Vaadin objects. Fixture as
@@ -240,7 +240,7 @@ public class ChampionshipReassignmentTest {
 	public void raisedQtRemovesWithQtReason() {
 		Long qtAg = newAgeGroup("QRM35", "QtRaiseM", Gender.M, 35, 39, true, 0, 73, 999);
 		Long cat73 = categoryIdsByMax(qtAg).get(73.0);
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			categoryAtMax(em, qtAg, 999.0).setQualifyingTotal(300);
 			em.flush();
 			return null;
@@ -267,7 +267,7 @@ public class ChampionshipReassignmentTest {
 	public void loweredQtKeepsAndMissingEntryTotalLeaves() {
 		Long qtAg = newAgeGroup("QLM35", "QtLowerM", Gender.M, 35, 39, true, 0, 73, 999);
 		Long cat73 = categoryIdsByMax(qtAg).get(73.0);
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			categoryAtMax(em, qtAg, 73.0).setQualifyingTotal(200);
 			em.flush();
 			return null;
@@ -442,7 +442,7 @@ public class ChampionshipReassignmentTest {
 		// no reference to the deleted category remains, so its row can be removed cleanly (step 7)
 		assertEquals("no participation points to the deleted category", 0,
 		        categoryParticipationCount(zuluCats.get(70.0)));
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			AgeGroup stored = em.find(AgeGroup.class, zulu);
 			stored.removeCategory(em.find(Category.class, zuluCats.get(70.0)));
 			em.flush();
@@ -466,7 +466,7 @@ public class ChampionshipReassignmentTest {
 		setRegistration(n1, jrCat);
 
 		List<String> both = List.of("JRLeague", "GamesQ");
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			Map<Long, AthleteSnapshot> snapshots = AthleteSnapshot.forChampionships(em, both);
 			ReassignmentPlan plan = ChampionshipReassigner.plan(em, snapshots,
 			        targetsFor(em, both, Set.of()), reasonOnlyFor(em, both),
@@ -547,7 +547,7 @@ public class ChampionshipReassignmentTest {
 		ChampionshipChange cc = changeOf(plan, g1).byChampionship().get("GhostChamp");
 		assertTrue(cc.keptCategoryIds().contains(cat));
 		assertEquals("no championship row materialized", before, championshipRowCount());
-		assertNull(SingletonSaves.inTransaction(em -> em
+		assertNull(JpaTransactions.inTransaction(em -> em
 		        .createQuery("select c from Championship c where lower(c.name) = 'ghostchamp'", Championship.class)
 		        .getResultList().stream().findFirst().orElse(null)));
 		assertTrue(flagsByCategoryId(g1).containsKey(cat));
@@ -558,7 +558,7 @@ public class ChampionshipReassignmentTest {
 	public void previewWritesNothingAndIsImmutable() {
 		Long ag = newAgeGroup("PVM35", "PrevM", Gender.M, 35, 39, true, 0, 73, 999);
 		Long cat73 = categoryIdsByMax(ag).get(73.0);
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			categoryAtMax(em, ag, 73.0).setQualifyingTotal(280);
 			categoryAtMax(em, ag, 999.0).setQualifyingTotal(300);
 			em.flush();
@@ -590,7 +590,7 @@ public class ChampionshipReassignmentTest {
 
 	private static Long newAgeGroup(String code, String championship, Gender gender, int minAge, int maxAge,
 	        boolean active, int qualifyingTotal, double... upperLimits) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			AgeGroup ageGroup = new AgeGroup(code, active, minAge, maxAge, gender, "U", 0);
 			ageGroup.setChampionshipName(championship);
 			double lower = 0.0;
@@ -605,7 +605,7 @@ public class ChampionshipReassignmentTest {
 	}
 
 	private static Long newAthlete(String lastName, Gender gender, Integer age, Double bodyWeight, Integer entryTotal) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			Athlete athlete = new Athlete();
 			athlete.setLastName(lastName);
 			athlete.setFirstName("T");
@@ -626,7 +626,7 @@ public class ChampionshipReassignmentTest {
 	}
 
 	private static void newChampionshipRow(String name, boolean explicitMixed) {
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			Championship championship = new Championship();
 			championship.setName(name);
 			championship.setExplicitMixedTeamMembers(explicitMixed);
@@ -637,7 +637,7 @@ public class ChampionshipReassignmentTest {
 	}
 
 	private static void participate(Long athleteId, Long categoryId, boolean team, boolean mixed) {
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			Athlete athlete = em.find(Athlete.class, athleteId);
 			Category category = em.find(Category.class, categoryId);
 			athlete.addEligibleCategory(category, team, mixed);
@@ -647,7 +647,7 @@ public class ChampionshipReassignmentTest {
 	}
 
 	private static void setRegistration(Long athleteId, Long categoryId) {
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			Athlete athlete = em.find(Athlete.class, athleteId);
 			athlete.setCategory(categoryId != null ? em.find(Category.class, categoryId) : null);
 			em.flush();
@@ -656,7 +656,7 @@ public class ChampionshipReassignmentTest {
 	}
 
 	private static void setSnatchRank(Long athleteId, Long categoryId, int rank) {
-		SingletonSaves.inTransaction(em -> {
+		JpaTransactions.inTransaction(em -> {
 			Athlete athlete = em.find(Athlete.class, athleteId);
 			for (Participation p : athlete.getParticipations()) {
 				if (p.getCategory() != null && p.getCategory().getId().equals(categoryId)) {
@@ -686,7 +686,7 @@ public class ChampionshipReassignmentTest {
 	}
 
 	private static Map<Double, Long> categoryIdsByMax(Long ageGroupId) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			Map<Double, Long> result = new LinkedHashMap<>();
 			for (Category c : em.find(AgeGroup.class, ageGroupId).getAllCategories()) {
 				result.put(c.getMaximumWeight(), c.getId());
@@ -731,7 +731,7 @@ public class ChampionshipReassignmentTest {
 	/** The production save shape: snapshot first, then the definition change, then plan and apply, one transaction. */
 	private static ReassignmentPlan reassignWithin(String championship, Consumer<EntityManager> edit,
 	        Set<Long> excludedCategoryIds) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			Map<Long, AthleteSnapshot> snapshots = AthleteSnapshot.forChampionships(em, List.of(championship));
 			if (edit != null) {
 				edit.accept(em);
@@ -750,7 +750,7 @@ public class ChampionshipReassignmentTest {
 	}
 
 	private static ReassignmentPlan reassignAll(List<String> championships) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			ReassignmentPlan plan = ChampionshipReassigner.plan(em, AthleteSnapshot.all(em),
 			        targetsFor(em, championships, Set.of()), reasonOnlyFor(em, championships),
 			        ChampionshipReassigner.resolveMixedTeams(em, championships), Mode.ALL);
@@ -761,7 +761,7 @@ public class ChampionshipReassignmentTest {
 
 	/** Dry run only: plan and preview, never apply. Definition edits made here commit, as in the advisory flow. */
 	private static ReassignmentPreview previewWithin(String championship, Consumer<EntityManager> edit) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			Map<Long, AthleteSnapshot> snapshots = AthleteSnapshot.forChampionships(em, List.of(championship));
 			if (edit != null) {
 				edit.accept(em);
@@ -775,7 +775,7 @@ public class ChampionshipReassignmentTest {
 	}
 
 	private static Map<Long, boolean[]> flagsByCategoryId(Long athleteId) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			Map<Long, boolean[]> result = new LinkedHashMap<>();
 			for (Participation p : em.find(Athlete.class, athleteId).getParticipations()) {
 				result.put(p.getCategory().getId(), new boolean[] { p.getTeamMember(), p.getMixedTeamMember() });
@@ -785,7 +785,7 @@ public class ChampionshipReassignmentTest {
 	}
 
 	private static Integer snatchRank(Long athleteId, Long categoryId) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			for (Participation p : em.find(Athlete.class, athleteId).getParticipations()) {
 				if (p.getCategory() != null && p.getCategory().getId().equals(categoryId)) {
 					return p.getSnatchRank();
@@ -796,29 +796,29 @@ public class ChampionshipReassignmentTest {
 	}
 
 	private static Long registrationId(Long athleteId) {
-		return SingletonSaves.inTransaction(em -> {
+		return JpaTransactions.inTransaction(em -> {
 			Category registration = em.find(Athlete.class, athleteId).getCategory();
 			return registration != null ? registration.getId() : null;
 		});
 	}
 
 	private static int participationCount(Long athleteId) {
-		return SingletonSaves.inTransaction(em -> em.find(Athlete.class, athleteId).getParticipations().size());
+		return JpaTransactions.inTransaction(em -> em.find(Athlete.class, athleteId).getParticipations().size());
 	}
 
 	private static int categoryParticipationCount(Long categoryId) {
-		return SingletonSaves.inTransaction(em -> em.find(Category.class, categoryId).getParticipations().size());
+		return JpaTransactions.inTransaction(em -> em.find(Category.class, categoryId).getParticipations().size());
 	}
 
 	private static Long findFixtureAthleteId(String lastName, String team) {
-		return SingletonSaves.inTransaction(em -> em
+		return JpaTransactions.inTransaction(em -> em
 		        .createQuery("select a from Athlete a", Athlete.class).getResultList().stream()
 		        .filter(a -> lastName.equalsIgnoreCase(a.getLastName()) && team.equalsIgnoreCase(a.getTeam()))
 		        .map(Athlete::getId).findFirst().orElse(null));
 	}
 
 	private static long championshipRowCount() {
-		return SingletonSaves.inTransaction(em -> em
+		return JpaTransactions.inTransaction(em -> em
 		        .createQuery("select count(c) from Championship c", Long.class).getSingleResult());
 	}
 

@@ -189,6 +189,20 @@ public class OwlcmsFactory {
 		return values;
 	}
 
+	/** The platform holding this session's athlete copies, including before the first clock start. */
+	public static FieldOfPlay getFOPWithGroup(Group group) {
+		if (group == null || group.getId() == null || getFopByName() == null) {
+			return null;
+		}
+		for (FieldOfPlay fop : getFOPs()) {
+			Group selected = fop.getGroup();
+			if (selected != null && group.getId().equals(selected.getId())) {
+				return fop;
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * @return the platform on which the session is selected and in progress (see
 	 *         {@link FieldOfPlay#isSessionInProgress()}), null if none. Athletes of such a session must not be edited
