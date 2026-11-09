@@ -37,7 +37,7 @@ class CurrentAttempt extends LitElement {
           <div style="${board.firstNameSizeOverride}">${board.firstName}</div>
         </div>
         <div class="${this.teamNameClasses()}" style="${this.teamNameStyles()}">
-          ${board.teamName}
+          ${board.reviewMessage || board.teamName}
         </div>
         <div class="${this.teamFlagImgClasses()}" style="${this.teamFlagImgStyles()}" .innerHTML="${board.teamFlagImg}"></div>
         <div class="${this.athleteImgClasses()}" style="${this.athleteImgStyles()}" .innerHTML="${board.athleteImg}"></div>
@@ -50,7 +50,11 @@ class CurrentAttempt extends LitElement {
         <div data-testid="attempt-board-start-number" class="startNumber" style="${this.startNumberStyles()}">
           <span>${board.startNumber}</span>
         </div>
-        <div class=${classMap({ category: true, longCategory: this.isLongCategory() })} style="${this.attemptStyles()}">
+        <div class=${classMap({
+          category: true,
+          longCategory: this.isLongCategory(),
+          reviewAttempt: Boolean(board.reviewAttempt)
+        })} style="${this.categoryStyles()}">
           ${this.categoryContent()}
         </div>
         <div data-testid="attempt-board-attempt" class="attempt" style="${this.attemptStyles()}">
@@ -160,6 +164,8 @@ class CurrentAttempt extends LitElement {
     recordBroken: false,
     recordMessage: "",
     recordMessageSpeed: 0,
+    reviewAttempt: "",
+    reviewMessage: "",
     sequence: 0,
     startNumber: 0,
     teamFlagImg: "",
@@ -177,11 +183,15 @@ class CurrentAttempt extends LitElement {
   }
 
   isLongCategory() {
-	return this.board.category.length > 10;
+	return this.categoryText().length > 10;
+  }
+
+  categoryText() {
+    return this.board.reviewAttempt || this.board.category;
   }
 
   categoryContent() {
-  const cat = this.board.category;
+  const cat = this.categoryText();
     const words = cat.trim().split(/\s+/);
     if (words.length < 4) {
       return html`<span style="white-space: nowrap;">${cat}</span>`;
@@ -204,6 +214,9 @@ class CurrentAttempt extends LitElement {
       ((this.board.recordAttempt || this.board.recordBroken) ? " hideBecauseRecord" : "");
   }
   teamNameClasses() {
+    if (this.board.reviewMessage) {
+      return "teamName reviewWarning";
+    }
     const hasPicture = this.board.athleteImg || this.athletePictures;
     const hasFlag = Boolean(this.board.teamFlagImg) && this.board.mode === "CURRENT_ATHLETE" && !this.isBreak();
     const teamName = this.board.teamName;
@@ -256,7 +269,8 @@ class CurrentAttempt extends LitElement {
   }
 
   teamNameStyles() {
-  return "display: " + ((this.board.recordAttempt || this.board.recordBroken || this.isBreak()) ? "none" : "grid");
+  const hiddenForBreak = this.isBreak() && !this.board.reviewMessage;
+  return "display: " + ((this.board.recordAttempt || this.board.recordBroken || hiddenForBreak) ? "none" : "grid");
   }
 
   teamFlagImgStyles() {
@@ -283,6 +297,10 @@ class CurrentAttempt extends LitElement {
 
   attemptStyles() {
     return "display: " + ((this.isBreak() || this.board.decisionVisible) ? "none" : "grid");
+  }
+
+  categoryStyles() {
+    return "display: " + ((this.board.reviewAttempt || (!this.isBreak() && !this.board.decisionVisible)) ? "grid" : "none");
   }
 
   startNumberStyles() {

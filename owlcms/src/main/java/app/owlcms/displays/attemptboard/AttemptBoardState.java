@@ -31,6 +31,8 @@ final class AttemptBoardState {
 	private final boolean recordBroken;
 	private final String recordMessage;
 	private final int recordMessageSpeed;
+	private final String reviewAttempt;
+	private final String reviewMessage;
 	private final long sequence;
 	private final int startNumber;
 	private final String teamFlagImg;
@@ -56,6 +58,8 @@ final class AttemptBoardState {
 		this.recordBroken = builder.recordBroken;
 		this.recordMessage = builder.recordMessage;
 		this.recordMessageSpeed = builder.recordMessageSpeed;
+		this.reviewAttempt = builder.reviewAttempt;
+		this.reviewMessage = builder.reviewMessage;
 		this.sequence = builder.sequence;
 		this.startNumber = builder.startNumber;
 		this.teamFlagImg = builder.teamFlagImg;
@@ -87,6 +91,8 @@ final class AttemptBoardState {
 				.recordBroken(this.recordBroken)
 				.recordMessage(this.recordMessage)
 				.recordMessageSpeed(this.recordMessageSpeed)
+				.reviewAttempt(this.reviewAttempt)
+				.reviewMessage(this.reviewMessage)
 				.startNumber(this.startNumber)
 				.teamFlagImg(this.teamFlagImg)
 				.teamName(this.teamName)
@@ -117,6 +123,8 @@ final class AttemptBoardState {
 		state.put("recordBroken", this.recordBroken);
 		state.put("recordMessage", this.recordMessage);
 		state.put("recordMessageSpeed", this.recordMessageSpeed);
+		state.put("reviewAttempt", this.reviewAttempt);
+		state.put("reviewMessage", this.reviewMessage);
 		state.put("sequence", this.sequence);
 		state.put("startNumber", this.startNumber);
 		state.put("teamFlagImg", this.teamFlagImg);
@@ -145,6 +153,8 @@ final class AttemptBoardState {
 		private boolean recordBroken;
 		private String recordMessage = "";
 		private int recordMessageSpeed;
+		private String reviewAttempt = "";
+		private String reviewMessage = "";
 		private final long sequence;
 		private int startNumber;
 		private String teamFlagImg = "";
@@ -242,6 +252,16 @@ final class AttemptBoardState {
 
 		Builder recordMessageSpeed(int recordMessageSpeed) {
 			this.recordMessageSpeed = recordMessageSpeed;
+			return this;
+		}
+
+		Builder reviewAttempt(String reviewAttempt) {
+			this.reviewAttempt = valueOrEmpty(reviewAttempt);
+			return this;
+		}
+
+		Builder reviewMessage(String reviewMessage) {
+			this.reviewMessage = valueOrEmpty(reviewMessage);
 			return this;
 		}
 

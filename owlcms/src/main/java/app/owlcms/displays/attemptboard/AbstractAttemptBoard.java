@@ -724,23 +724,11 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 		AttemptBoardState.Builder builder = AttemptBoardState.builder(nextBoardStateSequence(), BoardMode.CURRENT_ATHLETE.name())
 				.decisionVisible(this.decisionLightsVisible);
-		String lastName = athlete.getLastName();
-		builder.lastName(lastName != null ? lastName.toUpperCase() : "");
-		if (lastName != null && lastName.length() > 18) {
-			builder.nameSizeOverride("font-size: 8vh; line-height: 8vh; text-wrap: balance; text-overflow: hidden")
-					.firstNameSizeOverride("font-size: 8vh; line-height: 12vh; text-wrap: wrap; text-overflow: hidden");
-		}
+		addAthleteIdentity(builder, athlete);
 
-		String firstName = athlete.getFirstName();
-		if (!athlete.isEligibleForIndividualRanking() && firstName != null && !firstName.isBlank()) {
-			firstName = Translator.translate("Attempt.Extra/Invited", firstName);
-		}
-		Category category = athlete.getCategory();
-		builder.firstName(firstName)
-				.weight(requestedWeight.toString())
+		builder.weight(requestedWeight.toString())
 				.platesHtml(buildPlatesHtml(fop, requestedWeight))
-				.category(category != null ? category.getDisplayName() : "")
-				.teamName(computeTeamName(athlete))
+				.category(athlete.getCategory() != null ? athlete.getCategory().getDisplayName() : "")
 				.startNumber(athlete.getStartNumber())
 				.attempt(formatAttempt(athlete));
 
@@ -756,6 +744,22 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		addRecordState(builder, fop);
 		setDone(false);
 		return builder.build();
+	}
+
+	private void addAthleteIdentity(AttemptBoardState.Builder builder, Athlete athlete) {
+		String lastName = athlete.getLastName();
+		builder.lastName(lastName != null ? lastName.toUpperCase() : "");
+		if (lastName != null && lastName.length() > 18) {
+			builder.nameSizeOverride("font-size: 8vh; line-height: 8vh; text-wrap: balance; text-overflow: hidden")
+					.firstNameSizeOverride("font-size: 8vh; line-height: 12vh; text-wrap: wrap; text-overflow: hidden");
+		}
+
+		String firstName = athlete.getFirstName();
+		if (!athlete.isEligibleForIndividualRanking() && firstName != null && !firstName.isBlank()) {
+			firstName = Translator.translate("Attempt.Extra/Invited", firstName);
+		}
+		builder.firstName(firstName)
+				.teamName(computeTeamName(athlete));
 	}
 
 	private AttemptBoardState buildDoneState(Group group) {
@@ -811,11 +815,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		}
 
 		if (breakType == BreakType.JURY || breakType == BreakType.CHALLENGE) {
-			// seven-person Adjudication Panel: the votes that led to the review, then the review vote
-			return builder.lastName(inferGroupName(group, null))
-					.firstName(inferMessage(breakType, ceremonyType, true))
-					.decisionVisible(fop.isPanelVoteOpen() || fop.getPanelReviewInitialVotes() != null)
-					.build();
+			return buildReviewState(builder, fop, breakType);
 		}
 
 		builder.lastName(inferGroupName(group, breakType == BreakType.CEREMONY ? ceremonyType : null))
@@ -828,6 +828,37 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 					.weight(requestedWeight != null && requestedWeight > 0 ? requestedWeight.toString() : "");
 		}
 		return builder.build();
+	}
+
+	private AttemptBoardState buildReviewState(AttemptBoardState.Builder builder, FieldOfPlay fop,
+	        BreakType breakType) {
+		Athlete athleteUnderReview = fop.getAthleteUnderReview();
+		if (athleteUnderReview == null) {
+			logger.error("{}attemptBoard cannot publish {} review: athlete under review is null {}",
+			        FieldOfPlay.getLoggingName(fop), breakType, LoggerUtils.whereFrom());
+			return builder.reviewMessage(reviewMessage(breakType, fop)).build();
+		}
+
+		addAthleteIdentity(builder, athleteUnderReview);
+		int attemptsDone = athleteUnderReview.getAttemptsDone();
+		if (attemptsDone <= 0) {
+			logger.error("{}attemptBoard cannot publish {} review attempt: athlete under review has {} attempts done {}",
+			        FieldOfPlay.getLoggingName(fop), breakType, attemptsDone, LoggerUtils.whereFrom());
+		} else {
+			builder.reviewAttempt(formatAttemptByIndex(attemptsDone - 1));
+		}
+		return builder.reviewMessage(reviewMessage(breakType, fop))
+				.decisionVisible(fop.isPanelVoteOpen() || fop.getPanelReviewInitialVotes() != null)
+				.build();
+	}
+
+	private String reviewMessage(BreakType breakType, FieldOfPlay fop) {
+		if (breakType == BreakType.CHALLENGE) {
+			return Translator.translate("PublicMsg.CHALLENGE");
+		}
+		return Translator.translate(fop.isPanelReviewing()
+		        ? "PublicMsg.AdjudicationPanelReview"
+		        : "PublicMsg.JuryDeliberation");
 	}
 
 	private String inferGroupName(Group group, CeremonyType ceremonyType) {

@@ -94,6 +94,8 @@ public class AttemptBoardStateTest {
 				.recordBroken(false)
 				.recordMessage("Record attempt")
 				.recordMessageSpeed(10)
+				.reviewAttempt("Second snatch")
+				.reviewMessage("Jury Deliberation")
 				.startNumber(7)
 				.teamFlagImg("flag")
 				.teamName("Team")
@@ -122,6 +124,8 @@ public class AttemptBoardStateTest {
 		assertFalse(json.path("recordBroken").asBoolean());
 		assertEquals("Record attempt", json.path("recordMessage").asString());
 		assertEquals(10, json.path("recordMessageSpeed").asInt());
+		assertEquals("Second snatch", json.path("reviewAttempt").asString());
+		assertEquals("Jury Deliberation", json.path("reviewMessage").asString());
 		assertEquals("last-size", json.path("nameSizeOverride").asString());
 		assertEquals("first-size", json.path("firstNameSizeOverride").asString());
 	}
@@ -144,6 +148,8 @@ public class AttemptBoardStateTest {
 		assertEquals("", json.path("weight").asString());
 		assertEquals("", json.path("platesHtml").asString());
 		assertEquals("", json.path("recordMessage").asString());
+		assertEquals("", json.path("reviewAttempt").asString());
+		assertEquals("", json.path("reviewMessage").asString());
 		assertFalse(json.path("decisionVisible").asBoolean());
 	}
 
@@ -155,6 +161,8 @@ public class AttemptBoardStateTest {
 				.platesHtml("attempted plates")
 				.decisionVisible(true)
 				.recordAttempt(true)
+				.reviewAttempt("Third snatch")
+				.reviewMessage("Challenge")
 				.build();
 		ObjectNode json = original.copy(6).recordAttempt(false).build().toJson();
 
@@ -165,6 +173,8 @@ public class AttemptBoardStateTest {
 		assertEquals("attempted plates", json.path("platesHtml").asString());
 		assertTrue(json.path("decisionVisible").asBoolean());
 		assertFalse(json.path("recordAttempt").asBoolean());
+		assertEquals("Third snatch", json.path("reviewAttempt").asString());
+		assertEquals("Challenge", json.path("reviewMessage").asString());
 	}
 
 	@Test

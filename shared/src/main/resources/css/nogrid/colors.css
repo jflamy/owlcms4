@@ -26,6 +26,9 @@
     --athleteCategoryColor: white;
     --athleteTeamColor: white;
     --athleteAttemptColor: white;
+    --attemptBoardBackgroundColor: var(--pageBackgroundColor);
+    --reviewWarningBackgroundColor: yellow;
+    --reviewWarningTextColor: black;
 
     --groupInfoColor: white;
 }
