@@ -15,15 +15,11 @@
 
 - 69.0.0-beta07: Attempt board shows the name and attempt under review, nature of review shown and highlighted.
 
-- 69.0.0-beta06: Each platform row now has a Delete button, with confirmation before removal.
+- 69.0.0-beta07: Platform Delete button with confirmation.
 
-- 69.0.0-beta06: During a session, the name, team, record federations and eligibility of an athlete can be corrected without stopping the competition.
-  - Before lifting, the registration form keeps its existing tabs and layout. Once lifting starts, Registration, Supervisor and results pages also offer an independent Card tab. Partial results in a session keep Card available for all its athletes, even after the session is unselected. Team selection and weigh-in have no Card; weigh-in keeps its quick mode.
-  - During a session, Athlete Information replaces the full registration tabs in a compact dialog; Registration, Supervisor and results pages also keep Card at its standalone size. The two sides save independently and retain unsaved work when switching tabs. A full form already open at session start closes with an explanation and must be reopened.
-  - Editing the Card requires the athlete-card editing permission granted to preparation, announcer, marshal, platform, Supervisor and admin roles; actual results remain audited. Metadata requires its metadata permission. RESULTS accounts retain read, download and export access but cannot edit athletes.
-  - Displays and lists show a correction at their next update; it does not interrupt the current attempt.
+- 69.0.0-beta07: Correct athlete information and edit cards during lifting without stopping the competition.
 
-- 69.0.0-beta06: Ending athlete introductions starts a fresh ten-minute before-snatch countdown on OWLCMS and Tracker displays, and automatically starts lifting when it expires.
+- 69.0.0-beta07: Ending introductions starts a ten-minute countdown, then lifting automatically.
 
 - 69.0.0-beta06: A database last used with a version older than 69 starts with jury size 0 and video replays off.
 
