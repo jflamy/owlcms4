@@ -51,10 +51,16 @@ import com.microsoft.playwright.options.LoadState;
  * (unanimous jury against the referees) or Challenge (split jury). The vote is open at once and called verbally; the
  * three jurors punch in their votes; the referees do not vote; unanimity is needed to reverse.</li>
  * <li>200: four-member jury with VPT, a jury box that does not work; the Speaker starts the next clock anyway.</li>
+ * <li>210-230: the Jury Chair decides with the jury box buttons (MQTT), applied at once without a rule; the Speaker
+ * dialog asks to get the reason from the Technical Controller. 210: the decision agrees with the vote; 220: against
+ * the vote; 230: no vote.</li>
+ * <li>240-250: manual deliberation or automatic panel review ended with Resume without a jury decision.</li>
+ * <li>260-290: normal three-member jury-box decisions after a complete review vote: confirm No Lift, confirm Good
+ * Lift, reverse to No Lift, reverse to Good Lift. The Chair presses the physical box button; the Speaker only closes
+ * the announcement dialog.</li>
  * </ul>
- * In both cases the Chair applies the result (the rule for a No Lift, Confirm Good Lift); the Speaker closes the
- * dialog; lifting resumes; the Chair presses Resume. The settings are applied through the screens before each
- * scenario.
+ * Completed decisions end after the Speaker closes the dialog and lifting resumes automatically. Only reviews
+ * ending without a jury decision use Resume. The settings are applied through the screens before each scenario.
  * <p>
  * Each scenario has its own folder {@code <out>/<scenario>/}, cleaned and rewritten each time it runs, with
  * {@code timeline.html} (screens side by side, with header checkboxes to hide/show screen columns) and
@@ -130,26 +136,56 @@ public class JuryScenario {
 	 *                       Speaker enters the decision in the "Waiting for decision" dialog
 	 * @param startClockAnyway a jury device never votes; the Speaker abandons the incomplete vote and starts the next
 	 *                         clock, leaving the referees' decision in place
+	 * @param boxDecision    "good" or "bad": the Jury Chair presses Good Lift / No Lift on the jury box (MQTT
+	 *                       {@code owlcms/jurybox/decision}), after the review vote, or before any vote when
+	 *                       {@code reviewJury} is null. null: no jury box decision
+	 * @param resumeWithoutDecision the Jury Chair ends the review with Resume and leaves the referees' decision in place
+	 * @param summonForDiscussion summon the referees during a manual deliberation before the jury votes again
 	 */
 	record Scenario(String id, String title, Setup setup, String[] refs, String[] liftJury, boolean challenge,
 	        String[] reviewRefs, String[] reviewJury, boolean goodResult, int brokenJuror, boolean speakerDecides,
-	        boolean startClockAnyway) {
+	        boolean startClockAnyway, String boxDecision, boolean resumeWithoutDecision, boolean summonForDiscussion) {
 
 		Scenario(String id, String title, Setup setup, String[] refs, String[] liftJury, boolean challenge,
 		        String[] reviewRefs, String[] reviewJury, boolean goodResult) {
-			this(id, title, setup, refs, liftJury, challenge, reviewRefs, reviewJury, goodResult, 0, false, false);
+			this(id, title, setup, refs, liftJury, challenge, reviewRefs, reviewJury, goodResult, 0, false, false,
+			        null, false, false);
 		}
 
 		Scenario(String id, String title, Setup setup, String[] refs, String[] liftJury, boolean challenge,
 		        String[] reviewRefs, String[] reviewJury, boolean goodResult, int brokenJuror) {
 			this(id, title, setup, refs, liftJury, challenge, reviewRefs, reviewJury, goodResult, brokenJuror, false,
-			        false);
+			        false, null, false, false);
 		}
 
 		Scenario(String id, String title, Setup setup, String[] refs, String[] liftJury, boolean challenge,
 		        String[] reviewRefs, String[] reviewJury, boolean goodResult, int brokenJuror, boolean speakerDecides) {
 			this(id, title, setup, refs, liftJury, challenge, reviewRefs, reviewJury, goodResult, brokenJuror,
-			        speakerDecides, false);
+			        speakerDecides, false, null, false, false);
+		}
+
+		Scenario(String id, String title, Setup setup, String[] refs, String[] liftJury, boolean challenge,
+		        String[] reviewRefs, String[] reviewJury, boolean goodResult, int brokenJuror, boolean speakerDecides,
+		        boolean startClockAnyway) {
+			this(id, title, setup, refs, liftJury, challenge, reviewRefs, reviewJury, goodResult, brokenJuror,
+			        speakerDecides, startClockAnyway, null, false, false);
+		}
+
+		/** the Jury Chair decides with the jury box buttons */
+		static Scenario boxDecision(String id, String title, Setup setup, String[] refs, String[] liftJury,
+		        String[] reviewRefs, String[] reviewJury, String boxDecision) {
+			return boxDecision(id, title, setup, refs, liftJury, reviewRefs, reviewJury, boxDecision, false);
+		}
+
+		static Scenario boxDecision(String id, String title, Setup setup, String[] refs, String[] liftJury,
+		        String[] reviewRefs, String[] reviewJury, String boxDecision, boolean summonForDiscussion) {
+			return new Scenario(id, title, setup, refs, liftJury, false, reviewRefs, reviewJury,
+			        "good".equals(boxDecision), 0, false, false, boxDecision, false, summonForDiscussion);
+		}
+
+		static Scenario resumeWithoutDecision(String id, String title, Setup setup, String[] refs, String[] liftJury) {
+			return new Scenario(id, title, setup, refs, liftJury, false, null, null, false, 0, false, false, null,
+			        true, false);
 		}
 	}
 
@@ -259,6 +295,50 @@ public class JuryScenario {
 		                + "incomplete jury vote and leaving the referees' Good Lift in place",
 		        Setup.VPT4, votes("good", "good", "bad"), votes("bad", "bad", "bad", "bad"), false,
 		        null, null, true, 1, false, true));
+		add(Scenario.boxDecision("210-vpt-jurybox-nolift",
+		        "210. VPT: automatic review, the vote confirms the No Lift result; the Jury Chair presses No Lift on "
+		                + "the jury box: applied at once without a rule, the Speaker is told to get the reason",
+		        Setup.VPT4, votes("good", "good", "bad"), votes("bad", "bad", "bad", "bad"),
+		        votes("bad", "bad", "bad"), votes("bad", "bad", "bad", "bad"), "bad"));
+		add(Scenario.boxDecision("220-vpt-jurybox-nolift-against-vote",
+		        "220. VPT: automatic review, the vote gives a Good Lift result; the Jury Chair presses No Lift on the "
+		                + "jury box: Jury Chair Decision Against the Vote, no rule",
+		        Setup.VPT4, votes("bad", "bad", "good"), votes("good", "good", "good", "good"),
+		        votes("good", "good", "good"), votes("good", "good", "good", "bad"), "bad"));
+		add(Scenario.boxDecision("230-jury3-jurybox-nolift-no-vote",
+		        "230. 3-member jury, no VPT: the jury box starts a deliberation and the Jury Chair presses No Lift on "
+		                + "the jury box before any vote: Jury Chair Entered Decision, no rule",
+		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"),
+		        null, null, "bad"));
+		add(Scenario.resumeWithoutDecision("240-jury3-deliberation-resume",
+		        "240. 3-member jury, no VPT: the jury starts a deliberation, takes no action and resumes competition; "
+		                + "the referees' Good Lift stands",
+		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad")));
+		add(Scenario.resumeWithoutDecision("250-vpt-automatic-review-resume",
+		        "250. VPT: automatic Adjudication Panel Review is ended abnormally with Resume before the vote; the "
+		                + "referees' Good Lift stands",
+		        Setup.VPT4, votes("good", "good", "bad"), votes("bad", "bad", "bad", "bad")));
+		add(Scenario.boxDecision("260-jury3-jurybox-confirmation-nolift",
+		        "260. 3-member jury, jury box only: the review vote confirms No Lift; the Jury Chair presses No Lift "
+		                + "on the box; the TC gives the reason verbally; the Speaker announces and closes",
+		        Setup.JURY3, votes("bad", "bad", "good"), votes("good", "good", "good"),
+		        null, votes("bad", "bad", "bad"), "bad"));
+		add(Scenario.boxDecision("270-jury3-jurybox-confirmation-goodlift",
+		        "270. 3-member jury, jury box only: the review vote confirms Good Lift; the Jury Chair presses Good "
+		                + "Lift on the box; the Speaker only announces and closes",
+		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"),
+		        null, votes("good", "good", "good"), "good"));
+		add(Scenario.boxDecision("280-jury3-jurybox-reversal-nolift",
+		        "280. 3-member jury, jury box only: referees summoned for discussion, then a unanimous jury review "
+		                + "vote reverses Good Lift to No Lift; the Chair presses No Lift on the box; the TC gives the "
+		                + "reason verbally; the Speaker announces and closes",
+		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"),
+		        null, votes("bad", "bad", "bad"), "bad", true));
+		add(Scenario.boxDecision("290-jury3-jurybox-reversal-goodlift",
+		        "290. 3-member jury, jury box only: the unanimous review vote reverses No Lift to Good Lift; the "
+		                + "Jury Chair presses Good Lift on the box; the Speaker only announces and closes",
+		        Setup.JURY3, votes("bad", "bad", "good"), votes("good", "good", "good"),
+		        null, votes("good", "good", "good"), "good"));
 	}
 
 	private static void add(Scenario sc) {
@@ -269,15 +349,36 @@ public class JuryScenario {
 	record Check(String page, String description, String predicate) {
 	}
 
+	enum DeviceLight {
+		UNKNOWN, OFF, WHITE, RED, VOTED
+	}
+
+	record MqttInstruction(String topic, String payload) {
+		String display() {
+			return topic + (payload.isBlank() ? "" : " " + payload);
+		}
+	}
+
+	record JuryBoxState(List<DeviceLight> referees, List<DeviceLight> jurors) {
+	}
+
+	record RefBoxState(List<Boolean> summoned) {
+	}
+
+	record JuryBoxExpectation(JuryBoxState state, String description) {
+	}
+
 	record StepResult(int number, String title, List<String> actions, String expected, List<String> checks,
-	        Map<String, String> shots, Map<String, String> observed) {
+	        Map<String, String> shots, Map<String, String> observed, JuryBoxState juryBox, RefBoxState refBox) {
 	}
 
 	private final Options options;
 	private final Map<String, Page> pages = new LinkedHashMap<>();
 	private List<StepResult> results = new ArrayList<>();
 	private Scenario scenario;
-	private final List<String> deviceMessages = new ArrayList<>();
+	private final List<MqttInstruction> deviceMessages = new ArrayList<>();
+	private final DeviceLight[] juryBoxRefereeLights = unknownLights(3);
+	private final DeviceLight[] juryBoxJurorLights = unknownLights(5);
 	private Path reportDir;
 	private MqttClient mqtt;
 	private List<String> pendingActions = new ArrayList<>();
@@ -306,45 +407,61 @@ public class JuryScenario {
 		launch.setChannel(UpdateCheck.browserChannel());
 		try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch(launch)) {
 			Page settings = newPage(browser, 1920, 1080);
+			try {
+				String fop = "fop=" + this.options.fop();
+				// the Speaker page loads the group given in its URL
+				String group = this.options.group() != null
+				        ? "&group=" + URLEncoder.encode(this.options.group(), StandardCharsets.UTF_8)
+				        : "";
+				this.pages.put("speaker", open(browser, "lifting/announcer?" + fop + group, 1920, 1080));
+				this.pages.put("jury", open(browser, "jurykeypad?" + fop, 1280, 800));
+				this.pages.put("attempt", open(browser, "displays/attemptBoard?" + fop, 1920, 1080));
+				this.pages.put("scoreboard", open(browser, "displays/resultsLeaders?" + fop + "&decisionSection=true",
+				        1920, 1080));
 
-			String fop = "fop=" + this.options.fop();
-			// the Speaker page loads the group given in its URL
-			String group = this.options.group() != null
-			        ? "&group=" + URLEncoder.encode(this.options.group(), StandardCharsets.UTF_8)
-			        : "";
-			this.pages.put("speaker", open(browser, "lifting/announcer?" + fop + group, 1920, 1080));
-			this.pages.put("jury", open(browser, "jurykeypad?" + fop, 1280, 800));
-			this.pages.put("attempt", open(browser, "displays/attemptBoard?" + fop, 1920, 1080));
-			this.pages.put("scoreboard", open(browser, "displays/resultsLeaders?" + fop + "&decisionSection=true",
-			        1920, 1080));
-
-			for (String id : this.options.scenarios()) {
-				Scenario sc = SCENARIOS.get(id.trim());
-				if (sc == null) {
-					throw new IllegalArgumentException("unknown scenario " + id + "; known: " + SCENARIOS.keySet());
-				}
-				this.scenario = sc;
-				this.results = new ArrayList<>();
-				this.scenarioFailures = 0;
-				// one folder per scenario, cleaned and rewritten on each run of that scenario
-				this.reportDir = out.resolve(sc.id());
-				deleteRecursively(this.reportDir);
-				Files.createDirectories(this.reportDir);
-				System.out.println("== " + sc.id() + ": " + sc.title());
-				try {
-					configure(settings, sc.setup());
-					String athlete = currentAthlete(this.pages.get("speaker"));
-					if (athlete == null || athlete.isBlank()) {
-						throw new IllegalStateException("no current athlete on platform " + this.options.fop()
-						        + ": load a group and start lifting first");
+				for (String id : this.options.scenarios()) {
+					Scenario sc = SCENARIOS.get(id.trim());
+					if (sc == null) {
+						throw new IllegalArgumentException(
+						        "unknown scenario " + id + "; known: " + SCENARIOS.keySet());
 					}
-					runReview(athlete);
-				} finally {
-					writeReport();
-					writeTimeline();
-					writeStatus();
-					System.out.println("timeline: " + this.reportDir.resolve("timeline.html").toAbsolutePath());
+					this.scenario = sc;
+					this.results = new ArrayList<>();
+					this.scenarioFailures = 0;
+					// one folder per scenario, cleaned and rewritten on each run of that scenario
+					this.reportDir = out.resolve(sc.id());
+					deleteRecursively(this.reportDir);
+					Files.createDirectories(this.reportDir);
+					System.out.println("== " + sc.id() + ": " + sc.title());
+					try {
+						configure(settings, sc.setup());
+						String athlete = currentAthlete(this.pages.get("speaker"));
+						if (athlete == null || athlete.isBlank()) {
+							throw new IllegalStateException("no current athlete on platform " + this.options.fop()
+							        + ": load a group and start lifting first");
+						}
+						runReview(athlete);
+					} catch (Exception e) {
+						this.failures++;
+						this.scenarioFailures++;
+						String failure = "FAIL scenario: " + e;
+						System.err.println(failure);
+						synchronized (this.deviceMessages) {
+							this.results.add(new StepResult(this.results.size() + 1, "Scenario aborted",
+							        List.copyOf(this.pendingActions), "All required checks must complete.",
+							        List.of(failure), Map.of(), Map.of(), juryBoxState(),
+							        refBoxState(this.deviceMessages)));
+						}
+						throw e;
+					} finally {
+						writeReport();
+						writeTimeline();
+						writeStatus();
+						System.out.println("timeline: " + this.reportDir.resolve("timeline.html").toAbsolutePath());
+					}
 				}
+			} finally {
+				triggerUnloadBeacons(settings);
 			}
 		} finally {
 			writeSummary(out);
@@ -407,7 +524,11 @@ public class JuryScenario {
 	// ------------------------------------------------------------------ scenario
 
 	private void runReview(String athlete) throws Exception {
-		if (this.scenario.startClockAnyway()) {
+		if (this.scenario.resumeWithoutDecision()) {
+			runResumeWithoutDecision(athlete);
+		} else if (this.scenario.boxDecision() != null) {
+			runJuryBoxDecision(athlete);
+		} else if (this.scenario.startClockAnyway()) {
 			runStartClockAnyway(athlete);
 		} else if (this.scenario.speakerDecides()) {
 			runSpeakerDecidesReview(athlete);
@@ -418,6 +539,85 @@ public class JuryScenario {
 		} else {
 			runJuryReview(athlete);
 		}
+	}
+
+	private void runResumeWithoutDecision(String athlete) throws Exception {
+		Scenario sc = this.scenario;
+		boolean panel = sc.setup().panel;
+		int jurors = sc.setup().jurors;
+		String[] refs = sc.refs();
+		String liftDecision = Arrays.stream(refs).filter("good"::equals).count() >= 2 ? "Good Lift" : "No Lift";
+		String refsText = describe(refs);
+		Page juryPage = this.pages.get("jury");
+
+		step("Starting point", "Current athlete " + athlete + "; " + sc.setup().description + ".",
+		        startingChecks());
+
+		athleteLifts();
+		for (int r = 0; r < refs.length; r++) {
+			referee(r + 1, refs[r]);
+		}
+		pause(4000);
+		step("Referees: " + refsText,
+		        liftDecision + " (" + refsText + ") on all boards; " + jurors + " empty jury circles.",
+		        List.of());
+
+		for (int j = 0; j < jurors; j++) {
+			juror(j + 1, sc.liftJury()[j]);
+		}
+		pause(1500);
+		if (panel) {
+			step("The four jurors vote 0 white, 4 red: automatic Adjudication Panel Review",
+			        "The seven-person majority is against the referees' Good Lift. The automatic jury break starts, "
+			                + "but no review vote is called. Speaker: \"Waiting for decision\".",
+			        List.of(new Check("jury", "Call for Votes is orange", buttonColor("Call for Votes", ORANGE)),
+			                new Check("speaker", "the Speaker waits for the decision",
+			                        dialogContains("Waiting for"))),
+			        expectedJuryBox(refs, sc.liftJury(),
+			                "the original referee and Phase A jury decisions remain displayed"));
+		} else {
+			step("The three jurors vote 0 white, 3 red against the referees",
+			        "There is no automatic review. The Jury Chair can start a manual deliberation.",
+			        List.of(new Check("speaker", "no jury dialog", "!(" + dialogContains("Waiting for") + ")")),
+			        expectedJuryBox(refs, sc.liftJury(),
+			                "the original referee and jury decisions remain displayed before Deliberation"));
+			publish("owlcms/jurybox/break/" + this.options.fop(), "deliberation");
+			pause(1500);
+			step("Jury box: Deliberation",
+			        "The manual jury break starts and the review vote opens, but no one votes. The original referee "
+			                + "decision is shown at the right of the top line. Speaker: \"Waiting for decision\".",
+			        List.of(new Check("jury", "the original referee decision is at the right of the top line",
+			                originalRefereesShown(refs)),
+			                new Check("speaker", "the Speaker waits for the decision",
+			                        dialogContains("Waiting for"))),
+			        expectedJuryBox(refs, null,
+			                "manual mode keeps the original referee lights on and clears the jury lights"));
+		}
+
+		click(juryPage, "vaadin-button:has-text('Resume Competition')",
+		        "Jury Chair clicks Resume Competition on Jury Control");
+		pause(1500);
+		List<Check> checks = new ArrayList<>(List.of(
+		        new Check("speaker", "the waiting dialog is closed", "!(" + dialogContains("Waiting for") + ")"),
+		        new Check("jury", "Deliberation and Challenge are back", buttonVisible("Jury Deliberation")),
+		        new Check("attempt", "no jury decision was entered",
+		                "!document.body.innerText.includes('JURY REVERSAL') && "
+		                        + "!document.body.innerText.includes('JURY CONFIRMATION')")));
+		checks.addAll(originalRefereeChecks(!panel));
+		step("Jury Chair: Resume without a decision",
+		        "Resume ends the " + (panel ? "automatic review" : "manual deliberation")
+		                + ". The jury takes no action, so the referees' " + liftDecision
+		                + " stands without an explicit Good Lift or No Lift from the Jury Chair."
+		                + (panel
+		                        ? " Because the vote was never called, the original referee decision was not moved to "
+		                                + "the top line."
+		                        : " The reviewed athlete and original referee decision remain in the top line until "
+		                                + "the next clock starts."),
+		        checks, panel
+		                ? expectedJuryBox(refs, sc.liftJury(),
+		                        "Resume leaves the original referee and Phase A jury lights unchanged")
+		                : expectedJuryBox(refs, null,
+		                        "Resume leaves the original referee lights on and the jury lights off"));
 	}
 
 	/**
@@ -466,27 +666,48 @@ public class JuryScenario {
 		                new Check("jury", "no clock warning", "!(" + notificationContains("Clock not started") + ")")));
 
 		click(speaker, "vaadin-button:has-text('Start clock anyway')", "Speaker clicks Start clock anyway");
-		pause(1500);
-		step("Speaker: Start clock anyway",
-		        "The incomplete jury vote is discarded and no jury decision is entered. The referees' " + liftDecision
-		                + " stands. The next athlete's clock is running; the jury lights are cleared and Jury Control "
-		                + "is back to Deliberation / Challenge.",
-		        List.of(new Check("speaker", "the pending-jury dialog is closed",
-		                "!(" + dialogContains("jury has not finished voting") + ")"),
-		                new Check("jury", "no clock warning", "!(" + notificationContains("Clock not started") + ")"),
-		                new Check("jury", "Deliberation and Challenge are offered",
-		                        buttonVisible("Jury Deliberation") + " && " + buttonVisible("Challenge")),
-		                new Check("attempt", "no jury decision was shown",
-		                        "!document.body.innerText.includes('JURY REVERSAL') && "
-		                                + "!document.body.innerText.includes('JURY CONFIRMATION')")));
-
-		// the override started the next attempt's clock; leave the platform with the clock stopped
-		clock("stop");
+		int overrideStartMs;
+		try {
+			overrideStartMs = clockMessageMillis(awaitClockMessage("start"));
+			int overrideStartSeconds = (int) Math.ceil(overrideStartMs / 1000.0);
+			for (String page : List.of("speaker", "attempt", "scoreboard")) {
+				awaitClock(clockCheck(page, overrideStartSeconds - 1, true));
+			}
+			awaitClock(clockCheck("attempt", overrideStartSeconds - 2, true));
+			List<Check> overrideChecks = new ArrayList<>(List.of(
+			        new Check("speaker", "the pending-jury dialog is closed",
+			                "!(" + dialogContains("jury has not finished voting") + ")"),
+			        new Check("jury", "no clock warning", "!(" + notificationContains("Clock not started") + ")"),
+			        new Check("jury", "Deliberation and Challenge are offered",
+			                buttonVisible("Jury Deliberation") + " && " + buttonVisible("Challenge")),
+			        new Check("attempt", "no jury decision was shown",
+			                "!document.body.innerText.includes('JURY REVERSAL') && "
+			                        + "!document.body.innerText.includes('JURY CONFIRMATION')")));
+			for (String page : List.of("speaker", "attempt", "scoreboard")) {
+				overrideChecks.add(clockCheck(page, overrideStartSeconds - 2, true));
+			}
+			step("Speaker: Start clock anyway",
+			        "The incomplete jury vote is discarded and no jury decision is entered. The referees' " + liftDecision
+			                + " stands. The next athlete's clock has genuinely counted down for two seconds from the "
+			                + "server's " + overrideStartMs + " ms starting time; the jury lights are cleared and Jury "
+			                + "Control is back to Deliberation / Challenge.",
+			        overrideChecks);
+		} finally {
+			clock("stop");
+		}
+		int overrideStopMs = clockMessageMillis(awaitClockMessage("stop"));
+		if (overrideStopMs <= 0 || overrideStopMs >= overrideStartMs - 1000) {
+			throw new IllegalStateException("override clock did not count down before Stop: " + overrideStopMs);
+		}
+		List<Check> stopChecks = stoppedClockChecks((int) Math.ceil(overrideStopMs / 1000.0));
+		for (Check check : stopChecks) {
+			awaitClock(check);
+		}
 		pause(1000);
 		step("Clock stopped",
-		        "The script stops the clock started by the override, so the platform is not left with a clock running "
-		                + "down to 0:00 after the run.",
-		        List.of());
+		        "OWLCMS confirms the override clock stopped with " + overrideStopMs + " ms remaining. All clocks "
+		                + "show the server-confirmed time and stay stopped after a further second.",
+		        stopChecks);
 	}
 
 	private void runPanelReview(String athlete) throws Exception {
@@ -530,13 +751,14 @@ public class JuryScenario {
 		        threeVotedChecks);
 
 		juror(4, liftJury[3]);
-		List<Check> reviewChecks = List.of(new Check("jury", "Call for Votes is orange",
+		List<Check> reviewChecks = new ArrayList<>(List.of(new Check("jury", "Call for Votes is orange",
 		        buttonColor("Call for Votes", ORANGE)),
 		        new Check("jury", "No Lift and Good Lift replace Deliberation and Challenge",
 		                buttonVisible("No Lift") + " && " + buttonVisible("Good Lift") + " && !"
 		                        + buttonVisible("Jury Deliberation")),
 		        new Check("jury", "Summon Referees (all) is disabled", buttonDisabled("Summon Referees")),
-		        new Check("speaker", "the Speaker waits for the decision", dialogContains("Waiting for")));
+		        new Check("speaker", "the Speaker waits for the decision", dialogContains("Waiting for"))));
+		reviewChecks.add(reviewWeightCheck());
 		if (sc.challenge()) {
 			pause(1000);
 			boolean juryAgrees = Arrays.stream(liftJury)
@@ -557,11 +779,12 @@ public class JuryScenario {
 			        "Jury Chair clicks Challenge on Jury Control");
 			pause(1500);
 			step("Challenge: the review starts",
-			        "Challenge break, same procedure as the automatic review: the referees are summoned to the video "
-			                + "review, the votes on the lift stay displayed. Jury Control: No Lift / Good Lift / Call "
+			        "Challenge break, same procedure as the automatic review: the referees are not summoned until the "
+			                + "vote is called, the votes on the lift stay displayed. Jury Control: No Lift / Good Lift / Call "
 			                + "for Votes (orange) / Resume; Summon Referees (all) disabled. Speaker: \"Waiting for "
 			                + "decision\" dialog titled Challenge. Boards: Challenge message, the votes on the lift.",
 			        List.of(reviewChecks.get(0), reviewChecks.get(1), reviewChecks.get(2), reviewChecks.get(3),
+			                reviewChecks.get(4),
 			                new Check("speaker", "the dialog is titled Challenge", dialogContains("Challenge"))));
 		} else {
 			step("Fourth juror votes " + describe(liftJury) + ": automatic Adjudication Panel Review",
@@ -576,7 +799,7 @@ public class JuryScenario {
 		publish("owlcms/jurybox/summon/" + this.options.fop(), "all");
 		pause(1500);
 		step("Jury box Summon All: the vote is called",
-		        "Same event as Call for Votes on Jury Control: all cells cleared, referees buzzed. Jury Control: "
+		        "Same event as Call for Votes on Jury Control: all cells cleared, referees summoned. Jury Control: "
 		                + "Call for Votes no longer orange. Boards: empty cells.",
 		        List.of(new Check("jury", "Call for Votes no longer orange",
 		                "!(" + buttonColor("Call for Votes", ORANGE) + ")")));
@@ -603,9 +826,10 @@ public class JuryScenario {
 
 	/**
 	 * Jury vote (no seven-person panel: 3 members with or without VPT, 4 members without VPT): no automatic trigger;
-	 * the Chair starts the review; the referees do not vote again; the referee and jury lights are cleared (when the
-	 * jury votes are revealed, the original referee decision is shown at the top right of Jury Control, and returns on
-	 * the boards and the jury box), the vote is called verbally and the jurors punch in their votes; unanimity reverses the
+	 * the Chair starts the review; the referees do not vote again; Jury Control and the boards clear the referee and jury
+	 * lights, the jury box clears only the jury lights. Jury Control keeps the original referee decision at the top
+	 * right; public boards keep the referee lights blank or hidden, including when the jury votes are revealed.
+	 * The vote is called verbally and the jurors punch in their votes; unanimity reverses the
 	 * referees. A four-member jury holds the decision on the boards until its four votes are in.
 	 */
 	private void runJuryReview(String athlete) throws Exception {
@@ -687,7 +911,8 @@ public class JuryScenario {
 		pause(1500);
 		step(reviewName + ": the review starts",
 		        "Jury break started by the Chair: the referee lights are cleared (they do not vote again), "
-		                + "the jury lights are cleared and the jury vote is open at once (called verbally). Jury Control: No Lift / Good Lift / Call for Votes (not orange, the vote is "
+		                + "the original referee decision is shown at the right of the top line, the jury lights are "
+		                + "cleared and the jury vote is open at once (called verbally). Jury Control: No Lift / Good Lift / Call for Votes (not orange, the vote is "
 		                + "open) / Resume; Summon Referees (all) enabled: it summons the referees. Speaker: "
 		                + "\"Waiting for decision\" dialog. Boards: " + reviewName + " message, empty referee lights, "
 		                + "empty jury cells.",
@@ -698,7 +923,10 @@ public class JuryScenario {
 		                        "!(" + buttonColor("Call for Votes", ORANGE) + ")"),
 		                new Check("jury", "Summon Referees (all) is enabled",
 		                        buttonVisible("Summon Referees") + " && !(" + buttonDisabled("Summon Referees") + ")"),
-		                new Check("speaker", "the Speaker waits for the decision", dialogContains("Waiting for"))));
+		                new Check("jury", "the original referee decision is at the right of the top line",
+		                        originalRefereesShown(refs)),
+		                new Check("speaker", "the Speaker waits for the decision", dialogContains("Waiting for")),
+		                reviewWeightCheck()));
 
 		// the Chair calls the vote verbally; the jurors vote a moment later
 		pause(1000);
@@ -746,7 +974,8 @@ public class JuryScenario {
 		}
 		pause(4000);
 		step("Referees: " + refsText, liftDecision + " (" + refsText + ") on all boards; " + n + " empty jury "
-		        + "circles.", List.of());
+		        + "circles.", List.of(),
+		        expectedJuryBox(refs, null, "the referee lights show the original decision; jury lights are off"));
 
 		for (int j = 1; j <= n; j++) {
 			juror(j, sc.liftJury()[j - 1]);
@@ -770,10 +999,14 @@ public class JuryScenario {
 			publish("owlcms/jurybox/break/" + fop, "deliberation");
 			pause(1500);
 			step("Jury box: Deliberation",
-			        "Jury break started from the jury box: the referee and jury lights are "
-			                + "cleared and the jury vote is open at once (called verbally). Speaker: \"Waiting for "
-			                + "decision\" dialog.",
-			        List.of(new Check("speaker", "the Speaker waits for the decision", dialogContains("Waiting for"))));
+			        "Jury break started from the jury box: Jury Control clears its middle referee indicators and "
+			                + "shows the original referee decision at the right of the top line; the physical jury "
+			                + "box keeps its referee lights. The jury lights are cleared and the jury vote is open at "
+			                + "once (called verbally). Speaker: \"Waiting for decision\" dialog.",
+			        List.of(new Check("jury", "the original referee decision is at the right of the top line",
+			                originalRefereesShown(refs)),
+			                new Check("speaker", "the Speaker waits for the decision",
+			                        dialogContains("Waiting for"))));
 			// the Chair asks for the vote verbally; the jurors vote a moment later
 			pause(1000);
 		}
@@ -809,6 +1042,182 @@ public class JuryScenario {
 		step("Lifting resumes", "Lifting resumed by itself after 3.5 s: next athlete. Jury Control: Deliberation "
 		        + "and Challenge are back. Nobody presses Resume.",
 		        List.of(new Check("jury", "Deliberation and Challenge are back", buttonVisible("Jury Deliberation"))));
+	}
+
+	/**
+	 * The Jury Chair decides with the Good Lift / No Lift buttons of the jury box (MQTT {@code owlcms/jurybox/decision}).
+	 * The box has no screen: the decision is applied at once, with no confirmation and no rule. The Speaker dialog shows
+	 * it with Close; for a No Lift, in red, the Speaker is told to get the reason from the Technical Controller. The
+	 * decision is marked "Jury Chair Decision Against the Vote" against a complete vote, "Jury Chair Entered Decision"
+	 * without a vote, and not marked when it agrees with the vote.
+	 */
+	private void runJuryBoxDecision(String athlete) throws Exception {
+		Scenario sc = this.scenario;
+		boolean panel = sc.setup().panel;
+		int n = sc.setup().jurors;
+		String fop = this.options.fop();
+		String[] refs = sc.refs();
+		String liftDecision = Arrays.stream(refs).filter("good"::equals).count() >= 2 ? "Good Lift" : "No Lift";
+		boolean boxGood = "good".equals(sc.boxDecision());
+		String boxResult = boxGood ? "Good Lift" : "No Lift";
+		String outcomeWord = liftDecision.equals(boxResult) ? "confirmed" : "reversal";
+		String refsText = describe(refs);
+		boolean voted = sc.reviewJury() != null;
+		String outcomeLabel = (panel ? "Panel " : "Jury ")
+		        + (liftDecision.equals(boxResult) ? "Confirmation" : "REVERSAL");
+
+		step("Starting point", "Current athlete " + athlete + "; " + sc.setup().description + ". The Jury Chair "
+		        + "decides with the jury box buttons.", startingChecks());
+
+		athleteLifts();
+		for (int r = 0; r < 3; r++) {
+			referee(r + 1, refs[r]);
+		}
+		pause(4000);
+		step("Referees: " + refsText, liftDecision + " (" + refsText + ") on all boards; " + n + " empty jury "
+		        + "circles.", List.of());
+
+		for (int j = 1; j <= n; j++) {
+			juror(j, sc.liftJury()[j - 1]);
+		}
+		pause(1500);
+		if (panel) {
+			step("The " + COUNT[n] + " jurors vote " + describe(sc.liftJury()) + ": automatic Adjudication Panel "
+			        + "Review", "The seven-person majority is against the referees' " + liftDecision + ". Speaker: "
+			                + "\"Waiting for decision\" dialog.",
+			        List.of(new Check("speaker", "the Speaker waits for the decision",
+			                dialogContains("Waiting for")),
+			                reviewWeightCheck()),
+			        expectedJuryBox(refs, sc.liftJury(),
+			                "the original referee and Phase A jury decisions remain displayed until the vote is called"));
+		} else {
+			step("The " + COUNT[n] + " jurors vote " + describe(sc.liftJury()) + " against the referees",
+			        "No automatic trigger. Speaker: no dialog.",
+			        List.of(new Check("speaker", "no jury dialog", "!(" + dialogContains("Waiting for") + ")")),
+			        expectedJuryBox(refs, sc.liftJury(),
+			                "the original referee and jury decisions remain displayed before Deliberation"));
+			publish("owlcms/jurybox/break/" + fop, "deliberation");
+			pause(1500);
+			step("Jury box: Deliberation",
+			        "Jury break started from the jury box. Jury Control clears its middle referee indicators and "
+			                + "shows the original referee decision at the right of the top line; the jury vote is "
+			                + "open at once. Speaker: \"Waiting for decision\" dialog.",
+			        List.of(new Check("jury", "the original referee decision is at the right of the top line",
+			                originalRefereesShown(refs)),
+			                new Check("speaker", "the Speaker waits for the decision",
+			                        dialogContains("Waiting for")),
+			                reviewWeightCheck()),
+			        expectedJuryBox(refs, null,
+			                "manual mode keeps the original referee lights on and clears the jury lights"));
+		}
+
+		if (sc.summonForDiscussion()) {
+			publish("owlcms/jurybox/summon/" + fop, "all");
+			pause(1500);
+			action("Scenario assumption: the referees discuss the lift with the jury before the new jury vote; "
+			        + "the referees do not vote again");
+			step("Jury box: Summon Referees for discussion",
+			        "OWLCMS summons referees 1, 2 and 3. Their referee-box lights are blue for this step. "
+			                + "The jury deliberates with them before its new vote; the original referee decision "
+			                + "and the open jury vote are unchanged. Speaker still waits for the decision.",
+			        List.of(new Check("jury", "the original referee decision stays at the right of the top line",
+			                originalRefereesShown(refs)),
+			                new Check("speaker", "the Speaker still waits for the decision",
+			                        dialogContains("Waiting for"))),
+			        expectedJuryBox(refs, null,
+			                "summoning for discussion keeps the original referee lights and empty jury lights"));
+		}
+
+		boolean voteGood = false;
+		if (voted) {
+			if (panel) {
+				publish("owlcms/jurybox/summon/" + fop, "all");
+				pause(1500);
+				step("Jury box Summon All: the vote is called",
+				        "The vote indicators are cleared and the referees are summoned. The original referee "
+				                + "decision stays at the right of the top line.",
+				        originalRefereeChecks(true),
+				        juryBoxOff("the seven-person vote call hides all original referee and jury lights"));
+				for (int r = 0; r < 3; r++) {
+					referee(r + 1, sc.reviewRefs()[r]);
+				}
+			}
+			for (int j = 1; j <= n; j++) {
+				juror(j, sc.reviewJury()[j - 1]);
+			}
+			pause(1500);
+			long good = Arrays.stream(sc.reviewJury()).filter("good"::equals).count();
+			if (panel) {
+				good += Arrays.stream(sc.reviewRefs()).filter("good"::equals).count();
+				voteGood = good >= 4;
+			} else {
+				// unanimity reverses, otherwise the referees' decision stands
+				voteGood = good == n || (good != 0 && "Good Lift".equals(liftDecision));
+			}
+			String voteResult = voteGood ? "Good Lift" : "No Lift";
+			String allVotes = panel
+			        ? "the seven votes (referees " + describe(sc.reviewRefs()) + ", jury " + describe(sc.reviewJury())
+			                + ")"
+			        : "the " + COUNT[n] + " jury votes (" + describe(sc.reviewJury()) + ")";
+			List<Check> voteChecks = new ArrayList<>(List.of(new Check("jury", "Jury Control waits for the Chair",
+			        voteGood ? dialogButton("Confirm Good Lift") : dialogContains("Bending")),
+			        new Check("speaker", "the Speaker still waits", dialogContains("Waiting for"))));
+			voteChecks.addAll(reviewVoteChecks());
+			step("The vote is complete: " + voteResult + " result",
+			        "Jury Control shows " + allVotes + " and waits for the Jury Chair ("
+			                + (voteGood ? "Confirm Good Lift" : "rule dialog") + "). Speaker still waiting.",
+			        voteChecks,
+			        expectedJuryBox(panel ? sc.reviewRefs() : refs, sc.reviewJury(),
+			                panel ? "the seven review votes are revealed"
+			                        : "the original referee lights remain and the jury review votes are revealed"));
+		}
+
+		publish("owlcms/jurybox/decision/" + fop, sc.boxDecision());
+		pause(1500);
+		boolean againstVote = voted && voteGood != boxGood;
+		String marker = !voted ? "Jury Chair Entered Decision"
+		        : againstVote ? "Jury Chair Decision Against the Vote" : null;
+		String tcReason = "Get the reason from the Technical Controller";
+		List<Check> checks = new ArrayList<>(List.of(
+		        new Check("speaker", "the Speaker sees the decision with a Close button",
+		                dialogContains(boxResult.toUpperCase()) + " && " + buttonVisible("Close")),
+		        new Check("speaker", "the Speaker sees " + outcomeLabel, dialogContains(outcomeLabel)),
+		        new Check("speaker", "the Chair's box decision is already applied; the Speaker cannot enter a decision",
+		                "!(" + dialogButton("Good Lift") + ") && !(" + dialogButton("No Lift") + ")"),
+		        boxGood ? new Check("speaker", "no request for the reason", "!(" + dialogContains(tcReason) + ")")
+		                : new Check("speaker", "the Speaker is told to wait for the Technical Controller's verbal reason",
+		                        dialogContains(tcReason)),
+		        marker != null ? new Check("speaker", "marked " + marker, dialogContains(marker))
+		                : new Check("speaker", "not marked as a Chair decision",
+		                        "!(" + dialogContains("Jury Chair Entered") + ") && !("
+		                                + dialogContains("Against the Vote") + ")"),
+		        new Check("jury", "no rule dialog nor result screen left on Jury Control",
+		                "!(" + dialogContains("Bending") + ") && !(" + dialogContains("Cancel vote result") + ")")));
+		checks.addAll(originalRefereeChecks(originalRefereesAtTopRight()));
+		JuryBoxExpectation decisionLights = againstVote || !voted
+		        ? juryBoxOff("a Chair button decision not matching a complete vote clears the device lights")
+		        : expectedJuryBox(panel ? sc.reviewRefs() : refs, sc.reviewJury(),
+		                "the Chair decision agrees with the complete vote, so its lights remain");
+		step("Jury box: the Jury Chair presses " + boxResult,
+		        "Applied at once, no confirmation and no rule: " + boxResult + " (" + outcomeWord + ") on the boards. "
+		                + "Speaker dialog: " + boxResult + ", Close button"
+		                + (boxGood ? "" : ". The Speaker is instructed to obtain the Technical Controller's verbal "
+		                        + "reason, then announce the decision and reason before calling the next athlete.")
+		                + (marker != null ? " Marked " + marker + "." : " Not marked: it agrees with the vote.")
+		                + (againstVote ? " The review vote indicators are cleared because the decision is not the "
+		                        + "vote's." : "")
+		                + " The original referee decision stays at the right of the top line.",
+		        checks, decisionLights);
+
+		if (!panel && voted && !againstVote) {
+			if (!boxGood) {
+				action("Scenario assumption: the Technical Controller gives the reason verbally to the Speaker; "
+				        + "no reason is entered in OWLCMS");
+			}
+			action("Scenario assumption: the Speaker announces " + boxResult
+			        + (boxGood ? "" : " and the reason supplied verbally by the Technical Controller"));
+		}
+		closeDecision(boxResult, originalRefereesAtTopRight());
 	}
 
 	/**
@@ -867,7 +1276,8 @@ public class JuryScenario {
 
 		click(juryPage, "vaadin-button:has-text('Call for Votes')", "Jury Chair clicks Call for Votes on Jury Control");
 		pause(1500);
-		step("Call for Votes", "All cells cleared, referees buzzed. Call for Votes no longer orange.",
+		step("Call for Votes", "All vote cells cleared, referees buzzed. Call for Votes no longer orange. The original "
+		        + "referee decision appears at the right of the top line and stays until the next clock starts.",
 		        List.of(new Check("jury", "Call for Votes no longer orange",
 		                "!(" + buttonColor("Call for Votes", ORANGE) + ")")));
 
@@ -906,12 +1316,12 @@ public class JuryScenario {
 		                dialogContains("NO LIFT") + " && " + buttonVisible("Close")),
 		                new Check("speaker", "marked as entered by the Jury Chair", dialogContains("Jury Chair Entered"))));
 
-		closeAndResume(reviewResult, false);
+		closeDecision(reviewResult, originalRefereesAtTopRight());
 	}
 
 	/**
-	 * After the last review vote: the Chair confirms (Good Lift) or gives the rule (No Lift), the Speaker closes the
-	 * dialog, lifting resumes, the Chair presses Resume.
+	 * After the last review vote: the Chair confirms (Good Lift) or gives the rule (No Lift), then the Speaker closes
+	 * the dialog and lifting resumes.
 	 */
 	@SuppressWarnings("unused")
 	private void finishReview(String lastVote, String allVotes, String outcomeWord, String reviewResult)
@@ -920,15 +1330,20 @@ public class JuryScenario {
 		Page juryPage = this.pages.get("jury");
 		Page speaker = this.pages.get("speaker");
 		List<Check> original = originalRefereeChecks(originalRefereesAtTopRight());
+		String publicVotes = this.scenario.setup().panel
+		        ? "Attempt board and scoreboard reveal all seven new review votes at once."
+		        : "Attempt board and scoreboard reveal only the " + this.scenario.setup().jurors
+		                + " new jury votes; referee lights stay blank on the attempt board and hidden on the scoreboard.";
 		if (good) {
 			List<Check> resultChecks = new ArrayList<>(List.of(new Check("jury",
 			        "the result screen offers Confirm Good Lift", dialogButton("Confirm Good Lift")),
 			        new Check("jury", "and Cancel vote result", dialogButton("Cancel vote result")),
 			        new Check("speaker", "the Speaker still waits", dialogContains("Waiting for"))));
 			resultChecks.addAll(original);
+			resultChecks.addAll(reviewVoteChecks());
 			step(lastVote + ": Good Lift result",
 			        "Jury Control shows " + allVotes + " and the result screen: Confirm Good Lift / Cancel vote "
-			                + "result. Attempt board and scoreboard reveal the votes at once. Speaker still "
+			                + "result. " + publicVotes + " Speaker still "
 			                + "waiting. Nothing applied yet."
 			                + (originalRefereesAtTopRight() ? " Jury Control shows the original referee decision "
 			                        + "at the right, in place of the platform selectors." : ""),
@@ -956,9 +1371,10 @@ public class JuryScenario {
 			        new Check("jury", "the rule dialog is open", dialogContains("Bending")),
 			        new Check("speaker", "the Speaker still waits", dialogContains("Waiting for"))));
 			resultChecks.addAll(original);
+			resultChecks.addAll(reviewVoteChecks());
 			step(lastVote + ": No Lift result",
-			        "Jury Control shows " + allVotes + " and the rule dialog, with Cancel vote result. Attempt "
-			                + "board and scoreboard reveal the votes at once. Speaker still waiting."
+			        "Jury Control shows " + allVotes + " and the rule dialog, with Cancel vote result. "
+			                + publicVotes + " Speaker still waiting."
 			                + (originalRefereesAtTopRight() ? " Jury Control shows the original referee decision "
 			                        + "at the right, in place of the platform selectors." : ""),
 			        resultChecks);
@@ -981,12 +1397,48 @@ public class JuryScenario {
 			        decisionChecks);
 		}
 
-		closeAndResume(reviewResult, originalRefereesAtTopRight());
+		closeDecision(reviewResult, originalRefereesAtTopRight());
 	}
 
-	/** the Speaker closes the decision dialog, lifting resumes, the Chair presses Resume */
-	private void closeAndResume(String reviewResult, boolean originalRefereesShown) throws Exception {
-		Page juryPage = this.pages.get("jury");
+	private List<Check> reviewVoteChecks() {
+		boolean panel = this.scenario.setup().panel;
+		String expectedRefs = panel
+		        ? String.join(",", Arrays.stream(this.scenario.reviewRefs()).map(v -> "good".equals(v) ? "white" : "red")
+		                .toList())
+		        : "none,none,none";
+		String expectedJury = String.join(",",
+		        Arrays.stream(this.scenario.reviewJury()).map(v -> "good".equals(v) ? "white" : "red").toList());
+		List<Check> checks = new ArrayList<>();
+		for (String page : List.of("attempt", "scoreboard")) {
+			String host = "attempt".equals(page) ? "attempt-board-template" : "results-template";
+			String decisionId = "attempt".equals(page) ? "#decisions" : "#decisionSectionReferee";
+			String jurySelector = "attempt".equals(page) ? ".juryLight" : ".juryIcon";
+			String predicate = """
+			        (() => {
+			          const board = document.querySelector(%s);
+			          const decision = board?.shadowRoot?.querySelector(%s);
+			          if (!decision || Boolean(decision.offsetWidth) !== %s) return false;
+			          const refs = [...(decision.shadowRoot?.querySelectorAll('.decisions span') || [])];
+			          const juryRoot = %s;
+			          const jury = [...(juryRoot?.querySelectorAll(%s) || [])];
+			          const colors = lights => lights.map(e =>
+			            ['white', 'red', 'none'].find(c => e.classList.contains(c))).join(',');
+			          return refs.length === 3 && colors(refs) === %s && colors(jury) === %s
+			            && jury.every(e => e.offsetWidth > 0);
+			        })()
+			        """.formatted(js(host), js(decisionId), panel || "attempt".equals(page),
+			        "attempt".equals(page) ? "decision.shadowRoot" : "board.shadowRoot",
+			        js(jurySelector), js(expectedRefs), js(expectedJury));
+			checks.add(new Check(page, panel ? "all seven new review votes are shown"
+			        : "only the " + this.scenario.setup().jurors
+			                + " jury review votes are shown; the referee lights stay "
+			                + ("attempt".equals(page) ? "blank" : "hidden"), predicate));
+		}
+		return checks;
+	}
+
+	/** the Speaker closes the decision dialog and lifting resumes */
+	private void closeDecision(String reviewResult, boolean originalRefereesShown) throws Exception {
 		Page speaker = this.pages.get("speaker");
 		click(speaker, "vaadin-button:has-text('Close')", "Speaker clicks Close");
 		pause(5000);
@@ -997,35 +1449,27 @@ public class JuryScenario {
 		resumedChecks.addAll(originalRefereeChecks(originalRefereesShown));
 		step("Speaker closes the dialog; lifting resumes",
 		        "Lifting resumed by itself after 3.5 s: next athlete. Jury Control: Deliberation and Challenge "
-		                + "are back, the votes are still shown."
-		                + (originalRefereesShown ? " The original referee decision is still shown at the right, in place of "
-		                        + "the platform selectors." : ""),
+		                + "are back."
+		                + (originalRefereesShown ? " The reviewed athlete and original referee decision are still shown "
+		                        + "in the top line." : ""),
 		        resumedChecks);
-
-		click(juryPage, "vaadin-button:has-text('Resume Competition')",
-		        "Jury Chair clicks Resume Competition on Jury Control");
-		pause(1500);
-		step("Jury Chair: Resume",
-		        "The jury votes are cleared on Jury Control and on the jury box; the original referee decision is "
-		                + "no longer shown.",
-		        List.of(new Check("jury", "the original referee decision is cleared, the platform selectors are back",
-		                originalRefereesHidden())));
 	}
 
-	/** checks for the original referee decision shown in the Jury Control toolbar during a review vote */
+	/** checks for the original referee decision shown at the right of the Jury Control top line */
 	private List<Check> originalRefereeChecks(boolean shown) {
 		if (!shown) {
-			return List.of(new Check("jury", "no original referee decision in the toolbar, the platform selectors stay",
+			return List.of(new Check("jury", "no original referee decision in the top line, the platform selectors stay",
 			        originalRefereesHidden()));
 		}
 		return List.of(new Check("jury", "the original referee decision (" + describe(this.scenario.refs())
-		        + ") is shown at the right, in place of the platform selectors",
+		        + ") is shown at the right of the top line",
 		        originalRefereesShown(this.scenario.refs())));
 	}
 
 	/**
 	 * Mirrors DecisionDisplayRules.SHOW_ORIGINAL_DECISIONS in owlcms: when on, every review vote shows the original
-	 * referee decision at the top right of Jury Control once revealed, not only the seven-person panel.
+	 * referee decision at the top right of Jury Control when the middle referee indicators are cleared for the review
+	 * vote, not only for the seven-person panel. It stays there through Resume, until the next clock starts.
 	 */
 	private static final boolean SHOW_ORIGINAL_DECISIONS = true;
 
@@ -1052,6 +1496,7 @@ public class JuryScenario {
 
 	private List<Check> startingChecks() {
 		List<Check> checks = new ArrayList<>(this.setupChecks);
+		checks.add(clockCheck("speaker", 60, false));
 		checks.add(new Check("jury", "Deliberation and Challenge are offered",
 		        buttonVisible("Jury Deliberation") + " && " + buttonVisible("Challenge")));
 		return checks;
@@ -1075,13 +1520,11 @@ public class JuryScenario {
 		switches.put("automaticBreakNoVPT", false);
 		switches.put("juryDecisionsOnAttemptBoard", true);
 		switches.put("juryDecisionsOnScoreboard", true);
-		String configPage = this.options.base() + "/preparation/config/3";
-		page.navigate(configPage);
-		page.waitForLoadState(LoadState.NETWORKIDLE);
+		String configPage = this.options.base() + "/preparation/config";
+		openFeaturesTab(page, configPage);
 		switches.forEach((id, on) -> setChecked(switchBox(page, id), on));
 		clickUpdate(page);
-		page.navigate(configPage);
-		page.waitForLoadState(LoadState.NETWORKIDLE);
+		openFeaturesTab(page, configPage);
 		switches.forEach((id, on) -> checks.add(readBack("Features: " + id + (on ? " on" : " off"),
 		        isChecked(switchBox(page, id)) == on)));
 
@@ -1114,12 +1557,19 @@ public class JuryScenario {
 			}
 		}
 		startLiftingIfNeeded(this.pages.get("speaker"));
+		try {
+			// A clock used to clear the previous jury header is setup only; setting time stops it.
+			clock("60");
+			awaitClock(clockCheck("speaker", 60, false));
+		} catch (Exception e) {
+			throw new IllegalStateException("cannot reset the scenario clock to 1:00", e);
+		}
 	}
 
 	/**
-	 * An interrupted run can leave a jury cycle open (votes awaited, a review, the original referee decision in place
-	 * of the jury size selector). The jury box Resume ends it, even when a jury dialog covers the page; outside a jury
-	 * cycle it changes nothing.
+	 * An interrupted run can leave a jury cycle open. The jury box Resume ends it, even when a jury dialog covers the
+	 * page; outside a jury cycle it changes nothing. Resume deliberately leaves the previous decision in the top line
+	 * until the next clock starts.
 	 */
 	private void endLeftoverJuryCycle(Page jury) {
 		try {
@@ -1128,14 +1578,22 @@ public class JuryScenario {
 			throw new IllegalStateException("cannot end a jury cycle left over from a previous run", e);
 		}
 		action("Jury box Resume ends any jury cycle left over from a previous run");
-		jury.waitForFunction("() => " + originalRefereesHidden(), null,
-		        new Page.WaitForFunctionOptions().setTimeout(8_000));
+		jury.waitForTimeout(750);
 	}
 
 	/** the Jury Control toolbar selection of the number of jurors (shown without the seven-person panel) */
 	private void setJurySize(Page jury, int jurors) {
 		// the only select on Jury Control
 		Locator select = jury.locator("vaadin-select").first();
+		if (!select.isVisible()) {
+			try {
+				clock("start");
+			} catch (Exception e) {
+				throw new IllegalStateException("cannot start the next clock to reset the previous top line", e);
+			}
+			action("Next athlete's clock starts and resets the previous top line");
+			select.waitFor(new Locator.WaitForOptions().setTimeout(8_000));
+		}
 		select.click();
 		Locator item = jury.getByRole(AriaRole.OPTION,
 		        new Page.GetByRoleOptions().setName(String.valueOf(jurors)).setExact(true)).first();
@@ -1149,6 +1607,14 @@ public class JuryScenario {
 		}
 		jury.waitForTimeout(1500);
 		action("Jury Control: " + jurors + " jurors selected");
+	}
+
+	/** the tab is selected by its name: the tab order of the settings page changes between versions */
+	private static void openFeaturesTab(Page page, String configPage) {
+		page.navigate(configPage);
+		page.waitForLoadState(LoadState.NETWORKIDLE);
+		page.locator("vaadin-tab").filter(new Locator.FilterOptions().setHasText("Features")).first().click();
+		page.waitForLoadState(LoadState.NETWORKIDLE);
 	}
 
 	private static Locator switchBox(Page page, String id) {
@@ -1205,8 +1671,11 @@ public class JuryScenario {
 			@Override
 			public void messageArrived(String topic, MqttMessage message) {
 				synchronized (JuryScenario.this.deviceMessages) {
-					JuryScenario.this.deviceMessages
-					        .add(topic + " " + new String(message.getPayload(), StandardCharsets.UTF_8).trim());
+					String payload = new String(message.getPayload(), StandardCharsets.UTF_8).trim();
+					MqttInstruction instruction = new MqttInstruction(topic, payload);
+					JuryScenario.this.deviceMessages.add(instruction);
+					applyJuryBoxInstruction(instruction);
+					JuryScenario.this.deviceMessages.notifyAll();
 				}
 			}
 
@@ -1222,6 +1691,117 @@ public class JuryScenario {
 		return client;
 	}
 
+	private void applyJuryBoxInstruction(MqttInstruction instruction) {
+		String[] topic = instruction.topic().split("/");
+		if (topic.length != 4 || !"owlcms".equals(topic[0]) || !"fop".equals(topic[1])
+		        || !this.options.fop().equals(topic[3])) {
+			return;
+		}
+		if ("resetDecisions".equals(topic[2])) {
+			Arrays.fill(this.juryBoxRefereeLights, DeviceLight.OFF);
+			Arrays.fill(this.juryBoxJurorLights, DeviceLight.OFF);
+			return;
+		}
+		String[] payload = instruction.payload().split("\\s+");
+		if (payload.length < 2) {
+			return;
+		}
+		int number;
+		try {
+			number = Integer.parseInt(payload[0]);
+		} catch (NumberFormatException e) {
+			return;
+		}
+		DeviceLight light = switch (payload[payload.length - 1]) {
+			case "good" -> DeviceLight.WHITE;
+			case "bad" -> DeviceLight.RED;
+			case "hidden" -> DeviceLight.VOTED;
+			default -> null;
+		};
+		if (light == null) {
+			return;
+		}
+		if ("decision".equals(topic[2]) && number >= 1 && number <= this.juryBoxRefereeLights.length) {
+			this.juryBoxRefereeLights[number - 1] = light;
+		} else if ("juryMemberDecision".equals(topic[2]) && number >= 1
+		        && number <= this.juryBoxJurorLights.length) {
+			this.juryBoxJurorLights[number - 1] = light;
+		}
+	}
+
+	private JuryBoxState juryBoxState() {
+		return new JuryBoxState(List.copyOf(Arrays.asList(this.juryBoxRefereeLights.clone())),
+		        List.copyOf(Arrays.asList(this.juryBoxJurorLights.clone())));
+	}
+
+	private RefBoxState refBoxState(List<MqttInstruction> instructions) {
+		Boolean[] summoned = { false, false, false };
+		for (MqttInstruction instruction : instructions) {
+			String[] topic = instruction.topic().split("/");
+			if (topic.length != 4 || !"owlcms".equals(topic[0]) || !"fop".equals(topic[1])
+			        || !"summon".equals(topic[2]) || !this.options.fop().equals(topic[3])) {
+				continue;
+			}
+			int referee = switch (instruction.payload()) {
+				case "1" -> 1;
+				case "2" -> 2;
+				case "3" -> 3;
+				default -> 0;
+			};
+			if (referee != 0) {
+				summoned[referee - 1] = true;
+			}
+		}
+		return new RefBoxState(List.copyOf(Arrays.asList(summoned)));
+	}
+
+	private static JuryBoxExpectation expectedJuryBox(String[] referees, String[] jurors, String description) {
+		DeviceLight[] refereeLights = new DeviceLight[3];
+		DeviceLight[] jurorLights = new DeviceLight[5];
+		Arrays.fill(refereeLights, DeviceLight.OFF);
+		Arrays.fill(jurorLights, DeviceLight.OFF);
+		for (int i = 0; referees != null && i < Math.min(referees.length, refereeLights.length); i++) {
+			refereeLights[i] = voteLight(referees[i]);
+		}
+		for (int i = 0; jurors != null && i < Math.min(jurors.length, jurorLights.length); i++) {
+			jurorLights[i] = voteLight(jurors[i]);
+		}
+		return new JuryBoxExpectation(new JuryBoxState(List.copyOf(Arrays.asList(refereeLights)),
+		        List.copyOf(Arrays.asList(jurorLights))), description);
+	}
+
+	private static JuryBoxExpectation juryBoxOff(String description) {
+		return expectedJuryBox(null, null, description);
+	}
+
+	private static DeviceLight voteLight(String vote) {
+		return "good".equals(vote) ? DeviceLight.WHITE : DeviceLight.RED;
+	}
+
+	private static String describeJuryBox(JuryBoxState state) {
+		return "referees " + describeLights(state.referees()) + ", jury " + describeLights(state.jurors());
+	}
+
+	private static String describeLights(List<DeviceLight> lights) {
+		StringBuilder sb = new StringBuilder();
+		for (DeviceLight light : lights) {
+			sb.append(switch (light) {
+				case UNKNOWN -> "?";
+				case OFF -> "-";
+				case WHITE -> "W";
+				case RED -> "R";
+				case VOTED -> "V";
+			});
+		}
+		return sb.toString();
+	}
+
+	private static DeviceLight[] unknownLights(int count) {
+		DeviceLight[] lights = new DeviceLight[count];
+		Arrays.fill(lights, DeviceLight.UNKNOWN);
+		return lights;
+	}
+
 	private void publish(String topic, String payload) throws Exception {
 		MqttMessage message = new MqttMessage(payload.getBytes(StandardCharsets.UTF_8));
 		message.setQos(0);
@@ -1230,17 +1810,107 @@ public class JuryScenario {
 		pause(250);
 	}
 
-	/** the clock is set to 1:00, runs for 2 seconds and is stopped: the athlete lifts */
+	/** Observe a real countdown from the setup's 1:00 to 0:58, then stop and verify every public clock. */
 	private void athleteLifts() throws Exception {
-		clock("60");
-		pause(1000);
+		awaitClock(clockCheck("speaker", 60, false));
 		clock("start");
-		pause(2000);
-		clock("stop");
-		pause(500);
-		step("Clock set to 1:00, started, stopped after 2 seconds",
-		        "The athlete lifts: the clock was set to 1:00, ran for 2 s and is stopped at 0:58. No decision yet.",
-		        List.of());
+		try {
+			MqttInstruction started = awaitClockMessage("start");
+			if (clockMessageMillis(started) != 60_000) {
+				throw new IllegalStateException("clock must start from 60000 ms: " + started.display());
+			}
+			for (String page : List.of("speaker", "attempt", "scoreboard")) {
+				awaitClock(clockCheck(page, 59, true));
+			}
+			awaitClock(clockCheck("attempt", 58, true));
+		} finally {
+			clock("stop");
+		}
+		MqttInstruction stopped = awaitClockMessage("stop");
+		int remaining = clockMessageMillis(stopped);
+		if (remaining <= 57_000 || remaining > 58_000) {
+			throw new IllegalStateException("expected a real stop at displayed 0:58 (57000 < ms <= 58000): "
+			        + stopped.display());
+		}
+		action("Server confirmed countdown from 60000 ms to " + remaining + " ms; no time was set after Start");
+		List<Check> checks = stoppedClockChecks(58);
+		for (Check check : checks) {
+			awaitClock(check);
+		}
+		pause(1000);
+		int failuresBefore = this.scenarioFailures;
+		step("Clock reset to 1:00, counted down to 0:58, then stopped",
+		        "The clock starts at 1:00, visibly runs through 0:59 to 0:58, and stops without resetting its time. "
+		                + "OWLCMS confirms the remaining milliseconds over MQTT. Speaker, attempt board and both "
+		                + "scoreboard clocks remain stopped at 0:58 after a further second. No decision yet.",
+		        checks, juryBoxOff("all referee and jury lights are off after the new-clock reset"));
+		if (this.scenarioFailures != failuresBefore) {
+			throw new IllegalStateException("clock verification failed; referee decisions will not be sent");
+		}
+	}
+
+	private static Check clockCheck(String page, int seconds, boolean running) {
+		String timers = switch (page) {
+			case "speaker" -> "[...document.querySelectorAll('passive-timer-element')]";
+			case "attempt" -> "[document.querySelector('attempt-board-template')?.shadowRoot?.querySelector('#athleteTimer')]";
+			case "scoreboard" -> "[...document.querySelector('results-template')?.shadowRoot"
+			        + "?.querySelectorAll('timer-element#timer, timer-element#decisionSectionTimer') || []]";
+			default -> throw new IllegalArgumentException("no athlete clock selector for page " + page);
+		};
+		String display = String.format("%d:%02d", seconds / 60, seconds % 60);
+		String predicate = """
+		        (() => {
+		          const timers = %s;
+		          return timers.length === %d && timers.every(t => t && t.checkVisibility()
+		            && t.running === %s && Number.isFinite(t.currentTime) && Math.ceil(t.currentTime) === %d
+		            && t.shadowRoot?.querySelector('#timer')?.textContent.trim() === %s);
+		        })()
+		        """.formatted(timers, "scoreboard".equals(page) ? 2 : 1, running, seconds, js(display));
+		return new Check(page, ("scoreboard".equals(page) ? "both athlete clocks are " : "athlete clock is ")
+		        + (running ? "running at " : "stopped at ") + display, predicate);
+	}
+
+	private List<Check> stoppedClockChecks(int seconds) {
+		List<Check> checks = new ArrayList<>();
+		for (String page : List.of("speaker", "attempt", "scoreboard")) {
+			checks.add(clockCheck(page, seconds, false));
+			checks.add(new Check(page, "no rejected clock command notification",
+			        "!(" + notificationContains("Cannot stop clock") + ") && !("
+			                + notificationContains("Clock not started") + ") && !("
+			                + notificationContains("jury has not finished voting") + ")"));
+		}
+		return checks;
+	}
+
+	private void awaitClock(Check check) {
+		this.pages.get(check.page()).waitForFunction("() => " + check.predicate(), null,
+		        new Page.WaitForFunctionOptions().setTimeout(8_000));
+		action("Verified " + check.page() + ": " + check.description());
+	}
+
+	private MqttInstruction awaitClockMessage(String command) throws InterruptedException {
+		String topic = "owlcms/fop/" + command + "/" + this.options.fop();
+		long deadline = System.nanoTime() + 8_000_000_000L;
+		synchronized (this.deviceMessages) {
+			while (true) {
+				for (MqttInstruction instruction : this.deviceMessages) {
+					if (topic.equals(instruction.topic())) {
+						action("Observed " + instruction.display());
+						return instruction;
+					}
+				}
+				long remaining = deadline - System.nanoTime();
+				if (remaining <= 0) {
+					throw new IllegalStateException("no clock acknowledgement received on " + topic);
+				}
+				this.deviceMessages.wait(Math.max(1, remaining / 1_000_000));
+			}
+		}
+	}
+
+	private static int clockMessageMillis(MqttInstruction instruction) {
+		String payload = instruction.payload();
+		return Integer.parseInt(payload.substring(payload.lastIndexOf(' ') + 1));
 	}
 
 	private void clock(String command) throws Exception {
@@ -1268,6 +1938,28 @@ public class JuryScenario {
 		page.navigate(this.options.base() + "/" + path);
 		page.waitForLoadState(LoadState.NETWORKIDLE);
 		return page;
+	}
+
+	private void triggerUnloadBeacons(Page settings) {
+		List<Page> openPages = new ArrayList<>();
+		openPages.add(settings);
+		openPages.addAll(this.pages.values());
+		Page waitPage = null;
+		for (Page page : openPages) {
+			if (page.isClosed()) {
+				continue;
+			}
+			try {
+				page.navigate("about:blank");
+				waitPage = page;
+			} catch (PlaywrightException e) {
+				System.err.println("Could not navigate a scenario page to about:blank during cleanup: "
+				        + e.getMessage());
+			}
+		}
+		if (waitPage != null) {
+			waitPage.waitForTimeout(1000);
+		}
 	}
 
 	/** after loading a group the platform may be in a break: the Speaker starts lifting */
@@ -1337,6 +2029,19 @@ public class JuryScenario {
 		return new Check("jury", "Challenge is available (" + why + ")", buttonEnabled("Challenge"));
 	}
 
+	private static Check reviewWeightCheck() {
+		return new Check("attempt", "the attempted weight is visible in grey in its normal location",
+		        """
+		        (() => {
+		          const board = document.querySelector('attempt-board-template');
+		          const weight = board?.shadowRoot?.querySelector('[data-testid="attempt-board-weight"]');
+		          return !!weight && weight.checkVisibility() && weight.classList.contains('reviewWeight')
+		            && /^\\d+\\s*kg$/.test(weight.textContent.trim())
+		            && getComputedStyle(weight).color === 'rgb(128, 128, 128)';
+		        })()
+		        """);
+	}
+
 	private static String buttonColor(String text, String color) {
 		return "[...document.querySelectorAll('vaadin-button')].some(b => (b.offsetWidth || b.offsetHeight) && "
 		        + "(b.innerText || '').includes(" + js(text) + ") && getComputedStyle(b).backgroundColor === "
@@ -1383,6 +2088,11 @@ public class JuryScenario {
 	}
 
 	private void step(String title, String expected, List<Check> checks) throws IOException {
+		step(title, expected, checks, null);
+	}
+
+	private void step(String title, String expected, List<Check> checks, JuryBoxExpectation juryBoxExpectation)
+	        throws IOException {
 		int number = this.results.size() + 1;
 		System.out.println(number + ". " + title);
 		List<String> checkResults = new ArrayList<>();
@@ -1409,23 +2119,47 @@ public class JuryScenario {
 			observed.put(entry.getKey(), String.valueOf(entry.getValue().evaluate(OBSERVE)));
 		}
 		List<String> actions = new ArrayList<>(this.pendingActions);
+		List<MqttInstruction> mqttInstructions;
+		JuryBoxState juryBox;
 		synchronized (this.deviceMessages) {
-			if (!this.deviceMessages.isEmpty()) {
-				actions.add("owlcms to devices: " + String.join("; ", this.deviceMessages));
-				this.deviceMessages.clear();
+			mqttInstructions = List.copyOf(this.deviceMessages);
+			this.deviceMessages.clear();
+			juryBox = juryBoxState();
+		}
+		List<String> instructions = mqttInstructions.stream().map(MqttInstruction::display).toList();
+		RefBoxState refBox = refBoxState(mqttInstructions);
+		if (!instructions.isEmpty()) {
+			actions.add("MQTT owlcms to devices: " + String.join("; ", instructions));
+		}
+		if (juryBoxExpectation != null) {
+			boolean ok = juryBoxExpectation.state().equals(juryBox);
+			String result = (ok ? "PASS " : "FAIL ") + "jury box: " + juryBoxExpectation.description()
+			        + "; actual " + describeJuryBox(juryBox);
+			checkResults.add(result);
+			System.out.println("     " + (ok ? "pass " : "FAIL ") + "jury box: "
+			        + juryBoxExpectation.description() + "; actual " + describeJuryBox(juryBox));
+			if (!ok) {
+				this.failures++;
+				this.scenarioFailures++;
 			}
 		}
 		this.pendingActions = new ArrayList<>();
-		this.results.add(new StepResult(number, title, actions, expected, checkResults, shots, observed));
+		this.results.add(new StepResult(number, title, actions, expected, checkResults, shots, observed, juryBox,
+		        refBox));
 	}
 
 	private void writeReport() throws IOException {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<!DOCTYPE html><html><head><meta charset='utf-8'><title>Jury scenario</title><style>")
+		sb.append("<!DOCTYPE html><html><head><meta charset='utf-8'><title>")
+		        .append(esc(this.scenario.title())).append("</title><style>")
 		        .append("body{font-family:sans-serif;margin:1em}h2{margin-top:2em}.shots{display:grid;")
-		        .append("grid-template-columns:repeat(4,1fr);gap:6px}.shots img{width:100%;border:1px solid #888}")
+		        .append("grid-template-columns:minmax(0,1fr) max-content repeat(3,minmax(0,1fr));gap:6px}")
+		        .append(".shots figure{margin:0;min-width:0}.shots .device-stack{align-self:start;margin:0}")
+		        .append(".shots img{width:100%;border:1px solid #888}")
 		        .append(".pass{color:green}.fail{color:#c00;font-weight:bold}pre{white-space:pre-wrap;")
-		        .append("background:#f4f4f4;padding:4px;font-size:80%}</style></head><body>")
+		        .append("background:#f4f4f4;padding:4px;font-size:80%}")
+		        .append(JURY_BOX_CSS)
+		        .append("</style></head><body>")
 		        .append("<h1>").append(esc(this.scenario.title())).append("</h1>")
 		        .append("<p><a href='timeline.html'>Timeline view (screens side by side)</a></p>")
 		        .append("<p>").append(esc(this.options.base())).append(", platform ").append(esc(this.options.fop()))
@@ -1447,9 +2181,15 @@ public class JuryScenario {
 				sb.append("</ul>");
 			}
 			sb.append("<div class='shots'>");
-			r.shots().forEach((page, file) -> sb.append("<figure><figcaption>").append(esc(page))
-			        .append("</figcaption><a href='").append(file).append("'><img src='").append(file)
-			        .append("'></a><pre>").append(esc(r.observed().get(page))).append("</pre></figure>"));
+			r.shots().forEach((page, file) -> {
+				if ("jury".equals(page)) {
+					sb.append("<figure><figcaption>devices</figcaption>")
+					        .append(deviceBoxesHtml(r.juryBox(), r.refBox())).append("</figure>");
+				}
+				sb.append("<figure><figcaption>").append(esc(page))
+				        .append("</figcaption><a href='").append(file).append("'><img src='").append(file)
+				        .append("'></a><pre>").append(esc(r.observed().get(page))).append("</pre></figure>");
+			});
 			sb.append("</div>");
 		}
 		sb.append("</body></html>");
@@ -1461,7 +2201,26 @@ public class JuryScenario {
 	 * events unfold. Click a screenshot for full size; arrow keys move between steps and screens.
 	 */
 	private static final String TIMELINE_COLUMN_CSS = "th label{cursor:pointer;white-space:nowrap}"
-	        + "th.off,td.off{width:1%}th.off{color:#888}td.off img{display:none}";
+	        + "th.jury-screen,td.jury-screen{width:16.5%}"
+	        + "th.off,td.off{width:1%}th.off{color:#888}td.off img,td.off .device-stack{display:none}";
+
+	private static final String JURY_BOX_CSS = """
+	        .device-stack{display:flex;flex-direction:column;gap:4px;margin:4px 0}
+	        .jurybox,.refbox{background:#111;color:#ddd;border:1px solid #555;border-radius:5px;padding:5px;margin:0}
+	        .jurybox-title{font-size:11px;font-weight:normal;color:#fff;margin-bottom:3px}
+	        .light-row{display:flex;gap:5px;align-items:flex-end;margin:3px 0}
+	        .light-row>span{font-size:10px;font-weight:normal}
+	        .refbox .light-row{justify-content:center}
+	        .light-group{display:flex;gap:3px}
+	        .light-unit{text-align:center;font-size:9px;min-width:24px}
+	        .light{box-sizing:border-box;width:22px;height:22px;border-radius:50%;border:2px solid #777;
+	          display:flex;align-items:center;justify-content:center;color:#111;font-weight:bold;margin:auto}
+	        .light.unknown{background:#555;color:#ddd}.light.off{background:#050505;color:#777}
+	        .light.white{background:#fff;border-color:#ddd}.light.red{background:#f00;border-color:#d00}
+	        .light.voted{background:#22c55e;border-color:#15803d}
+	        .light.summoned{background:#1597ff;border-color:#0b69b0}
+	        .light-label{margin-top:1px;color:#bbb}
+	        """;
 
 	/** Header checkboxes hide/show a screen column; every timeline opens with all columns shown. */
 	private static final String TIMELINE_COLUMN_JS = "document.querySelectorAll('th input').forEach(cb=>{"
@@ -1484,9 +2243,16 @@ public class JuryScenario {
 		        .append("#viewer{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9;")
 		        .append("text-align:center}#viewer img{max-width:98vw;max-height:90vh;margin-top:1vh}")
 		        .append("#caption{color:#fff;padding:6px}")
+		        .append(JURY_BOX_CSS)
 		        .append(TIMELINE_COLUMN_CSS)
 		        .append("</style></head><body><table><thead><tr><th>Step</th>");
-		pageNames.forEach(n -> sb.append("<th><label><input type='checkbox' checked> ").append(esc(n)).append("</label></th>"));
+		for (String n : pageNames) {
+			if ("jury".equals(n)) {
+				sb.append("<th><label class='jurybox-title'><input type='checkbox' checked> devices</label></th>");
+			}
+			sb.append("<th").append("jury".equals(n) ? " class='jury-screen'" : "")
+			        .append("><label><input type='checkbox' checked> ").append(esc(n)).append("</label></th>");
+		}
 		sb.append("</tr></thead><tbody>");
 		for (StepResult r : this.results) {
 			sb.append("<tr id='s").append(r.number()).append("'><td class='step'><b>").append(r.number())
@@ -1500,8 +2266,14 @@ public class JuryScenario {
 			}
 			sb.append("</td>");
 			for (String n : pageNames) {
+				if ("jury".equals(n)) {
+					sb.append("<td class='jurybox-cell'>")
+					        .append(deviceBoxesHtml(r.juryBox(), r.refBox()))
+					        .append("</td>");
+				}
 				String file = r.shots().get(n);
-				sb.append("<td>").append(file == null ? "" : "<img src='" + file + "' data-step='" + r.number()
+				sb.append("<td").append("jury".equals(n) ? " class='jury-screen'" : "").append(">")
+				        .append(file == null ? "" : "<img src='" + file + "' data-step='" + r.number()
 				        + "' data-page='" + esc(n) + "' title='" + esc(r.observed().getOrDefault(n, "")) + "'>")
 				        .append("</td>");
 			}
@@ -1524,6 +2296,44 @@ public class JuryScenario {
 		        .append(TIMELINE_COLUMN_JS)
 		        .append("</script></body></html>");
 		Files.writeString(this.reportDir.resolve("timeline.html"), sb.toString(), StandardCharsets.UTF_8);
+	}
+
+	private static String deviceBoxesHtml(JuryBoxState state, RefBoxState refBox) {
+		StringBuilder sb = new StringBuilder(
+		        "<div class='device-stack'><div class='jurybox'><div class='jurybox-title'>Jury box lights</div>");
+		sb.append("<div class='light-row'><span>Referees</span><div class='light-group'>");
+		String[] refereeLabels = { "L", "C", "R" };
+		for (int i = 0; i < state.referees().size(); i++) {
+			appendLight(sb, refereeLabels[i], state.referees().get(i));
+		}
+		sb.append("</div></div><div class='light-row'><span>Jury</span><div class='light-group'>");
+		for (int i = 0; i < state.jurors().size(); i++) {
+			appendLight(sb, "J" + (i + 1), state.jurors().get(i));
+		}
+		sb.append("</div></div></div><div class='refbox'><div class='jurybox-title'>Referee boxes</div>");
+		sb.append("<div class='light-row'><div class='light-group'>");
+		for (int i = 0; i < refBox.summoned().size(); i++) {
+			appendRefBoxLight(sb, refereeLabels[i], refBox.summoned().get(i));
+		}
+		return sb.append("</div></div></div></div>").toString();
+	}
+
+	private static void appendRefBoxLight(StringBuilder sb, String label, boolean summoned) {
+		sb.append("<div class='light-unit'><div class='light ").append(summoned ? "summoned" : "off")
+		        .append("' title='").append(summoned ? "summoned" : "off")
+		        .append("'></div><div class='light-label'>").append(label).append("</div></div>");
+	}
+
+	private static void appendLight(StringBuilder sb, String label, DeviceLight state) {
+		String symbol = switch (state) {
+			case UNKNOWN -> "?";
+			case OFF -> "";
+			case WHITE, RED -> "";
+			case VOTED -> "✓";
+		};
+		sb.append("<div class='light-unit'><div class='light ").append(state.name().toLowerCase())
+		        .append("' title='").append(state.name().toLowerCase()).append("'>").append(symbol)
+		        .append("</div><div class='light-label'>").append(label).append("</div></div>");
 	}
 
 	private static String esc(String s) {

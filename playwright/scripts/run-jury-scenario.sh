@@ -14,9 +14,18 @@
 #     four-member jury with VPT, jury box 1 broken: 170-vpt-broken-juror-nolift
 #     jury box only, the Speaker enters the decision: 180-vpt-speaker-enters-nolift 190-jury3-speaker-enters-nolift
 #     jury box 1 broken, Speaker abandons the vote: 200-vpt-broken-juror-start-anyway
+#     the Jury Chair decides on the jury box (no rule): 210-vpt-jurybox-nolift 220-vpt-jurybox-nolift-against-vote
+#                                 230-jury3-jurybox-nolift-no-vote
+#     Resume without a jury decision: 240-jury3-deliberation-resume 250-vpt-automatic-review-resume
+#     three-member jury, normal Chair decision on the jury box:
+#                                 260-jury3-jurybox-confirmation-nolift 270-jury3-jurybox-confirmation-goodlift
+#                                 280-jury3-jurybox-reversal-nolift 290-jury3-jurybox-reversal-goodlift
+#                                 280 summons the referees for discussion before the new jury vote
 #     (a three-member jury with VPT behaves exactly as without VPT: no separate scenarios)
 # Each scenario applies its own settings (automaticBreakNoVPT,
 # Video Playback Technology, jury size on Jury Control).
+# Every lift resets to 1:00, verifies a real countdown through 0:59 to 0:58,
+# then checks the MQTT stop acknowledgement and stopped Speaker/board clocks.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
