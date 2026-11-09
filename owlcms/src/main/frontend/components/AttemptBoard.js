@@ -60,7 +60,9 @@ class CurrentAttempt extends LitElement {
         <div data-testid="attempt-board-attempt" class="attempt" style="${this.attemptStyles()}">
           <span .innerHTML="${board.attempt}"></span>
         </div>
-        <div data-testid="attempt-board-weight" class="weight" style="${this.weightStyles()}">
+        <div data-testid="attempt-board-weight"
+          class=${classMap({ weight: true, reviewWeight: Boolean(board.reviewMessage) })}
+          style="${this.weightStyles()}">
           <span style="white-space: nowrap;">${board.weight}<span style="font-size: 75%">${this.kgSymbol}</span></span>
         </div>
         <div class="barbell" style="${this.barbellStyles()}" .innerHTML="${board.platesHtml}"></div>
@@ -308,8 +310,9 @@ class CurrentAttempt extends LitElement {
   }
 
   weightStyles() {
-    // weights are visible during lift countdowns
-	return "display: " + (this.board.weight && (this.board.mode === "LIFT_COUNTDOWN" || (this.board.mode === "CURRENT_ATHLETE") || (this.board.mode === "INTERRUPTION" && this.board.breakType === "TECHNICAL")) ? "grid" : "none");
+    const review = this.board.mode === "INTERRUPTION"
+      && (this.board.breakType === "JURY" || this.board.breakType === "CHALLENGE");
+	return "display: " + (this.board.weight && (review || this.board.mode === "LIFT_COUNTDOWN" || (this.board.mode === "CURRENT_ATHLETE") || (this.board.mode === "INTERRUPTION" && this.board.breakType === "TECHNICAL")) ? "grid" : "none");
   }
 
   athleteTimerStyles() {

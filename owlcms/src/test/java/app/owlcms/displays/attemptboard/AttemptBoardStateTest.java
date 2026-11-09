@@ -61,6 +61,20 @@ public class AttemptBoardStateTest {
 	}
 
 	@Test
+	public void reviewWeightIsExpectedToBeVisibleForEveryReviewBreak() {
+		for (String breakType : new String[] { "JURY", "CHALLENGE" }) {
+			AttemptBoardRenderCheck check = new AttemptBoardRenderCheck();
+			AttemptBoardState state = AttemptBoardState.builder(1, "INTERRUPTION")
+			        .breakType(breakType)
+			        .reviewMessage("Review")
+			        .weight("64")
+			        .build();
+			check.published(state, "kg", 0);
+			assertNull(breakType, check.rendered("1", "64", "0", "64kg", "INTERRUPTION", true, 100));
+		}
+	}
+
+	@Test
 	public void missingRenderFeedbackTimesOutDespiteNewPublications() {
 		AttemptBoardRenderCheck check = new AttemptBoardRenderCheck();
 		AttemptBoardState state = AttemptBoardState.builder(1, "CURRENT_ATHLETE").weight("64").build();

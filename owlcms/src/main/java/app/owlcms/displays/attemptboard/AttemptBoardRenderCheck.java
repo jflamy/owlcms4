@@ -23,7 +23,10 @@ final class AttemptBoardRenderCheck {
 		ObjectNode json = state.toJson();
 		String mode = json.path("mode").asString();
 		boolean visible = "CURRENT_ATHLETE".equals(mode) || "LIFT_COUNTDOWN".equals(mode)
-		        || ("INTERRUPTION".equals(mode) && "TECHNICAL".equals(json.path("breakType").asString()));
+		        || ("INTERRUPTION".equals(mode)
+		                && ("TECHNICAL".equals(json.path("breakType").asString())
+		                        || "JURY".equals(json.path("breakType").asString())
+		                        || "CHALLENGE".equals(json.path("breakType").asString())));
 		String weight = json.path("weight").asString();
 		this.pending.put(state.getSequence(), new Expected(weight,
 		        EDGE_WHITESPACE.matcher(weight + kgSymbol).replaceAll(""),

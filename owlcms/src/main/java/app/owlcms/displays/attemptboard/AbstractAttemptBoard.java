@@ -845,7 +845,13 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			logger.error("{}attemptBoard cannot publish {} review attempt: athlete under review has {} attempts done {}",
 			        FieldOfPlay.getLoggingName(fop), breakType, attemptsDone, LoggerUtils.whereFrom());
 		} else {
-			builder.reviewAttempt(formatAttemptByIndex(attemptsDone - 1));
+			Integer attemptedWeight = athleteUnderReview.getActualLiftOrNull(attemptsDone);
+			if (attemptedWeight == null || attemptedWeight == 0) {
+				attemptedWeight = athleteUnderReview.getRequestedWeightForAttempt(attemptsDone);
+			}
+			builder.reviewAttempt(formatAttemptByIndex(attemptsDone - 1))
+			        .weight(attemptedWeight != null && attemptedWeight != 0
+			                ? Integer.toString(Math.abs(attemptedWeight)) : "");
 		}
 		return builder.reviewMessage(reviewMessage(breakType, fop))
 				.decisionVisible(fop.isPanelVoteOpen() || fop.getPanelReviewInitialVotes() != null)

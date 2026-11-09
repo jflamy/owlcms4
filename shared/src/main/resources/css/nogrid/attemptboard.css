@@ -420,6 +420,10 @@
 	justify-self: stretch;
 }
 
+.attemptBoard .weight.reviewWeight {
+	color: var(--reviewAttemptWeightColor, grey);
+}
+
 /* .wrapper .branding {
 	display: none;
 } */
