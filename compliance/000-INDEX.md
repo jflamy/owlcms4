@@ -61,9 +61,8 @@ Scoped dark dialogs (210) are done: [210-SCOPED_DARK_DIALOGS.md](done/210-SCOPED
 | 370 | [Document template settings](370-DOCUMENT_TEMPLATE_SETTINGS.md) | Store per-document template choices apart from `Competition`, so printing never counts as a change to the competition settings |
 
 Seven-person adjudication, including Tracker jury forwarding, is complete and
-archived in [SEVEN_PERSON_ADJUDICATION.md](done/SEVEN_PERSON_ADJUDICATION.md),
-[TRACKER_JURY_VOTES.md](done/TRACKER_JURY_VOTES.md) and
-[phase-b-referee-lights-mqtt.md](done/phase-b-referee-lights-mqtt.md).
+archived in [SEVEN_PERSON_ADJUDICATION.md](done/SEVEN_PERSON_ADJUDICATION.md)
+and [TRACKER_JURY_VOTES.md](done/TRACKER_JURY_VOTES.md).
 
 The Tracker reverse proxy (360) is complete and archived in
 [360-TRACKER_PROXY.md](done/360-TRACKER_PROXY.md).

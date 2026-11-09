@@ -8,8 +8,7 @@ Existing Surefire reports checked on 2026-10-25 show 71 adjudication tests and
 10 panel-tally tests passing; no tests were rerun for this documentation cleanup.
 This is a historical design, not an active work list. Earlier descriptions of
 missing behavior and open questions below record the development sequence.
-Optional follow-ups are noted at the end. The device timeline is in
-[phase-b-referee-lights-mqtt.md](phase-b-referee-lights-mqtt.md).
+Optional follow-ups are noted at the end.
 Scope: field of play decision engine, Jury Control, referee phones, MQTT
 devices, attempt boards and scoreboards, feature switch, translations
 ("Jury Chair"), documentation
@@ -80,8 +79,7 @@ section 12, shared with 3- and 5-member juries:
     / 3.
 
 The break is titled "Jury Deliberation" (not "Adjudication Panel Review"). The jury behaviour switches
-are listed in
-[phase-b-referee-lights-mqtt.md](phase-b-referee-lights-mqtt.md).
+are in the Jury options section of the feature switches (`FeatureSwitchSection.JURY_OPTIONS`).
 
 Jury members vote on each lift on the Jury Control Unit once the athlete has
 replaced the barbell (7.5.8, TCRR 3.3.6).
@@ -113,7 +111,7 @@ decision.
 | Initial decision | the 3 referee votes, committed by `commitCurrentDecision()` |
 | Adjudication Panel, panel | only the seven-person panel: 3 referees and jury size 4, with VPT in use (`FieldOfPlay.isPanelProcedure`). "Panel" is used for nothing else |
 | Review vote | the vote during a review: the panel vote (7 officials) or the jury vote |
-| Jury vote | the review vote of the jury alone, for every jury that is not the panel (3 members with or without VPT, 4 members without VPT, 5 members). The referees do not vote again; their decision on the lift stays shown on every display while the jurors vote. Code names (`PanelVoteUpdate`, `panelVoteOpen`...) cover both kinds of review vote |
+| Jury vote | the review vote of the jury alone, for every jury that is not the panel (3 members with or without VPT, 4 members without VPT, 5 members). The referees do not vote again: attempt boards and scoreboards keep referee cells empty during and after this vote, showing only the 3, 4 or 5 jurors' new votes. The physical jury box keeps the original referee lights, and Jury Control keeps the original decision at the top right. Code names (`PanelVoteUpdate`, `panelVoteOpen`...) cover both kinds of review vote |
 
 ## Current Behaviour
 
@@ -199,7 +197,7 @@ Already partly present:
 | G2 | 4-of-7 majority | Jury verdict computed on jury votes only | New panel tally combining `refereeDecision` and jury votes |
 | G3 | Automatic stop when panel ≠ referees | Jury must press Deliberation | Automatic review break after the initial decision |
 | G4 | Review: majority of 7 is final | Only the jury votes again | Referees must vote again during the break (phones, MQTT) |
-| G4b | Chair calls the new decision with the Referee call buttons after the video review | Summon only brings referees to the Jury table | OWLCMS issues the referee recall (`SummonRef`) twice: (1) implicitly when the 7-person vote triggers a review break or the Chair presses Challenge, and (2) explicitly when the Chair presses **Call for Votes** on Jury Control or **Summon Referees (all)** on the keypad/jury box during the break to open the vote |
+| G4b | Chair calls the new decision with the Referee call buttons after the video review | Summon only brings referees to the Jury table | The referees are summoned once, when the Chair opens the vote with **Call for Votes** on Jury Control or **Summon Referees (all)** on the keypad/jury box during the break. Neither the automatic review break (7-person majority) nor a Challenge summons them when it starts (decided 2026-11-08) |
 | G4c | Jury deliberates for other reasons too | Deliberation button | Keep the manual Deliberation button; Call for Votes is available there when a lift is under review |
 | G5 | Rule shown for No Lift | Announcer and tracker only; auto decision has no reason | Reason required for a panel No Lift; shown on attempt board/scoreboard |
 | G6 | No challenge after panel review | Challenge always allowed | None: the jury applies the rule (decided, section 8) |
@@ -278,9 +276,9 @@ voted. Until then, only "voted / not voted" is shown.
    - Panel majority ≠ referee decision: post `BreakStarted(JURY, INDEFINITE)`
      automatically for `athleteUnderReview`. If the decision is still visible,
      the break is deferred (`deferredBreak`) until it is cleared. Otherwise it
-     starts at once (`CURRENT_ATHLETE_DISPLAYED` for the next athlete). When
-     the break starts, OWLCMS also issues the first (implicit) referee recall
-     (`SummonRef(0)`) so all 3 referees are called to the video review.
+     starts at once (`CURRENT_ATHLETE_DISPLAYED` for the next athlete). The
+     referees are not summoned when the break starts; they are summoned when
+     the Chair calls for votes (Step B2).
 4. **Next clock start while the jury has not finished voting.** A
    `TimeStarted` for the next attempt arrives while the jury votes for
    `athleteUnderReview` are incomplete (switch on, VPT on, at least one jury
@@ -326,8 +324,8 @@ corresponding jury break; only the trigger (the Chair, after a Challenge
 Card) and the label ("Challenge") differ:
 
 - **With VPT:** same as the automatic Adjudication Panel Review. The lift's
-  referee and jury votes are kept and shown until Call for Votes, all
-  referees are recalled (`SummonRef(0)`), and the 7-person majority decides.
+  referee and jury votes are kept and shown until Call for Votes, which
+  summons the referees, and the 7-person majority decides.
 - **Without VPT:** same as a jury deliberation opened by the Chair. No
   automatic summon (Chair's decision), the four jurors vote again and must be
   unanimous to reverse. (The TCRR describes challenges only with VPT;
@@ -410,19 +408,18 @@ The review has two steps. The voting is **not** opened automatically. It is
 opened by the Chair of the Jury after the video review (7.5.7
 "Re-adjudication Following Review").
 
-Step B1, video review in progress (first, implicit referee recall):
+Step B1, video review in progress (referees not summoned):
 
 - When the automatic review break or Challenge break starts, the scoreboard
-  shows the deliberation/challenge and OWLCMS automatically issues the first
-  referee recall (`UIEvent.SummonRef(0)`) to summon all 3 referees to the video
-  review.
+  shows the deliberation/challenge. The referees are not summoned (decided
+  2026-11-08); they are summoned once, by the vote call in Step B2.
 - The break is running. No votes are being collected yet: referee
   `DecisionUpdate`s are refused, as today in `BREAK`.
 - Jury Control shows a prompt to the Chair (section 6): review in progress,
   press **Call for Votes** (or Summon Referees on the keypad) when the video
   review is finished.
 
-Step B2, the Chair calls for the vote (second, explicit referee recall):
+Step B2, the Chair calls for the vote (the referees are summoned):
 
 - The Chair triggers the vote Either by pressing **Call for Votes** on the Jury
   Control screen (section 6) or by pressing **Summon Referees (all)**
@@ -433,8 +430,8 @@ Step B2, the Chair calls for the vote (second, explicit referee recall):
   OWLCMS interprets `SummonReferee(0)` as `FOPEvent.PanelVoteCalled`.
 - The FOP clears `reviewRefereeDecision[3]` and the jury votes
   (`resetJuryDecisions()`), marks the vote as open, and pushes:
-  - the second `UIEvent.SummonRef(0)` (all referees) so every referee device
-    **buzzes a second time** to request the vote;
+  - `UIEvent.PanelVoteCalled(0)`, which summons all referees: every referee
+    device **buzzes** to request the vote (MQTT `summon`, phone beep);
   - a review-vote event so devices re-arm and show "enter decision" rather
     than "see the jury" (section 5).
 - Keep the initial referee votes. `reviewRefereeDecision[3]` is separate from
@@ -462,9 +459,9 @@ Step B2, the Chair calls for the vote (second, explicit referee recall):
   Control opens the result screen (section 6) and the Chair either:
   - **confirms** the result: **Confirm Good Lift** for a Good Lift; choosing
     the technical rule for a No Lift (reason 17 "Other" is available). The
-    jury box's Good Lift and No Lift are the same as Jury Control's (section
-    13): Good Lift confirms a Good Lift result, No Lift opens the rule dialog
-    on Jury Control;
+    jury box's Good Lift and No Lift are the Chair's manual decision, applied
+    at once with no confirmation and no rule (section 13, decided
+    2026-11-08);
   - or presses **Cancel vote result**: for example the jury says a vote was
     entered by mistake. All 7 votes are cleared on every display and device,
     the vote is closed and the break continues with Call for Votes prompted
@@ -476,8 +473,8 @@ Step B2, the Chair calls for the vote (second, explicit referee recall):
 - When the decision is applied, the scoreboards show "No Lift – rule" for a No
   Lift (TCRR 7.5.7). The decision is shown for 3.5 s and lifting resumes (the
   attempt board jury card lasts 5 s), but the revealed votes remain visible on
-  Jury Control and the physical jury box until explicit Resume/clear or the
-  next athlete clock starts. `PanelVoteUpdate.isPublicReveal()` marks the
+  Jury Control and the physical jury box until the next athlete clock starts.
+  `PanelVoteUpdate.isPublicReveal()` marks the
   update sent when the decision is applied (used by MQTT so that the
   individual referee lights are not sent twice).
 - Final decision: the panel majority, computed only when all 7 have voted
@@ -503,15 +500,23 @@ Step B2, the Chair calls for the vote (second, explicit referee recall):
   and `athleteUnderReview` are discarded, and the lift keeps the referees'
   decision. So the order in Phase B is: the 7-person vote, then the Chair
   override on Jury Control, then the Supervisor/Speaker override.
-- **Override is marked.** A decision entered through the Chair override is
-  flagged on the attempt and shown as **"Jury Chair Entered Decision"** (with
-  VPT only; without VPT the Chair's decision is the normal path) on the
-  announcer / Competition Supervisor notification (and in the jury
-  deliberation record), so it is never mistaken for a panel vote. "Chair
-  entered" means exactly that the Chair used the **Good Lift / No Lift**
-  buttons (Jury Control or the physical jury box) instead of a vote; a No Lift
-  that results from a vote, for which the Chair only supplies the rule, is not
-  marked. A Chair-entered decision **clears the jury votes everywhere** (review
+- **Override is marked.** The marker is not stored on the attempt (decisions
+  are not stored in the database yet); it is shown on the Speaker dialog and
+  the announcer / Competition Supervisor notification, logged, and forwarded
+  to the tracker. It applies to every jury (3, 4 or 5 members, with or without
+  VPT; decided 2026-11-08) when the Chair uses the **Good Lift / No Lift**
+  buttons (Jury Control or the physical jury box):
+  - with no complete vote (no vote called, or a jury device that does not
+    work): **"Jury Chair Entered Decision"**, an informational trace of the
+    Chair's action, not a non-conformity;
+  - against the result of a complete vote (including a non-unanimous jury
+    vote that leaves the referees' decision standing): **"Jury Chair Decision
+    Against the Vote"**, flagged (TCRR 7.5.7). The log records the vote result
+    and votes before they are cleared. The decision is not blocked.
+  A button decision equal to the vote result (a No Lift for which the Chair
+  supplies the rule, Confirm Good Lift, or the jury box button matching the
+  result) is the vote's decision and is not marked. A decision that is not the
+  vote's **clears the jury votes everywhere** (review
   vote cells, jury circles, Phase A pattern, physical jury box) before the
   decision card, so that nothing contradicting the Chair's decision stays on
   display. The
@@ -535,18 +540,16 @@ Step B2, the Chair calls for the vote (second, explicit referee recall):
 
 ### 5. Referee devices
 
-OWLCMS issues the referee recall signal (`SummonRef`) **twice** during a review:
+OWLCMS summons the referees **once** during a review (decided 2026-11-08):
 
-1. **Implicit recall at break start (Step B1):** When the 7-person Phase A tally
-   triggers the deliberation break or the Chair presses Challenge, OWLCMS
-   automatically sends `SummonRef(0)`. Referee phones beep and show the red
-   "Please see jury" banner; MQTT refboxes receive `owlcms/fop/summon/<fop>` and
-   buzz/blink yellow. Voting remains closed while the panel reviews the video.
-2. **Explicit recall on Call for Votes (Step B2):** When the Chair presses
+1. **No summon at break start (Step B1):** When the 7-person Phase A tally
+   triggers the review break or the Chair presses Challenge, the referees are
+   not summoned. Voting remains closed while the panel reviews the video.
+2. **Summon on Call for Votes (Step B2):** When the Chair presses
    **Call for Votes** on the screen (or **Summon Referees (all)** on the keypad
    / jury box, which OWLCMS interprets as Call for Votes while in a review
-   break), OWLCMS re-arms the referee devices and sends the recall signal a
-   second time to request their votes.
+   break), OWLCMS re-arms the referee devices and sends the recall signal to
+   request their votes.
 
 Phones ([RefContent.java](../../owlcms/src/main/java/app/owlcms/nui/referee/RefContent.java)):
 
@@ -634,15 +637,38 @@ Jury devices do not buzz; the jurors are at the table.
     break if none is running, since the referee leaves the chair.
 
     The physical keypad and jury box have no Call for Votes button, so their
-    Summon All key means **Vote** during a review where the vote is called
-    that way (TCRR 7.5.7, "the Referee call buttons"): with the seven-person
-    panel, and after the automatic stop of a four-member jury without VPT.
-    Outside such a review it summons all the referees. The `K` shortcut on Jury Control is the
-    keypad's Summon All and behaves the same way.
+    Summon All key means **Vote** during a seven-person panel jury break (TCRR
+    7.5.7, "the Referee call buttons"). In every other case it summons
+    the three referees and, like summoning one referee, starts a jury break
+    if none is running (2026-11-08). The `K` shortcut on Jury Control is the keypad's Summon All
+    and behaves the same way.
+
+    Deliberation and Challenge (decided 2026-11-08, superseding the earlier
+    "Deliberation means Vote") only start a jury break, or switch a break
+    started by the Chair between the two:
+    - Outside a jury break: with the seven-person panel, every light stays
+      until the vote is called; with 3-, 4- (no VPT) and 5-member juries,
+      the jury box clears the jury lights and keeps the referee lights, Jury
+      Control and the boards clear both, and the jurors vote at once.
+    - During a Deliberation or Challenge started by the Chair, the other
+      button only changes the label: votes and lights are unchanged.
+    - The button of the review under way, and both buttons during an
+      automatic review, do nothing.
+    - A Challenge is valid when the athlete under review (the last one with
+      a referee decision) got a No Lift, the jury has not decided that lift,
+      and no Challenge or automatic review is under way, even when the next
+      athlete's clock runs. An invalid Challenge is ignored: greyed out on
+      Jury Control, nothing on the box, a line in the log.
+
+    With the seven-person panel, a Deliberation that starts the break is not
+    a review of the lift (that is the automatic review or a Challenge) but
+    another matter, such as a weight change, with or without the clock
+    started; it normally ends with Resume after the Technical Controller
+    acts. If the jury reviews the lift after all, the Chair calls the vote.
 
     On the Jury Control screen there is no ambiguity (decided 2026-10-23):
     the **Summon Referees (all)** button always means summon. It is
-    **disabled** during a review where Summon All means Vote, and the orange
+    **disabled** during a seven-person review, where Summon All means Vote, and the orange
     **Call for Votes** in row 8 is used instead. In a jury vote started by the
     Chair it stays enabled and summons the referees (TCRR 7.5.7,
     "the Jury may call the Referees in question"). Left / Center / Right
@@ -677,7 +703,7 @@ Jury devices do not buzz; the jurors are at the table.
   | A. Review started, no vote called | Automatic review: the Phase A votes stay visible during the video review. Challenge: cleared. | No Lift · Good Lift · Call for Votes (orange) · Resume |
   | B. Vote open | all cleared, then grey "voted" as votes arrive, values hidden | same row, Call for Votes blue (restart) |
   | C. Vote complete, waiting for the Chair | the 7 votes revealed everywhere (boards: where jury votes are shown); votes locked | result screen (below) |
-  | D. Decision applied | the decision (and rule) pops over the votes on the boards | the break ends 3.5 s later; the yellow buttons come back; the panel row is cleared by Resume or the next clock start |
+  | D. Decision applied | the decision (and rule) pops over the votes on the boards | the break ends 3.5 s later; the yellow buttons come back; the vote indicators, reviewed athlete and original referee decision remain until the next clock starts |
 
 - **Result screen (decided)**, state C. A dark modal dialog, like the reason
   dialog. It cannot be closed with Escape or by clicking outside; it closes
@@ -703,14 +729,20 @@ Jury devices do not buzz; the jurors are at the table.
     who announces it.
 - Technical is unchanged. Jury Control and the physical jury box use the same
   Resume command:
+  - when a review vote clears the middle referee indicators, Jury Control
+    shows the original referee decision at the right of its top line. The
+    original decision does not move or disappear;
   - in a normal non-jury break, Resume behaves exactly like Break Management:
     it posts `StartLifting`, with no additional jury reset;
   - during an active lift before referee decisions, Resume is a no-op;
   - once referee decisions are shown or a jury cycle is active, Resume
-    abandons pending jury/review votes, clears all referee/jury decisions and
-    resumes.
+    abandons pending jury/review state and resumes, without resetting any
+    displays or votes. If lifting already resumed automatically, Resume is a
+    no-op.
   Automatic `StartLifting` after the 3.5 s decision display does not clear the
-  revealed votes; manual Resume/clear or the next clock start does.
+  revealed votes, and neither does manual Resume. The next clock start clears
+  the vote indicators, resets the entire top line to the next athlete and
+  removes the original referee decision (2026-11-08).
 - `getNbJurors()`, `registerShortcuts()`, `postJuryMemberDecision()` work with
   4 jurors as is (keys 1–8).
 - No Call Technical Controller button (decided): there is no device to call
@@ -869,8 +901,9 @@ Otherwise the referees' decision stands. This is the counting of
   The referees do not vote again: their decision on the lift stays shown on
   Jury Control, the jury box and the boards while the jurors vote.
   After the four-member jury's automatic stop, the votes that caused it stay
-  displayed and Summon Referees (all) calls the vote, as with VPT; the
-  individual buttons summon the referees. Keeping the votes on the lift and
+  displayed so that the jury can write them down, and Call for Votes (on the
+  keypad and jury box, Deliberation) calls the vote; Summon Referees (all)
+  and the individual buttons summon the referees (2026-11-08). Keeping the votes on the lift and
   calling the vote are needed only after an automatic trigger. VPT makes no
   difference for 3- and 5-member juries (decided 2026-10-23): they have no
   automatic trigger, so every review is started by the Chair as above. For
@@ -885,12 +918,14 @@ Otherwise the referees' decision stands. This is the counting of
 - **The decision** comes from one of:
   - the Chair confirming the vote result on Jury Control;
   - the Chair pressing **Good Lift / No Lift** on Jury Control or on the jury
-    box without a vote (the same thing). No Lift asks for the rule on Jury
-    Control; Good Lift does not;
+    box. No Lift on Jury Control asks for the rule; Good Lift does not; the
+    jury box buttons apply at once with no rule (decided 2026-11-08);
   - the Speaker pressing Good Lift / No Lift in the dialog, as relayed by the
     Technical Controller (no rule), for example when Jury Control is not
     used.
-  None of these is marked "Jury Chair Entered Decision" (VPT only).
+  A Chair button decision is marked as in section 3 ("Override is marked"):
+  "Jury Chair Entered Decision" with no complete vote, "Jury Chair Decision
+  Against the Vote" against a complete vote's result.
 - **Announcement:** section 13.
 - **Removed:** the `requireJuryPresidentDecision` switch (a jury vote never
   decides by itself; the Chair decides), the automatic jury decision after
@@ -917,8 +952,9 @@ How the decision is applied:
 | Decision | Applied and shown on the boards | Speaker dialog |
 |---|---|---|
 | **Good Lift** from the Chair: Jury Control or jury box, directly or confirming a Good Lift vote result | **at once** | the decision (reversal or confirmed) with **Close** |
-| **No Lift** from the Chair: Jury Control or jury box. Both post the same FOP event; every running Jury Control page opens the rule dialog, and the rule is chosen there | **at once**, when the rule is chosen | the decision and the rule, with **Close** |
-| No Lift requested but no rule given (Jury Control not running, or the rule dialog cancelled) | nothing is applied | still "Waiting for decision"; the Technical Controller relays the decision and the Speaker enters it, or ends the break |
+| **No Lift** from the Chair on Jury Control: every running Jury Control page opens the rule dialog, and the rule is chosen there | **at once**, when the rule is chosen | the decision and the rule, with **Close** |
+| **No Lift** from the Chair on the jury box (the box has no screen; decided 2026-11-08) | **at once**, no confirmation, no rule | the decision, with **Close**; in red: "No reason was entered. Get the reason from the Technical Controller, announce the decision and the reason, then call the next athlete." |
+| No Lift requested on Jury Control but the rule dialog cancelled | nothing is applied | still "Waiting for decision"; the Chair decides again, or the Technical Controller relays the decision and the Speaker enters it, or the break ends |
 | the **Speaker** enters Good Lift / No Lift, as relayed by the Technical Controller | at once (no rule) | closes |
 | End jury break, or Resume (Jury Control or jury box) | the break ends, the referees' decision stands | closes |
 
@@ -934,6 +970,13 @@ How the decision is applied:
     the Speaker to announce it, and has a single **Close** button. The
     "Display Decision" step (`Announcer.DisplayDecision`, "Click the button to
     display the outcome ... This will resume the competition") goes.
+  - **No Lift from the jury box** (no rule): it is also applied at once and
+    lifting resumes 3.5 s later; the next athlete's clock is started by the
+    timekeeper, who follows the Speaker. The dialog shows the decision with
+    `Announcer.JuryDecisionExplanation` in red, revised for 69 (2026-11-08):
+    get the reason from the Technical Controller, announce the decision and
+    the reason, then call the next athlete. The same text appears when the
+    Speaker entered the No Lift.
   - **Not complete** (a No Lift without a rule because Jury Control is not
     running or the rule dialog was cancelled, or no decision from Jury Control
     or the jury box at all; typically without VPT): the Technical Controller
@@ -950,13 +993,13 @@ How the decision is applied:
   in, where `juryDecisionsOnAttemptBoard` / `juryDecisionsOnScoreboard` are
   on; the decision, Good Lift / No Lift with the rule, pops over them when it
   is applied. Lifting resumes 3.5 s later.
-- **"Jury Chair Entered Decision" (with VPT).** With VPT the decision must
-  come from the 7-person vote and a No Lift needs its rule (7.5.7). A Chair
-  decision that is not the confirmation of the vote result (a jury box button,
-  or Good Lift / No Lift on Jury Control) is an override: the Speaker dialog
-  shows "Jury Chair Entered Decision" with the decision, and it is recorded.
-  Without VPT the Chair's decision is the normal path and is not marked
-  (decided 2026-10-23).
+- **"Jury Chair Entered Decision" / "Jury Chair Decision Against the Vote".**
+  A Chair decision that is not the confirmation of the vote result (a jury box
+  button, or Good Lift / No Lift on Jury Control) is shown in the Speaker
+  dialog with "Jury Chair Entered Decision" when there was no complete vote
+  (a trace), or "Jury Chair Decision Against the Vote" when it goes against a
+  complete vote (flagged), for every jury (decided 2026-11-08; before, VPT
+  only).
 - Reason 17 "Other" covers rulings that have no TCRR number. It is a rule like
   the others and is unrelated to the "Jury Chair Entered Decision" marker.
 - A Challenge also opens the waiting dialog (in dev68 it did not).
@@ -1006,11 +1049,10 @@ Answered by the TCRR text:
   unanimous jury (7.5.8). See section 1.
 - A challenge uses the same combined procedure (7.5.8, Regulation to 3.3.7
   item 9). See section 3.
-- The referee recall (`SummonRef`) is issued twice: first implicitly when the
-  7-person vote triggers the review break or the Chair presses Challenge (to
-  call the referees to the video review), and a second time explicitly when the
-  Chair presses Call for Votes on the screen or Summon Referees (all) on the
-  keypad/jury box (7.5.7) to open the new vote. See sections 3–6.
+- The referees are summoned once, when the Chair presses Call for Votes on the
+  screen or Summon Referees (all) on the keypad/jury box (7.5.7) to open the
+  new vote; not when the 7-person vote triggers the review break or the Chair
+  presses Challenge. See sections 3–6.
 - Deliberation stays a manual button, separate from the automatic review.
   See section 3.
 
@@ -1069,8 +1111,9 @@ Decided:
   athlete card and resumes the competition from that screen, without calling
   for votes.
 - A decision entered through the Jury Chair override is marked "Jury Chair
-  Entered Decision" on the announcer / Competition Supervisor notification and
-  in the deliberation record. See section 3, Phase B.
+  Entered Decision" (no complete vote) or "Jury Chair Decision Against the
+  Vote" on the announcer / Competition Supervisor notification. See section 3,
+  Phase B.
 - MQTT timekeeper boxes have no clock-start override. A press while jury votes
   are missing is refused like any other console; the override is only on the
   Competition Supervisor / Speaker screen. See section 3, step 4.
@@ -1089,33 +1132,42 @@ Decided:
   required for a No Lift on Jury Control), or the Speaker enters it as relayed
   by the Technical Controller. `requireJuryPresidentDecision` and the
   "announcer controlled jury decision" setting are removed. "Jury Chair Entered Decision" is marked
-  with VPT only. No automatic stop for 3/5 juries; the next clock waits for
+  for every jury when there is no complete vote, "Jury Chair Decision Against
+  the Vote" against a complete vote (2026-11-08). No automatic stop for 3/5 juries; the next clock waits for
   all jury votes or an explicit resolution. A 5-member jury keeps majority
   with VPT and unanimity without. See
   section 12 (2026-10-23).
 
 - Speaker dialogs, for every jury: "Waiting for decision" when a review
-  starts. The jury box's Good Lift / No Lift are the same as Jury Control's.
-  The Chair's decision is applied at once (a No Lift once its rule is chosen
-  on Jury Control); the Speaker dialog then shows it with a Close button and
-  the Speaker announces it verbally, which the competition does not wait for.
-  Without a rule (no Jury Control), the Technical Controller relays the
-  decision and the Speaker enters it. Votes are shown on the boards only where
-  the jury vote switches are on. With VPT, a Chair decision that is not the
-  confirmation of the vote is marked "Jury Chair Entered Decision" in the
-  Speaker dialog. See section 13 (2026-10-23).
+  starts. The Chair's decision is applied at once (a No Lift from Jury
+  Control once its rule is chosen; the jury box's Good Lift / No Lift with no
+  confirmation and no rule, decided 2026-11-08); the Speaker dialog then
+  shows it with a Close button and the Speaker announces it verbally, which
+  the competition does not wait for. A No Lift without a rule tells the
+  Speaker to get the reason from the Technical Controller before announcing
+  and calling the next athlete (2026-11-08). The Speaker can still enter a
+  decision relayed by the Technical Controller. Votes are shown on the boards only where
+  the jury vote switches are on. A Chair decision that is not the
+  confirmation of the vote is marked "Jury Chair Entered Decision" (no
+  complete vote) or "Jury Chair Decision Against the Vote" in the Speaker
+  dialog, for every jury (2026-11-08). See section 13 (2026-10-23).
 
 - Summon All during a review, on the keypad and jury box (and `K`): it calls
-  the vote with the seven-person panel and after the automatic stop of a
-  four-member jury without VPT; the votes that caused the review stay
-  displayed until then, and the individual buttons summon the referees. In a
+  the vote with the seven-person panel; the votes that caused the review stay
+  displayed until then, and the individual buttons summon the referees. After
+  the automatic stop of a four-member jury without VPT the votes also stay
+  displayed, Summon All summons the referees, and the Chair calls the vote
+  with Call for Votes on Jury Control (the automatic stop implies Jury
+  Control). Deliberation and Challenge never call the vote (2026-11-08, see
+  section 6, row 4). In a
   jury vote started by the Chair (with or without VPT) it summons the referees
   (TCRR 7.5.7); the jury lights are cleared at the start of the break, the
   referees' decision stays shown, and the Chair asks for the vote verbally.
   On the Jury Control screen the Summon Referees (all) button always means
-  summon: it is disabled when Summon All means Vote, and the orange Call for
-  Votes is used instead. Summoning starts a jury break, since the referee
-  leaves the chair. 3- and 5-member juries with VPT behave as without VPT
+  summon: it is disabled when Summon All means Vote (seven-person panel), and the orange Call for
+  Votes is used instead. Summoning one referee starts a jury break, since the
+  referee leaves the chair; Summon All is the same as summoning the three
+  referees and also starts one (2026-11-08). 3- and 5-member juries with VPT behave as without VPT
   (no automatic trigger, so the review is started by the Chair); only the
   jurors vote, counted as before (3: unanimity, 5: majority with VPT). See
   sections 6 and 12 (2026-10-23).
@@ -1150,11 +1202,6 @@ keeps the review label (`DecisionBlockState.onJuryDisplayReset`), so the
 verdict that follows is shown; before, the section went back to the current
 athlete and showed a stale break timer (scenario 16).
 
-Left:
-
-- Device timeline: [phase-b-referee-lights-mqtt.md](phase-b-referee-lights-mqtt.md)
-  is updated for the confirmation.
-
 ### 2. Juries without the panel: one procedure (implemented)
 
 Done (2026-10-23): the automatic jury decision (`scheduleAutoJuryDecision`),
@@ -1162,8 +1209,11 @@ Done (2026-10-23): the automatic jury decision (`scheduleAutoJuryDecision`),
 jury decision" checkbox are removed (`Competition.announcerControlledJuryDecision`
 is kept, deprecated, for the database column and existing exports); the jury
 vote alone never decides; "Jury Chair Entered Decision" is marked only with
-the seven-person panel; Summon All means Vote only with the panel or after the
-automatic stop without VPT (`FieldOfPlay.isSummonAllVote`), and the Summon
+the seven-person panel (superseded 2026-11-08: every jury, see section 3); Summon All means Vote only with the panel or after the
+automatic stop without VPT (`FieldOfPlay.isSummonAllVote`; superseded
+2026-11-08: panel only, and Deliberation means Vote in both cases,
+`FieldOfPlay.isDeliberationVote`; superseded again 2026-11-08: Deliberation
+never calls the vote, `isDeliberationVote` removed), and the Summon
 Referees (all) button of Jury Control is disabled then; a review started by
 the Chair without VPT clears the jury lights and opens the vote at once.
 
@@ -1194,8 +1244,8 @@ the dialog then shows the decision and rule with a Close button and stays when
 lifting resumes, until closed or the clock starts; a decision entered by the
 Speaker is flagged (`JuryNotification.isSpeakerEntered`) and closes the
 dialog; the green / red verdict notification of the Speaker page is gone; the
-jury box's No Lift posts the same rule request as Jury Control's
-(`FOPEvent.JuryRuleRequest`), and so does the `box=true` testing mode; the
+jury box's No Lift, like its Good Lift, is applied at once without a rule
+(decided 2026-11-08), and so is the `box=true` testing mode's; the
 rule is shown on the boards for every jury size. Translations in
 `jury_speaker_dialog_translations.tsv` (`JuryKeypad.ConfirmGoodLift`,
 `JuryKeypad.CancelVoteResult`, `Announcer.AnnounceJuryDecision`, and the new
@@ -1218,9 +1268,12 @@ settings, the seven-person panel (automatic review, Call for Votes, result
 waiting for the Chair, Cancel vote result, decision without a vote), the
 3/4/5-member jury review, the Speaker dialogs, Resume.
 [180-Keypads.md](../../docs/100-AdvancedTopics/180-Keypads.md): the Jury Chair
-keypad keys are unchanged from the Jury Console (`d c t h i j k g b Escape`);
-what `c`, `k`, `g`, `b` and `Escape` do depends on whether a review is in
-progress (`k` is Call for Votes during a panel review). The `V` shortcut
+keypad keys are those of the Jury Console (`d c t h i j k g b Escape`), plus
+`y` for the Technical Controller (2026-11-08). Each key is the equivalent of a
+button and always means the same thing: `c` is always Challenge (until
+2026-11-08 it called the Technical Controller during a review), `Escape` is
+always Resume; `g` and `b` work while the Good Lift / No Lift buttons are
+shown; `k` is Summon All, Call for Votes during a panel jury break. The `V` shortcut
 added during development is removed: keypads are not reprogrammed.
 
 ### 5. MQTT documentation (done 2026-10-23)
@@ -1228,9 +1281,15 @@ added during development is removed: keypads are not reprogrammed.
 [200-MQTTMessages.md](../../docs/100-AdvancedTopics/200-MQTTMessages.md):
 `hidden` decision state and the `panelVoteDeviceIndicators` switch;
 `resetDecisions` on Call for Votes, Chair decision, Cancel vote result and
-Resume, with the referees' decisions republished for a jury vote;
+Resume, with the referees' decisions republished at the last vote of a jury
+vote;
 `juryDeliberation` / `challenge` not published when the votes on the lift are
-kept; `jurybox/summon all` as Call for Votes during a panel review;
+kept, nor when a review is only relabelled; `jurybox/summon all` as Call for
+Votes during a panel jury break, otherwise a summon that starts a jury break
+if none is running;
+`jurybox/break deliberation` / `challenge` following the button rules of
+section 6 (2026-11-08); the referees' decisions republished right after
+`resetDecisions` in a jury-only vote, so the jury box keeps them;
 `jurybox/decision bad` as a rule request.
 
 ### 6. Optional MQTT test coverage

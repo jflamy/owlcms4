@@ -53,14 +53,15 @@ The same conventions are used as for the refereeing keypads.  You can use the sa
 
 An additional keypad can be connected to the Jury Control computer, which would typically be operated by the Jury Chair.  This keypad also works using keyboard shortcuts.
 
-The following shortcuts are bound.  Depending on how your device behaves, you may have to send either the lowercase letter or the uppercase letter, <u>please try both</u> !  The keys are the same as in previous versions; what some of them do depends on whether a review (deliberation or challenge) is in progress.
+The following shortcuts are bound.  Depending on how your device behaves, you may have to send either the lowercase letter or the uppercase letter, <u>please try both</u> !  Each key is the equivalent of a button and always means the same thing; what the press does depends on the state of the competition, as for the button.
 
-- "d" starts a jury deliberation (`KeyD` event code)
-- "c" starts a challenge; during a review, calls the technical controller (ex: for a loading error where the athlete will need to make a decision) (`KeyC` event code)
+- "d" starts a jury deliberation (`KeyD` event code).  On the seven-person Adjudication Panel, all the lights stay displayed and no vote starts until the vote is called; it is for other matters, such as a weight change, and normally ends with Resume.  With the other juries, the jury lights are cleared and the jury members vote again at once.  During a Challenge started by the Chair, "d" turns it into a deliberation without changing the votes or the lights.  During an automatic review, or during a deliberation, it does nothing.
+- "c" starts a challenge (`KeyC` event code).  During a deliberation started by the Chair, it turns it into a challenge without changing the votes or the lights.  It is ignored when the challenge is not valid, during an automatic review, or during a challenge (see [Jury](../060-Refereeing/020-Jury#deliberation-challenge-and-summon-rules)).
 - "t" starts a technical break if the Jury spots a technical issue (`KeyT` event code.)
+- "y" calls the technical controller (ex: for a loading error where the athlete will need to make a decision) (`KeyY` event code).
 - "h", "i", "j" call referee 1, referee 2, referee 3 to the jury table.
-- "k" calls all referees.  During a seven-person Adjudication Panel review (jury size 4 with video playback), it is **Call for Votes**: the votes are cleared and the seven officials vote again.  In the other reviews it calls the referees to the jury table.
-- "g" and "b", during a review: the Jury Chair gives a good lift or a bad lift (`KeyG`, `KeyB` event codes).  "b" opens the technical rule selection on Jury Control, and the decision is applied once the rule is chosen.
-- "Escape" ends the jury break (`Escape` event code).  It is not needed once a decision has been given: lifting resumes by itself.
+- "k" calls all referees.  During a seven-person Adjudication Panel jury break (jury size 4 with video playback), it is **Call for Votes**: the votes are cleared and the seven officials vote again.  In every other case it calls the three referees to the jury table; outside a break it stops the competition with a jury deliberation, as calling one referee does.
+- "g" and "b", while the Good Lift and No Lift buttons are shown (during a review): the Jury Chair gives a good lift or a bad lift (`KeyG`, `KeyB` event codes).  "b" opens the technical rule selection on Jury Control, and the decision is applied once the rule is chosen.
+- "Escape" is the Resume button: it ends the break (`Escape` event code).  It is not needed once a decision has been given: lifting resumes by itself.
 
 Jury Control has no keys for the jury vote confirmation (Confirm Good Lift, the technical rule, Cancel vote result): these are chosen on the screen.

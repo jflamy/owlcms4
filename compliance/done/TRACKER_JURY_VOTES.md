@@ -150,6 +150,7 @@ On **every `JURY_DECISION` message**, including the Speaker-only ones (`waitForA
   "recordKind": "none",
   "waitForAnnouncer": false,
   "chairEntered": false,
+  "againstVote": false,
   "speakerEntered": false
 }
 ```
@@ -166,7 +167,8 @@ On **every `JURY_DECISION` message**, including the Speaker-only ones (`waitForA
 | `newRecord` | a record was set (the value used by the attempt board card) |
 | `recordKind` | `none`, `new` or `denied` (as the flat field) |
 | `waitForAnnouncer` | notification meant for the Speaker only |
-| `chairEntered` | the Jury Chair's override (seven-person panel only) |
+| `chairEntered` | the Jury Chair used the Good Lift / No Lift buttons with no complete vote (informational trace; every jury size) |
+| `againstVote` | the Jury Chair used the Good Lift / No Lift buttons against the result of a complete vote (flagged; never true together with `chairEntered`) |
 | `speakerEntered` | the decision was entered by the Speaker |
 
 No text and no display duration: the tracker translates `JuryNotification.Reversal` / `Confirmed`,
