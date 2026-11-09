@@ -193,7 +193,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 			UI.getCurrent().access(() -> createTopBar());
 			getFop().fopEventPost(new FOPEvent.StartLifting(this));
 		});
-		this.startLiftingButton.getThemeNames().add("success primary");
+		this.startLiftingButton.addThemeNames("success", "primary");
 
 		this.showResultsButton = new Button(Translator.translate("ShowResults"), new Icon(VaadinIcon.MEDAL), (e) -> {
 			UI.getCurrent().access(() -> createTopBar());
@@ -201,7 +201,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 			        new FOPEvent.BreakStarted(BreakType.GROUP_DONE, CountdownType.INDEFINITE, null, null, true,
 			                this));
 		});
-		this.showResultsButton.getThemeNames().add("success primary");
+		this.showResultsButton.addThemeNames("success", "primary");
 		this.showResultsButton.setVisible(false);
 
 		this.warning = new H3();

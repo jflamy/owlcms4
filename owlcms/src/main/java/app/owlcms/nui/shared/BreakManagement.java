@@ -438,8 +438,8 @@ public class BreakManagement extends BaseContent implements BreakController {
 				this.startCountdown.setEnabled(false);
 		        });
 		this.endIntroButton.setTabIndex(-1);
-		this.startIntroButton.getThemeNames().add("secondary contrast");
-		this.endIntroButton.getThemeNames().add("secondary contrast");
+		this.startIntroButton.addThemeNames("secondary", "contrast");
+		this.endIntroButton.addThemeNames("secondary", "contrast");
 
 		introButtons.add(this.startIntroButton, this.endIntroButton);
 
@@ -481,8 +481,8 @@ public class BreakManagement extends BaseContent implements BreakController {
 		        	masterEndCeremony(currentFop, CeremonyType.OFFICIALS_INTRODUCTION);
 		        });
 		this.endOfficials.setTabIndex(-1);
-		this.startOfficials.getThemeNames().add("secondary contrast");
-		this.endOfficials.getThemeNames().add("secondary contrast");
+		this.startOfficials.addThemeNames("secondary", "contrast");
+		this.endOfficials.addThemeNames("secondary", "contrast");
 		officialsButtons.add(this.startOfficials, this.endOfficials);
 
 		ce.add(new Hr());

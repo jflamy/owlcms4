@@ -787,7 +787,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			        currentUI.access(() -> getRouterLayout().setMenuArea(createTopBar()));
 			        getFop().fopEventPost(new FOPEvent.StartLifting(this));
 		        });
-		this.startLiftingButton.getThemeNames().add("success primary");
+		this.startLiftingButton.addThemeNames("success", "primary");
 
 		this.medalsDownloadButton = createMedalsDownloadButton();
 		this.medalsDownloadButton.setVisible(false);
