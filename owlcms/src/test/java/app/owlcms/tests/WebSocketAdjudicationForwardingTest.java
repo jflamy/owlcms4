@@ -164,6 +164,7 @@ public class WebSocketAdjudicationForwardingTest {
 		assertEquals(Arrays.asList(false, false, false), decision.get("refereeVotes"));
 		assertEquals(Arrays.asList(false, false, false, true), decision.get("juryVotes"));
 		assertEquals(Boolean.FALSE, decision.get("chairEntered"));
+		assertEquals(Boolean.FALSE, decision.get("againstVote"));
 		assertEquals(Boolean.FALSE, decision.get("speakerEntered"));
 		assertTrue("StartLifting clears the forwarded decision before the next clock", awaitState(tracker,
 		        s -> Boolean.FALSE.equals(s.get("visible"))
@@ -172,13 +173,13 @@ public class WebSocketAdjudicationForwardingTest {
 	}
 
 	@Test
-	public void forwarderKeepsTheRefereesDecisionDuringAJuryVoteWithoutVideo() {
+	public void forwarderShowsOnlyJuryVotesDuringAJuryVoteWithoutVideo() {
 		ForwarderDecisionState tracker = forwarderDecisionState();
 
 		fourMemberDeliberationWithoutVideo(W, W, W);
 		juryVotes(R, R, R, R);
-		assertTrue("the referees' decision stays, the jury votes are revealed", awaitState(tracker,
-		        s -> List.of("white", "white", "white").equals(s.get("refs"))
+		assertTrue("only the officials who voted again are shown", awaitState(tracker,
+		        s -> List.of("empty", "empty", "empty").equals(s.get("refs"))
 		                && List.of("red", "red", "red", "red").equals(s.get("jury"))));
 
 		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 5));
@@ -200,6 +201,7 @@ public class WebSocketAdjudicationForwardingTest {
 		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 2, true));
 		Map<String, Object> decision = ForwarderDecisionState.adjudicationDecision(awaitVerdict(), this.fop);
 		assertEquals(Boolean.TRUE, decision.get("chairEntered"));
+		assertEquals("the vote was incomplete", Boolean.FALSE, decision.get("againstVote"));
 		assertEquals("the Chair's decision clears the votes", Arrays.asList(null, null, null, null),
 		        decision.get("juryVotes"));
 		assertTrue("the cells are cleared", awaitState(tracker,

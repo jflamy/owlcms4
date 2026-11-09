@@ -255,7 +255,7 @@ public class DecisionBlockState {
 
 	/**
 	 * Review vote (during a deliberation or challenge): the seven-person panel, or the jury alone (the referee cells
-	 * then show the referees' decision under review).
+	 * then stay empty when HIDE_REFEREES_DISPLAYS is true).
 	 *
 	 * @param reviewLights the referees' review votes and the majority, null while the vote is in progress
 	 * @param juryVotes    the jury votes, null while the vote is in progress
@@ -266,7 +266,7 @@ public class DecisionBlockState {
 
 	/**
 	 * Review vote (during a deliberation or challenge): the seven-person panel, or the jury alone (the referee cells
-	 * then show the referees' decision under review).
+	 * then stay empty when HIDE_REFEREES_DISPLAYS is true).
 	 *
 	 * @param reviewLights the referees' review votes and the majority, null while the vote is in progress
 	 * @param juryVotes    the jury votes, null while the vote is in progress
@@ -278,8 +278,8 @@ public class DecisionBlockState {
 	}
 
 	/**
-	 * @param keptRefLights for a jury-only vote, the original referee decision to reveal when the vote is complete,
-	 *                      or to keep visible while voting when HIDE_REFEREES_DISPLAYS is false. Null for the
+	 * @param keptRefLights for a jury-only vote, the original referee decision to keep visible during and after voting
+	 *                      only when HIDE_REFEREES_DISPLAYS is false. Null for the
 	 *                      seven-person panel, whose referees vote again.
 	 */
 	public void onPanelVote(RefLights reviewLights, Boolean[] juryVotes, boolean[] voted, RefLights keptRefLights) {
@@ -298,7 +298,8 @@ public class DecisionBlockState {
 			this.panelVoting = false;
 			this.panelVoted = null;
 			this.keptReferees = false;
-			this.refLights = keptRefLights != null ? keptRefLights : reviewLights;
+			this.refLights = keptRefLights != null
+			        ? (DecisionDisplayRules.HIDE_REFEREES_DISPLAYS ? null : keptRefLights) : reviewLights;
 			this.juryVotes = copyOf(juryVotes);
 			this.jurySize = juryVotes != null ? juryVotes.length : this.jurySize;
 		}

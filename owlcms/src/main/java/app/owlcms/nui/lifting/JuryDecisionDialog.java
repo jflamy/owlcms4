@@ -109,6 +109,7 @@ public class JuryDecisionDialog extends Dialog {
 	String waitingStatus = "";
 	
 	String explanationText;
+	String explanationStyle = "font-size: x-large;";
 	if (juryDecision == JuryDeliberationEventType.GOOD_LIFT) {
 		juryDecisionDisplay = "<div style='color: green; font-size: xx-large; font-weight: bold; text-align: center; margin: 0.5em 0;'>" 
 			+ Translator.translate("JuryDialog.GoodLiftLabel").toUpperCase() + " " + reversalText + "</div>";
@@ -117,10 +118,14 @@ public class JuryDecisionDialog extends Dialog {
 		juryDecisionDisplay = "<div style='color: red; font-size: xx-large; font-weight: bold; text-align: center; margin: 0.5em 0;'>" 
 			+ Translator.translate("JuryDialog.BadLiftLabel").toUpperCase() + " " + reversalText + "</div>";
 		String reason = JuryRejectionReasons.label(e.getReasonCode());
-		explanationText = Translator.translate("Announcer.AnnounceJuryDecision");
 		if (reason != null) {
+			explanationText = Translator.translate("Announcer.AnnounceJuryDecision");
 			juryDecisionDisplay += "<div style='color: red; font-size: xx-large; font-weight: bold; text-align: center; margin: 0.5em 0;'>"
 				+ reason + "</div>";
+		} else {
+			// the jury box (or a Speaker entry) gives no rule: the Technical Controller provides it
+			explanationText = Translator.translate("Announcer.JuryDecisionExplanation");
+			explanationStyle = "color: red; font-size: x-large; font-weight: bold;";
 		}
 	} else {
 		// Show waiting status when jury is deliberating
@@ -129,10 +134,11 @@ public class JuryDecisionDialog extends Dialog {
 		explanationText = Translator.translate(e.getFop() != null && e.getFop().isPanelReviewing()
 		        ? "Announcer.WaitingForPanelExplanation" : "Announcer.WaitingForJuryExplanation");
 	}
-	if (e.isChairEntered() && juryDecision != null) {
-		// seven-person Adjudication Panel: the decision did not come from the panel vote
+	if (juryDecision != null && (e.isChairEntered() || e.isAgainstVote())) {
+		// the decision did not come from a complete jury vote, or went against its result
 		juryDecisionDisplay += "<div style='font-size: x-large; font-weight: bold; text-align: center; margin: 0.5em 0;'>"
-			+ Translator.translate("JuryNotification.ChairEnteredDecision") + "</div>";
+			+ Translator.translate(e.isAgainstVote() ? "JuryNotification.DecisionAgainstVote"
+			        : "JuryNotification.ChairEnteredDecision") + "</div>";
 	}
 	
 	message.add(new Html(
@@ -141,10 +147,10 @@ public class JuryDecisionDialog extends Dialog {
 	            <div style="%s">%s</div>
 	            %s%s
 	            <br/>
-	            <div style="font-size: x-large;">%s</div>
+	            <div style="%s">%s</div>
 	        </div>
 	        """.formatted(messageStyle, messageText, juryDecisionDisplay, waitingStatus,
-	                explanationText)));
+	                explanationStyle, explanationText)));
 	
 	content.add(header, message);		// Create footer with buttons
 		HorizontalLayout footer = new HorizontalLayout();

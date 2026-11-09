@@ -64,7 +64,11 @@ the underlying element data.
 - Entered from any state on a jury-deliberation or challenge notification.
 - Athlete name: **visible** — the **athlete under review** (referee decisions for that athlete are
   shown again).
-- Referee lights: **visible** (the reviewed athlete's referee decision).
+- Referee lights show the original decision only until a review vote opens.
+  For a seven-person review, they then show who has voted and reveal the three
+  new referee votes with the four jury votes. For a jury-only deliberation or
+  challenge (3, 4 or 5 jurors), they stay **empty**, including after the jury
+  votes are revealed; the referees did not vote again.
 - Jury circles: **cleared**, and:
   - shown (live, then disclosed) **only if** the "second jury vote is public" toggle is on
     (`DECISION_SECTION_SHOW_BOTH_JURY_VOTES`);

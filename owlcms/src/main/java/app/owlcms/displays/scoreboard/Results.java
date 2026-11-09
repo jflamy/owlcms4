@@ -300,7 +300,7 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 			        ? JuryDeliberationEventType.CHALLENGE
 			        : JuryDeliberationEventType.START_DELIBERATION;
 			Boolean[] initialJury = initialJuryVotes(fop);
-			this.decisionBlock.onDeliberationStart(type, fop.getAthleteUnderReview(), computeRefLights(fop),
+			this.decisionBlock.onDeliberationStart(type, fop.getAthleteUnderReview(), computeRefLights(fop, true),
 			        initialJury);
 			if (fop.isPanelVoteOpen()) {
 				updateReviewVote(fop.getPanelVoteUpdate(this));
@@ -308,7 +308,7 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 				this.decisionBlock.onJuryUpdate(fop.getJuryMemberDecision(), fop.getJurySize());
 			}
 		} else if (fop.getState() == FOPState.DECISION_VISIBLE) {
-			this.decisionBlock.onRefereeDecision(fop.getAthleteUnderReview(), computeRefLights(fop));
+			this.decisionBlock.onRefereeDecision(fop.getAthleteUnderReview(), computeRefLights(fop, false));
 			this.decisionBlock.onJuryUpdate(fop.getJuryMemberDecision(), fop.getJurySize());
 		} else {
 			// Same rule as the StartLifting handler: a four-member jury verdict stays until the review timeout. This
@@ -386,11 +386,12 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 	 * Resolve the current referee decision into ready-to-render lights, applying the
 	 * single-referee and announcer rules. Returns {@code null} when no decision is present.
 	 */
-	private DecisionBlockState.RefLights computeRefLights(FieldOfPlay fop) {
+	private DecisionBlockState.RefLights computeRefLights(FieldOfPlay fop, boolean review) {
 		if (fop == null) {
 			return null;
 		}
-		Boolean[] curRefDecisions = fop.getRefereeDecision();
+		// a review is about the athlete under review, whose lights may have been cleared by the next clock
+		Boolean[] curRefDecisions = review ? fop.getReviewedLiftRefereeDecision() : fop.getRefereeDecision();
 		boolean hasDecision = false;
 		if (curRefDecisions != null) {
 			for (Boolean d : curRefDecisions) {
@@ -581,7 +582,7 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 			return;
 		}
 		if (e.isReviewVote()) {
-			// the review vote is shown from PanelVoteUpdate, revealed with the decision
+			// the review vote is shown from PanelVoteUpdate, revealed when the vote is complete
 			return;
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
@@ -647,7 +648,7 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 			case CHALLENGE:
 				Athlete athleteUnderReview = e.getAthlete() != null ? e.getAthlete()
 				        : (fop != null ? fop.getAthleteUnderReview() : null);
-				this.decisionBlock.onDeliberationStart(type, athleteUnderReview, computeRefLights(fop),
+				this.decisionBlock.onDeliberationStart(type, athleteUnderReview, computeRefLights(fop, true),
 				        initialJuryVotes(fop));
 				if (fop != null && fop.isPanelVoteOpen()) {
 					updateReviewVote(fop.getPanelVoteUpdate(this));

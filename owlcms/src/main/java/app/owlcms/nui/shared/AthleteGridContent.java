@@ -1059,7 +1059,7 @@ public abstract class AthleteGridContent extends BaseContent
 
 	/**
 	 * @return the notification text for a GOOD_LIFT / BAD_LIFT jury notification: result, reason for a No Lift, and
-	 *         "Jury Chair Entered Decision" when the seven-person panel did not decide
+	 *         "Jury Chair Entered Decision" (no complete vote) or "Jury Chair Decision Against the Vote"
 	 */
 	protected String juryVerdictText(UIEvent.JuryNotification e) {
 		String statusKey = e.getReversalStatusKey();
@@ -1072,7 +1072,9 @@ public abstract class AthleteGridContent extends BaseContent
 		if (reason != null) {
 			text = text + " \u2014 " + reason;
 		}
-		if (e.isChairEntered()) {
+		if (e.isAgainstVote()) {
+			text = text + " \u2014 " + Translator.translate("JuryNotification.DecisionAgainstVote");
+		} else if (e.isChairEntered()) {
 			text = text + " \u2014 " + Translator.translate("JuryNotification.ChairEnteredDecision");
 		}
 		return text;

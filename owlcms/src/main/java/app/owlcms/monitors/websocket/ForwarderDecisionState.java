@@ -124,7 +124,9 @@ public class ForwarderDecisionState implements DecisionElementState.IDecisionRen
 	public synchronized void onJuryNotification(UIEvent.JuryNotification e) {
 		JuryDeliberationEventType type = e.getDeliberationEventType();
 		if (type == JuryDeliberationEventType.START_DELIBERATION || type == JuryDeliberationEventType.CHALLENGE) {
-			this.reviewStartMillis = System.currentTimeMillis();
+			if (!e.isRelabel() || this.reviewStartMillis == null) {
+				this.reviewStartMillis = System.currentTimeMillis();
+			}
 			this.reviewType = type == JuryDeliberationEventType.CHALLENGE ? "challenge" : "deliberation";
 		}
 		this.state.slaveJuryNotification(e);
@@ -282,6 +284,7 @@ public class ForwarderDecisionState implements DecisionElementState.IDecisionRen
 		        || fop.getLastChallengedRecords().isEmpty() ? "none" : (e.getNewRecord() ? "new" : "denied"));
 		map.put("waitForAnnouncer", e.isWaitForAnnouncer());
 		map.put("chairEntered", e.isChairEntered());
+		map.put("againstVote", e.isAgainstVote());
 		map.put("speakerEntered", e.isSpeakerEntered());
 		map.put("panelDecision", e.isPanelDecision());
 		return map;

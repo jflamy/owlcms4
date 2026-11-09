@@ -118,7 +118,7 @@ public class DecisionElementState {
 	@Subscribe
 	public void slaveJuryUpdate(UIEvent.JuryUpdate e) {
 		if (e.isReviewVote() && !this.liveReferee) {
-			// public boards show the review vote from PanelVoteUpdate, revealed with the decision
+			// public boards show the review vote from PanelVoteUpdate, revealed when the vote is complete
 			return;
 		}
 		if (this.showJuryDecisions) {
@@ -305,11 +305,12 @@ public class DecisionElementState {
 		// Jury Control shows the revealed original referee decision at the top right instead
 		boolean refereesElsewhere = this.liveReferee && DecisionDisplayRules.SHOW_ORIGINAL_DECISIONS
 		        && isJuryOnlyReview();
+		boolean clearReferees = isJuryOnlyReview() && (hideReferees || refereesElsewhere);
 		Boolean[] keptReferees = isJuryOnlyReview() && !hideReferees && !refereesElsewhere
-		        ? this.fop.getRefereeDecision() : null;
+		        ? this.fop.getReviewedLiftRefereeDecision() : null;
 		List<String> states = new ArrayList<>(voted.length);
 		for (int i = 0; i < voted.length; i++) {
-			if (refereesElsewhere && i < AdjudicationPanel.NB_REFEREES) {
+			if (clearReferees && i < AdjudicationPanel.NB_REFEREES) {
 				states.add("empty");
 				continue;
 			}

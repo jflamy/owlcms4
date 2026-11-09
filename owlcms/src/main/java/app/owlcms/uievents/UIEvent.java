@@ -666,7 +666,9 @@ public class UIEvent {
 		private Integer actualLift;
 		private Integer reasonCode;
 		private boolean panelReview;
+		private boolean relabel;
 		private boolean chairEntered;
+		private boolean againstVote;
 		private boolean speakerEntered;
 		private boolean panelDecision;
 		/** referees' review votes when the decision was applied (null cells when not voted) */
@@ -774,6 +776,18 @@ public class UIEvent {
 		}
 
 		/**
+		 * @return true if this START_DELIBERATION / CHALLENGE only renames a review already under way (Deliberation
+		 *         pressed during a Challenge, or the reverse): the votes and lights do not change
+		 */
+		public boolean isRelabel() {
+			return this.relabel;
+		}
+
+		public void setRelabel(boolean relabel) {
+			this.relabel = relabel;
+		}
+
+		/**
 		 * @return the translation key announcing this START_DELIBERATION / CHALLENGE: the automatic Adjudication Panel
 		 *         Review, a deliberation by the panel (four-member jury with VPT) or by the jury
 		 */
@@ -793,7 +807,8 @@ public class UIEvent {
 		}
 
 		/**
-		 * @return true if the Jury Chair entered this GOOD_LIFT/BAD_LIFT decision instead of the seven-person panel vote
+		 * @return true if the Jury Chair entered this GOOD_LIFT/BAD_LIFT decision with the Good Lift / No Lift buttons
+		 *         while there was no complete jury vote (informational trace, for example a broken jury device)
 		 */
 		public boolean isChairEntered() {
 			return this.chairEntered;
@@ -801,6 +816,18 @@ public class UIEvent {
 
 		public void setChairEntered(boolean chairEntered) {
 			this.chairEntered = chairEntered;
+		}
+
+		/**
+		 * @return true if the Jury Chair entered this GOOD_LIFT/BAD_LIFT decision with the Good Lift / No Lift buttons
+		 *         against the result of a complete jury vote (flagged; exclusive with {@link #isChairEntered()})
+		 */
+		public boolean isAgainstVote() {
+			return this.againstVote;
+		}
+
+		public void setAgainstVote(boolean againstVote) {
+			this.againstVote = againstVote;
 		}
 
 		/**
@@ -995,7 +1022,8 @@ public class UIEvent {
 		}
 
 		/**
-		 * @param publicReveal  true when the decision may be revealed on public boards
+		 * @param publicReveal  true once the decision following the complete vote has been applied (the votes are
+		 *                      shown on every display as soon as the vote is complete; only MQTT uses this flag)
 		 * @param refereeUpdated zero-based referee index whose review vote was just received, null otherwise
 		 */
 		public PanelVoteUpdate(boolean open, boolean[] voted, Boolean[] votes, Boolean majority,
@@ -1094,7 +1122,7 @@ public class UIEvent {
 
 		/**
 		 * @return true for a vote of the review vote: for the jury displays and devices only, public boards show the
-		 *         review vote from {@link PanelVoteUpdate} (revealed with the decision)
+		 *         review vote from {@link PanelVoteUpdate} (revealed when the vote is complete)
 		 */
 		public boolean isReviewVote() {
 			return this.reviewVote;

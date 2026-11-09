@@ -141,7 +141,7 @@ public class JuryMobileContent extends BaseContent implements FOPParametersReade
 		// with the seven-person panel, or after an automatic stop, the review keeps the jury votes on the lift
 		boolean votesKept = e.getFop() != null && e.getFop().getPanelReviewInitialVotes() != null;
 		if ((deliberationType == JuryDeliberationEventType.START_DELIBERATION
-		        || deliberationType == JuryDeliberationEventType.CHALLENGE) && !votesKept) {
+		        || deliberationType == JuryDeliberationEventType.CHALLENGE) && !votesKept && !e.isRelabel()) {
 			UIEventProcessor.uiAccess(this, this.uiEventBus, this::resetVote);
 		}
 	}

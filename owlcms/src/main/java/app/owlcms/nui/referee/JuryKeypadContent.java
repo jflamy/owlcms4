@@ -198,7 +198,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			FieldOfPlay notificationFop = e.getFop();
 			boolean votesKept = notificationFop != null && notificationFop.getPanelReviewInitialVotes() != null;
 			if ((deliberationType == JuryDeliberationEventType.START_DELIBERATION
-			        || deliberationType == JuryDeliberationEventType.CHALLENGE) && !votesKept) {
+			        || deliberationType == JuryDeliberationEventType.CHALLENGE) && !votesKept && !e.isRelabel()) {
 				resetJuryVoting();
 			}
 			updateJuryDecisionActions(e.getFop());
@@ -219,7 +219,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		if (e.getRef() == 0) {
 			UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 				resetJuryVoting();
-				hideOriginalRefereeDecisions();
+				showOriginalRefereeDecisions(getFop());
 				updateJuryDecisionActions(getFop());
 				syncJuryDialogs(getFop());
 			});
@@ -286,10 +286,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	public void slaveJuryDisplayReset(UIEvent.JuryDisplayReset e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			resetJuryVoting();
-			hideOriginalRefereeDecisions();
-			clearReviewHeader();
-			// Cancel vote result clears the displays while the review goes on
-			updateReviewHeader(getFop());
+			// Vote cancellation, a Chair override and Resume clear the vote indicators. The reviewed athlete and
+			// original referee decisions stay in the top line until the next clock starts.
 			updateJuryDecisionActions(getFop());
 			syncJuryDialogs(getFop());
 		});
@@ -689,22 +687,30 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			this.callForVotesButton = createKeypadButton(Translator.translate("JuryKeypad.CallForVotes"), "primary",
 			        this::callForVotes);
 			// four equal buttons across the full width. During a review, the Jury Chair's No Lift and Good Lift take
-			// the place of Deliberation and Challenge.
+			// the place of Deliberation and Challenge. The box page emulates the physical jury box: its keys are
+			// always there, and it has no Call for Votes.
 			Div actionRow = new Div();
 			actionRow.getStyle()
 			        .set("grid-column", "1 / -1")
 			        .set("grid-row", "8")
 			        .set("display", "grid")
-			        .set("grid-template-columns", "repeat(4, 1fr)")
+			        .set("grid-template-columns", this.boxMode ? "repeat(5, 1fr)" : "repeat(4, 1fr)")
 			        .set("gap", "4px");
 			deliberate.getStyle().set("grid-column", "1").remove("grid-row");
-			this.noLiftButton.getStyle().set("grid-column", "1");
 			challenge.getStyle().set("grid-column", "2").remove("grid-row");
-			this.goodLiftButton.getStyle().set("grid-column", "2");
-			this.callForVotesButton.getStyle().set("grid-column", "3");
-			resumeBtn.getStyle().set("grid-column", "4").remove("grid-row");
-			actionRow.add(deliberate, this.noLiftButton, challenge, this.goodLiftButton, this.callForVotesButton,
-			        resumeBtn);
+			if (this.boxMode) {
+				this.noLiftButton.getStyle().set("grid-column", "3");
+				this.goodLiftButton.getStyle().set("grid-column", "4");
+				resumeBtn.getStyle().set("grid-column", "5").remove("grid-row");
+				actionRow.add(deliberate, challenge, this.noLiftButton, this.goodLiftButton, resumeBtn);
+			} else {
+				this.noLiftButton.getStyle().set("grid-column", "1");
+				this.goodLiftButton.getStyle().set("grid-column", "2");
+				this.callForVotesButton.getStyle().set("grid-column", "3");
+				resumeBtn.getStyle().set("grid-column", "4").remove("grid-row");
+				actionRow.add(deliberate, this.noLiftButton, challenge, this.goodLiftButton, this.callForVotesButton,
+				        resumeBtn);
+			}
 			grid.add(juryRow, actionRow);
 		} else {
 			this.callForVotesButton = null;
@@ -796,8 +802,10 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		if (this.callForVotesButton == null) {
 			return;
 		}
-		// the physical jury box has no Call for Votes button (its Summon All key calls the vote)
+		// the physical jury box has no Call for Votes button (with the seven-person panel, its Summon All calls the
+		// vote)
 		boolean enabled = !this.boxMode && fop != null && fop.isPanelVoteCallable();
+		this.callForVotesButton.setVisible(!this.boxMode);
 		// prompt the Chair in every review until the vote is called, and again after Cancel vote result
 		boolean prompt = enabled && !fop.isPanelVoteOpen();
 		this.callForVotesButton.setEnabled(enabled);
@@ -906,24 +914,19 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			// the digit shortcuts used by USB jury keypads remain
 			return;
 		}
-		// the keys of the Jury Chair keypads documented for the Jury Console are kept; what they do depends on the
-		// phase, as the Console's deliberation dialog did: see docs/100-AdvancedTopics/180-Keypads.md
+		// each key is the equivalent of a button and always means the same thing; the FOP decides what the press does
+		// in the current state: see docs/100-AdvancedTopics/180-Keypads.md
 		registerShortcut(this::startDeliberation, Key.KEY_D);
-		registerShortcut(() -> {
-			if (isReviewInProgress()) {
-				// during a review "c" calls the Technical Controller (loading error...)
-				summonReferee(4);
-			} else {
-				startChallenge();
-			}
-		}, Key.KEY_C);
+		registerShortcut(this::startChallenge, Key.KEY_C);
 		registerShortcut(this::startTechnicalBreak, Key.KEY_T);
+		registerShortcut(() -> summonReferee(4), Key.KEY_Y);
 		registerShortcut(() -> summonReferee(1), Key.KEY_H);
 		registerShortcut(() -> summonReferee(2), Key.KEY_I);
 		registerShortcut(() -> summonReferee(3), Key.KEY_J);
 		// Summon All: the FOP makes it Call for Votes when the vote is called that way
 		registerShortcut(() -> summonReferee(0), Key.KEY_K);
-		// the Chair's decision during a review; "b" asks for the rule like the No Lift button
+		// the Chair's decision, only while the Good Lift / No Lift buttons are offered; "b" asks for the rule like the
+		// No Lift button
 		registerShortcut(() -> {
 			if (isReviewInProgress()) {
 				submitJuryDecision(true, null, true);
@@ -934,12 +937,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 				chairNoLift();
 			}
 		}, Key.KEY_B);
-		// Escape ends the jury break, as it closed the Console's deliberation dialog
-		registerShortcut(() -> {
-			if (isReviewInProgress()) {
-				resumeCompetition();
-			}
-		}, Key.ESCAPE);
+		// the Resume button
+		registerShortcut(this::resumeCompetition, Key.ESCAPE);
 	}
 
 	private boolean isReviewInProgress() {
@@ -971,7 +970,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			UIEvent.PanelVoteUpdate vote = fop.getPanelVoteUpdate(this);
 			renderPanelVote(vote.getVoted(), vote.getVotes());
 		}
-		if (fop.getPanelVoteUpdate(this).isComplete()) {
+		if (fop.isJuryTopLineDecisionActive()) {
 			showOriginalRefereeDecisions(fop);
 		} else {
 			hideOriginalRefereeDecisions();
@@ -1318,7 +1317,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	private void startChallenge() {
 		FieldOfPlay fop = getFop();
-		if (fop == null || !fop.isChallengeAllowed()) {
+		// the box page emulates the jury box, whose Challenge key is always there: the FOP ignores an invalid one
+		if (fop == null || (!this.boxMode && !fop.isChallengeAllowed())) {
 			return;
 		}
 		startBreak(BreakType.CHALLENGE);
@@ -1367,9 +1367,14 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	}
 
 	/**
-	 * No Lift on Jury Control, like the jury box's No Lift: the FOP asks the Jury Control pages for the technical rule.
+	 * No Lift on Jury Control: the FOP asks the Jury Control pages for the technical rule. The box page (testing)
+	 * emulates the physical jury box: the No Lift is applied at once, without a rule.
 	 */
 	private void chairNoLift() {
+		if (this.boxMode) {
+			submitJuryDecision(false, null, true);
+			return;
+		}
 		OwlcmsSession.withFop(fop -> fop.fopEventPost(new FOPEvent.JuryRuleRequest(this, false)));
 	}
 
@@ -1561,22 +1566,23 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		boolean enabled = isJuryDecisionActive(fop);
 		setJuryDecisionActionsEnabled(enabled);
 		if (this.panelMode) {
-			// during a review, the Jury Chair's No Lift and Good Lift replace Deliberation and Challenge
-			setVisible(this.noLiftButton, enabled);
-			setVisible(this.goodLiftButton, enabled);
-			setVisible(this.deliberationButton, !enabled);
-			setVisible(this.challengeButton, !enabled);
+			// during a review, the Jury Chair's No Lift and Good Lift replace Deliberation and Challenge; the box page
+			// keeps all the keys of the jury box
+			setVisible(this.noLiftButton, enabled || this.boxMode);
+			setVisible(this.goodLiftButton, enabled || this.boxMode);
+			setVisible(this.deliberationButton, !enabled || this.boxMode);
+			setVisible(this.challengeButton, !enabled || this.boxMode);
 		}
 		updateChallengeButton(fop);
 		updateCallForVotesButton(fop);
 	}
 
-	/** Challenge only against a referees' No Lift that the jury or the panel agreed with */
+	/** Challenge only when it is valid (see FieldOfPlay.isChallengeAllowed); always available on the box page */
 	private void updateChallengeButton(FieldOfPlay fop) {
 		if (this.challengeButton == null) {
 			return;
 		}
-		boolean allowed = fop != null && fop.isChallengeAllowed();
+		boolean allowed = this.boxMode || (fop != null && fop.isChallengeAllowed());
 		this.challengeButton.setEnabled(allowed);
 		this.challengeButton.getStyle()
 		        .set("background-color", allowed ? "#FFC107" : "#1e293b")

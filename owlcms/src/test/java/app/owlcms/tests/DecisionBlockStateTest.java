@@ -39,6 +39,8 @@ public class DecisionBlockStateTest {
 		final List<String> calls = new ArrayList<>();
 		int scheduleCount;
 		String rule;
+		Boolean[] juryVotes;
+		int jurySize;
 
 		@Override
 		public void renderReadyClock() {
@@ -63,6 +65,8 @@ public class DecisionBlockStateTest {
 		@Override
 		public void renderJuryCircles(Boolean[] votes, int jurySize) {
 			this.calls.add("juryCircles");
+			this.juryVotes = votes;
+			this.jurySize = jurySize;
 		}
 
 		@Override
@@ -239,7 +243,7 @@ public class DecisionBlockStateTest {
 	}
 
 	@Test
-	public void juryVoteUsesTheRefereesOriginalDecision() {
+	public void juryVoteKeepsNonVotingRefereesEmpty() {
 		this.state.setJurySize(3);
 		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
 		this.renderer.clear();
@@ -256,12 +260,40 @@ public class DecisionBlockStateTest {
 		assertTrue(Arrays.equals(new boolean[] { true, true, false }, this.renderer.votedJury));
 		assertFalse("never the jury values", this.renderer.calls.contains("juryCircles"));
 
-		// the last juror reveals the jury votes and restores the referees' original decision
+		// Only the jurors voted: the last vote must not restore the original referee lights.
 		this.renderer.clear();
 		this.state.onPanelVote(lights(false), votes(true, true, true), null, lights(true));
-		assertTrue(this.renderer.calls.contains("refLights"));
+		assertEquals(!DecisionDisplayRules.HIDE_REFEREES_DISPLAYS, this.renderer.calls.contains("refLights"));
 		assertTrue(this.renderer.calls.contains("juryCircles"));
-		assertFalse(this.renderer.calls.contains("emptyRefLights"));
+		assertEquals(DecisionDisplayRules.HIDE_REFEREES_DISPLAYS, this.renderer.calls.contains("emptyRefLights"));
+	}
+
+	@Test
+	public void juryOnlyResultsShowOnlyTheJurorsForEveryJurySizeAndReviewType() {
+		for (int size = 3; size <= 5; size++) {
+			for (JuryDeliberationEventType type : List.of(JuryDeliberationEventType.START_DELIBERATION,
+			        JuryDeliberationEventType.CHALLENGE)) {
+				setup();
+				this.state.setJurySize(size);
+				this.state.onDeliberationStart(type, null, lights(false));
+				this.state.onPanelVote(null, null, new boolean[3 + size], lights(false));
+				Boolean[] jury = new Boolean[size];
+				Arrays.fill(jury, true);
+				jury[size - 1] = false;
+				this.renderer.clear();
+				this.state.onPanelVote(lights(false), jury, null, lights(false));
+				assertTrue(this.renderer.calls.contains("emptyRefLights"));
+				assertFalse(this.renderer.calls.contains("refLights"));
+				assertFalse(this.renderer.calls.contains("votedRefLights"));
+				assertEquals(size, this.renderer.jurySize);
+				assertEquals(Arrays.asList(jury), Arrays.asList(this.renderer.juryVotes));
+
+				this.renderer.clear();
+				this.state.onJuryVerdict(false, false, "rule");
+				assertTrue(this.renderer.calls.contains("emptyRefLights"));
+				assertFalse(this.renderer.calls.contains("refLights"));
+			}
+		}
 	}
 
 	@Test

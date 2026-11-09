@@ -49,7 +49,6 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.PlatformRepository;
-import app.owlcms.displays.DecisionDisplayRules;
 import app.owlcms.fieldofplay.AdjudicationPanel;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
@@ -430,13 +429,11 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 
 		private void postFopEventJuryDecision(String topic, String messageStr) {
 			messageStr = messageStr.trim();
-			// the physical jury box's Good Lift / No Lift buttons are the same as Jury Control's: Good Lift is the Jury
-			// Chair's decision; No Lift asks the Jury Control pages for the technical rule
-			if (messageStr.contentEquals("good")) {
-				postDeviceEvent(new FOPEvent.JuryDecision(this.athleteUnderReview, this, true, true, null, true),
-				        "JURY_CONSOLE", null, "jurybox");
-			} else if (messageStr.contentEquals("bad")) {
-				postDeviceEvent(new FOPEvent.JuryRuleRequest(this, false), "JURY_CONSOLE", null, "jurybox");
+			// the physical jury box's Good Lift / No Lift buttons are the Jury Chair's manual decision, applied at once:
+			// the box has no screen, so there is no confirmation and no technical rule
+			if (messageStr.contentEquals("good") || messageStr.contentEquals("bad")) {
+				postDeviceEvent(new FOPEvent.JuryDecision(this.athleteUnderReview, this, messageStr.contentEquals("good"),
+				        true, null, true), "JURY_CONSOLE", null, "jurybox");
 			} else {
 				logger.error("{}Malformed MQTT jury decision message topic='{}' message='{}'",
 						FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);
@@ -1317,6 +1314,10 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
 		JuryDeliberationEventType type = e.getDeliberationEventType();
 		FieldOfPlay eventFop = e.getFop();
+		if (e.isRelabel()) {
+			// Deliberation pressed during a Challenge, or the reverse: the lights on the jury box do not change
+			return;
+		}
 		if ((type == JuryDeliberationEventType.START_DELIBERATION || type == JuryDeliberationEventType.CHALLENGE)
 		        && eventFop != null && eventFop.getPanelReviewInitialVotes() != null) {
 			// four-member jury review: the Phase A decisions stay on the jury box until the Chair calls for
@@ -1456,8 +1457,8 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	/**
 	 * Review vote (seven-person panel or jury vote). For a new vote (ref 0): reset the boxes so that boxes that lock
 	 * after voting are re-armed (this also clears the referee and jury lights on the jury box). Seven-person panel:
-	 * buzz all referees with the summon signal; jury vote: keep the referee lights clear unless HIDE_REFEREES_PANEL
-	 * is disabled. The original decisions are restored when the jury vote is revealed. For a re-call: buzz that referee only.
+	 * buzz all referees with the summon signal. Jury vote: the jury box shows the referees' decision on the lift again
+	 * (only the jury lights are cleared, as before version 69). For a re-call: buzz that referee only.
 	 */
 	@Subscribe
 	public void slavePanelVoteCalled(UIEvent.PanelVoteCalled e) {
@@ -1465,8 +1466,8 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			publishMqttResetAllDecisions();
 			if (e.getFop() != null && e.getFop().isPanelProcedure()) {
 				publishMqttSummonRef(0);
-			} else if (e.getFop() != null && !DecisionDisplayRules.HIDE_REFEREES_PANEL) {
-				Boolean[] refs = e.getFop().getRefereeDecision();
+			} else if (e.getFop() != null) {
+				Boolean[] refs = e.getFop().getReviewedLiftRefereeDecision();
 				for (int i = 0; refs != null && i < Math.min(refs.length, AdjudicationPanel.NB_REFEREES); i++) {
 					if (refs[i] != null) {
 						publishMqttRefereeLight(i + 1, refs[i] ? "good" : "bad");
