@@ -11,6 +11,11 @@
 
 **Development log**
 
+- 69.0.0-beta08: Additional fixes for jury decision edge cases
+  - The speaker and the scoreboard top line move on to the next athlete while the jury votes. The attempt board and the scoreboard decision section stay on the athlete under review until the jury has voted, or until the next clock starts.
+  - On the last snatch and on the last lift of the session, the decision stays visible into the break or the end of the session instead of disappearing at once or staying indefinitely.
+  - A review requested after the next athlete's clock has started stops the clock and shows the reviewed athlete and decision.
+
 - 69.0.0-beta07: Fixes for jury box MQTT messaging; removed initial summon all on automatic reviews
 
 - 69.0.0-beta07: Attempt board shows the name and attempt under review, nature of review shown and highlighted.
@@ -63,7 +68,7 @@
 - Tracker forwarding uses protocol 69.0.0 and requires OWLCMS Tracker 3.0.0-beta01 or newer (tracker-core 2.0.0-beta01 or newer); 
   earlier tracker versions are not compatible.
 
-- New `3DattemptBoard` feature switch: the attempt board shows the bar and plates in 3D, with real plate thicknesses and markings. 
+- The attempt board shows the bar and plates in 3D, with real plate thicknesses and markings (new `3DattemptBoard` feature switch, on by default; turn it off to get the flat display).
   - Light bars are shown in color (5 kg purple, 10 kg green, 15 kg gold, other non-standard bars bronze). The technical controller page keeps the flat display.
 
 - Warmup scoreboards show the bottom decision section by default (`decisionSectionOnWarmupScoreboard` feature switch is now on by default).
