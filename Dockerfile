@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM eclipse-temurin:25-jre
 
-ENV OWLCMS_CONTROLPANEL=3.0.5
+ENV OWLCMS_CONTROLPANEL=3.10.0-alpha02
 
 WORKDIR /maven
 
