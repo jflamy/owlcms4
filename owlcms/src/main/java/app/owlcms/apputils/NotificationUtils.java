@@ -66,6 +66,28 @@ public class NotificationUtils {
 		}
 	}
 
+	/**
+	 * Centered, large notification for a step that the user must not miss, such as the restart that follows an
+	 * import. It stays until the caller closes it or the server goes down. Call on the UI thread or from
+	 * {@code ui.access}.
+	 *
+	 * @param text already translated, with the locale captured where the action was started
+	 */
+	public static Notification centeredStatus(String text) {
+		Notification n = new Notification();
+		Div div = new Div();
+		div.setText(text);
+		div.getStyle().set("font-size", "x-large");
+		div.getStyle().set("font-weight", "bold");
+		div.getStyle().set("padding", "1em 2em");
+		n.add(div);
+		n.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+		n.setPosition(Position.MIDDLE);
+		n.setDuration(0);
+		n.open();
+		return n;
+	}
+
 	/** Confirms a save or delete made in an editing form; one notification per operation, bottom left. */
 	public static void crudResult(String text) {
 		Notification.show(text, 3000, Position.BOTTOM_START);

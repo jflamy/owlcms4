@@ -6,217 +6,189 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
-import java.io.IOException;
 import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
-import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.databind.DatabindException;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.UIDetachedException;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 
-import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.access.AccessUi;
 import app.owlcms.access.ImportsNotAllowedException;
 import app.owlcms.access.ImportsNotAllowedException.Reason;
 import app.owlcms.access.Principal;
+import app.owlcms.audit.AuditContext;
 import app.owlcms.audit.AuditOrigin;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H5;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.server.Command;
 import com.vaadin.flow.server.streams.UploadHandler;
 
 import app.owlcms.data.export.FormatDetector;
-import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.RestartUtils;
 import ch.qos.logback.classic.Logger;
 
+/**
+ * Replaces the database with an uploaded export. The uploaded file is held until the import is confirmed; OWLCMS then
+ * imports it and restarts, because the running server cannot be used on the replaced data.
+ */
 @SuppressWarnings("serial")
 public class JsonUploadDialog extends Dialog {
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(JsonUploadDialog.class);
-	private UI ui;
-	private boolean isRestartScenario;
+	/** leaves time for the restart notification to reach the browser */
+	private static final long RESTART_NOTICE_MS = 2000L;
+	private final UI ui;
 	private final Locale capturedLocale;
 	private final AuditOrigin importOrigin;
-	private final ConfirmationDialog restartConfirmationDialog;
+	private final Principal importer;
+	private final String notPermitted;
+	private final String notAllowed;
+	private final Upload upload;
+	private final TextArea errors;
+	private final Button cancelButton;
+	private final Button confirmButton;
+	private String pendingFileName;
+	private byte[] pendingData;
 
 	public JsonUploadDialog(UI ui) {
 		this.ui = ui;
-		this.isRestartScenario = RestartUtils.isRestartScenario();
 		// Capture from session—safe here because the constructor runs on the UI thread.
 		// OwlcmsSession.getLocale() correctly resolves fr_CA, ru_CA, etc.
 		this.capturedLocale = OwlcmsSession.getLocale();
 		this.importOrigin = AuditOrigin.fromUi("Import Database");
-		Principal importer = AccessUi.currentPrincipal();
-		String notPermitted = Translator.translate("Imports.NotPermitted");
-		String notAllowed = Translator.translate("Imports.NotAllowed");
-		this.restartConfirmationDialog = createRestartConfirmationDialog();
+		this.importer = AccessUi.currentPrincipal();
+		this.notPermitted = Translator.translate("Imports.NotPermitted");
+		this.notAllowed = Translator.translate("Imports.NotAllowed");
 
-		H5 label = new H5(Translator.translate(isRestartScenario ? "ImportJsonR.RestartWarning" : "ImportJson.RestartWarning"));
+		H5 label = new H5(Translator.translate("ImportJsonR.RestartWarning"));
 		label.getStyle().set("color", "red");
 
-		TextArea ta = new TextArea(Translator.translate("Errors"));
-		ta.setHeight("20ex");
-		ta.setWidth("80em");
-		ta.setVisible(false);
+		this.errors = new TextArea(Translator.translate("Errors"));
+		this.errors.setHeight("20ex");
+		this.errors.setWidth("80em");
+		this.errors.setVisible(false);
 
+		// the upload callbacks are not on the UI thread
 		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, data) -> {
-			try {
-				processInput(metadata.fileName(), data, ta, importer);
-				openRestartConfirmation();
+			String fileName = metadata.fileName();
+			updateUi(() -> fileReceived(fileName, data));
+		}).whenStart(() -> updateUi(this::uploadStarted));
 
-			} catch (ImportsNotAllowedException e) {
-				showError(ta, e.getReason() == Reason.NO_PERMISSION ? notPermitted : notAllowed);
-			} catch (Throwable e) {
-				logger.error("Error processing uploaded JSON file", e);
-				if (ui != null) {
-					ui.access(() -> {
-						ta.setValue(LoggerUtils.stackTrace(e));
-						ta.setVisible(true);
-					});
-					ui.push();
-				} else {
-					ta.setValue(LoggerUtils.stackTrace(e));
-					ta.setVisible(true);
-				}
-			}
-		}).whenStart(() -> {
-			logger.debug("started");
-			ta.clear();
-			ta.setVisible(false);
-		});
-		
-		Upload upload = new Upload(uploadHandler);
-		upload.setWidth("40em");
-		upload.setAcceptedMimeTypes("application/json");
+		this.upload = new Upload(uploadHandler);
+		this.upload.setWidth("40em");
+		this.upload.setAcceptedMimeTypes("application/json");
+		this.upload.setMaxFiles(1);
+		this.upload.addFileRemovedListener(e -> clearPending());
 
 		H3 title = new H3(Translator.translate("ExportDatabase.UploadJson"));
-		VerticalLayout vl = new VerticalLayout(title, label, upload, ta);
+		VerticalLayout vl = new VerticalLayout(title, label, this.upload, this.errors);
 		add(vl);
+
+		this.cancelButton = new Button(Translator.translate("Cancel"), e -> close());
+		this.confirmButton = new Button(Translator.translate("ImportJson.ImportAndRestart"), e -> importConfirmed());
+		this.confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
+		this.confirmButton.setEnabled(false);
+		getFooter().add(this.cancelButton, this.confirmButton);
 	}
 
-	private ConfirmationDialog createRestartConfirmationDialog() {
-		String titleKey = isRestartScenario ? "ImportR.Success" : "Import.Success";
-		String warningKey = isRestartScenario ? "ImportR.Warning" : "Import.Warning";
-		String controlPanelKey = isRestartScenario ? "ImportR.ControlPanelRestart" : "Import.ControlPanelRestart";
-		String localKey = isRestartScenario ? "ImportR.ControlPanelRestart" : "Import.LocalRestart";
-		String cloudKey = isRestartScenario ? "ImportR.CloudRestart" : "Import.CloudRestart";
-		String confirmKey = isRestartScenario ? "ImportR.DoIt" : "Import.DoIt";
-		String restartLabel = translateButtonLabel(confirmKey, "Restart OWLCMS");
-		String cancelLabel = translateButtonLabel("Cancel", "Cancel");
+	private void uploadStarted() {
+		clearPending();
+		this.errors.clear();
+		this.errors.setVisible(false);
+	}
 
-		String preamble = translatePinned(warningKey);
-		String message;
-		if (System.getenv("OWLCMS_CONTROLPANEL") != null) {
-			message = preamble + translatePinned(controlPanelKey);
-		} else if (JPAService.isLocalDb()) {
-			message = preamble + translatePinned(localKey);
-		} else {
-			message = preamble + translatePinned(cloudKey);
+	private void fileReceived(String fileName, byte[] data) {
+		this.pendingFileName = fileName;
+		this.pendingData = data;
+		this.confirmButton.setEnabled(true);
+	}
+
+	private void clearPending() {
+		this.pendingFileName = null;
+		this.pendingData = null;
+		this.confirmButton.setEnabled(false);
+	}
+
+	/** On the UI thread. The import itself runs in the background. */
+	private void importConfirmed() {
+		String fileName = this.pendingFileName;
+		byte[] data = this.pendingData;
+		if (data == null) {
+			return;
 		}
-
-		return new ConfirmationDialog(
-		        translatePinned(titleKey),
-		        message,
-		        restartLabel,
-		        cancelLabel,
-		        null,
-		        () -> {
-			        JsonUploadDialog.this.close();
-			        if (isRestartScenario) {
-				        NotificationUtils.restarting(ui);
-			        } else if (ui != null) {
-				        ui.push();
-			        }
-			        try {
-				        Thread.sleep(2000);
-			        } catch (InterruptedException e) {
-				        Thread.currentThread().interrupt();
-			        }
-			        RestartUtils.triggerRestartIfNeeded("JSON import completed");
-			        if (ui != null) {
-				        ui.getPage().reload();
-			        }
-		        });
+		clearPending();
+		setImporting(true);
+		Notification importing = new Notification(Translator.translate("ImportJson.Importing"));
+		importing.setPosition(Position.BOTTOM_START);
+		importing.setDuration(0);
+		importing.open();
+		Thread.ofVirtual().name("DatabaseImport").start(() -> importAndRestart(fileName, data, importing));
 	}
 
-	private String translateButtonLabel(String key, String hardcodedFallback) {
-		String value = Translator.translateNoOverrideOrElseNull(key, capturedLocale);
-		if (value == null || value.isBlank()) {
-			logger.debug("{} Missing button translation key='{}' locale='{}'. Using hardcoded fallback='{}'.\n{}",
-			        LoggerUtils.whereFrom(), key, capturedLocale, hardcodedFallback, LoggerUtils.stackTrace());
-			return hardcodedFallback;
-		}
-		return value;
+	private void setImporting(boolean importing) {
+		this.upload.setEnabled(!importing);
+		this.cancelButton.setEnabled(!importing);
+		setCloseOnEsc(!importing);
+		setCloseOnOutsideClick(!importing);
 	}
 
-	private String translatePinned(String key) {
-		String value = Translator.translateExplicitLocale(key, capturedLocale);
-		if (value != null && value.startsWith("!")) {
-			logger./**/warn("{} translatePinned primary miss key='{}' locale='{}' value='{}'\n{}",
-			        LoggerUtils.whereFrom(), key, capturedLocale, value, LoggerUtils.stackTrace());
-			String fallback = Translator.translateExplicitLocale(key, Locale.ENGLISH);
-			if (fallback != null && fallback.startsWith("!")) {
-				logger./**/warn("{} translatePinned fallback miss key='{}' fallbackLocale='{}' value='{}'\n{}",
-				        LoggerUtils.whereFrom(), key, Locale.ENGLISH, fallback, LoggerUtils.stackTrace());
-			}
-			return fallback;
-		}
-		return value;
-	}
-
-	private void openRestartConfirmation() {
-		if (ui != null) {
-			ui.access(() -> {
-				restartConfirmationDialog.open();
-				ui.push();
-			});
-		} else {
-			restartConfirmationDialog.open();
-		}
-	}
-
-	private void showError(TextArea ta, String message) {
-		if (this.ui != null) {
-			this.ui.access(() -> {
-				ta.setValue(message);
-				ta.setVisible(true);
-			});
-			this.ui.push();
-		} else {
-			ta.setValue(message);
-			ta.setVisible(true);
-		}
-	}
-
-	@SuppressWarnings("unused")
-	private void processInput(String fileName, byte[] data, TextArea ta, Principal importer)
-	        throws StreamReadException, DatabindException, IOException {
+	/** Background thread. Once the database has been replaced, the restart takes place whatever happens to the page. */
+	private void importAndRestart(String fileName, byte[] data, Notification importing) {
 		try {
-			// Use FormatDetector for automatic V1/V2 format detection; it audits the import
-			FormatDetector.importData(data, fileName, importer, this.importOrigin);
-		} catch (ImportsNotAllowedException refused) {
-			throw refused;
-		} catch (Throwable e1) {
-			if (ui != null) {
-				ui.access(() -> {
-					ta.setValue(LoggerUtils.exceptionMessage(e1));
-					ta.setVisible(true);
-				});
-				ui.push();
-			} else {
-				ta.setValue(LoggerUtils.exceptionMessage(e1));
-				ta.setVisible(true);
-			}
-			throw new IOException("Import failed: " + e1.getMessage(), e1);
+			// detects the format, checks that imports are still allowed, and audits the import
+			FormatDetector.importData(data, fileName, this.importer, this.importOrigin);
+		} catch (ImportsNotAllowedException e) {
+			String message = e.getReason() == Reason.NO_PERMISSION ? this.notPermitted : this.notAllowed;
+			updateUi(() -> importFailed(importing, message));
+			return;
+		} catch (Throwable e) {
+			logger.error("Error processing uploaded JSON file", e);
+			String message = LoggerUtils.exceptionMessage(e) + "\n" + LoggerUtils.stackTrace(e);
+			updateUi(() -> importFailed(importing, message));
+			return;
+		}
+		String restarting = Translator.translate("Platform.Restarting", this.capturedLocale);
+		updateUi(() -> {
+			importing.close();
+			close();
+			NotificationUtils.centeredStatus(restarting);
+		});
+		try {
+			Thread.sleep(RESTART_NOTICE_MS);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+		AuditContext.run(this.importOrigin.actor(), this.importOrigin.cause(),
+		        () -> RestartUtils.triggerRestart("JSON import completed"));
+	}
+
+	private void importFailed(Notification importing, String message) {
+		importing.close();
+		this.errors.setValue(message);
+		this.errors.setVisible(true);
+		this.upload.clearFileList();
+		setImporting(false);
+	}
+
+	/** The page may have been closed since the dialog was opened; the caller carries on. */
+	private void updateUi(Command command) {
+		try {
+			this.ui.access(command);
+		} catch (UIDetachedException e) {
+			logger.info("Import Database page no longer open: {}", LoggerUtils.exceptionMessage(e));
 		}
 	}
 
