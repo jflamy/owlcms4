@@ -327,7 +327,8 @@ class ResultsStartList extends LitElement {
   }
 
   dsBreakDescriptionVisible() {
-    return this.isBreak() && Boolean(this.decisionSectionBreakText);
+    // a decision that stays into the break keeps the athlete's name
+    return !this.decisionSectionDecisionActive && this.isBreak() && Boolean(this.decisionSectionBreakText);
   }
 
   dsDecisionStartNumberStyles() {

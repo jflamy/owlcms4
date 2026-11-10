@@ -27,7 +27,6 @@ import app.owlcms.access.Capability;
 import app.owlcms.access.Principal;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.displays.DecisionDisplayRules;
 import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.fieldofplay.FOPEvent.DecisionUpdate;
@@ -97,8 +96,7 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage
 		if (getBoard() instanceof AttemptBoard) {
 			// the FOP is only known after super.readParams
 			setDefaultParamValue(SHOW_JURY_DECISIONS,
-			        Boolean.toString(DecisionDisplayRules.showJuryDecisionsOnAttemptBoard(getJurySize(),
-			                FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD.isEffective())));
+			        Boolean.toString(DecisionDisplayRules.showJuryDecisionsOnAttemptBoard(getJurySize(), true)));
 			if (getJurySize() > 0) {
 				processBooleanParam(params, SHOW_JURY_DECISIONS, this::setShowJuryDecisions);
 			} else {

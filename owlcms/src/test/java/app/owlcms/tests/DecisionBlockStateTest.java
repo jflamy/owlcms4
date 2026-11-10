@@ -438,7 +438,7 @@ public class DecisionBlockStateTest {
 	}
 
 	@Test
-	public void fourMemberVerdictLingersAfterAutomaticResumeUntilTimeout() {
+	public void verdictLingersAfterAutomaticResumeUntilTimeout() {
 		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
 		this.state.onJuryVerdict(false, false, "3 - rule");
 		int schedules = this.renderer.scheduleCount;
@@ -503,7 +503,7 @@ public class DecisionBlockStateTest {
 	}
 
 	@Test
-	public void fourMemberResumeWithoutVerdictReturnsToReady() {
+	public void resumeWithoutVerdictReturnsToReady() {
 		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
 		this.state.onStartLifting(true);
 		assertEquals("break ended before a verdict", State.READY, this.state.getState());
@@ -525,6 +525,82 @@ public class DecisionBlockStateTest {
 		assertEquals(State.DECISION, this.state.getState());
 		this.state.onBreakStarted(false);
 		assertEquals(State.READY, this.state.getState());
+	}
+
+	/**
+	 * The lift ended the snatches or the session, with a jury: no clock will start, so the decision stays and the
+	 * review timeout, started with the break, returns the section to ready, also when the jury has not voted.
+	 */
+	@Test
+	public void liftsDoneWithJuryKeepsDecisionUntilReviewTimeout() {
+		this.state.onRefereeDecision(null, lights(true));
+		assertEquals("a jury is voting: no timeout", 0, this.renderer.scheduleCount);
+		this.state.onLiftsDone();
+		assertEquals(State.DECISION, this.state.getState());
+		assertEquals("the timeout starts with the break", 1, this.renderer.scheduleCount);
+		this.renderer.clear();
+		this.state.onJuryUpdate(votes(true, true, true), 3);
+		assertTrue("the jury votes are still shown", this.renderer.calls.contains("juryCircles"));
+		// the break is reported again (countdown changed)
+		this.state.onLiftsDone();
+		assertEquals("a running timeout is not restarted", 1, this.renderer.scheduleCount);
+		this.state.onReviewTimeout();
+		assertEquals(State.READY, this.state.getState());
+	}
+
+	/** No jury: the timeout started with the decision goes on through the break. */
+	@Test
+	public void liftsDoneWithoutJuryKeepsDecisionAndRunningTimeout() {
+		this.state.setJurySize(0);
+		this.state.onRefereeDecision(null, lights(false));
+		assertEquals(1, this.renderer.scheduleCount);
+		this.state.onLiftsDone();
+		assertEquals(State.DECISION, this.state.getState());
+		assertEquals("the timeout started with the decision goes on", 1, this.renderer.scheduleCount);
+		this.state.onReviewTimeout();
+		assertEquals(State.READY, this.state.getState());
+	}
+
+	/** A jury verdict on the last snatch or the last lift stays until the review timeout. */
+	@Test
+	public void liftsDoneKeepsJuryVerdictUntilReviewTimeout() {
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.state.onJuryVerdict(false, false);
+		// lifting resumes by itself, then the break follows
+		this.state.onStartLifting(true);
+		this.state.onLiftsDone();
+		assertEquals(State.DELIBERATION, this.state.getState());
+		assertEquals(1, this.renderer.scheduleCount);
+		this.state.onReviewTimeout();
+		assertEquals(State.READY, this.state.getState());
+
+		// the break follows without a resume
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.state.onJuryVerdict(false, false);
+		this.state.onLiftsDone();
+		assertEquals(State.DELIBERATION, this.state.getState());
+		assertEquals(2, this.renderer.scheduleCount);
+		this.state.onReviewTimeout();
+		assertEquals(State.READY, this.state.getState());
+	}
+
+	/** Without a decision or a verdict to keep, the break returns the section to ready; a reload always does. */
+	@Test
+	public void liftsDoneWithNothingToKeepReturnsToReady() {
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.state.onLiftsDone();
+		assertEquals(State.READY, this.state.getState());
+
+		this.state.onRefereeDecision(null, lights(true));
+		this.state.onLiftsDone();
+		this.renderer.clear();
+		// session reload
+		this.state.onStartLifting(false);
+		assertEquals(State.READY, this.state.getState());
+		assertTrue("the reload cancels the timeout", this.renderer.calls.contains("cancelTimeout"));
+		this.state.onRefereeDecision(null, lights(true));
+		this.state.onLiftsDone();
+		assertEquals("a new timeout starts for the next decision", 2, this.renderer.scheduleCount);
 	}
 
 	/**

@@ -693,6 +693,7 @@ public class BaseResults extends LitTemplate
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setDisplay();
 			doDone(e.getGroup());
+			afterSlaveGroupDone(e);
 		});
 	}
 
@@ -769,6 +770,9 @@ public class BaseResults extends LitTemplate
 	}
 
 	protected void afterSlaveDecisionReset(UIEvent.DecisionReset e) {
+	}
+
+	protected void afterSlaveGroupDone(UIEvent.GroupDone e) {
 	}
 
 	protected void afterSlaveJuryNotification(UIEvent.JuryNotification e) {

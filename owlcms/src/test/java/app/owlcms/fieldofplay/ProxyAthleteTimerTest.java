@@ -37,6 +37,9 @@ public class ProxyAthleteTimerTest {
     private final AtomicInteger finalWarningCount = new AtomicInteger();
     private boolean blockWarning;
     private boolean blockExpiry;
+    /** the timer state seen by a display at the time each event is sent */
+    private final AtomicReference<Boolean> runningAtStartEvent = new AtomicReference<>();
+    private final AtomicReference<Boolean> runningAtStopEvent = new AtomicReference<>();
 
     @Before
     public void setUp() {
@@ -82,7 +85,10 @@ public class ProxyAthleteTimerTest {
 
             @Override
             public void pushOutUIEvent(UIEvent event) {
-                if (event instanceof UIEvent.StopTime) {
+                if (event instanceof UIEvent.StartTime) {
+                    runningAtStartEvent.compareAndSet(null, timer.isRunning());
+                } else if (event instanceof UIEvent.StopTime) {
+                    runningAtStopEvent.compareAndSet(null, timer.isRunning());
                     stopped.countDown();
                 }
             }
@@ -116,6 +122,16 @@ public class ProxyAthleteTimerTest {
             Competition.athleteTimerInitialWarning = initialWarning;
             Competition.athleteTimerFinalWarning = finalWarning;
         }
+    }
+
+    @Test
+    public void timerStateChangesBeforeItsEventIsSent() {
+        // a display that syncs reads the event sequence, then the timer state: the state must already include
+        // every event that has been sent
+        timer.start(Competition.athleteTimerOneMinute);
+        assertEquals("running when the start is sent", Boolean.TRUE, runningAtStartEvent.get());
+        timer.stop();
+        assertEquals("stopped when the stop is sent", Boolean.FALSE, runningAtStopEvent.get());
     }
 
     @Test

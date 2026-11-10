@@ -144,15 +144,12 @@ public class ConfigTest {
     public void decisionDisplaySwitchesAreEnabledByDefault() {
         Config config = new Config();
 
-        assertTrue(config.featureSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD));
         assertTrue(config.featureSwitch(FeatureSwitch.JURY_DECISIONS_ON_SCOREBOARD));
         assertTrue(config.featureSwitch(FeatureSwitch.DECISION_SECTION));
 
-        config.setFeatureSwitchValue(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, false);
         config.setFeatureSwitchValue(FeatureSwitch.JURY_DECISIONS_ON_SCOREBOARD, false);
         config.setFeatureSwitchValue(FeatureSwitch.DECISION_SECTION, false);
 
-        assertFalse(config.featureSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD));
         assertFalse(config.featureSwitch(FeatureSwitch.JURY_DECISIONS_ON_SCOREBOARD));
         assertFalse(config.featureSwitch(FeatureSwitch.DECISION_SECTION));
     }

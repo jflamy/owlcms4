@@ -49,6 +49,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.MockFieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 
@@ -94,7 +95,6 @@ public class SevenPersonAdjudicationTest {
 			return null;
 		});
 		AthleteRepository.resetParticipations(false, true);
-		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, false);
 		setSwitch(FeatureSwitch.SHOW_DECISIONS_IMMEDIATELY, false);
 		Competition.getCurrent().setVideoPlaybackTechnology(true);
 
@@ -110,7 +110,6 @@ public class SevenPersonAdjudicationTest {
 
 	@After
 	public void restoreSettings() {
-		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, false);
 		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, false);
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
 	}
@@ -304,40 +303,150 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
-	public void decisionStaysVisibleUntilTheJuryHasVoted() {
-		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, true);
+	public void competitionFlowDoesNotWaitForTheJury() {
 		lift(W, W, W);
-		assertEquals("no time limit for the jury", FOPState.DECISION_VISIBLE, this.fop.getState());
+		assertEquals("the announcer moves to the next athlete", FOPState.CURRENT_ATHLETE_DISPLAYED,
+		        this.fop.getState());
+		assertTrue("the next clock waits for the jury", this.fop.isJuryVotesAwaited());
 		juryVotes(W, W, W, W);
-		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
-	}
-
-	@Test
-	public void juryDecisionsEnabledDoesNotHoldDecisionWithoutJury() {
-		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, true);
-		this.fop.setJurySize(0);
-		lift(W, W, W);
 		assertFalse(this.fop.isJuryVotesAwaited());
 		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
 	}
 
 	@Test
-	public void reviewStartsWhenTheHeldDecisionClears() {
-		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, true);
+	public void attemptBoardsStayOnTheAthleteUnderReviewUntilTheNextClock() {
+		lift(W, W, W);
+		assertTrue("the boards wait for the jury", this.fop.isReviewDisplayHeld());
+		juryVotes(W, W, W, W);
+		assertTrue("the complete votes stay visible", this.fop.isReviewDisplayHeld());
+		assertFalse(reviewDisplayDone());
+
+		post(new FOPEvent.TimeStarted(new Object()));
+		assertEquals(FOPState.TIME_RUNNING, this.fop.getState());
+		assertFalse(this.fop.isReviewDisplayHeld());
+		assertTrue("the boards are told", awaitCondition(this::reviewDisplayDone));
+	}
+
+	@Test
+	public void refusedClockStartKeepsTheReviewDisplayAndTheOverrideEndsIt() {
+		lift(W, W, W);
+		post(new FOPEvent.TimeStarted(new Object()));
+		assertEquals("the next clock is refused", FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+		assertTrue(this.fop.isReviewDisplayHeld());
+
+		post(new FOPEvent.TimeStarted(new Object(), true));
+		assertEquals(FOPState.TIME_RUNNING, this.fop.getState());
+		assertFalse(this.fop.isReviewDisplayHeld());
+		assertTrue("the boards are told", awaitCondition(this::reviewDisplayDone));
+	}
+
+	@Test
+	public void deliberationTakesOverTheReviewDisplay() {
+		lift(W, W, R);
+		assertTrue(this.fop.isReviewDisplayHeld());
+		post(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		assertEquals(FOPState.BREAK, this.fop.getState());
+		assertFalse(this.fop.isReviewDisplayHeld());
+		settledEvents();
+		assertFalse("no reset that could wipe the review display", reviewDisplayDone());
+	}
+
+	@Test
+	public void otherBreaksEndTheReviewDisplay() {
+		lift(W, W, R);
+		assertTrue(this.fop.isReviewDisplayHeld());
+		post(new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		assertEquals(FOPState.BREAK, this.fop.getState());
+		assertFalse(this.fop.isReviewDisplayHeld());
+		assertTrue("the boards are told", awaitCondition(this::reviewDisplayDone));
+	}
+
+	@Test
+	public void noReviewDisplayWithoutJury() {
+		this.fop.setJurySize(0);
+		lift(W, W, W);
+		assertFalse(this.fop.isJuryVotesAwaited());
+		assertFalse(this.fop.isReviewDisplayHeld());
+		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+	}
+
+	@Test
+	public void attemptBoardsWaitForTheJuryThroughTheBreakBeforeCleanAndJerkAndTheEndOfTheSession() {
+		this.fop.setJurySize(3);
+		lift(W, W, W);
+		juryVotes(W, W, W);
+		lift(W, W, W);
+		juryVotes(W, W, W);
+
+		// last snatch of the session: the platform starts the break before clean and jerk
+		lift(W, W, W);
+		assertEquals(FOPState.BREAK, this.fop.getState());
+		assertEquals(BreakType.FIRST_CJ, this.fop.getBreakType());
+		assertTrue("the jury is still voting on the last snatch", this.fop.isReviewDisplayHeld());
+		juryVotes(W, W, W);
+		assertTrue("the complete votes stay visible", this.fop.isReviewDisplayHeld());
+		long before = reviewDisplayDoneCount();
+		post(new FOPEvent.StartLifting(new Object()));
+		assertFalse("lifting resumes: the boards follow", this.fop.isReviewDisplayHeld());
+		assertTrue("the boards are told", awaitCondition(() -> reviewDisplayDoneCount() > before));
+
+		lift(W, W, W);
+		juryVotes(W, W, W);
+		lift(W, W, W);
+		juryVotes(W, W, W);
+
+		// last lift of the session
+		lift(W, W, W);
+		assertEquals(FOPState.BREAK, this.fop.getState());
+		assertEquals(BreakType.GROUP_DONE, this.fop.getBreakType());
+		assertTrue("the jury is still voting on the last lift", this.fop.isReviewDisplayHeld());
+		long beforeReload = reviewDisplayDoneCount();
+		// a jury device that never votes: reloading the session releases the boards
+		post(new FOPEvent.SwitchGroup(groupA, new Object()));
+		assertFalse(this.fop.isReviewDisplayHeld());
+		assertTrue("the boards are told", awaitCondition(() -> reviewDisplayDoneCount() > beforeReload));
+	}
+
+	@Test
+	public void aCeremonyReleasesTheBoardsHeldDuringABreak() {
+		this.fop.setJurySize(3);
+		lift(W, W, W);
+		juryVotes(W, W, W);
+		lift(W, W, W);
+		juryVotes(W, W, W);
+		// last snatch: the break before clean and jerk starts while the jury is still voting; a ceremony can only
+		// start during a break or between sessions
+		lift(W, W, W);
+		assertEquals(FOPState.BREAK, this.fop.getState());
+		assertTrue(this.fop.isReviewDisplayHeld());
+		post(new FOPEvent.CeremonyStarted(CeremonyType.MEDALS, groupA, null, new Object()));
+		assertFalse("the session has moved on", this.fop.isReviewDisplayHeld());
+	}
+
+	private long reviewDisplayDoneCount() {
+		return this.recorder.all.stream().filter(UIEvent.ReviewDisplayDone.class::isInstance).count();
+	}
+
+	private boolean reviewDisplayDone() {
+		return this.recorder.all.stream().anyMatch(UIEvent.ReviewDisplayDone.class::isInstance);
+	}
+
+	@Test
+	public void reviewStartsWhenTheLastJuryVoteArrives() {
 		lift(W, W, W);
 		juryVotes(R, R, R, R);
 		assertPanelReviewBreak();
 	}
 
 	@Test
-	public void chairDeliberationEndsADecisionHeldForABrokenJuryBox() {
-		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, true);
+	public void chairDeliberationDealsWithABrokenJuryBox() {
 		lift(W, W, R);
 		// jury box 1 does not work
 		juryVote(1, R);
 		juryVote(2, R);
 		juryVote(3, R);
-		assertEquals("held for the missing jury vote", FOPState.DECISION_VISIBLE, this.fop.getState());
+		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+		assertTrue("the missing jury vote is awaited", this.fop.isJuryVotesAwaited());
 		post(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, new Object()));
 		assertTrue("the Chair's deliberation starts", this.recorder.await(this.recorder.notifications,
 		        n -> n.getDeliberationEventType() == JuryDeliberationEventType.START_DELIBERATION));
@@ -378,11 +487,10 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
-	public void clockStartOverrideClearsAHeldDecision() {
-		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, true);
+	public void clockStartOverrideWorksWhenNoJurorHasVoted() {
 		lift(W, W, W);
 		post(new FOPEvent.TimeStarted(new Object()));
-		assertEquals(FOPState.DECISION_VISIBLE, this.fop.getState());
+		assertEquals("the next clock is refused", FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
 		post(new FOPEvent.TimeStarted(new Object(), true));
 		assertEquals(FOPState.TIME_RUNNING, this.fop.getState());
 	}
@@ -456,11 +564,11 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
-	public void threeMemberJuryDecisionStaysVisibleWhenJuryVotesAreShown() {
-		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, true);
+	public void threeMemberJuryVotesAreAwaitedWhileTheCompetitionMovesOn() {
 		this.fop.setJurySize(3);
 		lift(W, W, R);
-		assertEquals("no time limit while the jury is voting", FOPState.DECISION_VISIBLE, this.fop.getState());
+		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+		assertTrue(this.fop.isJuryVotesAwaited());
 
 		juryVotes(W, W, W);
 
@@ -519,15 +627,14 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
-	public void withoutVideoPlaybackTheHeldDecisionWaitsForTheJury() {
+	public void withoutVideoPlaybackTheClockWaitsForTheJury() {
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
-		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, true);
 		lift(W, W, W);
-		assertEquals("no time limit for the four-member jury", FOPState.DECISION_VISIBLE, this.fop.getState());
+		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
 		assertTrue(this.fop.isJuryVotesAwaited());
 		juryVotes(W, W, W);
 		post(new FOPEvent.TimeStarted(new Object()));
-		assertEquals("the clock waits for the jury", FOPState.DECISION_VISIBLE, this.fop.getState());
+		assertEquals("the clock waits for the jury", FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
 		assertTrue("the deciding console is asked",
 		        this.recorder.await(this.recorder.pending, p -> p.isPending()));
 
@@ -537,9 +644,8 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
-	public void withoutVideoPlaybackTheOverrideClearsTheHeldDecision() {
+	public void withoutVideoPlaybackTheOverrideStartsTheClock() {
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
-		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, true);
 		lift(W, W, W);
 		post(new FOPEvent.TimeStarted(new Object(), true));
 		assertEquals(FOPState.TIME_RUNNING, this.fop.getState());

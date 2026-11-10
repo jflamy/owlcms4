@@ -65,6 +65,7 @@ public class DecisionElementState {
 	private final AtomicLong decisionDisplayGeneration = new AtomicLong();
 	private final AtomicLong juryDisplayGeneration = new AtomicLong();
 	private boolean showJuryDecisions;
+	private boolean holdForReview;
 	private final IDecisionRenderer renderer;
 	private boolean dontReset;
 	private boolean showsDownSignal = true;
@@ -102,6 +103,20 @@ public class DecisionElementState {
 		} else {
 			publishJuryLights(null, List.of());
 		}
+	}
+
+	/**
+	 * Attempt boards: with a jury, keep the referee and jury decisions of the athlete under review after the
+	 * competition flow has moved to the next athlete (FieldOfPlay.isReviewDisplayHeld). Only applies while the jury
+	 * decisions are shown.
+	 */
+	public void setHoldForReview(boolean holdForReview) {
+		this.holdForReview = holdForReview;
+	}
+
+	/** @return true while this display stays on the decisions of the athlete under review */
+	public boolean isReviewDisplayHeld() {
+		return this.holdForReview && this.showJuryDecisions && this.fop != null && this.fop.isReviewDisplayHeld();
 	}
 
 	public boolean isCurrentJuryGeneration(long generation) {
@@ -228,6 +243,24 @@ public class DecisionElementState {
 	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		if (this.resetOnClockStart) {
+			return;
+		}
+		if (isReviewDisplayHeld()) {
+			// the decisions stay until ReviewDisplayDone
+			return;
+		}
+		long generation = nextGeneration();
+		if (this.dontReset) {
+			return;
+		}
+		setResetSnapshot(generation);
+		this.renderer.resetDecisionDisplay(e, generation);
+	}
+
+	/** The decisions kept for the athlete under review go away. */
+	@Subscribe
+	public void slaveReviewDisplayDone(UIEvent.ReviewDisplayDone e) {
+		if (!this.holdForReview || this.resetOnClockStart) {
 			return;
 		}
 		long generation = nextGeneration();

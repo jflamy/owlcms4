@@ -996,7 +996,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		if (!fop.isPanelProcedure() && !(DecisionDisplayRules.SHOW_ORIGINAL_DECISIONS && fop.hasJuryReviewVote())) {
 			return;
 		}
-		Boolean[] decisions = fop.getRefereeDecision();
+		// the decision on the lift under review: the live referee decision is cleared when the next clock starts
+		Boolean[] decisions = fop.getReviewedLiftRefereeDecision();
 		if (decisions == null || decisions.length < AdjudicationPanel.NB_REFEREES) {
 			hideOriginalRefereeDecisions();
 			return;

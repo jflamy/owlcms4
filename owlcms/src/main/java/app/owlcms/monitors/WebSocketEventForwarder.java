@@ -921,6 +921,12 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		pushJuryDisplay("JURY_DISPLAY_RESET", e);
 	}
 
+	/** Kept in step with the attempt board state machine; no message. */
+	@Subscribe
+	public void slaveReviewDisplayDone(UIEvent.ReviewDisplayDone e) {
+		this.decisionState.onReviewDisplayDone(e);
+	}
+
 	/** Kept in step with the attempt board state machine; no message (live referee input is not forwarded). */
 	@Subscribe
 	public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
@@ -1480,8 +1486,8 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		// decision information and the switches used as defaults for the tracker display options
 		sb.put("decisionState", this.decisionState.toMap());
 		Config switches = Config.getCurrent();
-		mapPut(sb, "juryDecisionsOnAttemptBoard",
-		        Boolean.toString(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD.isEffective(switches)));
+		// no longer a switch: the decision always waits for the jury; kept for the tracker's default
+		mapPut(sb, "juryDecisionsOnAttemptBoard", "true");
 		mapPut(sb, "juryDecisionsOnScoreboard",
 		        Boolean.toString(FeatureSwitch.JURY_DECISIONS_ON_SCOREBOARD.isEffective(switches)));
 		mapPut(sb, "decisionSectionOnWarmupScoreboard",

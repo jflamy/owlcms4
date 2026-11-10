@@ -294,8 +294,7 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		}
 		configureDecisionBlock(fop);
 		BreakType breakType = fop.getBreakType();
-		boolean juryOrChallenge = breakType == BreakType.JURY || breakType == BreakType.CHALLENGE;
-		if (fop.getState() == FOPState.BREAK && juryOrChallenge) {
+		if (fop.getState() == FOPState.BREAK && isJuryOrChallenge(breakType)) {
 			JuryDeliberationEventType type = breakType == BreakType.CHALLENGE
 			        ? JuryDeliberationEventType.CHALLENGE
 			        : JuryDeliberationEventType.START_DELIBERATION;
@@ -311,10 +310,11 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 			this.decisionBlock.onRefereeDecision(fop.getAthleteUnderReview(), computeRefLights(fop, false));
 			this.decisionBlock.onJuryUpdate(fop.getJuryMemberDecision(), fop.getJurySize());
 		} else {
-			// Same rule as the StartLifting handler: a four-member jury verdict stays until the review timeout. This
-			// re-sync runs on every StartLifting and SwitchGroup, so it must not undo the lingering verdict.
+			// Same rule as the StartLifting handler: a jury verdict stays until the review timeout. This re-sync runs
+			// on every StartLifting and SwitchGroup, so it must not undo the lingering verdict, also when the
+			// reviewed lift ended the snatches or the session.
 			this.decisionBlock.onStartLifting(fop.getState() == FOPState.CURRENT_ATHLETE_DISPLAYED
-			        && fop.isFourMemberJury());
+			        || isLiftsDone(fop.getState(), breakType));
 		}
 	}
 
@@ -426,6 +426,20 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 	@Override
 	public void renderReadyClock() {
 		clearDecisionSectionDecisionAthlete();
+		FieldOfPlay fop = getFop();
+		if (fop != null && fop.getState() == FOPState.BREAK && !isJuryOrChallenge(fop.getBreakType())) {
+			// The FOP can retain its current athlete during a break; the break is shown, not the athlete.
+			this.getElement().setProperty("decisionSectionCurrentActive", false);
+		}
+	}
+
+	private static boolean isJuryOrChallenge(BreakType breakType) {
+		return breakType == BreakType.JURY || breakType == BreakType.CHALLENGE;
+	}
+
+	/** the lift ended the snatches or the session: no clock will start to close the decision section */
+	private static boolean isLiftsDone(FOPState state, BreakType breakType) {
+		return state == FOPState.BREAK && (breakType == BreakType.FIRST_CJ || breakType == BreakType.GROUP_DONE);
 	}
 
 	@Override
@@ -564,12 +578,21 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		if (!isDecisionSectionEnabled()) {
 			return;
 		}
-		boolean juryOrChallenge = e.getBreakType() == BreakType.JURY || e.getBreakType() == BreakType.CHALLENGE;
-		this.decisionBlock.onBreakStarted(juryOrChallenge);
-		if (!juryOrChallenge) {
-			// READY rendering can restore the FOP's retained current athlete.
-			this.getElement().setProperty("decisionSectionCurrentActive", false);
+		if (e.getBreakType() == BreakType.FIRST_CJ) {
+			// the last snatch decision stays, bounded by the review timeout
+			this.decisionBlock.onLiftsDone();
+			return;
 		}
+		this.decisionBlock.onBreakStarted(isJuryOrChallenge(e.getBreakType()));
+	}
+
+	/** The last decision of the session stays, bounded by the review timeout. */
+	@Override
+	protected void afterSlaveGroupDone(UIEvent.GroupDone e) {
+		if (!isDecisionSectionEnabled()) {
+			return;
+		}
+		this.decisionBlock.onLiftsDone();
 	}
 
 	/**
@@ -678,9 +701,9 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		if (!isDecisionSectionEnabled()) {
 			return;
 		}
-		FieldOfPlay fop = getFop();
-		// four-member jury: the verdict stays until the review timeout (or an earlier clock start, Resume, break)
-		this.decisionBlock.onStartLifting(fop != null && fop.isFourMemberJury());
+		// whatever the jury: lifting resumes by itself 3.5 s after a jury decision, and the verdict stays until the
+		// review timeout (or an earlier clock start, break or referee decision)
+		this.decisionBlock.onStartLifting(true);
 	}
 
 	/** An explicit Resume (Jury Control or jury box) cleared the jury cycle. */

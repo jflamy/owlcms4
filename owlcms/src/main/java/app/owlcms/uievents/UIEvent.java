@@ -928,6 +928,18 @@ public class UIEvent {
 
 	}
 
+	/**
+	 * The attempt boards that were held on the athlete under review, with the referee and jury decisions, go back to the
+	 * competition flow (see FieldOfPlay.isReviewDisplayHeld).
+	 */
+	static public class ReviewDisplayDone extends UIEvent {
+
+		public ReviewDisplayDone(Athlete athleteUnderReview, Object origin, FieldOfPlay fop) {
+			super(athleteUnderReview, origin, fop);
+		}
+
+	}
+
 	/** The number of jurors on the platform has changed: the jury pages adapt their layout. */
 	static public class JurySizeChanged extends UIEvent {
 

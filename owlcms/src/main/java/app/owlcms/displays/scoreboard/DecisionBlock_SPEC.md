@@ -59,6 +59,13 @@ the underlying element data.
   those events, until the 20 s timer expires, a new referee decision replaces it, a jury
   deliberation starts, a non-jury break begins, or the announcer resumes from a break
   (`StartLifting`).
+- **Last snatch, last lift of the session.** The break before clean and jerk (`BreakStarted
+  FIRST_CJ`) and the end of the session (`GroupDone`) follow the lift by themselves, 3.5 s after the
+  decision, and no clock will start to close the block. The block **stays** on the last lift, and
+  the 20 s review timer returns it to `READY_FOR_NEXT_ATHLETE`: the timer already running when
+  there is no jury, a timer started with the break when there is a jury (also when jury votes are
+  missing). A jury verdict on such a lift stays the same way. A session reload returns to ready at
+  once. Any other non-jury break returns to ready at once.
 
 ### `JURY_DELIBERATION` (jury deliberation or challenge)
 - Entered from any state on a jury-deliberation or challenge notification.
@@ -76,8 +83,12 @@ the underlying element data.
     (not even empty placeholders).
 - The state persists through the whole deliberation/challenge. The verdict does **not**
   automatically leave this state.
-- Leaves the state only when the **announcer resumes competition** (`StartLifting`) →
+- A review that ends without a verdict leaves the state when competition resumes (`StartLifting`) →
   `READY_FOR_NEXT_ATHLETE`.
+- With a verdict, for every jury size, the FOP posts `StartLifting` on its own 3.5 s after the
+  decision. The verdict **stays** and the 20 s review timer starts. The block returns to
+  `READY_FOR_NEXT_ATHLETE` when the timer expires, or earlier on a clock start, a break, an explicit
+  Resume or the next referee decision.
 
 ---
 
@@ -94,6 +105,7 @@ Events are `UIEvent.*` posted by `FieldOfPlay`.
 | `JuryNotification START_DELIBERATION` / `CHALLENGE` | → **JURY_DELIBERATION** | → **JURY_DELIBERATION** | reset circles, stay |
 | `JuryNotification GOOD_LIFT` / `BAD_LIFT` | — | (verdict shown, stay until resume) | stay (wait for resume) |
 | `JuryNotification END_JURY_BREAK` / `END_CHALLENGE` | stay | — | stay (wait for `StartLifting`) |
+| `BreakStarted FIRST_CJ` / `GroupDone` (the lift ended the snatches or the session) | stay | stay; 20 s review timer runs | verdict shown: stay, 20 s review timer runs; else → **READY_FOR_NEXT_ATHLETE** |
 | `StartLifting` (announcer resumes) | stay | → **READY_FOR_NEXT_ATHLETE** | → **READY_FOR_NEXT_ATHLETE** |
 | `StartTime` / `ResetOnNewClock` / `DecisionReset` (next athlete progression) | stay | **ignore** (keep the review window) | **ignore** (keep the deliberation) |
 
@@ -184,6 +196,5 @@ All resolved (2026-07-09):
 3. **No second vote → no circles.** During `JURY_DELIBERATION` with the 2nd-vote-public toggle
    **off**, no jury circles are displayed at all (not even empty placeholders).
 4. **Wait for `StartLifting`.** `END_JURY_BREAK` / `END_CHALLENGE` do not by themselves return to
-   ready; we wait for the announcer's `StartLifting`. There is also an automatic mode where the
-   decision is shown and the FOP posts `StartLifting` on its own — that path returns to ready via
-   the same `StartLifting` event.
+   ready; we wait for `StartLifting`. After a verdict the FOP posts `StartLifting` on its own; the
+   verdict then stays for the 20 s review timer (see `JURY_DELIBERATION` above).

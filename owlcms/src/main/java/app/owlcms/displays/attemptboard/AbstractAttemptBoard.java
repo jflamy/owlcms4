@@ -152,6 +152,10 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		FieldOfPlay fop = getFop();
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			try {
+				if (isReviewDisplayHeld()) {
+					// break before clean and jerk while the jury votes on the last snatch: ReviewDisplayDone shows it
+					return;
+				}
 				publish(buildBreakState(fop));
 				uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
 			} catch (Throwable e1) {
@@ -280,6 +284,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			// Keep the down signal visible for 1.5 s before showing an IMMEDIATE decision
 			// so athletes and spectators can see the down signal.
 			this.decisions.setDownSignalHoldMs(DecisionElement.MINIMUM_DOWN_SIGNAL_VISIBLE_MS);
+			// with a jury, the board stays on the athlete under review while the announcer moves to the next athlete
+			this.decisions.getDecisionState().setHoldForReview(true);
 		}
 	}
 
@@ -383,6 +389,21 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	/**
+	 * The board was kept on the athlete under review, with the referee and jury decisions, while the competition flow
+	 * moved on: show the current state of the platform.
+	 */
+	@Subscribe
+	public void slaveReviewDisplayDone(UIEvent.ReviewDisplayDone e) {
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+		        this.getOrigin(), e.getOrigin());
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			if (!isReviewDisplayHeld()) {
+				syncWithFOP(getFop());
+			}
+		});
+	}
+
+	/**
 	 * Multiple attempt boards and athlete-facing boards can co-exist. We need to show down on the slave devices -- the master device is the one where
 	 * refereeing buttons are attached.
 	 *
@@ -422,6 +443,10 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			if (isReviewDisplayHeld()) {
+				// the jury votes on the last lift of the session: ReviewDisplayDone shows the end of the session
+				return;
+			}
 			Group g = e.getGroup();
 			publish(buildDoneState(g));
 			setDone(true);
@@ -521,7 +546,13 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			}
 			uiEventLogger.debug("### {} {} isDisplayToggle={}", state, this.getClass().getSimpleName(),
 			        e.isDisplayToggle());
-			if (state == FOPState.DOWN_SIGNAL_VISIBLE || state == FOPState.DECISION_VISIBLE) {
+			if (isReviewDisplayHeld()) {
+				// the board stays on the athlete under review; ReviewDisplayDone shows the current athlete
+				if (attemptTraces) {
+					logger.warn("{}attemptBoard order deferred board={} eventSeq={} review display held",
+					        FieldOfPlay.getLoggingName(fop), traceBoardId(), e.getSequence());
+				}
+			} else if (state == FOPState.DOWN_SIGNAL_VISIBLE || state == FOPState.DECISION_VISIBLE) {
 				if (attemptTraces) {
 					logger.warn("{}attemptBoard order deferred board={} eventSeq={} state={}",
 					        FieldOfPlay.getLoggingName(fop), traceBoardId(), e.getSequence(), state);
@@ -1102,7 +1133,12 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	private boolean decisionOwnsDisplay() {
 		FOPState state = getFop().getState();
-		return state == FOPState.DOWN_SIGNAL_VISIBLE || state == FOPState.DECISION_VISIBLE;
+		return state == FOPState.DOWN_SIGNAL_VISIBLE || state == FOPState.DECISION_VISIBLE || isReviewDisplayHeld();
+	}
+
+	/** @return true while this board stays on the athlete under review, with the referee and jury decisions */
+	private boolean isReviewDisplayHeld() {
+		return this.decisions != null && this.decisions.getDecisionState().isReviewDisplayHeld();
 	}
 
 	private void publishDecisionState(UIEvent trigger) {

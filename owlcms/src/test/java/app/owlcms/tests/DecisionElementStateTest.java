@@ -91,7 +91,6 @@ public class DecisionElementStateTest {
         });
         AthleteRepository.resetParticipations(false, true);
         this.athletes = AthleteRepository.findAll();
-        setJuryDecisionsOnAttemptBoard(false);
     }
 
     @Test
@@ -445,45 +444,103 @@ public class DecisionElementStateTest {
     }
 
     @Test
-    public void incompleteJuryWaitsWithoutDeadline() throws Exception {
+    public void competitionFlowDoesNotWaitForTheJury() throws Exception {
         DecisionScenario scenario = startScenario(false);
         configureJuryTiming(scenario);
-        scenario.decisionState.setShowJuryDecisions(true);
         enterInitialGoodDecision(scenario);
         assertFinalDecision(scenario, true);
         assertEquals(List.of("empty", "empty", "empty"), scenario.renderer.juryLights);
-        assertFalse("unfinished jury must remain on display without a timeout",
-                scenario.timeline.decisionReset.await(2_400, TimeUnit.MILLISECONDS));
+
+        assertTrue("decision reset UI event was not fired", scenario.timeline.awaitDecisionReset());
+        assertTrue("FOP did not move to the next athlete", scenario.awaitState(FOPState.CURRENT_ATHLETE_DISPLAYED));
+        scenario.timeline.assertElapsedAtMost("UI Decision", "UI DecisionReset", DECISION_VISIBLE_DURATION_MS,
+                "the announcer must not wait for the jury");
+        assertTrue("the board stays on the athlete under review", scenario.fopState.isReviewDisplayHeld());
+        assertEquals(DisplayMode.DECISION, scenario.decisionState.snapshot().mode());
+        assertTrue("the next clock waits for the jury", scenario.fopState.isJuryVotesAwaited());
+
         completeJury(scenario);
-        assertReset(scenario);
+        assertReviewDisplayDone(scenario);
+        assertFalse("the competition flow reset must not clear a held board",
+                scenario.renderer.eventNames().contains("DecisionReset"));
+        scenario.timeline.assertElapsedAtLeast("UI DecisionReset", "render reset", 800,
+                "the complete jury votes must stay visible for the jury hold");
     }
 
     @Test
-    public void juryWaitRequiresAttemptBoardFeature() throws Exception {
+    public void missingJuryVotesAreAwaitedWithoutLimitWhenTheMaximumIsNegative() throws Exception {
         DecisionScenario scenario = startScenario(false);
-        scenario.fopState.setJurySize(3);
-        scenario.fopState.setJuryDecisionTimingForTests(2_000, 800);
+        configureJuryTiming(scenario);
+        scenario.fopState.setJuryDecisionTimingForTests(-1, 800);
         enterInitialGoodDecision(scenario);
         assertFinalDecision(scenario, true);
-        assertReset(scenario);
-        scenario.timeline.assertElapsedAtMost("UI Decision", "UI DecisionReset", DECISION_VISIBLE_DURATION_MS,
-                "jury size alone must not extend the decision display");
+        assertTrue("FOP did not move to the next athlete", scenario.awaitState(FOPState.CURRENT_ATHLETE_DISPLAYED));
+        assertFalse("the board must keep waiting for the jury",
+                scenario.timeline.reviewDisplayDone.await(3_000, TimeUnit.MILLISECONDS));
+        assertTrue(scenario.fopState.isReviewDisplayHeld());
+        assertEquals(DisplayMode.DECISION, scenario.decisionState.snapshot().mode());
+
+        completeJury(scenario);
+        assertReviewDisplayDone(scenario);
+        scenario.timeline.assertElapsedAtLeast("UI DecisionReset", "render reset", 3_000,
+                "the last jury vote, not a time limit, must end the wait");
     }
 
     @Test
-    public void juryAlreadyCompleteUsesNormalDuration() throws Exception {
+    public void missingJuryVotesTimeOutOnTheBoard() throws Exception {
         DecisionScenario scenario = startScenario(false);
         configureJuryTiming(scenario);
         enterInitialGoodDecision(scenario);
-        completeJury(scenario);
         assertFinalDecision(scenario, true);
-        assertReset(scenario);
-        scenario.timeline.assertElapsedAtMost("UI Decision", "UI DecisionReset", DECISION_VISIBLE_DURATION_MS,
-                "jury completed before referee publication needs no extension");
+        assertReviewDisplayDone(scenario);
+        scenario.timeline.assertElapsedAtLeast("UI Decision", "render reset", 2_000,
+                "the board must wait for the jury up to the time limit");
+        scenario.timeline.assertElapsedAtMost("UI Decision", "render reset", 2_000,
+                "the board must not wait for the jury beyond the time limit");
+        assertTrue("the clock start remains subject to confirmation", scenario.fopState.isJuryVotesAwaited());
     }
 
     @Test
-    public void earlyJuryShortensDeadlineWithoutRestartingForRepeatedVotes() throws Exception {
+    public void boardThatHidesJuryVotesFollowsTheCompetitionFlow() throws Exception {
+        DecisionScenario scenario = startScenario(false);
+        configureJuryTiming(scenario);
+        scenario.decisionState.setShowJuryDecisions(false);
+        enterInitialGoodDecision(scenario);
+        assertFinalDecision(scenario, true);
+        assertReset(scenario);
+        scenario.timeline.assertElapsedAtMost("UI Decision", "render reset", DECISION_VISIBLE_DURATION_MS,
+                "a board that does not show the jury votes must not be held");
+    }
+
+    @Test
+    public void scoreboardDecisionLightsFollowTheCompetitionFlow() throws Exception {
+        DecisionScenario scenario = startScenario(false);
+        configureJuryTiming(scenario);
+        scenario.decisionState.setHoldForReview(false);
+        enterInitialGoodDecision(scenario);
+        assertFinalDecision(scenario, true);
+        assertReset(scenario);
+        scenario.timeline.assertElapsedAtMost("UI Decision", "render reset", DECISION_VISIBLE_DURATION_MS,
+                "only the attempt boards are held for the jury");
+    }
+
+    @Test
+    public void juryAlreadyCompleteGetsTheJuryHold() throws Exception {
+        DecisionScenario scenario = startScenario(false);
+        configureJuryTiming(scenario);
+        scenario.fopState.setJuryDecisionTimingForTests(4_000, 1_800);
+        enterInitialGoodDecision(scenario);
+        completeJury(scenario);
+        assertFinalDecision(scenario, true);
+        assertReviewDisplayDone(scenario);
+        scenario.timeline.assertElapsedAtLeast("UI Decision", "render reset", 1_800,
+                "jury votes entered before the referee decision must stay visible for the jury hold");
+        scenario.timeline.assertElapsedAtMost("UI Decision", "render reset", 1_800,
+                "a complete jury must not wait for the time limit");
+    }
+
+    @Test
+    public void earlyJuryKeepsTheDisplayMinimumWithoutRestartingForRepeatedVotes() throws Exception {
         DecisionScenario scenario = startScenario(false);
         configureJuryTiming(scenario);
         enterInitialGoodDecision(scenario);
@@ -491,26 +548,46 @@ public class DecisionElementStateTest {
         completeJury(scenario);
         Thread.sleep(400);
         completeJury(scenario);
-        assertReset(scenario);
-        scenario.timeline.assertElapsedAtLeast("UI Decision", "UI DecisionReset", DECISION_VISIBLE_DURATION_MS,
+        assertReviewDisplayDone(scenario);
+        scenario.timeline.assertElapsedAtLeast("UI Decision", "render reset", DECISION_VISIBLE_DURATION_MS,
                 "early jury must preserve the referee display minimum");
-        scenario.timeline.assertElapsedAtMost("UI Decision", "UI DecisionReset", DECISION_VISIBLE_DURATION_MS,
+        scenario.timeline.assertElapsedAtMost("UI Decision", "render reset", DECISION_VISIBLE_DURATION_MS,
                 "repeated votes must not restart the hold");
     }
 
     @Test
-        public void lateJuryGetsFullHoldBeyondWaitingDeadline() throws Exception {
+    public void lateJuryGetsFullHoldBeyondWaitingDeadline() throws Exception {
         DecisionScenario scenario = startScenario(false);
         configureJuryTiming(scenario);
         enterInitialGoodDecision(scenario);
         assertFinalDecision(scenario, true);
         Thread.sleep(1_500);
         completeJury(scenario);
-        assertReset(scenario);
-        scenario.timeline.assertElapsedAtLeast("UI Decision", "UI DecisionReset", 2_300,
-            "completion before the waiting deadline must receive the full jury hold");
-        scenario.timeline.assertElapsedAtMost("UI Decision", "UI DecisionReset", 2_300,
-            "reset must follow the jury hold without further extension");
+        assertReviewDisplayDone(scenario);
+        scenario.timeline.assertElapsedAtLeast("UI Decision", "render reset", 2_300,
+                "completion before the waiting deadline must receive the full jury hold");
+        scenario.timeline.assertElapsedAtMost("UI Decision", "render reset", 2_300,
+                "reset must follow the jury hold without further extension");
+    }
+
+    @Test
+    public void clockStartEndsTheReviewDisplay() throws Exception {
+        DecisionScenario scenario = startScenario(false);
+        configureJuryTiming(scenario);
+        scenario.fopState.setJuryDecisionTimingForTests(10_000, 10_000);
+        enterInitialGoodDecision(scenario);
+        assertFinalDecision(scenario, true);
+        assertTrue("FOP did not move to the next athlete", scenario.awaitState(FOPState.CURRENT_ATHLETE_DISPLAYED));
+        assertTrue(scenario.fopState.isReviewDisplayHeld());
+
+        scenario.fopState.fopEventPost(new FOPEvent.TimeStarted(new Object()));
+        assertEquals("the clock start asks for confirmation", FOPState.CURRENT_ATHLETE_DISPLAYED,
+                scenario.fopState.getState());
+        assertTrue("a refused clock start does not end the review display", scenario.fopState.isReviewDisplayHeld());
+
+        scenario.fopState.fopEventPost(new FOPEvent.TimeStarted(new Object(), true));
+        assertEquals(FOPState.TIME_RUNNING, scenario.fopState.getState());
+        assertReviewDisplayDone(scenario);
     }
 
     @Test
@@ -521,7 +598,8 @@ public class DecisionElementStateTest {
         assertFinalDecisionVisibleButUncommitted(scenario, true);
         completeJury(scenario);
         assertCommitted(scenario, true);
-        assertReset(scenario);
+        assertReviewDisplayDone(scenario);
+        assertTrue("decision reset UI event was not fired", scenario.timeline.awaitDecisionReset());
         assertImmediateTiming(scenario);
     }
 
@@ -534,6 +612,7 @@ public class DecisionElementStateTest {
         scenario.fopState.fopEventPost(new FOPEvent.StartLifting(this));
         assertFalse("old reset must not run after leaving its decision phase",
                 scenario.timeline.decisionReset.await(2_400, TimeUnit.MILLISECONDS));
+        assertFalse(scenario.fopState.isReviewDisplayHeld());
     }
 
     @Test
@@ -568,10 +647,12 @@ public class DecisionElementStateTest {
         assertEquals(Boolean.FALSE, scenario.fopState.getJuryMemberDecision()[2]);
     }
 
+    /** Three-member jury, on a display that behaves as an attempt board showing the jury votes. */
     private void configureJuryTiming(DecisionScenario scenario) {
-        setJuryDecisionsOnAttemptBoard(true);
         scenario.fopState.setJurySize(3);
         scenario.fopState.setJuryDecisionTimingForTests(2_000, 800);
+        scenario.decisionState.setHoldForReview(true);
+        scenario.decisionState.setShowJuryDecisions(true);
     }
 
     private void completeJury(DecisionScenario scenario) {
@@ -717,6 +798,14 @@ public class DecisionElementStateTest {
         assertTrue(scenario.renderer.eventNames().contains("DecisionReset"));
     }
 
+    private void assertReviewDisplayDone(DecisionScenario scenario) throws Exception {
+        assertTrue("held decision was not cleared", scenario.renderer.awaitReset());
+        assertTrue("review display end UI event was not fired", scenario.timeline.awaitReviewDisplayDone());
+        assertFalse(scenario.fopState.isReviewDisplayHeld());
+        assertEquals(DisplayMode.RESET, scenario.decisionState.snapshot().mode());
+        assertTrue(scenario.renderer.eventNames().contains("ReviewDisplayDone"));
+    }
+
     private void reverseToBadBeforeDecisionVisible(DecisionScenario scenario) {
         scenario.timeline.mark("FOP reversal ref1 red");
         scenario.fopState.fopEventPost(new FOPEvent.DecisionUpdate(this, 0, false));
@@ -787,17 +876,12 @@ public class DecisionElementStateTest {
         Config.setCurrentTesting(config);
     }
 
-    private void setJuryDecisionsOnAttemptBoard(boolean enabled) {
-        Config config = Config.getCurrent();
-        config.setFeatureSwitchValue(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, enabled);
-        Config.setCurrentTesting(config);
-    }
-
     private static final class EventTimeline {
         private final CountDownLatch downSignal = new CountDownLatch(1);
         private final CountDownLatch initialDecision = new CountDownLatch(1);
         private final CountDownLatch decision = new CountDownLatch(1);
         private final CountDownLatch decisionReset = new CountDownLatch(1);
+        private final CountDownLatch reviewDisplayDone = new CountDownLatch(1);
         private final List<DecisionSample> decisions = new CopyOnWriteArrayList<>();
         private final List<String> entries = new CopyOnWriteArrayList<>();
         private final List<String> names = new CopyOnWriteArrayList<>();
@@ -827,6 +911,12 @@ public class DecisionElementStateTest {
         public void slaveDecisionReset(UIEvent.DecisionReset e) {
             mark("UI DecisionReset");
             this.decisionReset.countDown();
+        }
+
+        @Subscribe
+        public void slaveReviewDisplayDone(UIEvent.ReviewDisplayDone e) {
+            mark("UI ReviewDisplayDone");
+            this.reviewDisplayDone.countDown();
         }
 
         void assertElapsedAtLeast(String start, String end, long expectedMs, String message) {
@@ -861,6 +951,10 @@ public class DecisionElementStateTest {
 
         boolean awaitDecisionReset() throws InterruptedException {
             return this.decisionReset.await(5, TimeUnit.SECONDS);
+        }
+
+        boolean awaitReviewDisplayDone() throws InterruptedException {
+            return this.reviewDisplayDone.await(5, TimeUnit.SECONDS);
         }
 
         boolean awaitInitialDecision() throws InterruptedException {

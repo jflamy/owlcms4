@@ -144,6 +144,10 @@ public class ForwarderDecisionState implements DecisionElementState.IDecisionRen
 		this.state.slavePanelVoteUpdate(e);
 	}
 
+	public synchronized void onReviewDisplayDone(UIEvent.ReviewDisplayDone e) {
+		this.state.slaveReviewDisplayDone(e);
+	}
+
 	public synchronized void onJuryDisplayReset(UIEvent.JuryDisplayReset e) {
 		this.state.slaveJuryDisplayReset(e);
 	}

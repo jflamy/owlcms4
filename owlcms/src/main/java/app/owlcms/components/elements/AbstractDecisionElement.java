@@ -331,7 +331,8 @@ public abstract class AbstractDecisionElement extends LitTemplate
 			if (!this.decisionState.isCurrentGeneration(generation)) {
 				return;
 			}
-			sendPanelPayload(refereeStates, this.hidePanelJury ? List.of() : juryStates);
+			List<String> shownJury = this.hidePanelJury ? List.of() : juryStates;
+			sendPanelPayload(refereeStates, shownJury, isJuryOnlyVote(refereeStates, shownJury));
 		});
 	}
 
@@ -340,14 +341,24 @@ public abstract class AbstractDecisionElement extends LitTemplate
 	 * that drives this element itself (scoreboard decision section); must be called with the UI lock held.
 	 */
 	public void showPanelRefereeStates(List<String> refereeStates) {
-		sendPanelPayload(refereeStates, List.of());
+		sendPanelPayload(refereeStates, List.of(), false);
 	}
 
-	private void sendPanelPayload(List<String> refereeStates, List<String> juryStates) {
+	/**
+	 * A 3-, 4- or 5-member jury votes alone (no seven-person panel): once the referee cells are cleared, the display
+	 * shows the jury circles only.
+	 */
+	private boolean isJuryOnlyVote(List<String> refereeStates, List<String> juryStates) {
+		return this.fop != null && this.fop.hasJuryReviewVote() && !this.fop.isPanelProcedure()
+		        && !juryStates.isEmpty() && refereeStates.stream().allMatch("empty"::equals);
+	}
+
+	private void sendPanelPayload(List<String> refereeStates, List<String> juryStates, boolean hideReferees) {
 		ObjectNode payload = JsonUtils.object();
 		payload.put("sequence", Long.toString(this.decisionPayloadSequence.incrementAndGet()));
 		payload.put("mode", "panel");
 		payload.put("singleRef", false);
+		payload.put("hideReferees", hideReferees);
 		ArrayNode refs = JsonUtils.array();
 		refereeStates.forEach(refs::add);
 		payload.set("refStates", refs);

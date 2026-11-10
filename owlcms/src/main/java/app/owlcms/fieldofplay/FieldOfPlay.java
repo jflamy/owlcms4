@@ -88,7 +88,6 @@ import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.data.records.RecordConfig;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordFilter;
-import app.owlcms.displays.DecisionDisplayRules;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.fieldofplay.FOPEvent.BarbellOrPlatesChanged;
 import app.owlcms.fieldofplay.FOPEvent.CeremonyDone;
@@ -149,8 +148,12 @@ import ch.qos.logback.classic.Logger;
 public class FieldOfPlay implements IUnregister {
 
 	public static final long DECISION_VISIBLE_DURATION = 3500;
-	public static final long JURY_DECISION_VISIBLE_MAX_MS = 10000;
-	public static final long JURY_DECISION_HOLD_MS = 3500;
+	/**
+	 * How long the attempt boards wait on the athlete under review while jury votes on the lift are missing. Negative:
+	 * no limit, the jury vote is still in progress; the boards wait for the last vote, a clock start or a break.
+	 */
+	public static final long JURY_DECISION_VISIBLE_MAX_MS = -1;
+	public static final long JURY_DECISION_HOLD_MS = 10000;
 	public static final long DECISION_INPUT_IGNORE_WINDOW_MS = 15000;
 	public static final long MINIMUM_DOWN_SIGNAL_VISIBLE_MS = 1500L;
 	public static final int REVERSAL_DELAY = 3000;
@@ -212,7 +215,15 @@ public class FieldOfPlay implements IUnregister {
 	private long decisionVisibleSince;
 	private long decisionResetDeadline;
 	private int decisionJurySize;
-	private boolean awaitingJuryCompletion;
+	/**
+	 * With a jury, the attempt boards keep showing the athlete under review and the decisions after the competition
+	 * flow has moved to the next athlete (see {@link #isReviewDisplayHeld()}).
+	 */
+	private boolean reviewDisplayHeld;
+	private boolean reviewDisplayJuryComplete;
+	private long reviewDisplayDeadline;
+	private long reviewDisplayGeneration;
+	private TimerTask reviewDisplayTimer;
 	/**
 	 * Seven-person Adjudication Panel, phase A: the referee votes of the last lift while its jury votes are still
 	 * awaited. Null when no panel evaluation is pending.
@@ -929,18 +940,6 @@ public class FieldOfPlay implements IUnregister {
 			} else {
 				this.deferredBreak = e;
 				this.logger.info("{}Deferred break", FieldOfPlay.getLoggingName(this));
-				if (this.state == DECISION_VISIBLE && this.awaitingJuryCompletion
-				        && (requestedBreak == BreakType.JURY || requestedBreak == BreakType.CHALLENGE)) {
-					// the decision is held until the four jurors have voted on the lift, which may never happen (a
-					// jury box that does not work): a review started by the Chair ends the hold, the display ends
-					// after its usual minimum and the break starts
-					this.logger.info("{}review started while the jury votes are incomplete, ending the decision display",
-					        FieldOfPlay.getLoggingName(this));
-					this.awaitingJuryCompletion = false;
-					this.decisionResetDeadline = Math.max(this.decisionVisibleSince + this.decisionVisibleDuration,
-					        System.nanoTime() / 1_000_000);
-					armDecisionReset();
-				}
 			}
 			return;
 		} else if (e instanceof SummonReferee) {
@@ -989,6 +988,7 @@ public class FieldOfPlay implements IUnregister {
 			return;
 		} else if (e instanceof StartLifting) {
 			cancelDecisionReset();
+			endReviewDisplayHold(e.getOrigin());
 			this.juryDecisionShown = false;
 			// ending the break abandons an unfinished review vote; the lift keeps the referees' decision
 			closePanelVote(e.getOrigin());
@@ -1045,6 +1045,7 @@ public class FieldOfPlay implements IUnregister {
 			return;
 		} else if (e instanceof SwitchGroup) {
 			cancelDecisionReset();
+			endReviewDisplayHold(e.getOrigin());
 			Group oldGroup = this.getGroup();
 			SwitchGroup switchGroup = (SwitchGroup) e;
 			Group newGroup = switchGroup.getGroup();
@@ -1455,8 +1456,7 @@ public class FieldOfPlay implements IUnregister {
 		if (!isJuryVotesAwaited()) {
 			return false;
 		}
-		boolean displayHeldForJury = this.state == DECISION_VISIBLE && this.awaitingJuryCompletion;
-		if (this.state != CURRENT_ATHLETE_DISPLAYED && !displayHeldForJury) {
+		if (this.state != CURRENT_ATHLETE_DISPLAYED) {
 			// other states keep their usual handling (e.g. "wait until the decision has been shown")
 			return false;
 		}
@@ -1473,10 +1473,7 @@ public class FieldOfPlay implements IUnregister {
 		        FieldOfPlay.getLoggingName(this), this.athleteUnderReview);
 		endPanelVotePending(e.getOrigin());
 		resetJuryDecisions();
-		if (displayHeldForJury) {
-			finishDecisionDisplay(e);
-		}
-		// continue with the normal clock start
+		// continue with the normal clock start, which ends the review display
 		return false;
 	}
 
@@ -2644,6 +2641,7 @@ public class FieldOfPlay implements IUnregister {
 	@Override
 	public void unregister() {
 		cancelDecisionReset();
+		cancelReviewDisplayHold();
 		MQTTMonitor mqttMonitor2 = this.getMqttMonitor();
 		this.logger.debug("{}unregistering event forwarders and mqtt monitor {}", getLoggingName(this),
 				System.identityHashCode(mqttMonitor2));
@@ -3107,7 +3105,7 @@ public class FieldOfPlay implements IUnregister {
 		getJuryMemberDecision()[e.refIndex] = e.decision;
 		this.juryMemberTime[e.refIndex] = 0;
 		processJuryMemberDecisions(e.origin, e.refIndex);
-		rescheduleDecisionResetForJury();
+		extendReviewDisplayHoldForJury();
 		evaluatePanel();
 		if (this.panelVoteOpen) {
 			checkPanelVoteComplete(e.origin, null);
@@ -3152,6 +3150,16 @@ public class FieldOfPlay implements IUnregister {
 		if (state != DECISION_VISIBLE) {
 			cancelDecisionReset();
 		}
+		// the review display lasts through the decision and the next athlete's wait for the clock: a new decision ends
+		// it here. A clock start also ends it, but only once the clock is running (see transitionToTimeRunning), so
+		// that the boards that go back to the competition flow read a running clock. The end of the session and the
+		// break before clean and jerk do not end it: the jury is still voting on the last lift. A break started by an
+		// official ends it in transitionToBreak.
+		if ((state != DECISION_VISIBLE && state != CURRENT_ATHLETE_DISPLAYED && state != TIME_RUNNING
+		        && state != BREAK)
+		        || (state == DECISION_VISIBLE && this.state == CURRENT_ATHLETE_DISPLAYED)) {
+			endReviewDisplayHold(this);
+		}
 		if (state == CURRENT_ATHLETE_DISPLAYED) {
 			Athlete a = getCurAthlete();
 			if (getGroup() != null) {
@@ -3171,6 +3179,8 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void doStartCeremony(CeremonyStarted e) {
+		// the session has moved on: the boards no longer wait for the jury votes on the last lift
+		endReviewDisplayHold(e.getOrigin());
 		if (e.getCeremony() != CeremonyType.MEDALS) {
 			endMedalCeremony(e.getOrigin());
 		}
@@ -4622,6 +4632,7 @@ public class FieldOfPlay implements IUnregister {
 		} else {
 			setState(TIME_RUNNING);
 			getAthleteTimer().start();
+			endReviewDisplayHold(this);
 		}
 	}
 
@@ -4955,6 +4966,7 @@ public class FieldOfPlay implements IUnregister {
 	private synchronized void invalidatePendingDecisionTasks() {
 		this.decisionTaskGeneration++;
 		cancelDecisionReset();
+		endReviewDisplayHold(this);
 		if (this.decisionDisplayTimer != null) {
 			this.decisionDisplayTimer.cancel();
 			this.decisionDisplayTimer = null;
@@ -4985,10 +4997,6 @@ public class FieldOfPlay implements IUnregister {
 			uiShowCurrentRefereeDecision(origin);
 		}
 		recomputeLiftingOrder(true, true);
-		if (this.state == DECISION_VISIBLE && this.awaitingJuryCompletion && isJuryVotesAwaited()) {
-			// immediate mode: the display was scheduled before the commit made the panel vote pending
-			holdDecisionForJury();
-		}
 		// the jury may have voted before the decision was committed
 		evaluatePanel();
 	}
@@ -5014,31 +5022,86 @@ public class FieldOfPlay implements IUnregister {
 		cancelDecisionReset();
 		this.decisionVisibleSince = System.nanoTime() / 1_000_000;
 		this.decisionJurySize = getJurySize();
-		this.awaitingJuryCompletion = DecisionDisplayRules.showJuryDecisionsOnAttemptBoard(this.decisionJurySize,
-		        FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD.isEffective())
-		        && !allDecisionJurorsVoted();
-		if (this.awaitingJuryCompletion && isJuryVotesAwaited()) {
-			holdDecisionForJury();
-			return;
-		}
-		long duration = this.awaitingJuryCompletion
-				? Math.max(this.decisionVisibleDuration, this.juryDecisionVisibleMaxMs)
-				: this.decisionVisibleDuration;
-		this.decisionResetDeadline = this.decisionVisibleSince + duration;
+		// the competition flow never waits for the jury: the announcer, the marshal and the scoreboards move to the
+		// next athlete after the usual delay
+		this.decisionResetDeadline = this.decisionVisibleSince + this.decisionVisibleDuration;
 		armDecisionReset();
+		startReviewDisplayHold();
 	}
 
 	/**
-	 * Keep the decision visible with no time limit while the configured jury votes. The reset is armed by
-	 * rescheduleDecisionResetForJury when the last jury vote arrives; the clock-start override also clears the display.
+	 * @return true while the attempt boards keep showing the athlete under review with the referee and jury decisions,
+	 *         after the competition flow has moved to the next athlete. With a jury, this lasts until the jurors have
+	 *         all voted plus a hold; while votes are missing it lasts for JURY_DECISION_VISIBLE_MAX_MS, without limit
+	 *         when that is negative. A clock start, a break started by an official, a ceremony, a new session or a
+	 *         new decision ends it. It continues when the lift ends the session or the snatches: the boards show the
+	 *         end of the session, or the break before clean and jerk, once the jury has voted.
 	 */
-	private void holdDecisionForJury() {
-		this.decisionResetGeneration++;
-		if (this.decisionResetTimer != null) {
-			this.decisionResetTimer.cancel();
-			this.decisionResetTimer = null;
+	public boolean isReviewDisplayHeld() {
+		return this.reviewDisplayHeld;
+	}
+
+	private void startReviewDisplayHold() {
+		cancelReviewDisplayHold();
+		if (this.decisionJurySize <= 0) {
+			return;
 		}
-		this.decisionResetDeadline = Long.MAX_VALUE;
+		this.reviewDisplayHeld = true;
+		this.reviewDisplayJuryComplete = allDecisionJurorsVoted();
+		if (!this.reviewDisplayJuryComplete && this.juryDecisionVisibleMaxMs < 0) {
+			// the jury is still voting: no time limit. The last vote arms the timer (extendReviewDisplayHoldForJury);
+			// a clock start, subject to confirmation, or a break also ends the hold
+			this.reviewDisplayDeadline = Long.MAX_VALUE;
+			return;
+		}
+		long shown = this.reviewDisplayJuryComplete ? this.juryDecisionHoldMs : this.juryDecisionVisibleMaxMs;
+		this.reviewDisplayDeadline = this.decisionVisibleSince + Math.max(this.decisionVisibleDuration, shown);
+		armReviewDisplayHold();
+	}
+
+	/** The last jury vote on the lift has arrived: the decisions stay for the public and the Jury Chair to see. */
+	private void extendReviewDisplayHoldForJury() {
+		if (!this.reviewDisplayHeld || this.reviewDisplayJuryComplete || !allDecisionJurorsVoted()) {
+			return;
+		}
+		this.reviewDisplayJuryComplete = true;
+		long now = System.nanoTime() / 1_000_000;
+		this.reviewDisplayDeadline = Math.max(this.decisionVisibleSince + this.decisionVisibleDuration,
+		        now + this.juryDecisionHoldMs);
+		armReviewDisplayHold();
+	}
+
+	private void armReviewDisplayHold() {
+		if (this.reviewDisplayTimer != null) {
+			this.reviewDisplayTimer.cancel();
+		}
+		long generation = ++this.reviewDisplayGeneration;
+		long delay = Math.max(0, this.reviewDisplayDeadline - System.nanoTime() / 1_000_000);
+		this.reviewDisplayTimer = new DelayTimer().schedule(() -> {
+			synchronized (FieldOfPlay.this) {
+				if (generation == this.reviewDisplayGeneration) {
+					endReviewDisplayHold(this);
+				}
+			}
+		}, delay);
+	}
+
+	/** The boards that were held on the athlete under review go back to the competition flow. */
+	private synchronized void endReviewDisplayHold(Object origin) {
+		if (!this.reviewDisplayHeld) {
+			return;
+		}
+		cancelReviewDisplayHold();
+		pushOutUIEvent(new UIEvent.ReviewDisplayDone(this.athleteUnderReview, origin, this));
+	}
+
+	private synchronized void cancelReviewDisplayHold() {
+		this.reviewDisplayGeneration++;
+		this.reviewDisplayHeld = false;
+		if (this.reviewDisplayTimer != null) {
+			this.reviewDisplayTimer.cancel();
+			this.reviewDisplayTimer = null;
+		}
 	}
 
 	private boolean allDecisionJurorsVoted() {
@@ -5058,20 +5121,6 @@ public class FieldOfPlay implements IUnregister {
 		return true;
 	}
 
-	private void rescheduleDecisionResetForJury() {
-		if (this.state != DECISION_VISIBLE || !this.awaitingJuryCompletion || !allDecisionJurorsVoted()) {
-			return;
-		}
-		long now = System.nanoTime() / 1_000_000;
-		if (now >= this.decisionResetDeadline) {
-			return;
-		}
-		this.awaitingJuryCompletion = false;
-		this.decisionResetDeadline = Math.max(this.decisionVisibleSince + this.decisionVisibleDuration,
-				now + this.juryDecisionHoldMs);
-		armDecisionReset();
-	}
-
 	private void armDecisionReset() {
 		if (this.decisionResetTimer != null) {
 			this.decisionResetTimer.cancel();
@@ -5089,7 +5138,6 @@ public class FieldOfPlay implements IUnregister {
 
 	private synchronized void cancelDecisionReset() {
 		this.decisionResetGeneration++;
-		this.awaitingJuryCompletion = false;
 		if (this.decisionResetTimer != null) {
 			this.decisionResetTimer.cancel();
 			this.decisionResetTimer = null;
@@ -5251,6 +5299,13 @@ public class FieldOfPlay implements IUnregister {
 	 */
 	private void transitionToBreak(FOPEvent.BreakStarted e, boolean notify) {
 		BreakType newBreak = e.getBreakType();
+		if (newBreak == BreakType.JURY || newBreak == BreakType.CHALLENGE) {
+			// the review takes over the boards that were kept on the athlete under review; ending the hold here, before
+			// the review notifications, keeps a late reset from wiping the review display
+			cancelReviewDisplayHold();
+		} else {
+			endReviewDisplayHold(e.getOrigin());
+		}
 		CountdownType newCountdownType = e.getCountdownType();
 		IBreakTimer breakTimer = getBreakTimer();
 		boolean indefinite = breakTimer.isIndefinite();
@@ -5433,6 +5488,8 @@ public class FieldOfPlay implements IUnregister {
 		// Use start(time) to set and start atomically - avoids separate SetTime event
 		// which can cause visual stutter on displays when StartTime follows immediately
 		getAthleteTimer().start(time);
+		// after the start: the boards kept on the athlete under review sync with a clock that is running
+		endReviewDisplayHold(this);
 	}
 
 	private void uiDisplayCurrentAthleteAndTime(boolean currentDisplayAffected, FOPEvent e, boolean displayToggle) {

@@ -17,13 +17,13 @@ class DecisionElement extends LitElement {
     return html` 
       <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "decision-lights")}" />
       <audio preload="auto" id="down" src="../local/sounds/down.mp3"></audio>
-      <div class="decisionWrapper ${this.showJuryRow() ? 'withJury' : ''}" style="${this.decisionWrapperStyle()}" >
+      <div class="decisionWrapper ${this.showJuryRow() ? 'withJury' : ''} ${this.juryOnly() ? 'juryOnly' : ''}" style="${this.decisionWrapperStyle()}" >
         <div class="down" style="font-weight: 900; ${this.downStyles()}"><vaadin-icon icon="vaadin:arrow-circle-down"></vaadin-icon></div>
-        <div class="decisions" style="${this.decisionsStyles()}">
+        ${this.juryOnly() ? '' : html`<div class="decisions" style="${this.decisionsStyles()}">
           <span class="${this.decisionClasses(1)}">&nbsp;</span>
           <span class="${this.decisionClasses(2)}" style="${((this.singleRef && this.ref2 !== null) ? "border: 2px solid var(--lumo-contrast); font-weight: bold" : "")}">${((this.singleRef && this.ref2 === true) ? "✓" : (this.singleRef && this.ref2 === false) ? "✕" : "")}</span>
           <span class="${this.decisionClasses(3)}">&nbsp;</span>
-        </div>
+        </div>`}
         ${this.showJuryRow() ? html`
           <div class="juryDecisions">
             ${this.juryDecisions.map((decision, index) => html`
@@ -82,6 +82,7 @@ class DecisionElement extends LitElement {
       showJuryDecisions: { type: Boolean },
       juryDecisions: { type: Array },
       _panelRefStates: { type: Array, state: true },
+      _hideReferees: { type: Boolean, state: true },
     };
   }
 
@@ -102,6 +103,7 @@ class DecisionElement extends LitElement {
     this.showJuryDecisions = false;
     this.juryDecisions = [];
     this._panelRefStates = null;
+    this._hideReferees = false;
     // sequence of the last decisionPayload applied; drops stale/out-of-order payloads.
     this._lastDecisionSequence = 0;
     this.initSounds = this.initSounds.bind(this)
@@ -168,6 +170,7 @@ class DecisionElement extends LitElement {
     if (payload.mode !== "panel") {
       this._panelRefStates = null;
     }
+    this._hideReferees = payload.mode === "panel" && payload.hideReferees === true;
     switch (payload.mode) {
       case "panel":
         // review vote: 3 referee boxes and the jury circles (none when the jury votes are hidden), revealed together
@@ -273,6 +276,11 @@ class DecisionElement extends LitElement {
 
   decisionWrapperStyle() {
     return "display: grid";
+  }
+
+  // jury-only review vote: the referee boxes are not drawn and the jury circles are centered
+  juryOnly() {
+    return this._hideReferees && this.showJuryRow();
   }
 
   showJuryRow() {

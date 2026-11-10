@@ -192,10 +192,13 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		if (time < 1) {
 			this.logger./**/warn("starting with no time {}", LoggerUtils.whereFrom());
 		}
+		// state first, event second (as for stop and set time): a display that reads the event sequence then the
+		// timer state must never see the start announced while the timer still reads as stopped, or it shows a
+		// stopped clock and drops the start as already accounted for
+		this.running = true;
 		getFop().pushOutUIEvent(
 		        new UIEvent.StartTime(time, null, getFop().isEmitSoundsOnServer(),
 		                LoggerUtils.stackTrace(), getFop()));
-		this.running = true;
 		this.serverTimer = new Timer();
 		scheduleTask(this.serverTimer, nextMilestoneTime(time), initialDelay(time));
 	}

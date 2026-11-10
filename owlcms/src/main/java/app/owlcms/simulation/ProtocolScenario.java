@@ -18,8 +18,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.competition.CompetitionRepository;
-import app.owlcms.data.config.ConfigRepository;
-import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -149,8 +147,6 @@ public class ProtocolScenario implements BreakController {
 			competition.setJurySize(JURY_SIZE);
 			competition.setVideoPlaybackTechnology(true);
 		}, origin);
-		ConfigRepository.apply(config -> config.setFeatureSwitchValue(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, true),
-		        origin);
 		return session;
 	}
 

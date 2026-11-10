@@ -48,9 +48,8 @@ public enum FeatureSwitch {
     STRETCH_VIDEO("stretchVideo", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DONT_FIX_NAMES("dontFixNames", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     CUSTOM_TEAM_NAME("customTeamName", FeatureSwitchSection.SCOREBOARD_OPTIONS),
-    THREE_D_ATTEMPT_BOARD("3DattemptBoard", FeatureSwitchSection.SCOREBOARD_OPTIONS),
+    THREE_D_ATTEMPT_BOARD("3DattemptBoard", FeatureSwitchSection.SCOREBOARD_OPTIONS, true),
 
-    JURY_DECISIONS_ON_ATTEMPT_BOARD("juryDecisionsOnAttemptBoard", FeatureSwitchSection.JURY_OPTIONS, true),
     JURY_DECISIONS_ON_SCOREBOARD("juryDecisionsOnScoreboard", FeatureSwitchSection.JURY_OPTIONS, true),
     AUTOMATIC_BREAK_NO_VPT("automaticBreakNoVPT", FeatureSwitchSection.JURY_OPTIONS),
     NO_JURY_ALPHABETICAL_SHORTCUTS("noJuryAlphabeticalShortcuts", FeatureSwitchSection.JURY_OPTIONS),

@@ -176,3 +176,20 @@
 .juryDecisions .juryLight.red {
   color: red;
 }
+
+/* jury-only review vote: no referee boxes, the jury circles are centered */
+.decisionWrapper.withJury.juryOnly {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.juryOnly > .juryDecisions {
+  grid-row: 1;
+  justify-content: center;
+  align-items: center;
+  gap: 6%;
+  padding-top: 0;
+}
+
+.juryOnly .juryLightSlot {
+  height: min(100%, 22vh);
+}

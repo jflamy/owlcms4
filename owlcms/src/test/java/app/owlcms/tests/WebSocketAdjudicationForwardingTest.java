@@ -86,7 +86,6 @@ public class WebSocketAdjudicationForwardingTest {
 			return null;
 		});
 		AthleteRepository.resetParticipations(false, true);
-		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, false);
 		setSwitch(FeatureSwitch.SHOW_DECISIONS_IMMEDIATELY, false);
 		Competition.getCurrent().setVideoPlaybackTechnology(true);
 
@@ -102,7 +101,6 @@ public class WebSocketAdjudicationForwardingTest {
 
 	@After
 	public void restoreSettings() {
-		setSwitch(FeatureSwitch.JURY_DECISIONS_ON_ATTEMPT_BOARD, false);
 		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, false);
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
 	}

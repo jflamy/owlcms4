@@ -31,7 +31,9 @@ import app.owlcms.uievents.JuryDeliberationEventType;
  * <li>{@code DECISION} — athlete-under-review name, referee lights, jury circles (voted then
  * disclosed). When there is a jury the section waits (no timeout) for the jury to vote; when there
  * is no jury a review timeout bounds the display. An athlete clock start or a break wins in either
- * case and returns to ready.</li>
+ * case and returns to ready. Exception: when the lift ends the snatches or the session, no clock
+ * will start; the decision stays through the break before clean and jerk or the end of the session,
+ * and the review timeout returns the section to ready, also when a jury is voting.</li>
  * <li>{@code DELIBERATION} — athlete-under-review name, referee lights, jury circles only when the
  * second-vote-public toggle is on, deliberation/challenge label (replaced by the verdict label
  * once the jury delivers a good/no-lift verdict).</li>
@@ -135,10 +137,12 @@ public class DecisionBlockState {
 	/** the referees' decision under review, as shown when the deliberation started */
 	private RefLights reviewedRefLights;
 	/**
-	 * Four-member jury: lifting resumed automatically after the verdict was shown; the verdict stays visible until the
-	 * review timeout, the clock start, an explicit Resume, a break or the next referee decision.
+	 * Lifting resumed automatically after the jury verdict was shown; the verdict stays visible until the review
+	 * timeout, the clock start, an explicit Resume, a break or the next referee decision.
 	 */
 	private boolean verdictLingering;
+	/** the review timeout is running */
+	private boolean reviewTimeoutRunning;
 
 	public DecisionBlockState(DecisionSectionRenderer renderer) {
 		this.renderer = renderer;
@@ -172,7 +176,7 @@ public class DecisionBlockState {
 		if (this.verdictLingering) {
 			// a new lift replaces the lingering verdict
 			this.verdictLingering = false;
-			this.renderer.cancelReviewTimeout();
+			cancelReviewTimeout();
 			this.deliberationType = null;
 			this.juryVerdictGood = null;
 			this.juryVerdictRule = null;
@@ -214,6 +218,7 @@ public class DecisionBlockState {
 
 	/** The review timeout expired: keeping the previous athlete visible would confuse the audience. */
 	public void onReviewTimeout() {
+		this.reviewTimeoutRunning = false;
 		if (this.state == State.DECISION || (this.state == State.DELIBERATION && this.verdictLingering)) {
 			toReady();
 		}
@@ -316,8 +321,7 @@ public class DecisionBlockState {
 	 * the verdict on the confirming notification ({@code waitForAnnouncer == false}), which the
 	 * announcer's button press — or the automatic outcome — produces.
 	 * <p>
-	 * It returns to ready when the announcer resumes competition ({@link #onStartLifting()}). For a four-member
-	 * jury the FOP posts start-lifting on its own 3.5 s after the decision; the verdict then stays until the review
+	 * The FOP posts start-lifting on its own 3.5 s after the decision; the verdict then stays until the review
 	 * timeout or an earlier clock start, explicit Resume, break or referee decision
 	 * ({@link #onStartLifting(boolean)}).
 	 */
@@ -348,24 +352,43 @@ public class DecisionBlockState {
 		// Intentionally no state change: wait for start-lifting.
 	}
 
-	/** The announcer resumed competition (or the automatic mode resumed it). Return to ready. */
+	/** Return to ready at once, also when a jury verdict is shown. */
 	public void onStartLifting() {
 		onStartLifting(false);
 	}
 
 	/**
-	 * @param keepVerdict four-member jury: if a jury verdict is shown, keep it visible and start the review timeout
-	 *                    instead of returning to ready at once
+	 * Lifting resumed (by itself after a jury decision, or by the announcer).
+	 *
+	 * @param keepVerdict if a jury verdict is shown, keep it visible and start the review timeout instead of
+	 *                    returning to ready at once
 	 */
 	public void onStartLifting(boolean keepVerdict) {
 		if (keepVerdict && this.state == State.DELIBERATION && this.juryVerdictGood != null) {
 			if (!this.verdictLingering) {
 				this.verdictLingering = true;
-				this.renderer.scheduleReviewTimeout();
+				scheduleReviewTimeout();
 			}
 			return;
 		}
 		toReady();
+	}
+
+	/**
+	 * The lift ended the snatches or the session: the break before clean and jerk started, or the session is done.
+	 * No clock will start to close the section, so the last decision, or the jury verdict, stays and the review
+	 * timeout returns the section to ready, also when a jury is voting. A timeout that is already running (no jury,
+	 * or a jury verdict) goes on.
+	 */
+	public void onLiftsDone() {
+		if (this.state == State.DECISION) {
+			if (!this.reviewTimeoutRunning) {
+				scheduleReviewTimeout();
+			}
+			return;
+		}
+		// a jury verdict stays until the review timeout; anything else returns to ready
+		onStartLifting(true);
 	}
 
 	/** An explicit Resume cleared the jury cycle: return to ready at once. */
@@ -413,7 +436,8 @@ public class DecisionBlockState {
 
 	/**
 	 * A break started. Jury/challenge breaks are driven by {@link #onDeliberationStart} and ignored
-	 * here; any other break returns the decision section to its ready (clock) presentation.
+	 * here; any other break returns the decision section to its ready (clock) presentation. The break
+	 * before clean and jerk and the end of the session are not reported here: see {@link #onLiftsDone()}.
 	 */
 	public void onBreakStarted(boolean juryOrChallenge) {
 		if (juryOrChallenge) {
@@ -445,7 +469,7 @@ public class DecisionBlockState {
 	private void render() {
 		switch (this.state) {
 			case READY:
-				this.renderer.cancelReviewTimeout();
+				cancelReviewTimeout();
 				this.renderer.renderReadyClock();
 				this.renderer.renderEmptyRefereeLights();
 				this.renderer.renderNoJuryCircles();
@@ -458,6 +482,7 @@ public class DecisionBlockState {
 					// A jury must vote, so we wait: never start a review timeout. The section is
 					// closed by the announcer starting the next clock, a break, a deliberation, or
 					// start-lifting.
+					cancelReviewTimeout();
 					if (this.showJuryVotes) {
 						this.renderer.renderJuryCircles(this.juryVotes, this.jurySize);
 					} else {
@@ -466,13 +491,13 @@ public class DecisionBlockState {
 				} else {
 					// No jury: nobody has to vote, so bound the display with the review timeout.
 					this.renderer.renderNoJuryCircles();
-					this.renderer.scheduleReviewTimeout();
+					scheduleReviewTimeout();
 				}
 				this.renderer.renderNoJuryMessage();
 				break;
 			case DELIBERATION:
 				if (!this.verdictLingering) {
-					this.renderer.cancelReviewTimeout();
+					cancelReviewTimeout();
 				}
 				this.renderer.renderAthleteUnderReview(this.reviewedAthlete);
 				if (this.panelVoting && this.panelVoted != null) {
@@ -507,6 +532,16 @@ public class DecisionBlockState {
 			default:
 				break;
 		}
+	}
+
+	private void scheduleReviewTimeout() {
+		this.reviewTimeoutRunning = true;
+		this.renderer.scheduleReviewTimeout();
+	}
+
+	private void cancelReviewTimeout() {
+		this.reviewTimeoutRunning = false;
+		this.renderer.cancelReviewTimeout();
 	}
 
 	private void renderRefereeLightsOrEmpty() {
