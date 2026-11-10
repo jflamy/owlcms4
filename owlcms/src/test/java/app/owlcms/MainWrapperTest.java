@@ -23,4 +23,24 @@ public class MainWrapperTest {
 		assertEquals(true, code > 1 && code < 128);
 		assertEquals(false, code == Main.EXIT_STARTUP_IMPORT_FAILED);
 	}
+
+	@Test
+	public void restartsThatWorkedDoNotUseUpTheRestartLimit() {
+		// three database imports in a row, each followed by a restart that completed its startup
+		int count = 0;
+		for (int i = 0; i < 3; i++) {
+			count = MainWrapper.restartCountAfterExit(count, true);
+			assertEquals(1, count);
+		}
+	}
+
+	@Test
+	public void restartsThatDidNotCompleteStartupAddUp() {
+		int count = MainWrapper.restartCountAfterExit(0, true);
+		count = MainWrapper.restartCountAfterExit(count, false);
+		count = MainWrapper.restartCountAfterExit(count, false);
+		assertEquals(3, count);
+		// one that works starts the count again
+		assertEquals(1, MainWrapper.restartCountAfterExit(count, true));
+	}
 }

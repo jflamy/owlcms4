@@ -95,6 +95,8 @@ public class Main {
     private static volatile boolean intentionalSignalReceived = false;
 
     private static final String WRAPPER_PID_ENV = "OWLCMS_WRAPPER_PID";
+    /** Set by MainWrapper: the file to create once startup has completed, so that it can tell that a restart worked. */
+    static final String WRAPPER_STARTED_FILE_ENV = "OWLCMS_WRAPPER_STARTED_FILE";
 
     public static void prepareForExit() {
 		prepareForExit("shutdown");
@@ -758,6 +760,7 @@ public class Main {
         try {
             logger.info("Database ready, unlatching browser requests.");
             OwlcmsFactory.countDownLatch();
+            reportStartedToWrapper();
             // Start browser now that the database is ready
             String serverURL = String.format("http://localhost:%d/", serverPort);
 			BrowserUtils.startBrowserIfAppropriate(serverURL);
@@ -765,6 +768,18 @@ public class Main {
 			LoggerUtils.logError(logger, e, false);
 		}
 	}
+
+    private static void reportStartedToWrapper() {
+        String marker = System.getenv(WRAPPER_STARTED_FILE_ENV);
+        if (marker == null || marker.isBlank()) {
+            return;
+        }
+        try {
+            Files.write(Path.of(marker), new byte[0]);
+        } catch (IOException | RuntimeException e) {
+            logger./**/warn("Cannot report the completed startup to the wrapper ({}): {}", marker, e.toString());
+        }
+    }
 
     public static void restart() {
         EmbeddedJetty.stop(true);

@@ -9,6 +9,8 @@ package app.owlcms;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -27,6 +29,7 @@ import ch.qos.logback.classic.Logger;
 public class MainWrapper {
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(MainWrapper.class);
+    /** Restarts in a row where OWLCMS did not complete its startup; a restart that worked starts the count again. */
     private static final int MAX_RESTARTS = 3;
     private static final String DAEMON_MODE_ENV = "CONTROLPANEL_RUN_AS_DAEMON";
     private static final String WRAPPER_PID_ENV = "OWLCMS_WRAPPER_PID";
@@ -72,6 +75,37 @@ public class MainWrapper {
 
     private static boolean isWindows() {
         return System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
+    }
+
+    /**
+     * @param started true if the process that just exited had completed its startup
+     * @return the number of restarts in a row without a completed startup, counting the one about to be made
+     */
+    static int restartCountAfterExit(int restartCount, boolean started) {
+        return (started ? 0 : restartCount) + 1;
+    }
+
+    /** @return the file that app.owlcms.Main creates once its startup has completed; null if it cannot be set up */
+    private static Path createStartedMarker() {
+        try {
+            Path marker = Files.createTempFile("owlcms-started-", ".marker");
+            marker.toFile().deleteOnExit();
+            return marker;
+        } catch (IOException | RuntimeException e) {
+            logger./**/warn("Cannot create the startup marker, restarts will not reset the restart count: {}",
+                    e.toString());
+            return null;
+        }
+    }
+
+    /** @return true if the marker was present, i.e. the process had completed its startup; the marker is removed */
+    private static boolean consumeStartedMarker(Path marker) {
+        try {
+            return marker != null && Files.deleteIfExists(marker);
+        } catch (IOException | RuntimeException e) {
+            logger./**/warn("Cannot read the startup marker {}: {}", marker, e.toString());
+            return false;
+        }
     }
 
     public static void main(String... args) throws Exception {
@@ -138,6 +172,7 @@ public class MainWrapper {
         int wrapperExitCode = 0;
         // set once Main asks for a restart after its startup load: later launches keep the current database
         boolean startupImportDropped = false;
+        Path startedMarker = createStartedMarker();
         while (restartCount <= MAX_RESTARTS) {
             try {
                 logger.info("Starting app.owlcms.Main as separate process (restart count: {})", restartCount);
@@ -167,12 +202,17 @@ public class MainWrapper {
                 if (!isWindows() && !isDaemonMode(env)) {
                     subprocessEnv.put(WRAPPER_PID_ENV, Long.toString(ProcessHandle.current().pid()));
                 }
+                consumeStartedMarker(startedMarker);
+                if (startedMarker != null) {
+                    subprocessEnv.put(Main.WRAPPER_STARTED_FILE_ENV, startedMarker.toString());
+                }
                 
                 currentProcess = pb.start();
                 
                 // Wait for process to complete
                 int exitCode = currentProcess.waitFor();
                 currentProcess = null;
+                boolean started = consumeStartedMarker(startedMarker);
                 
                 logger.info("Subprocess exited with code {}", exitCode);
                 
@@ -203,7 +243,7 @@ public class MainWrapper {
                 
                 // Restartable exit code (1-127)
                 wrapperExitCode = exitCode;
-                restartCount++;
+                restartCount = restartCountAfterExit(restartCount, started);
                 if (restartCount <= MAX_RESTARTS) {
                     logger.info("app.owlcms.Main exited with code {} - restart {}/{}", 
                                  exitCode, restartCount, MAX_RESTARTS);
