@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
 
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +45,7 @@ public class OwlcmsFactory {
 	/** The fop by name. */
 	private static Map<String, FieldOfPlay> fopByName = null;
 	private static FieldOfPlay defaultFOP;
-	private static volatile CountDownLatch latch = new CountDownLatch(1);
+	private static final RequestGate requestGate = new RequestGate();
 	private static EventBus appEventBus;
 	private static volatile boolean importInProgress = false;
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsFactory.class);
@@ -55,13 +54,12 @@ public class OwlcmsFactory {
 	}
 
 	public static void awaitLatch() throws InterruptedException {
-		// logger.debug("awaitLatch {} {}",latch.getCount(), LoggerUtils.whereFrom());
-		latch.await();
+		requestGate.await();
 	}
 
+	/** Startup has completed: requests are let through, unless an import is running. */
 	public static void countDownLatch() throws InterruptedException {
-		// logger.debug("countDownLatch {} {}",latch.getCount(), LoggerUtils.whereFrom());
-		latch.countDown();
+		requestGate.startupDone();
 	}
 
 	public static EventBus getAppUIBus() {
@@ -77,11 +75,11 @@ public class OwlcmsFactory {
 
 	public static synchronized void setImportInProgress(boolean importInProgress) {
 		if (importInProgress && !OwlcmsFactory.importInProgress) {
-			// re-arm the initialization latch so HTTP request processing blocks
-			// (same mechanism as during startup) until the import is done
-			latch = new CountDownLatch(1);
+			// HTTP request processing blocks until the import is done. This is separate from the startup
+			// condition: the end of an import that runs during startup does not let requests through.
+			requestGate.importStarted();
 		} else if (!importInProgress && OwlcmsFactory.importInProgress) {
-			latch.countDown();
+			requestGate.importEnded();
 		}
 		OwlcmsFactory.importInProgress = importInProgress;
 	}
@@ -319,20 +317,13 @@ public class OwlcmsFactory {
 
 	public static void waitDBInitialized() {
 		try {
-			CountDownLatch initializationLatch = OwlcmsFactory.getInitializationLatch();
-			logger.debug("latch.getCount() {}", latch.getCount());
-			initializationLatch.await();
+			requestGate.await();
 		} catch (InterruptedException e) {
 		}
 	}
 
 	static void setFopByName(Map<String, FieldOfPlay> fopByName) {
 		OwlcmsFactory.fopByName = fopByName;
-	}
-
-	private static CountDownLatch getInitializationLatch() {
-		// logger.debug("getInitializationLatch {} {}",latch.getCount(), LoggerUtils.whereFrom());
-		return latch;
 	}
 
 	/**
