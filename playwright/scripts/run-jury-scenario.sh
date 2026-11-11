@@ -3,12 +3,14 @@
 # under playwright/reports/. Options (all optional):
 #   --server   start a dedicated owlcms for the run and stop it at the end. It runs in memory, loaded from
 #              playwright/fixtures/jury-scenarios.json, so every run starts from the same data: session M1, and the
-#              single-athlete sessions M2 and M4 (next lift: last snatch), M3 and M5 (next lift: last lift of the
-#              session).
+#              single-athlete sessions M2, M4 and M6 (next lift: last snatch), M3, M5 and M7 (next lift: last lift of
+#              the session).
 #              The server uses its own ports: --server-port=7070 --server-mqtt-port=7071 --server-mqtt-ws-port=7072.
 #              Its classes are those of owlcms/target/classes and shared/target/classes; its classpath comes from
 #              playwright/owlcms-cp.txt (scripts/build-owlcms-classpath.sh, run once and after a dependency change).
 #              Its output goes to playwright/logs/fixture-server.log. Sets --base, --mqtt and --group=M1.
+#   --timing=<file>   the product's timing.properties (display durations; default
+#              owlcms/src/main/resources/timing/timing.properties from the repository root); the script passes it
 #   --base=http://localhost:8080 --mqtt=tcp://localhost:1883 --fop=A --group=M1 --out=<dir> --headed
 #              without --server: an owlcms that is already running
 #   --scenario=<ids, comma-separated; default all>
@@ -38,10 +40,11 @@
 #                                 330-nojury-decision-block-timeout 340-nojury-decision-block-clock-start
 #     the review starts after the Speaker has started the next athlete's clock:
 #                                 350-jury3-deliberation-after-next-clock 360-vpt-challenge-after-next-clock
-#     the lift ends the snatches or the session (single-athlete sessions M2 to M5 of the fixture: --server):
+#     the lift ends the snatches or the session (single-athlete sessions M2 to M7 of the fixture: --server):
 #                                 370-jury3-last-snatch-board-hold 380-jury3-last-lift-board-hold
 #                                 the jury never votes, the Speaker reloads the session:
 #                                 390-jury3-last-snatch-silent-jury-reload 400-jury3-last-lift-silent-jury-reload
+#                                 no jury: 410-nojury-last-snatch-decision-block 420-nojury-last-lift-decision-block
 #     (a three-member jury with VPT behaves exactly as without VPT: no separate scenarios)
 # Each scenario applies its own settings (automaticBreakNoVPT,
 # Video Playback Technology, jury size on Jury Control).
@@ -54,7 +57,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MODULE_DIR="$(dirname "$SCRIPT_DIR")"
-
+REPO_DIR="$(dirname "$MODULE_DIR")"
+TIMING="$REPO_DIR/owlcms/src/main/resources/timing/timing.properties"
 # Drives the locally installed Chrome, so the driver never needs its own browser bundle.
 export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
@@ -82,12 +86,11 @@ for arg in "$@"; do
 done
 
 if [[ "$SERVER" != true ]]; then
-    exec java -cp "$CLASSPATH" playwright.JuryScenario --out="$MODULE_DIR/reports" ${ARGS[@]+"${ARGS[@]}"}
+    exec java -cp "$CLASSPATH" playwright.JuryScenario --out="$MODULE_DIR/reports" --timing="$TIMING" ${ARGS[@]+"${ARGS[@]}"}
 fi
 
 # ---------------------------------------------------------------- dedicated owlcms for the run
 
-REPO_DIR="$(dirname "$MODULE_DIR")"
 FIXTURE="$MODULE_DIR/fixtures/jury-scenarios.json"
 OWLCMS_CP_FILE="$MODULE_DIR/owlcms-cp.txt"
 SERVER_LOG="$MODULE_DIR/logs/fixture-server.log"
@@ -164,7 +167,7 @@ fi
 echo "owlcms is ready"
 
 STATUS=0
-java -cp "$CLASSPATH" playwright.JuryScenario --out="$MODULE_DIR/reports" \
+java -cp "$CLASSPATH" playwright.JuryScenario --out="$MODULE_DIR/reports" --timing="$TIMING" \
     --base="http://localhost:$SERVER_PORT" --mqtt="tcp://localhost:$SERVER_MQTT_PORT" --group=M1 \
     ${ARGS[@]+"${ARGS[@]}"} || STATUS=$?
 exit "$STATUS"

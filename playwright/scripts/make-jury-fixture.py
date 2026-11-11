@@ -6,10 +6,12 @@ The export must have its lifts cleared and contain sessions M1 and M2. The fixtu
 single-athlete sessions for the scenarios that need a lift that ends something. A scenario uses up its session, so
 there is one session per scenario:
 
-  M2, M4  one athlete with two snatches done: the next lift is the last snatch of the session, which starts the
-          break before clean and jerk
-  M3, M5  one athlete with three snatches and two clean and jerks done: the next lift is the last lift of the
-          session
+  M2, M4, M6  one athlete with two snatches done: the next lift is the last snatch of the session, which starts
+              the break before clean and jerk
+  M3, M5, M7  one athlete with three snatches and two clean and jerks done: the next lift is the last lift of the
+              session
+
+M6 and M7 are used without a jury, the others with a jury.
 
 The athletes are the M2 athletes with the lowest snatch declarations. The other M2 athletes lose their session.
 
@@ -51,9 +53,10 @@ def main():
     data = json.loads(source.read_text(encoding="utf-8"))
 
     groups = {g["name"]: g for g in data["groups"]}
-    sessions = [("M2", "snatch"), ("M3", "lift"), ("M4", "snatch"), ("M5", "lift")]
+    sessions = [("M2", "snatch"), ("M3", "lift"), ("M4", "snatch"), ("M5", "lift"), ("M6", "snatch"),
+                ("M7", "lift")]
     if "M1" not in groups or "M2" not in groups or any(name in groups for name, _ in sessions[1:]):
-        sys.exit("the export must contain sessions M1 and M2, and no session M3, M4 or M5")
+        sys.exit("the export must contain sessions M1 and M2, and none of the sessions M3 to M7")
     lifted = [a for a in data["athletes"] if any(
         a.get(f"{lift}{n}ActualLift") for lift in ("snatch", "cleanJerk") for n in (1, 2, 3))]
     if lifted:

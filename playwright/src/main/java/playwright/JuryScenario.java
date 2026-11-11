@@ -12,8 +12,10 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-
+import java.util.Properties;
+import java.util.Set;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -70,12 +72,15 @@ import com.microsoft.playwright.options.LoadState;
  * athlete.</li>
  * <li>370-380: the lift ends the snatches (370, session M2) or the session (380, session M3). The attempt board
  * stays on the athlete under review until the jury has voted and 10 s more, then shows the break before clean and
- * jerk or the end of the session. The scoreboard decision block stays on the last lift 20 s into the break or the
- * end of the session, then clears.</li>
- * <li>390-400: same lifts (390, session M4; 400, session M5), but the jury never votes. The scoreboard decision
- * block clears all the same after 20 s. The attempt board stays on the athlete under review, without time limit,
- * until the Speaker reloads the session. 370 to 400 need the
+ * jerk or the end of the session. The scoreboard decision block stays on the last lift 20 s after the last jury
+ * vote, then clears.</li>
+ * <li>390-400: same lifts (390, session M4; 400, session M5), but the jury never votes. The attempt board and the
+ * scoreboard decision block stay on the athlete under review, without time limit, until the Speaker reloads the
+ * session. 370 to 400 need the
  * single-athlete sessions of the fixture ({@code run-jury-scenario.sh --server}); each one uses up its session.</li>
+ * <li>410-420: no jury, same lifts (410, session M6; 420, session M7). The attempt board shows the break before clean
+ * and jerk or the end of the session after the decision display; the scoreboard decision block stays on the last
+ * lift for its hold, then clears.</li>
  * </ul>
  * Completed decisions end after the Speaker closes the dialog and lifting resumes automatically. Only reviews
  * ending without a jury decision use Resume. The settings are applied through the screens before each scenario.
@@ -105,7 +110,7 @@ public class JuryScenario {
 	private static final String ORANGE = "rgb(249, 115, 22)";
 
 	record Options(String base, String mqttUri, String fop, String group, Path out, boolean headed,
-	        List<String> scenarios) {
+	        List<String> scenarios, Path timing) {
 
 		static Options parse(String[] args) {
 			Map<String, String> m = new LinkedHashMap<>();
@@ -118,11 +123,38 @@ public class JuryScenario {
 			return new Options(stripSlash(m.getOrDefault("base", "http://localhost:8080")),
 			        m.getOrDefault("mqtt", "tcp://localhost:1883"), m.getOrDefault("fop", "A"), m.get("group"),
 			        Path.of(m.getOrDefault("out", "playwright/reports")), m.containsKey("headed"),
-			        List.of(m.getOrDefault("scenario", String.join(",", SCENARIOS.keySet())).split(",")));
+			        List.of(m.getOrDefault("scenario", String.join(",", SCENARIOS.keySet())).split(",")),
+			        Path.of(m.getOrDefault("timing", "owlcms/src/main/resources/timing/timing.properties")));
 		}
 
 		private static String stripSlash(String s) {
 			return s.endsWith("/") ? s.substring(0, s.length() - 1) : s;
+		}
+	}
+
+	/**
+	 * The display durations of the product, in ms, read from timing.properties (the product's own file), so that the
+	 * waits and the step texts follow it.
+	 *
+	 * @param decisionVisible  the referee decision display ({@code decisionVisibleDuration})
+	 * @param juryDecisionHold the attempt board hold after a complete first vote ({@code juryDecisionHold})
+	 * @param outcomeCard      the outcome card on the attempt board ({@code juryOutcomeCardDuration})
+	 * @param decisionBlockHold the scoreboard decision block hold ({@code decisionBlockHold})
+	 */
+	record Timing(long decisionVisible, long juryDecisionHold, long outcomeCard, long decisionBlockHold) {
+
+		static Timing load(Path file) throws IOException {
+			Properties p = new Properties();
+			try (var in = Files.newInputStream(file)) {
+				p.load(in);
+			}
+			return new Timing(get(p, "decisionVisibleDuration", 3500), get(p, "juryDecisionHold", 10000),
+			        get(p, "juryOutcomeCardDuration", 5000), get(p, "decisionBlockHold", 20000));
+		}
+
+		private static long get(Properties p, String key, long dflt) {
+			String v = p.getProperty(key);
+			return v == null || v.isBlank() ? dflt : Long.parseLong(v.trim());
 		}
 	}
 
@@ -463,6 +495,15 @@ public class JuryScenario {
 		                + "never votes; the attempt board stays on the athlete under review until the Speaker "
 		                + "reloads the session",
 		        Setup.JURY3, "M5", "lastLift", votes("good", "good", "bad"), votes()));
+		add(Scenario.lastLift("410-nojury-last-snatch-decision-block",
+		        "410. No jury, single-athlete session M6: the last snatch starts the break before clean and jerk "
+		                + "after the decision display; the scoreboard decision block stays on the last snatch for its "
+		                + "hold, then clears",
+		        Setup.NONE, "M6", "lastSnatch", votes("good", "good", "bad"), votes()));
+		add(Scenario.lastLift("420-nojury-last-lift-decision-block",
+		        "420. No jury, single-athlete session M7: the last lift ends the session after the decision "
+		                + "display; the scoreboard decision block stays on the last lift for its hold, then clears",
+		        Setup.NONE, "M7", "lastLift", votes("good", "good", "bad"), votes()));
 	}
 
 	private static void add(Scenario sc) {
@@ -519,8 +560,46 @@ public class JuryScenario {
 	/** the session loaded on the Speaker page */
 	private String currentSession;
 
-	JuryScenario(Options options) {
+	private final Timing timing;
+	/** when the last jury outcome was applied (System.nanoTime), for the outcome card and decision block waits */
+	private long outcomeAt;
+	/**
+	 * One scenario per flow waits out the decision block hold after the outcome (or after the last jury vote when
+	 * the jury agrees with the referees); the others end earlier.
+	 */
+	private static final Set<String> WAIT_OUT_BLOCK_HOLD = Set.of("010-vpt-reversal-nolift",
+	        "070-jury3-reversal-nolift", "260-jury3-jurybox-confirmation-nolift", "300-jury3-agreed-board-hold",
+	        "320-vpt-agreed-board-hold");
+
+	JuryScenario(Options options) throws IOException {
 		this.options = options;
+		this.timing = Timing.load(options.timing());
+		System.out.println("Timing from " + options.timing() + ": decisionVisibleDuration=" + this.timing.decisionVisible()
+		        + " juryDecisionHold=" + this.timing.juryDecisionHold() + " juryOutcomeCardDuration="
+		        + this.timing.outcomeCard() + " decisionBlockHold=" + this.timing.decisionBlockHold() + " (ms)");
+	}
+
+	/** the settling time after a duration that is not a check point: the display is over, the screens have caught up */
+	private static final long SETTLE = 500;
+
+	/** a check made just before a display changes */
+	private static long before(long durationMs) {
+		return durationMs - 2000;
+	}
+
+	/** a check made just after a display has changed */
+	private static long after(long durationMs) {
+		return durationMs + 2000;
+	}
+
+	/** seconds for step texts, with a decimal only when needed */
+	private static String secs(long ms) {
+		return ms % 1000 == 0 ? Long.toString(ms / 1000) : String.format(Locale.ROOT, "%.1f", ms / 1000.0);
+	}
+
+	/** the referees' decision has been displayed for its whole duration */
+	private void pauseDecisionOver() {
+		pause(this.timing.decisionVisible() + SETTLE);
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -733,7 +812,7 @@ public class JuryScenario {
 		for (int r = 0; r < refs.length; r++) {
 			referee(r + 1, refs[r]);
 		}
-		pause(4000);
+		pauseDecisionOver();
 		step("Referees: " + refsText,
 		        liftDecision + " (" + refsText + ") on all boards; " + jurors + " empty jury circles. "
 		                + juryVotingText(),
@@ -819,7 +898,7 @@ public class JuryScenario {
 			referee(r + 1, refs[r]);
 		}
 		long lastReferee = System.nanoTime();
-		pause(4000);
+		pauseDecisionOver();
 		step("Referees: " + refsText, liftDecision + " (" + refsText + ") on all boards; 4 empty jury circles. "
 		        + juryVotingText(), juryVotingChecks());
 
@@ -838,7 +917,7 @@ public class JuryScenario {
 		        List.of(new Check("speaker", "no jury dialog", "!(" + dialogContains("Waiting for") + ")")));
 
 		// the jury vote is not complete: the attempt board has no time limit and must still be waiting
-		pauseUntil(lastReferee, 16_000);
+		pauseUntil(lastReferee, this.timing.juryDecisionHold() + 6000);
 		// an athlete who follows himself has 2:00: the next clock is set to 1:00 so that it can be checked
 		clock("60");
 		awaitClock(clockCheck("speaker", 60, false));
@@ -846,7 +925,8 @@ public class JuryScenario {
 		pause(1500);
 		step("Speaker tries to start the next clock",
 		        "owlcms refuses the clock start. The Speaker sees \"The jury has not finished voting\" with Start "
-		                + "clock anyway. More than 16 s after the referees' decision, the attempt board and the "
+		                + "clock anyway. More than " + secs(this.timing.juryDecisionHold() + 6000)
+		                + " s after the referees' decision, the attempt board and the "
 		                + "decision block are still on the athlete under review: they wait for the missing jury "
 		                + "vote without a time limit. Jury Control shows no "
 		                + "warning: the jury does not start the clock.",
@@ -989,11 +1069,11 @@ public class JuryScenario {
 
 	/**
 	 * The lift ends the snatches or the session, in a single-athlete session. The platform starts the break before
-	 * clean and jerk, or ends the session, after the 3.5 s decision display (6.5 s after the third referee). When the
-	 * jury agrees with the referees, the attempt board stays on the athlete under review until the jury has voted and
-	 * 10 s more, then shows the break or the end of the session. When the jury never votes, the attempt board stays
-	 * on the athlete under review until the Speaker reloads the session. In both cases the scoreboard decision block
-	 * stays on the last lift for 20 s after the break or the end of the session started, then clears.
+	 * clean and jerk, or ends the session, after the decision display. When the jury agrees with the referees, the
+	 * attempt board stays on the athlete under review until the jury has voted and the jury decision hold more, the
+	 * scoreboard decision block until the decision block hold after the last jury vote; then they show the break or
+	 * the end of the session. When the jury never votes, both stay on the athlete under review until the Speaker
+	 * reloads the session.
 	 */
 	private void runLastLift(String athlete) throws Exception {
 		Scenario sc = this.scenario;
@@ -1015,7 +1095,10 @@ public class JuryScenario {
 		        })()
 		        """.formatted(ATTEMPT_LAST_NAME, js(this.attemptStart), lastSnatch));
 
-		List<Check> starting = new ArrayList<>(startingChecks());
+		List<Check> starting = new ArrayList<>(n == 0 ? new ArrayList<>(this.setupChecks) : startingChecks());
+		if (n == 0) {
+			starting.add(clockCheck("speaker", 60, false));
+		}
 		starting.add(new Check("attempt", "the next lift is the third attempt (" + this.attemptStartLine + ")",
 		        "/3/.test(((" + ATTEMPT_LINE + ").split('|')[1]) || '')"));
 		step("Starting point", "Session " + sc.session() + ", one athlete: " + athlete + ", about to take the "
@@ -1026,11 +1109,34 @@ public class JuryScenario {
 			referee(r + 1, refs[r]);
 		}
 		long decided = System.nanoTime();
-		Check blockWaiting = decisionBlockReviewCheck(colors(refs), juryStates(0, "empty"));
 		Check blockCleared = decisionBlockClearedCheck();
+		if (n == 0) {
+			Check blockDecision = decisionBlockReviewCheck(colors(refs), "");
+			pauseUntil(decided, after(this.timing.decisionVisible()));
+			step("Referees: " + refsText + " on the " + what,
+			        liftDecision + " (" + refsText + "). No jury: after the " + secs(this.timing.decisionVisible())
+			                + " s decision display the attempt board shows " + after + ". The scoreboard decision "
+			                + "block stays on " + this.attemptStartLine + " with the referee decision.",
+			        List.of(left, blockDecision));
+
+			pauseUntil(decided, before(this.timing.decisionBlockHold()));
+			step(secs(before(this.timing.decisionBlockHold())) + " s after the referees",
+			        "The scoreboard decision block is still on " + this.attemptStartLine
+			                + " with the referee decision: it stays " + secs(this.timing.decisionBlockHold())
+			                + " s from the decision, into " + after + ".",
+			        List.of(left, blockDecision));
+
+			pauseUntil(decided, after(this.timing.decisionBlockHold()));
+			step(secs(after(this.timing.decisionBlockHold())) + " s after the referees",
+			        "The scoreboard decision block stayed " + secs(this.timing.decisionBlockHold())
+			                + " s from the decision, then cleared.",
+			        List.of(left, blockCleared));
+			return;
+		}
+		Check blockWaiting = decisionBlockReviewCheck(colors(refs), juryStates(0, "empty"));
 		Check waiting = attemptVotesCheck("the referee decision and " + n + " empty jury circles are shown",
 		        colors(refs), juryStates(0, "empty"));
-		pause(4000);
+		pauseDecisionOver();
 		step("Referees: " + refsText + " on the " + what,
 		        liftDecision + " (" + refsText + "). The jury is voting: the attempt board and the scoreboard decision "
 		                + "block show " + this.attemptStartLine + " with the referee decision and " + n
@@ -1039,26 +1145,29 @@ public class JuryScenario {
 		                new Check("speaker", "no jury dialog", "!(" + dialogContains("Waiting for") + ")")));
 
 		if (liftJury.length == 0) {
-			pauseUntil(decided, 16_000);
-			step("Sixteen seconds after the referees, the jury has not voted",
-			        "The platform went to " + after + " once the decision had been shown for 3.5 s. The attempt "
+			long waitedLong = this.timing.decisionBlockHold() + 10_000;
+			pauseUntil(decided, this.timing.juryDecisionHold() + 6000);
+			step(secs(this.timing.juryDecisionHold() + 6000) + " s after the referees, the jury has not voted",
+			        "The platform went to " + after + " once the decision had been shown for "
+			                + secs(this.timing.decisionVisible()) + " s. The attempt "
 			                + "board and the scoreboard decision block are still on " + this.attemptStartLine
 			                + " with the referee decision and " + n + " empty jury circles.",
 			        List.of(attemptHeldCheck(), waiting, blockWaiting));
 
-			pauseUntil(decided, 30_000);
-			step("Thirty seconds after the referees, the jury has still not voted",
-			        "The scoreboard decision block stayed 20 s into " + after + ", then cleared. There is no time "
-			                + "limit on the attempt board while jury votes are missing: it is still on "
-			                + this.attemptStartLine + ".",
-			        List.of(attemptHeldCheck(), waiting, blockCleared));
+			pauseUntil(decided, waitedLong);
+			step(secs(waitedLong) + " s after the referees, the jury has still not voted",
+			        "There is no time limit while jury votes are missing: the attempt board and the scoreboard "
+			                + "decision block are both still on " + this.attemptStartLine
+			                + " with the referee decision and " + n + " empty jury circles.",
+			        List.of(attemptHeldCheck(), waiting, blockWaiting));
 
 			click(this.pages.get("speaker"), "vaadin-button:has-text('Reload Session')",
 			        "Speaker clicks Reload Session");
 			pause(2000);
 			step("The Speaker reloads the session",
 			        "The platform is in a break: the session is reloaded without confirmation. The attempt board "
-			                + "no longer waits for the jury and shows " + after + ".",
+			                + "and the scoreboard decision block no longer wait for the jury: the board shows " + after
+			                + ", the decision block no longer shows " + this.attemptStart + ".",
 			        List.of(left, blockCleared, new Check("speaker", "no confirmation dialog",
 			                "!(" + dialogContains("attempt is in progress") + ")")));
 			return;
@@ -1071,23 +1180,32 @@ public class JuryScenario {
 		Check votesShown = attemptVotesCheck("the referee decision and the " + n + " revealed jury votes are shown",
 		        colors(refs), colors(liftJury));
 		Check blockVotes = decisionBlockReviewCheck(colors(refs), colors(liftJury));
-		pauseUntil(decided, 9_000);
+		pauseUntil(lastVote, before(this.timing.juryDecisionHold()));
 		step("The " + COUNT[n] + " jurors vote " + describe(liftJury) + ": the jury agrees with the referees",
-		        "No review. The platform went to " + after + " once the decision had been shown for 3.5 s. The "
+		        "No review. The platform went to " + after + " once the decision had been shown for "
+		                + secs(this.timing.decisionVisible()) + " s. The "
 		                + "attempt board and the scoreboard decision block still show " + this.attemptStartLine
 		                + ", with the jury votes.",
 		        List.of(attemptHeldCheck(), votesShown, blockVotes,
 		                new Check("speaker", "no jury dialog", "!(" + dialogContains("Waiting for") + ")")));
 
-		pauseUntil(lastVote, 12_000);
-		step("Twelve seconds after the last jury vote",
-		        "The decisions stayed 10 s after the last jury vote on the attempt board, which now shows " + after
+		pauseUntil(lastVote, after(this.timing.juryDecisionHold()));
+		step(secs(after(this.timing.juryDecisionHold())) + " s after the last jury vote",
+		        "The decisions stayed " + secs(this.timing.juryDecisionHold())
+		                + " s after the last jury vote on the attempt board, which now shows " + after
 		                + ". The scoreboard decision block is still on " + this.attemptStartLine + ".",
 		        List.of(left, blockVotes));
 
-		pauseUntil(decided, 30_000);
-		step("Thirty seconds after the referees",
-		        "The scoreboard decision block stayed 20 s into " + after + ", then cleared.",
+		pauseUntil(lastVote, before(this.timing.decisionBlockHold()));
+		step(secs(before(this.timing.decisionBlockHold())) + " s after the last jury vote",
+		        "The scoreboard decision block is still on " + this.attemptStartLine + " with the jury votes: it "
+		                + "stays " + secs(this.timing.decisionBlockHold()) + " s from the last jury vote.",
+		        List.of(left, blockVotes));
+
+		pauseUntil(lastVote, after(this.timing.decisionBlockHold()));
+		step(secs(after(this.timing.decisionBlockHold())) + " s after the last jury vote",
+		        "The scoreboard decision block stayed " + secs(this.timing.decisionBlockHold())
+		                + " s after the last jury vote, into " + after + ", then cleared.",
 		        List.of(left, blockCleared));
 	}
 
@@ -1112,9 +1230,10 @@ public class JuryScenario {
 			referee(r + 1, refs[r]);
 		}
 		long lastReferee = System.nanoTime();
-		pause(4000);
+		pauseDecisionOver();
 		step("Referees: " + refsText,
-		        liftDecision + " (" + refsText + ") on all boards, no jury circles. After the 3.5 s decision display "
+		        liftDecision + " (" + refsText + ") on all boards, no jury circles. After the "
+		                + secs(this.timing.decisionVisible()) + " s decision display "
 		                + "the Speaker, the scoreboard top line and the attempt board move to the next athlete; the "
 		                + "scoreboard decision block stays on " + this.attemptStart + " with the referee decision.",
 		        plus(topLinesMovedChecks(), attemptOnNextCheck(), blockOnReview));
@@ -1148,15 +1267,17 @@ public class JuryScenario {
 			return;
 		}
 
-		pauseUntil(lastReferee, 14_000);
-		step("Fourteen seconds after the referees' decision",
-		        "Well after the 3.5 s decision display: the scoreboard decision block is still on " + this.attemptStart
+		pauseUntil(lastReferee, before(this.timing.decisionBlockHold()));
+		step(secs(before(this.timing.decisionBlockHold())) + " seconds after the referees' decision",
+		        "Well after the " + secs(this.timing.decisionVisible())
+		                + " s decision display: the scoreboard decision block is still on " + this.attemptStart
 		                + " with the referee decision. The attempt board is on the next athlete.",
 		        List.of(blockOnReview, attemptOnNextCheck()));
 
-		pauseUntil(lastReferee, 27_000);
-		step("Twenty-seven seconds after the referees' decision",
-		        "The decision block kept the decision for 20 s. It is back to the clock, on the athlete of the top "
+		pauseUntil(lastReferee, after(this.timing.decisionBlockHold()));
+		step(secs(after(this.timing.decisionBlockHold())) + " seconds after the referees' decision",
+		        "The decision block kept the decision for " + secs(this.timing.decisionBlockHold())
+		                + " s. It is back to the clock, on the athlete of the top "
 		                + "line, without decision lights.",
 		        List.of(decisionBlockClockCheck(), attemptOnNextCheck()));
 	}
@@ -1185,7 +1306,7 @@ public class JuryScenario {
 		for (int r = 0; r < 3; r++) {
 			referee(r + 1, refs[r]);
 		}
-		pause(4000);
+		pauseDecisionOver();
 		step("Referees: " + refsText, liftDecision + " (" + refsText + ") on all boards; " + n + " empty jury "
 		        + "circles. " + juryVotingText(), juryVotingChecks());
 
@@ -1246,22 +1367,41 @@ public class JuryScenario {
 			return;
 		}
 
-		pauseUntil(lastVote, 6_000);
-		step("At least six seconds after the last jury vote",
-		        "Longer than the 3.5 s decision display: the attempt board is still on " + this.attemptStartLine
+		pauseUntil(lastVote, before(this.timing.juryDecisionHold()));
+		step(secs(before(this.timing.juryDecisionHold())) + " seconds after the last jury vote",
+		        "Longer than the " + secs(this.timing.decisionVisible())
+		                + " s decision display: the attempt board is still on " + this.attemptStartLine
 		                + " with the referee decision and the jury votes, and so is the scoreboard decision block. "
 		                + "The Speaker and the scoreboard top line are on the next athlete.",
 		        List.of(attemptHeldCheck(), votesShown, blockOnReview));
 
-		pauseUntil(lastVote, 12_000);
-		step("Twelve seconds after the last jury vote",
-		        "The decisions stayed 10 s after the last jury vote. The attempt board now shows the next athlete "
+		pauseUntil(lastVote, after(this.timing.juryDecisionHold()));
+		step(secs(after(this.timing.juryDecisionHold())) + " seconds after the last jury vote",
+		        "The decisions stayed " + secs(this.timing.juryDecisionHold())
+		                + " s after the last jury vote. The attempt board now shows the next athlete "
 		                + "with a stopped clock and no decision. The scoreboard decision block is still on the "
-		                + "athlete under review: no clock has started. Speaker: no dialog.",
+		                + "athlete under review: it stays " + secs(this.timing.decisionBlockHold())
+		                + " s from the last jury vote. Speaker: no dialog.",
 		        List.of(attemptOnNextCheck(), blockOnReview,
 		                new Check("speaker", "no jury dialog", "!(" + dialogContains("Waiting for") + ")"),
 		                new Check("jury", "Deliberation and Challenge still offered",
 		                        buttonVisible("Jury Deliberation"))));
+
+		if (!WAIT_OUT_BLOCK_HOLD.contains(sc.id())) {
+			return;
+		}
+		pauseUntil(lastVote, before(this.timing.decisionBlockHold()));
+		step(secs(before(this.timing.decisionBlockHold())) + " s after the last jury vote",
+		        "The scoreboard decision block is still on the athlete under review with the referee decision and "
+		                + "the jury votes: it stays " + secs(this.timing.decisionBlockHold())
+		                + " s from the last jury vote.",
+		        List.of(attemptOnNextCheck(), blockOnReview));
+		pauseUntil(lastVote, after(this.timing.decisionBlockHold()));
+		step(secs(after(this.timing.decisionBlockHold())) + " s after the last jury vote",
+		        "The decision block kept the decision for " + secs(this.timing.decisionBlockHold())
+		                + " s from the last jury vote. It is back to the clock, on the athlete of the top line, "
+		                + "without decision lights.",
+		        List.of(attemptOnNextCheck(), decisionBlockClockCheck()));
 	}
 
 	private void runPanelReview(String athlete) throws Exception {
@@ -1281,7 +1421,7 @@ public class JuryScenario {
 		for (int r = 0; r < 3; r++) {
 			referee(r + 1, refs[r]);
 		}
-		pause(4000);
+		pauseDecisionOver();
 		step("Referees: " + refsText, liftDecision + " (" + refsText + ") on all boards; 4 empty jury circles on "
 		        + "the boards. " + juryVotingText()
 		        + (sc.challenge() ? " Jury Control: Challenge available (the referees' majority is red)." : ""),
@@ -1330,7 +1470,7 @@ public class JuryScenario {
 			                new Check("speaker", "no jury dialog", "!(" + dialogContains("Waiting for") + ")")));
 
 			// the decision display ends and lifting resumes before the coach's challenge
-			pause(4000);
+			pauseDecisionOver();
 			if (sc.afterNextClock()) {
 				startNextClockBeforeReview("Challenge");
 			}
@@ -1424,7 +1564,7 @@ public class JuryScenario {
 		for (int r = 0; r < 3; r++) {
 			referee(r + 1, refs[r]);
 		}
-		pause(4000);
+		pauseDecisionOver();
 		step("Referees: " + refsText, liftDecision + " (" + refsText + ") on all boards; " + n + " empty jury "
 		        + "circles on the boards. " + juryVotingText()
 		        + (sc.challenge() ? " Jury Control: Challenge available (the referees' majority is red)." : ""),
@@ -1463,7 +1603,7 @@ public class JuryScenario {
 			                new Check("speaker", "no jury dialog", "!(" + dialogContains("Waiting for") + ")")));
 
 			// the decision display ends and lifting resumes before the coach's challenge
-			pause(4000);
+			pauseDecisionOver();
 			if (sc.afterNextClock()) {
 				startNextClockBeforeReview("Challenge");
 			}
@@ -1552,7 +1692,7 @@ public class JuryScenario {
 		for (int r = 0; r < 3; r++) {
 			referee(r + 1, refs[r]);
 		}
-		pause(4000);
+		pauseDecisionOver();
 		step("Referees: " + refsText, liftDecision + " (" + refsText + ") on all boards; " + n + " empty jury "
 		        + "circles. " + juryVotingText(), juryVotingChecks(),
 		        expectedJuryBox(refs, null, "the referee lights show the original decision; jury lights are off"));
@@ -1616,6 +1756,7 @@ public class JuryScenario {
 		click(speaker, "vaadin-button:has-text('" + reviewResult + "')",
 		        "Speaker clicks " + reviewResult + " in the \"Waiting for decision\" dialog");
 		long decided = System.nanoTime();
+		this.outcomeAt = decided;
 		pause(1500);
 		step("The Speaker enters " + reviewResult,
 		        "Decision applied at once without a rule: " + reviewResult + " (" + outcomeWord + ") on the boards. "
@@ -1624,19 +1765,29 @@ public class JuryScenario {
 		        List.of(new Check("speaker", "the Speaker's dialog is closed",
 		                "!(" + dialogContains("Waiting for") + ") && !(" + dialogContains(reviewResult.toUpperCase())
 		                        + ")"),
-		                new Check("jury", "the rule dialog is gone", "!(" + dialogContains("Bending") + ")")));
+		                new Check("jury", "the rule dialog is gone", "!(" + dialogContains("Bending") + ")"),
+		                outcomeCardCheck(sc.goodResult(), false)));
 
-		pause(4000);
+		pauseDecisionOver();
 		// the Speaker has announced the decision: lifting goes on, the jury does not need to resume
-		step("Lifting resumes", "Lifting resumed by itself after 3.5 s: next athlete. Jury Control: Deliberation "
+		step("Lifting resumes", "Lifting resumed by itself after " + secs(this.timing.decisionVisible())
+		        + " s: next athlete. Jury Control: Deliberation "
 		        + "and Challenge are back. Nobody presses Resume. The scoreboard decision block keeps the reviewed "
 		        + "athlete and the jury decision.",
 		        List.of(new Check("jury", "Deliberation and Challenge are back", buttonVisible("Jury Deliberation")),
 		                decisionBlockLabelCheck("the jury decision")));
 
-		pauseUntil(decided, 28_000);
-		step("Twenty-eight seconds after the jury decision",
-		        "The decision block kept the jury decision for 20 s after lifting resumed. It is back to the clock, "
+		pauseUntil(decided, before(this.timing.decisionBlockHold()));
+		step(secs(before(this.timing.decisionBlockHold())) + " s after the jury decision",
+		        "The outcome card has left the attempt board (" + secs(this.timing.outcomeCard())
+		                + " s). The decision block still shows the jury decision: it stays "
+		                + secs(this.timing.decisionBlockHold()) + " s from the decision.",
+		        List.of(decisionBlockLabelCheck("the jury decision"), outcomeCardGoneCheck()));
+
+		pauseUntil(decided, after(this.timing.decisionBlockHold()));
+		step(secs(after(this.timing.decisionBlockHold())) + " s after the jury decision",
+		        "The decision block kept the jury decision for " + secs(this.timing.decisionBlockHold())
+		                + " s from the decision. It is back to the clock, "
 		                + "on the athlete of the top line, without decision lights.",
 		        List.of(decisionBlockClockCheck()));
 	}
@@ -1670,7 +1821,7 @@ public class JuryScenario {
 		for (int r = 0; r < 3; r++) {
 			referee(r + 1, refs[r]);
 		}
-		pause(4000);
+		pauseDecisionOver();
 		step("Referees: " + refsText, liftDecision + " (" + refsText + ") on all boards; " + n + " empty jury "
 		        + "circles. " + juryVotingText(), juryVotingChecks());
 
@@ -1770,6 +1921,7 @@ public class JuryScenario {
 		}
 
 		publish("owlcms/jurybox/decision/" + fop, sc.boxDecision());
+		this.outcomeAt = System.nanoTime();
 		pause(1500);
 		boolean againstVote = voted && voteGood != boxGood;
 		String marker = !voted ? "Jury Chair Entered Decision"
@@ -1789,7 +1941,8 @@ public class JuryScenario {
 		                        "!(" + dialogContains("Jury Chair Entered") + ") && !("
 		                                + dialogContains("Against the Vote") + ")"),
 		        new Check("jury", "no rule dialog nor result screen left on Jury Control",
-		                "!(" + dialogContains("Bending") + ") && !(" + dialogContains("Cancel vote result") + ")")));
+		                "!(" + dialogContains("Bending") + ") && !(" + dialogContains("Cancel vote result") + ")"),
+		        outcomeCardCheck(boxGood, false)));
 		checks.addAll(originalRefereeChecks(originalRefereesAtTopRight()));
 		JuryBoxExpectation decisionLights = againstVote || !voted
 		        ? juryBoxOff("a Chair button decision not matching a complete vote clears the device lights")
@@ -1840,7 +1993,7 @@ public class JuryScenario {
 		for (int r = 0; r < 3; r++) {
 			referee(r + 1, refs[r]);
 		}
-		pause(4000);
+		pauseDecisionOver();
 		step("Referees: " + refsText, liftDecision + " (" + refsText + ") on all boards; 4 empty jury circles. "
 		        + juryVotingText(), juryVotingChecks());
 
@@ -1908,6 +2061,7 @@ public class JuryScenario {
 		                new Check("speaker", "the Speaker still waits", dialogContains("Waiting for"))));
 
 		click(juryPage, "vaadin-button[aria-label^='1 - ']", "Jury Chair picks rule 1 on Jury Control");
+		this.outcomeAt = System.nanoTime();
 		pause(1500);
 		step("The Jury Chair gives the rule",
 		        "Decision applied at once: No Lift (" + outcomeWord + ") with rule 1 on the boards. Speaker dialog: "
@@ -1915,7 +2069,8 @@ public class JuryScenario {
 		                + "Close button.",
 		        List.of(new Check("speaker", "the Speaker sees the decision with a Close button",
 		                dialogContains("NO LIFT") + " && " + buttonVisible("Close")),
-		                new Check("speaker", "marked as entered by the Jury Chair", dialogContains("Jury Chair Entered"))));
+		                new Check("speaker", "marked as entered by the Jury Chair", dialogContains("Jury Chair Entered")),
+		                outcomeCardCheck(false, true)));
 
 		closeDecision(reviewResult, originalRefereesAtTopRight());
 	}
@@ -1953,12 +2108,14 @@ public class JuryScenario {
 
 			click(juryPage, "vaadin-button:has-text('Confirm Good Lift')",
 			        "Jury Chair clicks Confirm Good Lift on Jury Control");
+			this.outcomeAt = System.nanoTime();
 			pause(1500);
 			List<Check> decisionChecks = new ArrayList<>(List.of(new Check("speaker",
 			        "the Speaker sees the decision with a Close button",
 			        dialogContains("GOOD LIFT") + " && " + buttonVisible("Close")),
 			        new Check("speaker", "not marked as entered by the Jury Chair",
-			                "!(" + dialogContains("Jury Chair Entered") + ")")));
+			                "!(" + dialogContains("Jury Chair Entered") + ")"),
+			        outcomeCardCheck(true, false)));
 			decisionChecks.addAll(original);
 			step("The Jury Chair confirms the Good Lift",
 			        "Decision applied at once: Good Lift (" + outcomeWord + ") pops over the votes on the "
@@ -1982,12 +2139,14 @@ public class JuryScenario {
 			        resultChecks);
 
 			click(juryPage, "vaadin-button[aria-label^='1 - ']", "Jury Chair picks rule 1 on Jury Control");
+			this.outcomeAt = System.nanoTime();
 			pause(1500);
 			List<Check> decisionChecks = new ArrayList<>(List.of(new Check("speaker",
 			        "the Speaker sees the decision with a Close button",
 			        dialogContains("NO LIFT") + " && " + buttonVisible("Close")),
 			        new Check("speaker", "not marked as entered by the Jury Chair",
-			                "!(" + dialogContains("Jury Chair Entered") + ")")));
+			                "!(" + dialogContains("Jury Chair Entered") + ")"),
+			        outcomeCardCheck(false, true)));
 			decisionChecks.addAll(original);
 			step("The Jury Chair gives the rule",
 			        "Decision applied at once: No Lift with rule 1 pops over the votes on the boards. Speaker "
@@ -2178,7 +2337,8 @@ public class JuryScenario {
 	        """;
 
 	private String juryVotingText() {
-		return "After the 3.5 s decision display the Speaker and the scoreboard top line move to the next athlete; "
+		return "After the " + secs(this.timing.decisionVisible())
+		        + " s decision display the Speaker and the scoreboard top line move to the next athlete; "
 		        + "the attempt board and the scoreboard decision block stay on " + this.attemptStart
 		        + ", with the referee decision, while the jury votes.";
 	}
@@ -2247,6 +2407,34 @@ public class JuryScenario {
 	}
 
 	/** the scoreboard decision block no longer shows the athlete under review: no name, no decision lights */
+	/**
+	 * the jury outcome card is shown on the attempt board: Good Lift (or New Record) or No Lift, with the rule when the
+	 * Jury Chair gave one
+	 */
+	private static Check outcomeCardCheck(boolean good, boolean withRule) {
+		return new Check("attempt", "the outcome card shows " + (good ? "Good Lift" : "No Lift")
+		        + (withRule ? " with the rule" : ", without a rule"),
+		        """
+		        (() => {
+		          const card = %s;
+		          return !!card && card.classList.contains(%s)
+		            && !!(card.querySelector('.jury-notification-decision-text')?.textContent || '').trim()
+		            && Boolean(card.querySelector('.jury-notification-rule')) === %s;
+		        })()
+		        """.formatted(OUTCOME_CARD, js(good ? "jury-notification-card-success" : "jury-notification-card-error"),
+		        withRule));
+	}
+
+	/** the jury outcome card is no longer shown on the attempt board */
+	private static Check outcomeCardGoneCheck() {
+		return new Check("attempt", "the outcome card is gone", "!(" + OUTCOME_CARD + ")");
+	}
+
+	/** the visible jury outcome card of an open dialog on the attempt board, or undefined */
+	private static final String OUTCOME_CARD = "[...document.querySelectorAll('vaadin-dialog-overlay, vaadin-dialog')]"
+	        + ".filter(d => d.opened || d.hasAttribute('opened'))"
+	        + ".map(d => d.querySelector('.jury-notification-card')).find(c => c && c.offsetWidth > 0)";
+
 	private Check decisionBlockClearedCheck() {
 		return new Check("scoreboard", "the decision block no longer shows " + this.attemptStart
 		        + ": no decision lights, no jury circles",
@@ -2335,21 +2523,41 @@ public class JuryScenario {
 	private void closeDecision(String reviewResult, boolean originalRefereesShown) throws Exception {
 		Page speaker = this.pages.get("speaker");
 		click(speaker, "vaadin-button:has-text('Close')", "Speaker clicks Close");
-		pause(5000);
+		pause(this.timing.decisionVisible() + 1500);
+		// the outcome card must have had its full duration
+		pauseUntil(this.outcomeAt, after(this.timing.outcomeCard()));
 		List<Check> resumedChecks = new ArrayList<>(List.of(new Check("speaker", "the dialog is closed",
 		        "!(" + dialogContains(reviewResult.toUpperCase()) + ")"),
 		        new Check("jury", "Deliberation and Challenge are back", buttonVisible("Jury Deliberation")),
-		        challengeUnavailable("the lift has been reviewed")));
+		        challengeUnavailable("the lift has been reviewed"), outcomeCardGoneCheck()));
 		resumedChecks.addAll(originalRefereeChecks(originalRefereesShown));
 		resumedChecks.add(decisionBlockLabelCheck("the jury decision"));
 		step("Speaker closes the dialog; lifting resumes",
-		        "Lifting resumed by itself after 3.5 s: next athlete. Jury Control: Deliberation and Challenge "
-		                + "are back."
-		                + " The scoreboard decision block keeps the reviewed athlete and the jury decision (20 s "
-		                + "after lifting resumes, or until the next clock)."
+		        "Lifting resumed by itself after " + secs(this.timing.decisionVisible())
+		                + " s: next athlete. Jury Control: Deliberation and Challenge "
+		                + "are back. The outcome card has left the attempt board (" + secs(this.timing.outcomeCard())
+		                + " s)."
+		                + " The scoreboard decision block keeps the reviewed athlete and the jury decision ("
+		                + secs(this.timing.decisionBlockHold()) + " s "
+		                + "from the decision, or until the next clock)."
 		                + (originalRefereesShown ? " The reviewed athlete and original referee decision are still shown "
 		                        + "in the top line." : ""),
 		        resumedChecks);
+
+		if (!WAIT_OUT_BLOCK_HOLD.contains(this.scenario.id())) {
+			return;
+		}
+		pauseUntil(this.outcomeAt, before(this.timing.decisionBlockHold()));
+		step(secs(before(this.timing.decisionBlockHold())) + " s after the jury decision",
+		        "The decision block still shows the jury decision: it stays "
+		                + secs(this.timing.decisionBlockHold()) + " s from the decision.",
+		        List.of(decisionBlockLabelCheck("the jury decision"), outcomeCardGoneCheck()));
+		pauseUntil(this.outcomeAt, after(this.timing.decisionBlockHold()));
+		step(secs(after(this.timing.decisionBlockHold())) + " s after the jury decision",
+		        "The decision block kept the jury decision for " + secs(this.timing.decisionBlockHold())
+		                + " s from the decision. It is back to the clock, on the athlete of the top line, without "
+		                + "decision lights.",
+		        List.of(decisionBlockClockCheck()));
 	}
 
 	/** checks for the original referee decision shown at the right of the Jury Control top line */
