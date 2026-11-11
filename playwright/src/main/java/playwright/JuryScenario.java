@@ -924,14 +924,14 @@ public class JuryScenario {
 		clock("start");
 		pause(1500);
 		step("Speaker tries to start the next clock",
-		        "owlcms refuses the clock start. The Speaker sees \"The jury has not finished voting\" with Start "
+		        "owlcms refuses the clock start. The Speaker sees \"" + VOTE_PENDING_TEXT + "\" with Start "
 		                + "clock anyway. More than " + secs(this.timing.juryDecisionHold() + 6000)
 		                + " s after the referees' decision, the attempt board and the "
 		                + "decision block are still on the athlete under review: they wait for the missing jury "
 		                + "vote without a time limit. Jury Control shows no "
 		                + "warning: the jury does not start the clock.",
 		        List.of(new Check("speaker", "pending-jury dialog is open",
-		                dialogContains("jury has not finished voting")),
+		                dialogContains(VOTE_PENDING_TEXT)),
 		                new Check("speaker", "Start clock anyway is offered", buttonVisible("Start clock anyway")),
 		                new Check("jury", "no clock warning", "!(" + notificationContains("Clock not started") + ")"),
 		                decisionBlockReviewCheck(colors(refs), juryStates(broken, "voted")),
@@ -949,7 +949,7 @@ public class JuryScenario {
 			awaitRunningClocks();
 			List<Check> overrideChecks = new ArrayList<>(List.of(
 			        new Check("speaker", "the pending-jury dialog is closed",
-			                "!(" + dialogContains("jury has not finished voting") + ")"),
+			                "!(" + dialogContains(VOTE_PENDING_TEXT) + ")"),
 			        new Check("jury", "no clock warning", "!(" + notificationContains("Clock not started") + ")"),
 			        new Check("jury", "Deliberation and Challenge are offered",
 			                buttonVisible("Jury Deliberation") + " && " + buttonVisible("Challenge")),
@@ -993,7 +993,7 @@ public class JuryScenario {
 			awaitRunningClocks();
 			List<Check> checks = new ArrayList<>(List.of(
 			        new Check("speaker", "no confirmation is asked: the jury has finished voting",
-			                "!(" + dialogContains("jury has not finished voting") + ")"),
+			                "!(" + dialogContains(VOTE_PENDING_TEXT) + ")"),
 			        attemptOnNextCheck(), decisionBlockClockCheck(),
 			        new Check("jury", review + " can still be started",
 			                "Challenge".equals(review) ? buttonEnabled("Challenge")
@@ -1347,7 +1347,7 @@ public class JuryScenario {
 				awaitRunningClocks();
 				List<Check> startedChecks = new ArrayList<>(List.of(
 				        new Check("speaker", "no confirmation is asked",
-				                "!(" + dialogContains("jury has not finished voting") + ")"),
+				                "!(" + dialogContains(VOTE_PENDING_TEXT) + ")"),
 				        new Check("speaker", "no rejected clock command notification",
 				                "!(" + notificationContains("Clock not started") + ")"),
 				        attemptOnNextCheck(), decisionBlockClockCheck()));
@@ -2483,6 +2483,9 @@ public class JuryScenario {
 	/** the reason given when the referees' decision stands (the translation key until the translations are imported) */
 	private static final String STANDS_TEXT = "Stands as Called|StandsAsCalled";
 
+	/** title of the dialog shown when the clock is started before the jury has voted on the previous lift */
+	private static final String VOTE_PENDING_TEXT = "Waiting for the jury vote";
+
 	/** the outcome card shows the decision with the reason "Referee Decision Stands as Called", not a technical rule */
 	private static Check outcomeCardStandsCheck(boolean good) {
 		return new Check("attempt", "the outcome card shows " + (good ? "Good Lift" : "No Lift")
@@ -3086,7 +3089,7 @@ public class JuryScenario {
 			checks.add(new Check(page, "no rejected clock command notification",
 			        "!(" + notificationContains("Cannot stop clock") + ") && !("
 			                + notificationContains("Clock not started") + ") && !("
-			                + notificationContains("jury has not finished voting") + ")"));
+			                + notificationContains(VOTE_PENDING_TEXT) + ")"));
 		}
 		return checks;
 	}

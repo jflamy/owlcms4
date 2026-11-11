@@ -276,7 +276,7 @@ voted. Until then, only "voted / not voted" is shown.
    `athleteUnderReview` are incomplete (switch on, VPT on, at least one jury
    vote missing).
    - The clock is **not** started at first, and the request is **not** silently
-     dropped. The dialog "Jury has not finished voting on the previous lift"
+     dropped. The dialog "Waiting for the jury vote on the previous lift"
      with **Start clock anyway** (override) and **Cancel** is shown on the
      screen that owns the decision for the access mode in use:
      - **Accounts mode** (IWF meets, `Config.isAccountsMode()`): the
