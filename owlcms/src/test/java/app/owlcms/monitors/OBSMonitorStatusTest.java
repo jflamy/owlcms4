@@ -245,7 +245,7 @@ public class OBSMonitorStatusTest {
 	}
 
 	private void lastSnatchThenFirstCleanJerk(Station station, boolean good) {
-		station.note("No jury. Last snatch: " + (good ? "good lift" : "no lift")
+		station.juryCase("No jury. Last snatch: " + (good ? "good lift" : "no lift")
 		        + ". The Speaker ends the break. First clean and jerk: " + (good ? "good lift." : "no lift."));
 		station.fop.setJurySize(0);
 		lift(station, Stage.SNATCH, good, good, good);
@@ -326,15 +326,18 @@ public class OBSMonitorStatusTest {
 		String inBreak = "BREAK." + breakAfter.name();
 		switch (jury) {
 			case NONE -> {
-				station.note("No jury (jury size 0). The referees give a good lift; the " + breakAfter
+				station.juryCase("No jury (jury size 0). The referees give a good lift; the " + breakAfter
 				        + " break follows.");
 				station.fop.setJurySize(0);
 				lift(station, stage, W, W, W);
 				station.expect("break=" + inBreak + ";previous=DECISION_VISIBLE.GOOD_LIFT", null);
 			}
 			case THREE_MEMBER_REVIEW -> {
-				station.note("3-member jury. The referees give a no lift; during the " + breakAfter
-				        + " break the Jury Chair starts a Deliberation and the jury reverses to a good lift.");
+				station.juryCase("3-member jury. The referees give a no lift; during the " + breakAfter
+				        + " break the Jury Chair starts a Deliberation and the jury reverses to a good lift."
+				        + (breakAfter == BreakType.FIRST_CJ
+				                ? " The jury then reviews the same lift again and goes back to a no lift."
+				                : ""));
 				station.fop.setJurySize(3);
 				assertFalse(station.fop.isPanelProcedure());
 				lift(station, stage, R, R, W);
@@ -351,7 +354,7 @@ public class OBSMonitorStatusTest {
 				station.expect("break=" + inBreak + ";previous=DECISION_VISIBLE.GOOD_LIFT", null);
 
 				if (breakAfter == BreakType.FIRST_CJ) {
-					station.note("The jury reviews the same lift a second time and goes back to a no lift.");
+					station.note("Second review of the same lift.");
 					breakRuns();
 					station.post(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true,
 					        new Object()));
@@ -364,7 +367,7 @@ public class OBSMonitorStatusTest {
 				}
 			}
 			case PANEL_REVIEW -> {
-				station.note("Adjudication Panel (3 referees, 4 jurors, video). The referees give a good lift; during the "
+				station.juryCase("Adjudication Panel (3 referees, 4 jurors, video). The referees give a good lift; during the "
 				        + breakAfter + " break the jurors vote no lift: automatic review, the panel reverses to a no lift.");
 				station.fop.setJurySize(4);
 				assertTrue(station.fop.isPanelProcedure());
@@ -396,7 +399,7 @@ public class OBSMonitorStatusTest {
 	}
 
 	private void panelLiftWithoutReview(Station station) {
-		station.note("Adjudication Panel (3 referees, 4 jurors, video). Good lift; the jury agrees: no review.");
+		station.juryCase("Adjudication Panel (3 referees, 4 jurors, video). Good lift; the jury agrees: no review.");
 		station.fop.setJurySize(4);
 		assertTrue(station.fop.isPanelProcedure());
 		liftToNextAthlete(station, W, W, W);
@@ -405,7 +408,7 @@ public class OBSMonitorStatusTest {
 	}
 
 	private void panelReversal(Station station) {
-		station.note("Adjudication Panel. Good lift; the jurors vote no lift: automatic review, the panel reverses "
+		station.juryCase("Adjudication Panel. Good lift; the jurors vote no lift: automatic review, the panel reverses "
 		        + "to a no lift.");
 		station.fop.setJurySize(4);
 		assertTrue(station.fop.isPanelProcedure());
@@ -421,7 +424,7 @@ public class OBSMonitorStatusTest {
 	}
 
 	private void refereesLiftWithoutReview(Station station) {
-		station.note("3-member jury. No lift; the jury agrees: no review.");
+		station.juryCase("3-member jury. No lift; the jury agrees: no review.");
 		station.fop.setJurySize(3);
 		assertFalse(station.fop.isPanelProcedure());
 		liftToNextAthlete(station, R, R, W);
@@ -429,7 +432,7 @@ public class OBSMonitorStatusTest {
 	}
 
 	private void juryReview(Station station) {
-		station.note("3-member jury. No lift; the Jury Chair starts a Deliberation and the jury reverses to a good "
+		station.juryCase("3-member jury. No lift; the Jury Chair starts a Deliberation and the jury reverses to a good "
 		        + "lift.");
 		station.fop.setJurySize(3);
 		assertFalse(station.fop.isPanelProcedure());
@@ -623,16 +626,18 @@ public class OBSMonitorStatusTest {
 				        body { font-family: sans-serif; font-size: 13px; margin: 1em; }
 				        h2.pass { color: #1a7f37; } h2.fail { color: #c62828; }
 				        .platforms { display: flex; gap: 1.5em; align-items: flex-start; }
-				        .platform { flex: 1; }
+				        .platform { flex: 1 1 0; min-width: 0; }
 				        table { border-collapse: collapse; width: 100%; }
 				        th, td { border: 1px solid #ccc; padding: 2px 6px; text-align: left; vertical-align: top; }
 				        td.t { text-align: right; color: #666; white-space: nowrap; }
 				        tr.note td { background: #eef3fb; font-style: italic; }
+				        div.cases { background: #eef3fb; border: 1px solid #c5d3ea; padding: 4px 8px; margin-bottom: 8px; }
+				        div.cases ol { margin: 4px 0 0 0; padding-left: 1.5em; }
 				        tr.ok td.title { background: #e8f5e9; }
 				        tr.bad td.title { background: #ffebee; }
 				        .expected { color: #c62828; }
 				        pre.failure { background: #ffebee; white-space: pre-wrap; }
-				        code { font-size: 12px; }
+				        code { font-size: 12px; overflow-wrap: anywhere; }
 				        </style></head><body>
 				        <h1>OBS monitor: two platforms lifting at the same time</h1>
 				        <p>Generated by OBSMonitorStatusTest. For each platform: the actions of the officials, the
@@ -647,7 +652,13 @@ public class OBSMonitorStatusTest {
 	}
 
 	private static void appendStation(StringBuilder html, Station station) {
-		html.append("<div class='platform'><h3>Platform ").append(escape(station.fop.getName())).append("</h3>\n")
+		// headed as in the monitor titles
+		html.append("<div class='platform'><h3>fop=").append(escape(station.fop.getName())).append("</h3>\n");
+		html.append("<div class='cases'><b>Jury cases, in order</b><ol>");
+		for (String juryCase : station.juryCases) {
+			html.append("<li>").append(escape(juryCase)).append("</li>");
+		}
+		html.append("</ol></div>\n")
 		        .append("<table><tr><th>ms</th><th>Action</th><th>Platform state after</th>"
 		                + "<th>Monitor title</th></tr>\n");
 		List<Station.Entry> entries = new ArrayList<>(station.timeline);
@@ -704,6 +715,8 @@ public class OBSMonitorStatusTest {
 		final List<String> titles = new CopyOnWriteArrayList<>();
 		final List<String> expected = new CopyOnWriteArrayList<>();
 		final List<Entry> timeline = new CopyOnWriteArrayList<>();
+		/** the jury cases run on this platform, in order */
+		final List<String> juryCases = new CopyOnWriteArrayList<>();
 		/** milliseconds on the clock at each start of the break before clean and jerk */
 		final List<Integer> cleanJerkBreakStarts = new CopyOnWriteArrayList<>();
 		private final long start;
@@ -719,6 +732,12 @@ public class OBSMonitorStatusTest {
 
 		void note(String text) {
 			this.timeline.add(new Entry(elapsed(), Kind.NOTE, text, null));
+		}
+
+		/** The start of a jury case: listed at the top of the platform's column, and marked in its timeline. */
+		void juryCase(String text) {
+			this.juryCases.add(text);
+			note(text);
 		}
 
 		private long elapsed() {
