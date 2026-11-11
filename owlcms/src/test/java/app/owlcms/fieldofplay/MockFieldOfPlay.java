@@ -38,6 +38,21 @@ public final class MockFieldOfPlay {
 		return m;
 	}
 
+	/**
+	 * Build a named {@link FieldOfPlay} with the production timers, which publish the clock and break events the
+	 * displays rely on. For tests that run several platforms and observe their UI events.
+	 */
+	public static FieldOfPlay createWithProductionTimers(String name, Group group, List<Athlete> athletes) {
+		FieldOfPlay m = new FieldOfPlay();
+		m.setName(name);
+		m.initEventBuses();
+		m.setTestingMode(true);
+		m.setGroup(group);
+		m.init(athletes, new ProxyAthleteTimer(m), new ProxyBreakTimer(m), true);
+		m.getFopEventBus().register(m);
+		return m;
+	}
+
 	/** The records the platform currently considers eligible for the athlete. */
 	public static List<RecordEvent> eligibleRecords(FieldOfPlay fop, Athlete athlete) {
 		return fop.eligibleRecordsByAthlete.getOrDefault(athlete, List.of());

@@ -998,6 +998,13 @@ public class FieldOfPlay implements IUnregister {
 			}
 			endMedalCeremony(e.getOrigin());
 			this.setCeremonyType(null);
+			boolean reviewEnding = this.state == DECISION_VISIBLE || (this.state == BREAK
+			        && (this.breakType == BreakType.JURY || this.breakType == BreakType.CHALLENGE));
+			if (reviewEnding && allFirstCJ()) {
+				// the last snatch is only decided now: the snatches are over, the break before clean and jerk starts
+				// (again, for its full duration, if it had started before the review)
+				setCjBreakDisplayed(false);
+			}
 			if (this.state == BREAK && (this.breakType == BreakType.JURY || this.breakType == BreakType.TECHNICAL
 					|| this.breakType == BreakType.MARSHAL)) {
 				if (getGroup() == null) {

@@ -77,7 +77,9 @@ In actual life, you would probably consider BREAK_BEFORE as a separate condition
 
 ## State Transition Sequences
 
-Here is the full set of state transitions that can be expected over the course of a competition. The `fop=A` in the examples indicates what field of play (platform) on which the event took place.  If you have multiple platforms, you should start different status monitors,  one per platform.
+Here is the full set of state transitions that can be expected over the course of a competition. The `fop=A` in the examples indicates what field of play (platform) on which the event took place.  If you have multiple platforms, you should start different status monitors,  one per platform: select the platform at the top of the Video Streaming page before starting its monitor. The address of each monitor ends with `fop=` followed by the name of its platform, and that is the platform it reports on. The address may omit the platform only when the competition has a single platform.
+
+When the status is about a lift, it also contains `liftType=SNATCH` or `liftType=CLEANJERK` just before the platform (for example `state=TIME_RUNNING;previous=CURRENT_ATHLETE_DISPLAYED;liftType=SNATCH;fop=A`). While a decision is shown and during a jury break, this is the type of the lift that was decided. The examples below leave it out.
 
 1. Announcer selects "No Group"
 
@@ -127,14 +129,29 @@ state=CURRENT_ATHLETE_DISPLAYED;previous=DECISION_VISIBLE.GOOD_LIFT;fop=A
 ```
 break=BREAK.JURY;previous=CURRENT_ATHLETE_DISPLAYED;fop=A
 state=DECISION_VISIBLE.BAD_LIFT;previous=BREAK.JURY;fop=A
-state=CURRENT_ATHLETE_DISPLAYED;previous=BREAK.JURY;fop=A
+state=CURRENT_ATHLETE_DISPLAYED;previous=DECISION_VISIBLE.BAD_LIFT;fop=A
 ```
 
-6. Break after last lift in the snatch (is started by the announcer).
+6. Break after last lift in the snatch. When the break starts automatically, the status goes to the break without CURRENT_ATHLETE_DISPLAYED.
+
+```
+state=DECISION_VISIBLE.GOOD_LIFT;previous=DOWN_SIGNAL_VISIBLE;fop=A
+break=BREAK.FIRST_CJ;previous=DECISION_VISIBLE.GOOD_LIFT;fop=A
+```
+
+​	When the break is started by the announcer instead
 
 ```
 state=CURRENT_ATHLETE_DISPLAYED;previous=DECISION_VISIBLE.GOOD_LIFT;fop=A
 break=BREAK.FIRST_CJ;previous=CURRENT_ATHLETE_DISPLAYED;fop=A
+```
+
+​	Jury break on the last snatch, during the break: the snatches are not over until the jury has decided, so the clean & jerk break then starts again for its full duration.
+
+```
+break=BREAK.JURY;previous=BREAK.FIRST_CJ;fop=A
+state=DECISION_VISIBLE.BAD_LIFT;previous=BREAK.JURY;fop=A
+break=BREAK.FIRST_CJ;previous=DECISION_VISIBLE.BAD_LIFT;fop=A
 ```
 
 7. End of the clean & jerk break, followed by normal lifting sequence same as above

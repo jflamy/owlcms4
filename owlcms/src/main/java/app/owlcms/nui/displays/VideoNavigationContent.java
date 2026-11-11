@@ -28,6 +28,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.AccessUi;
 import app.owlcms.access.Permission;
 import app.owlcms.access.RequiresPermission;
 import com.vaadin.flow.router.Route;
@@ -113,7 +114,8 @@ public class VideoNavigationContent extends BaseNavigationContent
 		if (!FeatureSwitch.OBS_MONITORS.isEffective()) {
 			return;
 		}
-		Button obsMonitor = openInNewTab(OBSMonitor.class, Translator.translate("OBS.MonitoringButton"));
+		Button obsMonitor = new Button(Translator.translate("OBS.MonitoringButton"), e -> openObsMonitor());
+		obsMonitor.setVisible(AccessUi.canOpen(OBSMonitor.class, getFop()));
 		Button eventMonitor = openInNewTabWithFopQueryParameters(StreamingEventMonitor.class,
 		        Translator.translate("Video.EventMonitoringButton"),
 		        "video=true");
@@ -317,6 +319,17 @@ public class VideoNavigationContent extends BaseNavigationContent
 	@SuppressWarnings("unused")
 	private Group getMedalGroup() {
 		return this.medalGroup;
+	}
+
+	/**
+	 * The monitor is told in its URL which platform to report on. The platform is read when the button is pressed: it
+	 * is not known yet when the page is built.
+	 */
+	private void openObsMonitor() {
+		FieldOfPlay fop = getFop();
+		QueryParameters qp = fop != null ? QueryParameters.simple(Map.of("fop", fop.getName()))
+		        : QueryParameters.empty();
+		doOpenInNewTab(OBSMonitor.class, Translator.translate("OBS.MonitoringButton"), null, qp);
 	}
 
 	private void openInNewTabWithResultsQueryParameters(Class<?> class1) {
