@@ -90,8 +90,6 @@ public class PreparationNavigationContent extends BaseNavigationContent
 				Translator.translate("TechnicalOfficials"));
 		Button groups = openInNewTabNoParam(SessionContent.class, Translator.translate("DefineGroups"));
 		Button platforms = openInNewTabNoParam(PlatformContent.class, Translator.translate("DefineFOP"));
-		Button accounts = openInNewTabNoParam(AccountsContent.class, Translator.translate("Access.Accounts.Title"),
-				VaadinIcon.KEY.create());
 
 		var emptyRegistrationWriter = new JXLSRegistrationEmptyExport();
 		Notification notification = new Notification(Translator.translate("Processing"));
@@ -187,7 +185,7 @@ public class PreparationNavigationContent extends BaseNavigationContent
 
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, editChampionships,
 				ageGroups, officials, groups,
-				platforms, accounts);
+				platforms);
 		doGroup(Translator.translate("PreCompetitionSetup"), grid1, this, true);
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload, athletes, coaches, teams);
 		doGroup(Translator.translate("Registration"), grid2, this, true);

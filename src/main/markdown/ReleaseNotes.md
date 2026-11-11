@@ -97,7 +97,7 @@
   - `OWLCMS_ACCESSMODE` is no longer read: the access mode is set only on the Administration page or by an import.
 
 - User Accounts mode: named accounts with role-based access
-  - New Accounts Management page.
+  - New Accounts Management page, opened from the Security and Audit tab of the Administration page.
   - Competition Supervisor page and passive speaker view.
   - Imports need the Preparation, Registration or Competition Supervisor role; database and SBDE exports need the Results permission (Results, Competition Director, Competition Supervisor, External). The buttons are hidden from other accounts.
   - Buttons that open another page (medal ceremony, championships, age groups, records, record eligibility report, team schedule, registration from the sessions page, plates and collars from the platforms page) are shown only to accounts allowed to open that page.

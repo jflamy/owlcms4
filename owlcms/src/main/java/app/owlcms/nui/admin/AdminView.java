@@ -49,6 +49,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.home.HomeNavigationContent;
+import app.owlcms.nui.preparation.AccountsContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.nui.shared.IwfComplianceDisplay;
@@ -113,12 +114,16 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 		tabs.add(Translator.translate("Admin.System"), systemTab);
 		if (AccessUi.hasCapability(Capability.SECURITY_SETTINGS, null)) {
 			AccessControlForm accessControlForm = new AccessControlForm();
+			Button accounts = openInNewTabNoParam(AccountsContent.class,
+			        Translator.translate("Access.Accounts.Title"), VaadinIcon.KEY.create());
 			VerticalLayout securityTab = tab(heading("Config.AccessControlTitle"), securityStatus(),
-			        securityControls(token, accessControlForm::refreshIfClean),
+			        securityControls(accounts, token),
 			        accessControlForm);
-			if (AccessUi.hasCapability(Capability.AUDIT_KEYS, null)) {
-				securityTab.add(heading("Admin.AuditTrail"), HomeNavigationContent.navigationGrid(auditKey, auditCheck));
-			}
+			FlexibleGridLayout auditTrail = AccessUi.hasCapability(Capability.AUDIT_KEYS, null)
+			        ? HomeNavigationContent.navigationGrid(auditKey, auditCheck,
+			                iwfComplianceCheck(accessControlForm::refreshIfClean))
+			        : HomeNavigationContent.navigationGrid(iwfComplianceCheck(accessControlForm::refreshIfClean));
+			securityTab.add(heading("Admin.AuditTrail"), auditTrail);
 			if (!token) {
 				securityTab.add(helperText("Access.ControlPanelTokenNotSet"));
 			}
@@ -174,18 +179,17 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 	}
 
 	/**
-	 * @param token         false when OWLCMS has no control panel token: the access mode cannot be switched
-	 * @param settingsSaved run after a control here saved the settings
+	 * @param accounts opens the user accounts page, shown first
+	 * @param token    false when OWLCMS has no control panel token: the access mode cannot be switched
 	 */
-	private FlexibleGridLayout securityControls(boolean token, Runnable settingsSaved) {
+	private FlexibleGridLayout securityControls(Button accounts, boolean token) {
 		Config config = Config.getCurrent();
 		AccessMode target = config.getParamAccessMode() == AccessMode.ACCOUNTS ? AccessMode.PIN : AccessMode.ACCOUNTS;
 		Button accessMode = new Button(Translator.translate(accessModeLabel(target)), VaadinIcon.USERS.create(),
 		        event -> confirmAccessMode(target));
 		accessMode.setEnabled(token);
-		return HomeNavigationContent.navigationGrid(
-		        securityAction(accessMode, token ? accessModeLabel(target) + "Help" : "Access.ControlPanelTokenNotSet"),
-		        iwfComplianceCheck(settingsSaved));
+		return HomeNavigationContent.navigationGrid(accounts,
+		        securityAction(accessMode, token ? accessModeLabel(target) + "Help" : "Access.ControlPanelTokenNotSet"));
 	}
 
 	/**
