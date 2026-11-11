@@ -10,7 +10,7 @@ This is a historical design, not an active work list. Earlier descriptions of
 missing behavior and open questions below record the development sequence.
 Optional follow-ups are noted at the end.
 
-**Superseded on 2026-11-11 by [Jury Display Holds](../010-JURY_DISPLAY_HOLDS.md)**, which is the
+**Superseded on 2026-11-11 by [Jury Display Holds](010-JURY_DISPLAY_HOLDS.md)**, which is the
 only specification of:
 - how long the attempt boards and the scoreboard decision section stay on a decision, a vote or
   a jury outcome (the hold descriptions have been removed from this document);
@@ -137,7 +137,7 @@ decision.
   referee votes (`Athlete.setDecisions`), updates records and sets
   `athleteUnderReview`.
 - The decision stays visible (`DECISION_VISIBLE`) for 3.5 s. For the display holds with a jury,
-  see [Jury Display Holds](../010-JURY_DISPLAY_HOLDS.md).
+  see [Jury Display Holds](010-JURY_DISPLAY_HOLDS.md).
 - `DecisionUpdate` in `BREAK` is rejected (`unexpectedEventInState`). Referees
   cannot vote during a jury break.
 - Referee phones disable the white button once the decision is shown
@@ -255,7 +255,7 @@ voted. Until then, only "voted / not voted" is shown.
    (`restartTimer` → `resetDecisions`). The wait for the jury is therefore
    **indefinite**: no timeout.
    - **Display hold.** Removed on 2026-11-11: see
-     [Jury Display Holds](../010-JURY_DISPLAY_HOLDS.md) for what the boards show while the jury
+     [Jury Display Holds](010-JURY_DISPLAY_HOLDS.md) for what the boards show while the jury
      votes, for how long, and for the automatic stop of each jury.
    - **Next clock.** Whatever the boards show, the next clock is
      refused until every juror has voted, the Chair/Speaker enters the jury
@@ -1068,7 +1068,7 @@ Decided:
 - The Jury Chair picks the Technical Rule for a No Lift.
 - No timeout for the jury votes. The lift under review and its votes are kept
   until the next clock start. For what the boards show meanwhile, and for how long, see
-  [Jury Display Holds](../010-JURY_DISPLAY_HOLDS.md).
+  [Jury Display Holds](010-JURY_DISPLAY_HOLDS.md).
   A clock start with incomplete jury votes is refused; the deciding console
   may choose "Start clock anyway" to discard the incomplete votes and leave
   the referees' decision in place. See section 3, steps 2 and 4.

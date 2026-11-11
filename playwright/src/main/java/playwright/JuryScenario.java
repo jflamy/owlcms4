@@ -40,48 +40,42 @@ import com.microsoft.playwright.options.LoadState;
  * an HTML report with the expected result and what was read from the pages.
  *
  * <p>
- * Scenarios ({@link #SCENARIOS}):
+ * Scenarios ({@link #SCENARIOS}), grouped by jury: seven-person panel (1xx), four-member jury without VPT (2xx),
+ * three-member jury (3xx; a three-member jury with VPT behaves exactly as without VPT, so it has no scenarios of its
+ * own), no jury (5xx):
  * <ul>
- * <li>four-member jury with VPT (010-060). The review starts automatically (the jury votes against the referees) or
- * with the Challenge button of Jury Control (030, 035: the jury agreed with the referees' No Lift; 040, 050: split
- * jury); Summon All from the jury box calls the vote; the seven officials vote.</li>
- * <li>jury vote, no seven-person panel: three-member jury without VPT (070-110), four-member jury without VPT
- * (120-160), a three-member jury with VPT behaves exactly as without VPT, so it has no scenarios of its own.
- * <li>170: four-member jury with VPT, a jury box that does not work: the vote never completes and the Chair gives the
- * decision with the No Lift button and the rule.
- * <li>180 (VPT) and 190 (3-member jury): jury box only, the Chair never confirms; the Speaker enters the decision. No automatic stop: the Jury Chair starts the review with Jury Deliberation
- * (unanimous jury against the referees) or Challenge (split jury). The vote is open at once and called verbally; the
- * three jurors punch in their votes; the referees do not vote; unanimity is needed to reverse.</li>
- * <li>200 (VPT) and 205 (four-member jury, no VPT): a jury box that does not work; the Speaker starts the next clock
- * anyway.</li>
- * <li>210-230: the Jury Chair decides with the jury box buttons (MQTT), applied at once without a rule; the Speaker
- * dialog asks to get the reason from the Technical Controller. 210: the decision agrees with the vote; 220: against
- * the vote; 230: no vote.</li>
- * <li>240-250: manual deliberation or automatic panel review ended with Resume without a jury decision.</li>
- * <li>260-290: normal three-member jury-box decisions after a complete review vote: confirm No Lift, confirm Good
- * Lift, reverse to No Lift, reverse to Good Lift. The Chair presses the physical box button; the Speaker only closes
- * the announcement dialog.</li>
- * <li>300-320: the jury agrees with the referees, no review. 300 (three-member jury) and 320 (VPT): the attempt
- * board stays on the athlete under review for 10 s after the last jury vote, then shows the next athlete. 310: the
- * Speaker starts the next clock during that time; no confirmation is asked and the board follows.</li>
- * <li>330-340: no jury. The attempt board moves to the next athlete after the 3.5 s decision display; the scoreboard
- * decision block stays on the athlete under review for 20 s (330) or until the next clock starts (340).</li>
- * <li>350-360: the review starts after the Speaker has started the next athlete's clock. 350: three-member jury,
- * deliberation. 360: VPT, challenge after the panel agreed with the referees' No Lift. The review stops the clock;
- * the attempt board and the decision block go back to the athlete under review; the Speaker stays on the next
- * athlete.</li>
- * <li>370-380: the lift ends the snatches (370, session M2) or the session (380, session M3). The attempt board
- * stays on the athlete under review until the jury has voted and 10 s more, then shows the break before clean and
- * jerk or the end of the session. The scoreboard decision block stays on the last lift 20 s after the last jury
- * vote, then clears.</li>
- * <li>390-400: same lifts (390, session M4; 400, session M5), but the jury never votes. The attempt board and the
- * scoreboard decision block stay on the athlete under review, without time limit, until the Speaker reloads the
- * session. 370 to 400 need the
- * single-athlete sessions of the fixture ({@code run-jury-scenario.sh --server}); each one uses up its session.</li>
- * <li>410-420: no jury, same lifts (410, session M6; 420, session M7). The attempt board shows the break before clean
- * and jerk or the end of the session after the decision display; the scoreboard decision block stays on the last
- * lift for its hold, then clears.</li>
+ * <li>seven-person panel (four-member jury with VPT), 100-170. The review starts automatically (the jury votes against
+ * the referees) or with the Challenge button of Jury Control (110, 115: the jury agreed with the referees' No Lift;
+ * 120, 125: split jury); Summon All from the jury box calls the vote; the seven officials vote (100-130). 135: a jury
+ * box that does not work, the vote never completes and the Chair gives the decision with the No Lift button and the
+ * rule. 140: jury box only, the Chair never confirms, the Speaker enters the decision. 145: a jury box that does not
+ * work, the Speaker starts the next clock anyway. 150, 155: the Jury Chair decides with the jury box buttons (MQTT),
+ * applied at once without a rule, agreeing with the vote (150) or against it (155). 160: automatic panel review ended
+ * with Resume without a jury decision. 165: the panel agrees with the referees, no review; the attempt board stays on
+ * the athlete under review for 10 s after the last jury vote. 170: challenge after the Speaker has started the next
+ * athlete's clock.</li>
+ * <li>four-member jury without VPT, 200-225: reversals (200, 205), challenges (210 successful, 215 not reaching the
+ * jury's rule: the No Lift stands as called), confirmation (220), and a jury box that does not work, the Speaker
+ * starting the next clock anyway (225).</li>
+ * <li>three-member jury, 300-395. 300-325: reversals, challenges and confirmations; 315 and 325: the review vote does
+ * not reach the jury's rule, the referees' decision stands as called (No Lift, Good Lift). 330: jury box only, the
+ * Speaker enters the decision. 335: the Chair presses No Lift on the jury box before any vote. 340: deliberation
+ * ended with Resume without a jury decision. 345-360: normal jury-box decisions after a complete review vote: confirm
+ * No Lift, confirm Good Lift, reverse to No Lift (355 summons the referees for discussion first), reverse to Good
+ * Lift. 365: the jury agrees with the referees, no review; 370: the Speaker starts the next clock during the hold.
+ * 375: deliberation after the Speaker has started the next athlete's clock; the review stops the clock and the boards
+ * go back to the athlete under review. 380, 385: the lift ends the snatches (session M2) or the session (M3); the
+ * attempt board stays on the athlete under review until the jury has voted and 10 s more, the scoreboard decision
+ * block 20 s after the last jury vote. 390, 395: same lifts (M4, M5), but the jury never votes: both stay on the
+ * athlete under review until the Speaker reloads the session.</li>
+ * <li>no jury, 500-515. 500: the attempt board moves to the next athlete after the 3.5 s decision display; the
+ * scoreboard decision block stays on the athlete under review for 20 s. 505: until the next clock starts instead.
+ * 510, 515: the lift ends the snatches (session M6) or the session (M7); the decision block stays on the last lift for
+ * its hold, then clears.</li>
  * </ul>
+ * 380 to 395, 510 and 515 need the single-athlete sessions of the fixture ({@code run-jury-scenario.sh --server});
+ * each one uses up its session.
+ * <p>
  * Completed decisions end after the Speaker closes the dialog and lifting resumes automatically. Only reviews
  * ending without a jury decision use Resume. The settings are applied through the screens before each scenario.
  * <p>
@@ -93,7 +87,7 @@ import com.microsoft.playwright.options.LoadState;
  * <p>
  * The scoreboard decision block shows the athlete under review from the referees' decision until the next clock
  * starts, then the athlete of the running clock. Without a jury it also returns to the clock after 20 s. After a
- * jury decision it keeps the decision when lifting resumes, for 20 s (180 and 190 wait for the return to the clock).
+ * jury decision it keeps the decision when lifting resumes, for 20 s (140 and 330 wait for the return to the clock).
  * <p>
  * Each scenario has its own folder {@code <out>/<scenario>/}, cleaned and rewritten each time it runs, with
  * {@code timeline.html} (screens side by side, with header checkboxes to hide/show screen columns) and
@@ -102,7 +96,7 @@ import com.microsoft.playwright.options.LoadState;
  *
  * <pre>
  * Options: --base=http://localhost:8080 --mqtt=tcp://localhost:1883 --fop=A --group=M1 --out=playwright/reports
- *          --scenario=010-vpt-reversal-nolift,040-vpt-challenge-success --headed
+ *          --scenario=100-vpt-reversal-nolift,120-vpt-challenge-success --headed
  * </pre>
  */
 public class JuryScenario {
@@ -290,204 +284,195 @@ public class JuryScenario {
 
 	static final Map<String, Scenario> SCENARIOS = new LinkedHashMap<>();
 	static {
-		add(new Scenario("010-vpt-reversal-nolift",
-		        "010. VPT: Good Lift reversed to No Lift by the panel (automatic review), the Jury Chair gives the rule",
+		add(new Scenario("100-vpt-reversal-nolift",
+		        "100. VPT: Good Lift reversed to No Lift by the panel (automatic review), the Jury Chair gives the rule",
 		        Setup.VPT4, votes("good", "good", "bad"), votes("bad", "bad", "bad", "bad"), false,
 		        votes("good", "bad", "bad"), votes("good", "bad", "bad", "bad"), false));
-		add(new Scenario("020-vpt-reversal-goodlift",
-		        "020. VPT: No Lift reversed to Good Lift by the panel (automatic review), the Jury Chair confirms",
+		add(new Scenario("105-vpt-reversal-goodlift",
+		        "105. VPT: No Lift reversed to Good Lift by the panel (automatic review), the Jury Chair confirms",
 		        Setup.VPT4, votes("bad", "bad", "good"), votes("good", "good", "good", "good"), false,
 		        votes("bad", "good", "good"), votes("good", "good", "good", "bad"), true));
-		add(new Scenario("030-vpt-challenge-jury-agreed-nolift",
-		        "030. VPT: unsuccessful challenge after a jury that agreed with the referees' No Lift, the review "
+		add(new Scenario("110-vpt-challenge-jury-agreed-nolift",
+		        "110. VPT: unsuccessful challenge after a jury that agreed with the referees' No Lift, the review "
 		                + "vote confirms the No Lift, the Jury Chair gives the rule",
 		        Setup.VPT4, votes("bad", "bad", "good"), votes("bad", "bad", "bad", "bad"), true,
 		        votes("bad", "bad", "good"), votes("bad", "bad", "bad", "bad"), false));
-		add(new Scenario("035-vpt-challenge-jury-agreed-goodlift",
-		        "035. VPT: successful challenge after a jury that agreed with the referees' No Lift, the review vote "
+		add(new Scenario("115-vpt-challenge-jury-agreed-goodlift",
+		        "115. VPT: successful challenge after a jury that agreed with the referees' No Lift, the review vote "
 		                + "reverses it to Good Lift, the Jury Chair confirms",
 		        Setup.VPT4, votes("bad", "bad", "good"), votes("bad", "bad", "bad", "bad"), true,
 		        votes("good", "good", "good"), votes("good", "good", "bad", "bad"), true));
-		add(new Scenario("040-vpt-challenge-success",
-		        "040. VPT: successful challenge, split jury, No Lift reversed to Good Lift, the Jury Chair confirms",
+		add(new Scenario("120-vpt-challenge-success",
+		        "120. VPT: successful challenge, split jury, No Lift reversed to Good Lift, the Jury Chair confirms",
 		        Setup.VPT4, votes("bad", "bad", "good"), votes("good", "good", "bad", "bad"), true,
 		        votes("good", "good", "good"), votes("good", "good", "bad", "good"), true));
-		add(new Scenario("050-vpt-challenge-fail",
-		        "050. VPT: unsuccessful challenge, split jury, No Lift confirmed, the Jury Chair gives the rule",
+		add(new Scenario("125-vpt-challenge-fail",
+		        "125. VPT: unsuccessful challenge, split jury, No Lift confirmed, the Jury Chair gives the rule",
 		        Setup.VPT4, votes("bad", "bad", "good"), votes("good", "good", "bad", "bad"), true,
 		        votes("bad", "bad", "bad"), votes("good", "bad", "good", "good"), false));
-		add(new Scenario("060-vpt-confirmation-nolift",
-		        "060. VPT: No Lift confirmed by the panel (automatic review), the Jury Chair gives the rule",
+		add(new Scenario("130-vpt-confirmation-nolift",
+		        "130. VPT: No Lift confirmed by the panel (automatic review), the Jury Chair gives the rule",
 		        Setup.VPT4, votes("bad", "bad", "good"), votes("good", "good", "good", "good"), false,
 		        votes("bad", "bad", "bad"), votes("bad", "bad", "bad", "good"), false));
-		add(new Scenario("070-jury3-reversal-nolift",
-		        "070. 3-member jury, no VPT: unanimous jury against a Good Lift, the Chair starts a deliberation, "
-		                + "reversed to No Lift, the Jury Chair gives the rule",
-		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"), false,
-		        null, votes("bad", "bad", "bad"), false));
-		add(new Scenario("080-jury3-reversal-goodlift",
-		        "080. 3-member jury, no VPT: unanimous jury against a No Lift, the Chair starts a deliberation, "
-		                + "reversed to Good Lift, the Jury Chair confirms",
-		        Setup.JURY3, votes("bad", "bad", "good"), votes("good", "good", "good"), false,
-		        null, votes("good", "good", "good"), true));
-		add(new Scenario("090-jury3-challenge-success",
-		        "090. 3-member jury, no VPT: successful challenge, split jury, unanimous review vote, No Lift reversed "
-		                + "to Good Lift, the Jury Chair confirms",
-		        Setup.JURY3, votes("bad", "bad", "good"), votes("good", "bad", "bad"), true,
-		        null, votes("good", "good", "good"), true));
-		add(new Scenario("100-jury3-challenge-fail",
-		        "100. 3-member jury, no VPT: unsuccessful challenge, review vote not unanimous, the No Lift stands as "
-		                + "called: the Jury Chair confirms it, no rule is asked for",
-		        Setup.JURY3, votes("bad", "bad", "good"), votes("good", "bad", "bad"), true,
-		        null, votes("good", "good", "bad"), false));
-		add(new Scenario("110-jury3-confirmation-nolift",
-		        "110. 3-member jury, no VPT: unanimous jury against a No Lift, the Chair starts a deliberation, No Lift "
-		                + "confirmed by the unanimous review vote, the Jury Chair gives the rule",
-		        Setup.JURY3, votes("bad", "bad", "good"), votes("good", "good", "good"), false,
-		        null, votes("bad", "bad", "bad"), false));
-		add(new Scenario("115-jury3-goodlift-stands",
-		        "115. 3-member jury, no VPT: unanimous jury against a Good Lift, the Chair starts a deliberation, the "
-		                + "review vote is not unanimous (2 to 1 for No Lift): the Good Lift stands as called, the Jury "
-		                + "Chair confirms it",
-		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"), false,
-		        null, votes("bad", "bad", "good"), true));
-		add(new Scenario("120-jury4-reversal-nolift",
-		        "120. 4-member jury, no VPT: unanimous jury against a Good Lift, the Chair starts a deliberation, "
-		                + "reversed to No Lift, the Jury Chair gives the rule",
-		        Setup.JURY4, votes("good", "good", "bad"), votes("bad", "bad", "bad", "bad"), false,
-		        null, votes("bad", "bad", "bad", "bad"), false));
-		add(new Scenario("130-jury4-reversal-goodlift",
-		        "130. 4-member jury, no VPT: unanimous jury against a No Lift, the Chair starts a deliberation, "
-		                + "reversed to Good Lift, the Jury Chair confirms",
-		        Setup.JURY4, votes("bad", "bad", "good"), votes("good", "good", "good", "good"), false,
-		        null, votes("good", "good", "good", "good"), true));
-		add(new Scenario("140-jury4-challenge-success",
-		        "140. 4-member jury, no VPT: successful challenge, split jury, unanimous review vote, No Lift reversed "
-		                + "to Good Lift, the Jury Chair confirms",
-		        Setup.JURY4, votes("bad", "bad", "good"), votes("good", "good", "bad", "bad"), true,
-		        null, votes("good", "good", "good", "good"), true));
-		add(new Scenario("150-jury4-challenge-fail",
-		        "150. 4-member jury, no VPT: unsuccessful challenge, review vote not unanimous (3 to 1), the No Lift "
-		                + "stands as called: the Jury Chair confirms it, no rule is asked for",
-		        Setup.JURY4, votes("bad", "bad", "good"), votes("good", "good", "bad", "bad"), true,
-		        null, votes("good", "good", "good", "bad"), false));
-		add(new Scenario("160-jury4-confirmation-nolift",
-		        "160. 4-member jury, no VPT: unanimous jury against a No Lift, the Chair starts a deliberation, No Lift "
-		                + "confirmed by the unanimous review vote, the Jury Chair gives the rule",
-		        Setup.JURY4, votes("bad", "bad", "good"), votes("good", "good", "good", "good"), false,
-		        null, votes("bad", "bad", "bad", "bad"), false));
-		add(new Scenario("170-vpt-broken-juror-nolift",
-		        "170. VPT: jury box 1 does not work, the Chair starts a deliberation and calls the vote, which never "
+		add(new Scenario("135-vpt-broken-juror-nolift",
+		        "135. VPT: jury box 1 does not work, the Chair starts a deliberation and calls the vote, which never "
 		                + "completes; the Chair gives No Lift with the button, then the rule",
 		        Setup.VPT4, votes("good", "good", "bad"), votes("bad", "bad", "bad", "bad"), false,
 		        votes("bad", "bad", "bad"), votes("bad", "bad", "bad", "bad"), false, 1));
-		add(new Scenario("180-vpt-speaker-enters-nolift",
-		        "180. VPT, jury box only: automatic review, the jury box calls the vote, No Lift result; the Jury "
+		add(new Scenario("140-vpt-speaker-enters-nolift",
+		        "140. VPT, jury box only: automatic review, the jury box calls the vote, No Lift result; the Jury "
 		                + "Chair never confirms nor gives the rule, the Speaker enters No Lift",
 		        Setup.VPT4, votes("good", "good", "bad"), votes("bad", "bad", "bad", "bad"), false,
 		        votes("bad", "bad", "bad"), votes("bad", "bad", "bad", "bad"), false, 0, true));
-		add(new Scenario("190-jury3-speaker-enters-nolift",
-		        "190. 3-member jury, no VPT, jury box only: the jury box starts the deliberation, unanimous No Lift "
-		                + "vote; the Jury Chair never confirms nor gives the rule, the Speaker enters No Lift",
-		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"), false,
-		        null, votes("bad", "bad", "bad"), false, 0, true));
-		add(new Scenario("200-vpt-broken-juror-start-anyway",
-		        "200. VPT: jury box 1 does not work; the Speaker starts the next clock anyway, abandoning the "
+		add(new Scenario("145-vpt-broken-juror-start-anyway",
+		        "145. VPT: jury box 1 does not work; the Speaker starts the next clock anyway, abandoning the "
 		                + "incomplete jury vote and leaving the referees' Good Lift in place",
 		        Setup.VPT4, votes("good", "good", "bad"), votes("bad", "bad", "bad", "bad"), false,
 		        null, null, true, 1, false, true));
-		add(new Scenario("205-jury4-broken-juror-start-anyway",
-		        "205. 4-member jury, no VPT: jury box 1 does not work; the Speaker starts the next clock anyway, "
-		                + "abandoning the incomplete jury vote and leaving the referees' Good Lift in place",
-		        Setup.JURY4, votes("good", "good", "bad"), votes("bad", "bad", "bad", "bad"), false,
-		        null, null, true, 1, false, true));
-		add(Scenario.boxDecision("210-vpt-jurybox-nolift",
-		        "210. VPT: automatic review, the vote confirms the No Lift result; the Jury Chair presses No Lift on "
+		add(Scenario.boxDecision("150-vpt-jurybox-nolift",
+		        "150. VPT: automatic review, the vote confirms the No Lift result; the Jury Chair presses No Lift on "
 		                + "the jury box: applied at once without a rule, the Speaker is told to get the reason",
 		        Setup.VPT4, votes("good", "good", "bad"), votes("bad", "bad", "bad", "bad"),
 		        votes("bad", "bad", "bad"), votes("bad", "bad", "bad", "bad"), "bad"));
-		add(Scenario.boxDecision("220-vpt-jurybox-nolift-against-vote",
-		        "220. VPT: automatic review, the vote gives a Good Lift result; the Jury Chair presses No Lift on the "
+		add(Scenario.boxDecision("155-vpt-jurybox-nolift-against-vote",
+		        "155. VPT: automatic review, the vote gives a Good Lift result; the Jury Chair presses No Lift on the "
 		                + "jury box: Jury Chair Decision Against the Vote, no rule",
 		        Setup.VPT4, votes("bad", "bad", "good"), votes("good", "good", "good", "good"),
 		        votes("good", "good", "good"), votes("good", "good", "good", "bad"), "bad"));
-		add(Scenario.boxDecision("230-jury3-jurybox-nolift-no-vote",
-		        "230. 3-member jury, no VPT: the jury box starts a deliberation and the Jury Chair presses No Lift on "
-		                + "the jury box before any vote: Jury Chair Entered Decision, no rule",
-		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"),
-		        null, null, "bad"));
-		add(Scenario.resumeWithoutDecision("240-jury3-deliberation-resume",
-		        "240. 3-member jury, no VPT: the jury starts a deliberation, takes no action and resumes competition; "
-		                + "the referees' Good Lift stands",
-		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad")));
-		add(Scenario.resumeWithoutDecision("250-vpt-automatic-review-resume",
-		        "250. VPT: automatic Adjudication Panel Review is ended abnormally with Resume before the vote; the "
+		add(Scenario.resumeWithoutDecision("160-vpt-automatic-review-resume",
+		        "160. VPT: automatic Adjudication Panel Review is ended abnormally with Resume before the vote; the "
 		                + "referees' Good Lift stands",
 		        Setup.VPT4, votes("good", "good", "bad"), votes("bad", "bad", "bad", "bad")));
-		add(Scenario.boxDecision("260-jury3-jurybox-confirmation-nolift",
-		        "260. 3-member jury, jury box only: the review vote confirms No Lift; the Jury Chair presses No Lift "
-		                + "on the box; the TC gives the reason verbally; the Speaker announces and closes",
-		        Setup.JURY3, votes("bad", "bad", "good"), votes("good", "good", "good"),
-		        null, votes("bad", "bad", "bad"), "bad"));
-		add(Scenario.boxDecision("270-jury3-jurybox-confirmation-goodlift",
-		        "270. 3-member jury, jury box only: the review vote confirms Good Lift; the Jury Chair presses Good "
-		                + "Lift on the box; the Speaker only announces and closes",
-		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"),
-		        null, votes("good", "good", "good"), "good"));
-		add(Scenario.boxDecision("280-jury3-jurybox-reversal-nolift",
-		        "280. 3-member jury, jury box only: referees summoned for discussion, then a unanimous jury review "
-		                + "vote reverses Good Lift to No Lift; the Chair presses No Lift on the box; the TC gives the "
-		                + "reason verbally; the Speaker announces and closes",
-		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"),
-		        null, votes("bad", "bad", "bad"), "bad", true));
-		add(Scenario.boxDecision("290-jury3-jurybox-reversal-goodlift",
-		        "290. 3-member jury, jury box only: the unanimous review vote reverses No Lift to Good Lift; the "
-		                + "Jury Chair presses Good Lift on the box; the Speaker only announces and closes",
-		        Setup.JURY3, votes("bad", "bad", "good"), votes("good", "good", "good"),
-		        null, votes("good", "good", "good"), "good"));
-		add(Scenario.noReview("300-jury3-agreed-board-hold",
-		        "300. 3-member jury, no VPT: the jury agrees with the referees' Good Lift, no review; the attempt "
-		                + "board stays on the athlete under review for 10 s after the last jury vote, then shows the "
-		                + "next athlete",
-		        Setup.JURY3, votes("good", "good", "bad"), votes("good", "good", "good"), "hold"));
-		add(Scenario.noReview("310-jury3-agreed-clock-start",
-		        "310. 3-member jury, no VPT: the jury agrees with the referees' Good Lift, no review; the Speaker "
-		                + "starts the next clock while the attempt board is still on the athlete under review: no "
-		                + "confirmation, the board follows",
-		        Setup.JURY3, votes("good", "good", "bad"), votes("good", "good", "good"), "clock"));
-		add(Scenario.noReview("320-vpt-agreed-board-hold",
-		        "320. VPT: the seven-person majority confirms the referees' Good Lift, no review; the attempt board "
+		add(Scenario.noReview("165-vpt-agreed-board-hold",
+		        "165. VPT: the seven-person majority confirms the referees' Good Lift, no review; the attempt board "
 		                + "stays on the athlete under review for 10 s after the last jury vote, then shows the next "
 		                + "athlete",
 		        Setup.VPT4, votes("good", "good", "bad"), votes("good", "good", "good", "good"), "hold"));
-		add(Scenario.noReview("330-nojury-decision-block-timeout",
-		        "330. No jury: the attempt board moves to the next athlete after the 3.5 s decision display; the "
-		                + "scoreboard decision block stays on the athlete under review for 20 s, then returns to the "
-		                + "clock",
-		        Setup.NONE, votes("good", "good", "bad"), votes(), "hold"));
-		add(Scenario.noReview("340-nojury-decision-block-clock-start",
-		        "340. No jury: the Speaker starts the next clock while the scoreboard decision block is on the "
-		                + "athlete under review; the block returns to the clock at once",
-		        Setup.NONE, votes("good", "good", "bad"), votes(), "clock"));
-		add(Scenario.afterNextClock("350-jury3-deliberation-after-next-clock",
-		        "350. 3-member jury, no VPT: unanimous jury against a Good Lift, but the Speaker has already started "
-		                + "the next athlete's clock; the Chair starts a deliberation, which stops the clock; reversed "
-		                + "to No Lift, the Jury Chair gives the rule",
-		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"), false,
-		        null, votes("bad", "bad", "bad"), false));
-		add(Scenario.afterNextClock("360-vpt-challenge-after-next-clock",
-		        "360. VPT: the panel agreed with the referees' No Lift and the Speaker has already started the next "
+		add(Scenario.afterNextClock("170-vpt-challenge-after-next-clock",
+		        "170. VPT: the panel agreed with the referees' No Lift and the Speaker has already started the next "
 		                + "athlete's clock when the coach challenges; the Challenge stops the clock; the review vote "
 		                + "confirms the No Lift, the Jury Chair gives the rule",
 		        Setup.VPT4, votes("bad", "bad", "good"), votes("bad", "bad", "bad", "bad"), true,
 		        votes("bad", "bad", "good"), votes("bad", "bad", "bad", "bad"), false));
-		add(Scenario.lastLift("370-jury3-last-snatch-board-hold",
-		        "370. 3-member jury, no VPT, single-athlete session M2: the last snatch starts the break before clean "
+		add(new Scenario("200-jury4-reversal-nolift",
+		        "200. 4-member jury, no VPT: unanimous jury against a Good Lift, the Chair starts a deliberation, "
+		                + "reversed to No Lift, the Jury Chair gives the rule",
+		        Setup.JURY4, votes("good", "good", "bad"), votes("bad", "bad", "bad", "bad"), false,
+		        null, votes("bad", "bad", "bad", "bad"), false));
+		add(new Scenario("205-jury4-reversal-goodlift",
+		        "205. 4-member jury, no VPT: unanimous jury against a No Lift, the Chair starts a deliberation, "
+		                + "reversed to Good Lift, the Jury Chair confirms",
+		        Setup.JURY4, votes("bad", "bad", "good"), votes("good", "good", "good", "good"), false,
+		        null, votes("good", "good", "good", "good"), true));
+		add(new Scenario("210-jury4-challenge-success",
+		        "210. 4-member jury, no VPT: successful challenge, split jury, unanimous review vote, No Lift reversed "
+		                + "to Good Lift, the Jury Chair confirms",
+		        Setup.JURY4, votes("bad", "bad", "good"), votes("good", "good", "bad", "bad"), true,
+		        null, votes("good", "good", "good", "good"), true));
+		add(new Scenario("215-jury4-challenge-fail",
+		        "215. 4-member jury, no VPT: unsuccessful challenge, review vote not unanimous (3 to 1), the No Lift "
+		                + "stands as called: the Jury Chair confirms it, no rule is asked for",
+		        Setup.JURY4, votes("bad", "bad", "good"), votes("good", "good", "bad", "bad"), true,
+		        null, votes("good", "good", "good", "bad"), false));
+		add(new Scenario("220-jury4-confirmation-nolift",
+		        "220. 4-member jury, no VPT: unanimous jury against a No Lift, the Chair starts a deliberation, No Lift "
+		                + "confirmed by the unanimous review vote, the Jury Chair gives the rule",
+		        Setup.JURY4, votes("bad", "bad", "good"), votes("good", "good", "good", "good"), false,
+		        null, votes("bad", "bad", "bad", "bad"), false));
+		add(new Scenario("225-jury4-broken-juror-start-anyway",
+		        "225. 4-member jury, no VPT: jury box 1 does not work; the Speaker starts the next clock anyway, "
+		                + "abandoning the incomplete jury vote and leaving the referees' Good Lift in place",
+		        Setup.JURY4, votes("good", "good", "bad"), votes("bad", "bad", "bad", "bad"), false,
+		        null, null, true, 1, false, true));
+		add(new Scenario("300-jury3-reversal-nolift",
+		        "300. 3-member jury, no VPT: unanimous jury against a Good Lift, the Chair starts a deliberation, "
+		                + "reversed to No Lift, the Jury Chair gives the rule",
+		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"), false,
+		        null, votes("bad", "bad", "bad"), false));
+		add(new Scenario("305-jury3-reversal-goodlift",
+		        "305. 3-member jury, no VPT: unanimous jury against a No Lift, the Chair starts a deliberation, "
+		                + "reversed to Good Lift, the Jury Chair confirms",
+		        Setup.JURY3, votes("bad", "bad", "good"), votes("good", "good", "good"), false,
+		        null, votes("good", "good", "good"), true));
+		add(new Scenario("310-jury3-challenge-success",
+		        "310. 3-member jury, no VPT: successful challenge, split jury, unanimous review vote, No Lift reversed "
+		                + "to Good Lift, the Jury Chair confirms",
+		        Setup.JURY3, votes("bad", "bad", "good"), votes("good", "bad", "bad"), true,
+		        null, votes("good", "good", "good"), true));
+		add(new Scenario("315-jury3-challenge-fail",
+		        "315. 3-member jury, no VPT: unsuccessful challenge, review vote not unanimous, the No Lift stands as "
+		                + "called: the Jury Chair confirms it, no rule is asked for",
+		        Setup.JURY3, votes("bad", "bad", "good"), votes("good", "bad", "bad"), true,
+		        null, votes("good", "good", "bad"), false));
+		add(new Scenario("320-jury3-confirmation-nolift",
+		        "320. 3-member jury, no VPT: unanimous jury against a No Lift, the Chair starts a deliberation, No Lift "
+		                + "confirmed by the unanimous review vote, the Jury Chair gives the rule",
+		        Setup.JURY3, votes("bad", "bad", "good"), votes("good", "good", "good"), false,
+		        null, votes("bad", "bad", "bad"), false));
+		add(new Scenario("325-jury3-goodlift-stands",
+		        "325. 3-member jury, no VPT: unanimous jury against a Good Lift, the Chair starts a deliberation, the "
+		                + "review vote is not unanimous (2 to 1 for No Lift): the Good Lift stands as called, the Jury "
+		                + "Chair confirms it",
+		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"), false,
+		        null, votes("bad", "bad", "good"), true));
+		add(new Scenario("330-jury3-speaker-enters-nolift",
+		        "330. 3-member jury, no VPT, jury box only: the jury box starts the deliberation, unanimous No Lift "
+		                + "vote; the Jury Chair never confirms nor gives the rule, the Speaker enters No Lift",
+		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"), false,
+		        null, votes("bad", "bad", "bad"), false, 0, true));
+		add(Scenario.boxDecision("335-jury3-jurybox-nolift-no-vote",
+		        "335. 3-member jury, no VPT: the jury box starts a deliberation and the Jury Chair presses No Lift on "
+		                + "the jury box before any vote: Jury Chair Entered Decision, no rule",
+		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"),
+		        null, null, "bad"));
+		add(Scenario.resumeWithoutDecision("340-jury3-deliberation-resume",
+		        "340. 3-member jury, no VPT: the jury starts a deliberation, takes no action and resumes competition; "
+		                + "the referees' Good Lift stands",
+		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad")));
+		add(Scenario.boxDecision("345-jury3-jurybox-confirmation-nolift",
+		        "345. 3-member jury, jury box only: the review vote confirms No Lift; the Jury Chair presses No Lift "
+		                + "on the box; the TC gives the reason verbally; the Speaker announces and closes",
+		        Setup.JURY3, votes("bad", "bad", "good"), votes("good", "good", "good"),
+		        null, votes("bad", "bad", "bad"), "bad"));
+		add(Scenario.boxDecision("350-jury3-jurybox-confirmation-goodlift",
+		        "350. 3-member jury, jury box only: the review vote confirms Good Lift; the Jury Chair presses Good "
+		                + "Lift on the box; the Speaker only announces and closes",
+		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"),
+		        null, votes("good", "good", "good"), "good"));
+		add(Scenario.boxDecision("355-jury3-jurybox-reversal-nolift",
+		        "355. 3-member jury, jury box only: referees summoned for discussion, then a unanimous jury review "
+		                + "vote reverses Good Lift to No Lift; the Chair presses No Lift on the box; the TC gives the "
+		                + "reason verbally; the Speaker announces and closes",
+		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"),
+		        null, votes("bad", "bad", "bad"), "bad", true));
+		add(Scenario.boxDecision("360-jury3-jurybox-reversal-goodlift",
+		        "360. 3-member jury, jury box only: the unanimous review vote reverses No Lift to Good Lift; the "
+		                + "Jury Chair presses Good Lift on the box; the Speaker only announces and closes",
+		        Setup.JURY3, votes("bad", "bad", "good"), votes("good", "good", "good"),
+		        null, votes("good", "good", "good"), "good"));
+		add(Scenario.noReview("365-jury3-agreed-board-hold",
+		        "365. 3-member jury, no VPT: the jury agrees with the referees' Good Lift, no review; the attempt "
+		                + "board stays on the athlete under review for 10 s after the last jury vote, then shows the "
+		                + "next athlete",
+		        Setup.JURY3, votes("good", "good", "bad"), votes("good", "good", "good"), "hold"));
+		add(Scenario.noReview("370-jury3-agreed-clock-start",
+		        "370. 3-member jury, no VPT: the jury agrees with the referees' Good Lift, no review; the Speaker "
+		                + "starts the next clock while the attempt board is still on the athlete under review: no "
+		                + "confirmation, the board follows",
+		        Setup.JURY3, votes("good", "good", "bad"), votes("good", "good", "good"), "clock"));
+		add(Scenario.afterNextClock("375-jury3-deliberation-after-next-clock",
+		        "375. 3-member jury, no VPT: unanimous jury against a Good Lift, but the Speaker has already started "
+		                + "the next athlete's clock; the Chair starts a deliberation, which stops the clock; reversed "
+		                + "to No Lift, the Jury Chair gives the rule",
+		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"), false,
+		        null, votes("bad", "bad", "bad"), false));
+		add(Scenario.lastLift("380-jury3-last-snatch-board-hold",
+		        "380. 3-member jury, no VPT, single-athlete session M2: the last snatch starts the break before clean "
 		                + "and jerk; the attempt board stays on the athlete under review until the jury has voted and "
 		                + "10 s more, then shows the break",
 		        Setup.JURY3, "M2", "lastSnatch", votes("good", "good", "bad"), votes("good", "good", "good")));
-		add(Scenario.lastLift("380-jury3-last-lift-board-hold",
-		        "380. 3-member jury, no VPT, single-athlete session M3: the last lift ends the session; the attempt "
+		add(Scenario.lastLift("385-jury3-last-lift-board-hold",
+		        "385. 3-member jury, no VPT, single-athlete session M3: the last lift ends the session; the attempt "
 		                + "board stays on the athlete under review until the jury has voted and 10 s more, then shows "
 		                + "the end of the session",
 		        Setup.JURY3, "M3", "lastLift", votes("good", "good", "bad"), votes("good", "good", "good")));
@@ -496,18 +481,27 @@ public class JuryScenario {
 		                + "and jerk and the jury never votes; the attempt board stays on the athlete under review "
 		                + "until the Speaker reloads the session",
 		        Setup.JURY3, "M4", "lastSnatch", votes("good", "good", "bad"), votes()));
-		add(Scenario.lastLift("400-jury3-last-lift-silent-jury-reload",
-		        "400. 3-member jury, no VPT, single-athlete session M5: the last lift ends the session and the jury "
+		add(Scenario.lastLift("395-jury3-last-lift-silent-jury-reload",
+		        "395. 3-member jury, no VPT, single-athlete session M5: the last lift ends the session and the jury "
 		                + "never votes; the attempt board stays on the athlete under review until the Speaker "
 		                + "reloads the session",
 		        Setup.JURY3, "M5", "lastLift", votes("good", "good", "bad"), votes()));
-		add(Scenario.lastLift("410-nojury-last-snatch-decision-block",
-		        "410. No jury, single-athlete session M6: the last snatch starts the break before clean and jerk "
+		add(Scenario.noReview("500-nojury-decision-block-timeout",
+		        "500. No jury: the attempt board moves to the next athlete after the 3.5 s decision display; the "
+		                + "scoreboard decision block stays on the athlete under review for 20 s, then returns to the "
+		                + "clock",
+		        Setup.NONE, votes("good", "good", "bad"), votes(), "hold"));
+		add(Scenario.noReview("505-nojury-decision-block-clock-start",
+		        "505. No jury: the Speaker starts the next clock while the scoreboard decision block is on the "
+		                + "athlete under review; the block returns to the clock at once",
+		        Setup.NONE, votes("good", "good", "bad"), votes(), "clock"));
+		add(Scenario.lastLift("510-nojury-last-snatch-decision-block",
+		        "510. No jury, single-athlete session M6: the last snatch starts the break before clean and jerk "
 		                + "after the decision display; the scoreboard decision block stays on the last snatch for its "
 		                + "hold, then clears",
 		        Setup.NONE, "M6", "lastSnatch", votes("good", "good", "bad"), votes()));
-		add(Scenario.lastLift("420-nojury-last-lift-decision-block",
-		        "420. No jury, single-athlete session M7: the last lift ends the session after the decision "
+		add(Scenario.lastLift("515-nojury-last-lift-decision-block",
+		        "515. No jury, single-athlete session M7: the last lift ends the session after the decision "
 		                + "display; the scoreboard decision block stays on the last lift for its hold, then clears",
 		        Setup.NONE, "M7", "lastLift", votes("good", "good", "bad"), votes()));
 	}
@@ -573,9 +567,9 @@ public class JuryScenario {
 	 * One scenario per flow waits out the decision block hold after the outcome (or after the last jury vote when
 	 * the jury agrees with the referees); the others end earlier.
 	 */
-	private static final Set<String> WAIT_OUT_BLOCK_HOLD = Set.of("010-vpt-reversal-nolift",
-	        "070-jury3-reversal-nolift", "260-jury3-jurybox-confirmation-nolift", "300-jury3-agreed-board-hold",
-	        "320-vpt-agreed-board-hold");
+	private static final Set<String> WAIT_OUT_BLOCK_HOLD = Set.of("100-vpt-reversal-nolift",
+	        "300-jury3-reversal-nolift", "345-jury3-jurybox-confirmation-nolift", "365-jury3-agreed-board-hold",
+	        "165-vpt-agreed-board-hold");
 
 	JuryScenario(Options options) throws IOException {
 		this.options = options;

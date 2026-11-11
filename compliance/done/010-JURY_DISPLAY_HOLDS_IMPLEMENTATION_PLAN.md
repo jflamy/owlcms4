@@ -1,6 +1,7 @@
 # Jury Display Holds: Implementation Plan
 
-Spec: [010-JURY_DISPLAY_HOLDS.md](010-JURY_DISPLAY_HOLDS.md). Status: plan, 2026-11-11.
+Spec: [010-JURY_DISPLAY_HOLDS.md](010-JURY_DISPLAY_HOLDS.md). Status: **done (2026-11-11), archived.** Sets A
+and B are implemented; the scenario numbers in set B are the ones in use at the time (see the mapping there).
 
 Two sets of work. Set A changes the product code so that it matches the spec. Set B changes the
 Playwright scenarios so that they check the spec. Set A comes first: the checks of set B fail on
@@ -158,6 +159,14 @@ already in `DecisionBlockState.java` and its test, uncommitted. Keep it.
 - Update section 6 of the spec: remove the differences that are closed.
 
 ## Set B: Playwright scenarios
+
+The scenario numbers below are those used when set B was done. The scenarios were renumbered by jury on
+2026-11-11 (panel 1xx, four-member jury 2xx, three-member jury 3xx, no jury 5xx). Old → new: 010 → 100,
+020 → 105, 030 → 110, 035 → 115, 040 → 120, 050 → 125, 060 → 130, 170 → 135, 180 → 140, 200 → 145, 210 → 150,
+220 → 155, 250 → 160, 320 → 165, 360 → 170; 120 → 200, 130 → 205, 140 → 210, 150 → 215, 160 → 220, 205 → 225;
+070 → 300, 080 → 305, 090 → 310, 100 → 315, 110 → 320, 115 → 325, 190 → 330, 230 → 335, 240 → 340, 260 → 345,
+270 → 350, 280 → 355, 290 → 360, 300 → 365, 310 → 370, 350 → 375, 370 → 380, 380 → 385, 390 → 390,
+400 → 395; 330 → 500, 340 → 505, 410 → 510, 420 → 515.
 
 File: `playwright/src/main/java/playwright/JuryScenario.java`, unless stated otherwise.
 

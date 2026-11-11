@@ -12,7 +12,7 @@ scenarios (no Vaadin objects in the tests).
 
 **Timing is not specified here.** When the block enters and leaves a state, and how long a
 decision, a vote or a jury outcome stays, is specified only in
-[Jury Display Holds](../../../../../../../../compliance/010-JURY_DISPLAY_HOLDS.md). The hold
+[Jury Display Holds](../../../../../../../../compliance/done/010-JURY_DISPLAY_HOLDS.md). The hold
 rules, the event transition table and the state diagram that were in this document were removed
 on 2026-11-11 (git history).
 
@@ -60,7 +60,7 @@ the underlying element data.
   - jury members who have not voted → `empty`.
 - When **all jury members have voted**, disclose the jury decisions (`white`/`red`).
 - How long the block stays in this state, and what ends it: stages 1, 2 and 7 of
-  [Jury Display Holds](../../../../../../../../compliance/010-JURY_DISPLAY_HOLDS.md).
+  [Jury Display Holds](../../../../../../../../compliance/done/010-JURY_DISPLAY_HOLDS.md).
 
 ### `JURY_DELIBERATION` (jury deliberation or challenge)
 - Entered from any state on a jury-deliberation or challenge notification.
@@ -79,14 +79,14 @@ the underlying element data.
 - The outcome label (Good Lift / No Lift, with the rule when one was given) replaces the
   deliberation / challenge label.
 - How long the review and the outcome stay, and what ends them: stages 3 to 7 of
-  [Jury Display Holds](../../../../../../../../compliance/010-JURY_DISPLAY_HOLDS.md).
+  [Jury Display Holds](../../../../../../../../compliance/done/010-JURY_DISPLAY_HOLDS.md).
 
 ---
 
 ## 3. Transitions and timing
 
 Removed on 2026-11-11. The stages, what starts and ends them, and their durations are specified
-only in [Jury Display Holds](../../../../../../../../compliance/010-JURY_DISPLAY_HOLDS.md).
+only in [Jury Display Holds](../../../../../../../../compliance/done/010-JURY_DISPLAY_HOLDS.md).
 
 Rendering notes that do not depend on timing:
 - The **down signal** alone never makes the block visible; visibility waits for the referee
@@ -137,7 +137,7 @@ Target design:
   the decision block alone. It just renders the current snapshot.
 - Unit tests feed event scenarios and assert the resulting state + rendered snapshot; the
   expected timing comes from
-  [Jury Display Holds](../../../../../../../../compliance/010-JURY_DISPLAY_HOLDS.md).
+  [Jury Display Holds](../../../../../../../../compliance/done/010-JURY_DISPLAY_HOLDS.md).
 
 ---
 
@@ -149,4 +149,4 @@ Resolved (2026-07-09):
   **off**, no jury circles are displayed at all (not even empty placeholders).
 
 The questions about the review timer and the review hold that were answered here are superseded
-by [Jury Display Holds](../../../../../../../../compliance/010-JURY_DISPLAY_HOLDS.md).
+by [Jury Display Holds](../../../../../../../../compliance/done/010-JURY_DISPLAY_HOLDS.md).

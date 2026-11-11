@@ -6,10 +6,9 @@ in this index.
 
 ## 0xx — Bugs, do first
 
-| Order | Document | Scope |
-| --- | --- | --- |
-| 010 | [Jury display holds](010-JURY_DISPLAY_HOLDS.md) | The only specification of how long the attempt boards and the scoreboard decision block stay on a decision, a vote or a jury outcome, for every jury. Code done (set A); Playwright scenarios in progress (set B of the [implementation plan](010-IMPLEMENTATION_PLAN.md)) |
-
+None open. Jury display holds (010) are done: [010-JURY_DISPLAY_HOLDS.md](done/010-JURY_DISPLAY_HOLDS.md), the only
+specification of how long the attempt boards and the scoreboard decision block stay on a decision, a vote or a jury
+outcome, with its [implementation plan](done/010-JURY_DISPLAY_HOLDS_IMPLEMENTATION_PLAN.md).
 Lenient birth-date parsing is done: [BIRTHDATE_LENIENT_PARSE.md](done/BIRTHDATE_LENIENT_PARSE.md).
 
 ## 1xx — Technical RFP compliance

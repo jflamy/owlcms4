@@ -1,14 +1,15 @@
 # Jury Display Holds
 
-Status: **decided 2026-11-11; implemented in the working tree (not committed), unit-tested.** The
-Playwright scenarios are being updated (set B of the [implementation plan](010-IMPLEMENTATION_PLAN.md)).
+Status: **done (2026-11-11), archived.** Implemented and unit-tested; the Playwright jury scenarios check it
+(set B of the [implementation plan](010-JURY_DISPLAY_HOLDS_IMPLEMENTATION_PLAN.md)). This remains the
+authoritative specification of the display holds.
 
 This is the only specification of **how long** the attempt boards and the scoreboard decision
 block stay on a decision, a vote or a jury outcome, and of **what starts and ends** each stage.
 The hold rules that were in
-[DecisionBlock_SPEC.md](../owlcms/src/main/java/app/owlcms/displays/scoreboard/DecisionBlock_SPEC.md),
-[SEVEN_PERSON_ADJUDICATION.md](done/SEVEN_PERSON_ADJUDICATION.md) and
-[TRACKER_JURY_VOTES.md](done/TRACKER_JURY_VOTES.md) have been removed from those documents.
+[DecisionBlock_SPEC.md](../../owlcms/src/main/java/app/owlcms/displays/scoreboard/DecisionBlock_SPEC.md),
+[SEVEN_PERSON_ADJUDICATION.md](SEVEN_PERSON_ADJUDICATION.md) and
+[TRACKER_JURY_VOTES.md](TRACKER_JURY_VOTES.md) have been removed from those documents.
 What each display draws (lights, circles, labels) stays specified there.
 
 ## 1. Principle
@@ -91,7 +92,7 @@ to the review.
 ## 6. Differences with the code
 
 None (2026-11-11). The six differences listed when this spec was written were closed by phases
-A1 to A7 of the [implementation plan](010-IMPLEMENTATION_PLAN.md): the decision block's 20 s
+A1 to A7 of the [implementation plan](010-JURY_DISPLAY_HOLDS_IMPLEMENTATION_PLAN.md): the decision block's 20 s
 start at the outcome, a corrected outcome restarts them, the block waits for missing jury votes
 at the end of the snatches or of the session, every 3-4-5 jury may stop automatically, and in
 the automatic modes the vote is called explicitly (Summon All included). Unit tests cover them;
@@ -109,6 +110,6 @@ the Playwright scenarios are updated in set B of the plan.
 "No limit" is a rule, not a duration (`FieldOfPlay.JURY_DECISION_VISIBLE_MAX_MS = -1`).
 
 The durations are read from
-[timing.properties](../owlcms/src/main/resources/timing/timing.properties) (a copy in the `local`
+[timing.properties](../../owlcms/src/main/resources/timing/timing.properties) (a copy in the `local`
 directory overrides it), so that the Playwright scenarios can take their waits from the same
 values.

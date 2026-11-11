@@ -13,41 +13,41 @@
 #              owlcms/src/main/resources/timing/timing.properties from the repository root); the script passes it
 #   --base=http://localhost:8080 --mqtt=tcp://localhost:1883 --fop=A --group=M1 --out=<dir> --headed
 #              without --server: an owlcms that is already running
-#   --scenario=<ids, comma-separated; default all>
-#     four-member jury with VPT:  010-vpt-reversal-nolift 020-vpt-reversal-goodlift
-#                                 030-vpt-challenge-jury-agreed-nolift 035-vpt-challenge-jury-agreed-goodlift
-#                                 040-vpt-challenge-success
-#                                 050-vpt-challenge-fail 060-vpt-confirmation-nolift
-#     three-member jury, no VPT:  070-jury3-reversal-nolift 080-jury3-reversal-goodlift 090-jury3-challenge-success
-#                                 100-jury3-challenge-fail 110-jury3-confirmation-nolift 115-jury3-goodlift-stands
-#                                 (100, 115, 150: the review vote does not reach the jury's rule, the referees'
+#   --scenario=<ids, comma-separated; default all, in this order>
+#     seven-person panel (four-member jury with VPT), 1xx:
+#                                 100-vpt-reversal-nolift 105-vpt-reversal-goodlift
+#                                 110-vpt-challenge-jury-agreed-nolift 115-vpt-challenge-jury-agreed-goodlift
+#                                 120-vpt-challenge-success 125-vpt-challenge-fail 130-vpt-confirmation-nolift
+#                                 135-vpt-broken-juror-nolift (jury box 1 broken, the Chair decides)
+#                                 140-vpt-speaker-enters-nolift (jury box only, the Speaker enters the decision)
+#                                 145-vpt-broken-juror-start-anyway (jury box 1 broken, the Speaker starts the clock)
+#                                 150-vpt-jurybox-nolift 155-vpt-jurybox-nolift-against-vote (Chair on the jury box)
+#                                 160-vpt-automatic-review-resume (ended with Resume, no decision)
+#                                 165-vpt-agreed-board-hold (the panel agrees with the referees, no review)
+#                                 170-vpt-challenge-after-next-clock
+#     four-member jury, no VPT, 2xx:
+#                                 200-jury4-reversal-nolift 205-jury4-reversal-goodlift 210-jury4-challenge-success
+#                                 215-jury4-challenge-fail 220-jury4-confirmation-nolift
+#                                 225-jury4-broken-juror-start-anyway
+#     three-member jury, 3xx (a three-member jury with VPT behaves exactly as without VPT: no separate scenarios):
+#                                 300-jury3-reversal-nolift 305-jury3-reversal-goodlift 310-jury3-challenge-success
+#                                 315-jury3-challenge-fail 320-jury3-confirmation-nolift 325-jury3-goodlift-stands
+#                                 (215, 315, 325: the review vote does not reach the jury's rule, the referees'
 #                                 decision stands as called)
-#     four-member jury, no VPT:   120-jury4-reversal-nolift 130-jury4-reversal-goodlift 140-jury4-challenge-success
-#                                 150-jury4-challenge-fail 160-jury4-confirmation-nolift
-#     four-member jury with VPT, jury box 1 broken: 170-vpt-broken-juror-nolift
-#     jury box only, the Speaker enters the decision: 180-vpt-speaker-enters-nolift 190-jury3-speaker-enters-nolift
-#     jury box 1 broken, Speaker abandons the vote: 200-vpt-broken-juror-start-anyway (VPT)
-#                                 205-jury4-broken-juror-start-anyway (four-member jury, no VPT)
-#     the Jury Chair decides on the jury box (no rule): 210-vpt-jurybox-nolift 220-vpt-jurybox-nolift-against-vote
-#                                 230-jury3-jurybox-nolift-no-vote
-#     Resume without a jury decision: 240-jury3-deliberation-resume 250-vpt-automatic-review-resume
-#     three-member jury, normal Chair decision on the jury box:
-#                                 260-jury3-jurybox-confirmation-nolift 270-jury3-jurybox-confirmation-goodlift
-#                                 280-jury3-jurybox-reversal-nolift 290-jury3-jurybox-reversal-goodlift
-#                                 280 summons the referees for discussion before the new jury vote
-#     the jury agrees with the referees, no review; the attempt board stays 10 s on the athlete under review:
-#                                 300-jury3-agreed-board-hold 320-vpt-agreed-board-hold
-#                                 310-jury3-agreed-clock-start (the Speaker starts the next clock during that time)
-#     no jury; the scoreboard decision block stays on the athlete under review for 20 s, or until the next clock:
-#                                 330-nojury-decision-block-timeout 340-nojury-decision-block-clock-start
-#     the review starts after the Speaker has started the next athlete's clock:
-#                                 350-jury3-deliberation-after-next-clock 360-vpt-challenge-after-next-clock
-#     the lift ends the snatches or the session (single-athlete sessions M2 to M7 of the fixture: --server):
-#                                 370-jury3-last-snatch-board-hold 380-jury3-last-lift-board-hold
+#                                 330-jury3-speaker-enters-nolift (jury box only, the Speaker enters the decision)
+#                                 335-jury3-jurybox-nolift-no-vote 340-jury3-deliberation-resume
+#                                 345-jury3-jurybox-confirmation-nolift 350-jury3-jurybox-confirmation-goodlift
+#                                 355-jury3-jurybox-reversal-nolift 360-jury3-jurybox-reversal-goodlift
+#                                 (355 summons the referees for discussion before the new jury vote)
+#                                 365-jury3-agreed-board-hold 370-jury3-agreed-clock-start
+#                                 375-jury3-deliberation-after-next-clock
+#                                 the lift ends the snatches or the session (single-athlete sessions of the fixture):
+#                                 380-jury3-last-snatch-board-hold 385-jury3-last-lift-board-hold
 #                                 the jury never votes, the Speaker reloads the session:
-#                                 390-jury3-last-snatch-silent-jury-reload 400-jury3-last-lift-silent-jury-reload
-#                                 no jury: 410-nojury-last-snatch-decision-block 420-nojury-last-lift-decision-block
-#     (a three-member jury with VPT behaves exactly as without VPT: no separate scenarios)
+#                                 390-jury3-last-snatch-silent-jury-reload 395-jury3-last-lift-silent-jury-reload
+#     no jury, 5xx:               500-nojury-decision-block-timeout 505-nojury-decision-block-clock-start
+#                                 510-nojury-last-snatch-decision-block 515-nojury-last-lift-decision-block
+#     380 to 395, 510 and 515 need the single-athlete sessions M2 to M7 of the fixture (--server).
 # Each scenario applies its own settings (automaticBreakNoVPT,
 # Video Playback Technology, jury size on Jury Control).
 # After the referees' decision every scenario checks that the Speaker and the scoreboard top line move to the

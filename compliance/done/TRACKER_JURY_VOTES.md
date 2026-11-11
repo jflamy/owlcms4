@@ -58,7 +58,7 @@ During a jury or challenge break the decision area is shown when `fop.isPanelVot
 - stopwatch counting up from the start of the review, stopped at the verdict (switch `decisionSectionStopwatch`);
 - after Cancel vote result or a Chair override: votes cleared, the referees' decision under review and the label
   stay;
-- timing: specified only in [Jury Display Holds](../010-JURY_DISPLAY_HOLDS.md) (the timing rules that were here were
+- timing: specified only in [Jury Display Holds](010-JURY_DISPLAY_HOLDS.md) (the timing rules that were here were
   removed on 2026-11-11);
 - the section itself: shown on public and video scoreboards, on warm-up scoreboards with
   `decisionSectionOnWarmupScoreboard`; the per-display `decisionSection` option overrides it.
@@ -66,7 +66,7 @@ During a jury or challenge break the decision area is shown when `fop.isPanelVot
 ### 2.3 Holding the decision for the jury (FOP)
 
 Removed on 2026-11-11: what the boards show while the jury votes, and for how long, is specified only in
-[Jury Display Holds](../010-JURY_DISPLAY_HOLDS.md). The `juryDecisionsOnAttemptBoard` switch no longer exists.
+[Jury Display Holds](010-JURY_DISPLAY_HOLDS.md). The `juryDecisionsOnAttemptBoard` switch no longer exists.
 
 Independently of the displays, the next clock is refused until every juror has voted (`isJuryVotesAwaited()`). A plain
 clock start is refused (`JuryVotesPending`); the clock can be started with the override
@@ -255,7 +255,7 @@ In every `update` message, string values `"true"` / `"false"` like the other upd
   from `adjudicationDecision` (`waitForAnnouncer=false`), duration option defaulting to 5 s; review label from
   `review` / `panelReview`.
 - **Scoreboards:** decision section options (shown, jury votes, stopwatch, age groups) defaulting to section 3.4.
-  Timing computed from the messages, to follow [Jury Display Holds](../010-JURY_DISPLAY_HOLDS.md); tracker
+  Timing computed from the messages, to follow [Jury Display Holds](010-JURY_DISPLAY_HOLDS.md); tracker
   3.0.0-beta01 implements the rules that preceded that document. Verdict label from `adjudicationDecision`. Stopwatch from
   `reviewStartMillis`.
 - **Celebrations:** unchanged (referee decision only).
