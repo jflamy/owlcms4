@@ -84,7 +84,6 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	protected final static Logger logger = (Logger) LoggerFactory.getLogger(AbstractAttemptBoard.class);
 	protected final static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-	private static final int JURY_NOTIFICATION_DIALOG_DURATION_MS = (int) FieldOfPlay.JURY_DECISION_CARD_MS;
 	private static final DateTimeFormatter CLIENT_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")
 			.withZone(ZoneId.systemDefault());
 
@@ -494,13 +493,13 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 					String rule = JuryRejectionReasons.label(e.getReasonCode());
 					showJuryNotification(reversalText, Translator.translate("JuryDialog.BadLiftLabel"), e.getAthlete(),
 					        formatAttemptByIndex(previousAttemptNo), false, "failNotification",
-						        JURY_NOTIFICATION_DIALOG_DURATION_MS, rule);
+					        Competition.juryOutcomeCardDuration, rule);
 					break;
 				case GOOD_LIFT:
 					previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
 					showJuryNotification(reversalText, Translator.translate("JuryDialog.GoodLiftLabel"), e.getAthlete(),
 					        formatAttemptByIndex(previousAttemptNo), e.getNewRecord(), "successNotification",
-						        JURY_NOTIFICATION_DIALOG_DURATION_MS, null);
+					        Competition.juryOutcomeCardDuration, null);
 					break;
 				default:
 					break;

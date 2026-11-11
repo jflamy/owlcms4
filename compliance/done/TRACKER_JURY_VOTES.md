@@ -40,7 +40,7 @@ Java, renderer interface `IDecisionRenderer`) drives the lights; the jury card c
 | Votes arrive (`PanelVoteUpdate`) | `voted` | `voted` |
 | Last vote in | all revealed together | revealed |
 | Cancel vote result, Chair-entered decision, Resume (`JuryDisplayReset`); abandoned vote | cleared | cleared |
-| Jury decision applied (`waitForAnnouncer=false`) | | jury card, 5 s (`FieldOfPlay.JURY_DECISION_CARD_MS`): Reversal/Confirmed, Good Lift/No Lift ("New Record!" instead of Good Lift when the decision makes a record), athlete, judged attempt, rule `"<code> - <Jury.incorrect.code>"` |
+| Jury decision applied (`waitForAnnouncer=false`) | | jury card, 5 s (`juryOutcomeCardDuration` in `timing.properties`): Reversal/Confirmed, Good Lift/No Lift ("New Record!" instead of Good Lift when the decision makes a record), athlete, judged attempt, rule `"<code> - <Jury.incorrect.code>"` |
 | `DecisionReset` | cleared | cleared |
 
 During a jury or challenge break the decision area is shown when `fop.isPanelVoteOpen()` or
@@ -58,22 +58,19 @@ During a jury or challenge break the decision area is shown when `fop.isPanelVot
 - stopwatch counting up from the start of the review, stopped at the verdict (switch `decisionSectionStopwatch`);
 - after Cancel vote result or a Chair override: votes cleared, the referees' decision under review and the label
   stay;
-- timing: `DecisionReset` is ignored. With a jury, the decision stays until the next clock start, a non-jury break,
-  a new decision, a deliberation or StartLifting. With no jury, a 20 s timeout (`REVIEW_TIMEOUT_MS`) applies. After a
-  four-member jury verdict, the verdict stays 20 s once lifting resumes;
+- timing: specified only in [Jury Display Holds](../010-JURY_DISPLAY_HOLDS.md) (the timing rules that were here were
+  removed on 2026-11-11);
 - the section itself: shown on public and video scoreboards, on warm-up scoreboards with
   `decisionSectionOnWarmupScoreboard`; the per-display `decisionSection` option overrides it.
 
 ### 2.3 Holding the decision for the jury (FOP)
 
-`FieldOfPlay.scheduleDecisionReset()`: with `juryDecisionsOnAttemptBoard` on, a jury, and a referee decision from the
-devices, the decision stays visible until the last juror votes (then 3.5 s). An announcer-entered or single-input
-decision waits at most 10 s (`JURY_DECISION_VISIBLE_MAX_MS`). With the switch off, the decision clears after 3.5 s.
-In all cases the next clock is refused until every juror has voted (`isJuryVotesAwaited()`).
+Removed on 2026-11-11: what the boards show while the jury votes, and for how long, is specified only in
+[Jury Display Holds](../010-JURY_DISPLAY_HOLDS.md). The `juryDecisionsOnAttemptBoard` switch no longer exists.
 
-The hold ends when the last juror votes, the jury decision is applied, the Chair starts a deliberation or challenge,
-Resume is pressed, the clock is started with the override (`refuseClockStartWhileJuryVotesPending`, incomplete votes
-abandoned), or the session is switched. A plain clock start is refused (`JuryVotesPending`).
+Independently of the displays, the next clock is refused until every juror has voted (`isJuryVotesAwaited()`). A plain
+clock start is refused (`JuryVotesPending`); the clock can be started with the override
+(`refuseClockStartWhileJuryVotesPending`, incomplete votes abandoned).
 
 ## 3. Wire format
 
@@ -258,9 +255,8 @@ In every `update` message, string values `"true"` / `"false"` like the other upd
   from `adjudicationDecision` (`waitForAnnouncer=false`), duration option defaulting to 5 s; review label from
   `review` / `panelReview`.
 - **Scoreboards:** decision section options (shown, jury votes, stopwatch, age groups) defaulting to section 3.4.
-  OWLCMS-like timing computed from the messages: keep the last decision until the next clock start (timer
-  `StartTime`), a non-jury break, a new `FULL_DECISION` or StartLifting; 20 s when there is no jury; 20 s after a
-  four-member jury verdict once lifting resumes. Verdict label from `adjudicationDecision`. Stopwatch from
+  Timing computed from the messages, to follow [Jury Display Holds](../010-JURY_DISPLAY_HOLDS.md); tracker
+  3.0.0-beta01 implements the rules that preceded that document. Verdict label from `adjudicationDecision`. Stopwatch from
   `reviewStartMillis`.
 - **Celebrations:** unchanged (referee decision only).
 

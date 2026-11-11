@@ -34,6 +34,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.AdjudicationPanel;
 import app.owlcms.fieldofplay.FOPState;
@@ -81,7 +82,6 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 	private StopwatchTimerElement decisionSectionStopwatch; // WebComponent, injected by Vaadin
 	@Id("decisionSectionReferee")
 	private DecisionBlockDecisionElement dsRefereeDecisions; // WebComponent, injected by Vaadin
-	private static final long REVIEW_TIMEOUT_MS = 20_000L;
 	private static final ScheduledExecutorService REVIEW_TIMEOUT_SCHEDULER = Executors
 	        .newSingleThreadScheduledExecutor(r -> {
 		        Thread t = new Thread(r, "decision-review-timeout");
@@ -306,7 +306,10 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 			} else if (initialJury == null) {
 				this.decisionBlock.onJuryUpdate(fop.getJuryMemberDecision(), fop.getJurySize());
 			}
-		} else if (fop.getState() == FOPState.DECISION_VISIBLE) {
+		} else if (fop.getState() == FOPState.DECISION_VISIBLE
+		        || (isLiftsDone(fop.getState(), breakType) && fop.isReviewDisplayHeld())) {
+			// the attempt board is still on the athlete under review (the last lift ended the snatches or the
+			// session while the jury votes are missing): the section stays there too
 			this.decisionBlock.onRefereeDecision(fop.getAthleteUnderReview(), computeRefLights(fop, false));
 			this.decisionBlock.onJuryUpdate(fop.getJuryMemberDecision(), fop.getJurySize());
 		} else {
@@ -539,7 +542,7 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 			} catch (Exception ignored) {
 				// UI detached: nothing to update.
 			}
-		}, REVIEW_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+		}, Competition.decisionBlockHold, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
@@ -684,8 +687,10 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 				}
 				// the technical rule relied upon for a No Lift, when the Jury Chair gave it (TCRR 7.5.7)
 				String rule = JuryRejectionReasons.label(e.getReasonCode());
+				Athlete verdictAthlete = e.getAthlete() != null ? e.getAthlete()
+				        : (fop != null ? fop.getAthleteUnderReview() : null);
 				this.decisionBlock.onJuryVerdict(type == JuryDeliberationEventType.GOOD_LIFT, e.isWaitForAnnouncer(),
-				        rule);
+				        rule, verdictAthlete, fop != null ? computeRefLights(fop, true) : null);
 				break;
 			case END_JURY_BREAK:
 			case END_CHALLENGE:

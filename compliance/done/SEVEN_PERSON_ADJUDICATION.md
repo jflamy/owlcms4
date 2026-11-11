@@ -9,6 +9,17 @@ Existing Surefire reports checked on 2026-10-25 show 71 adjudication tests and
 This is a historical design, not an active work list. Earlier descriptions of
 missing behavior and open questions below record the development sequence.
 Optional follow-ups are noted at the end.
+
+**Superseded on 2026-11-11 by [Jury Display Holds](../010-JURY_DISPLAY_HOLDS.md)**, which is the
+only specification of:
+- how long the attempt boards and the scoreboard decision section stay on a decision, a vote or
+  a jury outcome (the hold descriptions have been removed from this document);
+- the stages of a review for 3-, 4- and 5-member juries: with `automaticBreakNoVPT` on, they stop
+  automatically and need an explicit call for votes, where Summon All means Call for Votes. The
+  statements below that 3- and 5-member juries never stop automatically, and that Summon All
+  means Vote only with the seven-person panel, record the earlier rule.
+
+The `juryDecisionsOnAttemptBoard` switch mentioned below no longer exists.
 Scope: field of play decision engine, Jury Control, referee phones, MQTT
 devices, attempt boards and scoreboards, feature switch, translations
 ("Jury Chair"), documentation
@@ -125,10 +136,8 @@ decision.
 - `commitCurrentDecision` records the lift on the athlete, stores the three
   referee votes (`Athlete.setDecisions`), updates records and sets
   `athleteUnderReview`.
-- The decision stays visible (`DECISION_VISIBLE`) for 3.5 s. When the
-  `juryDecisionsOnAttemptBoard` switch is on, the reset waits indefinitely for
-  all configured jurors to vote (`scheduleDecisionReset`,
-  `awaitingJuryCompletion`, `rescheduleDecisionResetForJury`).
+- The decision stays visible (`DECISION_VISIBLE`) for 3.5 s. For the display holds with a jury,
+  see [Jury Display Holds](../010-JURY_DISPLAY_HOLDS.md).
 - `DecisionUpdate` in `BREAK` is rejected (`unexpectedEventInState`). Referees
   cannot vote during a jury break.
 - Referee phones disable the white button once the decision is shown
@@ -245,27 +254,10 @@ voted. Until then, only "voted / not voted" is shown.
    athlete and the referee votes stay in the FOP until the next clock start
    (`restartTimer` → `resetDecisions`). The wait for the jury is therefore
    **indefinite**: no timeout.
-   - **Display hold.** When `juryDecisionsOnAttemptBoard` is on, the decision
-     stays visible (`DECISION_VISIBLE`) **until all configured jury votes are in**,
-     then the jury circles are revealed and the display is held for the usual
-     `juryDecisionHoldMs` before the reset. There is no jury-vote timeout:
-     `scheduleDecisionReset` arms no deadline while waiting; only
-     `rescheduleDecisionResetForJury` arms one once the jury is complete).
-     The announcer's clock-start request during this hold goes through the
-     guard of step 4. A review started by the Chair (Jury Deliberation or
-     Challenge) also ends the hold (decided 2026-10-23): a jury box that does
-     not work would otherwise keep the decision displayed and the deliberation
-     deferred for ever. The display ends after its usual minimum, then the
-     break starts with the votes on the lift kept; the vote called in that
-     review cannot complete either, so the Chair gives the decision with the
-     Good Lift / No Lift buttons (marked "Jury Chair Entered Decision").
-     The hold applies to every configured jury (3, 4 or 5 members), with or
-     without VPT. A four-member jury without VPT triggers the stop only with
-     `automaticBreakNoVPT` on (7.5.8 makes the deliberation manual); 3- and
-     5-member juries never trigger a review automatically.
-   - When `juryDecisionsOnAttemptBoard` is off, the decision clears after the
-     normal 3.5 s and the jury keeps voting on `athleteUnderReview` with the
-     next athlete displayed; nothing is held. The next clock is nevertheless
+   - **Display hold.** Removed on 2026-11-11: see
+     [Jury Display Holds](../010-JURY_DISPLAY_HOLDS.md) for what the boards show while the jury
+     votes, for how long, and for the automatic stop of each jury.
+   - **Next clock.** Whatever the boards show, the next clock is
      refused until every juror has voted, the Chair/Speaker enters the jury
      decision, or the Speaker/Competition Director chooses **Start Clock
      Anyway** (which discards the incomplete jury votes and leaves the
@@ -781,8 +773,7 @@ Jury devices do not buzz; the jurors are at the table.
     once** when the seventh vote is in.
   - The TCRR does not require the jury votes to be shown. Two switches, each
     covering the vote on the lift and the review vote, for every jury size
-    (decided 2026-10-23): `juryDecisionsOnAttemptBoard` for attempt boards (it
-    also holds the decision indefinitely for the jury votes on the lift; the per-board URL
+    (decided 2026-10-23): `juryDecisionsOnAttemptBoard` for attempt boards (the per-board URL
     parameter `showJuryDecisions` still overrides it) and
     `juryDecisionsOnScoreboard` (new, off by default) for the scoreboard
     decision section. `decisionSectionShowBothJuryVotes` is removed. When a
@@ -1076,9 +1067,8 @@ Decided:
   See section 11.
 - The Jury Chair picks the Technical Rule for a No Lift.
 - No timeout for the jury votes. The lift under review and its votes are kept
-  until the next clock start. When jury decisions are shown on the attempt
-  board, the decision display is held until the jury has voted (no 10 s cap),
-  for every configured jury (3, 4 or 5 members), with or without VPT.
+  until the next clock start. For what the boards show meanwhile, and for how long, see
+  [Jury Display Holds](../010-JURY_DISPLAY_HOLDS.md).
   A clock start with incomplete jury votes is refused; the deciding console
   may choose "Start clock anyway" to discard the incomplete votes and leave
   the referees' decision in place. See section 3, steps 2 and 4.

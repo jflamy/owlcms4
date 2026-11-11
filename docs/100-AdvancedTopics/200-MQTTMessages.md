@@ -35,7 +35,7 @@
 - `owlcms/fop/resetDecisions/A :option`: All LEDs for referee and jury member decisions are turned off. 
     - `option` is currently `reset` but is ignored.
     - Published when the clock starts for a new attempt (not the timekeeper clock start: only when a new attempt clock is starting, or the athlete clock continues after changes; not when the athlete lifts the bar and puts it down).
-    - Also published when a review vote is called (Call for Votes; on a jury box, Summon All during a seven-person Adjudication Panel jury break), when the Jury Chair enters a decision that is not the result of a complete vote (no vote, an incomplete vote, or against the vote), and when a vote result is cancelled. Resume does not reset the displays; the next clock start does. When the review vote is that of the jury alone (3- or 5-member jury, 4-member jury without video playback), the referees do not vote again: their decisions are published again right after `resetDecisions`, so the jury box keeps the referee lights.
+    - Also published when a review vote is called (Call for Votes; on a jury box, Summon All during a seven-person Adjudication Panel jury break, or during a review with the `automaticBreakNoVPT` option), when the Jury Chair enters a decision that is not the result of a complete vote (no vote, an incomplete vote, or against the vote), and when a vote result is cancelled. Resume does not reset the displays; the next clock start does. When the review vote is that of the jury alone (3- or 5-member jury, 4-member jury without video playback), the referees do not vote again: their decisions are published again right after `resetDecisions`, so the jury box keeps the referee lights.
 - `owlcms/fop/decision/A :ref :decision`: 
    A referee has made a decision.  The jury devices shows the decision if it has the red/white LEDs.
    - `ref` is 1 2 or 3
@@ -168,7 +168,7 @@ Only owlcms listens; devices do not listen to one another.
 
 - `owlcms/jurybox/summon/A :official`: The jury has summoned an official.
     - `official` is `1`, `2`, `3`, `all` or `controller`
-    - During a seven-person Adjudication Panel jury break, `all` is **Call for Votes**: owlcms publishes `resetDecisions`, then `summon` for the three referees, and the seven officials vote again.  In every other case `all` summons the three referees.
+    - During a seven-person Adjudication Panel jury break, `all` is **Call for Votes**: owlcms publishes `resetDecisions`, then `summon` for the three referees, and the seven officials vote again.  During a review with the `automaticBreakNoVPT` option, `all` is also **Call for Votes**, but only the jury votes again: owlcms publishes `resetDecisions`, then the referees' decisions again, and no `summon`.  The individual messages `1`, `2` and `3` summon one referee.  In every other case `all` summons the three referees.
     - Outside a break, `all`, `1`, `2` and `3` first start a jury deliberation.
 - `owlcms/jurybox/juryMember/decision/A :member :decision`: Jury member decides the attempt is a good lift or no lift.
     - `member` is `1`, `2`, `3`, `4`, or `5`

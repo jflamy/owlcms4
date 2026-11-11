@@ -802,8 +802,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		if (this.callForVotesButton == null) {
 			return;
 		}
-		// the physical jury box has no Call for Votes button (with the seven-person panel, its Summon All calls the
-		// vote)
+		// the physical jury box has no Call for Votes button (when the call for votes is explicit, its Summon All calls
+		// the vote)
 		boolean enabled = !this.boxMode && fop != null && fop.isPanelVoteCallable();
 		this.callForVotesButton.setVisible(!this.boxMode);
 		// prompt the Chair in every review until the vote is called, and again after Cancel vote result

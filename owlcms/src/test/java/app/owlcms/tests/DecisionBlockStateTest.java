@@ -208,9 +208,12 @@ public class DecisionBlockStateTest {
 		this.state.setShowJuryVotes(false);
 		this.state.setJurySize(3);
 		this.state.onRefereeDecision(null, lights(true));
+		this.state.onJuryUpdate(votes(true, true, null), 3);
+		assertFalse(this.renderer.calls.contains("juryCircles"));
+		assertFalse("a jury is still voting: no review timeout", this.renderer.calls.contains("scheduleTimeout"));
 		this.state.onJuryUpdate(votes(true, true, true), 3);
 		assertFalse(this.renderer.calls.contains("juryCircles"));
-		assertFalse("a jury must vote: no review timeout", this.renderer.calls.contains("scheduleTimeout"));
+		assertEquals("the outcome is known, also when the votes are hidden", 1, this.renderer.scheduleCount);
 	}
 
 	@Test
@@ -311,7 +314,7 @@ public class DecisionBlockStateTest {
 		assertTrue(this.renderer.calls.contains("refLights"));
 		assertTrue(this.renderer.calls.contains("juryCircles"));
 		assertTrue(this.renderer.calls.contains("noJuryMessage"));
-		// A jury is present (size 3): we wait for them to vote, so no review timeout is started.
+		// A jury is present (size 3) and has not voted: we wait for them, so no review timeout is started.
 		assertFalse(this.renderer.calls.contains("scheduleTimeout"));
 	}
 
@@ -438,21 +441,21 @@ public class DecisionBlockStateTest {
 	}
 
 	@Test
-	public void verdictLingersAfterAutomaticResumeUntilTimeout() {
+	public void verdictStaysAfterAutomaticResumeUntilTimeout() {
 		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
 		this.state.onJuryVerdict(false, false, "3 - rule");
 		int schedules = this.renderer.scheduleCount;
 		this.renderer.clear();
 		this.state.onStartLifting(true);
 		assertEquals("the verdict stays after the automatic resume", State.DELIBERATION, this.state.getState());
-		assertEquals("the review timeout starts", schedules + 1, this.renderer.scheduleCount);
+		assertEquals("the review timeout is not started again", schedules, this.renderer.scheduleCount);
 		assertFalse(this.renderer.calls.contains("readyClock"));
 		this.state.onReviewTimeout();
 		assertEquals(State.READY, this.state.getState());
 	}
 
 	@Test
-	public void lingeringVerdictSurvivesTheResyncsThatFollowTheResume() {
+	public void verdictSurvivesTheResyncsThatFollowTheResume() {
 		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
 		this.state.onJuryVerdict(false, false, "11 - rule");
 		int schedules = this.renderer.scheduleCount;
@@ -463,7 +466,29 @@ public class DecisionBlockStateTest {
 		this.state.onStartLifting(true);
 		assertEquals("the verdict stays", State.DELIBERATION, this.state.getState());
 		assertFalse(this.renderer.calls.contains("readyClock"));
-		assertEquals("one review timeout", schedules + 1, this.renderer.scheduleCount);
+		assertEquals("the timeout is not restarted", schedules, this.renderer.scheduleCount);
+	}
+
+	/** The 20 s are counted from the outcome: the verdict starts the timeout, the resume does not. */
+	@Test
+	public void verdictStartsTheReviewTimeoutOnceAndExpiresToReady() {
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.state.onJuryVerdict(true, true);
+		assertEquals("the announcer has not confirmed: nothing is shown", 0, this.renderer.scheduleCount);
+		this.state.onJuryVerdict(true, false);
+		assertEquals("the timeout starts at the verdict", 1, this.renderer.scheduleCount);
+		this.state.onStartLifting(true);
+		assertEquals("the resume does not start it again", 1, this.renderer.scheduleCount);
+		assertEquals(State.DELIBERATION, this.state.getState());
+		this.state.onReviewTimeout();
+		assertEquals(State.READY, this.state.getState());
+
+		// the resume never came
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.state.onJuryVerdict(false, false);
+		assertEquals(2, this.renderer.scheduleCount);
+		this.state.onReviewTimeout();
+		assertEquals("the verdict ends without a start-lifting", State.READY, this.state.getState());
 	}
 
 	@Test
@@ -480,7 +505,7 @@ public class DecisionBlockStateTest {
 	}
 
 	@Test
-	public void lingeringVerdictEndsOnClockStartOrResumeOrNextDecision() {
+	public void verdictEndsOnClockStartOrResumeOrBreakOrNextDecision() {
 		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
 		this.state.onJuryVerdict(true, false);
 		this.state.onStartLifting(true);
@@ -500,6 +525,12 @@ public class DecisionBlockStateTest {
 		this.state.onRefereeDecision(null, lights(false));
 		assertEquals("next lift replaces it", State.DECISION, this.state.getState());
 		assertTrue("its timeout is cancelled", this.renderer.calls.contains("cancelTimeout"));
+
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.state.onJuryVerdict(true, false);
+		this.state.onStartLifting(true);
+		this.state.onBreakStarted(false);
+		assertEquals("break started by an official", State.READY, this.state.getState());
 	}
 
 	@Test
@@ -528,19 +559,25 @@ public class DecisionBlockStateTest {
 	}
 
 	/**
-	 * The lift ended the snatches or the session, with a jury: no clock will start, so the decision stays and the
-	 * review timeout, started with the break, returns the section to ready, also when the jury has not voted.
+	 * The lift ended the snatches or the session, with a jury that has not finished voting: no clock will start and
+	 * no timer starts with the break, the section waits for the missing votes like the attempt board. The last jury
+	 * vote starts the review timeout, which returns the section to ready.
 	 */
 	@Test
-	public void liftsDoneWithJuryKeepsDecisionUntilReviewTimeout() {
+	public void liftsDoneWithJuryWaitsForLastVoteThenReviewTimeout() {
 		this.state.onRefereeDecision(null, lights(true));
 		assertEquals("a jury is voting: no timeout", 0, this.renderer.scheduleCount);
 		this.state.onLiftsDone();
 		assertEquals(State.DECISION, this.state.getState());
-		assertEquals("the timeout starts with the break", 1, this.renderer.scheduleCount);
+		assertEquals("no timer at the break", 0, this.renderer.scheduleCount);
 		this.renderer.clear();
-		this.state.onJuryUpdate(votes(true, true, true), 3);
-		assertTrue("the jury votes are still shown", this.renderer.calls.contains("juryCircles"));
+		this.state.onJuryUpdate(votes(true, null, null), 3);
+		this.state.onJuryUpdate(votes(true, false, null), 3);
+		assertEquals("the section keeps waiting", 0, this.renderer.scheduleCount);
+		this.state.onJuryUpdate(votes(true, false, true), 3);
+		assertTrue("the jury votes are shown", this.renderer.calls.contains("juryCircles"));
+		assertEquals("the last vote starts the timer", 1, this.renderer.scheduleCount);
+		assertEquals(State.DECISION, this.state.getState());
 		// the break is reported again (countdown changed)
 		this.state.onLiftsDone();
 		assertEquals("a running timeout is not restarted", 1, this.renderer.scheduleCount);
@@ -600,33 +637,104 @@ public class DecisionBlockStateTest {
 		assertTrue("the reload cancels the timeout", this.renderer.calls.contains("cancelTimeout"));
 		this.state.onRefereeDecision(null, lights(true));
 		this.state.onLiftsDone();
-		assertEquals("a new timeout starts for the next decision", 2, this.renderer.scheduleCount);
+		assertEquals("no timer while the jury votes are missing", 0, this.renderer.scheduleCount);
 	}
 
 	/**
-	 * Happy path with a jury: three referees decide, three jurors vote, no intervening timer. Because
-	 * a jury is present the section waits (no review timeout) and holds the result and circles until
-	 * the announcer starts the next athlete's clock (the FOP's fast decision-reset does not cut it
-	 * short).
+	 * Happy path with a jury: three referees decide, three jurors vote. While votes are missing the section waits
+	 * (no review timeout). The last vote makes the outcome known: the review timeout starts then, and the section
+	 * holds the result and circles until it expires (the FOP's fast decision-reset does not cut it short).
 	 */
 	@Test
-	public void withJuryWaitsForVoteThenAnnouncerClockStart() {
+	public void withJuryLastVoteStartsTheReviewTimeout() {
 		this.state.onRefereeDecision(null, lights(true));
 		assertEquals(State.DECISION, this.state.getState());
-		// Jurors vote one by one, no timer delay.
 		this.state.onJuryUpdate(votes(true, null, null), 3);
 		this.state.onJuryUpdate(votes(true, true, null), 3);
+		assertEquals("jurors are still voting", 0, this.renderer.scheduleCount);
 		this.state.onJuryUpdate(votes(true, true, true), 3);
 		assertEquals(State.DECISION, this.state.getState());
-		// A jury is present: no review timeout is ever started.
-		assertEquals(0, this.renderer.scheduleCount);
+		assertEquals("the outcome is known", 1, this.renderer.scheduleCount);
+		// the same votes reported again do not start the delay again
+		this.state.onJuryUpdate(votes(true, true, true), 3);
+		assertEquals(1, this.renderer.scheduleCount);
 		// FOP clears its flash and declares the next clock meanwhile; neither closes the section.
 		this.state.onDecisionReset();
 		this.state.onResetOnNewClock();
 		assertEquals(State.DECISION, this.state.getState());
-		// The announcer starts the next athlete's clock: that wins.
+		this.state.onReviewTimeout();
+		assertEquals(State.READY, this.state.getState());
+	}
+
+	/** Every jury size: the seven-person panel (4 jurors) confirming the referees, and the 5-member jury. */
+	@Test
+	public void lastVoteStartsTheReviewTimeoutForEveryJurySize() {
+		for (int size : new int[] { 3, 4, 5 }) {
+			setup();
+			this.state.setJurySize(size);
+			this.state.onRefereeDecision(null, lights(true));
+			// the FOP always reports five slots; only the first ones are jurors
+			Boolean[] votes = new Boolean[5];
+			for (int i = 0; i < size - 1; i++) {
+				votes[i] = true;
+			}
+			this.state.onJuryUpdate(votes, size);
+			assertEquals("jury of " + size + " still voting", 0, this.renderer.scheduleCount);
+			votes[size - 1] = true;
+			this.state.onJuryUpdate(votes, size);
+			assertEquals("jury of " + size + " has voted", 1, this.renderer.scheduleCount);
+		}
+	}
+
+	/** The jurors may all vote before the referee decision is shown: the delay then starts with the decision. */
+	@Test
+	public void juryVotesBeforeTheDecisionStartTheReviewTimeoutWithIt() {
+		this.state.onJuryUpdate(votes(true, true, true), 3);
+		assertEquals(State.READY, this.state.getState());
+		assertEquals(0, this.renderer.scheduleCount);
+		this.state.onRefereeDecision(null, lights(true));
+		assertEquals(1, this.renderer.scheduleCount);
+		assertTrue(this.renderer.calls.contains("juryCircles"));
+	}
+
+	/** A review started during the delay, automatically or by hand, takes over at once. */
+	@Test
+	public void reviewDuringTheDelayTakesOver() {
+		this.state.onRefereeDecision(null, lights(true));
+		this.state.onJuryUpdate(votes(false, false, false), 3);
+		assertEquals(1, this.renderer.scheduleCount);
+		this.renderer.clear();
+		this.state.onDeliberationStart(JuryDeliberationEventType.CHALLENGE, null, lights(true));
+		assertEquals(State.DELIBERATION, this.state.getState());
+		assertTrue("the delay is cancelled", this.renderer.calls.contains("cancelTimeout"));
+		// a timeout that was already queued does not close the review
+		this.state.onReviewTimeout();
+		assertEquals(State.DELIBERATION, this.state.getState());
+	}
+
+	/** While votes are missing there is no delay: the announcer starting the next clock closes the section. */
+	@Test
+	public void withJuryMissingVotesWaitForTheClockStart() {
+		this.state.onRefereeDecision(null, lights(true));
+		this.state.onJuryUpdate(votes(true, true, null), 3);
+		assertEquals(0, this.renderer.scheduleCount);
 		this.state.onStartTime();
 		assertEquals(State.READY, this.state.getState());
+	}
+
+	/** Votes that arrive after the section closed are not taken for votes on the next lift. */
+	@Test
+	public void lateVotesDoNotStartTheDelayForTheNextLift() {
+		this.state.onRefereeDecision(null, lights(true));
+		this.state.onJuryUpdate(votes(true, true, true), 3);
+		this.state.onReviewTimeout();
+		assertEquals(State.READY, this.state.getState());
+		// a juror changes a vote on the previous lift after the section closed, then the next clock starts
+		this.state.onJuryUpdate(votes(true, true, false), 3);
+		this.state.onStartTime();
+		int schedules = this.renderer.scheduleCount;
+		this.state.onRefereeDecision(null, lights(false));
+		assertEquals("the jury has not voted on this lift", schedules, this.renderer.scheduleCount);
 	}
 
 	/**
@@ -680,12 +788,72 @@ public class DecisionBlockStateTest {
 	}
 
 	@Test
-	public void juryVerdictIgnoredOutsideDeliberation() {
-		// A stray verdict with no active deliberation must not paint a label.
+	public void preliminaryVerdictIsIgnoredInEveryState() {
+		// the first notification (waiting for the announcer) is never painted, whatever the state
+		this.renderer.clear();
+		this.state.onJuryVerdict(true, true);
+		assertEquals(State.READY, this.state.getState());
 		this.state.onRefereeDecision(null, lights(true));
 		this.renderer.clear();
-		this.state.onJuryVerdict(true, false);
+		this.state.onJuryVerdict(true, true);
 		assertEquals(State.DECISION, this.state.getState());
-		assertFalse(this.renderer.calls.contains("verdictGood"));
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		int schedules = this.renderer.scheduleCount;
+		this.renderer.clear();
+		this.state.onJuryVerdict(false, true, "3 - rule");
+		assertTrue(this.renderer.calls.isEmpty());
+		assertEquals(schedules, this.renderer.scheduleCount);
+	}
+
+	@Test
+	public void secondVerdictReplacesTheLabelAndRestartsTheTimeout() {
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.state.onJuryVerdict(false, false, "3 - rule");
+		assertEquals(1, this.renderer.scheduleCount);
+		this.renderer.clear();
+		this.state.onJuryVerdict(true, false);
+		assertEquals(State.DELIBERATION, this.state.getState());
+		assertTrue("the label is replaced", this.renderer.calls.contains("verdictGood"));
+		assertNull(this.renderer.rule);
+		assertEquals("the 20 s start again", 2, this.renderer.scheduleCount);
+	}
+
+	@Test
+	public void verdictAfterReturnToReadyIsShownForTheTimeout() {
+		this.state.onDeliberationStart(JuryDeliberationEventType.START_DELIBERATION, null, lights(true));
+		this.state.onJuryVerdict(false, false, "3 - rule");
+		this.state.onStartTime();
+		assertEquals(State.READY, this.state.getState());
+		int schedules = this.renderer.scheduleCount;
+		this.renderer.clear();
+		this.state.onJuryVerdict(true, false, null, null, lights(false));
+		assertEquals(State.DELIBERATION, this.state.getState());
+		assertTrue(this.renderer.calls.contains("athlete"));
+		assertTrue("the reviewed lights", this.renderer.calls.contains("refLights"));
+		assertTrue("no jury circles", this.renderer.calls.contains("noJuryCircles"));
+		assertFalse(this.renderer.calls.contains("juryCircles"));
+		assertTrue(this.renderer.calls.contains("verdictGood"));
+		assertEquals("the 20 s start", schedules + 1, this.renderer.scheduleCount);
+		this.state.onJuryUpdate(votes(true, null, null), 3);
+		assertFalse("late votes do not draw circles", this.renderer.calls.contains("juryCircles"));
+		this.state.onReviewTimeout();
+		assertEquals(State.READY, this.state.getState());
+	}
+
+	@Test
+	public void verdictDuringADecisionIsShownForTheTimeout() {
+		this.state.onRefereeDecision(null, lights(true));
+		int schedules = this.renderer.scheduleCount;
+		this.renderer.clear();
+		this.state.onJuryVerdict(false, false, "3 - rule", null, lights(true));
+		assertEquals(State.DELIBERATION, this.state.getState());
+		assertTrue(this.renderer.calls.contains("athlete"));
+		assertTrue(this.renderer.calls.contains("refLights"));
+		assertTrue(this.renderer.calls.contains("noJuryCircles"));
+		assertTrue(this.renderer.calls.contains("verdictBad"));
+		assertEquals("3 - rule", this.renderer.rule);
+		assertEquals("the 20 s start", schedules + 1, this.renderer.scheduleCount);
+		this.state.onReviewTimeout();
+		assertEquals(State.READY, this.state.getState());
 	}
 }

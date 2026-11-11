@@ -35,6 +35,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.FOPParametersReader;
 import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.athlete.LiftDefinition.Stage;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.fieldofplay.FOPState;
@@ -358,7 +359,7 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 				// special case where state changes too quickly;
 				pageTitle.append(".NEW_RECORD");
 			}
-			setExpiryBeforeChangingStatus(System.currentTimeMillis() + (FieldOfPlay.DECISION_VISIBLE_DURATION));
+			setExpiryBeforeChangingStatus(System.currentTimeMillis() + Competition.decisionVisibleDuration);
 		} else if (this.currentChallengedRecords) {
 			pageTitle.append(".RECORD_ATTEMPT");
 		}

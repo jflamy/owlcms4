@@ -147,13 +147,11 @@ import ch.qos.logback.classic.Logger;
  */
 public class FieldOfPlay implements IUnregister {
 
-	public static final long DECISION_VISIBLE_DURATION = 3500;
 	/**
 	 * How long the attempt boards wait on the athlete under review while jury votes on the lift are missing. Negative:
 	 * no limit, the jury vote is still in progress; the boards wait for the last vote, a clock start or a break.
 	 */
 	public static final long JURY_DECISION_VISIBLE_MAX_MS = -1;
-	public static final long JURY_DECISION_HOLD_MS = 10000;
 	public static final long DECISION_INPUT_IGNORE_WINDOW_MS = 15000;
 	public static final long MINIMUM_DOWN_SIGNAL_VISIBLE_MS = 1500L;
 	public static final int REVERSAL_DELAY = 3000;
@@ -207,9 +205,9 @@ public class FieldOfPlay implements IUnregister {
 	private Athlete curAthlete;
 	private int curWeight;
 	private long decisionInputIgnoreWindowMs = DECISION_INPUT_IGNORE_WINDOW_MS;
-	private long decisionVisibleDuration = DECISION_VISIBLE_DURATION;
+	private long decisionVisibleDuration = Competition.decisionVisibleDuration;
 	private long juryDecisionVisibleMaxMs = JURY_DECISION_VISIBLE_MAX_MS;
-	private long juryDecisionHoldMs = JURY_DECISION_HOLD_MS;
+	private long juryDecisionHoldMs = Competition.juryDecisionHold;
 	private TimerTask decisionResetTimer;
 	private long decisionResetGeneration;
 	private long decisionVisibleSince;
@@ -233,7 +231,7 @@ public class FieldOfPlay implements IUnregister {
 	private boolean panelClockStartRefused;
 	/** the current JURY break was started automatically because the panel majority differs from the referees */
 	private boolean panelReview;
-	/** without VPT: the current JURY break was started automatically by a unanimous jury opposite to the referees */
+	/** without the seven-person panel: the current JURY break was started automatically by a jury against the referees */
 	private boolean juryReview;
 	/** Phase B: the review vote of the seven officials is open (Call for Votes) */
 	private boolean panelVoteOpen;
@@ -276,8 +274,6 @@ public class FieldOfPlay implements IUnregister {
 	 * started while the card is on, even after the FOP has resumed lifting.
 	 */
 	private long juryDecisionCardVisibleUntil;
-	/** how long the attempt boards show the jury decision card after a four-member jury decision */
-	public static final long JURY_DECISION_CARD_MS = 5000;
 	private boolean decisionCommitScheduled;
 	private boolean decisionDisplayScheduled = false;
 	private FOPEvent deferredBreak;
@@ -1478,8 +1474,8 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * Once all configured jurors have voted, release the next-clock gate. For the four-member jury, also evaluate the
-	 * automatic review rules.
+	 * Once all configured jurors have voted, release the next-clock gate and evaluate the automatic review rules: the
+	 * seven-person panel, or, with the automatic stop option, any other jury.
 	 */
 	private void evaluatePanel() {
 		if (!isJuryVotesAwaited() || juryDeliberationInProgress()) {
@@ -1490,22 +1486,18 @@ public class FieldOfPlay implements IUnregister {
 		}
 		Boolean[] refereeVotes = this.panelPendingRefereeVotes;
 		endPanelVotePending(this);
-		if (getJurySize() != AdjudicationPanel.NB_JURORS) {
-			// 3- and 5-member juries do not trigger a review automatically.
-			return;
-		}
 		Boolean refereeMajority = AdjudicationPanel.refereeMajority(refereeVotes);
 		if (!isPanelProcedure()) {
-			// without Video Playback (7.5.8) the jury deliberates by hand; the automatic stop on a unanimous jury
-			// opposite to the referees is an option
+			// without the seven-person panel the jury deliberates by hand (7.5.8); stopping automatically when the
+			// complete first vote is against the referees, counted with the jury's rule, is an option
 			if (!FeatureSwitch.AUTOMATIC_BREAK_NO_VPT.isEffective()) {
 				return;
 			}
-			Boolean juryUnanimous = unanimousJury(getJuryMemberDecision());
-			if (juryUnanimous == null || refereeMajority == null || juryUnanimous.equals(refereeMajority)) {
+			Boolean juryVerdict = computeCurrentJuryVerdict(getJurySize(), refereeVotes);
+			if (juryVerdict == null || refereeMajority == null || juryVerdict.equals(refereeMajority)) {
 				return;
 			}
-			this.logger.info("{}unanimous jury against the referees, jury deliberation for {}",
+			this.logger.info("{}jury against the referees, jury deliberation for {}",
 			        FieldOfPlay.getLoggingName(this), this.athleteUnderReview);
 			this.juryReview = true;
 			fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, null, null, true, this));
@@ -1568,13 +1560,14 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * Review started by the Chair (Deliberation or Challenge) without the seven-person panel (3- or 5-member jury with
-	 * or without VPT, four-member jury without VPT): the jury lights have been cleared and the jurors may vote at once;
-	 * the Chair asks for the vote verbally (Summon All summons the referees). The votes on the lift are kept, and the
-	 * vote has to be called, only after an automatic trigger, or with the seven-person panel whose referees vote again.
+	 * Review started by the Chair (Deliberation or Challenge) when the call for votes is not explicit (see
+	 * {@link #isVoteCallExplicit()}: a jury other than the seven-person panel, with the automatic stop option off):
+	 * the jury lights have been cleared and the jurors may vote at once; the Chair asks for the vote verbally (Summon
+	 * All summons the referees). When the call is explicit (the seven-person panel, or the automatic stop option on),
+	 * the votes on the lift are kept and the vote never opens by itself: the Chair has to call for votes.
 	 */
 	private void openJuryVoteAtReviewStart() {
-		if (hasJuryReviewVote() && !isPanelProcedure() && !this.juryReview && this.athleteUnderReview != null) {
+		if (hasJuryReviewVote() && !isVoteCallExplicit() && !this.juryReview && this.athleteUnderReview != null) {
 			doPanelVoteCalled(this);
 		}
 	}
@@ -1641,12 +1634,13 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * @return true when Summon All (keypad, jury box, `K`) means Call for Votes: during a review of the seven-person
-	 *         panel, where the referees vote again and so are summoned by the vote. Otherwise it summons the referees
-	 *         (TCRR 7.5.7, "the Jury may call the Referees in question").
+	 * @return true when Summon All (keypad, jury box, `K`) means Call for Votes: during a review when the call for votes
+	 *         is explicit (see {@link #isVoteCallExplicit()}: the seven-person panel, or a jury with the automatic stop
+	 *         option). The three individual buttons then summon the referees. Otherwise Summon All summons the
+	 *         referees (TCRR 7.5.7, "the Jury may call the Referees in question").
 	 */
 	public boolean isSummonAllVote() {
-		return isPanelVoteCallable() && isPanelProcedure();
+		return isPanelVoteCallable() && isVoteCallExplicit();
 	}
 
 	/**
@@ -1739,7 +1733,8 @@ public class FieldOfPlay implements IUnregister {
 
 	/**
 	 * Cancel vote result: the votes are cleared on every display and device, and the break continues. The Chair calls
-	 * a new vote; after a review started by the Chair without VPT, the jurors may vote again at once.
+	 * a new vote; when the call for votes is not explicit (see {@link #isVoteCallExplicit()}), the jurors may vote
+	 * again at once.
 	 */
 	private void doPanelVoteCancelled(Object origin) {
 		boolean ruleRequested = this.juryRuleRequested || Boolean.FALSE.equals(this.panelVoteMajority);
@@ -2002,6 +1997,16 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
+	 * @return true when the Chair has to call for the review vote explicitly: the seven-person panel, and any other
+	 *         jury when the automatic stop option (automaticBreakNoVPT) is on. The votes on the lift stay displayed
+	 *         until the call, and no vote opens by itself. Otherwise (no jury, or a jury with the option off) the
+	 *         vote opens at once when a review starts.
+	 */
+	public boolean isVoteCallExplicit() {
+		return isPanelProcedure() || (hasJuryReviewVote() && FeatureSwitch.AUTOMATIC_BREAK_NO_VPT.isEffective());
+	}
+
+	/**
 	 * @return true while the jury votes on the last lift are awaited by the Adjudication Panel procedure
 	 */
 	public boolean isPanelVotePending() {
@@ -2029,8 +2034,8 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * @return true while the current JURY break was started automatically (without VPT) by a unanimous four-member
-	 *         jury opposite to the referees
+	 * @return true while the current JURY break was started automatically (jury other than the seven-person panel,
+	 *         automatic stop option) by a jury against the referees, counted with the jury's rule
 	 */
 	public boolean isJuryReview() {
 		return this.juryReview;
@@ -3036,7 +3041,7 @@ public class FieldOfPlay implements IUnregister {
 			this.juryDecisionShown = true;
 			this.liftReviewed = true;
 			if (isFourMemberJury()) {
-				this.juryDecisionCardVisibleUntil = System.currentTimeMillis() + JURY_DECISION_CARD_MS;
+				this.juryDecisionCardVisibleUntil = System.currentTimeMillis() + Competition.juryOutcomeCardDuration;
 			}
 			this.logger.info("{}jury decision {} for {}{}", FieldOfPlay.getLoggingName(this),
 			        e.success ? "good lift" : "no lift", a, againstVote
@@ -3256,7 +3261,7 @@ public class FieldOfPlay implements IUnregister {
 						break;
 					}
 					if (this.juryReview) {
-						// without VPT: a unanimous jury stopped the competition. The jury votes are kept (they are
+						// a jury against the referees stopped the competition. The jury votes are kept (they are
 						// cleared when the Chair calls for votes, with Deliberation on the jury device). Summoning the
 						// referees is the Chair's decision (7.5.8), so no automatic SummonRef here; Jury Control
 						// prompts for it.
@@ -3267,9 +3272,9 @@ public class FieldOfPlay implements IUnregister {
 					}
 					// deliberation started by the Chair: no automatic panel evaluation
 					endPanelVotePending(this);
-					if (isPanelProcedure()) {
-						// seven-person panel: the votes on the lift stay displayed until the Chair calls the vote
-						// (Summon All), which re-arms the referees
+					if (isVoteCallExplicit()) {
+						// seven-person panel, or automatic stop option on: the votes on the lift stay displayed until
+						// the Chair calls for votes (the panel's referees are then re-armed)
 						capturePanelReviewInitialVotes();
 					} else {
 						// the jury lights are cleared and the jurors vote again at once
@@ -3291,15 +3296,15 @@ public class FieldOfPlay implements IUnregister {
 					// a challenge follows the same procedure as the corresponding jury break; only the trigger and
 					// the label differ
 					endPanelVotePending(this);
-					if (isPanelProcedure()) {
-						// with VPT: same as the Adjudication Panel Review. The lift's votes are kept and shown until
-						// the Chair calls for votes, which summons the referees.
+					if (isVoteCallExplicit()) {
+						// seven-person panel, or automatic stop option on: same as the Adjudication Panel Review.
+						// The lift's votes are kept and shown until the Chair calls for votes.
 						capturePanelReviewInitialVotes();
 						pushOutUIEvent(new UIEvent.JuryNotification(this.athleteUnderReview, this,
 								JuryDeliberationEventType.CHALLENGE, null, null, false, this, null));
 					} else {
-						// without the seven-person panel (with or without VPT): same as a jury deliberation opened
-						// by the Chair
+						// jury other than the panel, automatic stop option off: same as a jury deliberation opened
+						// by the Chair, the vote opens at once
 						resetJuryDecisions();
 						pushOutUIEvent(new UIEvent.JuryNotification(this.athleteUnderReview, this,
 								JuryDeliberationEventType.CHALLENGE, null, null, false, this, null));
@@ -3745,6 +3750,10 @@ public class FieldOfPlay implements IUnregister {
 	 * not all jurors have voted yet, or if the referee-decision fallback is unavailable.
 	 */
 	private Boolean computeCurrentJuryVerdict(int jurySize) {
+		return computeCurrentJuryVerdict(jurySize, getReviewedLiftRefereeDecision());
+	}
+
+	private Boolean computeCurrentJuryVerdict(int jurySize, Boolean[] refereeDecisions) {
 		Boolean[] votes = getJuryMemberDecision();
 		int reds = 0, whites = 0, decisions = 0;
 		for (int i = 0; i < jurySize; i++) {
@@ -3760,7 +3769,7 @@ public class FieldOfPlay implements IUnregister {
 		if (decisions != jurySize) {
 			return null; // not all voted yet
 		}
-		return effectiveJuryVerdict(reds, whites, jurySize, getReviewedLiftRefereeDecision());
+		return effectiveJuryVerdict(reds, whites, jurySize, refereeDecisions);
 	}
 
 	/**

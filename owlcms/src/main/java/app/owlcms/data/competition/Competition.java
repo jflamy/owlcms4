@@ -102,6 +102,11 @@ public class Competition {
 	// Break-timer milestones only.
 	public static int breakTimerInitialWarning = 60000;
 	public static int breakTimerFinalWarning = 30000;
+	// Decision and jury display durations, in milliseconds.
+	public static int decisionVisibleDuration = 3500;
+	public static int juryDecisionHold = 10000;
+	public static int juryOutcomeCardDuration = 5000;
+	public static int decisionBlockHold = 20000;
 	// Sound values are basenames. The server resolves .wav and the browser resolves .mp3.
 	public static String athleteTimerInitialWarningSound = "initialWarning";
 	public static String athleteTimerFinalWarningSound = "finalWarning";
@@ -128,6 +133,15 @@ public class Competition {
 		} catch (IOException e) {
 			logger.warn("could not read timing/timing.properties: {}", e.getMessage());
 		}
+		applyTimingConfig(props);
+	}
+
+	/**
+	 * Set the timing values from the given properties; keys that are absent or invalid keep their current value.
+	 *
+	 * @param props the timing properties
+	 */
+	public static void applyTimingConfig(Properties props) {
 		int prev;
 		prev = athleteTimerTwoMinutes;
 		athleteTimerTwoMinutes   = parseTimingProp(props, "athleteTimerTwoMinutes",   athleteTimerTwoMinutes);
@@ -154,6 +168,30 @@ public class Competition {
 		prev = breakTimerFinalWarning;
 		breakTimerFinalWarning = parseTimingProp(props, "breakTimerFinalWarning", breakTimerFinalWarning);
 		if (breakTimerFinalWarning != prev) logger.info("timing override: breakTimerFinalWarning = {} ms (was {})", breakTimerFinalWarning, prev);
+
+		prev = decisionVisibleDuration;
+		decisionVisibleDuration = parseTimingProp(props, "decisionVisibleDuration", decisionVisibleDuration);
+		if (decisionVisibleDuration != prev) {
+			logger.info("timing override: decisionVisibleDuration = {} ms (was {})", decisionVisibleDuration, prev);
+		}
+
+		prev = juryDecisionHold;
+		juryDecisionHold = parseTimingProp(props, "juryDecisionHold", juryDecisionHold);
+		if (juryDecisionHold != prev) {
+			logger.info("timing override: juryDecisionHold = {} ms (was {})", juryDecisionHold, prev);
+		}
+
+		prev = juryOutcomeCardDuration;
+		juryOutcomeCardDuration = parseTimingProp(props, "juryOutcomeCardDuration", juryOutcomeCardDuration);
+		if (juryOutcomeCardDuration != prev) {
+			logger.info("timing override: juryOutcomeCardDuration = {} ms (was {})", juryOutcomeCardDuration, prev);
+		}
+
+		prev = decisionBlockHold;
+		decisionBlockHold = parseTimingProp(props, "decisionBlockHold", decisionBlockHold);
+		if (decisionBlockHold != prev) {
+			logger.info("timing override: decisionBlockHold = {} ms (was {})", decisionBlockHold, prev);
+		}
 
 		String prevSound = athleteTimerInitialWarningSound;
 		athleteTimerInitialWarningSound = parseTimingSoundProp(props, "athleteTimerInitialWarningSound", athleteTimerInitialWarningSound);

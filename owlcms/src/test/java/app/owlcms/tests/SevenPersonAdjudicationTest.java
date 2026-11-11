@@ -627,6 +627,71 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
+	public void threeMemberJuryUnanimousAgainstTheRefereesStopsWhenTheSwitchIsOn() {
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, true);
+		this.fop.setJurySize(3);
+		lift(W, W, W);
+		juryVotes(R, R, R);
+		assertTrue(this.fop.isJuryReview());
+		assertEquals(FOPState.BREAK, this.fop.getState());
+		assertEquals(BreakType.JURY, this.fop.getBreakType());
+		assertEquals("the jury votes are kept", Boolean.FALSE, this.fop.getJuryMemberDecision()[0]);
+	}
+
+	@Test
+	public void threeMemberJurySplitAgainstTheRefereesDoesNotStop() {
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, true);
+		this.fop.setJurySize(3);
+		lift(W, W, W);
+		juryVotes(R, R, W);
+		assertFalse(this.fop.isJuryReview());
+		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+	}
+
+	@Test
+	public void threeMemberJuryUnanimousAgainstTheRefereesDoesNotStopWhenTheSwitchIsOff() {
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, false);
+		this.fop.setJurySize(3);
+		lift(W, W, W);
+		juryVotes(R, R, R);
+		assertFalse(this.fop.isJuryReview());
+		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+	}
+
+	@Test
+	public void fiveMemberJuryWithoutVideoNeedsUnanimityToStop() {
+		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, true);
+		this.fop.setJurySize(5);
+		lift(W, W, W);
+		juryVotes(R, R, R, R, W);
+		assertFalse("4 to 1 is not unanimous", this.fop.isJuryReview());
+		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+	}
+
+	@Test
+	public void fiveMemberJuryWithoutVideoStopsWhenUnanimousAgainstTheReferees() {
+		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, true);
+		this.fop.setJurySize(5);
+		lift(W, W, W);
+		juryVotes(R, R, R, R, R);
+		assertTrue("5 to 0 stops", this.fop.isJuryReview());
+		assertEquals(FOPState.BREAK, this.fop.getState());
+	}
+
+	@Test
+	public void fiveMemberJuryWithVideoStopsOnAMajorityAgainstTheReferees() {
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, true);
+		this.fop.setJurySize(5);
+		lift(W, W, W);
+		juryVotes(R, R, R, W, W);
+		assertTrue(this.fop.isJuryReview());
+		assertEquals(FOPState.BREAK, this.fop.getState());
+		assertEquals(BreakType.JURY, this.fop.getBreakType());
+	}
+
+	@Test
 	public void withoutVideoPlaybackTheClockWaitsForTheJury() {
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
 		lift(W, W, W);
@@ -1003,17 +1068,46 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
-	public void summonAllSummonsAfterAnAutomaticStopWithoutVideo() {
+	public void summonAllCallsTheVoteAfterAnAutomaticStopWithoutVideo() {
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
 		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, true);
 		lift(W, W, W);
 		juryVotes(R, R, R, R);
 		assertTrue(this.fop.isJuryReview());
+		assertTrue("Summon All is a vote", this.fop.isSummonAllVote());
+		post(new FOPEvent.SummonReferee(new Object(), 0));
+		assertTrue("the vote is called", awaitCondition(() -> this.fop.isPanelVoteOpen()));
+		assertNull("the jury votes are cleared", this.fop.getJuryMemberDecision()[0]);
+		assertTrue("the referees are not summoned", this.recorder.summons.isEmpty());
+	}
+
+	@Test
+	public void summonAllCallsTheVoteOfAThreeMemberJuryWhenTheAutomaticStopIsOn() {
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, true);
+		juryDeliberation(3, W, W, W);
+		assertFalse("the vote is not open", this.fop.isPanelVoteOpen());
+		assertTrue("Summon All is a vote", this.fop.isSummonAllVote());
+		post(new FOPEvent.SummonReferee(new Object(), 0));
+		assertTrue("the vote is open", awaitCondition(() -> this.fop.isPanelVoteOpen()));
+		assertTrue("the referees are not summoned", this.recorder.summons.isEmpty());
+	}
+
+	@Test
+	public void summonAllSummonsForAThreeMemberJuryWhenTheAutomaticStopIsOff() {
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, false);
+		juryDeliberation(3, W, W, W);
 		assertFalse("Summon All is not a vote", this.fop.isSummonAllVote());
 		post(new FOPEvent.SummonReferee(new Object(), 0));
 		assertTrue("the referees are summoned", this.recorder.await(this.recorder.summons, r -> r.ref == 0));
-		assertFalse("the vote is not called", this.fop.isPanelVoteOpen());
-		assertEquals("the jury votes are kept", Boolean.FALSE, this.fop.getJuryMemberDecision()[0]);
+	}
+
+	@Test
+	public void individualSummonSummonsOneRefereeWhenTheAutomaticStopIsOn() {
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, true);
+		juryDeliberation(3, W, W, W);
+		post(new FOPEvent.SummonReferee(new Object(), 1));
+		assertTrue("the referee is summoned", this.recorder.await(this.recorder.summons, r -> r.ref == 1));
+		assertFalse("the vote is not opened", this.fop.isPanelVoteOpen());
 	}
 
 	@Test
@@ -1516,6 +1610,79 @@ public class SevenPersonAdjudicationTest {
 		post(new FOPEvent.SummonReferee(new Object(), 0));
 		assertTrue("the referees are summoned", this.recorder.await(this.recorder.summons, r -> r.ref == 0));
 		assertEquals("the vote goes on", Boolean.FALSE, this.fop.getJuryMemberDecision()[0]);
+	}
+
+	@Test
+	public void voteCallIsExplicitForThePanelAndForTheAutomaticStopOption() {
+		assertTrue("seven-person panel", this.fop.isVoteCallExplicit());
+		this.fop.setJurySize(3);
+		assertFalse("3 jurors, automatic stop off", this.fop.isVoteCallExplicit());
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, true);
+		assertTrue("3 jurors, automatic stop on", this.fop.isVoteCallExplicit());
+		this.fop.setJurySize(0);
+		assertFalse("no jury", this.fop.isVoteCallExplicit());
+	}
+
+	@Test
+	public void deliberationWaitsForTheCallForVotesWhenTheAutomaticStopIsOn() {
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, true);
+		this.fop.setJurySize(3);
+		lift(W, W, W);
+		juryVotes(W, W, W);
+		assertEquals("the jury agrees: no automatic stop", FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+		post(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		assertEquals(FOPState.BREAK, this.fop.getState());
+		assertFalse("the vote is not open", this.fop.isPanelVoteOpen());
+		assertTrue("the Chair can call for votes", this.fop.isPanelVoteCallable());
+		assertEquals("the first votes are kept", List.of(W, W, W, W, W, W),
+		        Arrays.asList(this.fop.getPanelReviewInitialVotes()));
+		assertEquals("the jury votes are not reset", Boolean.TRUE, this.fop.getJuryMemberDecision()[0]);
+
+		callForVotes();
+		assertTrue("the vote is open", this.fop.isPanelVoteOpen());
+		assertNull("the first votes are no longer kept", this.fop.getPanelReviewInitialVotes());
+		assertNull("the jury votes are cleared", this.fop.getJuryMemberDecision()[0]);
+	}
+
+	@Test
+	public void challengeWaitsForTheCallForVotesWhenTheAutomaticStopIsOn() {
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, true);
+		this.fop.setJurySize(3);
+		lift(R, R, W);
+		juryVotes(R, R, R);
+		assertEquals("the jury agrees: no automatic stop", FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+		assertTrue(this.fop.isChallengeAllowed());
+		post(new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		assertEquals(BreakType.CHALLENGE, this.fop.getBreakType());
+		assertFalse("the vote is not open", this.fop.isPanelVoteOpen());
+		assertEquals("the first votes are kept", List.of(R, R, W, R, R, R),
+		        Arrays.asList(this.fop.getPanelReviewInitialVotes()));
+		assertEquals("the jury votes are not reset", Boolean.FALSE, this.fop.getJuryMemberDecision()[0]);
+
+		callForVotes();
+		assertTrue("the vote is open", this.fop.isPanelVoteOpen());
+		assertNull("the jury votes are cleared", this.fop.getJuryMemberDecision()[0]);
+	}
+
+	@Test
+	public void cancelVoteResultWaitsForTheCallForVotesWhenTheAutomaticStopIsOn() {
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, true);
+		juryDeliberation(3, W, W, W);
+		callForVotes();
+		juryVotes(W, W, W);
+		post(new FOPEvent.PanelVoteCancelled(new Object()));
+		assertFalse("the Chair has to call again", this.fop.isPanelVoteOpen());
+		assertTrue(this.fop.isPanelVoteCallable());
+		callForVotes();
+		assertTrue(this.fop.isPanelVoteOpen());
+	}
+
+	@Test
+	public void deliberationOpensTheVoteAtOnceWhenTheAutomaticStopIsOff() {
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, false);
+		juryDeliberation(3, W, W, W);
+		assertTrue("the vote is open at once", this.fop.isPanelVoteOpen());
+		assertNull("the votes on the lift are not kept", this.fop.getPanelReviewInitialVotes());
 	}
 
 	@Test

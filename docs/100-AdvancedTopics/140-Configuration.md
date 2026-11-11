@@ -41,6 +41,17 @@ The athlete timer milestones can be changed by copying `timing/timing.properties
 | OWLCMS_ATHLETE_TIMER_ONE_MINUTE    | Overrides the `athleteTimerOneMinute` value.     |
 | OWLCMS_ATHLETE_TIMER_TWO_MINUTES   | Overrides the `athleteTimerTwoMinutes` value.    |
 
+### Decision and Jury Display Durations
+
+The same `timing/timing.properties` file sets how long the referee decision and the jury outcome stay on the displays, in milliseconds. A missing key keeps its default.
+
+| Key                       | Default | Description                                                                 |
+| ------------------------- | ------- | --------------------------------------------------------------------------- |
+| decisionVisibleDuration   | 3500    | How long the referee decision is shown before the competition moves to the next athlete. Also how long the attempt board shows a jury outcome before going back to the current athlete. |
+| juryDecisionHold          | 10000   | How long the attempt board stays on the athlete under review after the last jury vote. |
+| juryOutcomeCardDuration   | 5000    | How long the attempt board shows the jury outcome card.                     |
+| decisionBlockHold         | 20000   | How long the scoreboard decision block shows the prior decision or the jury outcome. |
+
 ### Remote Public Results and Video parameters
 
 | System Property Name (-D) | Environment Variable Name | Description                                                  |
