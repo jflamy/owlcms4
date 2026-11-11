@@ -11,6 +11,12 @@
 
 **Development log**
 
+- 69.0.0-beta08: OBS status monitor changes
+  - Each status monitor follows the platform named in its address (`fop=`). The Status Monitor button on the Video Streaming page opens the monitor for the platform selected on that page.
+  - With several platforms, a monitor address without `fop=`, or naming a platform that does not exist, shows a message listing the platform names. Add `fop=` to existing OBS browser sources and bookmarks. Nothing changes with a single platform.
+  - The lift type reported for a decision is now correct. The decision on a third snatch was reported as `liftType=CLEANJERK`; during a jury break, the lift type is that of the lift under review.
+  - The monitor goes directly from the decision to the break at the end of the snatches and at the end of the session, without a momentary `CURRENT_ATHLETE_DISPLAYED`. Scene-switching rules that expect `previous=CURRENT_ATHLETE_DISPLAYED` before the automatic clean & jerk break need to be changed.
+
 - 69.0.0-beta08: Additional fixes for jury decision edge cases
   - The speaker and the scoreboard top line move on to the next athlete while the jury votes. The attempt board and the scoreboard decision section stay on the athlete under review until the jury has voted, or until the next clock starts.
   - On the last snatch and on the last lift of the session, the decision stays visible into the break or the end of the session instead of disappearing at once or staying indefinitely.
@@ -18,16 +24,7 @@
   - A review requested after the next athlete's clock has started stops the clock and shows the reviewed athlete and decision.
   - When the review vote of a 3, 4 or 5-member jury does not reach the jury's rule (unanimity, or a majority for 5 members with video), the referees' decision stands as called: Jury Control asks the Chair to confirm it instead of asking for a technical rule, and the boards and the speaker show the reason "Referee Decision Stands as Called".
   - Attempt boards and scoreboards opened before the jury size is set on Jury Control now show the jury votes without being reloaded.
-
-- 69.0.0-beta08: OBS status monitor with several platforms
-  - Each status monitor follows the platform named in its address (`fop=`). The Status Monitor button on the Video Streaming page opens the monitor for the platform selected on that page.
-  - With several platforms, a monitor address without `fop=`, or naming a platform that does not exist, shows a message listing the platform names. Add `fop=` to existing OBS browser sources and bookmarks. Nothing changes with a single platform.
-
-- 69.0.0-beta08: OBS status monitor reports the correct lift type for a decision. The decision on a third snatch was reported as `liftType=CLEANJERK`; during a jury break, the lift type is that of the lift under review.
-
-- 69.0.0-beta08: OBS status monitor goes directly from the decision to the break at the end of the snatches and at the end of the session, without a momentary `CURRENT_ATHLETE_DISPLAYED`. Scene-switching rules that expect `previous=CURRENT_ATHLETE_DISPLAYED` before the automatic clean & jerk break need to be changed.
-
-- 69.0.0-beta08: When the jury reviews the last snatch, the break before clean & jerk starts again for its full duration once the jury has decided. Previously lifting resumed without the break.
+  - When the jury reviews the last snatch, the break before clean & jerk starts again for its full duration once the jury has decided. Previously lifting resumed without the break.
 
 - 69.0.0-beta07: Fixes for jury box MQTT messaging; removed initial summon all on automatic reviews
 
