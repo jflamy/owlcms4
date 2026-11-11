@@ -13,7 +13,7 @@ import java.util.Map;
 import app.owlcms.i18n.Translator;
 
 /**
- * Reasons given by the jury for a No Lift decision.
+ * Reasons given by the jury for its decision: the technical rules for a No Lift, and {@link #STANDS_AS_CALLED}.
  */
 public final class JuryRejectionReasons {
 
@@ -41,11 +41,20 @@ public final class JuryRejectionReasons {
 		REASONS = Collections.unmodifiableMap(reasons);
 	}
 
+	/**
+	 * Not a technical rule: a 3-, 4- or 5-member jury's review vote did not reach the jury's rule (unanimity, or a
+	 * majority for five jurors with VPT), so the referees' decision stands as called. Never offered in the rule dialog.
+	 */
+	public static final int STANDS_AS_CALLED = 0;
+
 	private JuryRejectionReasons() {
 	}
 
-	/** @return "code - translated reason", or null if the code is null or unknown */
+	/** @return "code - translated reason", the translated text for {@link #STANDS_AS_CALLED}, or null if unknown */
 	public static String label(Integer code) {
+		if (code != null && code == STANDS_AS_CALLED) {
+			return Translator.translate("Jury.StandsAsCalled");
+		}
 		String key = code != null ? REASONS.get(code) : null;
 		return key != null ? code + " - " + Translator.translate(key) : null;
 	}

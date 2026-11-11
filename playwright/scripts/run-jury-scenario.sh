@@ -19,7 +19,9 @@
 #                                 040-vpt-challenge-success
 #                                 050-vpt-challenge-fail 060-vpt-confirmation-nolift
 #     three-member jury, no VPT:  070-jury3-reversal-nolift 080-jury3-reversal-goodlift 090-jury3-challenge-success
-#                                 100-jury3-challenge-fail 110-jury3-confirmation-nolift
+#                                 100-jury3-challenge-fail 110-jury3-confirmation-nolift 115-jury3-goodlift-stands
+#                                 (100, 115, 150: the review vote does not reach the jury's rule, the referees'
+#                                 decision stands as called)
 #     four-member jury, no VPT:   120-jury4-reversal-nolift 130-jury4-reversal-goodlift 140-jury4-challenge-success
 #                                 150-jury4-challenge-fail 160-jury4-confirmation-nolift
 #     four-member jury with VPT, jury box 1 broken: 170-vpt-broken-juror-nolift

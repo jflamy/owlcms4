@@ -14,7 +14,10 @@
 - 69.0.0-beta08: Additional fixes for jury decision edge cases
   - The speaker and the scoreboard top line move on to the next athlete while the jury votes. The attempt board and the scoreboard decision section stay on the athlete under review until the jury has voted, or until the next clock starts.
   - On the last snatch and on the last lift of the session, the decision stays visible into the break or the end of the session instead of disappearing at once or staying indefinitely.
+  - The scoreboard decision section shows the final outcome for 20 seconds, whatever the jury size, so that it can be read after the rest of the scoreboard has moved on: from the referee decision when there is no jury, from the last jury vote when the jury does not ask for a review, and from the jury decision after a review. A deliberation or a challenge started during the 20 seconds takes over at once, and the next clock start ends the display.
   - A review requested after the next athlete's clock has started stops the clock and shows the reviewed athlete and decision.
+  - When the review vote of a 3, 4 or 5-member jury does not reach the jury's rule (unanimity, or a majority for 5 members with video), the referees' decision stands as called: Jury Control asks the Chair to confirm it instead of asking for a technical rule, and the boards and the speaker show the reason "Referee Decision Stands as Called".
+  - Attempt boards and scoreboards opened before the jury size is set on Jury Control now show the jury votes without being reloaded.
 
 - 69.0.0-beta07: Fixes for jury box MQTT messaging; removed initial summon all on automatic reviews
 

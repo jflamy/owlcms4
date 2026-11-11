@@ -580,9 +580,17 @@ public class FOPEvent {
 			return this.juryButton;
 		}
 
-		/** @return the jury's No Lift reason code, null if none was given */
+		/** @return the jury's reason code (a No Lift rule, or the referees' decision standing), null if none */
 		public Integer getReasonCode() {
 			return this.reasonCode;
+		}
+
+		/**
+		 * The FOP attaches the reason when the decision is the referees' decision standing as called, also when the
+		 * device gave none; the audit then records it.
+		 */
+		public void setReasonCode(Integer reasonCode) {
+			this.reasonCode = reasonCode;
 		}
 
 		/** @return true when the Jury Chair entered the decision directly rather than through a jury vote */

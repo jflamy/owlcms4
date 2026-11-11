@@ -27,7 +27,6 @@ import app.owlcms.access.Capability;
 import app.owlcms.access.Principal;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.displays.DecisionDisplayRules;
 import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.fieldofplay.FOPEvent.DecisionUpdate;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -94,14 +93,10 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage
 		// explicit URL value equal to the static default would be stripped before we get here.
 		Map<String, List<String>> params = super.readParams(location, parametersMap);
 		if (getBoard() instanceof AttemptBoard) {
-			// the FOP is only known after super.readParams
-			setDefaultParamValue(SHOW_JURY_DECISIONS,
-			        Boolean.toString(DecisionDisplayRules.showJuryDecisionsOnAttemptBoard(getJurySize(), true)));
-			if (getJurySize() > 0) {
-				processBooleanParam(params, SHOW_JURY_DECISIONS, this::setShowJuryDecisions);
-			} else {
-				setShowJuryDecisions(false);
-			}
+			// the option is read whatever the jury size: the board applies it when there is a jury, also when the
+			// jury is set up after the board was opened
+			setDefaultParamValue(SHOW_JURY_DECISIONS, Boolean.TRUE.toString());
+			processBooleanParam(params, SHOW_JURY_DECISIONS, this::setShowJuryDecisions);
 		}
 		return params;
 	}
@@ -149,9 +144,9 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage
 	}
 
 	private void setShowJuryDecisions(boolean show) {
-		this.showJuryDecisions = DecisionDisplayRules.showJuryDecisionsOnAttemptBoard(getJurySize(), show);
+		this.showJuryDecisions = show;
 		if (getBoard() instanceof AttemptBoard board) {
-			board.getDecisions().setShowJuryDecisions(this.showJuryDecisions);
+			board.setShowJuryDecisionsRequested(show);
 		}
 	}
 

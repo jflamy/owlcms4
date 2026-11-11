@@ -66,7 +66,9 @@ to the review.
 - **Outcome:** the moment a jury decision is applied.
   - Normal case: after the review vote, the Chair confirms a Good Lift or gives the reason for a
     No Lift on Jury Control, or presses the matching Good Lift / No Lift button of the jury box
-    (no reason is shown).
+    (no reason is shown). When a 3-4-5 jury's vote does not reach the jury's rule, the referees'
+    decision stands as called: the Chair confirms it, and the reason shown is "Referee Decision
+    Stands as Called", for a Good Lift or a No Lift, also from the jury box.
   - Also outcomes: a Chair decision against the result of the vote, a Chair decision without a
     complete vote, and a decision entered by the Speaker.
   - A second decision on the same lift (a correction) is a new outcome: the 5 s and the 20 s

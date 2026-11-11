@@ -124,6 +124,7 @@ import app.owlcms.sound.Tone;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.JuryDeliberationEventType;
+import app.owlcms.uievents.JuryRejectionReasons;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.BreakStarted;
 import app.owlcms.uievents.UIEvent.JuryNotification;
@@ -239,6 +240,11 @@ public class FieldOfPlay implements IUnregister {
 	private Boolean[] reviewRefereeDecision = new Boolean[AdjudicationPanel.NB_REFEREES];
 	/** Phase B: the panel majority once all seven have voted, null before */
 	private Boolean panelVoteMajority;
+	/**
+	 * The complete review vote of a jury without the seven-person panel did not reach the jury's rule: the referees'
+	 * decision stands as called, no technical rule is asked for
+	 */
+	private boolean refereeDecisionStands;
 	/** Phase B: the votes have been revealed to the jury displays/devices after the last vote */
 	private boolean panelVoteRevealed;
 	/**
@@ -1700,6 +1706,8 @@ public class FieldOfPlay implements IUnregister {
 			tally = "jury " + Arrays.toString(jury);
 		}
 		this.panelVoteMajority = majority;
+		this.refereeDecisionStands = majority != null && !isPanelProcedure()
+		        && !isJuryRuleReached(jury, getJurySize());
 		if (majority != null && !this.panelVoteRevealed) {
 			this.panelVoteRevealed = true;
 			if (!isPanelProcedure()) {
@@ -1714,12 +1722,44 @@ public class FieldOfPlay implements IUnregister {
 		this.logger.info("{}review vote complete: {} ({}) for {}",
 		        FieldOfPlay.getLoggingName(this), majority ? "good lift" : "no lift", tally, this.athleteUnderReview);
 		// the result waits for the Jury Chair: Confirm Good Lift, or the technical rule for a No Lift, or Cancel vote
-		// result
-		if (!majority) {
+		// result. When the vote did not reach the jury's rule, the referees' decision stands as called: the Chair
+		// confirms it, no rule is asked for.
+		if (this.refereeDecisionStands) {
+			this.logger.info("{}the review vote did not reach the jury's rule, the referees' decision stands as called",
+			        FieldOfPlay.getLoggingName(this));
+		} else if (!majority) {
 			this.logger.info("{}no lift on review, waiting for the Jury Chair to give the rule",
 			        FieldOfPlay.getLoggingName(this));
 			pushOutUIEvent(new UIEvent.JuryRuleRequired(this.athleteUnderReview, true, false, origin, this));
 		}
+	}
+
+	/**
+	 * @return true when the jury votes reach the jury's rule by themselves: unanimity, or a majority for five jurors
+	 *         with VPT (five votes always give one). Without it, a jury without the seven-person panel leaves the
+	 *         referees' decision standing.
+	 */
+	private boolean isJuryRuleReached(Boolean[] jury, int jurySize) {
+		if (jurySize == 5 && Competition.getCurrent().isVideoPlaybackTechnology()) {
+			return true;
+		}
+		if (jury == null || jury.length < jurySize || jurySize <= 0 || jury[0] == null) {
+			return false;
+		}
+		for (int i = 1; i < jurySize; i++) {
+			if (!jury[0].equals(jury[i])) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * @return true when the complete review vote of a jury without the seven-person panel did not reach the jury's
+	 *         rule: the referees' decision stands as called, and the Jury Chair confirms it without a technical rule
+	 */
+	public boolean isRefereeDecisionStanding() {
+		return this.panelVoteMajority != null && this.refereeDecisionStands;
 	}
 
 	/**
@@ -1744,7 +1784,9 @@ public class FieldOfPlay implements IUnregister {
 	 * again at once.
 	 */
 	private void doPanelVoteCancelled(Object origin) {
-		boolean ruleRequested = this.juryRuleRequested || Boolean.FALSE.equals(this.panelVoteMajority);
+		// a rule dialog was open: the Chair's own No Lift, or the No Lift result of a vote that reached the jury's rule
+		boolean ruleRequested = this.juryRuleRequested
+		        || (Boolean.FALSE.equals(this.panelVoteMajority) && !isRefereeDecisionStanding());
 		this.juryRuleRequested = false;
 		resetJuryDecisions();
 		this.panelReviewInitialVotes = null;
@@ -2994,6 +3036,12 @@ public class FieldOfPlay implements IUnregister {
 			// vote. A button decision equal to the result of a completed vote (Confirm Good Lift, or the rule given
 			// for a No Lift result) is the vote's decision.
 			boolean matchesVote = this.panelVoteMajority != null && this.panelVoteMajority.equals(e.success);
+			// the vote did not reach the jury's rule and the decision is the referees': it stands as called, whatever
+			// the device (Jury Control confirmation, or the jury box button, which gives no reason)
+			Integer reasonCode = matchesVote && isRefereeDecisionStanding() && e.getReasonCode() == null
+			        ? Integer.valueOf(JuryRejectionReasons.STANDS_AS_CALLED)
+			        : e.getReasonCode();
+			e.setReasonCode(reasonCode);
 			boolean overridesVote = hasJuryReviewVote() && e.isJuryButton() && e.isChairEntered()
 			        && !matchesVote;
 			// against the result of a complete vote (TCRR 7.5.7): flagged
@@ -3031,7 +3079,7 @@ public class FieldOfPlay implements IUnregister {
 					e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
 					reversalToGood || reversalToBad, newRecord,
 					false, this, (e.success ? 1 : -1) * Math.abs(actualLift));
-			juryNotificationEvent.setReasonCode(e.getReasonCode());
+			juryNotificationEvent.setReasonCode(reasonCode);
 			juryNotificationEvent.setChairEntered(chairEntered);
 			juryNotificationEvent.setAgainstVote(againstVote);
 			juryNotificationEvent.setSpeakerEntered(!e.isJuryButton());

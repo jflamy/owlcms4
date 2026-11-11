@@ -128,6 +128,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	/** true when the open rule dialog is for the No Lift result of a vote (its Cancel cancels the vote result) */
 	private boolean noLiftReasonForVote;
 	private Dialog confirmGoodLiftDialog;
+	/** the review vote did not reach the jury's rule: the Chair confirms that the referees' decision stands */
+	private Dialog decisionStandsDialog;
 	/**
 	 * Testing aid ({@code ?box=true}): the page acts as the physical jury box. Good Lift / No Lift post the same events
 	 * as the box (No Lift asks the other Jury Control pages for the rule), no jury dialog is shown, Call for Votes is
@@ -1381,8 +1383,9 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	/**
 	 * Show the dialog that matches the FOP state, so that every Jury Control page on the platform shows the same one:
-	 * the rule dialog for the No Lift result of a vote or for a No Lift pressed by the Chair, Confirm Good Lift for the
-	 * Good Lift result of a vote, nothing otherwise. The box page (testing) never shows them.
+	 * the confirmation that the referees' decision stands when the vote did not reach the jury's rule, the rule
+	 * dialog for the No Lift result of a vote or for a No Lift pressed by the Chair, Confirm Good Lift for the Good
+	 * Lift result of a vote, nothing otherwise. The box page (testing) never shows them.
 	 */
 	private void syncJuryDialogs(FieldOfPlay fop) {
 		if (this.boxMode || !isJuryDecisionActive(fop)) {
@@ -1390,13 +1393,20 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			return;
 		}
 		Boolean majority = fop.isPanelVoteOpen() ? fop.getPanelVoteMajority() : null;
-		if (Boolean.FALSE.equals(majority)) {
+		if (majority != null && fop.isRefereeDecisionStanding() && !fop.isJuryRuleRequested()) {
+			closeNoLiftReasonDialog();
+			closeConfirmGoodLiftDialog();
+			openDecisionStandsDialog(majority);
+		} else if (Boolean.FALSE.equals(majority) && !fop.isRefereeDecisionStanding()) {
+			closeDecisionStandsDialog();
 			closeConfirmGoodLiftDialog();
 			openNoLiftReasonDialog(true);
 		} else if (fop.isJuryRuleRequested()) {
+			closeDecisionStandsDialog();
 			closeConfirmGoodLiftDialog();
 			openNoLiftReasonDialog(false);
 		} else if (Boolean.TRUE.equals(majority)) {
+			closeDecisionStandsDialog();
 			closeNoLiftReasonDialog();
 			openConfirmGoodLiftDialog();
 		} else {
@@ -1407,6 +1417,63 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	private void closeJuryDialogs() {
 		closeNoLiftReasonDialog();
 		closeConfirmGoodLiftDialog();
+		closeDecisionStandsDialog();
+	}
+
+	private void closeDecisionStandsDialog() {
+		if (this.decisionStandsDialog != null) {
+			this.decisionStandsDialog.close();
+			this.decisionStandsDialog = null;
+		}
+	}
+
+	/**
+	 * The review vote did not reach the jury's rule: the referees' decision stands as called. The Chair confirms it
+	 * (no technical rule is asked for), or cancels the vote result so that a new vote can be called.
+	 *
+	 * @param good the referees' decision that stands
+	 */
+	private void openDecisionStandsDialog(boolean good) {
+		if (this.decisionStandsDialog != null && this.decisionStandsDialog.isOpened()) {
+			return;
+		}
+		Dialog dialog = new Dialog();
+		this.decisionStandsDialog = dialog;
+		dialog.getElement().getThemeList().add(Lumo.DARK);
+		dialog.setHeaderTitle(Translator.translate(good ? "JuryDialog.GoodLiftLabel" : "JuryDialog.BadLiftLabel")
+		        + " \u2013 " + JuryRejectionReasons.label(JuryRejectionReasons.STANDS_AS_CALLED));
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+		Button cancelResult = createKeypadButton(Translator.translate("JuryKeypad.CancelVoteResult"), "contrast",
+		        () -> {
+			        closeDecisionStandsDialog();
+			        cancelVoteResult();
+		        });
+		styleSmallDialogButton(cancelResult);
+		Div cancelSlot = new Div(cancelResult);
+		cancelSlot.getStyle()
+		        .set("width", "24vw")
+		        .set("height", "12vh")
+		        .set("display", "flex")
+		        .set("align-items", "center")
+		        .set("justify-content", "center");
+		Button confirm = createKeypadButton(Translator.translate("JuryKeypad.ConfirmDecisionStands"),
+		        "primary contrast", () -> {
+			        closeDecisionStandsDialog();
+			        submitJuryDecision(good, JuryRejectionReasons.STANDS_AS_CALLED, true);
+		        });
+		confirm.getStyle()
+		        .set("width", "24vw")
+		        .set("height", "12vh")
+		        .set("background-color", good ? "white" : "var(--lumo-error-color)")
+		        .set("color", good ? "black" : "white")
+		        .set("font-weight", "700");
+		Div buttons = new Div(confirm, cancelSlot);
+		buttons.getStyle()
+		        .set("display", "flex")
+		        .set("gap", "var(--lumo-space-m)");
+		dialog.add(buttons);
+		dialog.open();
 	}
 
 	private void closeNoLiftReasonDialog() {

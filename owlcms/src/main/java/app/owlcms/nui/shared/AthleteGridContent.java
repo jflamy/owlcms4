@@ -1068,7 +1068,7 @@ public abstract class AthleteGridContent extends BaseContent
 		boolean good = e.getDeliberationEventType() == JuryDeliberationEventType.GOOD_LIFT;
 		String text = Translator.translate(good ? "JuryNotification.GoodLift" : "JuryNotification.BadLift",
 		        reversalText, e.getAthlete().getFullName(), previousAttemptNo % 3 + 1);
-		String reason = good ? null : JuryRejectionReasons.label(e.getReasonCode());
+		String reason = JuryRejectionReasons.label(e.getReasonCode());
 		if (reason != null) {
 			text = text + " \u2014 " + reason;
 		}

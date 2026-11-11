@@ -336,8 +336,8 @@ public class JuryScenario {
 		        Setup.JURY3, votes("bad", "bad", "good"), votes("good", "bad", "bad"), true,
 		        null, votes("good", "good", "good"), true));
 		add(new Scenario("100-jury3-challenge-fail",
-		        "100. 3-member jury, no VPT: unsuccessful challenge, review vote not unanimous, No Lift stands, the Jury "
-		                + "Chair gives the rule",
+		        "100. 3-member jury, no VPT: unsuccessful challenge, review vote not unanimous, the No Lift stands as "
+		                + "called: the Jury Chair confirms it, no rule is asked for",
 		        Setup.JURY3, votes("bad", "bad", "good"), votes("good", "bad", "bad"), true,
 		        null, votes("good", "good", "bad"), false));
 		add(new Scenario("110-jury3-confirmation-nolift",
@@ -345,6 +345,12 @@ public class JuryScenario {
 		                + "confirmed by the unanimous review vote, the Jury Chair gives the rule",
 		        Setup.JURY3, votes("bad", "bad", "good"), votes("good", "good", "good"), false,
 		        null, votes("bad", "bad", "bad"), false));
+		add(new Scenario("115-jury3-goodlift-stands",
+		        "115. 3-member jury, no VPT: unanimous jury against a Good Lift, the Chair starts a deliberation, the "
+		                + "review vote is not unanimous (2 to 1 for No Lift): the Good Lift stands as called, the Jury "
+		                + "Chair confirms it",
+		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"), false,
+		        null, votes("bad", "bad", "good"), true));
 		add(new Scenario("120-jury4-reversal-nolift",
 		        "120. 4-member jury, no VPT: unanimous jury against a Good Lift, the Chair starts a deliberation, "
 		                + "reversed to No Lift, the Jury Chair gives the rule",
@@ -361,8 +367,8 @@ public class JuryScenario {
 		        Setup.JURY4, votes("bad", "bad", "good"), votes("good", "good", "bad", "bad"), true,
 		        null, votes("good", "good", "good", "good"), true));
 		add(new Scenario("150-jury4-challenge-fail",
-		        "150. 4-member jury, no VPT: unsuccessful challenge, review vote not unanimous (3 to 1), No Lift "
-		                + "stands, the Jury Chair gives the rule",
+		        "150. 4-member jury, no VPT: unsuccessful challenge, review vote not unanimous (3 to 1), the No Lift "
+		                + "stands as called: the Jury Chair confirms it, no rule is asked for",
 		        Setup.JURY4, votes("bad", "bad", "good"), votes("good", "good", "bad", "bad"), true,
 		        null, votes("good", "good", "good", "bad"), false));
 		add(new Scenario("160-jury4-confirmation-nolift",
@@ -2091,7 +2097,48 @@ public class JuryScenario {
 		        : "Attempt board and scoreboard reveal only the " + this.scenario.setup().jurors
 		                + " new jury votes, centered on the attempt board; the referee lights are not shown on the "
 		                + "attempt board and hidden on the scoreboard.";
-		if (good) {
+		// without the seven-person panel, a vote that is not unanimous does not reach the jury's rule (no setup has
+		// five jurors with VPT, whose majority would)
+		boolean stands = !this.scenario.setup().panel
+		        && Arrays.stream(this.scenario.reviewJury()).distinct().count() > 1;
+		if (stands) {
+			List<Check> resultChecks = new ArrayList<>(List.of(
+			        new Check("jury", "the confirmation that the referees' decision stands is open",
+			                dialogMatches(STANDS_TEXT)),
+			        new Check("jury", "no rule dialog", "!(" + dialogContains("Bending") + ")"),
+			        new Check("jury", "and Cancel vote result", dialogButton("Cancel vote result")),
+			        new Check("speaker", "the Speaker still waits", dialogContains("Waiting for"))));
+			resultChecks.addAll(original);
+			resultChecks.addAll(reviewVoteChecks());
+			step(lastVote + ": the vote does not reach the jury's rule",
+			        "The referees' " + reviewResult + " stands as called. Jury Control shows " + allVotes
+			                + " and a confirmation \"" + reviewResult + " – Referee Decision Stands as Called\" with "
+			                + "Confirm Decision and Cancel vote result; no technical rule is asked for. " + publicVotes
+			                + " Speaker still waiting.",
+			        resultChecks);
+
+			// a real Chair takes a moment: the revealed votes stay visible on the boards before the confirmation
+			pause(2500);
+			click(juryPage, "vaadin-button:text-matches('Confirm Decision|ConfirmDecisionStands')",
+			        "Jury Chair clicks Confirm Decision on Jury Control");
+			this.outcomeAt = System.nanoTime();
+			pause(1500);
+			List<Check> decisionChecks = new ArrayList<>(List.of(new Check("speaker",
+			        "the Speaker sees the decision and the reason with a Close button",
+			        dialogContains(reviewResult.toUpperCase()) + " && " + dialogMatches(STANDS_TEXT) + " && "
+			                + buttonVisible("Close")),
+			        new Check("speaker", "not marked as entered by the Jury Chair",
+			                "!(" + dialogContains("Jury Chair Entered") + ")"),
+			        new Check("speaker", "no request for the reason from the Technical Controller",
+			                "!(" + dialogContains("Technical Controller") + ")"),
+			        outcomeCardStandsCheck(good), decisionBlockStandsCheck()));
+			decisionChecks.addAll(original);
+			step("The Jury Chair confirms that the referees' decision stands",
+			        "Decision applied at once: " + reviewResult + " (" + outcomeWord + ") with the reason \"Referee "
+			                + "Decision Stands as Called\" pops over the votes on the boards. Speaker dialog: "
+			                + reviewResult + " with the reason, \"announce\" text, Close button.",
+			        decisionChecks);
+		} else if (good) {
 			List<Check> resultChecks = new ArrayList<>(List.of(new Check("jury",
 			        "the result screen offers Confirm Good Lift", dialogButton("Confirm Good Lift")),
 			        new Check("jury", "and Cancel vote result", dialogButton("Cancel vote result")),
@@ -2106,6 +2153,8 @@ public class JuryScenario {
 			                        + "at the right, in place of the platform selectors." : ""),
 			        resultChecks);
 
+			// a real Chair takes a moment: the revealed votes stay visible on the boards before the confirmation
+			pause(2500);
 			click(juryPage, "vaadin-button:has-text('Confirm Good Lift')",
 			        "Jury Chair clicks Confirm Good Lift on Jury Control");
 			this.outcomeAt = System.nanoTime();
@@ -2138,6 +2187,8 @@ public class JuryScenario {
 			                        + "at the right, in place of the platform selectors." : ""),
 			        resultChecks);
 
+			// a real Chair takes a moment to pick the rule: the revealed votes stay visible on the boards meanwhile
+			pause(2500);
 			click(juryPage, "vaadin-button[aria-label^='1 - ']", "Jury Chair picks rule 1 on Jury Control");
 			this.outcomeAt = System.nanoTime();
 			pause(1500);
@@ -2435,6 +2486,36 @@ public class JuryScenario {
 	        + ".filter(d => d.opened || d.hasAttribute('opened'))"
 	        + ".map(d => d.querySelector('.jury-notification-card')).find(c => c && c.offsetWidth > 0)";
 
+	/** the reason given when the referees' decision stands (the translation key until the translations are imported) */
+	private static final String STANDS_TEXT = "Stands as Called|StandsAsCalled";
+
+	/** the outcome card shows the decision with the reason "Referee Decision Stands as Called", not a technical rule */
+	private static Check outcomeCardStandsCheck(boolean good) {
+		return new Check("attempt", "the outcome card shows " + (good ? "Good Lift" : "No Lift")
+		        + " with the reason Referee Decision Stands as Called",
+		        """
+		        (() => {
+		          const card = %s;
+		          const rule = (card?.querySelector('.jury-notification-rule')?.textContent || '').trim();
+		          return !!card && card.classList.contains(%s) && new RegExp(%s).test(rule);
+		        })()
+		        """.formatted(OUTCOME_CARD, js(good ? "jury-notification-card-success" : "jury-notification-card-error"),
+		        js(STANDS_TEXT)));
+	}
+
+	/** an open dialog whose text matches the regular expression */
+	private static String dialogMatches(String regex) {
+		return "[...document.querySelectorAll('vaadin-dialog-overlay, vaadin-dialog')].some(d => "
+		        + "(d.opened || d.hasAttribute('opened')) && new RegExp(" + js(regex) + ").test(d.innerText || ''))";
+	}
+
+	/** the scoreboard decision block label shows the reason Referee Decision Stands as Called */
+	private static Check decisionBlockStandsCheck() {
+		return new Check("scoreboard", "the decision block shows the reason Referee Decision Stands as Called",
+		        "new RegExp(" + js(STANDS_TEXT) + ").test(document.querySelector('results-template')?.shadowRoot"
+		                + "?.querySelector('.dsJuryMessage')?.textContent || '')");
+	}
+
 	private Check decisionBlockClearedCheck() {
 		return new Check("scoreboard", "the decision block no longer shows " + this.attemptStart
 		        + ": no decision lights, no jury circles",
@@ -2653,13 +2734,8 @@ public class JuryScenario {
 		checks.add(readBack(setup.jurors + " jurors selected on Jury Control (shows \"" + shown + "\")",
 		        shown.equals(String.valueOf(setup.jurors))));
 		this.setupChecks = List.copyOf(checks);
-		// the boards read the number of jurors when they load
-		for (Page p : this.pages.values()) {
-			if (p != jury) {
-				p.reload();
-				p.waitForLoadState(LoadState.NETWORKIDLE);
-			}
-		}
+		// the boards are not reloaded: they must follow the jury size set on Jury Control, as boards left open during
+		// a competition do
 		startLiftingIfNeeded(this.pages.get("speaker"));
 		try {
 			// A clock used to clear the previous jury header is setup only; setting time stops it.

@@ -269,7 +269,8 @@ public class ForwarderDecisionState implements DecisionElementState.IDecisionRen
 		Map<String, Object> map = new LinkedHashMap<>();
 		map.put("decision", good);
 		map.put("reversal", e.getReversal());
-		map.put("ruleCode", good ? null : e.getReasonCode());
+		// a No Lift rule, or 0 when the referees' decision stands as called (also on a Good Lift)
+		map.put("ruleCode", e.getReasonCode());
 		map.put("athleteKey", athlete != null ? athlete.getKey() : null);
 		map.put("liftTypeKey", liftNo >= 1 && liftNo <= 6 ? (liftNo <= 3 ? "Snatch" : "Clean_and_Jerk") : null);
 		map.put("attemptNumber", liftNo >= 1 && liftNo <= 6 ? (liftNo - 1) % 3 + 1 : null);

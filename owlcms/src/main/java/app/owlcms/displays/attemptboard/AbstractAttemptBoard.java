@@ -49,6 +49,7 @@ import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.team.Team;
+import app.owlcms.displays.DecisionDisplayRules;
 import app.owlcms.displays.video.StylesDirSelection;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.i18n.Translator;
@@ -101,6 +102,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	protected BreakTimerElement breakTimer; // created by Flow during template instantiation
 	@Id("decisions")
 	protected DecisionElement decisions; // created by Flow during template instantiation
+	/** the jury decisions option of the board, null when the page does not set it (boards without jury votes) */
+	private Boolean showJuryDecisionsRequested;
 	private boolean athletePictures;
 	protected String routeParameter;
 	protected boolean teamFlags;
@@ -173,6 +176,33 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	public DecisionElement getDecisions() {
 		return this.decisions;
+	}
+
+	/**
+	 * The jury decisions option of the board (URL parameter or display dialog). It only takes effect while the
+	 * platform has a jury, and is applied again when the jury size changes, so that a board opened before the jury was
+	 * set up shows the jury votes without being reloaded.
+	 *
+	 * @param requested true to show the jury votes when there is a jury
+	 */
+	public void setShowJuryDecisionsRequested(boolean requested) {
+		this.showJuryDecisionsRequested = requested;
+		applyShowJuryDecisions(getFop());
+	}
+
+	private void applyShowJuryDecisions(FieldOfPlay fop) {
+		if (this.showJuryDecisionsRequested == null || this.decisions == null) {
+			return;
+		}
+		int jurySize = fop != null ? fop.getJurySize() : 0;
+		this.decisions.setShowJuryDecisions(
+		        DecisionDisplayRules.showJuryDecisionsOnAttemptBoard(jurySize, this.showJuryDecisionsRequested));
+	}
+
+	/** The jury size changed on Jury Control: the jury votes are shown or hidden accordingly. */
+	@Subscribe
+	public void slaveJurySizeChanged(UIEvent.JurySizeChanged e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> applyShowJuryDecisions(e.getFop()));
 	}
 
 	@Override
@@ -260,6 +290,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.fop = fop;
 		// Propagate FOP to timer elements so they can register on the correct event bus
 		propagateFopToTimerElements(fop);
+		applyShowJuryDecisions(fop);
 		if (fop != null && getUI().isPresent()) {
 			syncWithFOP(fop);
 		}
@@ -497,9 +528,10 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 					break;
 				case GOOD_LIFT:
 					previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
+					// a Good Lift has a reason only when the referees' decision stands as called
 					showJuryNotification(reversalText, Translator.translate("JuryDialog.GoodLiftLabel"), e.getAthlete(),
 					        formatAttemptByIndex(previousAttemptNo), e.getNewRecord(), "successNotification",
-					        Competition.juryOutcomeCardDuration, null);
+					        Competition.juryOutcomeCardDuration, JuryRejectionReasons.label(e.getReasonCode()));
 					break;
 				default:
 					break;

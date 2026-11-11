@@ -598,6 +598,12 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		this.decisionBlock.onLiftsDone();
 	}
 
+	/** The jury size changed on Jury Control: the decision section follows it without a reload. */
+	@Subscribe
+	public void slaveDecisionSectionJurySizeChanged(UIEvent.JurySizeChanged e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> configureDecisionBlock(e.getFop()));
+	}
+
 	/**
 	 * Single page-level subscription for jury member decisions. BaseResults does not subscribe to
 	 * JuryUpdate, so this is the only handler for that event type on the page.

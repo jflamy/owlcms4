@@ -387,7 +387,8 @@ public class DecisionBlockState {
 			this.state = State.DELIBERATION;
 		}
 		this.juryVerdictGood = good;
-		this.juryVerdictRule = good ? null : rule;
+		// a No Lift rule, or the referees' decision standing as called (Good Lift or No Lift)
+		this.juryVerdictRule = rule;
 		render();
 		scheduleReviewTimeout();
 	}

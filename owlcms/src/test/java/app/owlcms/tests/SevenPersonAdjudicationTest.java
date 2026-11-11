@@ -51,6 +51,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.JuryDeliberationEventType;
+import app.owlcms.uievents.JuryRejectionReasons;
 import app.owlcms.uievents.UIEvent;
 
 /**
@@ -1579,8 +1580,75 @@ public class SevenPersonAdjudicationTest {
 		juryVotes(R, R, W);
 		assertResultWaitsForTheChair();
 		assertEquals("not unanimous: the referees' decision", Boolean.TRUE, this.fop.getPanelVoteMajority());
+		assertTrue("the referees' Good Lift stands as called", this.fop.isRefereeDecisionStanding());
 		confirmGoodLift();
-		assertEquals(JuryDeliberationEventType.GOOD_LIFT, awaitVerdict().getDeliberationEventType());
+		UIEvent.JuryNotification verdict = awaitVerdict();
+		assertEquals(JuryDeliberationEventType.GOOD_LIFT, verdict.getDeliberationEventType());
+		assertEquals("the Good Lift is given with the reason", Integer.valueOf(JuryRejectionReasons.STANDS_AS_CALLED),
+		        verdict.getReasonCode());
+	}
+
+	@Test
+	public void challengeNotReachingTheJuryRuleLeavesTheNoLiftStandingWithoutRule() {
+		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		this.fop.setJurySize(3);
+		lift(R, R, W);
+		post(new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		juryVotes(W, W, R);
+		assertResultWaitsForTheChair();
+		assertEquals("not unanimous: the referees' No Lift", Boolean.FALSE, this.fop.getPanelVoteMajority());
+		assertTrue("the referees' No Lift stands as called", this.fop.isRefereeDecisionStanding());
+		assertFalse("no technical rule is asked for", this.fop.isJuryRuleRequested());
+		assertTrue("no rule dialog is opened", this.recorder.ruleRequests.isEmpty());
+
+		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true,
+		        JuryRejectionReasons.STANDS_AS_CALLED, true));
+		UIEvent.JuryNotification verdict = awaitVerdict();
+		assertEquals(JuryDeliberationEventType.BAD_LIFT, verdict.getDeliberationEventType());
+		assertEquals(Integer.valueOf(JuryRejectionReasons.STANDS_AS_CALLED), verdict.getReasonCode());
+		assertFalse("the vote's decision, not the Chair's", verdict.isChairEntered() || verdict.isAgainstVote());
+		assertGoodLift(false);
+	}
+
+	@Test
+	public void juryBoxNoLiftAfterAVoteNotReachingTheRuleGetsTheStandingReason() {
+		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		this.fop.setJurySize(4);
+		lift(R, R, W);
+		post(new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		juryVotes(W, W, W, R);
+		assertResultWaitsForTheChair();
+		assertTrue(this.fop.isRefereeDecisionStanding());
+		// the jury box gives no reason
+		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, null, true));
+		UIEvent.JuryNotification verdict = awaitVerdict();
+		assertEquals(Integer.valueOf(JuryRejectionReasons.STANDS_AS_CALLED), verdict.getReasonCode());
+		assertFalse(verdict.isChairEntered() || verdict.isAgainstVote());
+	}
+
+	@Test
+	public void unanimousConfirmationOfTheNoLiftStillAsksForTheRule() {
+		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		this.fop.setJurySize(3);
+		lift(R, R, W);
+		post(new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		juryVotes(R, R, R);
+		assertResultWaitsForTheChair();
+		assertFalse("the jury reached its rule", this.fop.isRefereeDecisionStanding());
+		assertTrue("the rule is asked for", this.recorder.await(this.recorder.ruleRequests, r -> !r.isCancelled()));
+	}
+
+	@Test
+	public void cancellingAStandingResultOpensNoRuleDialog() {
+		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		this.fop.setJurySize(3);
+		lift(R, R, W);
+		post(new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		juryVotes(W, W, R);
+		assertResultWaitsForTheChair();
+		post(new FOPEvent.PanelVoteCancelled(new Object()));
+		assertFalse(this.fop.isRefereeDecisionStanding());
+		assertTrue("no rule request, not even a cancelled one", this.recorder.ruleRequests.isEmpty());
 	}
 
 	@Test
@@ -1589,6 +1657,7 @@ public class SevenPersonAdjudicationTest {
 		juryVotes(R, R, R, W, W);
 		assertResultWaitsForTheChair();
 		assertEquals(Boolean.FALSE, this.fop.getPanelVoteMajority());
+		assertFalse("five votes always give a majority", this.fop.isRefereeDecisionStanding());
 	}
 
 	@Test

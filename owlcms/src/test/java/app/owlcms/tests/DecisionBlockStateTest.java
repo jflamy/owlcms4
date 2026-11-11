@@ -782,9 +782,12 @@ public class DecisionBlockStateTest {
 		this.state.onJuryVerdict(false, false, "3 - rule");
 		assertTrue(this.renderer.calls.contains("verdictBad"));
 		assertEquals("3 - rule", this.renderer.rule);
-		// a Good Lift never carries a rule
-		this.state.onJuryVerdict(true, false, "3 - rule");
+		// a Good Lift has a reason only when the referees' decision stands as called
+		this.state.onJuryVerdict(true, false, null);
 		assertNull(this.renderer.rule);
+		this.state.onJuryVerdict(true, false, "Referee Decision Stands as Called");
+		assertTrue(this.renderer.calls.contains("verdictGood"));
+		assertEquals("Referee Decision Stands as Called", this.renderer.rule);
 	}
 
 	@Test

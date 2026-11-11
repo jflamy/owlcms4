@@ -1121,7 +1121,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			mapPut(sb, "decisionEventType", "JURY_DECISION");
 			mapPut(sb, "juryDecision", det.name());
 			mapPut(sb, "juryReversal", e.getReversal().toString());
-			if (det == JuryDeliberationEventType.BAD_LIFT && e.getReasonCode() != null) {
+			if (e.getReasonCode() != null) {
 				mapPut(sb, "juryReasonCode", e.getReasonCode().toString());
 			}
 			mapPut(sb, "athleteFull", e.getAthlete().getFullName());

@@ -113,6 +113,12 @@ public class JuryDecisionDialog extends Dialog {
 	if (juryDecision == JuryDeliberationEventType.GOOD_LIFT) {
 		juryDecisionDisplay = "<div style='color: green; font-size: xx-large; font-weight: bold; text-align: center; margin: 0.5em 0;'>" 
 			+ Translator.translate("JuryDialog.GoodLiftLabel").toUpperCase() + " " + reversalText + "</div>";
+		// the referees' decision standing as called is the only reason given for a Good Lift
+		String reason = JuryRejectionReasons.label(e.getReasonCode());
+		if (reason != null) {
+			juryDecisionDisplay += "<div style='color: green; font-size: xx-large; font-weight: bold; text-align: center; margin: 0.5em 0;'>"
+				+ reason + "</div>";
+		}
 		explanationText = Translator.translate("Announcer.AnnounceGoodLift");
 	} else if (juryDecision == JuryDeliberationEventType.BAD_LIFT) {
 		juryDecisionDisplay = "<div style='color: red; font-size: xx-large; font-weight: bold; text-align: center; margin: 0.5em 0;'>" 

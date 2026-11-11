@@ -83,7 +83,7 @@ For a jury without the Adjudication Panel (3 members, 4 members without VPT, or 
 
 ![210_Jury3_review](img/020-Jury/210_Jury3_review.png)
 
-When all the jury members have voted, the votes are revealed and the result waits for the Chair, exactly as for the Adjudication Panel: the rule for a No Lift, a confirmation for a Good Lift, or Cancel vote result.  The jury vote is optional: the Chair can also give the decision directly with the **No Lift** and **Good Lift** buttons.
+When all the jury members have voted, the votes are revealed and the result waits for the Chair, exactly as for the Adjudication Panel: the rule for a No Lift, a confirmation for a Good Lift, or Cancel vote result.  When the vote does not reach the jury's rule (not unanimous, or no majority for a 5-member jury with VPT), the referees' decision stands as called: Jury Control asks for a confirmation (**Confirm Decision**) instead of a rule, and the decision is shown on the boards and to the speaker with the reason "Referee Decision Stands as Called", for a No Lift as for a Good Lift.  The jury vote is optional: the Chair can also give the decision directly with the **No Lift** and **Good Lift** buttons.
 
 ![220_Jury3_attemptBoard_votes](img/020-Jury/220_Jury3_attemptBoard_votes.png)
 
@@ -98,7 +98,7 @@ By rule, the speaker announces the decision of the jury and the reason for which
 
 ![160_Speaker_decision](img/020-Jury/160_Speaker_decision.png)
 
-The Good Lift / No Lift buttons of the physical jury box apply the Chair's decision at once, without confirmation and without a rule, since the box has no screen.  For a No Lift without a rule, the speaker's dialog says, in red, to get the reason from the Technical Controller, announce the decision and the reason, and then call the next athlete; the timekeeper starts the next clock as usual.  If the jury uses neither, the Technical Controller relays the decision to the speaker, who enters it with the Good Lift / No Lift buttons of the dialog.
+The Good Lift / No Lift buttons of the physical jury box apply the Chair's decision at once, without confirmation and without a rule, since the box has no screen.  When the button matches a vote that did not reach the jury's rule, the decision is given the reason "Referee Decision Stands as Called".  For any other No Lift without a rule, the speaker's dialog says, in red, to get the reason from the Technical Controller, announce the decision and the reason, and then call the next athlete; the timekeeper starts the next clock as usual.  If the jury uses neither, the Technical Controller relays the decision to the speaker, who enters it with the Good Lift / No Lift buttons of the dialog.
 
 ## Deliberation, Challenge and Summon Rules
 
