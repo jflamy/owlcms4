@@ -42,8 +42,8 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import app.owlcms.access.AccessUi;
 import com.vaadin.flow.router.Route;
 
@@ -69,7 +69,7 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings({ "serial", "deprecation" })
-@RequiresPermission(value = Permission.REFEREE, platformBound = true)
+@RequiresAccess(value = Access.REFEREE, platformBound = true)
 @Route(value = "ref")
 @CssImport(value = "./styles/shared-styles.css")
 
@@ -327,12 +327,12 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 
 	protected ComboBox<FieldOfPlay> createFopSelect() {
 		ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
-		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Permission.REFEREE));
+		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Access.REFEREE));
 		fopSelect.setPlaceholder(Translator.translate("SelectPlatform"));
 		fopSelect.setItems(fops);
 		fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
 		fopSelect.setWidth("10rem");
-		fopSelect.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Permission.REFEREE), fops));
+		fopSelect.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Access.REFEREE), fops));
 		return fopSelect;
 	}
 

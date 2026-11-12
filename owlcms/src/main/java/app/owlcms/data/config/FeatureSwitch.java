@@ -74,7 +74,7 @@ public enum FeatureSwitch {
             return super.isEffective(config) || NO_V1_EXPORT.isEffective(config);
         }
     },
-    /** Withdraws the unsigned V1 database export (Capability.EXPORT_V1). */
+    /** Withdraws the unsigned V1 database export (Permission.EXPORT_V1). */
     NO_V1_EXPORT("noV1Export", FeatureSwitchSection.IWF_REQUIREMENTS),
 
     USAW_SESSION_BLOCKS("usawSessionBlocks", FeatureSwitchSection.SPECIALTY_FEATURES),

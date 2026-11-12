@@ -28,8 +28,8 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.GroupSelectionMenu;
@@ -56,7 +56,7 @@ import app.owlcms.utils.LoggerUtils;
  * WodkeeperContent is a near-copy of TimekeeperContent but adjusted to control the break timer with a 30:00 preset.
  */
 @SuppressWarnings("serial")
-@RequiresPermission(value = Permission.TIMEKEEPER, platformBound = true)
+@RequiresAccess(value = Access.TIMEKEEPER, platformBound = true)
 @Route(value = "lifting/wodkeeper", layout = OwlcmsLayout.class)
 public class WodkeeperContent extends AthleteGridContent implements HasDynamicTitle, BreakController {
 
@@ -189,6 +189,9 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
         OwlcmsSession.withFop(fop -> {
             // if remembered break is set or we are already in BREAK state, start/resume break
             if (this.rememberedBreakMillis != null || fop.getState() == FOPState.BREAK) {
+                if (!hasBreakTimerControl()) {
+                    return;
+                }
                 int ms = this.rememberedBreakMillis != null ? this.rememberedBreakMillis : fop.getBreakTimer().getTimeRemaining();
                 if (ms <= 0) {
                     // nothing to start
@@ -222,6 +225,9 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
     protected void doStopTime() {
         OwlcmsSession.withFop(fop -> {
             if (fop.getState() == FOPState.BREAK) {
+                if (!hasBreakTimerControl()) {
+                    return;
+                }
                 // read remaining time and stop the break timer
                 int remaining = fop.getBreakTimer().liveTimeRemaining();
                 // stop the server break timer
@@ -421,7 +427,7 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
                 this.breakButton.setText("");
                 quietBreakButton(Translator.translateOrElseEmpty("Pause"));
             }
-            this.breakButton.setEnabled(true);
+            this.breakButton.setEnabled(hasBreakTimerControl());
 
             Athlete curAthlete = curAthlete2;
             int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
@@ -501,6 +507,9 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
     }
 
     private void registerShortcuts() {
+        if (!hasAthleteTimerControl()) {
+            return;
+        }
         UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
         boolean notSpanish = !OwlcmsSession.getLocale().getLanguage().startsWith("es");
         boolean keepSpanishKeypadShortcut = FeatureSwitch.KEEP_SPANISH_HYPHEN_SHORTCUT.isEffective();
@@ -546,6 +555,9 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
 
     // Implement 30-minute force break
     protected void do30Minutes() {
+        if (!hasBreakTimerControl()) {
+            return;
+        }
         OwlcmsSession.withFop(fop -> {
             int ms = 30 * 60 * 1000;
             // Set break type and configure the FOP break timer

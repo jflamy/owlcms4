@@ -31,8 +31,8 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.QueryParameters;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.SoundParameters;
@@ -50,7 +50,7 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
-@RequiresPermission(value = Permission.MARSHAL, platformBound = true)
+@RequiresAccess(value = Access.MARSHAL, platformBound = true)
 @Route(value = "lifting/marshall", layout = OwlcmsLayout.class)
 public class MarshallContent extends AthleteGridContent implements HasDynamicTitle {
 
@@ -176,6 +176,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 	@Override
 	protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
 		createStopTimeButton();
+		this.stopTimeButton.setEnabled(hasAthleteTimerControl());
 		HorizontalLayout buttons = new HorizontalLayout(this.stopTimeButton);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 		return buttons;

@@ -81,8 +81,8 @@ public final class TokenAuthenticator {
 		return new Result.Authenticated(account, record);
 	}
 
-	/** True if the account has the capability, through any of its roles, on any platform. */
-	public static boolean holds(UserAccount account, Capability capability) {
-		return AccessPolicy.hasCapability(Principal.of(account, null), capability, null);
+	/** True if the account has the permission, through any of its roles, on any platform. */
+	public static boolean holds(UserAccount account, Permission permission) {
+		return AccessPolicy.hasPermission(Principal.of(account, null), permission, null);
 	}
 }

@@ -46,8 +46,8 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import app.owlcms.access.AccessUi;
 import app.owlcms.audit.AuditOrigin;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.NotificationUtils;
@@ -85,7 +85,7 @@ import ch.qos.logback.classic.Logger;
  * Defines the toolbar and the table for editing data on categories.
  */
 @SuppressWarnings("serial")
-@RequiresPermission(Permission.PREPARATION)
+@RequiresAccess(Access.PREPARATION)
 @Route(value = "preparation/agegroup", layout = OwlcmsLayout.class)
 public class AgeGroupContent extends BaseContent implements CrudListener<AgeGroup>, OwlcmsContent {
 

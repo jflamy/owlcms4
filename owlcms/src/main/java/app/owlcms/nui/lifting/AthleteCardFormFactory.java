@@ -154,7 +154,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	private TextField snatch3Declaration;
 	private BinderValidationStatus<Athlete> status;
 	private Boolean updatingResults;
-	private boolean resultsUnlocked;
 	private Principal editor;
 	private boolean editable;
 	private boolean sharedEditor;
@@ -245,15 +244,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	public AthleteCardFormFactory(Class<Athlete> domainType, IAthleteEditing origin) {
 		super(domainType);
 		this.origin = origin;
-	}
-
-	/**
-	 * Open with the result fields editable, as on the announcer pages, even if the origin is not one of them (the card
-	 * is a tab of another form).
-	 */
-	public AthleteCardFormFactory setResultsUnlocked(boolean resultsUnlocked) {
-		this.resultsUnlocked = resultsUnlocked;
-		return this;
 	}
 
 	/**
@@ -419,7 +409,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	        ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
 	        ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
 		this.editor = AccessUi.currentPrincipal();
-		this.editable = !readOnly && AthleteEditAccess.card(this.editor, AthleteRepository.findById(aFromList.getId()));
+		Athlete storedAthlete = AthleteRepository.findById(aFromList.getId());
+		this.editable = !readOnly && AthleteEditAccess.card(this.editor, storedAthlete);
 		this.setLiftResultChanged(false);
 		this.startingWeightConfirmationRequired = false;
 		this.startingWeightRecheckPending = false;
@@ -429,7 +420,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		if (this.responsiveSteps != null) {
 			formLayout.setResponsiveSteps(this.responsiveSteps);
 		}
-		setUpdatingResults(this.editable && (this.resultsUnlocked || this.origin instanceof AnnouncerContent));
+		setUpdatingResults(this.editable && AthleteEditAccess.resultsEditingByDefault(this.editor, storedAthlete));
 
 		this.gridLayout = setupGrid();
 		this.errorLabel = new Paragraph("initial");

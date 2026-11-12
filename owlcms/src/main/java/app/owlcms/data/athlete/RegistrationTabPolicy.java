@@ -48,6 +48,16 @@ public final class RegistrationTabPolicy {
 	 * @param stored the athlete as freshly loaded, not a grid row
 	 */
 	public static Layout choose(CardEntry entry, Athlete stored) {
+		return choose(entry, stored, true);
+	}
+
+	/**
+	 * @param entry       what the opening page asked for
+	 * @param stored      the athlete as freshly loaded, not a grid row
+	 * @param cardEditing whether the user holds the athlete card editing permission for this athlete; without it the
+	 *                    Card is not offered, whatever the page asked for
+	 */
+	public static Layout choose(CardEntry entry, Athlete stored, boolean cardEditing) {
 		boolean restricted = RegistrationEditCheck.requiresMetadataForm(stored);
 		boolean results = stored.getAttemptsDone() != null && stored.getAttemptsDone() > 0;
 		boolean sessionStarted = restricted || results;
@@ -56,7 +66,7 @@ public final class RegistrationTabPolicy {
 			sessionStarted = AthleteRepository.findAllByGroupAndWeighIn(stored.getGroup(), null).stream()
 			        .anyMatch(a -> a.getAttemptsDone() != null && a.getAttemptsDone() > 0);
 		}
-		boolean card = entry != CardEntry.NONE && sessionStarted;
+		boolean card = cardEditing && entry != CardEntry.NONE && sessionStarted;
 		Tab initial = card && entry == CardEntry.CARD_FIRST ? Tab.CARD
 		        : restricted ? Tab.INFORMATION : Tab.REGISTRATION;
 		return new Layout(restricted, card, initial);

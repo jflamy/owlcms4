@@ -6,7 +6,7 @@
  *******************************************************************************/
 package app.owlcms.access;
 
-/** An import was refused: no IMPORT permission, or imports are turned off on the Administration page. */
+/** An import was refused: no IMPORT_DATA permission, or imports are turned off on the Administration page. */
 @SuppressWarnings("serial")
 public class ImportsNotAllowedException extends RuntimeException {
 

@@ -123,13 +123,13 @@ public class ImportGateTest {
 	@Test
 	public void importPermissionComesWithPreparationRegistrationSupervisorAndAdmin() {
 		for (Role role : List.of(Role.PREPARATION, Role.REGISTRATION, Role.COMPETITION_SUPERVISOR, Role.ADMIN)) {
-			assertTrue(role.name(), AccessPolicy.hasCapability(account(role), Capability.IMPORT_DATA, null));
+			assertTrue(role.name(), AccessPolicy.hasPermission(account(role), Permission.IMPORT_DATA, null));
 		}
 		for (Role role : List.of(Role.COMPETITION_DIRECTOR, Role.RESULTS, Role.WEIGHIN, Role.PLATFORM, Role.EXTERNAL)) {
-			assertFalse(role.name(), AccessPolicy.hasCapability(account(role), Capability.IMPORT_DATA, null));
+			assertFalse(role.name(), AccessPolicy.hasPermission(account(role), Permission.IMPORT_DATA, null));
 		}
-		assertTrue("Simple Access", AccessPolicy.hasCapability(Principal.admin(AuthSource.OFFICIALS_PIN), Capability.IMPORT_DATA,
-		        null));
+		assertTrue("Simple Access",
+		        AccessPolicy.hasPermission(Principal.admin(AuthSource.OFFICIALS_PIN), Permission.IMPORT_DATA, null));
 	}
 
 	@Test
@@ -155,12 +155,12 @@ public class ImportGateTest {
 		Principal admin = new Principal(AuthSource.ACCOUNT, 2L, "admin", List.of(new RoleGrant(Role.ADMIN, null)), null);
 		PageRule adminPage = PageRule.of(AdminView.class);
 		assertTrue(AccessPolicy.canOpen(supervisor, adminPage, null));
-		assertTrue(AccessPolicy.hasCapability(supervisor, Capability.SECURITY_SETTINGS, null));
-		assertFalse(AccessPolicy.hasCapability(supervisor, Capability.AUDIT_KEYS, null));
+		assertTrue(AccessPolicy.hasPermission(supervisor, Permission.SECURITY_SETTINGS, null));
+		assertFalse(AccessPolicy.hasPermission(supervisor, Permission.AUDIT_KEYS, null));
 		assertFalse(AccessPolicy.canOpen(supervisor, PageRule.of(AuditIntegrityCheckView.class), null));
 		assertTrue(AccessPolicy.canOpen(admin, adminPage, null));
-		assertTrue(AccessPolicy.hasCapability(admin, Capability.SECURITY_SETTINGS, null));
-		assertTrue(AccessPolicy.hasCapability(admin, Capability.AUDIT_KEYS, null));
+		assertTrue(AccessPolicy.hasPermission(admin, Permission.SECURITY_SETTINGS, null));
+		assertTrue(AccessPolicy.hasPermission(admin, Permission.AUDIT_KEYS, null));
 		assertTrue(AccessPolicy.canOpen(admin, PageRule.of(AuditIntegrityCheckView.class), null));
 		assertTrue(AccessPolicy.canOpen(supervisor, PageRule.of(ConfigContent.class), null));
 	}

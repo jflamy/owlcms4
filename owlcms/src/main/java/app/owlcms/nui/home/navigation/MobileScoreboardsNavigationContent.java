@@ -25,8 +25,8 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import app.owlcms.access.AccessUi;
 import com.vaadin.flow.router.Route;
 
@@ -47,7 +47,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
  * Mobile/tablet launcher for warmup scoreboards and attempt/decision boards.
  */
 @SuppressWarnings("serial")
-@RequiresPermission(value = { Permission.DISPLAYS, Permission.STREAMING }, platformBound = true)
+@RequiresAccess(value = { Access.DISPLAYS, Access.STREAMING }, platformBound = true)
 @Route(value = "mobile/scoreboards", layout = OwlcmsLayout.class)
 public class MobileScoreboardsNavigationContent extends BaseNavigationContent implements HasDynamicTitle {
 
@@ -131,14 +131,14 @@ public class MobileScoreboardsNavigationContent extends BaseNavigationContent im
 
 	private ComboBox<FieldOfPlay> createFopSelector(FieldOfPlay selectedFop) {
 		ComboBox<FieldOfPlay> fopSelector = new ComboBox<>(Translator.translate("CompetitionPlatform"));
-		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Permission.DISPLAYS));
+		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Access.DISPLAYS));
 		fopSelector.setItems(fops);
 		fopSelector.setItemLabelGenerator(FieldOfPlay::getName);
 		fopSelector.setPlaceholder(Translator.translate("SelectPlatform"));
 		fopSelector.setRequiredIndicatorVisible(fops.size() > 1);
 		fopSelector.setValue(fops.contains(selectedFop) ? selectedFop : null);
 		fopSelector.setWidthFull();
-		fopSelector.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Permission.DISPLAYS), fops));
+		fopSelector.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Access.DISPLAYS), fops));
 		fopSelector.addClassName("referee-jury-home-platform-selector");
 		fopSelector.addValueChangeListener(event -> {
 			if (event.isFromClient() && event.getValue() != null) {

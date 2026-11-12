@@ -32,8 +32,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.HasDynamicTitle;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.GroupSelectionMenu;
@@ -61,7 +61,7 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
-@RequiresPermission(value = Permission.TIMEKEEPER, platformBound = true)
+@RequiresAccess(value = Access.TIMEKEEPER, platformBound = true)
 @Route(value = "lifting/timekeeper", layout = OwlcmsLayout.class)
 public class TimekeeperContent extends AthleteGridContent implements HasDynamicTitle, BreakController {
 
@@ -392,7 +392,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 				this.breakButton.setText("");
 				quietBreakButton(Translator.translateOrElseEmpty("Pause"));
 			}
-			this.breakButton.setEnabled(true);
+			this.breakButton.setEnabled(hasBreakTimerControl());
 
 			Athlete curAthlete = curAthlete2;
 			int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
@@ -466,6 +466,9 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	}
 
 	private void registerShortcuts() {
+		if (!hasAthleteTimerControl()) {
+			return;
+		}
 		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
 		boolean notSpanish = !OwlcmsSession.getLocale().getLanguage().startsWith("es");
 		boolean keepSpanishKeypadShortcut = FeatureSwitch.KEEP_SPANISH_HYPHEN_SHORTCUT.isEffective();

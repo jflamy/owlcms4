@@ -56,7 +56,7 @@ public final class ApplicationAudit {
 				.build());
 	}
 
-	/** An import was refused: no IMPORT permission, or imports are not allowed. */
+	/** An import was refused: no IMPORT_DATA permission, or imports are not allowed. */
 	public static void importRefused(AuditOrigin origin, String kind, String reason) {
 		AuditLog.write(AuditEntry.builder("competition", "application.import-refused").actor(origin.actor())
 				.cause(origin.cause()).detail(AuditFormat.kvs("import", kind, "reason", reason))

@@ -19,8 +19,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.QueryParameters;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import app.owlcms.access.TokenAccessible;
 import com.vaadin.flow.router.Route;
 
@@ -34,7 +34,7 @@ import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@RequiresPermission(value = { Permission.DISPLAYS, Permission.JURY, Permission.STREAMING }, platformBound = true)
+@RequiresAccess(value = { Access.DISPLAYS, Access.JURY, Access.STREAMING }, platformBound = true)
 @TokenAccessible
 @Route("displays/juryDecisions")
 public class JuryDecisionsPage extends AbstractResultsDisplayPage implements BeforeEnterObserver {

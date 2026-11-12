@@ -24,8 +24,8 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import app.owlcms.access.AccessUi;
 import com.vaadin.flow.router.Route;
 
@@ -50,8 +50,8 @@ import ch.qos.logback.classic.Logger;
  * The Class LiftingNavigationContent.
  */
 @SuppressWarnings("serial")
-@RequiresPermission({ Permission.ANNOUNCER, Permission.MARSHAL, Permission.TIMEKEEPER, Permission.TC,
-        Permission.JURY, Permission.REFEREE, Permission.WEIGHIN })
+@RequiresAccess({ Access.ANNOUNCER, Access.SPEAKER, Access.MARSHAL, Access.TIMEKEEPER,
+        Access.TC, Access.JURY, Access.REFEREE, Access.WEIGHIN })
 @Route(value = "lifting", layout = OwlcmsLayout.class)
 public class LiftingNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
@@ -123,9 +123,9 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(weighIn);
 		doGroup(Translator.translate("WeighIn_Title"), grid3, this);
 
-		Button announcer = Config.getCurrent().isAccountsMode()
-		        ? openInNewTabWithFop(PassiveAnnouncerContent.class, Translator.translate("Announcer"))
-		        : openInNewTabWithFop(AnnouncerContent.class, Translator.translate("Announcer"));
+		Button announcer = AccessUi.canOpen(AnnouncerContent.class, getFop())
+		        ? openInNewTabWithFop(AnnouncerContent.class, Translator.translate("Announcer"))
+		        : openInNewTabWithFop(PassiveAnnouncerContent.class, Translator.translate("Announcer"));
 		announcer.setIcon(new Icon(VaadinIcon.MICROPHONE));
 		announcer.setTabIndex(2);
 		announcer.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);

@@ -24,18 +24,17 @@ public final class AccessUi {
 		return tab != null ? tab.principal() : OwlcmsSession.getPrincipal();
 	}
 
-	public static List<FieldOfPlay> selectableFops(Set<Permission> pagePermissions) {
+	public static List<FieldOfPlay> selectableFops(Set<Access> pageAccess) {
 		Principal principal = currentPrincipal();
 		List<FieldOfPlay> allFops = List.copyOf(OwlcmsFactory.getFOPs());
 		List<String> names = allFops.stream().map(FieldOfPlay::getName).toList();
-		Set<String> allowed = Set.copyOf(AccessPolicy.selectablePlatforms(principal, pagePermissions, names));
+		Set<String> allowed = Set.copyOf(AccessPolicy.selectablePlatforms(principal, pageAccess, names));
 		return allFops.stream().filter(fop -> allowed.contains(fop.getName())).toList();
 	}
 
-	public static boolean fopSelectorReadOnly(Set<Permission> pagePermissions, List<FieldOfPlay> fops) {
+	public static boolean fopSelectorReadOnly(Set<Access> pageAccess, List<FieldOfPlay> fops) {
 		Principal principal = currentPrincipal();
-		boolean lockablePage = pagePermissions.stream().anyMatch(Permission::isLockable);
-		return fops.size() <= 1 || (AccessPolicy.isLocked(principal) && lockablePage);
+		return fops.size() <= 1 || AccessPolicy.isLockedFor(principal, pageAccess);
 	}
 
 	public static boolean canOpen(Class<?> target, FieldOfPlay fop) {
@@ -43,8 +42,8 @@ public final class AccessUi {
 	}
 
 	/** UI thread only: whether the current tab has the in-page function. */
-	public static boolean hasCapability(Capability capability, FieldOfPlay fop) {
-		return AccessPolicy.hasCapability(currentPrincipal(), capability, fop != null ? fop.getName() : null);
+	public static boolean hasPermission(Permission permission, FieldOfPlay fop) {
+		return AccessPolicy.hasPermission(currentPrincipal(), permission, fop != null ? fop.getName() : null);
 	}
 
 	/** UI thread only: whether the current tab may open {@code target} for the named platform. */

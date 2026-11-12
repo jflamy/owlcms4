@@ -85,14 +85,28 @@ public class AccountPersistenceTest {
 
 	@Test
 	public void grantsSurviveARoundTripAndLookupIgnoresCase() {
-		newAccount("Carol", new RoleGrant(Role.PLATFORM, "A"), new RoleGrant(Role.RESULTS, null));
+		newAccount("Carol", new RoleGrant(Role.ANNOUNCER, "A"), new RoleGrant(Role.RESULTS, null));
 		UserAccountRepository.invalidate();
 
 		UserAccount found = UserAccountRepository.findByUsername("  CAROL ");
 		assertNotNull(found);
 		assertEquals("Carol", found.getUsername());
-		assertEquals(List.of(new RoleGrant(Role.PLATFORM, "A"), new RoleGrant(Role.RESULTS, null)), found.getGrants());
+		assertEquals(List.of(new RoleGrant(Role.ANNOUNCER, "A"), new RoleGrant(Role.RESULTS, null)), found.getGrants());
 		assertNull(UserAccountRepository.findByUsername("nobody"));
+	}
+
+	@Test
+	public void retiredRoleGrantsAreRemovedAndAccountsLeftEmptyAreDeleted() {
+		newAccount("platform-only", new RoleGrant(Role.PLATFORM, "A"));
+		newAccount("platform-and-results", new RoleGrant(Role.PLATFORM, null), new RoleGrant(Role.RESULTS, null));
+		newAccount("unaffected", new RoleGrant(Role.TC, "A"));
+
+		UserAccountRepository.removeObsoleteRoles(AuditOrigin.system("test"));
+
+		assertNull(UserAccountRepository.findByUsername("platform-only"));
+		assertEquals(List.of(new RoleGrant(Role.RESULTS, null)),
+		        UserAccountRepository.findByUsername("platform-and-results").getGrants());
+		assertEquals(List.of(new RoleGrant(Role.TC, "A")), UserAccountRepository.findByUsername("unaffected").getGrants());
 	}
 
 	@Test

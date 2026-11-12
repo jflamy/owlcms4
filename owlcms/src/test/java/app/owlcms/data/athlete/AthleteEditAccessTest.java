@@ -70,10 +70,12 @@ public class AthleteEditAccessTest {
 	}
 
 	@Test
-	public void dedicatedPagesKeepTheirOwnFullEditingPermission() {
+	public void dedicatedPagesKeepTheirOwnFullEditingAccess() {
 		assertTrue(AthleteEditAccess.registration(account(Role.REGISTRATION), false, false));
-		assertFalse("preparation alone does not edit on the registration page",
+		assertTrue("preparation includes the registration access",
 		        AthleteEditAccess.registration(account(Role.PREPARATION), false, false));
+		assertFalse("preparation does not edit on the weigh-in page",
+		        AthleteEditAccess.registration(account(Role.PREPARATION), true, false));
 		assertFalse(AthleteEditAccess.registration(account(Role.WEIGHIN), false, false));
 		assertTrue(AthleteEditAccess.registration(account(Role.WEIGHIN), true, false));
 		assertFalse(AthleteEditAccess.registration(account(Role.REGISTRATION), true, false));
@@ -85,7 +87,7 @@ public class AthleteEditAccessTest {
 		        Role.COMPETITION_SUPERVISOR, Role.ADMIN)) {
 			assertTrue(role.name(), AthleteEditAccess.metadata(account(role)));
 		}
-		for (Role role : List.of(Role.RESULTS, Role.EXTERNAL, Role.MARSHAL, Role.ANNOUNCER)) {
+		for (Role role : List.of(Role.RESULTS, Role.EXTERNAL, Role.MARSHAL, Role.ANNOUNCER, Role.SPEAKER)) {
 			assertFalse(role.name(), AthleteEditAccess.metadata(account(role)));
 		}
 	}
@@ -110,7 +112,8 @@ public class AthleteEditAccessTest {
 
 	@Test
 	public void globalAccountsEditCardsOnAnyPlatform() {
-		for (Role role : List.of(Role.PREPARATION, Role.COMPETITION_SUPERVISOR, Role.ADMIN)) {
+		for (Role role : List.of(Role.PREPARATION, Role.COMPETITION_DIRECTOR, Role.COMPETITION_SUPERVISOR,
+		        Role.ADMIN)) {
 			assertTrue(role.name(), AthleteEditAccess.card(account(role), athleteOn("B")));
 			assertTrue(role.name(), AthleteEditAccess.card(account(role), athleteOn(null)));
 		}
@@ -118,9 +121,21 @@ public class AthleteEditAccessTest {
 
 	@Test
 	public void readOnlyRolesNeverEditTheCard() {
-		for (Role role : List.of(Role.RESULTS, Role.EXTERNAL, Role.COMPETITION_DIRECTOR, Role.REGISTRATION,
-		        Role.WEIGHIN, Role.TC, Role.TIMEKEEPER)) {
+		for (Role role : List.of(Role.RESULTS, Role.EXTERNAL, Role.REGISTRATION,
+		        Role.WEIGHIN, Role.TC, Role.TIMEKEEPER, Role.SPEAKER)) {
 			assertFalse(role.name(), AthleteEditAccess.card(account(role), athleteOn("A")));
 		}
+	}
+
+	@Test
+	public void theResultsBoxStartsTickedOnlyForTheRolesThatRunTheResults() {
+		for (Role role : List.of(Role.ANNOUNCER, Role.PREPARATION, Role.COMPETITION_SUPERVISOR, Role.ADMIN)) {
+			assertTrue(role.name(), AthleteEditAccess.resultsEditingByDefault(account(role), athleteOn("A")));
+		}
+		Principal marshal = account(null, new RoleGrant(Role.MARSHAL, "A"));
+		assertTrue("the marshal edits the card", AthleteEditAccess.card(marshal, athleteOn("A")));
+		assertFalse("but the results box starts unticked",
+		        AthleteEditAccess.resultsEditingByDefault(marshal, athleteOn("A")));
+		assertFalse(AthleteEditAccess.resultsEditingByDefault(account(Role.SPEAKER), athleteOn("A")));
 	}
 }

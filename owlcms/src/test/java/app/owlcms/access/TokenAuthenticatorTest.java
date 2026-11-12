@@ -52,13 +52,13 @@ public class TokenAuthenticatorTest {
 	}
 
 	@Test
-	public void exportCapabilityIsHeldDirectlyOrThroughACompositeRole() {
+	public void exportPermissionIsHeldDirectlyOrThroughACompositeRole() {
 		for (Role role : List.of(Role.RESULTS, Role.EXTERNAL, Role.ADMIN, Role.COMPETITION_DIRECTOR,
 		        Role.COMPETITION_SUPERVISOR)) {
-			assertTrue(role.name(), TokenAuthenticator.holds(account(role), Capability.EXPORT_DATA));
+			assertTrue(role.name(), TokenAuthenticator.holds(account(role), Permission.EXPORT_DATA));
 		}
-		assertFalse(TokenAuthenticator.holds(account(Role.STREAMING), Capability.EXPORT_DATA));
-		assertFalse(TokenAuthenticator.holds(account(Role.DISPLAYS), Capability.EXPORT_DATA));
+		assertFalse(TokenAuthenticator.holds(account(Role.STREAMING), Permission.EXPORT_DATA));
+		assertFalse(TokenAuthenticator.holds(account(Role.DISPLAYS), Permission.EXPORT_DATA));
 	}
 
 	@Test

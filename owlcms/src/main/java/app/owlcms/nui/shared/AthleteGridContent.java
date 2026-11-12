@@ -69,6 +69,8 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.Permission;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.apputils.queryparameters.SoundParametersReader;
@@ -573,6 +575,18 @@ public abstract class AthleteGridContent extends BaseContent
 
 	public boolean isPassiveSpeaker() {
 		return false;
+	}
+
+	protected boolean hasAthleteTimerControl() {
+		return !isPassiveSpeaker() && AccessUi.hasPermission(Permission.ATHLETE_TIMER, getFop());
+	}
+
+	protected boolean hasBreakTimerControl() {
+		return !isPassiveSpeaker() && AccessUi.hasPermission(Permission.BREAK_TIMER, getFop());
+	}
+
+	protected boolean hasDecisionButtonsControl() {
+		return !isPassiveSpeaker() && AccessUi.hasPermission(Permission.DECISION_BUTTONS, getFop());
 	}
 
 	/**
@@ -1312,6 +1326,9 @@ public abstract class AthleteGridContent extends BaseContent
 	 */
 	protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
 		this.breakButton = new Button(Translator.translateOrElseEmpty("Pause"), new Icon(VaadinIcon.TIMER), (e) -> {
+			if (!hasBreakTimerControl()) {
+				return;
+			}
 			FieldOfPlay fop = getFop();
 			if (fop != null) {
 				Athlete curAthlete = fop.getCurAthlete();
@@ -1693,7 +1710,7 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected void do1Minute() {
-		if (isPassiveSpeaker()) {
+		if (!hasAthleteTimerControl()) {
 			return;
 		}
 		getFop().fopEventPost(new FOPEvent.ForceTime(Competition.athleteTimerOneMinute, this.getOrigin()));
@@ -1701,7 +1718,7 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected void do2Minutes() {
-		if (isPassiveSpeaker()) {
+		if (!hasAthleteTimerControl()) {
 			return;
 		}
 		getFop().fopEventPost(new FOPEvent.ForceTime(Competition.athleteTimerTwoMinutes, this.getOrigin()));
@@ -1868,7 +1885,7 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected void doStartTime() {
-		if (isPassiveSpeaker()) {
+		if (!hasAthleteTimerControl()) {
 			return;
 		}
 		long now = System.currentTimeMillis();
@@ -1888,7 +1905,7 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected void doStopTime() {
-		if (isPassiveSpeaker()) {
+		if (!hasAthleteTimerControl()) {
 			return;
 		}
 		long now = System.currentTimeMillis();
@@ -2246,10 +2263,10 @@ public abstract class AthleteGridContent extends BaseContent
 			} else {
 				// logger.debug("notBreak");
 				if (this.buttons != null) {
-					this.buttons.setVisible(!isPassiveSpeaker());
+					this.buttons.setVisible(hasAthleteTimerControl());
 				}
 				if (this.decisions != null) {
-					this.decisions.setVisible(!isPassiveSpeaker());
+					this.decisions.setVisible(hasDecisionButtonsControl());
 				}
 				if (this.breakButton == null) {
 					logger.debug("breakButton is null\n{}", LoggerUtils.stackTrace());
@@ -2261,7 +2278,7 @@ public abstract class AthleteGridContent extends BaseContent
 				}
 			}
 			if (this.breakButton != null) {
-				this.breakButton.setEnabled(!isPassiveSpeaker());
+				this.breakButton.setEnabled(hasBreakTimerControl());
 			}
 			Athlete curAthlete = fop.getCurAthlete();
 			int timeRemaining = fop.getAthleteTimer().liveTimeRemaining();

@@ -24,9 +24,9 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import app.owlcms.access.AccessUi;
-import app.owlcms.access.Capability;
 import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
@@ -50,7 +50,7 @@ import ch.qos.logback.classic.Logger;
  * The Class ResultsNavigationContent.
  */
 @SuppressWarnings("serial")
-@RequiresPermission(Permission.RESULTS)
+@RequiresAccess(Access.RESULTS)
 @Route(value = "results", layout = OwlcmsLayout.class)
 public class ResultsNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
@@ -136,7 +136,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 			exportJsonV2Button.ifPresent(c -> ((Button) c).setWidth("100%"));
 			exportJsonV2Div.setWidthFull();
 		}
-		if (!AccessUi.hasCapability(Capability.EXPORT_V1, null)) {
+		if (!AccessUi.hasPermission(Permission.EXPORT_V1, null)) {
 			// withdrawn by the noV1Export feature switch: V1 exports are never signed
 			DownloadButtonFactory.hide(exportJsonDiv);
 		}

@@ -36,8 +36,9 @@ public class AccountLandingPolicyTest {
 		        Map.entry(Role.REGISTRATION, WorkPage.REGISTRATION),
 		        Map.entry(Role.WEIGHIN, WorkPage.WEIGHIN),
 		        Map.entry(Role.RESULTS, WorkPage.RESULTS),
-		        Map.entry(Role.PLATFORM, WorkPage.LIFTING),
+		        Map.entry(Role.PLATFORM, WorkPage.HOME),
 		        Map.entry(Role.ANNOUNCER, WorkPage.ANNOUNCER),
+		        Map.entry(Role.SPEAKER, WorkPage.SPEAKER),
 		        Map.entry(Role.MARSHAL, WorkPage.MARSHAL),
 		        Map.entry(Role.TIMEKEEPER, WorkPage.TIMEKEEPER),
 		        Map.entry(Role.TC, WorkPage.TC),
@@ -54,13 +55,13 @@ public class AccountLandingPolicyTest {
 	}
 
 	@Test
-	public void multipleExplicitRolesLandAtHomeRatherThanChoosingInheritedPermissions() {
+	public void multipleExplicitRolesLandAtHomeRatherThanChoosingInheritedAccess() {
 		assertTrue(AccountLandingPolicy.singleWorkPage(account(new RoleGrant(Role.ANNOUNCER, "A"),
 		        new RoleGrant(Role.TIMEKEEPER, "A"))).isEmpty());
 		assertTrue(AccountLandingPolicy.singleWorkPage(account(new RoleGrant(Role.ADMIN, null),
 		        new RoleGrant(Role.COMPETITION_SUPERVISOR, null))).isEmpty());
-		assertEquals(WorkPage.LIFTING,
-		        AccountLandingPolicy.singleWorkPage(account(new RoleGrant(Role.PLATFORM, "A"))).orElseThrow());
+		assertEquals(WorkPage.MARSHAL,
+		        AccountLandingPolicy.singleWorkPage(account(new RoleGrant(Role.MARSHAL, "A"))).orElseThrow());
 		assertEquals(WorkPage.COMPETITION_SUPERVISOR,
 		        AccountLandingPolicy.singleWorkPage(account(new RoleGrant(Role.COMPETITION_SUPERVISOR, null))).orElseThrow());
 	}

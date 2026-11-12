@@ -29,8 +29,8 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.streams.UploadHandler;
 
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import app.owlcms.audit.AuditIntegrity;
 import app.owlcms.audit.AuditIntegrityChecker;
 import app.owlcms.audit.AuditIntegrityChecker.KeyProtection;
@@ -48,7 +48,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@RequiresPermission(Permission.ADMIN_PAGES)
+@RequiresAccess(Access.ADMINISTRATOR)
 @Route(value = "admin/audit/check", layout = OwlcmsLayout.class)
 public class AuditIntegrityCheckView extends Composite<VerticalLayout>
 		implements HasDynamicTitle {

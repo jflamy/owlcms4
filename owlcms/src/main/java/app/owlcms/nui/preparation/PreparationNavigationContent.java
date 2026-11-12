@@ -36,10 +36,10 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import app.owlcms.access.AccessUi;
-import app.owlcms.access.Capability;
-import app.owlcms.access.ImportGate;
 import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.ImportGate;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
@@ -63,7 +63,7 @@ import ch.qos.logback.classic.Logger;
  * The Class PreparationNavigationContent.
  */
 @SuppressWarnings("serial")
-@RequiresPermission({ Permission.PREPARATION, Permission.REGISTRATION, Permission.WEIGHIN, Permission.RESULTS })
+@RequiresAccess({ Access.PREPARATION, Access.REGISTRATION, Access.WEIGHIN, Access.RESULTS })
 @Route(value = "preparation", layout = OwlcmsLayout.class)
 public class PreparationNavigationContent extends BaseNavigationContent
 		implements NavigationPage, HasDynamicTitle, BeforeEnterObserver {
@@ -157,18 +157,18 @@ public class PreparationNavigationContent extends BaseNavigationContent
 			exportJsonV2Div.setWidthFull();
 		}
 
-		if (!AccessUi.hasCapability(Capability.EXPORT_V1, null)) {
+		if (!AccessUi.hasPermission(Permission.EXPORT_V1, null)) {
 			// withdrawn by the noV1Export feature switch: V1 exports are never signed
 			DownloadButtonFactory.hide(exportJsonDiv);
 		}
-		if (!AccessUi.hasCapability(Capability.EXPORT_DATA, null)) {
-			// no RESULTS permission: database and SBDE exports would be refused
+		if (!AccessUi.hasPermission(Permission.EXPORT_DATA, null)) {
+			// no EXPORT_DATA permission (RESULTS access): database and SBDE exports would be refused
 			DownloadButtonFactory.hide(exportJsonDiv);
 			DownloadButtonFactory.hide(exportJsonV2Div);
 			DownloadButtonFactory.hide(sbdeDiv);
 		}
-		if (!AccessUi.hasCapability(Capability.IMPORT_DATA, null)) {
-			// no IMPORT permission (Competition Director): the upload would be refused
+		if (!AccessUi.hasPermission(Permission.IMPORT_DATA, null)) {
+			// no IMPORT_DATA permission (Competition Director): the upload would be refused
 			upload.setVisible(false);
 			sbdeUpload.setVisible(false);
 			uploadJson.setVisible(false);

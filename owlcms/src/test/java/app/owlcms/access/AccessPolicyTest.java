@@ -21,78 +21,120 @@ public class AccessPolicyTest {
 		return new Principal(AuthSource.ACCOUNT, 1L, "user", List.of(grants), loginPlatform);
 	}
 
-	private static PageRule page(boolean platformBound, Permission... permissions) {
-		Set<Permission> set = EnumSet.noneOf(Permission.class);
-		set.addAll(List.of(permissions));
-		return PageRule.permissions(set, platformBound);
+	private static PageRule page(boolean platformBound, Access... accesses) {
+		Set<Access> set = EnumSet.noneOf(Access.class);
+		set.addAll(List.of(accesses));
+		return PageRule.accesses(set, platformBound);
 	}
 
 	@Test
 	public void compositeRolesExpandToBaseRoles() {
-		assertTrue(Role.ADMIN.permissions().contains(Permission.ADMIN_PAGES));
-		assertTrue(Role.ADMIN.permissions().containsAll(EnumSet.of(Permission.PREPARATION, Permission.DISPLAYS, Permission.REFEREE)));
-		assertEquals(EnumSet.of(Permission.RESULTS), Role.RESULTS.permissions());
-		assertEquals(EnumSet.of(Permission.ANNOUNCER, Permission.MARSHAL, Permission.TIMEKEEPER, Permission.TC, Permission.DISPLAYS,
-		        Permission.ATHLETE_CARD_EDITING),
-		        Role.PLATFORM.permissions());
-		assertEquals(EnumSet.of(Permission.JURY), Role.JURY.permissions());
-		assertEquals(EnumSet.of(Permission.RESULTS, Permission.STREAMING), Role.EXTERNAL.permissions());
-		assertEquals(EnumSet.of(Permission.STREAMING), Role.STREAMING.permissions());
-		assertTrue(Role.ADMIN.permissions().contains(Permission.STREAMING));
-		assertTrue(Role.COMPETITION_SUPERVISOR.permissions().contains(Permission.STREAMING));
-		assertEquals(EnumSet.of(Permission.PREPARATION, Permission.RESULTS, Permission.DISPLAYS,
-		        Permission.METADATA_EDITING), Role.COMPETITION_DIRECTOR.permissions());
+		assertTrue(Role.ADMIN.accesses().contains(Access.ADMINISTRATOR));
+		assertTrue(Role.ADMIN.accesses().containsAll(EnumSet.of(Access.PREPARATION, Access.DISPLAYS, Access.REFEREE)));
+		assertEquals(EnumSet.of(Access.RESULTS), Role.RESULTS.accesses());
+		assertTrue("the retired platform bundle gives nothing", Role.PLATFORM.accesses().isEmpty());
+		assertTrue(Role.PLATFORM.isObsolete());
+		assertEquals(Role.grantableRoles().size() + 1, Role.values().length);
+		assertEquals(EnumSet.of(Access.ANNOUNCER, Access.SPEAKER, Access.MARSHAL, Access.TIMEKEEPER,
+		        Access.TC, Access.DISPLAYS),
+		        Role.ANNOUNCER.accesses());
+		assertEquals(EnumSet.of(Access.SPEAKER), Role.SPEAKER.accesses());
+		assertEquals(EnumSet.of(Access.JURY), Role.JURY.accesses());
+		assertEquals(EnumSet.of(Access.RESULTS, Access.STREAMING), Role.EXTERNAL.accesses());
+		assertEquals(EnumSet.of(Access.STREAMING), Role.STREAMING.accesses());
+		assertTrue(Role.ADMIN.accesses().contains(Access.STREAMING));
+		assertTrue(Role.COMPETITION_SUPERVISOR.accesses().contains(Access.STREAMING));
+		assertEquals(EnumSet.of(Access.PREPARATION, Access.RESULTS, Access.DISPLAYS),
+		        Role.COMPETITION_DIRECTOR.accesses());
 	}
 
 	@Test
-	public void athleteEditingCapabilitiesDoNotGrantNavigation() {
+	public void athleteEditingPermissionsDoNotGrantNavigation() {
 		for (Role role : List.of(Role.PREPARATION, Role.REGISTRATION, Role.WEIGHIN,
 		        Role.COMPETITION_DIRECTOR, Role.COMPETITION_SUPERVISOR, Role.ADMIN)) {
 			Principal user = account(null, new RoleGrant(role, null));
-			assertTrue(role.name(), AccessPolicy.hasCapability(user, Capability.METADATA_EDITING, null));
+			assertTrue(role.name(), AccessPolicy.hasPermission(user, Permission.METADATA_EDITING, null));
 		}
-		for (Role role : List.of(Role.PREPARATION, Role.ANNOUNCER, Role.MARSHAL, Role.PLATFORM,
+		for (Role role : List.of(Role.ANNOUNCER, Role.MARSHAL,
 		        Role.COMPETITION_SUPERVISOR, Role.ADMIN)) {
-			assertTrue(role.name(), AccessPolicy.hasCapability(account(null, new RoleGrant(role, null)),
-			        Capability.ATHLETE_CARD_EDITING, "A"));
+			assertTrue(role.name(), AccessPolicy.hasPermission(account(null, new RoleGrant(role, null)),
+			        Permission.ATHLETE_CARD_EDITING, "A"));
 		}
-		for (Role role : List.of(Role.RESULTS, Role.EXTERNAL, Role.TC, Role.TIMEKEEPER, Role.REFEREE, Role.JURY)) {
+		for (Role role : List.of(Role.RESULTS, Role.EXTERNAL, Role.TC, Role.TIMEKEEPER, Role.REFEREE, Role.JURY,
+		        Role.SPEAKER)) {
 			Principal user = account(null, new RoleGrant(role, null));
-			assertFalse(role.name(), AccessPolicy.hasCapability(user, Capability.METADATA_EDITING, "A"));
-			assertFalse(role.name(), AccessPolicy.hasCapability(user, Capability.ATHLETE_CARD_EDITING, "A"));
+			assertFalse(role.name(), AccessPolicy.hasPermission(user, Permission.METADATA_EDITING, "A"));
+			assertFalse(role.name(), AccessPolicy.hasPermission(user, Permission.ATHLETE_CARD_EDITING, "A"));
 		}
-		assertFalse("metadata only: no Card writes",
-		        AccessPolicy.hasCapability(account(null, new RoleGrant(Role.COMPETITION_DIRECTOR, null)),
-		                Capability.ATHLETE_CARD_EDITING, "A"));
+		for (Role role : List.of(Role.ANNOUNCER, Role.TIMEKEEPER, Role.MARSHAL, Role.COMPETITION_SUPERVISOR,
+		        Role.ADMIN)) {
+			assertTrue(role.name(), AccessPolicy.hasPermission(account(null, new RoleGrant(role, null)),
+			        Permission.ATHLETE_TIMER, "A"));
+			assertTrue(role.name(), AccessPolicy.hasPermission(account(null, new RoleGrant(role, null)),
+			        Permission.BREAK_TIMER, "A"));
+		}
+		for (Role role : List.of(Role.SPEAKER, Role.TC, Role.JURY, Role.REFEREE, Role.DISPLAYS, Role.RESULTS)) {
+			assertFalse(role.name(), AccessPolicy.hasPermission(account(null, new RoleGrant(role, null)),
+			        Permission.ATHLETE_TIMER, "A"));
+			assertFalse(role.name(), AccessPolicy.hasPermission(account(null, new RoleGrant(role, null)),
+			        Permission.BREAK_TIMER, "A"));
+		}
+		for (Role role : List.of(Role.ANNOUNCER, Role.COMPETITION_SUPERVISOR, Role.ADMIN)) {
+			assertTrue(role.name(), AccessPolicy.hasPermission(account(null, new RoleGrant(role, null)),
+			        Permission.DECISION_BUTTONS, "A"));
+		}
+		for (Role role : List.of(Role.SPEAKER, Role.TIMEKEEPER, Role.MARSHAL, Role.TC, Role.JURY, Role.REFEREE)) {
+			assertFalse(role.name(), AccessPolicy.hasPermission(account(null, new RoleGrant(role, null)),
+			        Permission.DECISION_BUTTONS, "A"));
+		}
+		for (Role role : List.of(Role.ANNOUNCER, Role.PREPARATION, Role.COMPETITION_DIRECTOR,
+		        Role.COMPETITION_SUPERVISOR, Role.ADMIN)) {
+			assertTrue(role.name() + " opens the card with results editing on",
+			        AccessPolicy.hasPermission(account(null, new RoleGrant(role, null)),
+			                Permission.ATHLETE_RESULTS_EDITING, "A"));
+		}
+		for (Role role : List.of(Role.MARSHAL, Role.SPEAKER, Role.TIMEKEEPER, Role.REGISTRATION, Role.WEIGHIN)) {
+			assertFalse(role.name() + " does not start with results editing on",
+			        AccessPolicy.hasPermission(account(null, new RoleGrant(role, null)),
+			                Permission.ATHLETE_RESULTS_EDITING, "A"));
+		}
+		for (Role role : List.of(Role.PREPARATION, Role.COMPETITION_DIRECTOR)) {
+			assertTrue(role.name() + " edits cards through the preparation access",
+			        AccessPolicy.hasPermission(account(null, new RoleGrant(role, null)),
+			                Permission.ATHLETE_CARD_EDITING, "A"));
+		}
 		for (Role role : List.of(Role.REGISTRATION, Role.WEIGHIN)) {
-			assertFalse(role.name(), AccessPolicy.hasCapability(account(null, new RoleGrant(role, null)),
-			        Capability.ATHLETE_CARD_EDITING, "A"));
+			assertFalse(role.name(), AccessPolicy.hasPermission(account(null, new RoleGrant(role, null)),
+			        Permission.ATHLETE_CARD_EDITING, "A"));
 		}
 		Principal preparation = account(null, new RoleGrant(Role.PREPARATION, null));
-		assertFalse(AccessPolicy.canOpen(preparation, page(false, Permission.RESULTS), null));
-		assertFalse(AccessPolicy.canOpen(preparation, page(false, Permission.REGISTRATION), null));
+		assertTrue(AccessPolicy.canOpen(preparation, page(false, Access.RESULTS), null));
+		assertTrue(AccessPolicy.canOpen(preparation, page(false, Access.REGISTRATION), null));
+		assertFalse(AccessPolicy.canOpen(preparation, page(false, Access.WEIGHIN), null));
 		assertFalse(AccessPolicy.requiresPlatformChoice(preparation));
 		assertTrue(AccessPolicy.loginPlatformChoices(preparation, PLATFORMS).isEmpty());
 	}
 
 	@Test
-	public void cardEditingRespectsOperatorScopeButPreparationRemainsGlobal() {
+	public void cardEditingRespectsOperatorScopeButPreparationAndSupervisorRemainGlobal() {
 		Principal marshal = account("A", new RoleGrant(Role.MARSHAL, null), new RoleGrant(Role.RESULTS, null));
-		assertTrue(AccessPolicy.hasCapability(marshal, Capability.ATHLETE_CARD_EDITING, "A"));
-		assertFalse(AccessPolicy.hasCapability(marshal, Capability.ATHLETE_CARD_EDITING, "B"));
+		assertTrue(AccessPolicy.hasPermission(marshal, Permission.ATHLETE_CARD_EDITING, "A"));
+		assertFalse(AccessPolicy.hasPermission(marshal, Permission.ATHLETE_CARD_EDITING, "B"));
 		Principal scoped = account(null, new RoleGrant(Role.MARSHAL, "A"));
-		assertFalse(AccessPolicy.hasCapability(scoped, Capability.ATHLETE_CARD_EDITING, "B"));
-		assertTrue(AccessPolicy.hasCapability(account(null, new RoleGrant(Role.PREPARATION, null)),
-		        Capability.ATHLETE_CARD_EDITING, "B"));
+		assertFalse(AccessPolicy.hasPermission(scoped, Permission.ATHLETE_CARD_EDITING, "B"));
+		for (Role role : List.of(Role.COMPETITION_SUPERVISOR, Role.PREPARATION)) {
+			assertTrue(role.name(), AccessPolicy.hasPermission(account(null, new RoleGrant(role, null)),
+			        Permission.ATHLETE_CARD_EDITING, "B"));
+		}
 		Principal token = new Principal(AuthSource.TOKEN, 1L, "token",
 		        List.of(new RoleGrant(Role.MARSHAL, "A")), null);
-		assertTrue(AccessPolicy.hasCapability(token, Capability.ATHLETE_CARD_EDITING, "A"));
-		assertFalse(AccessPolicy.hasCapability(token, Capability.ATHLETE_CARD_EDITING, "B"));
+		assertTrue(AccessPolicy.hasPermission(token, Permission.ATHLETE_CARD_EDITING, "A"));
+		assertFalse(AccessPolicy.hasPermission(token, Permission.ATHLETE_CARD_EDITING, "B"));
 	}
 
 	@Test
-	public void adminReachesEveryPermission() {
-		assertEquals(EnumSet.allOf(Permission.class), Role.ADMIN.permissions());
+	public void adminReachesEveryAccess() {
+		assertEquals(EnumSet.allOf(Access.class), Role.ADMIN.accesses());
 	}
 
 
@@ -100,10 +142,10 @@ public class AccessPolicyTest {
 	public void pinModePrincipalsOpenWhatTheyDidBefore() {
 		Principal officials = Principal.admin(AuthSource.OFFICIALS_PIN);
 		Principal displays = Principal.displays();
-		PageRule officialsPage = page(false, Permission.PREPARATION);
-		PageRule adminPage = page(false, Permission.ADMIN_PAGES);
-		PageRule boardPage = page(true, Permission.DISPLAYS);
-		PageRule juryBoard = page(true, Permission.DISPLAYS, Permission.JURY);
+		PageRule officialsPage = page(false, Access.PREPARATION);
+		PageRule adminPage = page(false, Access.ADMINISTRATOR);
+		PageRule boardPage = page(true, Access.DISPLAYS);
+		PageRule juryBoard = page(true, Access.DISPLAYS, Access.JURY);
 
 		assertTrue(AccessPolicy.canOpen(officials, officialsPage, null));
 		assertTrue(AccessPolicy.canOpen(officials, adminPage, null));
@@ -138,8 +180,8 @@ public class AccessPolicyTest {
 	@Test
 	public void scopeLimitsPlatformBoundPagesOnly() {
 		Principal announcerA = account(null, new RoleGrant(Role.ANNOUNCER, "A"));
-		PageRule announcerPage = page(true, Permission.ANNOUNCER);
-		PageRule navigation = page(false, Permission.ANNOUNCER, Permission.MARSHAL);
+		PageRule announcerPage = page(true, Access.ANNOUNCER);
+		PageRule navigation = page(false, Access.ANNOUNCER, Access.MARSHAL);
 
 		assertTrue(AccessPolicy.canOpen(announcerA, announcerPage, "A"));
 		assertFalse(AccessPolicy.canOpen(announcerA, announcerPage, "B"));
@@ -148,11 +190,36 @@ public class AccessPolicyTest {
 
 	@Test
 	public void lockableRolesFollowLoginPlatformButDisplaysDoNot() {
-		Principal platformAll = account("A", new RoleGrant(Role.PLATFORM, null));
+		Principal platformAll = account("A", new RoleGrant(Role.ANNOUNCER, null), new RoleGrant(Role.DISPLAYS, null));
 
-		assertTrue(AccessPolicy.canOpen(platformAll, page(true, Permission.ANNOUNCER), "A"));
-		assertFalse(AccessPolicy.canOpen(platformAll, page(true, Permission.ANNOUNCER), "B"));
-		assertTrue(AccessPolicy.canOpen(platformAll, page(true, Permission.DISPLAYS), "B"));
+		assertTrue(AccessPolicy.canOpen(platformAll, page(true, Access.ANNOUNCER), "A"));
+		assertFalse(AccessPolicy.canOpen(platformAll, page(true, Access.ANNOUNCER), "B"));
+		assertTrue(AccessPolicy.canOpen(platformAll, page(true, Access.DISPLAYS), "B"));
+	}
+
+	@Test
+	public void theLockBelongsToTheRoleNotToItsAccesses() {
+		assertEquals(EnumSet.of(Role.ANNOUNCER, Role.SPEAKER, Role.MARSHAL, Role.TIMEKEEPER, Role.TC, Role.JURY,
+		        Role.REFEREE),
+		        EnumSet.copyOf(java.util.Arrays.stream(Role.values()).filter(Role::isLockable).toList()));
+		for (Role role : Role.values()) {
+			assertTrue(role.name() + " is lockable only if scopable", !role.isLockable() || role.isPlatformScopable());
+		}
+		Principal announcer = account("A", new RoleGrant(Role.ANNOUNCER, null));
+		assertTrue(AccessPolicy.isLockedFor(announcer, EnumSet.of(Access.ANNOUNCER)));
+		assertTrue("all access rights of a lockable role are locked together",
+		        AccessPolicy.isLockedFor(announcer, EnumSet.of(Access.DISPLAYS)));
+		Principal speaker = account("A", new RoleGrant(Role.SPEAKER, null));
+		assertTrue(AccessPolicy.isLockedFor(speaker, EnumSet.of(Access.SPEAKER)));
+		assertFalse("a page the lockable roles do not give is not locked",
+		        AccessPolicy.isLockedFor(speaker, EnumSet.of(Access.DISPLAYS)));
+		Principal displaysToo = account("A", new RoleGrant(Role.SPEAKER, null), new RoleGrant(Role.DISPLAYS, null));
+		assertFalse(AccessPolicy.isLockedFor(displaysToo, EnumSet.of(Access.DISPLAYS)));
+		assertFalse(AccessPolicy.isLockedFor(account("A", new RoleGrant(Role.COMPETITION_SUPERVISOR, null)),
+		        EnumSet.of(Access.ANNOUNCER)));
+		assertFalse("global roles are never locked",
+		        AccessPolicy.isLockedFor(account("A", new RoleGrant(Role.PREPARATION, null)),
+		                EnumSet.of(Access.PREPARATION)));
 	}
 
 	@Test
@@ -163,18 +230,18 @@ public class AccessPolicyTest {
 		assertFalse(AccessPolicy.requiresPlatformChoice(admin));
 		assertFalse(AccessPolicy.isLocked(admin));
 		assertEquals(PLATFORMS, AccessPolicy.allowedSessionPlatforms(admin, PLATFORMS));
-		assertTrue(AccessPolicy.canOpen(unlockedAdmin, page(true, Permission.ANNOUNCER), "C"));
-		assertTrue(AccessPolicy.canOpen(unlockedAdmin, page(false, Permission.ADMIN_PAGES), null));
-		assertTrue(AccessPolicy.canOpen(admin, page(true, Permission.ANNOUNCER), "C"));
+		assertTrue(AccessPolicy.canOpen(unlockedAdmin, page(true, Access.ANNOUNCER), "C"));
+		assertTrue(AccessPolicy.canOpen(unlockedAdmin, page(false, Access.ADMINISTRATOR), null));
+		assertTrue(AccessPolicy.canOpen(admin, page(true, Access.ANNOUNCER), "C"));
 	}
 
 	@Test
 	public void competitionDirectorAccessIsNotGrantedToOrdinaryOfficials() {
-		PageRule directorPage = page(true, Permission.COMPETITION_SUPERVISOR);
+		PageRule directorPage = page(true, Access.SUPERVISOR);
 		Principal director = account("A", new RoleGrant(Role.COMPETITION_SUPERVISOR, null));
 		Principal admin = account(null, new RoleGrant(Role.ADMIN, null));
 		Principal announcer = account("A", new RoleGrant(Role.ANNOUNCER, "A"));
-		Principal platform = account("A", new RoleGrant(Role.PLATFORM, null));
+		Principal platform = account("A", new RoleGrant(Role.MARSHAL, null));
 
 		assertTrue(AccessPolicy.canOpen(director, directorPage, "B"));
 		assertTrue(AccessPolicy.canOpen(admin, directorPage, "A"));
@@ -185,22 +252,22 @@ public class AccessPolicyTest {
 		assertFalse(AccessPolicy.requiresPlatformChoice(director));
 		assertFalse(AccessPolicy.isLocked(director));
 		assertEquals(PLATFORMS, AccessPolicy.allowedSessionPlatforms(director, PLATFORMS));
-		assertTrue(AccessPolicy.canOpen(director, page(true, Permission.ANNOUNCER), "C"));
-		assertFalse(AccessPolicy.canOpen(director, page(false, Permission.ADMIN_PAGES), null));
+		assertTrue(AccessPolicy.canOpen(director, page(true, Access.ANNOUNCER), "C"));
+		assertFalse(AccessPolicy.canOpen(director, page(false, Access.ADMINISTRATOR), null));
 	}
 
 	@Test
 	public void competitionDirectorHasPreparationAndResultsOnly() {
 		Principal director = account(null, new RoleGrant(Role.COMPETITION_DIRECTOR, null));
 
-		assertTrue(AccessPolicy.canOpen(director, page(false, Permission.PREPARATION), null));
-		assertTrue(AccessPolicy.canOpen(director, page(false, Permission.RESULTS), null));
-		assertTrue(AccessPolicy.canOpen(director, page(true, Permission.DISPLAYS), "B"));
-		assertFalse(AccessPolicy.canOpen(director, page(true, Permission.COMPETITION_SUPERVISOR), "A"));
-		assertFalse(AccessPolicy.canOpen(director, page(false, Permission.REGISTRATION), null));
-		assertFalse(AccessPolicy.canOpen(director, page(false, Permission.WEIGHIN), null));
-		assertFalse(AccessPolicy.canOpen(director, page(true, Permission.ANNOUNCER), "A"));
-		assertFalse(AccessPolicy.canOpen(director, page(false, Permission.ADMIN_PAGES), null));
+		assertTrue(AccessPolicy.canOpen(director, page(false, Access.PREPARATION), null));
+		assertTrue(AccessPolicy.canOpen(director, page(false, Access.RESULTS), null));
+		assertTrue(AccessPolicy.canOpen(director, page(true, Access.DISPLAYS), "B"));
+		assertFalse(AccessPolicy.canOpen(director, page(true, Access.SUPERVISOR), "A"));
+		assertFalse(AccessPolicy.canOpen(director, page(false, Access.REGISTRATION), null));
+		assertFalse(AccessPolicy.canOpen(director, page(false, Access.WEIGHIN), null));
+		assertFalse(AccessPolicy.canOpen(director, page(true, Access.ANNOUNCER), "A"));
+		assertFalse(AccessPolicy.canOpen(director, page(false, Access.ADMINISTRATOR), null));
 	}
 
 	@Test
@@ -208,11 +275,11 @@ public class AccessPolicyTest {
 		Principal results = account(null, new RoleGrant(Role.RESULTS, null));
 
 		assertFalse(AccessPolicy.requiresPlatformChoice(results));
-		assertTrue(AccessPolicy.canOpen(results, page(false, Permission.RESULTS), null));
-		assertFalse(AccessPolicy.canOpen(results, page(false, Permission.DISPLAYS, Permission.STREAMING), null));
-		assertFalse(AccessPolicy.canOpen(results, page(true, Permission.DISPLAYS, Permission.STREAMING), "B"));
-		assertFalse(AccessPolicy.canOpen(results, page(true, Permission.DISPLAYS), "B"));
-		assertFalse(AccessPolicy.canOpen(results, page(true, Permission.ANNOUNCER), "B"));
+		assertTrue(AccessPolicy.canOpen(results, page(false, Access.RESULTS), null));
+		assertFalse(AccessPolicy.canOpen(results, page(false, Access.DISPLAYS, Access.STREAMING), null));
+		assertFalse(AccessPolicy.canOpen(results, page(true, Access.DISPLAYS, Access.STREAMING), "B"));
+		assertFalse(AccessPolicy.canOpen(results, page(true, Access.DISPLAYS), "B"));
+		assertFalse(AccessPolicy.canOpen(results, page(true, Access.ANNOUNCER), "B"));
 	}
 
 	@Test
@@ -232,7 +299,7 @@ public class AccessPolicyTest {
 	public void grantsForUnknownPlatformsDoNotOpenAnything() {
 		Principal announcerZ = account(null, new RoleGrant(Role.ANNOUNCER, "Z"));
 
-		assertEquals(List.of(), AccessPolicy.selectablePlatforms(announcerZ, EnumSet.of(Permission.ANNOUNCER), PLATFORMS));
+		assertEquals(List.of(), AccessPolicy.selectablePlatforms(announcerZ, EnumSet.of(Access.ANNOUNCER), PLATFORMS));
 		assertEquals(List.of(), AccessPolicy.loginPlatformChoices(announcerZ, PLATFORMS));
 	}
 
@@ -251,7 +318,7 @@ public class AccessPolicyTest {
 
 	@Test
 	public void sessionPlatformsAreRestrictedWhenLocked() {
-		Principal locked = account("A", new RoleGrant(Role.PLATFORM, null));
+		Principal locked = account("A", new RoleGrant(Role.ANNOUNCER, null), new RoleGrant(Role.DISPLAYS, null));
 		Principal lockedScopedDisplays = account("A", new RoleGrant(Role.ANNOUNCER, "A"), new RoleGrant(Role.DISPLAYS, "B"));
 		Principal lockedScopedOperator = account("A", new RoleGrant(Role.ANNOUNCER, "A"));
 
@@ -264,33 +331,33 @@ public class AccessPolicyTest {
 	@Test
 	public void externalOpensStreamingAndResultsPagesOnEveryPlatformButNothingElse() {
 		Principal external = account(null, new RoleGrant(Role.EXTERNAL, null));
-		PageRule board = page(true, Permission.DISPLAYS, Permission.STREAMING);
+		PageRule board = page(true, Access.DISPLAYS, Access.STREAMING);
 
 		assertTrue(AccessPolicy.canOpen(external, board, "A"));
 		assertTrue(AccessPolicy.canOpen(external, board, "B"));
-		assertTrue(AccessPolicy.canOpen(external, page(false, Permission.RESULTS), null));
-		assertFalse(AccessPolicy.canOpen(external, page(true, Permission.ANNOUNCER), "A"));
-		assertFalse(AccessPolicy.canOpen(external, page(true, Permission.DISPLAYS, Permission.JURY), "A"));
-		assertFalse(AccessPolicy.canOpen(external, page(true, Permission.DISPLAYS), "A"));
-		assertTrue(AccessPolicy.canOpen(external, page(true, Permission.DISPLAYS, Permission.JURY, Permission.STREAMING), "A"));
+		assertTrue(AccessPolicy.canOpen(external, page(false, Access.RESULTS), null));
+		assertFalse(AccessPolicy.canOpen(external, page(true, Access.ANNOUNCER), "A"));
+		assertFalse(AccessPolicy.canOpen(external, page(true, Access.DISPLAYS, Access.JURY), "A"));
+		assertFalse(AccessPolicy.canOpen(external, page(true, Access.DISPLAYS), "A"));
+		assertTrue(AccessPolicy.canOpen(external, page(true, Access.DISPLAYS, Access.JURY, Access.STREAMING), "A"));
 		assertEquals(PLATFORMS, AccessPolicy.selectablePlatforms(external,
-		        EnumSet.of(Permission.DISPLAYS, Permission.STREAMING), PLATFORMS));
+		        EnumSet.of(Access.DISPLAYS, Access.STREAMING), PLATFORMS));
 	}
 
 	@Test
 	public void streamingOpensStreamingPagesOnEveryPlatformButNothingElse() {
 		Principal streaming = account(null, new RoleGrant(Role.STREAMING, null));
-		PageRule board = page(true, Permission.DISPLAYS, Permission.STREAMING);
+		PageRule board = page(true, Access.DISPLAYS, Access.STREAMING);
 
 		assertTrue(AccessPolicy.canOpen(streaming, board, "A"));
 		assertTrue(AccessPolicy.canOpen(streaming, board, "B"));
-		assertTrue(AccessPolicy.canOpen(streaming, page(true, Permission.DISPLAYS, Permission.JURY, Permission.STREAMING), "A"));
-		assertFalse(AccessPolicy.canOpen(streaming, page(false, Permission.RESULTS), null));
-		assertFalse(AccessPolicy.canOpen(streaming, page(true, Permission.ANNOUNCER), "A"));
-		assertFalse(AccessPolicy.canOpen(streaming, page(true, Permission.DISPLAYS), "A"));
-		assertFalse(AccessPolicy.canOpen(streaming, page(true, Permission.DISPLAYS, Permission.JURY), "A"));
+		assertTrue(AccessPolicy.canOpen(streaming, page(true, Access.DISPLAYS, Access.JURY, Access.STREAMING), "A"));
+		assertFalse(AccessPolicy.canOpen(streaming, page(false, Access.RESULTS), null));
+		assertFalse(AccessPolicy.canOpen(streaming, page(true, Access.ANNOUNCER), "A"));
+		assertFalse(AccessPolicy.canOpen(streaming, page(true, Access.DISPLAYS), "A"));
+		assertFalse(AccessPolicy.canOpen(streaming, page(true, Access.DISPLAYS, Access.JURY), "A"));
 		assertEquals(PLATFORMS, AccessPolicy.selectablePlatforms(streaming,
-		        EnumSet.of(Permission.DISPLAYS, Permission.STREAMING), PLATFORMS));
+		        EnumSet.of(Access.DISPLAYS, Access.STREAMING), PLATFORMS));
 	}
 
 	@Test
@@ -299,53 +366,54 @@ public class AccessPolicyTest {
 			Principal principal = account(null, new RoleGrant(role, null));
 
 			assertFalse(role + " needs no platform choice", AccessPolicy.requiresPlatformChoice(principal));
-			assertFalse(role + " has no display input", AccessPolicy.hasCapability(principal, Capability.DISPLAY_INPUT, "A"));
+			assertFalse(role + " has no display input",
+			        AccessPolicy.hasPermission(principal, Permission.DISPLAY_INPUT, "A"));
 		}
 	}
 
 	@Test
 	public void displayInputIsReservedToDisplaysHolders() {
-		for (Role role : List.of(Role.DISPLAYS, Role.PLATFORM, Role.ADMIN)) {
-			assertTrue(role + " keeps display input",
-			        AccessPolicy.hasCapability(account(null, new RoleGrant(role, null)), Capability.DISPLAY_INPUT, "A"));
+		for (Role role : List.of(Role.DISPLAYS, Role.ANNOUNCER, Role.ADMIN)) {
+			assertTrue(role + " keeps display input", AccessPolicy.hasPermission(account(null, new RoleGrant(role, null)),
+			        Permission.DISPLAY_INPUT, "A"));
 		}
-		for (Role role : List.of(Role.RESULTS, Role.STREAMING, Role.EXTERNAL)) {
-			assertFalse(role + " has no display input",
-			        AccessPolicy.hasCapability(account(null, new RoleGrant(role, null)), Capability.DISPLAY_INPUT, "A"));
+		for (Role role : List.of(Role.RESULTS, Role.STREAMING, Role.EXTERNAL, Role.SPEAKER)) {
+			assertFalse(role + " has no display input", AccessPolicy.hasPermission(account(null, new RoleGrant(role, null)),
+			        Permission.DISPLAY_INPUT, "A"));
 		}
-		assertFalse(AccessPolicy.hasCapability(null, Capability.DISPLAY_INPUT, "A"));
+		assertFalse(AccessPolicy.hasPermission(null, Permission.DISPLAY_INPUT, "A"));
 	}
 
 	@Test
 	public void externalWithScopedDisplaysHasInputOnlyOnThatPlatform() {
 		Principal mixed = account(null, new RoleGrant(Role.EXTERNAL, null), new RoleGrant(Role.DISPLAYS, "A"));
 
-		assertTrue(AccessPolicy.hasCapability(mixed, Capability.DISPLAY_INPUT, "A"));
-		assertFalse(AccessPolicy.hasCapability(mixed, Capability.DISPLAY_INPUT, "B"));
+		assertTrue(AccessPolicy.hasPermission(mixed, Permission.DISPLAY_INPUT, "A"));
+		assertFalse(AccessPolicy.hasPermission(mixed, Permission.DISPLAY_INPUT, "B"));
 	}
 
 	@Test
 	public void databaseExportsNeedResults() {
-		for (Role role : List.of(Role.RESULTS, Role.COMPETITION_DIRECTOR, Role.COMPETITION_SUPERVISOR, Role.EXTERNAL,
-		        Role.ADMIN)) {
-			assertTrue(role.name(), AccessPolicy.hasCapability(account(null, new RoleGrant(role, null)),
-			        Capability.EXPORT_DATA, null));
+		for (Role role : List.of(Role.RESULTS, Role.PREPARATION, Role.COMPETITION_DIRECTOR,
+		        Role.COMPETITION_SUPERVISOR, Role.EXTERNAL, Role.ADMIN)) {
+			assertTrue(role.name(), AccessPolicy.hasPermission(account(null, new RoleGrant(role, null)),
+			        Permission.EXPORT_DATA, null));
 		}
-		for (Role role : List.of(Role.PREPARATION, Role.REGISTRATION, Role.WEIGHIN, Role.PLATFORM, Role.DISPLAYS)) {
-			assertFalse(role.name(), AccessPolicy.hasCapability(account(null, new RoleGrant(role, null)),
-			        Capability.EXPORT_DATA, null));
+		for (Role role : List.of(Role.REGISTRATION, Role.WEIGHIN, Role.DISPLAYS)) {
+			assertFalse(role.name(), AccessPolicy.hasPermission(account(null, new RoleGrant(role, null)),
+			        Permission.EXPORT_DATA, null));
 		}
 	}
 
 	@Test
 	public void checkpointsNeedTheCompetitionSupervisor() {
 		for (Role role : List.of(Role.COMPETITION_SUPERVISOR, Role.ADMIN)) {
-			assertTrue(role.name(), AccessPolicy.hasCapability(account(null, new RoleGrant(role, null)),
-			        Capability.CHECKPOINT, null));
+			assertTrue(role.name(), AccessPolicy.hasPermission(account(null, new RoleGrant(role, null)),
+			        Permission.CHECKPOINT, null));
 		}
-		for (Role role : List.of(Role.RESULTS, Role.EXTERNAL, Role.COMPETITION_DIRECTOR, Role.PLATFORM)) {
-			assertFalse(role.name(), AccessPolicy.hasCapability(account(null, new RoleGrant(role, null)),
-			        Capability.CHECKPOINT, null));
+		for (Role role : List.of(Role.RESULTS, Role.EXTERNAL, Role.COMPETITION_DIRECTOR, Role.MARSHAL)) {
+			assertFalse(role.name(), AccessPolicy.hasPermission(account(null, new RoleGrant(role, null)),
+			        Permission.CHECKPOINT, null));
 		}
 	}
 

@@ -36,8 +36,8 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.access.AccessStartup;
 import app.owlcms.access.Principal;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.ConfirmationDialog;
@@ -57,7 +57,7 @@ import ch.qos.logback.classic.Logger;
 
 /** Named accounts and their role grants; usable in both access modes so accounts can be prepared beforehand. */
 @SuppressWarnings("serial")
-@RequiresPermission(Permission.ADMIN_PAGES)
+@RequiresAccess(Access.ADMINISTRATOR)
 @Route(value = AccountsContent.ROUTE, layout = OwlcmsLayout.class)
 public class AccountsContent extends BaseContent implements OwlcmsContent {
 

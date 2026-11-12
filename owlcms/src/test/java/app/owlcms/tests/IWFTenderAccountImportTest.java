@@ -19,7 +19,7 @@ import app.owlcms.access.AccessPolicy;
 import app.owlcms.access.AccountAuthenticator;
 import app.owlcms.access.LoginThrottle;
 import app.owlcms.access.PageRule;
-import app.owlcms.access.Permission;
+import app.owlcms.access.Access;
 import app.owlcms.access.Principal;
 import app.owlcms.access.Role;
 import app.owlcms.data.account.RoleGrant;
@@ -61,13 +61,15 @@ public class IWFTenderAccountImportTest {
 		}
 
 		assertEquals(PLATFORMS, PlatformRepository.findAll().stream().map(platform -> platform.getName()).toList());
-		assertEquals(21, UserAccountRepository.findAll().size());
+		assertEquals("the two retired platform accounts are not imported", 19, UserAccountRepository.findAll().size());
+		assertNull(UserAccountRepository.findByUsername("platforma"));
+		assertNull(UserAccountRepository.findByUsername("platformb"));
 		assertNull(UserAccountRepository.findByUsername("local-only"));
 
 		for (Role role : List.of(Role.ADMIN, Role.PREPARATION, Role.REGISTRATION, Role.WEIGHIN, Role.RESULTS)) {
 			assertGrantAndPassword(role.name().toLowerCase(), role, null);
 		}
-		for (Role role : List.of(Role.PLATFORM, Role.ANNOUNCER, Role.MARSHAL, Role.TIMEKEEPER, Role.TC, Role.JURY,
+		for (Role role : List.of(Role.ANNOUNCER, Role.MARSHAL, Role.TIMEKEEPER, Role.TC, Role.JURY,
 		        Role.REFEREE, Role.DISPLAYS)) {
 			for (String platform : PLATFORMS) {
 				assertGrantAndPassword(role.name().toLowerCase() + platform.toLowerCase(), role, platform);
@@ -75,28 +77,22 @@ public class IWFTenderAccountImportTest {
 		}
 
 		Principal admin = login("admin");
-		assertTrue(AccessPolicy.canOpen(admin, page(Permission.ADMIN_PAGES, false), null));
-		assertTrue(AccessPolicy.canOpen(admin, page(Permission.ANNOUNCER, true), "B"));
+		assertTrue(AccessPolicy.canOpen(admin, page(Access.ADMINISTRATOR, false), null));
+		assertTrue(AccessPolicy.canOpen(admin, page(Access.ANNOUNCER, true), "B"));
 
 		Principal results = login("results");
-		assertTrue(AccessPolicy.canOpen(results, page(Permission.RESULTS, false), null));
-		assertFalse(AccessPolicy.canOpen(results, page(Permission.STREAMING, true), "B"));
-		assertFalse(AccessPolicy.canOpen(results, page(Permission.DISPLAYS, true), "B"));
-		assertFalse(AccessPolicy.canOpen(results, page(Permission.ANNOUNCER, true), "B"));
+		assertTrue(AccessPolicy.canOpen(results, page(Access.RESULTS, false), null));
+		assertFalse(AccessPolicy.canOpen(results, page(Access.STREAMING, true), "B"));
+		assertFalse(AccessPolicy.canOpen(results, page(Access.DISPLAYS, true), "B"));
+		assertFalse(AccessPolicy.canOpen(results, page(Access.ANNOUNCER, true), "B"));
 
 		for (Role role : List.of(Role.ANNOUNCER, Role.MARSHAL, Role.TIMEKEEPER, Role.TC, Role.JURY, Role.REFEREE,
 		        Role.DISPLAYS)) {
 			Principal account = login(role.name().toLowerCase() + "a");
-			assertTrue(AccessPolicy.canOpen(account, page(role.permissions().iterator().next(), true), "A"));
-			assertFalse(AccessPolicy.canOpen(account, page(role.permissions().iterator().next(), true), "B"));
+			assertTrue(AccessPolicy.canOpen(account, page(role.accesses().iterator().next(), true), "A"));
+			assertFalse(AccessPolicy.canOpen(account, page(role.accesses().iterator().next(), true), "B"));
 			assertEquals(role != Role.DISPLAYS, AccessPolicy.requiresPlatformChoice(account));
 		}
-
-		Principal platformA = login("platforma");
-		assertTrue(AccessPolicy.canOpen(platformA, page(Permission.ANNOUNCER, true), "A"));
-		assertTrue(AccessPolicy.canOpen(platformA, page(Permission.TIMEKEEPER, true), "A"));
-		assertTrue(AccessPolicy.canOpen(platformA, page(Permission.DISPLAYS, true), "A"));
-		assertFalse(AccessPolicy.canOpen(platformA, page(Permission.ANNOUNCER, true), "B"));
 	}
 
 	private static void assertGrantAndPassword(String username, Role role, String platform) {
@@ -112,7 +108,7 @@ public class IWFTenderAccountImportTest {
 		return Principal.of(((AccountAuthenticator.Result.Success) result).account(), null);
 	}
 
-	private static PageRule page(Permission permission, boolean platformBound) {
-		return PageRule.permissions(Set.of(permission), platformBound);
+	private static PageRule page(Access access, boolean platformBound) {
+		return PageRule.accesses(Set.of(access), platformBound);
 	}
 }

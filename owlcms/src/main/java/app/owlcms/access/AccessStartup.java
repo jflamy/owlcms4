@@ -30,6 +30,7 @@ public final class AccessStartup {
 
 	public static void run() {
 		AuditOrigin origin = AuditOrigin.system("startup");
+		UserAccountRepository.removeObsoleteRoles(origin);
 		UserAccountRepository.ensureBuiltInAdmin(origin);
 		Config config = Config.getCurrent();
 		if (!config.isAccountsMode()) {

@@ -13,8 +13,8 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
 
 /**
- * The registration, SBDE and database imports started from the Preparation page: they need the IMPORT permission
- * ({@link Capability#IMPORT_DATA}) and "Imports are allowed" (Administration page, System tab). The startup load of
+ * The registration, SBDE and database imports started from the Preparation page: they need the IMPORT_DATA permission
+ * ({@link Permission#IMPORT_DATA}) and "Imports are allowed" (Administration page, System tab). The startup load of
  * a checkpoint by the control panel is not an import for this purpose, and records-only mode ignores the setting.
  */
 public final class ImportGate {
@@ -50,7 +50,7 @@ public final class ImportGate {
 	 */
 	public static void requireAllowed(Kind kind, Principal principal, AuditOrigin origin) {
 		Reason refusal = null;
-		if (!AccessPolicy.hasCapability(principal, Capability.IMPORT_DATA, null)) {
+		if (!AccessPolicy.hasPermission(principal, Permission.IMPORT_DATA, null)) {
 			refusal = Reason.NO_PERMISSION;
 		} else if (!isAllowed()) {
 			refusal = Reason.NOT_ALLOWED;

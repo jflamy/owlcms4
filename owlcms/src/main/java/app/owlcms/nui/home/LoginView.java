@@ -65,6 +65,7 @@ import app.owlcms.nui.preparation.RecordContent;
 import app.owlcms.nui.home.navigation.JuryNavigationContent;
 import app.owlcms.nui.home.navigation.RefereeNavigationContent;
 import app.owlcms.nui.lifting.PassiveAnnouncerContent;
+import app.owlcms.nui.lifting.AnnouncerContent;
 import app.owlcms.nui.lifting.CompetitionDirectorContent;
 import app.owlcms.nui.lifting.LiftingNavigationContent;
 import app.owlcms.nui.lifting.WeighinContent;
@@ -486,7 +487,8 @@ public class LoginView extends Composite<VerticalLayout>
 				case WEIGHIN -> UI.getCurrent().navigate(WeighinContent.class, parameters);
 				case RESULTS -> UI.getCurrent().navigate(ResultsNavigationContent.class, parameters);
 				case LIFTING -> UI.getCurrent().navigate(LiftingNavigationContent.class, parameters);
-				case ANNOUNCER -> UI.getCurrent().navigate(PassiveAnnouncerContent.class, parameters);
+				case ANNOUNCER -> UI.getCurrent().navigate(AnnouncerContent.class, parameters);
+				case SPEAKER -> UI.getCurrent().navigate(PassiveAnnouncerContent.class, parameters);
 				case MARSHAL -> UI.getCurrent().navigate(MarshallContent.class, parameters);
 				case TIMEKEEPER -> UI.getCurrent().navigate(TimekeeperContent.class, parameters);
 				case TC -> UI.getCurrent().navigate(TCContent.class, parameters);

@@ -80,6 +80,9 @@ class GrantsField extends CustomField<List<RoleGrant>> {
 		role.setItemLabelGenerator(r -> Translator.translate("Access.Role." + r.name()));
 		role.setAllowCustomValue(false);
 		role.setPlaceholder(Translator.translate("Access.Grant.Role"));
+		// the role labels are descriptions, much longer than a role name
+		role.setWidth("34em");
+		role.getStyle().set("--vaadin-combo-box-overlay-width", "40em");
 
 		List<String> scopes = new ArrayList<>();
 		scopes.add(ALL_PLATFORMS);
@@ -93,6 +96,7 @@ class GrantsField extends CustomField<List<RoleGrant>> {
 		scope.setItemLabelGenerator(this::scopeLabel);
 		scope.setAllowCustomValue(false);
 		scope.setPlaceholder(Translator.translate("Access.Grant.Scope"));
+		scope.setWidth("10em");
 
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setAlignItems(Alignment.CENTER);
@@ -146,6 +150,6 @@ class GrantsField extends CustomField<List<RoleGrant>> {
 	}
 
 	private static List<Role> grantableRoles() {
-		return List.of(Role.values());
+		return Role.grantableRoles();
 	}
 }

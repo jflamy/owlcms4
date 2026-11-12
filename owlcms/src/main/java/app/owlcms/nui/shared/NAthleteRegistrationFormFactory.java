@@ -110,7 +110,6 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
-import app.owlcms.nui.lifting.AnnouncerContent;
 import app.owlcms.nui.lifting.AthleteCardFormFactory;
 import app.owlcms.nui.lifting.NextAthleteAble;
 import app.owlcms.nui.lifting.WeighinContent;
@@ -346,7 +345,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		}
 		boolean existingAthlete = operation == CrudOperation.UPDATE;
 		RegistrationTabPolicy.Layout layout = existingAthlete
-		        ? RegistrationTabPolicy.choose(this.cardEntry, getEditedAthlete())
+		        ? RegistrationTabPolicy.choose(this.cardEntry, getEditedAthlete(),
+		                AthleteEditAccess.card(this.editor, getEditedAthlete()))
 		        : RegistrationTabPolicy.forNewAthlete();
 		if (layout.restrictedRegistration()) {
 			return createRestrictedForm(layout, cancelButtonClickListener, operationButtonClickListener, readOnly);
@@ -1446,7 +1446,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				closeAfterCardSave(page);
 			};
 			AthleteCardFormFactory cardFactory = new AthleteCardFormFactory(Athlete.class, origin)
-			        .setResultsUnlocked(page instanceof AnnouncerContent)
 			        .setSharedEditor(this.saveTask, saved, discard, allowInProgress);
 			container.add(cardFactory.buildNewForm(CrudOperation.UPDATE, stored, readOnly,
 			        e -> discard.run(), e -> {}, null));

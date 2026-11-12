@@ -26,7 +26,7 @@ import com.vaadin.flow.server.InputStreamFactory;
 
 import app.owlcms.access.AccessPolicy;
 import app.owlcms.access.AccessUi;
-import app.owlcms.access.Capability;
+import app.owlcms.access.Permission;
 import app.owlcms.access.Principal;
 import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.ExportAudit;
@@ -76,18 +76,18 @@ public class DownloadButtonFactory {
 	}
 
 	/**
-	 * Database exports need the RESULTS permission, and V1 exports need V1 to be available: checked when the stream
-	 * is produced, with the session that clicked, and audited when refused.
+	 * Database exports need the EXPORT_DATA permission (RESULTS access), and V1 exports need V1 to be available:
+	 * checked when the stream is produced, with the session that clicked, and audited when refused.
 	 */
 	private static void requireExportPermission(Principal exporter, AuditActor actor, int format) {
-		Capability required = format == 1 ? Capability.EXPORT_V1 : Capability.EXPORT_DATA;
+		Permission required = format == 1 ? Permission.EXPORT_V1 : Permission.EXPORT_DATA;
 		if (!required.isAvailable()) {
 			ExportAudit.refused(actor, format, ExportAudit.CHANNEL_DOWNLOAD, ExportAudit.REASON_UNAVAILABLE);
 			throw new IllegalStateException("database export refused: format " + format + " is not available");
 		}
-		if (!AccessPolicy.hasCapability(exporter, required, null)) {
+		if (!AccessPolicy.hasPermission(exporter, required, null)) {
 			ExportAudit.refused(actor, format, ExportAudit.CHANNEL_DOWNLOAD, ExportAudit.REASON_NO_PERMISSION);
-			throw new IllegalStateException("database export refused: no RESULTS permission");
+			throw new IllegalStateException("database export refused: no EXPORT_DATA permission");
 		}
 	}
 

@@ -43,8 +43,8 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import app.owlcms.access.AccessUi;
 import com.vaadin.flow.router.Route;
 
@@ -79,7 +79,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings({ "serial", "deprecation" })
-@RequiresPermission(value = Permission.JURY, platformBound = true)
+@RequiresAccess(value = Access.JURY, platformBound = true)
 @Route(value = "jurykeypad")
 @CssImport(value = "./styles/shared-styles.css")
 public class JuryKeypadContent extends BaseContent implements FOPParametersReader, SafeEventBusRegistration,
@@ -368,12 +368,12 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	protected ComboBox<FieldOfPlay> createFopSelect() {
 		ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
-		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Permission.JURY));
+		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Access.JURY));
 		fopSelect.setPlaceholder(Translator.translate("SelectPlatform"));
 		fopSelect.setItems(fops);
 		fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
 		fopSelect.setWidth("12rem");
-		fopSelect.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Permission.JURY), fops));
+		fopSelect.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Access.JURY), fops));
 		return fopSelect;
 	}
 

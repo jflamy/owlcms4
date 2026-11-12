@@ -6,12 +6,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** The principal needs any of the listed permissions. {@code platformBound} means the page operates on one platform. */
+/**
+ * The principal needs any of the listed access rights. {@code platformBound} means the page operates on one platform.
+ */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface RequiresPermission {
-	Permission[] value();
+public @interface RequiresAccess {
+	Access[] value();
 
 	boolean platformBound() default false;
 }

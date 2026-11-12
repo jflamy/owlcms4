@@ -3,9 +3,9 @@ package app.owlcms.data.athlete;
 import java.util.Set;
 
 import app.owlcms.access.AccessPolicy;
-import app.owlcms.access.Capability;
-import app.owlcms.access.PageRule;
 import app.owlcms.access.Permission;
+import app.owlcms.access.PageRule;
+import app.owlcms.access.Access;
 import app.owlcms.access.Principal;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
@@ -16,18 +16,27 @@ public final class AthleteEditAccess {
 	}
 
 	public static boolean metadata(Principal principal) {
-		return AccessPolicy.hasCapability(principal, Capability.METADATA_EDITING, null);
+		return AccessPolicy.hasPermission(principal, Permission.METADATA_EDITING, null);
 	}
 
 	public static boolean registration(Principal principal, boolean weighInPage, boolean resultsEntry) {
 		if (resultsEntry) {
-			return AccessPolicy.canOpen(principal, PageRule.permissions(Set.of(Permission.PREPARATION), false), null);
+			return AccessPolicy.canOpen(principal, PageRule.accesses(Set.of(Access.PREPARATION), false), null);
 		}
 		return AccessPolicy.canOpen(principal,
-		        PageRule.permissions(Set.of(weighInPage ? Permission.WEIGHIN : Permission.REGISTRATION), false), null);
+		        PageRule.accesses(Set.of(weighInPage ? Access.WEIGHIN : Access.REGISTRATION), false), null);
 	}
 
 	public static boolean card(Principal principal, Athlete stored) {
+		return hasCardPermission(principal, stored, Permission.ATHLETE_CARD_EDITING);
+	}
+
+	/** Whether the card opens with the results editing box ticked. */
+	public static boolean resultsEditingByDefault(Principal principal, Athlete stored) {
+		return hasCardPermission(principal, stored, Permission.ATHLETE_RESULTS_EDITING);
+	}
+
+	private static boolean hasCardPermission(Principal principal, Athlete stored, Permission permission) {
 		FieldOfPlay fop = OwlcmsFactory.getFOPWithGroup(stored.getGroup());
 		String platform = fop != null ? fop.getName()
 		        : stored.getGroup() != null && stored.getGroup().getPlatform() != null
@@ -36,9 +45,9 @@ public final class AthleteEditAccess {
 			// no platform is identifiable: only global roles (preparation, supervisor, admin) may edit
 			return principal != null && principal.grants().stream().anyMatch(
 			        g -> !g.getRole().isPlatformScopable()
-			                && g.getRole().permissions().contains(Permission.ATHLETE_CARD_EDITING));
+			                && g.getRole().accesses().stream().anyMatch(permission.accesses()::contains));
 		}
-		return AccessPolicy.hasCapability(principal, Capability.ATHLETE_CARD_EDITING, platform);
+		return AccessPolicy.hasPermission(principal, permission, platform);
 	}
 
 	public static void requireMetadata(Principal principal) {

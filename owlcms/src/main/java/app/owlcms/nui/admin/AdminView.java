@@ -28,11 +28,11 @@ import app.owlcms.Main;
 import app.owlcms.access.AccessMode;
 import app.owlcms.access.AccessUi;
 import app.owlcms.access.AccountModeAuthenticator;
-import app.owlcms.access.Capability;
+import app.owlcms.access.Permission;
 import app.owlcms.access.ImportGate;
 import app.owlcms.access.Principal;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import app.owlcms.access.SameMachineProof;
 import app.owlcms.access.SecuritySettings;
 import app.owlcms.access.SecuritySettings.Outcome;
@@ -62,7 +62,7 @@ import app.owlcms.utils.RestartUtils;
  * Competition Supervisor sees only the System tab.
  */
 @SuppressWarnings("serial")
-@RequiresPermission({ Permission.ADMIN_PAGES, Permission.COMPETITION_SUPERVISOR })
+@RequiresAccess({ Access.ADMINISTRATOR, Access.SUPERVISOR })
 @Route(value = AdminView.ROUTE, layout = OwlcmsLayout.class)
 public class AdminView extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
@@ -112,14 +112,14 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 		TabSheet tabs = new TabSheet();
 		this.tabs = tabs;
 		tabs.add(Translator.translate("Admin.System"), systemTab);
-		if (AccessUi.hasCapability(Capability.SECURITY_SETTINGS, null)) {
+		if (AccessUi.hasPermission(Permission.SECURITY_SETTINGS, null)) {
 			AccessControlForm accessControlForm = new AccessControlForm();
 			Button accounts = openInNewTabNoParam(AccountsContent.class,
 			        Translator.translate("Access.Accounts.Title"), VaadinIcon.KEY.create());
 			VerticalLayout securityTab = tab(heading("Config.AccessControlTitle"), securityStatus(),
 			        securityControls(accounts, token),
 			        accessControlForm);
-			FlexibleGridLayout auditTrail = AccessUi.hasCapability(Capability.AUDIT_KEYS, null)
+			FlexibleGridLayout auditTrail = AccessUi.hasPermission(Permission.AUDIT_KEYS, null)
 			        ? HomeNavigationContent.navigationGrid(auditKey, auditCheck,
 			                iwfComplianceCheck(accessControlForm::refreshIfClean))
 			        : HomeNavigationContent.navigationGrid(iwfComplianceCheck(accessControlForm::refreshIfClean));

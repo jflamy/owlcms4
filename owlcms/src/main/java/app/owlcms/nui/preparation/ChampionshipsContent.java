@@ -7,8 +7,8 @@
 package app.owlcms.nui.preparation;
 
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
@@ -18,7 +18,7 @@ import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 
 @SuppressWarnings("serial")
-@RequiresPermission(Permission.PREPARATION)
+@RequiresAccess(Access.PREPARATION)
 @Route(value = "preparation/championships", layout = OwlcmsLayout.class)
 public class ChampionshipsContent extends BaseContent implements OwlcmsContent {
 	private OwlcmsLayout routerLayout;

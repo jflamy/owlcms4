@@ -5,8 +5,8 @@ import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.access.RequiresFeature;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.RegistrationTabPolicy.CardEntry;
 import app.owlcms.data.config.FeatureSwitch;
@@ -18,7 +18,7 @@ import app.owlcms.nui.shared.NAthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsLayout;
 
 @SuppressWarnings("serial")
-@RequiresPermission(value = Permission.COMPETITION_SUPERVISOR, platformBound = true)
+@RequiresAccess(value = Access.SUPERVISOR, platformBound = true)
 @RequiresFeature(FeatureSwitch.COMPETITION_DIRECTOR_PAGE)
 @Route(value = "lifting/competition-director", layout = OwlcmsLayout.class)
 public class CompetitionDirectorContent extends AnnouncerContent {

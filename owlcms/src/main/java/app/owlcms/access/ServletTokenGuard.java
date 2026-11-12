@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Authorization of plain servlets that extract competition data. Simple Access (PIN) mode: the officials PIN, from any
  * address the officials access list allows; with no officials PIN, the local network. Accounts mode: an account token
- * whose owner has the required capability, whatever the address. The secret is given as {@code ?token=} or
+ * whose owner has the required permission, whatever the address. The secret is given as {@code ?token=} or
  * Authorization Bearer.
  */
 public final class ServletTokenGuard {
@@ -29,18 +29,18 @@ public final class ServletTokenGuard {
 	 * Sets the refusal status and headers itself.
 	 *
 	 * @param host     the client address, for the audit and PIN mode
-	 * @param required the capability the token's owner must have, through any of its roles
+	 * @param required the permission the token's owner must have, through any of its roles
 	 * @param what     what is requested, for the log
 	 * @return the audit actor of the request, or null when refused
 	 */
 	public static AuditActor authorize(HttpServletRequest request, HttpServletResponse response, String host,
-	        Capability required, String what) {
+	        Permission required, String what) {
 		String path = request.getServletPath();
 		String token = TokenAuthenticator.presentedToken(request.getParameter("token"),
 		        request.getHeader("Authorization"));
 		if (!required.isAvailable()) {
-			// refused in both access modes: Simple Access does not check capabilities
-			logger./**/warn("{} {} refused: the {} capability is not available in this configuration", host, what,
+			// refused in both access modes: Simple Access does not check permissions
+			logger./**/warn("{} {} refused: the {} permission is not available in this configuration", host, what,
 			        required);
 			AuthAudit.tokenRefused(host, path, "unavailable", null, null);
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -59,7 +59,7 @@ public final class ServletTokenGuard {
 					logger.info("{} {} authorized by token id={} of account {}", host, what, tokenId, username);
 					return AuditActor.token(username, tokenId, host);
 				}
-				logger./**/warn("{} {} refused: token id={} of account {} does not have the {} capability", host,
+				logger./**/warn("{} {} refused: token id={} of account {} does not have the {} permission", host,
 				        what, tokenId, username, required);
 				AuthAudit.tokenRefused(host, path, "forbidden", username, tokenId);
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);

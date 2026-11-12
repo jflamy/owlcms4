@@ -47,8 +47,8 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.QueryParameters;
 import app.owlcms.access.AccessUi;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.SoundParameters;
@@ -88,7 +88,7 @@ import ch.qos.logback.classic.Logger;
  */
 
 @SuppressWarnings("serial")
-@RequiresPermission(value = Permission.ANNOUNCER, platformBound = true)
+@RequiresAccess(value = Access.ANNOUNCER, platformBound = true)
 @Route(value = "lifting/announcer", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/shared-styles.css")
 public class AnnouncerContent extends AthleteGridContent implements HasDynamicTitle, BreakController {
@@ -738,7 +738,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	protected void create1MinButton() {
 		super.create1MinButton();
-		if (isPassiveSpeaker()) {
+		if (!hasAthleteTimerControl()) {
 			this._1min.setEnabled(false);
 			return;
 		}
@@ -751,7 +751,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	protected void create2MinButton() {
 		super.create2MinButton();
-		if (isPassiveSpeaker()) {
+		if (!hasAthleteTimerControl()) {
 			this._2min.setEnabled(false);
 			return;
 		}
@@ -910,7 +910,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	protected void createStartTimeButton() {
 		super.createStartTimeButton();
-		if (isPassiveSpeaker()) {
+		if (!hasAthleteTimerControl()) {
 			this.startTimeButton.setEnabled(false);
 			return;
 		}
@@ -935,7 +935,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	protected void createStopTimeButton() {
 		super.createStopTimeButton();
-		if (isPassiveSpeaker()) {
+		if (!hasAthleteTimerControl()) {
 			this.stopTimeButton.setEnabled(false);
 			return;
 		}
@@ -1159,10 +1159,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 		Button bad = new Button(new Icon(VaadinIcon.CLOSE), (e) -> badLift());
 		bad.getElement().setAttribute("theme", "error icon");
-		good.setEnabled(!isPassiveSpeaker());
-		bad.setEnabled(!isPassiveSpeaker());
+		boolean canDecide = hasDecisionButtonsControl();
+		good.setEnabled(canDecide);
+		bad.setEnabled(canDecide);
 
-		if (!isPassiveSpeaker()) {
+		if (canDecide) {
 			currentUI.access(() -> {
 				currentUI.addShortcutListener(() -> goodLift(), Key.F2).bindLifecycleTo(this);
 				currentUI.addShortcutListener(() -> badLift(), Key.F4).bindLifecycleTo(this);
@@ -1174,6 +1175,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	}
 
 	protected void addSpeakerModeSwitch(SubMenu settings) {
+		if (isPassiveSpeaker() && !AccessUi.canOpen(AnnouncerContent.class, getFop())) {
+			return;
+		}
 		MenuItem controlsActive = settings.addItem(Translator.translate(isPassiveSpeaker() ? "Announcer.SwitchToActive" : "Announcer.SwitchToPassive"), event -> {
 			Map<String, List<String>> parameters = new HashMap<>(getDefaultParameters().getParameters());
 			parameters.putAll(getLocation().getQueryParameters().getParameters());
@@ -1238,7 +1242,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 	private void postDecision(boolean decision) {
 		var fop = getFop();
-		if (isPassiveSpeaker() || fop == null || !isDecisionDebounceExpired(decision)) {
+		if (!hasDecisionButtonsControl() || fop == null || !isDecisionDebounceExpired(decision)) {
 			return;
 		}
 		fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), decision,

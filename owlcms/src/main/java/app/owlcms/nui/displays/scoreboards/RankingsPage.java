@@ -12,8 +12,8 @@ import java.util.TreeMap;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.router.QueryParameters;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import app.owlcms.access.TokenAccessible;
 import com.vaadin.flow.router.Route;
 
@@ -25,7 +25,7 @@ import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@RequiresPermission({ Permission.DISPLAYS, Permission.STREAMING })
+@RequiresAccess({ Access.DISPLAYS, Access.STREAMING })
 @TokenAccessible
 @Route("displays/rankings")
 

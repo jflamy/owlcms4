@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -126,18 +125,59 @@ public final class UserAccountRepository {
 	 */
 	public static void replaceAll(EntityManager em, List<UserAccount> accounts) {
 		accountsByUsername(accounts);
+		List<UserAccount> retained = new ArrayList<>();
 		for (UserAccount account : accounts) {
 			dropUnknownRoles(account);
+			if (stripObsoleteGrants(account) && account.getGrants().isEmpty()) {
+				logger.info("account not imported: it held only a role that no longer exists username={}",
+				        account.getUsername());
+				continue;
+			}
+			retained.add(account);
 		}
 		List<UserAccount> existing = em.createQuery("select a from UserAccount a", UserAccount.class).getResultList();
 		for (UserAccount account : existing) {
 			em.remove(account);
 		}
 		em.flush();
-		for (UserAccount account : accounts) {
+		for (UserAccount account : retained) {
 			em.merge(account);
 		}
 		invalidate();
+	}
+
+	/**
+	 * Removes the grants of roles retired from this version, in a database or an import from an older one. An
+	 * account left with no grant is deleted.
+	 */
+	public static void removeObsoleteRoles(AuditOrigin origin) {
+		List<Change> changes = JPAService.runInTransaction(em -> {
+			List<Change> result = new ArrayList<>();
+			List<UserAccount> all = em.createQuery("select a from UserAccount a", UserAccount.class).getResultList();
+			for (UserAccount account : all) {
+				UserAccount before = account.copy();
+				if (!stripObsoleteGrants(account)) {
+					continue;
+				}
+				if (account.getGrants().isEmpty()) {
+					em.remove(account);
+					result.add(new Change(before, null));
+					logger.info("account deleted: it held only a role that no longer exists username={}",
+					        account.getUsername());
+				} else {
+					result.add(new Change(before, account.copy()));
+				}
+			}
+			return result;
+		});
+		invalidate();
+		audit(origin, changes);
+	}
+
+	/** @return true when a grant of a retired role was removed */
+	static boolean stripObsoleteGrants(UserAccount account) {
+		return account.getGrants() != null && account.getGrants()
+		        .removeIf(grant -> grant != null && grant.getRole() != null && grant.getRole().isObsolete());
 	}
 
 	/** An export from a newer version may grant a role this version does not know: that grant gives nothing here. */
@@ -215,14 +255,14 @@ public final class UserAccountRepository {
 
 	private static List<ExpectedAccount> expectedAccounts(List<String> platforms) {
 		List<ExpectedAccount> expected = new ArrayList<>();
-		for (Role role : Role.values()) {
+		for (Role role : Role.grantableRoles()) {
 			// the rules-defined Competition Director often does not use the system; grant it by hand when needed
 			if (role == Role.COMPETITION_DIRECTOR) {
 				continue;
 			}
 			List<String> scopes = role.isPlatformScopable() ? platforms : Collections.singletonList(null);
 			for (String platform : scopes) {
-				String username = role.name().toLowerCase(Locale.ROOT)
+				String username = role.genericAccountName()
 				        + (platform == null || platforms.size() == 1 ? "" : "-" + platform);
 				expected.add(new ExpectedAccount(new RoleGrant(role, platform), username));
 			}

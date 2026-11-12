@@ -280,6 +280,18 @@ public class LiftingSessionStatusTest {
 	}
 
 	@Test
+	public void withoutTheCardPermissionNoCardTabIsOffered() {
+		startClock(this.gA);
+		Athlete stored = AthleteRepository.findAllByGroupAndWeighIn(this.gA, true).getFirst();
+		assertEquals(new RegistrationTabPolicy.Layout(true, false, RegistrationTabPolicy.Tab.INFORMATION),
+		        RegistrationTabPolicy.choose(CardEntry.CARD_FIRST, stored, false));
+		assertEquals(new RegistrationTabPolicy.Layout(true, false, RegistrationTabPolicy.Tab.INFORMATION),
+		        RegistrationTabPolicy.choose(CardEntry.AVAILABLE, stored, false));
+		assertEquals(new RegistrationTabPolicy.Layout(true, true, RegistrationTabPolicy.Tab.CARD),
+		        RegistrationTabPolicy.choose(CardEntry.CARD_FIRST, stored, true));
+	}
+
+	@Test
 	public void tabPolicyOpensOnTheCardWhenAnAttemptIsCompleted() {
 		for (String result : List.of("60", "-60")) {
 			select(null);

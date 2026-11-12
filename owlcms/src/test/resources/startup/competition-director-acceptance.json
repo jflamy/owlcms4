@@ -166,19 +166,6 @@
     "enabled" : true,
     "generic" : true,
     "grants" : [ {
-      "platformName" : "A",
-      "role" : "PLATFORM"
-    } ],
-    "id" : 1880758627955644229,
-    "mustChangePassword" : false,
-    "passwordHash" : null,
-    "tokens" : [ ],
-    "username" : "platform"
-  }, {
-    "builtInAdmin" : false,
-    "enabled" : true,
-    "generic" : true,
-    "grants" : [ {
       "platformName" : null,
       "role" : "PREPARATION"
     } ],

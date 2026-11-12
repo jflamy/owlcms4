@@ -49,8 +49,8 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
@@ -89,7 +89,7 @@ import ch.qos.logback.classic.Logger;
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
-@RequiresPermission(Permission.REGISTRATION)
+@RequiresAccess(Access.REGISTRATION)
 @Route(value = "preparation/teams", layout = OwlcmsLayout.class)
 public class TeamSelectionContent extends BaseContent
 		implements OwlcmsContent, IAthleteEditing {

@@ -33,7 +33,7 @@ public final class ExportAudit {
 				.detail(failureDetail(format, channel, error)).build());
 	}
 
-	/** The session that clicked has no RESULTS permission. */
+	/** The session that clicked has no EXPORT_DATA permission (RESULTS access). */
 	public static final String REASON_NO_PERMISSION = "no-results-permission";
 	/** The format is not available in the current configuration (V1 with the noV1Export feature switch). */
 	public static final String REASON_UNAVAILABLE = "unavailable";

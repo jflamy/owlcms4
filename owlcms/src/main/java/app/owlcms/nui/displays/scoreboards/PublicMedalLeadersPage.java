@@ -8,8 +8,8 @@ package app.owlcms.nui.displays.scoreboards;
 
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import app.owlcms.access.TokenAccessible;
 import app.owlcms.displays.scoreboard.ResultsMedals;
 
@@ -17,7 +17,7 @@ import app.owlcms.displays.scoreboard.ResultsMedals;
  * Public-styled prospective medalists, including categories that are not finished.
  */
 @SuppressWarnings("serial")
-@RequiresPermission(value = { Permission.DISPLAYS, Permission.STREAMING }, platformBound = true)
+@RequiresAccess(value = { Access.DISPLAYS, Access.STREAMING }, platformBound = true)
 @TokenAccessible
 @Route("displays/publicMedalLeaders")
 

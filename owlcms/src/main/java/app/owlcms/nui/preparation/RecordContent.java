@@ -54,8 +54,8 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteConfiguration;
 
@@ -82,7 +82,7 @@ import ch.qos.logback.classic.Logger;
  * Defines the toolbar and the table for editing record events.
  */
 @SuppressWarnings("serial")
-@RequiresPermission({ Permission.PREPARATION, Permission.RESULTS })
+@RequiresAccess({ Access.PREPARATION, Access.RESULTS })
 @Route(value = "preparation/records", layout = OwlcmsLayout.class)
 public class RecordContent extends BaseContent implements CrudListener<RecordEvent>, OwlcmsContent {
 

@@ -21,7 +21,7 @@ public class RoleAccountInitializationTest {
 	public void createsAllGrantableRolesWithTheCorrectPlatformScope() {
 		List<UserAccount> accounts = UserAccountRepository.missingRoleAccounts(List.of(), List.of("A", "B"));
 		assertEquals(24, accounts.size());
-		for (Role role : Role.values()) {
+		for (Role role : Role.grantableRoles()) {
 			if (role == Role.COMPETITION_DIRECTOR) {
 				assertFalse(role.name(), accounts.stream().anyMatch(a -> a.getGrants().stream()
 				        .anyMatch(g -> g.getRole() == role)));
@@ -38,8 +38,11 @@ public class RoleAccountInitializationTest {
 		assertTrue(accounts.stream().allMatch(UserAccount::isPasswordChangeRequired));
 		assertTrue(accounts.stream().allMatch(UserAccount::isGeneric));
 		assertTrue(accounts.stream().anyMatch(a -> a.getUsername().equals("announcer-A")));
-		assertTrue(accounts.stream().anyMatch(a -> a.getUsername().equals("platform-B")));
-		assertTrue(accounts.stream().anyMatch(a -> a.getUsername().equals("competition_supervisor")));
+		assertTrue(accounts.stream().anyMatch(a -> a.getUsername().equals("speaker-B")));
+		assertTrue(accounts.stream().noneMatch(a -> a.getUsername().startsWith("platform")));
+		assertTrue(accounts.stream().anyMatch(a -> a.getUsername().equals("marshal-B")));
+		assertTrue(accounts.stream().anyMatch(a -> a.getUsername().equals("supervisor")));
+		assertTrue(accounts.stream().noneMatch(a -> a.getUsername().equals("competition_supervisor")));
 		assertTrue(accounts.stream().anyMatch(a -> a.getUsername().equals("streaming")));
 	}
 

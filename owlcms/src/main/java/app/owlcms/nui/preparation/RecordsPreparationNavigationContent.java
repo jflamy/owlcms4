@@ -27,9 +27,9 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import app.owlcms.access.AccessUi;
-import app.owlcms.access.Capability;
 import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
@@ -49,7 +49,7 @@ import ch.qos.logback.classic.Logger;
  * Only exposes Language and System Settings plus Export/Import Database.
  */
 @SuppressWarnings("serial")
-@RequiresPermission(Permission.PREPARATION)
+@RequiresAccess(Access.PREPARATION)
 @Route(value = "recordsPreparation", layout = OwlcmsLayout.class)
 public class RecordsPreparationNavigationContent extends BaseNavigationContent
 	implements NavigationPage, HasDynamicTitle {
@@ -87,11 +87,11 @@ public class RecordsPreparationNavigationContent extends BaseNavigationContent
 			exportJsonV2Div.setWidthFull();
 		}
 
-		if (!AccessUi.hasCapability(Capability.EXPORT_V1, null)) {
+		if (!AccessUi.hasPermission(Permission.EXPORT_V1, null)) {
 			// withdrawn by the noV1Export feature switch: V1 exports are never signed
 			DownloadButtonFactory.hide(exportJsonDiv);
 		}
-		if (!AccessUi.hasCapability(Capability.EXPORT_DATA, null)) {
+		if (!AccessUi.hasPermission(Permission.EXPORT_DATA, null)) {
 			DownloadButtonFactory.hide(exportJsonDiv);
 			DownloadButtonFactory.hide(exportJsonV2Div);
 		}

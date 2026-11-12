@@ -66,7 +66,7 @@ public class FormatDetector {
 	 * Imports an uploaded export (JSON, or a ZIP containing one) and audits it once it has replaced the competition:
 	 * source name, size and SHA-256 of the JSON bytes, who imported it and from where.
 	 *
-	 * @param principal who imports, captured where the import was started: needs the IMPORT permission
+	 * @param principal who imports, captured where the import was started: needs the IMPORT_DATA permission
 	 * @param origin    captured where the import was started
 	 */
 	public static void importData(byte[] uploaded, String source, Principal principal, AuditOrigin origin)

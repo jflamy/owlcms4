@@ -17,7 +17,7 @@ import java.sql.Statement;
 import org.hibernate.Session;
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.access.Capability;
+import app.owlcms.access.Permission;
 import app.owlcms.access.ServletTokenGuard;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
@@ -62,7 +62,7 @@ public class H2BackupServlet extends HttpServlet {
 	        throws ServletException, IOException {
 		// For HEAD, just check access and database type
 		String host = ProxyUtils.getClientIp(request);
-		if (ServletTokenGuard.authorize(request, response, host, Capability.EXPORT_DATA, "H2 backup") == null) {
+		if (ServletTokenGuard.authorize(request, response, host, Permission.EXPORT_DATA, "H2 backup") == null) {
 			return;
 		}
 
@@ -89,7 +89,7 @@ public class H2BackupServlet extends HttpServlet {
 		
 		// PIN mode: local network or backdoor; accounts mode: a token whose owner holds RESULTS, as for exports
 		String host = ProxyUtils.getClientIp(request);
-		if (ServletTokenGuard.authorize(request, response, host, Capability.EXPORT_DATA, "H2 backup") == null) {
+		if (ServletTokenGuard.authorize(request, response, host, Permission.EXPORT_DATA, "H2 backup") == null) {
 			response.flushBuffer();
 			return;
 		}

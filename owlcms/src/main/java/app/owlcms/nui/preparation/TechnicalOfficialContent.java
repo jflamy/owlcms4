@@ -36,8 +36,8 @@ import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import app.owlcms.access.AccessUi;
 import app.owlcms.apputils.NotificationUtils;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteConfiguration;
 
@@ -65,7 +65,7 @@ import ch.qos.logback.classic.Logger;
  * Defines the toolbar and the table for editing data on technical officials.
  */
 @SuppressWarnings("serial")
-@RequiresPermission(Permission.PREPARATION)
+@RequiresAccess(Access.PREPARATION)
 @Route(value = "preparation/officials", layout = OwlcmsLayout.class)
 public class TechnicalOfficialContent extends BaseContent implements CrudListener<TechnicalOfficial>, OwlcmsContent {
 

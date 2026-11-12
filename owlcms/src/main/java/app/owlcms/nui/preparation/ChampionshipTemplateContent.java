@@ -18,8 +18,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.i18n.Translator;
@@ -31,7 +31,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
  * rules used by championships that do not override them.
  */
 @SuppressWarnings("serial")
-@RequiresPermission(Permission.PREPARATION)
+@RequiresAccess(Access.PREPARATION)
 @Route(value = "preparation/championshipTemplate", layout = OwlcmsLayout.class)
 public class ChampionshipTemplateContent extends BaseContent implements OwlcmsContent {
 	private OwlcmsLayout routerLayout;

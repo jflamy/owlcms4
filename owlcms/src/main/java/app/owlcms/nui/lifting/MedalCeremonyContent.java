@@ -33,8 +33,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.router.HasDynamicTitle;
-import app.owlcms.access.Permission;
-import app.owlcms.access.RequiresPermission;
+import app.owlcms.access.Access;
+import app.owlcms.access.RequiresAccess;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataProvider.HierarchyFormat;
@@ -65,7 +65,7 @@ import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 
 @SuppressWarnings("serial")
-@RequiresPermission(value = { Permission.ANNOUNCER, Permission.TIMEKEEPER }, platformBound = true)
+@RequiresAccess(value = { Access.ANNOUNCER, Access.TIMEKEEPER }, platformBound = true)
 @Route(value = "lifting/medalCeremony", layout = OwlcmsLayout.class)
 public class MedalCeremonyContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 	private static final int MEDAL_DISPLAY_HEIGHT = 670;

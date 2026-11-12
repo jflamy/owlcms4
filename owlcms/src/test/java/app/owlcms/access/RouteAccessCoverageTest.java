@@ -48,13 +48,13 @@ public class RouteAccessCoverageTest {
 			routes++;
 			int declared = (pageClass.isAnnotationPresent(PublicPage.class) ? 1 : 0)
 			        + (pageClass.isAnnotationPresent(AuthenticatedPage.class) ? 1 : 0)
-			        + (pageClass.isAnnotationPresent(RequiresPermission.class) ? 1 : 0);
+			        + (pageClass.isAnnotationPresent(RequiresAccess.class) ? 1 : 0);
 			if (declared != 1) {
 				problems.add(pageClass.getName() + " declares " + declared + " access annotations");
 			}
 			PageRule rule = PageRule.of(pageClass);
 			matrix.add(String.format("%-70s %-13s %-5s %s", pageClass.getSimpleName(), rule.kind(),
-			        rule.platformBound() ? "bound" : "", rule.permissions()));
+			        rule.platformBound() ? "bound" : "", rule.accesses()));
 		}
 		matrix.sort(null);
 		System.out.println("ROUTE ACCESS MATRIX (" + routes + " routes)");
@@ -73,10 +73,10 @@ public class RouteAccessCoverageTest {
 			if (rule.kind() == PageRule.Kind.NONE) {
 				continue;
 			}
-			if (rule.kind() == PageRule.Kind.PERMISSIONS && !AccessPolicy.canOpen(officials, rule, "A")) {
+			if (rule.kind() == PageRule.Kind.ACCESS && !AccessPolicy.canOpen(officials, rule, "A")) {
 				problems.add("officials cannot open " + pageClass.getSimpleName());
 			}
-			boolean expected = rule.kind() != PageRule.Kind.PERMISSIONS || rule.isDisplayPage();
+			boolean expected = rule.kind() != PageRule.Kind.ACCESS || rule.isDisplayPage();
 			boolean actual = AccessPolicy.canOpen(displays, rule, "A");
 			if (rule.kind() != PageRule.Kind.AUTHENTICATED && expected != actual) {
 				problems.add("display principal: " + pageClass.getSimpleName() + " expected " + expected);
@@ -92,21 +92,21 @@ public class RouteAccessCoverageTest {
 		List<String> problems = new ArrayList<>();
 		for (Class<?> pageClass : routeClasses()) {
 			PageRule rule = PageRule.of(pageClass);
-			if (rule.kind() != PageRule.Kind.PERMISSIONS) {
+			if (rule.kind() != PageRule.Kind.ACCESS) {
 				continue;
 			}
-			boolean displays = rule.permissions().contains(Permission.DISPLAYS);
-			boolean streaming = rule.permissions().contains(Permission.STREAMING);
+			boolean displays = rule.accesses().contains(Access.DISPLAYS);
+			boolean streaming = rule.accesses().contains(Access.STREAMING);
 			boolean expectedStreaming = displays && !venueOnly.contains(pageClass);
 			if (streaming != expectedStreaming) {
 				problems.add(pageClass.getSimpleName() + " displays=" + displays + " streaming=" + streaming);
 			}		}
 		assertEquals(problems.toString(), 0, problems.size());
 		for (Class<?> venuePage : venueOnly) {
-			assertTrue(venuePage.getSimpleName(), PageRule.of(venuePage).permissions().contains(Permission.DISPLAYS));
-			assertFalse(venuePage.getSimpleName(), PageRule.of(venuePage).permissions().contains(Permission.STREAMING));
+			assertTrue(venuePage.getSimpleName(), PageRule.of(venuePage).accesses().contains(Access.DISPLAYS));
+			assertFalse(venuePage.getSimpleName(), PageRule.of(venuePage).accesses().contains(Access.STREAMING));
 		}
-		assertTrue(PageRule.of(JuryDecisionsPage.class).permissions().contains(Permission.STREAMING));
+		assertTrue(PageRule.of(JuryDecisionsPage.class).accesses().contains(Access.STREAMING));
 	}
 
 	@Test
@@ -122,8 +122,8 @@ public class RouteAccessCoverageTest {
 			}
 			if (rule.tokenAccessible()) {
 				tokenAccessible++;
-				if (rule.kind() != PageRule.Kind.PERMISSIONS || !rule.permissions().contains(Permission.DISPLAYS)) {
-					problems.add(pageClass.getSimpleName() + " is token accessible without a DISPLAYS permission rule");
+				if (rule.kind() != PageRule.Kind.ACCESS || !rule.accesses().contains(Access.DISPLAYS)) {
+					problems.add(pageClass.getSimpleName() + " is token accessible without a DISPLAYS access rule");
 				}
 			}
 		}
@@ -147,17 +147,26 @@ public class RouteAccessCoverageTest {
 		assertNull(PageRule.of(AnnouncerContent.class).feature());
 		assertNull(PageRule.of(PassiveAnnouncerContent.class).feature());
 		Principal speakerA = new Principal(AuthSource.ACCOUNT, 1L, "speaker",
+		        List.of(new RoleGrant(Role.SPEAKER, "A")), "A");
+		Principal announcerA = new Principal(AuthSource.ACCOUNT, 4L, "announcer",
 		        List.of(new RoleGrant(Role.ANNOUNCER, "A")), "A");
-		for (Class<?> page : List.of(AnnouncerContent.class, PassiveAnnouncerContent.class)) {
-			PageRule rule = PageRule.of(page);
-			assertEquals(Set.of(Permission.ANNOUNCER), rule.permissions());
-			assertTrue(rule.platformBound());
-			assertTrue(AccessPolicy.canOpen(speakerA, rule, "A"));
-			assertFalse(AccessPolicy.canOpen(speakerA, rule, "B"));
-			assertFalse(AccessPolicy.canOpen(Principal.displays(), rule, "A"));
-		}
+		PageRule activeRule = PageRule.of(AnnouncerContent.class);
+		assertEquals(Set.of(Access.ANNOUNCER), activeRule.accesses());
+		assertTrue(activeRule.platformBound());
+		assertFalse("speaker is restricted to passive", AccessPolicy.canOpen(speakerA, activeRule, "A"));
+		assertTrue(AccessPolicy.canOpen(announcerA, activeRule, "A"));
+		assertFalse(AccessPolicy.canOpen(announcerA, activeRule, "B"));
+		assertFalse(AccessPolicy.canOpen(Principal.displays(), activeRule, "A"));
+
+		PageRule passiveRule = PageRule.of(PassiveAnnouncerContent.class);
+		assertEquals(Set.of(Access.SPEAKER, Access.ANNOUNCER), passiveRule.accesses());
+		assertTrue(passiveRule.platformBound());
+		assertTrue(AccessPolicy.canOpen(speakerA, passiveRule, "A"));
+		assertFalse(AccessPolicy.canOpen(speakerA, passiveRule, "B"));
+		assertTrue(AccessPolicy.canOpen(announcerA, passiveRule, "A"));
+		assertFalse(AccessPolicy.canOpen(Principal.displays(), passiveRule, "A"));
 		PageRule directorRule = PageRule.of(CompetitionDirectorContent.class);
-		assertEquals(Set.of(Permission.COMPETITION_SUPERVISOR), directorRule.permissions());
+		assertEquals(Set.of(Access.SUPERVISOR), directorRule.accesses());
 		assertTrue(directorRule.platformBound());
 		assertFalse(AccessPolicy.canOpen(speakerA, directorRule, "A"));
 		Principal supervisor = new Principal(AuthSource.ACCOUNT, 2L, "supervisor",
