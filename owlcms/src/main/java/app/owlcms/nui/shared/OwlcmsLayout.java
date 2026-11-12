@@ -22,6 +22,7 @@ import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -85,6 +86,10 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 	private HorizontalLayout header;
 	private boolean margin;
 	private Tabs drawerTabs;
+	/** Full-height column holding the tabs, a spacer and the logged-in account at the bottom. */
+	private Div drawerContent;
+	private HorizontalLayout accountRow;
+	private Span accountName;
 	private Tab colorSchemeToggle;
 	private Tab logoutEntry;
 	private boolean accountEntryShown;
@@ -292,12 +297,65 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 	}
 
 	private void addDrawerContent() {
-		this.drawerTabs = getTabs();
+		Tabs tabs = getTabs();
 		this.colorSchemeToggle = createColorSchemeToggle();
-		this.drawerTabs.add(this.colorSchemeToggle);
+		tabs.add(this.colorSchemeToggle);
 		this.logoutEntry = createLogoutEntry();
-		this.drawerTabs.add(this.logoutEntry);
-		addToDrawer(this.drawerTabs);
+		tabs.add(this.logoutEntry);
+		installDrawerTabs(tabs);
+	}
+
+	/** Puts the tabs at the top of the drawer, creating the column that also holds the account at the bottom. */
+	private void installDrawerTabs(Tabs tabs) {
+		if (this.drawerTabs != null) {
+			this.drawerTabs.removeFromParent();
+		}
+		if (this.drawerContent == null) {
+			this.drawerContent = createDrawerContent();
+			addToDrawer(this.drawerContent);
+		}
+		this.drawerContent.addComponentAsFirst(tabs);
+		this.drawerTabs = tabs;
+	}
+
+	private Div createDrawerContent() {
+		Icon icon = new Icon(VaadinIcon.USER);
+		icon.getStyle().set("flex-shrink", "0").set("width", "var(--lumo-icon-size-s)")
+		        .set("height", "var(--lumo-icon-size-s)");
+		this.accountName = new Span();
+		this.accountName.getStyle().set("overflow", "hidden").set("text-overflow", "ellipsis")
+		        .set("white-space", "nowrap");
+		this.accountRow = new HorizontalLayout(icon, this.accountName);
+		this.accountRow.setAlignItems(Alignment.CENTER);
+		this.accountRow.setSpacing(true);
+		this.accountRow.getStyle().set("padding", "var(--lumo-space-m)").set("box-sizing", "border-box")
+		        .set("color", "var(--lumo-secondary-text-color)").set("font-size", "var(--lumo-font-size-s)");
+		this.accountRow.setWidthFull();
+		this.accountRow.setVisible(false);
+
+		Div spacer = new Div();
+		spacer.getStyle().set("flex-grow", "1");
+
+		Div content = new Div(spacer, this.accountRow);
+		content.getStyle().set("display", "flex").set("flex-direction", "column").set("height", "100%")
+		        .set("box-sizing", "border-box");
+		return content;
+	}
+
+	/** In accounts mode, shows who is logged in at the bottom of the drawer. */
+	private void updateAccountName() {
+		if (this.accountRow == null) {
+			return;
+		}
+		Principal principal = OwlcmsSession.getPrincipal();
+		boolean shown = Config.getCurrent().isAccountsMode() && principal != null
+		        && principal.source() == Principal.AuthSource.ACCOUNT;
+		this.accountRow.setVisible(shown);
+		if (shown) {
+			String platform = principal.loginPlatform() != null ? " (" + principal.loginPlatform() + ")" : "";
+			this.accountName.setText(principal.username() + platform);
+			this.accountRow.getElement().setAttribute("title", principal.username() + platform);
+		}
 	}
 
 	/** Account sessions, and PIN sessions that entered a PIN, can log out. */
@@ -552,21 +610,21 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 		                || accountEntryWasShown != this.accountEntryShown
 		                || passwordChangeMenuWasShown != this.passwordChangeMenu)) {
 			this.drawerTabs.removeFromParent();
-			this.drawerTabs = newTabs;
 			// keep the color scheme entry at the bottom of the drawer. It is normally created
 			// with the drawer, but an instance that predates a class redefinition will not have
 			// one, so create it on demand.
 			if (this.colorSchemeToggle == null) {
 				this.colorSchemeToggle = createColorSchemeToggle();
 			}
-			this.drawerTabs.add(this.colorSchemeToggle);
+			newTabs.add(this.colorSchemeToggle);
 			if (this.logoutEntry == null) {
 				this.logoutEntry = createLogoutEntry();
 			}
-			this.drawerTabs.add(this.logoutEntry);
-			addToDrawer(this.drawerTabs);
+			newTabs.add(this.logoutEntry);
+			installDrawerTabs(newTabs);
 		}
 		updateLogoutEntry();
+		updateAccountName();
 		// select the tab matching the current content's route
 		if (this.drawerTabs != null && getContent() != null) {
 			Route route = getContent().getClass().getAnnotation(Route.class);

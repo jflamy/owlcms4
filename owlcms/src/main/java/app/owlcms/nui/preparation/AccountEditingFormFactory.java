@@ -140,6 +140,8 @@ class AccountEditingFormFactory extends OwlcmsCrudFormFactory<UserAccount> {
 	private FormLayout accountLayout(UserAccount account) {
 		FormLayout layout = new FormLayout();
 		layout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		// wide enough for the role descriptions in the grants rows; without a width the dialog fills the window
+		layout.setWidth("54em");
 
 		TextField usernameField = new TextField(Translator.translate("Access.Username"));
 		usernameField.setReadOnly(account.isBuiltInAdmin());
