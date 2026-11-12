@@ -11,6 +11,10 @@
 
 **Development log**
 
+- 69.0.0-beta09: When using a scoring system, team results tree was incorrectly adding athletes without a total in the team score
+  - Now a selectable behavior: Including the athletes that have no snatch but a CJ or vice-versa is now a checkbox per championship
+  - Fixed issue with grid not reloading on rank recalculationß
+
 - 69.0.0-beta08: OBS status monitor changes
   - Each status monitor follows the platform named in its address (`fop=`). The Status Monitor button on the Video Streaming page opens the monitor for the platform selected on that page.
   - With several platforms, a monitor address without `fop=`, or naming a platform that does not exist, shows a message listing the platform names. Add `fop=` to existing OBS browser sources and bookmarks. Nothing changes with a single platform.

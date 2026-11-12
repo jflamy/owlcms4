@@ -485,6 +485,18 @@ public class Championship implements Comparable<Championship>, Serializable {
 	@Column(columnDefinition = "boolean default false")
 	private boolean mixedTeamEnabled = false;
 
+	/**
+	 * Sum of scores only. When false, athletes who lifted without making a total contribute a 0 score to men's and
+	 * women's team scores, as in individual rankings. When true, their score is computed from their best snatch and
+	 * best clean and jerk.
+	 */
+	@Column(columnDefinition = "boolean default false")
+	private boolean teamScoresWithoutTotal = false;
+
+	/** Same as {@link #teamScoresWithoutTotal}, for mixed teams. */
+	@Column(columnDefinition = "boolean default false")
+	private boolean mixedTeamScoresWithoutTotal = false;
+
 	@Column(columnDefinition = "boolean default false")
 	private boolean competitionTemplate = false;
 
@@ -1020,6 +1032,10 @@ public class Championship implements Comparable<Championship>, Serializable {
 		addDifference(differences, "genderedTeamsEnabled", this.genderedTeamsEnabled,
 		        competitionDefaults.isGenderedTeamsEnabled());
 		addDifference(differences, "mixedTeamEnabled", this.mixedTeamEnabled, competitionDefaults.isMixedTeamEnabled());
+		addDifference(differences, "teamScoresWithoutTotal", this.teamScoresWithoutTotal,
+		        competitionDefaults.isTeamScoresWithoutTotal());
+		addDifference(differences, "mixedTeamScoresWithoutTotal", this.mixedTeamScoresWithoutTotal,
+		        competitionDefaults.isMixedTeamScoresWithoutTotal());
 		addDifference(differences, "teamScoringSystem", this.teamScoringSystem, competitionDefaults.getTeamScoringSystem());
 		addDifference(differences, "mixedTeamScoringSystem", this.mixedTeamScoringSystem,
 		        competitionDefaults.getMixedTeamScoringSystem());
@@ -1080,6 +1096,8 @@ public class Championship implements Comparable<Championship>, Serializable {
 		this.explicitMixedTeamMembers = template.isExplicitMixedTeamMembers();
 		this.genderedTeamsEnabled = template.isGenderedTeamsEnabled();
 		this.mixedTeamEnabled = template.isMixedTeamEnabled();
+		this.teamScoresWithoutTotal = template.isTeamScoresWithoutTotal();
+		this.mixedTeamScoresWithoutTotal = template.isMixedTeamScoresWithoutTotal();
 		this.teamScoringSystem = template.getTeamScoringSystem();
 		this.mixedTeamScoringSystem = template.getMixedTeamScoringSystem();
 	}
@@ -1129,6 +1147,31 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	public void setMixedTeamEnabled(boolean mixedTeamEnabled) {
 		this.mixedTeamEnabled = mixedTeamEnabled;
+	}
+
+	public boolean isTeamScoresWithoutTotal() {
+		return this.teamScoresWithoutTotal;
+	}
+
+	public void setTeamScoresWithoutTotal(boolean teamScoresWithoutTotal) {
+		this.teamScoresWithoutTotal = teamScoresWithoutTotal;
+	}
+
+	public boolean isMixedTeamScoresWithoutTotal() {
+		return this.mixedTeamScoresWithoutTotal;
+	}
+
+	public void setMixedTeamScoresWithoutTotal(boolean mixedTeamScoresWithoutTotal) {
+		this.mixedTeamScoresWithoutTotal = mixedTeamScoresWithoutTotal;
+	}
+
+	/**
+	 * @param gender MF for mixed teams, otherwise men's and women's teams
+	 * @return whether athletes without a total get a score computed from their best lifts in sum-of-scores teams
+	 */
+	@JsonIgnore
+	public boolean isTeamScoresWithoutTotal(Gender gender) {
+		return gender == Gender.MF ? isMixedTeamScoresWithoutTotal() : isTeamScoresWithoutTotal();
 	}
 
 	public void setMensBestN(Integer mensBestN) {
@@ -1222,6 +1265,8 @@ public class Championship implements Comparable<Championship>, Serializable {
 		this.explicitMixedTeamMembers = false;
 		this.genderedTeamsEnabled = true;
 		this.mixedTeamEnabled = false;
+		this.teamScoresWithoutTotal = false;
+		this.mixedTeamScoresWithoutTotal = false;
 		this.teamScoringSystem = null;
 		this.mixedTeamScoringSystem = null;
 	}

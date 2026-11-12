@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -65,6 +66,7 @@ public class TeamTreeItem {
 	private boolean warning;
 	private Ranking scoringSystem;
 	private boolean countedForTeam;
+	private boolean scoresWithoutTotal;
 
 	public TeamTreeItem(String curTeamName, Gender gender, Athlete teamMember, boolean done) {
 		this(curTeamName, gender, teamMember, done, Championship.of(null));
@@ -117,9 +119,9 @@ public class TeamTreeItem {
 
 	public String formatProgress() {
 		if (this.athlete != null) {
-			return isDone() ? Translator.translate("Done") : "";
+			return isLiftingDone() ? Translator.translate("Done") : "";
 		} else {
-			return getTeam().getCounted() + "/" + getTeam().getSize();
+			return getTeam().getCounted() + "/" + getMemberCount();
 		}
 	}
 
@@ -202,7 +204,54 @@ public class TeamTreeItem {
 	}
 
 	public Double getScore() {
-		return (this.team != null ? this.team.getScore() : Ranking.getRankingValue(this.athlete, this.scoringSystem));
+		if (this.team != null) {
+			return this.team.getScore();
+		}
+		if (this.scoringSystem == null) {
+			return 0D;
+		}
+		switch (this.scoringSystem) {
+			case BW_SINCLAIR:
+				return getSinclairScore();
+			case CAT_SINCLAIR:
+				return getCatSinclairMetric();
+			case CAT_QPOINTS:
+				return getCatQPointsMetric();
+			case CAT_GAMX:
+				return getCatGamxScore();
+			case QPOINTS:
+				return getQPointsScore();
+			case QAGE:
+				return getQMastersScore();
+			case SMM:
+				return getSmfScore();
+			case GAMX:
+				return getGamxScore();
+			default:
+				return Ranking.getRankingValue(this.athlete, this.scoringSystem);
+		}
+	}
+
+	/**
+	 * @param scoresWithoutTotal true if an athlete without a total keeps the score computed from their best snatch
+	 *                           and best clean and jerk; false if that score is 0
+	 */
+	public void setScoresWithoutTotal(boolean scoresWithoutTotal) {
+		this.scoresWithoutTotal = scoresWithoutTotal;
+	}
+
+	private Double memberScore(Supplier<Double> bestLiftsScore) {
+		if (!this.scoresWithoutTotal && hasNoTotal()) {
+			return 0.0D;
+		}
+		Double value = bestLiftsScore.get();
+		return value != null ? value : 0.0D;
+	}
+
+	private boolean hasNoTotal() {
+		Integer total = this.athlete.getTotal();
+		boolean finished = isDone() || this.athlete.isDone();
+		return finished && (total == null || total <= 0);
 	}
 
 	public void setScoringSystem(Ranking scoringSystem) {
@@ -213,31 +262,33 @@ public class TeamTreeItem {
 	}
 
 	public Double getSinclairScore() {
-		return (this.team != null ? this.team.getSinclairScore() : this.athlete.getSinclairForDelta());
+		return (this.team != null ? this.team.getSinclairScore() : memberScore(this.athlete::getSinclairForDelta));
 	}
-	
+
 	public Double getQPointsScore() {
-		return (this.team != null ? this.team.getQPoints() : this.athlete.getQPointsForDelta());
+		return (this.team != null ? this.team.getQPoints() : memberScore(this.athlete::getQPointsForDelta));
 	}
-	
+
 	public Double getQMastersScore() {
-		return (this.team != null ? this.team.getQMasters() : this.athlete.getQMastersForDelta());
+		return (this.team != null ? this.team.getQMasters() : memberScore(this.athlete::getQMastersForDelta));
 	}
 
 	public Double getCatGamxScore() {
-		return (this.team != null ? this.team.getCatGamxScore() : this.athlete.getCategoryGAMXForDelta());
+		return (this.team != null ? this.team.getCatGamxScore() : memberScore(this.athlete::getCategoryGAMXForDelta));
 	}
 
 	public Double getCatQPointsMetric() {
-		return (this.team != null ? this.team.getCatQPointsScore() : this.athlete.getCategoryQPointsForDelta());
+		return (this.team != null ? this.team.getCatQPointsScore()
+		        : memberScore(this.athlete::getCategoryQPointsForDelta));
 	}
 
 	public Double getCatSinclairMetric() {
-		return (this.team != null ? this.team.getCatSinclairScore() : this.athlete.getCategorySinclairForDelta());
+		return (this.team != null ? this.team.getCatSinclairScore()
+		        : memberScore(this.athlete::getCategorySinclairForDelta));
 	}
 
 	public Double getGamxScore() {
-		return (this.team != null ? this.team.getGamx() : this.athlete.getGamx());
+		return (this.team != null ? this.team.getGamx() : memberScore(this.athlete::getGamxForDelta));
 	}
 
 	public int getRawCombinedPoints() {
@@ -266,12 +317,19 @@ public class TeamTreeItem {
 
 
 
+	/**
+	 * @return the number of team members who lifted (denominator of the counted/lifted status)
+	 */
+	public int getMemberCount() {
+		return getLiftedTeamMembers().size();
+	}
+
 	public long getSize() {
 		return this.team != null ? this.team.getSize() : 0;
 	}
 
 	public Double getSmfScore() {
-		return (this.team != null ? this.team.getSmfScore() : this.athlete.getSmhfForDelta());
+		return (this.team != null ? this.team.getSmfScore() : memberScore(this.athlete::getSmhfForDelta));
 	}
 
 	public Integer getSnatchPoints() {
@@ -304,6 +362,23 @@ public class TeamTreeItem {
 		        .collect(Collectors.toList());
 	}
 
+	/**
+	 * Team members who lifted (took at least one attempt), whether or not they made a total or have a zero score or
+	 * points. Counted members come first, then by decreasing points or score, missing values last.
+	 */
+	public List<TeamTreeItem> getLiftedTeamMembers() {
+		Comparator<TeamTreeItem> byValue = (this.scoringSystem == Ranking.TOTAL
+		        || this.scoringSystem == Ranking.SNATCH_CJ_TOTAL)
+		                ? Comparator.comparing(TeamTreeItem::getPoints,
+		                        Comparator.nullsLast(Comparator.<Integer>reverseOrder()))
+		                : Comparator.comparing(TeamTreeItem::getScore,
+		                        Comparator.nullsLast(Comparator.<Double>reverseOrder()));
+		return getTeamMembers().stream()
+		        .filter(TeamTreeItem::isLifted)
+		        .sorted(Comparator.comparing(TeamTreeItem::isCountedForTeam).reversed().thenComparing(byValue))
+		        .collect(Collectors.toList());
+	}
+
 	public Team getTeam() {
 		return this.team;
 	}
@@ -321,6 +396,20 @@ public class TeamTreeItem {
 
 	public boolean isDone() {
 		return this.done;
+	}
+
+	/**
+	 * @return true if the athlete has taken at least one attempt (misses and declared zeros included)
+	 */
+	public boolean isLifted() {
+		return this.athlete != null && this.athlete.getAttemptsDone() > 0;
+	}
+
+	/**
+	 * @return true if the athlete has taken all six attempts (misses and declared zeros included)
+	 */
+	public boolean isLiftingDone() {
+		return this.athlete != null && this.athlete.getAttemptsDone() > 5;
 	}
 
 	public Integer getTotalPoints() {

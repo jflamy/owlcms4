@@ -147,7 +147,9 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 		        "mixedMensBestN",
 		        "mixedWomensBestN",
 		        "teamPointsPolicy",
-		        "medalPolicy"
+		        "medalPolicy",
+		        "teamScoresWithoutTotal",
+		        "mixedTeamScoresWithoutTotal"
 		};
 		Row header = sheet.createRow(0);
 		for (int i = 0; i < headers.length; i++) {
@@ -182,6 +184,8 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 			setIntegerCell(row, 21, championship.getMixedWomensBestN());
 			row.createCell(22).setCellValue(championship.getTeamPointsPolicy().name());
 			row.createCell(23).setCellValue(championship.getMedalPolicy().name());
+			row.createCell(24).setCellValue(championship.isTeamScoresWithoutTotal());
+			row.createCell(25).setCellValue(championship.isMixedTeamScoresWithoutTotal());
 		}
 	}
 
@@ -335,7 +339,9 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 		        && Objects.equals(championship.getExplicitTeamSize(), template.getExplicitTeamSize())
 		        && Objects.equals(championship.getMixedBestN(), template.getMixedBestN())
 		        && Objects.equals(championship.getMixedMensBestN(), template.getMixedMensBestN())
-		        && Objects.equals(championship.getMixedWomensBestN(), template.getMixedWomensBestN());
+		        && Objects.equals(championship.getMixedWomensBestN(), template.getMixedWomensBestN())
+		        && championship.isTeamScoresWithoutTotal() == template.isTeamScoresWithoutTotal()
+		        && championship.isMixedTeamScoresWithoutTotal() == template.isMixedTeamScoresWithoutTotal();
 	}
 
 	private static final int LEGACY_UNBOUNDED_TEAM_SIZE = 50;

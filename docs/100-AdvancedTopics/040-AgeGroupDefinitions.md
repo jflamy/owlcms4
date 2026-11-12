@@ -71,10 +71,12 @@ The radio button choices in the interactive dialog are represented by the presen
 | `mensBestN` | Number of men's results counted for team scoring. |
 | `womensBestN` | Number of women's results counted for team scoring. |
 | `teamScoringSystem` | Scoring method used for team results. |
+| `teamScoresWithoutTotal` | Sum-of-scores men's and women's teams only. If `true`, an athlete who lifted without making a total contributes the score computed from their best snatch and best clean and jerk. If `false` or absent (the default), that athlete contributes 0. |
 | `maxTeamSize` | Maximum number of athletes on a team. |
 | `maxPerCategory` | Maximum number of team athletes counted per bodyweight category. |
 | `mixedTeamEnabled` | If `true`, mixed team scoring is enabled for this championship. |
 | `mixedTeamScoringSystem` | Scoring method used for mixed team results. |
+| `mixedTeamScoresWithoutTotal` | Same as `teamScoresWithoutTotal`, for sum-of-scores mixed teams. |
 | `explicitMixedTeamMembers` | If `true`, mixed team members are selected explicitly. |
 | `explicitTeamSize` | Number of athletes required when team membership is explicit. |
 | `mixedBestN` | Number of overall mixed team results counted. If empty or 0, the overall mixed-results mode is not selected; use `mixedMensBestN` and `mixedWomensBestN` instead. |

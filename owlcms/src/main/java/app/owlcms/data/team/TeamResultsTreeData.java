@@ -160,6 +160,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 				if (contributes) {
 					TeamTreeItem member = curTeamItem.addTreeItemChild(a, groupIsDone);
 					member.setScoringSystem(rankingForGender);
+					member.setScoresWithoutTotal(effectiveChampionship.isTeamScoresWithoutTotal(gender));
 					Integer memberPoints = explicitMixedTeamCompetition
 					        ? member.getConfiguredRawPoints()
 					        : member.getConfiguredPoints();
@@ -432,7 +433,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 		for (Gender g : Gender.values()) {
 			List<TeamTreeItem> teams = getTeamItemsByGender().get(g);
 			if (teams != null) {
-				addItems(teams, TeamTreeItem::getCountedTeamMembers);
+				addItems(teams, TeamTreeItem::getLiftedTeamMembers);
 			}
 		}
 	}

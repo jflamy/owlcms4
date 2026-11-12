@@ -336,6 +336,9 @@ public class AgeGroupDefinitionReader {
 			championship.setMixedBestN(getIntegerValue(row, iRow, headerColumns, "mixedbestn"));
 			championship.setMixedMensBestN(getIntegerValue(row, iRow, headerColumns, "mixedmensbestn"));
 			championship.setMixedWomensBestN(getIntegerValue(row, iRow, headerColumns, "mixedwomensbestn"));
+			championship.setTeamScoresWithoutTotal(getBooleanValue(row, headerColumns, "teamscoreswithouttotal", false));
+			championship.setMixedTeamScoresWithoutTotal(
+			        getBooleanValue(row, headerColumns, "mixedteamscoreswithouttotal", false));
 
 			if (championship.getId() == null) {
 				em.persist(championship);

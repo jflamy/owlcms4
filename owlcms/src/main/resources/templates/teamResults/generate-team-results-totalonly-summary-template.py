@@ -57,7 +57,6 @@ for filename, paper_size in VARIANTS:
 
         show_points = prefix + "ShowPoints"
         scoring_title = prefix + "ScoringTitle"
-        team_size = prefix + "TeamSize"
 
         # Row 0 (1 in Excel): title + jx:area
         ws.write(0, 0, "${competition.competitionName}", title_fmt)
@@ -95,7 +94,7 @@ for filename, paper_size in VARIANTS:
                  '${' + show_points + ' && team.totalOnlyPoints != 0 ? team.totalOnlyPoints : ""}',
                  team_right_fmt)
         ws.write(3, 5,
-                 '${team.counted}/${' + team_size + ' != 0 ? ' + team_size + ' : team.size}',
+                 '${team.counted}/${team.memberCount}',
                  team_right_fmt)
         ws.write(3, 6,
                  '${!' + show_points + ' && team.score != 0 ? team.score : ""}',

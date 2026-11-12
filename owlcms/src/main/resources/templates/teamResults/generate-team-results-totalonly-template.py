@@ -18,7 +18,7 @@ list was absent (empty gender group) and hides the unused measure column.
 Beans available (see generate-team-results-template.py for full description):
   mTeamItems / wTeamItems / mwTeamItems - List<TeamTreeItem>
   Each team TeamTreeItem: getName(), getTotalOnlyPoints(), getScore(),
-                          getCounted(), getSize(), getCountedTeamMembers()
+                          getCounted(), getMemberCount(), getLiftedTeamMembers()
   Each member TeamTreeItem: getName(), getCategory(), getTotalOnlyPoints(),
                             getScore(), isDone()
   Also: competition, championship, ageGroupPrefix, gender, t (translations)
@@ -113,7 +113,7 @@ for filename, paper_size in VARIANTS:
         ws.write(2, 4,
                  '${' + showPts + ' && team.totalOnlyPoints != 0 ? team.totalOnlyPoints : ""}',
                  team_right_fmt)
-        ws.write(2, 5, '${team.counted}/' + '${' + prefix + 'TeamSize != 0 ? ' + prefix + 'TeamSize : team.size}', team_right_fmt)
+        ws.write(2, 5, '${team.counted}/${team.memberCount}', team_right_fmt)
         # Score: show only when NOT points-based (score-based section); hide 0
         ws.write(2, 6,
                  '${!' + showPts + ' && team.score != 0 ? team.score : ""}',
@@ -130,7 +130,7 @@ for filename, paper_size in VARIANTS:
 
         # Row 4 (5): inner loop — member row
         ws.write(4, 0, '', data_fmt)
-        ws.write_comment('A5', 'jx:each(items="team.countedTeamMembers" var="member" lastCell="G5")',
+        ws.write_comment('A5', 'jx:each(items="team.liftedTeamMembers" var="member" lastCell="G5")',
                          {'author': 'owlcms', 'width': 400, 'height': 100})
         ws.write(4, 1, '${member.name}', data_fmt)
         ws.write(4, 2, '${member.gender}', data_fmt)
@@ -139,7 +139,7 @@ for filename, paper_size in VARIANTS:
         ws.write(4, 4,
                  '${member.totalOnlyPoints != 0 ? member.totalOnlyPoints : ""}',
                  data_right_fmt)
-        ws.write(4, 5, '${member.done ? t.get("Done") : ""}', data_fmt)
+        ws.write(4, 5, '${member.liftingDone ? t.get("Done") : ""}', data_fmt)
         # Score: always show, hide 0/null
         ws.write(4, 6,
                  '${member.score != null && member.score != 0 ? member.score : ""}',

@@ -31,9 +31,9 @@ Post-processing also hides the unused measure column per tab:
 |-----|-------|---------|--------------|
 | 1   | A     | `${competition.competitionName}` | `jx:area(lastCell="G7")` |
 | 2   | A, D  | Championship name; ageGroupPrefix + gender label | — |
-| 3   | A–G   | Team summary: name, points (conditional), counted/size, score (conditional) | `jx:each(items="XXTeamItems" var="team" lastCell="G7")` |
+| 3   | A–G   | Team summary: name, points (conditional), counted/lifted, score (conditional) | `jx:each(items="XXTeamItems" var="team" lastCell="G7")` |
 | 4   | A–G   | Column headers (#, Name, Category, Points, Done, scoring title) | — |
-| 5   | A–G   | Member row: name, gender, category, points, done, score | `jx:each(items="team.countedTeamMembers" var="member" lastCell="G5")` |
+| 5   | A–G   | Member row: name, gender, category, points, done, score | `jx:each(items="team.liftedTeamMembers" var="member" lastCell="G5")` |
 | 6   | A     | Spacer (inside outer loop) | — |
 | 7   | A     | Empty row (end of jx:area) | — |
 
@@ -45,12 +45,12 @@ Each sheet uses a prefix (`m` / `w` / `mw`) for its display beans:
 |------|------|-------------|
 | `mShowPoints` / `wShowPoints` / `mwShowPoints` | `Boolean` | true when points-based, false when score-based |
 | `mScoringTitle` / `wScoringTitle` / `mwScoringTitle` | `String` | Score column heading (e.g. "GAMX", "Total") |
-| `mTeamSize` / `wTeamSize` / `mwTeamSize` | `Integer` | Configured team-size denominator for the status column |
+| `mTeamSize` / `wTeamSize` / `mwTeamSize` | `Integer` | Configured maximum team size (no longer used by the bundled templates) |
 
 ### Team summary row (row 3) status denominator
 
-- **Done (col F)**: uses championship-configured team size when available, otherwise falls back to `team.size`
-  - `${team.counted}/${mwTeamSize != 0 ? mwTeamSize : team.size}`
+- **Done (col F)**: athletes counted / team members who lifted (at least one attempt, even without a total)
+  - `${team.counted}/${team.memberCount}`
 
 ### Team summary row (row 3) visibility
 
@@ -77,7 +77,7 @@ At runtime, `postProcess()` hides column E on score-based tabs and column G on p
 | `mwTeamItems` | `List<TeamTreeItem>` | Mixed teams (only if non-empty) |
 | `mShowPoints` / `wShowPoints` / `mwShowPoints` | `Boolean` | Per-sheet points visibility |
 | `mScoringTitle` / `wScoringTitle` / `mwScoringTitle` | `String` | Per-sheet score column label |
-| `mTeamSize` / `wTeamSize` / `mwTeamSize` | `Integer` | Per-sheet configured team size |
+| `mTeamSize` / `wTeamSize` / `mwTeamSize` | `Integer` | Per-sheet configured maximum team size |
 | `competition` | `Competition` | Competition object |
 | `championship` | `Championship` | Selected championship (may be null) |
 | `ageGroupPrefix` | `String` | Selected age group prefix (may be null) |
@@ -86,7 +86,9 @@ At runtime, `postProcess()` hides column E on score-based tabs and column G on p
 ## TeamTreeItem accessors (team-level)
 
 `getName()`, `getGender()`, `getPoints()` (int), `getScore()` (double),
-`getCounted()`, `getSize()`, `getCountedTeamMembers()` → list of counted member items.
+`getCounted()`, `getCountedTeamMembers()` → list of counted member items,
+`getLiftedTeamMembers()` → members who took at least one attempt (counted first),
+`getMemberCount()` → number of lifted members (status denominator).
 `getTotalOnlyPoints()` (int) — sum of each counted member's raw total-place points,
 regardless of the `snatchCJTotalMedals` setting.  Use this in a "total-only" variant
 template to always show points derived from total rank only.
@@ -94,7 +96,7 @@ template to always show points derived from total rank only.
 ## TeamTreeItem accessors (member-level)
 
 `getName()`, `getGender()`, `getCategory()`, `getPoints()` (Integer, null if not done),
-`getScore()` (Double), `isDone()`.
+`getScore()` (Double), `isDone()` (session done), `isLiftingDone()` (all six attempts taken).
 `getTotalOnlyPoints()` (int) — the athlete's raw total-place points (0 if not done).
 
 ## Total-only variant template

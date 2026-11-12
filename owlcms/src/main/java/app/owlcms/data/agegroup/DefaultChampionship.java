@@ -204,6 +204,18 @@ public class DefaultChampionship extends Championship {
 	}
 
 	@Override
+	public boolean isTeamScoresWithoutTotal() {
+		Championship template = template();
+		return template != null ? template.isTeamScoresWithoutTotal() : super.isTeamScoresWithoutTotal();
+	}
+
+	@Override
+	public boolean isMixedTeamScoresWithoutTotal() {
+		Championship template = template();
+		return template != null ? template.isMixedTeamScoresWithoutTotal() : super.isMixedTeamScoresWithoutTotal();
+	}
+
+	@Override
 	public Ranking getTeamScoringSystem() {
 		Championship template = template();
 		return template != null ? template.getTeamScoringSystem() : super.getTeamScoringSystem();

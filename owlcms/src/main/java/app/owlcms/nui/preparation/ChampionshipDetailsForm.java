@@ -8,6 +8,7 @@ package app.owlcms.nui.preparation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.slf4j.LoggerFactory;
@@ -219,8 +220,16 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 
 		ComboBox<Ranking> teamScoringSystemField = createRankingCombo();
 		teamScoringSystemField.setValue(championship.getTeamScoringSystem());
-		teamScoringSystemField.setEnabled(championship.isGenderedTeamsEnabled() && SUM_OF_SCORES.equals(teamMethodInitial));
-		teamLayout.addFormItem(teamScoringSystemField, Translator.translate("Championship.teamScoringSystem"));
+		Checkbox teamScoresWithoutTotalField = new Checkbox(
+		        Translator.translate("Championship.teamScoresWithoutTotal"),
+		        championship.isTeamScoresWithoutTotal());
+		Consumer<Boolean> enableTeamScoring = enabled -> {
+			teamScoringSystemField.setEnabled(enabled);
+			teamScoresWithoutTotalField.setEnabled(enabled);
+		};
+		enableTeamScoring.accept(championship.isGenderedTeamsEnabled() && SUM_OF_SCORES.equals(teamMethodInitial));
+		teamLayout.addFormItem(scoringWithOption(teamScoringSystemField, teamScoresWithoutTotalField),
+		        Translator.translate("Championship.teamScoringSystem"));
 
 		teamMethodField.addValueChangeListener(e -> {
 			if (!e.isFromClient()) {
@@ -228,7 +237,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			}
 			boolean teamEnabled = Boolean.TRUE.equals(menWomenTeamsEnabledField.getValue());
 			boolean isScores = SUM_OF_SCORES.equals(e.getValue());
-			teamScoringSystemField.setEnabled(teamEnabled && isScores);
+			enableTeamScoring.accept(teamEnabled && isScores);
 			if (isScores && teamScoringSystemField.getValue() == null) {
 				teamScoringSystemField.setValue(Ranking.GAMX);
 			} else if (!isScores) {
@@ -284,8 +293,16 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 
 		ComboBox<Ranking> mixedTeamScoringSystemField = createRankingCombo();
 		mixedTeamScoringSystemField.setValue(championship.getMixedTeamScoringSystem());
-		mixedTeamScoringSystemField.setEnabled(championship.isMixedTeamEnabled() && SUM_OF_SCORES.equals(mixedMethodInitial));
-		mixedLayout.addFormItem(mixedTeamScoringSystemField, Translator.translate("Championship.teamScoringSystem"));
+		Checkbox mixedTeamScoresWithoutTotalField = new Checkbox(
+		        Translator.translate("Championship.teamScoresWithoutTotal"),
+		        championship.isMixedTeamScoresWithoutTotal());
+		Consumer<Boolean> enableMixedTeamScoring = enabled -> {
+			mixedTeamScoringSystemField.setEnabled(enabled);
+			mixedTeamScoresWithoutTotalField.setEnabled(enabled);
+		};
+		enableMixedTeamScoring.accept(championship.isMixedTeamEnabled() && SUM_OF_SCORES.equals(mixedMethodInitial));
+		mixedLayout.addFormItem(scoringWithOption(mixedTeamScoringSystemField, mixedTeamScoresWithoutTotalField),
+		        Translator.translate("Championship.teamScoringSystem"));
 
 		RadioButtonGroup<String> mixedSelectionField = new RadioButtonGroup<>();
 		mixedSelectionField.setItems(List.of(
@@ -305,7 +322,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 				return;
 			}
 			boolean isScores = SUM_OF_SCORES.equals(e.getValue());
-			mixedTeamScoringSystemField.setEnabled(isScores);
+			enableMixedTeamScoring.accept(isScores);
 			if (isScores && mixedTeamScoringSystemField.getValue() == null) {
 				mixedTeamScoringSystemField.setValue(Ranking.GAMX);
 			} else if (!isScores) {
@@ -370,10 +387,10 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			teamPointsPolicyField.setEnabled(championship.getMedalPolicy() != MedalPolicy.TOTAL_ONLY);
 			boolean genderedEnabled = Boolean.TRUE.equals(menWomenTeamsEnabledField.getValue());
 			teamMethodField.setEnabled(genderedEnabled);
-			teamScoringSystemField.setEnabled(genderedEnabled && SUM_OF_SCORES.equals(teamMethodField.getValue()));
+			enableTeamScoring.accept(genderedEnabled && SUM_OF_SCORES.equals(teamMethodField.getValue()));
 			boolean mixedEnabled = Boolean.TRUE.equals(mixedTeamEnabledField.getValue());
 			mixedMethodField.setEnabled(mixedEnabled);
-			mixedTeamScoringSystemField.setEnabled(mixedEnabled && SUM_OF_SCORES.equals(mixedMethodField.getValue()));
+			enableMixedTeamScoring.accept(mixedEnabled && SUM_OF_SCORES.equals(mixedMethodField.getValue()));
 			refreshMixedSelectionFieldState.run();
 		};
 
@@ -383,7 +400,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			}
 			boolean enabled = Boolean.TRUE.equals(e.getValue());
 			mixedMethodField.setEnabled(enabled);
-			mixedTeamScoringSystemField.setEnabled(enabled && SUM_OF_SCORES.equals(mixedMethodField.getValue()));
+			enableMixedTeamScoring.accept(enabled && SUM_OF_SCORES.equals(mixedMethodField.getValue()));
 			refreshMixedSelectionFieldState.run();
 		});
 
@@ -393,7 +410,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			}
 			boolean enabled = Boolean.TRUE.equals(e.getValue());
 			teamMethodField.setEnabled(enabled);
-			teamScoringSystemField.setEnabled(enabled && SUM_OF_SCORES.equals(teamMethodField.getValue()));
+			enableTeamScoring.accept(enabled && SUM_OF_SCORES.equals(teamMethodField.getValue()));
 		});
 
 		refreshFieldState.run();
@@ -443,6 +460,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			championship.setGenderedTeamsEnabled(genderedEnabled);
 			championship.setTeamScoringSystem(
 			        genderedEnabled && SUM_OF_SCORES.equals(teamMethodField.getValue()) ? teamScoringSystemField.getValue() : null);
+			championship.setTeamScoresWithoutTotal(Boolean.TRUE.equals(teamScoresWithoutTotalField.getValue()));
 			championship.setMensBestN(mensBestNField.getValue());
 			championship.setWomensBestN(womensBestNField.getValue());
 			championship.setExplicitMixedTeamMembers(MIXED_SELECTION_EXPLICIT.equals(mixedSelectionMode));
@@ -451,6 +469,8 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			championship.setExplicitTeamSize(explicitTeamSizeField.getValue());
 			championship.setMixedTeamScoringSystem(
 			        mixedEnabled && SUM_OF_SCORES.equals(mixedMethodField.getValue()) ? mixedTeamScoringSystemField.getValue() : null);
+			championship.setMixedTeamScoresWithoutTotal(
+			        Boolean.TRUE.equals(mixedTeamScoresWithoutTotalField.getValue()));
 			championship.setMixedBestN(MIXED_SELECTION_OVERALL.equals(mixedSelectionMode)
 			        ? mixedBestNField.getValue() : null);
 			boolean combinedSelection = MIXED_SELECTION_COMBINED.equals(mixedSelectionMode);
@@ -583,6 +603,13 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		combo.setWidth("20em");
 		combo.getElement().getStyle().set("--vaadin-combo-box-overlay-width", "30em");
 		return combo;
+	}
+
+	private VerticalLayout scoringWithOption(ComboBox<Ranking> scoringCombo, Checkbox option) {
+		VerticalLayout layout = new VerticalLayout(scoringCombo, option);
+		layout.setPadding(false);
+		layout.setSpacing(false);
+		return layout;
 	}
 
 	private ComboBox<Ranking> createMedalScoringCombo() {

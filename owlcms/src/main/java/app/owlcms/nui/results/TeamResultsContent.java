@@ -241,6 +241,19 @@ public class TeamResultsContent extends BaseContent
 		this.championship = championship;
 	}
 
+	/**
+	 * Pick up championship rules saved since the page was opened (e.g. from another tab).
+	 */
+	private void reloadChampionship() {
+		if (this.championship == null) {
+			return;
+		}
+		Championship current = Championship.findStored(this.championship.getName());
+		if (current != null) {
+			this.championship = current;
+		}
+	}
+
 	public void setAgeGroupPrefix(String ageGroupPrefix) {
 		this.ageGroupPrefix = ageGroupPrefix;
 	}
@@ -340,6 +353,7 @@ public class TeamResultsContent extends BaseContent
 				if (TeamResultsContent.this.topBar == null) {
 					return;
 				}
+				reloadChampionship();
 				TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getChampionship(),
 				        TeamResultsContent.this.genderFilter.getValue(), getTeamRanking(), false);
 				TreeGrid<TeamTreeItem> treeGrid = (TreeGrid<TeamTreeItem>) this.grid;
@@ -483,6 +497,7 @@ public class TeamResultsContent extends BaseContent
 		this.downloadDialog = new JXLSDownloader(
 		        () -> {
 			        JXLSTeamResultsSheet rs = new JXLSTeamResultsSheet(UI.getCurrent());
+			        reloadChampionship();
 			        rs.setChampionship(this.championship);
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setGender(getGenderFilter() != null ? getGenderFilter().getValue() : null);
@@ -584,20 +599,7 @@ public class TeamResultsContent extends BaseContent
 	}
 
 	private String formatStatus(TeamTreeItem item) {
-		if (item == null) {
-			return "";
-		}
-		if (item.getAthlete() != null) {
-			return item.isDone() ? Translator.translate("Done") : "";
-		}
-
-		Championship currentChampionship = getChampionship();
-		if (currentChampionship == null) {
-			return item.formatProgress();
-		}
-
-		int configuredTeamSize = currentChampionship.getConfiguredTeamSize(getAgeGroupPrefix(), item.getGender());
-		return item.getCounted() + "/" + configuredTeamSize;
+		return item != null ? item.formatProgress() : "";
 	}
 
 	private String formatDouble(Double d, int decimals) {

@@ -12,13 +12,12 @@ The template uses nested jx:each to iterate:
 Per-sheet display control beans (prefix m/w/mw):
   mShowPoints / wShowPoints / mwShowPoints  - Boolean: show the points column
   mScoringTitle / wScoringTitle / mwScoringTitle - String: score column heading
-  mTeamSize / wTeamSize / mwTeamSize - Integer: configured team-size denominator for status
 
 Beans available:
   mTeamItems / wTeamItems / mwTeamItems - List<TeamTreeItem>
   Each TeamTreeItem has:
-    - getName(), getGender(), getPoints(), getScore(), getCounted(), getSize()
-    - getCountedTeamMembers() -> List<TeamTreeItem> (counted athlete children)
+    - getName(), getGender(), getPoints(), getScore(), getCounted(), getMemberCount()
+    - getLiftedTeamMembers() -> List<TeamTreeItem> (members with at least one attempt, counted first)
   Each member TeamTreeItem has:
     - getName(), getCategory(), getPoints(), getScore()
     - isDone()
@@ -118,7 +117,7 @@ for filename, paper_size in VARIANTS:
         ws.write(2, 4,
                  '${' + showPts + ' && team.points != 0 ? team.points : ""}',
                  team_right_fmt)
-        ws.write(2, 5, '${team.counted}/' + '${' + prefix + 'TeamSize != 0 ? ' + prefix + 'TeamSize : team.size}', team_right_fmt)
+        ws.write(2, 5, '${team.counted}/${team.memberCount}', team_right_fmt)
         # Score: show only when NOT points-based (score-based section); hide 0
         ws.write(2, 6,
                  '${!' + showPts + ' && team.score != 0 ? team.score : ""}',
@@ -135,7 +134,7 @@ for filename, paper_size in VARIANTS:
 
         # Row 4 (5): inner loop — member row
         ws.write(4, 0, '', data_fmt)
-        ws.write_comment('A5', 'jx:each(items="team.countedTeamMembers" var="member" lastCell="G5")',
+        ws.write_comment('A5', 'jx:each(items="team.liftedTeamMembers" var="member" lastCell="G5")',
                          {'author': 'owlcms', 'width': 400, 'height': 100})
         ws.write(4, 1, '${member.name}', data_fmt)
         ws.write(4, 2, '${member.gender}', data_fmt)
@@ -144,7 +143,7 @@ for filename, paper_size in VARIANTS:
         ws.write(4, 4,
                  '${member.points != null && member.points != 0 ? member.points : ""}',
                  data_right_fmt)
-        ws.write(4, 5, '${member.done ? t.get("Done") : ""}', data_fmt)
+        ws.write(4, 5, '${member.liftingDone ? t.get("Done") : ""}', data_fmt)
         # Score: always show, hide 0/null
         ws.write(4, 6,
                  '${member.score != null && member.score != 0 ? member.score : ""}',
