@@ -11,16 +11,15 @@
 
 **Development log**
 
-- 69.0.0-beta09: When using a scoring system, team results tree was incorrectly adding athletes without a total in the team score
+- 69.0.0-beta09: When using a scoring system, the team results tree was incorrectly adding athletes without a total in the team score
   - Now a selectable behavior: Including the athletes that have no snatch but a CJ or vice-versa is now a checkbox per championship
-  - Fixed issue with grid not reloading on rank recalculationß
-
+  - Fixed issue with grid not reloading on rank recalculation
+- 69.0.0-beta09: Adjusted the permissions in Accounts mode so that the preparation account (which is the actual competition secretariat) can edit results if needed
 - 69.0.0-beta08: OBS status monitor changes
   - Each status monitor follows the platform named in its address (`fop=`). The Status Monitor button on the Video Streaming page opens the monitor for the platform selected on that page.
   - With several platforms, a monitor address without `fop=`, or naming a platform that does not exist, shows a message listing the platform names. Add `fop=` to existing OBS browser sources and bookmarks. Nothing changes with a single platform.
   - The lift type reported for a decision is now correct. The decision on a third snatch was reported as `liftType=CLEANJERK`; during a jury break, the lift type is that of the lift under review.
   - The monitor goes directly from the decision to the break at the end of the snatches and at the end of the session, without a momentary `CURRENT_ATHLETE_DISPLAYED`. Scene-switching rules that expect `previous=CURRENT_ATHLETE_DISPLAYED` before the automatic clean & jerk break need to be changed.
-
 - 69.0.0-beta08: Additional fixes for jury decision edge cases
   - The speaker and the scoreboard top line move on to the next athlete while the jury votes. The attempt board and the scoreboard decision section stay on the athlete under review until the jury has voted, or until the next clock starts.
   - On the last snatch and on the last lift of the session, the decision stays visible into the break or the end of the session instead of disappearing at once or staying indefinitely.
@@ -29,44 +28,6 @@
   - When the review vote of a 3, 4 or 5-member jury does not reach the jury's rule (unanimity, or a majority for 5 members with video), the referees' decision stands as called: Jury Control asks the Chair to confirm it instead of asking for a technical rule, and the boards and the speaker show the reason "Referee Decision Stands as Called".
   - Attempt boards and scoreboards opened before the jury size is set on Jury Control now show the jury votes without being reloaded.
   - When the jury reviews the last snatch, the break before clean & jerk starts again for its full duration once the jury has decided. Previously lifting resumed without the break.
-
-- 69.0.0-beta07: Fixes for jury box MQTT messaging; removed initial summon all on automatic reviews
-
-- 69.0.0-beta07: Attempt board shows the name and attempt under review, nature of review shown and highlighted.
-
-- 69.0.0-beta07: Platform Delete button with confirmation.
-
-- 69.0.0-beta07: Correct athlete information and edit cards during lifting without stopping the competition.
-
-- 69.0.0-beta07: Ending introductions starts a ten-minute countdown, then lifting automatically.
-
-- 69.0.0-beta06: A database last used with a version older than 69 starts with jury size 0 and video replays off.
-
-- 69.0.0-beta06: Weigh-in and registration forms
-  - Changing the snatch, the C&J or the entry total updates the 20 kg rule warning on all three fields.
-  - Enter saves on the first press when the value just typed clears the warning (for example, the C&J completing the 20 kg rule). Enter never accepts warnings.
-
-- 69.0.0-beta05: V2 database exports are signed, so changes made to the file after the export can be detected.
-  - The signature uses the audit key. Without a configured key, the built-in key only shows that the file is intact, not who produced it. V1 exports are not signed.
-  - Imports record in the audit log whether the file was signed, and with which key. Files are not refused for signature reasons; this is an integrity check for auditing.
-  -  The Audit Integrity Verification page can check the signature of an exported database file (JSON, or a ZIP containing one). The file is not imported.
-
-- 69.0.0-beta05: New "IWF Requirements" section in the feature switches
-
-- 69.0.0-beta04: Age Group/Categories editing robustness fixes
-  - Editing an age group: when the changes affect eligibility, a dialog previews the athletes added and removed per championship. **Apply** reassigns immediately, **Reassign Later** keeps the athletes as they are (not available when categories are deleted), **Cancel** discards the changes.
-  - Deleting an age group, or changing its championship, asks for confirmation and explains the consequences.
-  - The "Reassign Within Current Championships" and "Recompute All Eligibilities" buttons replace the Reset buttons and also show the athletes added and removed before applying.
-  - Activating an age group, changing its ages, or moving it to another championship warns about every age gap and overlap in the championship.
-  - The audit log now records age group changes (added, edited, activated, deleted, moved, championship renamed, definitions loaded) and the athletes whose categories change as a result.
-
-- 69.0.0-beta04: Athletes whose entry total is below a category's qualifying total are no longer assigned to that category when importing a registration file
-  - When editing an athlete, such categories are marked (ET<QT) and the Entry Total field shows the warning as soon as the form opens.
-
-- 69.0.0-beta04: The athlete registration and weigh-in forms replace the "Ignore message and allow saving" checkbox with a yellow **Accept Warnings and Update** button, shown instead of **Update** while a field shows a warning.
-  - Checks for entry total lower than QT improved (this happens for adaptive athletes when no separate championships are present)
-
-- 69.0.0-beta04: Tracker connections report the OWLCMS web port so Tracker displays can open pages from the OWLCMS instance that is sending their data.
 
 **New in Release 69.0**
 
@@ -87,6 +48,19 @@
 
 - Warmup scoreboards show the bottom decision section by default (`decisionSectionOnWarmupScoreboard` feature switch is now on by default).
 
+- Separate editing modes for athletes that are not in lifting sessions (all changes allowed) and athletes in lifting sessions (only metadata can be edited, only some roles can edit athlete cards)
+  - The athlete card is now accessed as a Tab on the registration editing forms, same as before for Marshal/active announcer.
+
+- Age Group/Categories editing robustness
+  - Editing an age group: when the changes affect eligibility, a dialog previews the athletes added and removed per championship. **Apply** reassigns immediately, **Reassign Later** keeps the athletes as they are (not available when categories are deleted), **Cancel** discards the changes.
+  - Deleting an age group, or changing its championship, asks for confirmation and explains the consequences.
+  - The "Reassign Within Current Championships" and "Recompute All Eligibilities" buttons replace the Reset buttons and also show the athletes added and removed before applying.
+  - Activating an age group, changing its ages, or moving it to another championship warns about every age gap and overlap in the championship.
+  - The audit log now records age group changes (added, edited, activated, deleted, moved, championship renamed, definitions loaded) and the athletes whose categories change as a result.
+- Athletes whose entry total is below a category's qualifying total are no longer assigned to that category when importing a registration file
+  - When editing an athlete, such categories are marked (ET<QT) and the Entry Total field shows the warning as soon as the form opens.
+- The athlete registration and weigh-in forms replace the "Ignore message and allow saving" checkbox with a yellow **Accept Warnings and Update** button, shown instead of **Update** while a field shows a warning.
+  - Checks for entry total lower than QT improved (this happens for adaptive athletes when no separate championships are present)
 - Checkpoints: tracker has a new "Checkpoints" page
   - copies the competition and its logs from OWLCMS to a folder on the tracker machine at regular intervals
   - requires the competition supervisor token when running with accounts enabled, the Officials PIN in simple mode
