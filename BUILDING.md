@@ -19,6 +19,7 @@ You can checkout this repository (or fork it if you intend to make changes.)
     - `.vscode/.env.mac` (macOS).
   - These platform-specific files are ignored by git ; do not commit them.
   - JVM options are set by `owlcms.vmArgs` in the workspace file, not in the `.env` files.
+  - The workspace templates enable enhanced class redefinition with `-XX:+AllowEnhancedClassRedefinition` and load `lib/hotswap/hotswap-agent.jar` from the selected JBR with `-XX:HotswapAgent=fatjar`. They also disable the Vaadin development tools with `-Dvaadin.devmode.devTools.enabled=false`.
   
 
 #### Cloud development 
