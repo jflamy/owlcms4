@@ -29,11 +29,12 @@ The screen also allows selecting common variations on IWF rules.
   - `Enable Custom Score` This adds a box on the Athlete Card where a custom score can be entered manually.  This is sometimes used for kid competitions where bonuses are given for 5/6 or 6/6 performances.  The score can be anything:  a modified total minus penalty points, or Sinclair + bonus, or whatever.
 
 - Jury
-  - `Jury Size`: 0 (no jury) by default. Set to 3 or 5 when a jury votes using owlcms devices. A jury size above 0 adds the jury decision circles to the bottom decision section of the scoreboards.
+  - `Jury Size`: 0 (no jury) by default, or 3, 4 or 5 members. Four members with Video Playback Technology use the TCRR 2026 seven-person Adjudication Panel. TCRR compliance fixes the size at 4. Jury Control can select a platform's jury size when compliance is off. See [Jury Control](../060-Refereeing/020-Jury) for the review workflows.
   - Scoreboards have a `Show Bottom Decision Section` option in their display dialog (URL parameter `decisionSection`). Public and video scoreboards show the section by default; warmup scoreboards also show it by default unless the `Show the bottom decision section by default on warmup scoreboards` feature switch is turned off. The option in the dialog overrides the default for that screen.
-  - Attempt boards have a `Show Jury Decisions` option (URL parameter `showJuryDecisions`). It is on by default when the jury size is above 0. The `Show jury decisions on attempt boards` feature switch can turn off the default; the display dialog can override it for one board. With a jury size of 0, the option is not offered. Reload an open attempt board after changing the jury size so its dialog and display use the new size. When the feature switch is on and jury votes are pending, the decision can remain visible until the votes are complete or the clock start is overridden; the display dialog does not change this wait.
-  - `Announcer controls the display of decisions`: TCRR requires the speaker to announce why a decision was overruled by the jury.  This setting enables the notifications to the speaker. Turning it off makes the attempt board immediately show jury decisions.
-  - `Video Playback Technology in use`: When a 5-person jury votes, it is necessary to know whether a majority or unanimous decision is needed.
+  - Attempt boards have a `Show Jury Decisions` option (URL parameter `showJuryDecisions`). It is on by default when the jury size is above 0. The `Show jury decisions on attempt boards` feature switch can turn off the default; the display dialog can override it for one board. With a jury size of 0, the option is not offered. Open boards follow jury-size changes without a reload. Hiding jury decisions does not let the next clock start while jury votes are missing.
+  - `Video Playback Technology in use`: With four jury members, this enables the seven-person Adjudication Panel, whose three referees and four jurors vote again during a review. With five jury members, VPT changes the jury's rule from unanimity to majority. Other jury-only reviews require unanimity.
+  - `automaticBreakNoVPT` feature switch: optionally stops competition when a jury other than the seven-person panel votes against the referees according to its voting rule. The votes on the lift stay displayed until the Chair calls the review vote. Without this switch, a jury-only review starts its vote immediately when the Chair starts Deliberation or Challenge.
+  - After the Chair applies a review decision, lifting resumes automatically following the outcome display period. The announcer announces the decision and reason; closing the notification does not control resumption. Use Resume to end a review without applying a decision.
 
 - Rules for Masters Sessions.
   - `Masters Competition`: if selected, all the sessions will be treated as Masters sessions for introduction order, application of the IMWA rules, and medal ceremony order.  Without this setting, you have to indicate on the Session setup page which sessions are Masters and which are not.
@@ -44,22 +45,20 @@ The screen also allows selecting common variations on IWF rules.
   - `Longer CJ Break for X athletes or fewer`.  Normally 6, meaning that 1-6 athletes will get a longer break as set by the Longer Break Duration.  Default is 10 minutes, meaning no change.  When used, the break is typically extended to 15 minutes.
   - `Shorter CJ Break for X Athletes or more`.  Normally 10, meaning that if 10 athletes or more the break will be made shorter.  Default is 10 minutes, meaning no change.  When used, the break is usually shortened to 5 minutes.
   - The `Apply initial total weight rule` determines whether the 20kg rule (20% for Masters) will be enforced.  Some local or regional meets do not enforce this rule.
-  - The `Medals for snatch, clean&jerk, total` checkbox determines whether separate rankings will be computed and shown for snatch and clean & jerk.  Leave it unchecked for a "total-only" competition.
   - The `Use Birth Year Only` allows the use of only the 4-digit birth year for athletes, instead of a full date as required by IWF.  Note that the athletes will be registered internally as being born on January 1.
-  - `Announcer controls the display of jury decisions` When this setting is checked, the announcer will receive a notification if the jury console screen is used to grant/deny a lift.  When IWF procedures are followed, the announcer will wait and announce the reason, and then click for the competition to resume.  If this setting is not checked, the jury decision is displayed immediately on the attempt board.
   - The `Masters Start Order` settings changes the sorting order for displays and weigh-ins -- Masters traditionally start with the older lifters. The display will be grouped by age group first, and then by weight category.
   - The `Display Categories Ordered by Age Group` setting is like Masters Start Order, but reversed, younger age groups are shown first and weighed-in first.   In a normal IWF scoreboard, Junior and Senior athletes are not separated on the scoreboard (this switch would be off).  This switch is typically used when several youth age groups are competing together in the same session, and younger athletes are unlikely to compete for the older age group medals.
 
 
 
-## Default Scoring and Medaling Rules
+## Championships, Medals and Teams
 
-The page has 3 sections.
+This tab contains the championship list and editor, followed by the **Scoring System Options** section. It no longer contains the former competition-wide medal, scoring and team defaults form.
 
-- Default Championship Settings: 
-  - These settings are explained on the [Championships](../030-PreCompetitionSetup/050-Championships.md) page.
-  - They are used when creating a new Championship, and they are also used if you reset an existing championship to default.  
-  - When you install OWLCMS, the settings match the TCRR rules for a Junior or Senior competition with medals awarded for Total.
+- `Championships`
+  - Each championship defines its medal events, best-athlete scoring, team ranking method and team limits. These settings are explained on the [Championships](../030-PreCompetitionSetup/050-Championships.md) page.
+  - **Define Championship Template**, above the list, opens the shared defaults editor. **Reset to Template** copies those settings to a selected championship.
+  - For score-based teams, **Include scores of athletes without a total** is available separately for men's/women's teams and mixed teams. It is unchecked by default and affects team scores only.
 - `Scoring Systems`
   - The system will look at the settings you have selected for all your championships, and compute all these scores
   - But the user interface also allows for additional scores to be looked at.  For example, you might be curious to look at Sinclair scores even though you currently use GAMX.

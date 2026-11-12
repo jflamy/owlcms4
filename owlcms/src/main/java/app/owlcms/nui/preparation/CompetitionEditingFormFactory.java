@@ -489,7 +489,7 @@ public class CompetitionEditingFormFactory
 	private FormLayout pointScoresForm() {
 		FormLayout layout = createLayout();
 
-		Component scoringTitle = createTitle("ScoringSystems");
+		Component scoringTitle = createTitle("Competition.ScoringSystemOptions");
 		layout.add(scoringTitle);
 		layout.setColspan(scoringTitle, 2);
 

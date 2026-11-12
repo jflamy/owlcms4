@@ -1,11 +1,8 @@
-OWLCMS supports using refereeing devices, and also supports 3 and 5-person [Jury](./020-Jury). The decisions are displayed to the public and athletes on the displays started on the [Start Displays](../070-ScoreboardsAndResults/010-Displays) page.
+OWLCMS supports using refereeing devices and 3, 4 and 5-member juries, including the TCRR 2026 seven-person Adjudication Panel. See [Jury Control](./020-Jury) for the voting and review workflows. The decisions are displayed to the public and athletes on the displays started on the [Start Displays](../070-ScoreboardsAndResults/010-Displays) page.
 
-There are several ways to referee using owlcms.  Each is discussed in details in a section of the document.
+Referees can use phones or tablets, USB or Bluetooth programmable keypads, build-your-own MQTT devices based on owlcms-firmata, commercial devices such as Blue Owl, or fully custom MQTT devices. Equipment, construction and shortcut mappings are described on [Refereeing Devices](../100-AdvancedTopics/180-RefereeingDevices).
 
-1. [Manual refereeing](#manual-refereeing), where the referees use flags, cards, or hand signals.  The announcer enters the decisions.
-2. [Mobile devices](#mobile-device-refereeing): Using phones, tablets or laptops to referee.  Any device that has a browser can be used to enter decisions and receive notifications.
-3. [Button keypads](#button-keypads): These devices provide real buttons, which many referees prefer over using a phone.  They can be bought, or built from affordable supplies. However they do not provide the feedback when a referee needs to be reminded to enter a decision.
-4. [Arduino-based devices](#arduino-based-devices).  Diagrams are available to build such devices (see [below](#arduino-based-devices)). All the software required is already available and the devices can be built without any programming. Such devices can be made as simple (buttons only) or as compliant (LED and buzzer feedback) as you wish.
+This page covers their use during lifting. If no devices are used, the announcer records decisions given with flags, cards or hand signals.
 
 ## Manual Refereeing
 
@@ -40,66 +37,16 @@ When the jury wants to call the official, a red bar with blinking text is shown.
 
 ## Button Keypads
 
-Many referees prefer having their finger rest on a button (which is not possible on a phone).  In this section, we describe how to create a physical refereeing device. 
+Use the red or white button programmed for your referee position. The hosting browser must remain on the appropriate OWLCMS display; click its background to give it keyboard focus.
 
-In this approach, keypads are connected to the laptop or mini PC running a display that shows the countdown timer.  Normally, this is the Athlete-facing display, but you can also use the Attempt Board, or even the Scoreboards.  The sound and down arrow are emitted directly by the browser, without any round-trip to the primary computer.  This reduces delays and increases reliability if the networking is fragile (which is sometimes the case in gyms)
+The browser receives the decisions and emits the down signal when two referees agree. The hosting display provides the visual and audible feedback; a keyboard-only keypad does not receive reminders or summons itself.
 
-![Slide6](img/010-Refereeing/Slide6.SVG)
+See [USB or Bluetooth Programmable Keypads](../100-AdvancedTopics/180-RefereeingDevices#usb-or-bluetooth-programmable-keypads) for connection, programming and shortcut tables.
 
-There are three ways to create such a keypad
+## MQTT Devices
 
-1. USB keypads: they emulate a USB keyboard.
-2. Joystick keypads: they emulate a joystick, and a small piece of software converts the joystick button press to a keyboard press.
-3. Bluetooth keypads: they emulate a Bluetooth keyboard and work with most devices such as iPads and Windows laptops.
+Build-your-own owlcms-firmata devices, commercial Blue Owl devices and fully custom MQTT devices send decisions to the OWLCMS platform they are configured for. Use the red or white button for the decision; OWLCMS records it and updates the displays automatically.
 
-#### **Example of USB keypads**
+Feedback-capable devices can remind the third referee to decide and summon referees to the jury table. During a seven-person Adjudication Panel review, the referees vote again when the Chair calls for votes; the review votes remain hidden until all seven officials have voted. See [Jury Control](./020-Jury) for that sequence.
 
-The cheapest alternative is to buy a 5$ [two-button USB-keypad from AliExpress](https://a.aliexpress.com/_EzYdIBr), and either put a red sticker or buy [red and white key caps](https://fr.aliexpress.com/item/1005004086674770.html?spm=a2g0o.order_list.order_list_main.4.10995e5bCefEi7&gatewayAdapt=glo2fra) to replace the original black key caps.  The buttons are programmed in advance for each referee or jury member (see the table below) using the supplier's [configuration software](https://key.itytsoft.com/).
-
-<img src="img/010-Refereeing/ali_red_white.jpg" alt="Wi" style="zoom: 25%;" />
-
-Industrial-strength USB Keypads can be bought from industrial device providers, such as [Delcom USB keypads](http://www.delcomproducts.com/productdetails.asp?PartNumber=706502-5M).  (see picture below). These are indestructible, but pricier.
-
-You can also build you own using an Arduino to emulate a USB keyboard:  [Keyboard - Arduino Reference](https://www.arduino.cc/reference/en/language/functions/usb/keyboard/)
-
-![refereeingSetup](img/010-Refereeing/refereeingSetup.jpg)
-
-#### Example of Joystick buttons
-
-In this configuration, a joystick-to-USB converter is used.  This is a do-it-yourself project, but most of the kits require no soldering. Search for `Joystick Zero Delay USB Encoder`, and you will get several [examples](https://www.amazon.ca/EG-Starts-Encoder-Controller-Joystick/dp/B06XVXCJBD)
-
-The refereeing computer sees the device as a Joystick.  To convert the button presses to k[eyboard presses expected by owlcms](#keypad-configuration), you need a small program like [joy2key](https://joytokey.net/en/) or [antimicro](https://sourceforge.net/projects/antimicro.mirror/) on Windows, or `qjoypad` on Linux/Raspberry (use `apt-get install qjoypad`).
-
-
-
- <img src="img/010-Refereeing/02Joystick.jpg" alt="Wi" style="zoom: 25%;" />
-
-
-
-#### Bluetooth buttons
-
-You can use Bluetooth buttons to control an iPad or a Windows laptop.  You can find Bluetooth buttons from Home Automation providers, such as [Flic2](https://flic.io/) buttons in Universal mode](https://flic.io/flic-universal) (you only need the buttons, not the hub)
-
-#### Using Keypads
-
-When using keypads, *you must click in the black area of the refereeing screen.*  Hitting the key on the keypad is like typing on a keyboard.  The key must be typed on the owlcms screen to be understood by the browser and sent to the program.
-
-#### Keypad Configuration
-
-Refer to the [Keypads](../100-AdvancedTopics/180-Keypads) Advanced topic documentation for information on how to configure a programmable keypad.
-
-## Arduino-Based Devices
-
-If you want devices that can provide feedback, then you can build your own using an Arduino board.
-
-See [this page](https://github.com/owlcms/owlcms-firmata/tree/main/README.md) for working timekeeper, referee, and jury setups.  Both the firmware that runs on the Arduino *and* the software that interfaces with owlcms are provided.  There is actually nothing to program.  
-
-For example, a fully IWF-compliant design for the referee box is shown below. You can simply omit any part you don't need. For example, in the refereeing diagram below, if you don't want an external down signal light and buzzer, you can ignore the two relays on the left-hand side.  And if you need to arrange the connections, there is no need to change the firmware or the interface program, a simple change to a configuration file will do.
-
-![refereeBox](img/010-Refereeing/refereeBoxDown.png)
-
-owlcms uses the MQTT protocol used in Internet-Of-Things automation and monitoring applications to talks to the devices.  See the [MQTT](../100-AdvancedTopics/190-MQTT) page for more details and for schematics that you can use for your own devices.  
-
-## Commercial Devices
-
-Companies like Nemikor.com sell fully [IWF-Compliant devices](https://nemikor.com). 
+See [Refereeing Devices](../100-AdvancedTopics/180-RefereeingDevices) for equipment and setup, and the manufacturer's or project's instructions for the indicators and sounds of a particular device.

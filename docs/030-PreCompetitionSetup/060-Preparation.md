@@ -24,19 +24,19 @@ The screen also allows selecting common variations on IWF rules.
 
   - The Masters settings changes the sorting order for displays and weigh-ins -- Masters traditionally start with the older lifters, whereas in an age-group competition the younger age groups are typically listed and weighed-in first.
   - Note that the determination to apply the IWF 20kg or the IWF Masters 80% rule is automatic, based on whether the athlete is registered in a regular or Masters category.
-- `Medals for snatch, clean & jerk, total` This setting controls whether there will be ranks and points awarded for the lifts, or only for the total.  It changes whether the corresponding columns are shown or not on the scoreboards
+- Medal events and team-points policies are configured per championship in the **Championships, Medals and Teams** tab, not with a competition-wide checkbox. Shared defaults are edited with **Define Championship Template** above the championship list. See [Championships and Awards](./050-Championships).
 - `Referee Decision Reminder Delay` When using phones/tablets to referee, or MQTT devices that can provide feedback to the referee, this determines the delay before sending a reminder.
 
 #### Non-Standard Rules
 
 Additional options are used when running team, kid, or virtual competitions. 
 
-- `Top Resuts Team Sizes`  in some competitions, points are awarded as usual, but the lifters who scored more points are the ones included in the team total. For example, there may be 10 athletes on the Men's team, but the 5 better point scores from the team will be used.  The number is how many athletes to count.
+- Team counting limits are configured per championship. For example, a championship can count the best five results from a ten-person men's team. See [Championships and Awards](./050-Championships).
 - `Round-Robin Order` In team leagues, it is common for all 1st lifts to be done before 2nd, and so on.
 - `Group Athletes by Gender`  When hosting kid competitions, it is sometimes simpler to use round-robin, and in addition, have girls go first to avoid changing bars.
 - `Fixed order for lifting` Some league competitions use round-robin play and also decide in advance the lifting order.  This setting means that the lot number assigned to the athlete decides the lifting order.
 - `Enable Custom Score` This adds a box on the Athlete Card where a custom score can be entered.  This will typically be the total + bonus points or minus penalty points.  This is sometimes used for kid competitions for 5/6 or 6/6 performances.
-- `Sinclair Meet` If this is selected, the program will behave as if there was a single male and a single female categories.  The scoreboards will show the Sinclair score, and the leader board will consider all the athletes of the same gender.
+- Score-based medals and best-athlete awards are configured per championship. See [Score-based Medals](../040-CompetitionSetup/060-ScoreBasedCompetitions) and [Championships and Awards](./050-Championships).
 
 
 ## Defining Age Groups and Categories

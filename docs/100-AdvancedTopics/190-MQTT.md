@@ -1,29 +1,8 @@
 ## MQTT
 
-MQTT is used for communication between refereeing, jury and timekeeper devices built using Arduino, ESP32, Raspberry Pi and other affordable single board comptuers.
+MQTT connects OWLCMS to referee, jury and timekeeper devices. OWLCMS includes an MQTT server for these connections.
 
-owlcms now includes an MQTT server to support these devices.
-
-Several projects use MQTT for communication between devices and owlcms :
-
-- Arduino/Firmata projects: the following projects are based on widely-used Arduino boards, but could actually run on any board that supports the Firmata protocol
-  The two projects below provide software that connect owlcms to the devices.
-
-  ![overview.drawio](img/190-MQTT/overview.drawio.png)
-
-  - [owlcms/owlcms-firmata Technical Official device integration for OWLCMS (github.com)](https://github.com/owlcms/owlcms-firmata)  This project includes diagrams for building your own devices using Arduino boards. Both the software to run on the Arduino and the driver to interface with owlcms are provided. The software is user-configured - you can change what pins on the board are used, and you can add or remove components as you see fit.  This project is the "build-it-yourself" cousin of the BlueOwl project below. 
-  - [scottgonzalez/blue-owl: Technical Official device integration for OWLCMS (github.com)](https://github.com/scottgonzalez/blue-owl) is the originator of the Firmata integration with owlcms.  The project aims at creating commercially available devices that fully comply with IWF rules and regulations.  The software base is freely licensed.
-
-- ESP32 projects
-
-  - https://github.com/jflamy/owlcms-esp32 contains Arduino code and simple circuit schematics to build a simple refereeing device with an indicator LED and a buzzer to remind a referee to enter a decision.  
-
-  - https://github.com/kingbutter/owlcms4-ref-m5stack-core2 uses the M5Stack devices as a basis for touchscreen-based refereeing devices.
-
-
-See [MQTT Messages](./200-MQTTMessages) for details on how MQTT is for exchanging information.
-
-
+For build-your-own devices based on owlcms-firmata, commercial Blue Owl devices and fully custom implementations, see [Refereeing Devices](./180-RefereeingDevices). This page describes broker and connection settings. [MQTT Messages](./200-MQTTMessages) describes the protocol.
 
 ### Optional configuration of the embedded MQTT server
 

@@ -36,15 +36,7 @@ Either the announcer or the timekeeper can start the clock.
 
 ##### Shortcuts
 
-> For shortcuts, the keys given are the key locations for a US keyboard. You will need to press the key at the [location shown on this diagram](https://kbdlayout.info/kbdus), no matter what is actually printed on your keyboard.
-
-The clock can be started by using the `,`  (comma) or `/` keys on the keyboard.  The `/` key on the numeric keypad also works. On the Flic2 buttons, this is the `/` shortcut.
-
-The clock can be stopped by using the `.`  (period) key on the keyboard.  The decimal fraction character on the numeric keypad should also work (in many countries, the numeric keypad shows a `,` instead of a `.` to match the local usage for decimal fraction). For the Flic2 buttons, this is the `.` shortcut.
-
-The clock can be reset to 1:00 by using the + key on the keyboard (more precisely, the key combination that corresponds to + on a US keyboard, that is, Shift=).  Using the + key on the numeric keypad will also work. On the Flic2 buttons, this is the `=` shortcut.
-
-The clock can be reset to 2:00 by using the `=` or `;`key on the keyboard ).  Using the + key on the numeric keypad will also work. On the Flic2 buttons, this is the `=` or `;` shortcut.
+Keyboard shortcuts and programmable USB/Bluetooth button mappings are documented on [Refereeing Devices](../100-AdvancedTopics/180-RefereeingDevices#announcer-and-timekeeper-mappings).
 
 ## Stopping/Restarting the clock
 
@@ -56,7 +48,7 @@ The announcer (if acting as timekeeper), or the timekeeper (using the timekeeper
 
 If no refereeing devices are being used, the announcer captures the decision given using flags, cards or hand signals.
 
-The F2 key can be used to signal a good lift, and the F4 key for a no lift.
+Use the decision buttons, or the [announcer shortcuts](../100-AdvancedTopics/180-RefereeingDevices#announcer-and-timekeeper-mappings), to record the result.
 
 ![018_SoloGoodLift](img/070-Announcing/070.png)
 
@@ -146,13 +138,11 @@ The timekeeper can also select the group, and supervise the breaks.
 Notes:
 
 - the Timekeeper screen also works on iPhones, iPads and Android phones.
-- if using the phone with a laptop, you can use the `,` (comma) key to start the timer, and the `.` (period) key to stop it.  This also means that you can connect a programmable button device to control the clock
+- keyboard shortcuts and physical-device setup are documented on [Refereeing Devices](../100-AdvancedTopics/180-RefereeingDevices#announcer-and-timekeeper-mappings).
 
 ![timekeeper](img/070-Announcing/140.png)
 
-The clock can be started using the `,` and`/` keys.  It can be stopped by using the `.` key on the keyboard.   The `*` key on the numeric keypad acts as a toggle (start if stopped, stop if started).
-
-The clock can be reset to 1:00 or 2:00 using the buttons, or by using the `-` and `=` keys respectively.
+The timekeeper uses the on-screen buttons or a configured physical device to start, stop and reset the clock.
 
 ## Technical Controller (Plates, Collar and Barbell)
 

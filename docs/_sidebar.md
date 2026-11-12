@@ -33,7 +33,7 @@
   * [Breaks and Ceremonies](/050-RunningACompetition/060-Breaks)
 * Refereeing
   * [Refereeing](/060-Refereeing/010-Refereeing)
-  * [Jury](/060-Refereeing/020-Jury)
+  * [Jury Control](/060-Refereeing/020-Jury)
   * [Jury Replays](/060-Refereeing/030-JuryReplays)
 * Scoreboards and Results
   * [Scoreboards](/070-ScoreboardsAndResults/010-Displays)
@@ -64,7 +64,7 @@
   * [Feature Toggles](/100-AdvancedTopics/150-FeatureToggles)
   * [Simulation and Load Testing](/100-AdvancedTopics/160-Simulation)
   * [Using Tracker](/100-AdvancedTopics/170-Tracker)
-  * [Keypad Configurations](/100-AdvancedTopics/180-Keypads)
+  * [Refereeing Devices](/100-AdvancedTopics/180-RefereeingDevices)
   * [MQTT Server Configuration](/100-AdvancedTopics/190-MQTT)
   * [MQTT Messaging Specification](/100-AdvancedTopics/200-MQTTMessages)
   * [Using PostgreSQL](/100-AdvancedTopics/210-PostgreSQL)

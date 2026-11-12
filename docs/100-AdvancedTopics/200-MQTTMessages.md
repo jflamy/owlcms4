@@ -56,7 +56,7 @@
 - `owlcms/fop/challenge/A`: 
   A challenge has been issued (the application is in BreakType.CHALLENGE mode.)  There is no argument. The device should clear the jury member decision lights in order to allow a secret vote to be taken on a video replay.
 
-- These two messages are **not** published when the votes on the lift are kept displayed for the review: every jury break of the seven-person Adjudication Panel (jury size 4 with video playback: automatic review, Challenge or Deliberation), and the automatic stop of a four-member jury without video playback (`automaticBreakNoVPT`).  In these cases the lights are cleared by `resetDecisions` when the Jury Chair calls the vote (on a jury box, with Summon All).
+- These two messages are **not** published when the votes on the lift are kept displayed for the review: every jury break of the seven-person Adjudication Panel (jury size 4 with video playback: automatic review, Challenge or Deliberation), and every review with `automaticBreakNoVPT` enabled (3 members, 4 without VPT, or 5 with or without VPT). In these cases the lights are cleared by `resetDecisions` when the Jury Chair calls the vote (on a jury box, with Summon All).
 - They are not published either when a Deliberation becomes a Challenge or the reverse: only the label changes, and the lights stay as they are.
   
 
@@ -175,7 +175,7 @@ Only owlcms listens; devices do not listen to one another.
     - `decision` is `good` or `bad`
 - `owlcms/jurybox/decision/A :decision`: The Jury Chair gives the decision (same as the Good Lift / No Lift buttons of Jury Control).
     - `decision` is `good` or `bad`
-    - The decision is applied at once, without confirmation and without a technical rule (the box has no screen).  The speaker's dialog asks the speaker to get the reason from the Technical Controller.
+    - The decision is applied at once, without confirmation and without a technical rule (the box has no screen).  The announcer's dialog asks the announcer to get the reason from the Technical Controller.
 - `owlcms/jurybox/break/A :breakEvent`: The jury has called for a break.
    - `breakEvent` is `technical` `deliberation` (start a jury-initiated break), `challenge` (start a challenge-initiated break) or `stop` (resume competition).
    - `deliberation` and `challenge` follow the rules of the [Jury](../060-Refereeing/020-Jury#deliberation-challenge-and-summon-rules) page: outside a jury break they start one; during a Deliberation or Challenge started by the Chair, the other one changes only the label; during an automatic review, or for the review already under way, they do nothing.  An invalid `challenge` (the referees gave a Good Lift, or the jury has already decided the lift) is ignored.

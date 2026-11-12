@@ -4,7 +4,12 @@ From the `Results` page, it is possible to get the various competition result do
 
 ## Session Results
 
-The Session Results button opens a page where all athletes are listed.  By selecting the group, the list is narrowed to the group.  Clicking on an athlete brings up the athlete card, in case a correction is required.
+The Session Results button opens a page where all athletes are listed.  By selecting the group, the list is narrowed to the group.  Clicking on an athlete brings up the athlete's form, in case a correction is required.
+
+- Once lifting has started in the athlete's session (or the athlete has results), the form opens on its **Card** tab, where the lifts can be corrected. The registration tabs are then limited to athlete information.
+- Before lifting has started, there is no Card tab and the form opens on the registration information.
+- The Card is available to officials who are allowed to edit athlete cards. The **Allow results editing** box may need to be ticked before lifts can be changed.
+- Competition Results and Team Results open the same form from their athlete lists.
 
 There are two kinds of session results:
 
@@ -30,7 +35,7 @@ Clicking on the file opens Excel (or your spreadsheet editor if you use another 
 
 In order to have a smooth medal ceremony, printing out the medals sheet is recommended.  The medals sheet will only list the categories that are completed.  This is very useful when there are multiple A/B/C groups and sessions are mixed.
 
-The resulting Excel shows all medals in the Bronze, Silver, Gold order.  Whether there are medals for all lifts or just the total is controlled on the competition rules page.
+The resulting Excel shows all medals in the Bronze, Silver, Gold order. The events awarding medals are configured for each championship in the **Championships, Medals and Teams** tab. See [Championships and Awards](../030-PreCompetitionSetup/050-Championships).
 
 > Note:  If [Score-based Medals](../040-CompetitionSetup/060-ScoreBasedCompetitions) are awarded for some age groups, this is not reflected in the Medals sheet.  You will have to use the `Scores` final package template to get a printable document.
 

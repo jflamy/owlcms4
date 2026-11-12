@@ -6,7 +6,7 @@ In OWLCMS a Competition can have multiple Championships being held at the same t
 - Determines the scores used for best athlete awards
 - Determines if team awards are given and how they are computed.
 
-To edit championships, use the Define Championships button on the Prepare Competition page (or the Competitions, Medals and Teams tab in the Competition Rules)
+To edit championships, use **Define Championships** on the Prepare Competition page, or open the **Championships, Medals and Teams** tab in Competition Information and Rules. That tab contains the championship list and editor, not the former competition-wide defaults form. Medal, best-athlete and team rules are configured for each championship.
 
 ![image-20260718093019042](img/050-Championships/image-20260718093019042.png)
 
@@ -16,7 +16,9 @@ This brings up a list of championships
 
 ![image-20261014082938332](img/050-Championships/image-20261014082938332.png)
 
-You will observe that championships have a "Reset to Template" button.  If you are creating several championships and want them to have similar rules, you can use the "Define Championship Template" button and selectively reset a championship to be like your template before doing other specific changes.
+You will observe that championships have a **Reset to Template** button. Use **Define Championship Template**, above the championship list, to edit the shared defaults for medals, best-athlete scoring and team rules. These defaults are no longer edited directly in the Competition Rules tabs.
+
+If you are creating several championships with similar rules, configure the template and use **Reset to Template** on the championships you want to match it, before making championship-specific changes.
 
 ### Championships vs Age Groups vs Categories
 
@@ -60,6 +62,8 @@ Rules can then be adjusted as we want, and applied to the championship
 
 Many federations use score-based systems to assign a team score. This is done by changing the radio button and selecting a scoring system.  For example, we can change the team awards so the team with the best sum of GAMX wins, counting the top 4 men and top 4 women respectively.
 
+The score selector now has an **Include scores of athletes without a total** checkbox, not shown in the screenshot below. It is unchecked by default: an athlete who lifted but did not make a total contributes a score of 0. Check it to use the score calculated from the athlete's best snatch and best clean and jerk even without a total. For example, an athlete with no successful snatch but a successful clean and jerk can then contribute to the team score. This option applies to **Sum of Scores**, not to points-based teams or individual rankings.
+
 ![image-20261014083951742](img/050-Championships/image-20261014083951742.png)
 
 ### Mixed Championships
@@ -75,6 +79,8 @@ Historically, mixed team championships are defined by adding the points of the m
 ### **Score-based Mixed Championships**
 
 There are now scoring formulas such as the GAMX series that are equitable for men and women, such that it is possible to add men and women scores together. "Sum of Scores"  is selected
+
+Mixed teams have their own **Include scores of athletes without a total** checkbox next to the scoring-system selector, independent of the men's/women's team setting. It is also unchecked by default. Check it to include the calculated scores of athletes who lifted without making a total. This applies whether the mixed team counts the best athletes overall or separate numbers of men and women. The screenshots below do not show the new checkbox.
 
 - In this example, we take the best 5 GAMX scores from men or women
 

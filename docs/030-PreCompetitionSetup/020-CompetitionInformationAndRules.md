@@ -26,15 +26,17 @@ These rules are global to the competition.  The typical options to set/check are
 - If there is no Jury, set the Jury size to 0
 - The `Enter the body weight as read on scale` is useful to avoid calculations in the weigh-in room.  With that option, if a male athlete weighs 65,25 kg, you enter 65,25 kg.  The system will know that the athlete is allowed 0,25 kg and record him in the 65 kg category.  The only thing the officials have to know is that 65,26 is over the category threshold, they don't need to subtract.
 
-### Scoring and Medaling Rules
+### Championships, Medals and Teams
 
-In OWLCMS, a Championship defines how medals, best athletes and team scores work. 
+This tab now contains the championship list and editor instead of the former competition-wide defaults form. In OWLCMS, each Championship defines how medals, best athletes and team scores work.
 
-- Are there medals awarded for total only (default) or for the 3 different events
+- Which events award medals: total only, snatch and clean and jerk only, or all three
 - How to determine the best athlete award (GAMX is the official IWF scoring system since May 2026).  You may still be using Sinclair, QPoints, SMHF, or Robi, for example
 - And whether there are team awards, and how they are computed
 
-For details, go to the [Edit Championships](050-Championships.md) page
+Use **Define Championship Template** above the list to edit the shared defaults, and **Reset to Template** to copy them to a selected championship. The default medal, scoring and team controls are no longer edited directly in the Competition Rules tabs. For details, see [Championships and Awards](050-Championships.md).
+
+The screenshot below predates this rearrangement; use the championship list in the current tab.
 
 ![image-20261014082638262](img/020-CompetitionInformationAndRules/image-20261014082638262.png)
 
