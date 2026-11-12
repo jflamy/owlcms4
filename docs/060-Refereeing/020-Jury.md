@@ -96,13 +96,17 @@ The attempt board identifies the athlete and the review.
 
 After recording the votes and watching the [video replay](./030-JuryReplays), the Chair presses **Call for Votes** on Jury Control. On a jury box or Jury Chair keypad, **Summon All** has the same effect.
 
-The vote indicators are cleared, the referee devices are re-armed and buzzed, and **all seven officials vote again**. Grey indicators show who has voted without revealing the values. The original referee decision is retained at the top right.
+The vote indicators are cleared, the referee devices are re-armed and buzzed, and **all seven officials vote again**. The attempt board shows the review banner over empty referee and jury lights while the officials vote.
+
+![Attempt board after the Chair has called the vote](img/020-Jury/125_AttemptBoard_voteCalled.png)
+
+As the officials vote, grey indicators show who has voted without revealing the values. The original referee decision is retained at the top right of Jury Control.
 
 ![Seven-person review vote in progress](img/020-Jury/130_JuryControl_voteInProgress.png)
 
 #### 3. The Completed Vote Requires a Reason
 
-When the seventh vote arrives, all seven decisions are revealed. In this example, the majority is **No Lift**. The competition remains stopped: the Chair must select the technical rule before the result is applied.
+When the seventh vote arrives, all seven decisions are revealed. In this example, the majority is **No Lift**. The competition remains stopped: the Chair must select the technical rule before the result is applied.  We see that a referee and a jury member changed their vote relative to the first instance.
 
 ![Attempt board showing the completed review vote](img/020-Jury/150_AttemptBoard_votes.png)
 
@@ -112,11 +116,11 @@ Jury Control opens the rule selection. Here the Chair selects **1 - Bending and 
 
 #### 4. The No Lift and Its Reason Are Displayed
 
-Selecting the rule applies the reversal. The attempt board identifies the reviewed athlete and lift and shows **Jury Reversal - No Lift**, with the reason.
+Selecting the rule applies the reversal. The attempt board shows **Panel Reversal - No Lift** with the athlete, the lift and the reason, over the yellow review banner.
 
 ![Attempt board showing the reversal to No Lift and its reason](img/020-Jury/155_AttemptBoard_decision.png)
 
-The announcer receives the same decision and reason, even though the next athlete may already be shown behind the notification.
+The announcer receives the same decision and reason in a **Panel Decision** notification, while the lifting order has already moved on.
 
 ![Announcer announcing the reversal to No Lift and its reason](img/020-Jury/160_Speaker_decision.png)
 
@@ -146,7 +150,9 @@ Unlike the seven-person panel, the jury-only review vote **opens immediately**: 
 
 #### 3. Only the Jury Votes Again
 
-After discussing the lift, the Chair asks the four jury members to vote verbally. **The referees do not vote again**, and there is no need to press Call for Votes to open this first review vote.
+After discussing the lift, the Chair asks the four jury members to vote verbally. **The referees do not vote again**, and there is no need to press Call for Votes to open this first review vote. The attempt board shows the **Challenge** banner with only the four empty jury circles: the referee lights are not used.
+
+![215_AttemptBoard_juryOnly](img/020-Jury/215_AttemptBoard_juryOnly.png)
 
 Three grey circles and one empty circle mean three jurors have voted. Their choices remain hidden.
 
@@ -180,7 +186,7 @@ The workflow then has the same separate stages as the seven-person panel:
 
 1. An automatic review, **Jury Deliberation** or **Challenge** stops the competition.
 2. The votes on the lift stay displayed. The review vote has **not** started.
-3. After recording the votes and any discussion or replay, press **Call for Votes**. On a keypad or jury box, **Summon All** calls the vote.
+3. After recording the votes and any discussion or replay, press **Call for Votes**. On a keypad or jury box, **Summon All** calls the vote (same as for the 7 person panel, to match the wording in TCRR).
 4. Only the jury members vote again. The referee decision is retained, not replaced by new referee votes.
 5. When all jury votes are in, the Chair applies the result.
 
