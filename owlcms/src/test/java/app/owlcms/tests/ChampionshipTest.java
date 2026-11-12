@@ -1991,9 +1991,9 @@ public class ChampionshipTest {
     }
 
     @Test
-    public void testTeamResultsTemplatesIterateCountedTeamMembers() throws Exception {
-        assertTeamResultsTemplateUsesCountedMembers("/templates/teamResults/TeamResults-A4.xlsx");
-        assertTeamResultsTemplateUsesCountedMembers("/templates/teamResults/TeamResults-Letter.xlsx");
+    public void testTeamResultsTemplatesIterateLiftedTeamMembers() throws Exception {
+        assertTeamResultsTemplateUsesLiftedMembers("/templates/teamResults/TeamResults-A4.xlsx");
+        assertTeamResultsTemplateUsesLiftedMembers("/templates/teamResults/TeamResults-Letter.xlsx");
     }
 
     @Test
@@ -2320,7 +2320,7 @@ public class ChampionshipTest {
         method.invoke(sheet);
     }
 
-    private static void assertTeamResultsTemplateUsesCountedMembers(String templateResource) throws Exception {
+    private static void assertTeamResultsTemplateUsesLiftedMembers(String templateResource) throws Exception {
         try (InputStream templateStream = ChampionshipTest.class.getResourceAsStream(templateResource)) {
             assertNotNull("missing Team Results template: " + templateResource, templateStream);
             try (Workbook workbook = WorkbookFactory.create(templateStream)) {
@@ -2328,8 +2328,8 @@ public class ChampionshipTest {
                         .getRow(2)
                         .getCell(5)
                         .getStringCellValue();
-                assertEquals("mixed status denominator should use configured team size for " + templateResource,
-                        "${team.counted}/${mwTeamSize != 0 ? mwTeamSize : team.size}",
+                assertEquals("mixed status denominator should be the members who lifted for " + templateResource,
+                        "${team.counted}/${team.memberCount}",
                         statusValue);
 
                 String mixedMemberLoop = workbook.getSheet("Mixed")
@@ -2338,8 +2338,8 @@ public class ChampionshipTest {
                         .getCellComment()
                         .getString()
                         .getString();
-                assertEquals("mixed member loop should use counted team members for " + templateResource,
-                        "jx:each(items=\"team.countedTeamMembers\" var=\"member\" lastCell=\"G5\")",
+                assertEquals("mixed member loop should list the members who lifted for " + templateResource,
+                        "jx:each(items=\"team.liftedTeamMembers\" var=\"member\" lastCell=\"G5\")",
                         mixedMemberLoop);
             }
         }
@@ -2383,8 +2383,8 @@ public class ChampionshipTest {
                         .getCell(5)
                         .getStringCellValue();
                 assertEquals(
-                        "summary template should keep the configured team-size denominator for " + templateResource,
-                        "${team.counted}/${mwTeamSize != 0 ? mwTeamSize : team.size}",
+                        "summary template denominator should be the members who lifted for " + templateResource,
+                        "${team.counted}/${team.memberCount}",
                         teamStatus);
 
                 String teamPoints = workbook.getSheet("Mixed")
