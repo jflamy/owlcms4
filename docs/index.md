@@ -85,15 +85,15 @@ The following list is a sampling of the many features available.  <u>*Click on t
     
       ![mobile_ref](img/index/mobile_ref.png ':size=350')
   
-  - [**USB or Bluetooth programmable keypads**](./100-AdvancedTopics/180-RefereeingDevices#usb-or-bluetooth-programmable-keypads). Many people prefer using actual buttons. Programmable keypads send the referee or jury shortcuts to an OWLCMS browser.
+  - [**USB or Bluetooth programmable keypads**](./060-Refereeing/015-RefereeingDevices#usb-or-bluetooth-programmable-keypads). Many people prefer using actual buttons. Programmable keypads send the referee or jury shortcuts to an OWLCMS browser.
     
       ![refereeingSetup](img/index/refereeingSetup.jpg ':size=350')  
   
-  - [**Build-your-own MQTT devices**](./100-AdvancedTopics/180-RefereeingDevices#build-your-own-mqtt-devices). The owlcms-firmata project supplies software and schematics for Arduino-based referee, jury and timekeeper devices, including indicators and buzzers.
+  - [**Build-your-own MQTT devices**](./060-Refereeing/015-RefereeingDevices#build-your-own-mqtt-devices). The owlcms-firmata project supplies software and schematics for Arduino-based referee, jury and timekeeper devices, including indicators and buzzers.
 
-  - [**Commercial devices**](./100-AdvancedTopics/180-RefereeingDevices#commercial-devices), such as Blue Owl.
+  - [**Commercial devices**](./060-Refereeing/015-RefereeingDevices#commercial-devices), such as Blue Owl.
 
-  - [**Fully custom MQTT devices**](./100-AdvancedTopics/180-RefereeingDevices#fully-custom-mqtt-devices), using the documented message protocol.
+  - [**Fully custom MQTT devices**](./060-Refereeing/015-RefereeingDevices#fully-custom-mqtt-devices), using the documented message protocol.
 
   ![FederationKit](img/index/FederationKit.png ':size=450')![home-built](img/index/home-built.jpg ':size=250')
 

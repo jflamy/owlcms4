@@ -8,7 +8,7 @@ There are five ways to provide referee, jury and timekeeper devices:
 4. [Commercial devices, such as Blue Owl](#commercial-devices).
 5. [Fully custom devices using the documented MQTT messages](#fully-custom-mqtt-devices).
 
-This page covers equipment, setup and keypad mappings. For operation during a competition, see [Refereeing](../060-Refereeing/010-Refereeing), [Jury Control](../060-Refereeing/020-Jury) and [Timekeeping](../050-RunningACompetition/040-Timekeeping).
+This page covers equipment, setup and keypad mappings. For operation during a competition, see [Refereeing](./010-Refereeing), [Jury Control](./020-Jury) and [Timekeeping](../050-RunningACompetition/040-Timekeeping).
 
 ## Phones and Tablets
 
@@ -16,9 +16,9 @@ The simplest approach is to open the referee or jury-member page in a phone or t
 
 The browser connects to the OWLCMS address, whether OWLCMS runs on the competition laptop or in the cloud. Select the correct platform and referee or jury-member position before testing.
 
-![010_mobile_ref](img/180-RefereeingDevices/010_mobile_ref.png ':size=350')
+![010_mobile_ref](img/015-RefereeingDevices/010_mobile_ref.png ':size=350')
 
-The referee page provides decision buttons, reminders and summons. See [Mobile Device Refereeing](../060-Refereeing/010-Refereeing#mobile-device-refereeing) for the operating sequence.
+The referee page provides decision buttons, reminders and summons. See [Mobile Device Refereeing](./010-Refereeing#mobile-device-refereeing) for the operating sequence.
 
 ## USB or Bluetooth Programmable Keypads
 
@@ -32,15 +32,15 @@ A programmable keypad sends keyboard shortcuts to a browser. Referees and jurors
 
 Two-button USB keypads are available from electronics suppliers. Red and white keycaps or stickers identify the decisions. Use the supplier's programming software to assign the keys for each official.
 
-![020_USB_keypad](img/180-RefereeingDevices/020_USB_keypad.jpg ':size=350')
+![020_USB_keypad](img/015-RefereeingDevices/020_USB_keypad.jpg ':size=350')
 
 [Delcom](https://www.delcomproducts.com/productdetails.asp?PartNumber=706502-5M) is another example of a supplier of physical USB buttons.
 
-![021_refereeingSetup](img/180-RefereeingDevices/021_refereeingSetup.jpg)
+![021_refereeingSetup](img/015-RefereeingDevices/021_refereeingSetup.jpg)
 
 For referees, connect the keypads to the computer driving the athlete-facing display, attempt board or scoreboard. The browser can emit the down signal directly, without waiting for a round trip to the main OWLCMS computer.
 
-![022_keypadSetup](img/180-RefereeingDevices/022_keypadSetup.SVG)
+![022_keypadSetup](img/015-RefereeingDevices/022_keypadSetup.SVG)
 
 A keyboard-only keypad does not receive OWLCMS reminders or summons itself; the hosting browser provides the display and sound. Use a feedback-capable MQTT device when the official needs indicators or a buzzer on the device.
 
@@ -86,11 +86,11 @@ Connect the Jury Chair keypad to the computer running Jury Control.
 | `B` | Chair-entered No Lift during a review; opens the technical-rule selection |
 | `Escape` | Resume Competition |
 
-The `K` key follows the physical jury box's **Summon All** action. During a seven-person panel review, or a jury-only review with automatic stop enabled, it calls the review vote. Otherwise it summons the referees. See [Calling Referees Versus Calling a Vote](../060-Refereeing/020-Jury#calling-referees-versus-calling-a-vote).
+The `K` key follows the physical jury box's **Summon All** action. During a seven-person panel review, or a jury-only review with automatic stop enabled, it calls the review vote. Otherwise it summons the referees. See [Calling Referees Versus Calling a Vote](./020-Jury#calling-referees-versus-calling-a-vote).
 
 The shortcuts obey the same review rules as the buttons. In particular, an invalid Challenge is ignored, and `G` / `B` are Chair-entered decisions, not shortcuts for confirming a completed vote. Vote confirmation, technical-rule selection and **Cancel vote result** are performed on the screen.
 
-The `noJuryAlphabeticalShortcuts` [feature switch](./150-FeatureToggles) disables the Jury Chair shortcuts while retaining the jury-member digit mappings.
+The `noJuryAlphabeticalShortcuts` [feature switch](../100-AdvancedTopics/150-FeatureToggles) disables the Jury Chair shortcuts while retaining the jury-member digit mappings.
 
 ### Announcer and Timekeeper Mappings
 
@@ -110,7 +110,7 @@ Programmable Bluetooth buttons, such as [Flic in Universal mode](https://flic.io
 
 The active Announcer page also uses **F2** for a manually entered Good Lift and **F4** for a No Lift. These are not the three individual referee decisions.
 
-The one-minute and two-minute reset values are normally 1:00 and 2:00. See [Athlete Timer Parameters](./140-Configuration#athlete-timer-parameters) for configuration.
+The one-minute and two-minute reset values are normally 1:00 and 2:00. See [Athlete Timer Parameters](../100-AdvancedTopics/140-Configuration#athlete-timer-parameters) for configuration.
 
 ## Build-Your-Own MQTT Devices
 
@@ -118,7 +118,7 @@ The one-minute and two-minute reset values are normally 1:00 and 2:00. See [Athl
 
 The Arduino runs the supplied Firmata firmware. The owlcms-firmata interface program connects the hardware to OWLCMS over MQTT. The project supplies the firmware, interface software, schematics and configuration instructions; building the standard designs does not require writing your own application.
 
-![030_firmataOverview](img/180-RefereeingDevices/030_firmataOverview.png)
+![030_firmataOverview](img/015-RefereeingDevices/030_firmataOverview.png)
 
 Follow the [project's installation and wiring instructions](https://github.com/owlcms/owlcms-firmata). Adjust its configuration if your build uses different pins or omits components.
 
@@ -126,23 +126,23 @@ Follow the [project's installation and wiring instructions](https://github.com/o
 
 A referee device can include red/white decision buttons, reminder and summon indicators, and a buzzer. The following design also controls an external down-signal light and sound.
 
-![040_refereeBox](img/180-RefereeingDevices/040_refereeBox.png)
+![040_refereeBox](img/015-RefereeingDevices/040_refereeBox.png)
 
 ### Button-Only Jury Box
 
 The Chair and jury members use physical buttons while reading the decisions on Jury Control. This avoids programming a keyboard-emulating keypad: the supplied interface handles the buttons.
 
-![050_juryButtons](img/180-RefereeingDevices/050_juryButtons.png)
+![050_juryButtons](img/015-RefereeingDevices/050_juryButtons.png)
 
 ### Jury Box with Indicators
 
 A full jury box includes referee and jury indicators as well as buttons. This five-member design can be built with three or four jury-member positions instead.
 
-![060_juryBox](img/180-RefereeingDevices/060_juryBox.png)
+![060_juryBox](img/015-RefereeingDevices/060_juryBox.png)
 
-The physical controls follow the workflows in [Jury Control](../060-Refereeing/020-Jury). In particular, the physical Good Lift / No Lift buttons apply the Chair's decision directly; they do not provide the on-screen technical-rule dialog.
+The physical controls follow the workflows in [Jury Control](./020-Jury). In particular, the physical Good Lift / No Lift buttons apply the Chair's decision directly; they do not provide the on-screen technical-rule dialog.
 
-For connection settings, see [MQTT Configuration](./190-MQTT).
+For connection settings, see [MQTT Configuration](../100-AdvancedTopics/190-MQTT).
 
 ## Commercial Devices
 
@@ -154,10 +154,10 @@ Commercial MQTT devices use the same OWLCMS competition workflows as build-your-
 
 ## Fully Custom MQTT Devices
 
-You can implement your own device or interface using the documented [MQTT Messages](./200-MQTTMessages), without using owlcms-firmata. The hardware and programming language are your choice.
+You can implement your own device or interface using the documented [MQTT Messages](../100-AdvancedTopics/200-MQTTMessages), without using owlcms-firmata. The hardware and programming language are your choice.
 
 The implementation must both send official actions and process the OWLCMS feedback required by the device: resets, reminders, summons, hidden votes and revealed decisions. Follow the protocol's external-controller logic rather than assuming that every button press immediately changes the competition state.
 
 Examples of custom implementations include the [owlcms ESP32 project](https://github.com/jflamy/owlcms-esp32) and [M5Stack referee device](https://github.com/kingbutter/owlcms4-ref-m5stack-core2).
 
-See [MQTT Configuration](./190-MQTT) for the embedded broker, WebSocket connections and external brokers. See [MQTT Messages](./200-MQTTMessages) for topics, payloads and device behavior.
+See [MQTT Configuration](../100-AdvancedTopics/190-MQTT) for the embedded broker, WebSocket connections and external brokers. See [MQTT Messages](../100-AdvancedTopics/200-MQTTMessages) for topics, payloads and device behavior.

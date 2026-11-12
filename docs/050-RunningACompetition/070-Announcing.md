@@ -36,7 +36,7 @@ Either the announcer or the timekeeper can start the clock.
 
 ##### Shortcuts
 
-Keyboard shortcuts and programmable USB/Bluetooth button mappings are documented on [Refereeing Devices](../100-AdvancedTopics/180-RefereeingDevices#announcer-and-timekeeper-mappings).
+Keyboard shortcuts and programmable USB/Bluetooth button mappings are documented on [Refereeing Devices](../060-Refereeing/015-RefereeingDevices#announcer-and-timekeeper-mappings).
 
 ## Stopping/Restarting the clock
 
@@ -48,7 +48,7 @@ The announcer (if acting as timekeeper), or the timekeeper (using the timekeeper
 
 If no refereeing devices are being used, the announcer captures the decision given using flags, cards or hand signals.
 
-Use the decision buttons, or the [announcer shortcuts](../100-AdvancedTopics/180-RefereeingDevices#announcer-and-timekeeper-mappings), to record the result.
+Use the decision buttons, or the [announcer shortcuts](../060-Refereeing/015-RefereeingDevices#announcer-and-timekeeper-mappings), to record the result.
 
 ![018_SoloGoodLift](img/070-Announcing/070.png)
 
@@ -138,7 +138,7 @@ The timekeeper can also select the group, and supervise the breaks.
 Notes:
 
 - the Timekeeper screen also works on iPhones, iPads and Android phones.
-- keyboard shortcuts and physical-device setup are documented on [Refereeing Devices](../100-AdvancedTopics/180-RefereeingDevices#announcer-and-timekeeper-mappings).
+- keyboard shortcuts and physical-device setup are documented on [Refereeing Devices](../060-Refereeing/015-RefereeingDevices#announcer-and-timekeeper-mappings).
 
 ![timekeeper](img/070-Announcing/140.png)
 

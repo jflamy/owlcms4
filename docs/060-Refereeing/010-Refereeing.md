@@ -1,6 +1,6 @@
 OWLCMS supports using refereeing devices and 3, 4 and 5-member juries, including the TCRR 2026 seven-person Adjudication Panel. See [Jury Control](./020-Jury) for the voting and review workflows. The decisions are displayed to the public and athletes on the displays started on the [Start Displays](../070-ScoreboardsAndResults/010-Displays) page.
 
-Referees can use phones or tablets, USB or Bluetooth programmable keypads, build-your-own MQTT devices based on owlcms-firmata, commercial devices such as Blue Owl, or fully custom MQTT devices. Equipment, construction and shortcut mappings are described on [Refereeing Devices](../100-AdvancedTopics/180-RefereeingDevices).
+Referees can use phones or tablets, USB or Bluetooth programmable keypads, build-your-own MQTT devices based on owlcms-firmata, commercial devices such as Blue Owl, or fully custom MQTT devices. Equipment, construction and shortcut mappings are described on [Refereeing Devices](./015-RefereeingDevices).
 
 This page covers their use during lifting. If no devices are used, the announcer records decisions given with flags, cards or hand signals.
 
@@ -41,7 +41,7 @@ Use the red or white button programmed for your referee position. The hosting br
 
 The browser receives the decisions and emits the down signal when two referees agree. The hosting display provides the visual and audible feedback; a keyboard-only keypad does not receive reminders or summons itself.
 
-See [USB or Bluetooth Programmable Keypads](../100-AdvancedTopics/180-RefereeingDevices#usb-or-bluetooth-programmable-keypads) for connection, programming and shortcut tables.
+See [USB or Bluetooth Programmable Keypads](./015-RefereeingDevices#usb-or-bluetooth-programmable-keypads) for connection, programming and shortcut tables.
 
 ## MQTT Devices
 
@@ -49,4 +49,4 @@ Build-your-own owlcms-firmata devices, commercial Blue Owl devices and fully cus
 
 Feedback-capable devices can remind the third referee to decide and summon referees to the jury table. During a seven-person Adjudication Panel review, the referees vote again when the Chair calls for votes; the review votes remain hidden until all seven officials have voted. See [Jury Control](./020-Jury) for that sequence.
 
-See [Refereeing Devices](../100-AdvancedTopics/180-RefereeingDevices) for equipment and setup, and the manufacturer's or project's instructions for the indicators and sounds of a particular device.
+See [Refereeing Devices](./015-RefereeingDevices) for equipment and setup, and the manufacturer's or project's instructions for the indicators and sounds of a particular device.

@@ -279,4 +279,4 @@ Jury members use the decision buttons for their assigned positions. The Chair us
 
 Programmable keypads must target the Jury Control browser. MQTT devices are configured for the correct platform. On a physical jury box, **Summon All** can mean **Call for Votes**, while the individual summon buttons call one referee. The physical **Good Lift / No Lift** buttons apply a Chair-entered decision directly, without the screen's rule-selection dialog.
 
-For the five equipment approaches, USB/Bluetooth mappings, owlcms-firmata builds, Blue Owl devices and custom MQTT implementations, see [Refereeing Devices](../100-AdvancedTopics/180-RefereeingDevices).
+For the five equipment approaches, USB/Bluetooth mappings, owlcms-firmata builds, Blue Owl devices and custom MQTT implementations, see [Refereeing Devices](./015-RefereeingDevices).

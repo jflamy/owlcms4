@@ -2,7 +2,7 @@
 
 MQTT connects OWLCMS to referee, jury and timekeeper devices. OWLCMS includes an MQTT server for these connections.
 
-For build-your-own devices based on owlcms-firmata, commercial Blue Owl devices and fully custom implementations, see [Refereeing Devices](./180-RefereeingDevices). This page describes broker and connection settings. [MQTT Messages](./200-MQTTMessages) describes the protocol.
+For build-your-own devices based on owlcms-firmata, commercial Blue Owl devices and fully custom implementations, see [Refereeing Devices](../060-Refereeing/015-RefereeingDevices). This page describes broker and connection settings. [MQTT Messages](./200-MQTTMessages) describes the protocol.
 
 ### Optional configuration of the embedded MQTT server
 

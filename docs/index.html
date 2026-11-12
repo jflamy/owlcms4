@@ -19,18 +19,10 @@
 </head>
 <body>
   <div id="app"></div>
-	<script src="route-map.js"></script>
   <script>
-		function redirectLegacyRoute() {
-			const match = window.location.hash.match(/^#\/([^?#]*)(.*)$/);
-			if (!match) return;
-			const destination = window.owlcmsDocRoutes[match[1].replace(/\.md$/, '')];
-			if (destination) window.location.replace('#/' + destination + match[2]);
-		}
-		redirectLegacyRoute();
-		window.addEventListener('hashchange', redirectLegacyRoute);
     window.$docsify = {
     	homepage: 'index.md',
+    	notFoundPage: 'index.md',
     	loadNavbar: false,
     	loadSidebar: true,
 			relativePath: true,
