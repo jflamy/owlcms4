@@ -50,6 +50,19 @@ The screen is organized as follows:
 
 When a review vote clears the main referee indicators, the original referee decision is kept at the top right. It remains there through the review, the decision and Resume, until the next athlete's clock starts.
 
+### Review Labels on the Boards
+
+During a review, the attempt board banner and the scoreboard decision section name the stage of the review. The label changes when the Chair explicitly calls the vote with **Call for Votes** (or **Summon All** when it calls the vote).
+
+| How the review started | Before the vote is called | After the Chair calls the vote |
+| --- | --- | --- |
+| Automatically, seven-person panel | **Adjudication Panel Review** | **Adjudication Panel Vote** |
+| Automatically, [optional automatic stop](#optional-automatic-stop-without-the-panel) | **Jury Review** | **Jury Vote** |
+| **Jury Deliberation** pressed by the Chair | **Jury Deliberation** | **Adjudication Panel Vote** (seven-person panel) or **Jury Vote** |
+| **Challenge** pressed by the Chair | **Challenge** | **Adjudication Panel Vote** (seven-person panel) or **Jury Vote** |
+
+In the default jury-only workflow, the jury vote opens by itself when the Chair starts a deliberation or challenge, because the jury often discusses the lift before voting. The label stays **Jury Deliberation** or **Challenge** until the Chair presses **Call for Votes**. **Cancel vote result** returns to the label shown before the vote was called.
+
 ## Example 1: A Normal Lift
 
 This example uses a four-member jury with VPT. The referees give **two white lights and one red light: Good Lift**. All four jury members then vote Good Lift, so there is no review.
@@ -96,7 +109,7 @@ The attempt board identifies the athlete and the review.
 
 After recording the votes and watching the [video replay](./030-JuryReplays), the Chair presses **Call for Votes** on Jury Control. On a jury box or Jury Chair keypad, **Summon All** has the same effect.
 
-The vote indicators are cleared, the referee devices are re-armed and buzzed, and **all seven officials vote again**. The attempt board shows the review banner over empty referee and jury lights while the officials vote.
+The vote indicators are cleared, the referee devices are re-armed and buzzed, and **all seven officials vote again**. The attempt board banner changes to **Adjudication Panel Vote**, over empty referee and jury lights while the officials vote.
 
 ![Attempt board after the Chair has called the vote](img/020-Jury/125_AttemptBoard_voteCalled.png)
 
@@ -150,7 +163,7 @@ Unlike the seven-person panel, the jury-only review vote **opens immediately**: 
 
 #### 3. Only the Jury Votes Again
 
-After discussing the lift, the Chair asks the four jury members to vote verbally. **The referees do not vote again**, and there is no need to press Call for Votes to open this first review vote. The attempt board shows the **Challenge** banner with only the four empty jury circles: the referee lights are not used.
+After discussing the lift, the Chair asks the four jury members to vote verbally. **The referees do not vote again**, and there is no need to press Call for Votes to open this first review vote. The attempt board keeps the **Challenge** banner, since the vote was not called with Call for Votes, and shows only the four empty jury circles: the referee lights are not used.
 
 ![215_AttemptBoard_juryOnly](img/020-Jury/215_AttemptBoard_juryOnly.png)
 
@@ -184,9 +197,9 @@ Enable `automaticBreakNoVPT` to stop the competition when the jury's votes on th
 
 The workflow then has the same separate stages as the seven-person panel:
 
-1. An automatic review, **Jury Deliberation** or **Challenge** stops the competition.
+1. An automatic review (**Jury Review** on the boards), **Jury Deliberation** or **Challenge** stops the competition.
 2. The votes on the lift stay displayed. The review vote has **not** started.
-3. After recording the votes and any discussion or replay, press **Call for Votes**. On a keypad or jury box, **Summon All** calls the vote (same as for the 7 person panel, to match the wording in TCRR).
+3. After recording the votes and any discussion or replay, press **Call for Votes**. On a keypad or jury box, **Summon All** calls the vote (same as for the 7 person panel, to match the wording in TCRR). The boards then show **Jury Vote**.
 4. Only the jury members vote again. The referee decision is retained, not replaced by new referee votes.
 5. When all jury votes are in, the Chair applies the result.
 

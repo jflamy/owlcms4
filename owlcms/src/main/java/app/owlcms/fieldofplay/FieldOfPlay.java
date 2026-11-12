@@ -236,6 +236,11 @@ public class FieldOfPlay implements IUnregister {
 	private boolean juryReview;
 	/** Phase B: the review vote of the seven officials is open (Call for Votes) */
 	private boolean panelVoteOpen;
+	/**
+	 * The Jury Chair called the review vote (Call for Votes, or Summon All when it is a call), as opposed to the vote
+	 * that opens by itself when a review started by the Chair begins or after a cancelled result.
+	 */
+	private boolean reviewVoteCalled;
 	/** Phase B: the referees' review votes, separate from the initial decision in refereeDecision */
 	private Boolean[] reviewRefereeDecision = new Boolean[AdjudicationPanel.NB_REFEREES];
 	/** Phase B: the panel majority once all seven have voted, null before */
@@ -948,7 +953,7 @@ public class FieldOfPlay implements IUnregister {
 			SummonReferee e2 = (SummonReferee) e;
 			if (e2.getRefNumber() == 0 && isSummonAllVote()) {
 				// TCRR 7.5.7: the Chair presses the Referee call buttons to request the new decision
-				doPanelVoteCalled(e.getOrigin());
+				doPanelVoteCalled(e.getOrigin(), true);
 				return;
 			} else if (this.panelVoteOpen && isPanelProcedure() && e2.getRefNumber() >= 1 && e2.getRefNumber() <= 3) {
 				// re-call one referee who has not voted, nothing is cleared
@@ -974,7 +979,7 @@ public class FieldOfPlay implements IUnregister {
 			// do not return; error message will be shown if state does not allow summon.
 		} else if (e instanceof FOPEvent.PanelVoteCalled) {
 			if (isPanelVoteCallable()) {
-				doPanelVoteCalled(e.getOrigin());
+				doPanelVoteCalled(e.getOrigin(), true);
 			} else {
 				unexpectedEventInState(e, getState());
 			}
@@ -1555,10 +1560,15 @@ public class FieldOfPlay implements IUnregister {
 	 * Phase B step B2: the review vote is called. The votes are cleared; with the seven-person panel the referee
 	 * devices are re-armed and buzzed; for a jury vote (any other jury) only the jurors vote again and the referees'
 	 * decision stays. Calling again restarts the vote.
+	 *
+	 * @param byChair true when the Jury Chair called the vote, false when it opens by itself (see
+	 *                {@link #openJuryVoteAtReviewStart()})
 	 */
-	private void doPanelVoteCalled(Object origin) {
-		this.logger.info("{}{} review vote called for {}", FieldOfPlay.getLoggingName(this),
-		        isPanelProcedure() ? "adjudication panel" : "jury", this.athleteUnderReview);
+	private void doPanelVoteCalled(Object origin, boolean byChair) {
+		this.logger.info("{}{} review vote {} for {}", FieldOfPlay.getLoggingName(this),
+		        isPanelProcedure() ? "adjudication panel" : "jury", byChair ? "called" : "opened",
+		        this.athleteUnderReview);
+		this.reviewVoteCalled = byChair;
 		this.juryTopLineDecisionActive = true;
 		this.panelVoteOpen = true;
 		this.panelVoteMajority = null;
@@ -1581,7 +1591,7 @@ public class FieldOfPlay implements IUnregister {
 	 */
 	private void openJuryVoteAtReviewStart() {
 		if (hasJuryReviewVote() && !isVoteCallExplicit() && !this.juryReview && this.athleteUnderReview != null) {
-			doPanelVoteCalled(this);
+			doPanelVoteCalled(this, false);
 		}
 	}
 
@@ -1766,6 +1776,7 @@ public class FieldOfPlay implements IUnregister {
 	 * Abandon the review vote (end of the break, or a decision has been applied).
 	 */
 	private void closePanelVote(Object origin) {
+		this.reviewVoteCalled = false;
 		if (!this.panelVoteOpen && this.panelVoteMajority == null) {
 			return;
 		}
@@ -1840,6 +1851,7 @@ public class FieldOfPlay implements IUnregister {
 	private void clearJuryVotesForChairDecision(Object origin) {
 		boolean voteInProgress = this.panelVoteOpen || this.panelVoteMajority != null;
 		this.panelVoteOpen = false;
+		this.reviewVoteCalled = false;
 		this.panelVoteMajority = null;
 		this.panelVoteRevealed = false;
 		this.panelVotePubliclyRevealed = false;
@@ -2103,6 +2115,15 @@ public class FieldOfPlay implements IUnregister {
 	 */
 	public boolean isPanelVoteOpen() {
 		return this.panelVoteOpen;
+	}
+
+	/**
+	 * @return true when the Jury Chair called the review vote of the current review (Call for Votes, or Summon All when
+	 *         it is a call); false while no vote was called, including when the vote opened by itself at the start of
+	 *         a review started by the Chair. Cleared when the vote result is cancelled and when the review ends.
+	 */
+	public boolean isReviewVoteCalled() {
+		return this.reviewVoteCalled;
 	}
 
 	/**

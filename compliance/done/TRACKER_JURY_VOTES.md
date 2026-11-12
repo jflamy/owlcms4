@@ -121,7 +121,10 @@ computes them, with jury votes always included.
 | `jury` | one cell per juror when there is a jury (`[]` otherwise), same vocabulary, **whatever the switches** |
 | `review` | `none`, `deliberation` or `challenge` |
 | `panelReview` | the review is the automatic seven-person Adjudication Panel Review (`fop.isPanelReview()`) |
-| `reviewVoteOpen` | the Chair has called for votes and the vote is in progress (`fop.isPanelVoteOpen()`) |
+| `reviewVoteOpen` | the review vote is open: called by the Chair, or opened by itself at a jury-only deliberation or challenge (`fop.isPanelVoteOpen()`) |
+| `juryReview` | the review is the automatic stop of a jury other than the seven-person panel (`automaticBreakNoVPT`, `fop.isJuryReview()`) |
+| `reviewVoteCalled` | the Chair explicitly called the vote (Call for Votes, or Summon All as a vote call); false when the vote opened by itself (`fop.isReviewVoteCalled()`) |
+| `panelProcedure` | the seven-person procedure applies: four jurors with VPT (`fop.isPanelProcedure()`) |
 | `reviewStartMillis` | during a review only: epoch ms when the deliberation or challenge started (scoreboard stopwatch) |
 | `originalRefereeDecisions` | during a review only: the referees' lights on the lift under review, `true`/`false`/`null` |
 

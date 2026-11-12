@@ -52,6 +52,7 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.JuryRejectionReasons;
+import app.owlcms.uievents.ReviewLabels;
 import app.owlcms.uievents.UIEvent;
 
 /**
@@ -1991,6 +1992,74 @@ public class SevenPersonAdjudicationTest {
 	/** the Jury Chair's Confirm Good Lift on the result screen (or Good Lift on the jury box) */
 	private void confirmGoodLift() {
 		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), W, true, null, true));
+	}
+
+	// ---------------------------------------------------------------- review labels on the displays
+
+	@Test
+	public void automaticPanelReviewBecomesThePanelVoteOnceCalled() {
+		reviewAfterLift(W, W, W);
+		assertReviewLabel(ReviewLabels.PANEL_REVIEW);
+		callForVotes();
+		assertReviewLabel(ReviewLabels.PANEL_VOTE);
+		reviewVotes(R, R, R);
+		juryVotes(R, R, R, R);
+
+		post(new FOPEvent.PanelVoteCancelled(new Object()));
+		assertReviewLabel(ReviewLabels.PANEL_REVIEW);
+		callForVotes();
+		assertReviewLabel(ReviewLabels.PANEL_VOTE);
+
+		post(new FOPEvent.StartLifting(new Object()));
+		assertFalse("the next review starts with its own label", this.fop.isReviewVoteCalled());
+	}
+
+	@Test
+	public void chairDeliberationOnThePanelIsAJuryDeliberationUntilTheVoteIsCalled() {
+		lift(W, W, W);
+		juryVotes(W, W, W, W);
+		post(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		assertReviewLabel(ReviewLabels.JURY_DELIBERATION);
+		post(new FOPEvent.SummonReferee(new Object(), 0));
+		assertTrue(awaitCondition(() -> this.fop.isPanelVoteOpen()));
+		assertReviewLabel(ReviewLabels.PANEL_VOTE);
+	}
+
+	@Test
+	public void challengeBecomesThePanelVoteOnceCalled() {
+		lift(R, R, W);
+		juryVotes(R, R, R, R);
+		post(new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		assertReviewLabel(ReviewLabels.CHALLENGE);
+		callForVotes();
+		assertReviewLabel(ReviewLabels.PANEL_VOTE);
+	}
+
+	@Test
+	public void automaticJuryStopBecomesTheJuryVoteOnceCalled() {
+		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, true);
+		lift(W, W, W);
+		juryVotes(R, R, R, R);
+		assertTrue(this.fop.isJuryReview());
+		assertReviewLabel(ReviewLabels.JURY_REVIEW);
+		post(new FOPEvent.SummonReferee(new Object(), 0));
+		assertTrue(awaitCondition(() -> this.fop.isPanelVoteOpen()));
+		assertReviewLabel(ReviewLabels.JURY_VOTE);
+	}
+
+	@Test
+	public void voteOpenedByTheDeliberationKeepsTheDeliberationLabel() {
+		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, false);
+		juryDeliberation(3, W, W, W);
+		assertTrue("the vote is open at once", this.fop.isPanelVoteOpen());
+		assertReviewLabel(ReviewLabels.JURY_DELIBERATION);
+		callForVotes();
+		assertReviewLabel(ReviewLabels.JURY_VOTE);
+	}
+
+	private void assertReviewLabel(String expectedKey) {
+		assertEquals(expectedKey, ReviewLabels.key(this.fop.getBreakType(), this.fop));
 	}
 
 	// ---------------------------------------------------------------- full review, UI events in order

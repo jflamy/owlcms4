@@ -826,10 +826,10 @@ public class JuryScenario {
 			step("The four jurors vote 0 white, 4 red: automatic Adjudication Panel Review",
 			        "The seven-person majority is against the referees' Good Lift. The automatic jury break starts, "
 			                + "but no review vote is called. Speaker: \"Waiting for decision\".",
-			        List.of(new Check("jury", "Call for Votes is orange", buttonColor("Call for Votes", ORANGE)),
+			        plus(List.of(new Check("jury", "Call for Votes is orange", buttonColor("Call for Votes", ORANGE)),
 			                new Check("speaker", "the Speaker waits for the decision",
 			                        dialogContains("Waiting for")),
-			                panelLiftVotesCheck()),
+			                panelLiftVotesCheck()), reviewLabelChecks(PANEL_REVIEW_LABEL)),
 			        expectedJuryBox(refs, sc.liftJury(),
 			                "the original referee and Phase A jury decisions remain displayed"));
 		} else {
@@ -842,12 +842,13 @@ public class JuryScenario {
 			pause(1500);
 			step("Jury box: Deliberation",
 			        "The manual jury break starts and the review vote opens, but no one votes. The original referee "
-			                + "decision is shown at the right of the top line. Speaker: \"Waiting for decision\".",
-			        List.of(new Check("jury", "the original referee decision is at the right of the top line",
+			                + "decision is shown at the right of the top line. Speaker: \"Waiting for decision\". "
+			                + "Boards: Jury Deliberation (the vote opened by itself, it was not called).",
+			        plus(List.of(new Check("jury", "the original referee decision is at the right of the top line",
 			                originalRefereesShown(refs)),
 			                new Check("speaker", "the Speaker waits for the decision",
 			                        dialogContains("Waiting for")),
-			                juryOnlyLayoutCheck()),
+			                juryOnlyLayoutCheck()), reviewLabelChecks(DELIBERATION_LABEL)),
 			        expectedJuryBox(refs, null,
 			                "manual mode keeps the original referee lights on and clears the jury lights"));
 		}
@@ -1486,6 +1487,7 @@ public class JuryScenario {
 			                : reviewChecks.get(5),
 			        new Check("speaker", "the dialog is titled Challenge", dialogContains("Challenge"))));
 			challengeChecks.addAll(List.of(reviewAfterNextClockChecks()));
+			challengeChecks.addAll(List.of(reviewLabelChecks(CHALLENGE_LABEL)));
 			step("Challenge: the review starts",
 			        "Challenge break, same procedure as the automatic review: the referees are not summoned until the "
 			                + "vote is called, the votes on the lift stay displayed. Jury Control: No Lift / Good Lift / Call "
@@ -1499,18 +1501,19 @@ public class JuryScenario {
 			                + "for an Adjudication Panel Review. Jury Control: No Lift / Good Lift / Call for Votes "
 			                + "(orange) / Resume; Summon Referees (all) disabled; the votes on the lift stay displayed. "
 			                + "Speaker: \"Waiting for decision\" dialog with Good Lift / No Lift / Resume. Boards: "
-			                + "review message, the votes on the lift.",
-			        reviewChecks);
+			                + "Adjudication Panel Review message, the votes on the lift.",
+			        plus(reviewChecks, reviewLabelChecks(PANEL_REVIEW_LABEL)));
 		}
 
 		publish("owlcms/jurybox/summon/" + this.options.fop(), "all");
 		pause(1500);
 		step("Jury box Summon All: the vote is called",
 		        "Same event as Call for Votes on Jury Control: all cells cleared, referees summoned. Jury Control: "
-		                + "Call for Votes no longer orange. Boards: empty cells.",
-		        List.of(new Check("jury", "Call for Votes no longer orange",
+		                + "Call for Votes no longer orange. Boards: empty cells, the label becomes Adjudication Panel "
+		                + "Vote.",
+		        plus(List.of(new Check("jury", "Call for Votes no longer orange",
 		                "!(" + buttonColor("Call for Votes", ORANGE) + ")"),
-		                panelVoteCalledCheck()));
+		                panelVoteCalledCheck()), reviewLabelChecks(PANEL_VOTE_LABEL)));
 
 		String[] reviewRefs = sc.reviewRefs();
 		String[] reviewJury = sc.reviewJury();
@@ -1522,8 +1525,8 @@ public class JuryScenario {
 		juror(3, reviewJury[2]);
 		pause(1500);
 		step("Six of seven have voted", "Grey \"voted\" cells everywhere, values hidden.",
-		        List.of(attemptVotesCheck("who has voted is shown in grey, values hidden", "voted,voted,voted",
-		                "voted,voted,voted,empty")));
+		        plus(List.of(attemptVotesCheck("who has voted is shown in grey, values hidden", "voted,voted,voted",
+		                "voted,voted,voted,empty")), reviewLabelChecks(PANEL_VOTE_LABEL)));
 
 		juror(4, reviewJury[3]);
 		pause(1500);
@@ -1627,25 +1630,29 @@ public class JuryScenario {
 			reviewName = "Deliberation";
 		}
 		pause(1500);
+		String reviewLabel = sc.challenge() ? CHALLENGE_LABEL : DELIBERATION_LABEL;
+		List<Check> reviewStartChecks = plus(List.of(new Check("jury",
+		        "No Lift and Good Lift replace Deliberation and Challenge",
+		        buttonVisible("No Lift") + " && " + buttonVisible("Good Lift") + " && !"
+		                + buttonVisible("Jury Deliberation")),
+		        new Check("jury", "Call for Votes is not orange",
+		                "!(" + buttonColor("Call for Votes", ORANGE) + ")"),
+		        new Check("jury", "Summon Referees (all) is enabled",
+		                buttonVisible("Summon Referees") + " && !(" + buttonDisabled("Summon Referees") + ")"),
+		        new Check("jury", "the original referee decision is at the right of the top line",
+		                originalRefereesShown(refs)),
+		        new Check("speaker", "the Speaker waits for the decision", dialogContains("Waiting for")),
+		        reviewWeightCheck(), juryOnlyLayoutCheck()), reviewAfterNextClockChecks());
+		reviewStartChecks.addAll(List.of(reviewLabelChecks(reviewLabel)));
 		step(reviewName + ": the review starts",
 		        "Jury break started by the Chair: the referee lights are cleared (they do not vote again), "
 		                + "the original referee decision is shown at the right of the top line, the jury lights are "
 		                + "cleared and the jury vote is open at once (called verbally). Jury Control: No Lift / Good Lift / Call for Votes (not orange, the vote is "
 		                + "open) / Resume; Summon Referees (all) enabled: it summons the referees. Speaker: "
-		                + "\"Waiting for decision\" dialog. Attempt board: " + reviewName + " message, no referee "
+		                + "\"Waiting for decision\" dialog. Attempt board: " + reviewLabel + " message, no referee "
 		                + "lights, " + n + " empty jury circles centered. Scoreboard: referee lights hidden, empty "
 		                + "jury cells." + reviewAfterNextClockText(),
-		        plus(List.of(new Check("jury", "No Lift and Good Lift replace Deliberation and Challenge",
-		                buttonVisible("No Lift") + " && " + buttonVisible("Good Lift") + " && !"
-		                        + buttonVisible("Jury Deliberation")),
-		                new Check("jury", "Call for Votes is not orange",
-		                        "!(" + buttonColor("Call for Votes", ORANGE) + ")"),
-		                new Check("jury", "Summon Referees (all) is enabled",
-		                        buttonVisible("Summon Referees") + " && !(" + buttonDisabled("Summon Referees") + ")"),
-		                new Check("jury", "the original referee decision is at the right of the top line",
-		                        originalRefereesShown(refs)),
-		                new Check("speaker", "the Speaker waits for the decision", dialogContains("Waiting for")),
-		                reviewWeightCheck(), juryOnlyLayoutCheck()), reviewAfterNextClockChecks()));
+		        reviewStartChecks);
 
 		// the Chair calls the vote verbally; the jurors vote a moment later
 		pause(1000);
@@ -1656,8 +1663,8 @@ public class JuryScenario {
 		pause(1500);
 		step("Verbal vote: " + allButLast + " of " + all + " jurors have punched in",
 		        "Grey \"voted\" jury cells, values hidden; no referee lights on the attempt board. The referees do "
-		                + "not vote.",
-		        List.of(juryOnlyLayoutCheck()));
+		                + "not vote. The vote was not called with Call for Votes: the label stays " + reviewLabel + ".",
+		        plus(List.of(juryOnlyLayoutCheck()), reviewLabelChecks(reviewLabel)));
 
 		juror(n, reviewJury[n - 1]);
 		pause(1500);
@@ -1705,12 +1712,13 @@ public class JuryScenario {
 			step("The " + COUNT[n] + " jurors vote " + describe(sc.liftJury()) + ": automatic Adjudication Panel "
 			        + "Review", "The seven-person majority is against the referees' " + liftDecision + ". Speaker: "
 			                + "\"Waiting for decision\" dialog with Good Lift / No Lift / Resume.",
-			        List.of(new Check("speaker", "the Speaker waits for the decision", dialogContains("Waiting for")),
-			                panelLiftVotesCheck()));
+			        plus(List.of(new Check("speaker", "the Speaker waits for the decision", dialogContains("Waiting for")),
+			                panelLiftVotesCheck()), reviewLabelChecks(PANEL_REVIEW_LABEL)));
 			publish("owlcms/jurybox/summon/" + fop, "all");
 			pause(1500);
-			step("Jury box Summon All: the vote is called", "All cells cleared, referees buzzed.",
-			        List.of(panelVoteCalledCheck()));
+			step("Jury box Summon All: the vote is called",
+			        "All cells cleared, referees buzzed. Boards: the label becomes Adjudication Panel Vote.",
+			        plus(List.of(panelVoteCalledCheck()), reviewLabelChecks(PANEL_VOTE_LABEL)));
 			for (int r = 0; r < 3; r++) {
 				referee(r + 1, sc.reviewRefs()[r]);
 			}
@@ -1724,12 +1732,13 @@ public class JuryScenario {
 			        "Jury break started from the jury box: Jury Control clears its middle referee indicators and "
 			                + "shows the original referee decision at the right of the top line; the physical jury "
 			                + "box keeps its referee lights. The jury lights are cleared and the jury vote is open at "
-			                + "once (called verbally). Speaker: \"Waiting for decision\" dialog.",
-			        List.of(new Check("jury", "the original referee decision is at the right of the top line",
+			                + "once (called verbally). Speaker: \"Waiting for decision\" dialog. Boards: Jury "
+			                + "Deliberation.",
+			        plus(List.of(new Check("jury", "the original referee decision is at the right of the top line",
 			                originalRefereesShown(refs)),
 			                new Check("speaker", "the Speaker waits for the decision",
 			                        dialogContains("Waiting for")),
-			                juryOnlyLayoutCheck()));
+			                juryOnlyLayoutCheck()), reviewLabelChecks(DELIBERATION_LABEL)));
 			// the Chair asks for the vote verbally; the jurors vote a moment later
 			pause(1000);
 		}
@@ -1833,9 +1842,9 @@ public class JuryScenario {
 			step("The " + COUNT[n] + " jurors vote " + describe(sc.liftJury()) + ": automatic Adjudication Panel "
 			        + "Review", "The seven-person majority is against the referees' " + liftDecision + ". Speaker: "
 			                + "\"Waiting for decision\" dialog.",
-			        List.of(new Check("speaker", "the Speaker waits for the decision",
+			        plus(List.of(new Check("speaker", "the Speaker waits for the decision",
 			                dialogContains("Waiting for")),
-			                reviewWeightCheck(), panelLiftVotesCheck()),
+			                reviewWeightCheck(), panelLiftVotesCheck()), reviewLabelChecks(PANEL_REVIEW_LABEL)),
 			        expectedJuryBox(refs, sc.liftJury(),
 			                "the original referee and Phase A jury decisions remain displayed until the vote is called"));
 		} else {
@@ -1850,11 +1859,11 @@ public class JuryScenario {
 			        "Jury break started from the jury box. Jury Control clears its middle referee indicators and "
 			                + "shows the original referee decision at the right of the top line; the jury vote is "
 			                + "open at once. Speaker: \"Waiting for decision\" dialog.",
-			        List.of(new Check("jury", "the original referee decision is at the right of the top line",
+			        plus(List.of(new Check("jury", "the original referee decision is at the right of the top line",
 			                originalRefereesShown(refs)),
 			                new Check("speaker", "the Speaker waits for the decision",
 			                        dialogContains("Waiting for")),
-			                reviewWeightCheck(), juryOnlyLayoutCheck()),
+			                reviewWeightCheck(), juryOnlyLayoutCheck()), reviewLabelChecks(DELIBERATION_LABEL)),
 			        expectedJuryBox(refs, null,
 			                "manual mode keeps the original referee lights on and clears the jury lights"));
 		}
@@ -1867,11 +1876,12 @@ public class JuryScenario {
 			step("Jury box: Summon Referees for discussion",
 			        "OWLCMS summons referees 1, 2 and 3. Their referee-box lights are blue for this step. "
 			                + "The jury deliberates with them before its new vote; the original referee decision "
-			                + "and the open jury vote are unchanged. Speaker still waits for the decision.",
-			        List.of(new Check("jury", "the original referee decision stays at the right of the top line",
+			                + "and the open jury vote are unchanged; summoning does not call the vote, the label stays Jury "
+			                + "Deliberation. Speaker still waits for the decision.",
+			        plus(List.of(new Check("jury", "the original referee decision stays at the right of the top line",
 			                originalRefereesShown(refs)),
 			                new Check("speaker", "the Speaker still waits for the decision",
-			                        dialogContains("Waiting for"))),
+			                        dialogContains("Waiting for"))), reviewLabelChecks(DELIBERATION_LABEL)),
 			        expectedJuryBox(refs, null,
 			                "summoning for discussion keeps the original referee lights and empty jury lights"));
 		}
@@ -1883,8 +1893,10 @@ public class JuryScenario {
 				pause(1500);
 				step("Jury box Summon All: the vote is called",
 				        "The vote indicators are cleared and the referees are summoned. The original referee "
-				                + "decision stays at the right of the top line.",
-				        plus(originalRefereeChecks(true), panelVoteCalledCheck()),
+				                + "decision stays at the right of the top line. Boards: the label becomes "
+				                + "Adjudication Panel Vote.",
+				        plus(plus(originalRefereeChecks(true), panelVoteCalledCheck()),
+				                reviewLabelChecks(PANEL_VOTE_LABEL)),
 				        juryBoxOff("the seven-person vote call hides all original referee and jury lights"));
 				for (int r = 0; r < 3; r++) {
 					referee(r + 1, sc.reviewRefs()[r]);
@@ -2016,22 +2028,24 @@ public class JuryScenario {
 		step("Deliberation: the review starts",
 		        "Same procedure as the automatic review: the votes on the lift stay displayed until the vote is "
 		                + "called. Jury Control: No Lift / Good Lift / Call for Votes (orange) / Resume; Summon "
-		                + "Referees (all) disabled. Speaker: \"Waiting for decision\" dialog.",
-		        List.of(new Check("jury", "Call for Votes is orange", buttonColor("Call for Votes", ORANGE)),
+		                + "Referees (all) disabled. Speaker: \"Waiting for decision\" dialog. Boards: Jury "
+		                + "Deliberation (started by the Chair, not an automatic review).",
+		        plus(List.of(new Check("jury", "Call for Votes is orange", buttonColor("Call for Votes", ORANGE)),
 		                new Check("jury", "No Lift and Good Lift replace Deliberation and Challenge",
 		                        buttonVisible("No Lift") + " && " + buttonVisible("Good Lift") + " && !"
 		                                + buttonVisible("Jury Deliberation")),
 		                new Check("jury", "Summon Referees (all) is disabled", buttonDisabled("Summon Referees")),
 		                new Check("speaker", "the Speaker waits for the decision", dialogContains("Waiting for")),
-		                panelLiftVotesCheck()));
+		                panelLiftVotesCheck()), reviewLabelChecks(DELIBERATION_LABEL)));
 
 		click(juryPage, "vaadin-button:has-text('Call for Votes')", "Jury Chair clicks Call for Votes on Jury Control");
 		pause(1500);
 		step("Call for Votes", "All vote cells cleared, referees buzzed. Call for Votes no longer orange. The original "
-		        + "referee decision appears at the right of the top line and stays until the next clock starts.",
-		        List.of(new Check("jury", "Call for Votes no longer orange",
+		        + "referee decision appears at the right of the top line and stays until the next clock starts. "
+		        + "Boards: the label becomes Adjudication Panel Vote.",
+		        plus(List.of(new Check("jury", "Call for Votes no longer orange",
 		                "!(" + buttonColor("Call for Votes", ORANGE) + ")"),
-		                panelVoteCalledCheck()));
+		                panelVoteCalledCheck()), reviewLabelChecks(PANEL_VOTE_LABEL)));
 
 		for (int r = 0; r < 3; r++) {
 			referee(r + 1, sc.reviewRefs()[r]);
@@ -2452,6 +2466,35 @@ public class JuryScenario {
 	}
 
 	/** the scoreboard decision block no longer shows the athlete under review: no name, no decision lights */
+	/**
+	 * The review label, on the attempt board banner and in the scoreboard decision block: the name of the review
+	 * (automatic Adjudication Panel Review, or the Chair's Jury Deliberation or Challenge) until the Chair calls the
+	 * vote, then the vote (Adjudication Panel Vote, Jury Vote). A vote that opens by itself keeps the review name.
+	 */
+	private static Check[] reviewLabelChecks(String label) {
+		return new Check[] {
+		        new Check("attempt", "the review banner reads \"" + label + "\"",
+		                """
+		                (() => {
+		                  const banner = document.querySelector('attempt-board-template')?.shadowRoot
+		                    ?.querySelector('.reviewWarning');
+		                  return !!banner && banner.checkVisibility() && banner.textContent.trim() === %s;
+		                })()
+		                """.formatted(js(label))),
+		        new Check("scoreboard", "the decision block label reads \"" + label + "\"",
+		                """
+		                (() => {
+		                  const message = document.querySelector('results-template')?.shadowRoot
+		                    ?.querySelector('.dsJuryMessage');
+		                  return !!message?.offsetWidth && message.textContent.trim() === %s;
+		                })()
+		                """.formatted(js(label))) };
+	}
+
+	private static final String PANEL_REVIEW_LABEL = "Adjudication Panel Review";
+	private static final String PANEL_VOTE_LABEL = "Adjudication Panel Vote";
+	private static final String DELIBERATION_LABEL = "Jury Deliberation";
+	private static final String CHALLENGE_LABEL = "Challenge";
 	/**
 	 * the jury outcome card is shown on the attempt board: Good Lift (or New Record) or No Lift, with the rule when the
 	 * Jury Chair gave one

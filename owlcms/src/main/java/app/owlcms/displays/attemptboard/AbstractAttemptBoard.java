@@ -63,6 +63,7 @@ import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.JuryRejectionReasons;
+import app.owlcms.uievents.ReviewLabels;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEventSequenceGuard;
 import app.owlcms.utils.CSSUtils;
@@ -921,12 +922,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	private String reviewMessage(BreakType breakType, FieldOfPlay fop) {
-		if (breakType == BreakType.CHALLENGE) {
-			return Translator.translate("PublicMsg.CHALLENGE");
-		}
-		return Translator.translate(fop.isPanelReviewing()
-		        ? "PublicMsg.AdjudicationPanelReview"
-		        : "PublicMsg.JuryDeliberation");
+		String key = ReviewLabels.key(breakType, fop);
+		return key != null ? Translator.translate(key) : "";
 	}
 
 	private String inferGroupName(Group group, CeremonyType ceremonyType) {

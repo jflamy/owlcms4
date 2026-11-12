@@ -47,6 +47,7 @@ import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.JuryRejectionReasons;
+import app.owlcms.uievents.ReviewLabels;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.StartupUtils;
@@ -350,9 +351,8 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 
 	private void setJuryMessage(JuryDeliberationEventType type) {
 		FieldOfPlay fop = getFop();
-		String key = type == JuryDeliberationEventType.CHALLENGE ? "PublicMsg.CHALLENGE"
-		        : (fop != null && fop.isPanelReviewing() ? "PublicMsg.AdjudicationPanelReview"
-		                : "PublicMsg.JuryDeliberation");
+		String key = ReviewLabels.key(
+		        type == JuryDeliberationEventType.CHALLENGE ? BreakType.CHALLENGE : BreakType.JURY, fop);
 		this.getElement().setProperty("juryMessage", Translator.translate(key));
 		if (this.decisionSectionStopwatch != null
 		        && FeatureSwitch.DECISION_SECTION_STOPWATCH.isEffective()) {

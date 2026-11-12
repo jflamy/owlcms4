@@ -76,8 +76,13 @@ the underlying element data.
     (`DECISION_SECTION_SHOW_BOTH_JURY_VOTES`);
   - when the toggle is off there is no second vote to show, so **no circles are displayed at all**
     (not even empty placeholders).
+- The label names the review stage (`ReviewLabels`): Adjudication Panel Review or Jury Review
+  for an automatic review, Jury Deliberation or Challenge for a review started by the Chair, then
+  Adjudication Panel Vote or Jury Vote once the Chair explicitly calls the vote. A vote that opens by
+  itself at the start of a jury-only deliberation or challenge keeps the review name; Cancel vote
+  result returns to it.
 - The outcome label (Good Lift / No Lift, with the rule when one was given) replaces the
-  deliberation / challenge label.
+  review label.
 - How long the review and the outcome stay, and what ends them: stages 3 to 7 of
   [Jury Display Holds](../../../../../../../../compliance/done/010-JURY_DISPLAY_HOLDS.md).
 

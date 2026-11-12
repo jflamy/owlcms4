@@ -241,6 +241,10 @@ public class ForwarderDecisionState implements DecisionElementState.IDecisionRen
 		map.put("review", review);
 		map.put("panelReview", this.fop != null && this.fop.isPanelReview());
 		map.put("reviewVoteOpen", this.fop != null && this.fop.isPanelVoteOpen());
+		// review label stages (ReviewLabels): automatic jury review, vote called by the Chair, seven-person panel
+		map.put("juryReview", this.fop != null && this.fop.isJuryReview());
+		map.put("reviewVoteCalled", this.fop != null && this.fop.isReviewVoteCalled());
+		map.put("panelProcedure", this.fop != null && this.fop.isPanelProcedure());
 		if (!"none".equals(review) && this.fop != null) {
 			if (this.reviewStartMillis != null) {
 				map.put("reviewStartMillis", this.reviewStartMillis);

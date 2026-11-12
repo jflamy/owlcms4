@@ -56,6 +56,7 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.DecisionEventType;
 import app.owlcms.uievents.JuryDeliberationEventType;
+import app.owlcms.uievents.ReviewLabels;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.BreakDone;
 import app.owlcms.uievents.UIEvent.BreakPaused;
@@ -496,12 +497,8 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			case TECHNICAL:
 				return Translator.translate("PublicMsg.CompetitionPaused");
 			case JURY:
-				// TCRR 7.5.7: a review by the seven-person panel is shown as "Adjudication Panel Review"
-				return Translator.translate(this.fop != null && this.fop.isPanelReviewing()
-				        ? "PublicMsg.AdjudicationPanelReview"
-				        : "PublicMsg.JuryDeliberation");
 			case CHALLENGE:
-				return Translator.translate("PublicMsg.CHALLENGE");
+				return Translator.translate(ReviewLabels.key(breakType, this.fop));
 			case GROUP_DONE:
 				return Translator.translate("PublicMsg.GroupDone");
 			case MARSHAL:
