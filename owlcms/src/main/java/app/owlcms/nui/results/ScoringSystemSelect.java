@@ -8,7 +8,6 @@ package app.owlcms.nui.results;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -25,9 +24,6 @@ import app.owlcms.data.athleteSort.RankingConfig;
  */
 @SuppressWarnings("serial")
 public class ScoringSystemSelect extends ComboBox<ScoringSystemSelect.Choice> {
-
-	private static final Set<Ranking> UNIMPLEMENTED_RANKINGS = EnumSet.of(
-	        Ranking.GAMX_MS, Ranking.GAMX_MC, Ranking.GAMX_S, Ranking.GAMX_C);
 
 	public record Choice(Ranking ranking, int section) {
 	}
@@ -71,13 +67,11 @@ public class ScoringSystemSelect extends ComboBox<ScoringSystemSelect.Choice> {
 		for (Collection<Ranking> family : families) {
 			family.stream()
 			        .filter(required::contains)
-			        .filter(ranking -> !UNIMPLEMENTED_RANKINGS.contains(ranking))
 			        .forEach(requiredInFamilyOrder::add);
 		}
 		sections.add(requiredInFamilyOrder);
 		// ComboBox cannot show separators, so required systems are not repeated in their family
 		families.forEach(family -> sections.add(family.stream()
-		        .filter(ranking -> !UNIMPLEMENTED_RANKINGS.contains(ranking))
 		        .filter(ranking -> !requiredInFamilyOrder.contains(ranking))
 		        .toList()));
 

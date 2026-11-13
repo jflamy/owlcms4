@@ -15,14 +15,12 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -418,13 +416,8 @@ public class AthleteSorterTest {
         athlete.setIndividualEligibilityStatus(EligibleForIndividualRankingStatus.ELIGIBLE);
         Participation participation = athlete.getMainRankings();
         EnumMap<Ranking, Boolean> previousConfig = RankingConfig.getConfig();
-        Set<Ranking> rankingsWithoutStoredRank = EnumSet.of(Ranking.GAMX_MS, Ranking.GAMX_MC, Ranking.GAMX_S,
-                Ranking.GAMX_C);
         try {
             for (Ranking ranking : RankingConfig.getAllScoringRankings()) {
-                if (rankingsWithoutStoredRank.contains(ranking)) {
-                    continue;
-                }
                 RankingConfig.setUserEnabled(ranking, true);
                 JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(ranking);
 

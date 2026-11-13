@@ -7,6 +7,7 @@
 package app.owlcms.tests.data.scoring;
 
 import app.owlcms.data.scoring.GAMX2;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -129,6 +130,82 @@ public class GAMX2ComparisonTest {
 		logger.info("Women test results: {} passed, {} failed", passed, failed);
 		assertTrue("Women test cases failed: " + failed + " out of " + WOMEN_TEST_CASES.length,
 				failed == 0);
+	}
+
+	/**
+	 * Age-dependent tables use the row at the body mass rounded to 0.1 kg like R's round(x, 1), not interpolation.
+	 * Male lifters; values read from huebner.shinyapps.io/GAMX (total) and /GAMX_teams (lifts) on 2026-11-12.
+	 * The x.x5 body masses check the rounding direction: 60.35 uses 60.4 but 85.35 uses 85.3.
+	 */
+	private static final Object[][] AGE_TABLE_CALCULATOR_CASES = {
+			{ GAMX2.Variant.MASTERS, GAMX2.Lift.TOTAL, 40.0, 60.15, 200, 1090.44 },
+			{ GAMX2.Variant.MASTERS, GAMX2.Lift.TOTAL, 40.0, 60.35, 200, 1083.28 },
+			{ GAMX2.Variant.MASTERS, GAMX2.Lift.TOTAL, 40.0, 60.45, 200, 1080.94 },
+			{ GAMX2.Variant.MASTERS, GAMX2.Lift.TOTAL, 40.0, 60.75, 200, 1074.05 },
+			{ GAMX2.Variant.AGE_ADJUSTED, GAMX2.Lift.TOTAL, 20.0, 60.35, 200, 784.28 },
+			{ GAMX2.Variant.AGE_ADJUSTED, GAMX2.Lift.TOTAL, 20.0, 60.55, 200, 783.57 },
+			{ GAMX2.Variant.U17, GAMX2.Lift.TOTAL, 15.0, 60.25, 180, 1126.26 },
+			{ GAMX2.Variant.U17, GAMX2.Lift.TOTAL, 15.0, 60.75, 180, 1120.38 },
+			{ GAMX2.Variant.MASTERS, GAMX2.Lift.SNATCH, 40.0, 85.25, 100, 930.29 },
+			{ GAMX2.Variant.MASTERS, GAMX2.Lift.SNATCH, 40.0, 85.35, 100, 929.70 },
+			{ GAMX2.Variant.MASTERS, GAMX2.Lift.SNATCH, 40.0, 85.55, 100, 927.90 },
+			{ GAMX2.Variant.MASTERS, GAMX2.Lift.CJ, 40.0, 85.25, 130, 968.65 },
+			{ GAMX2.Variant.MASTERS, GAMX2.Lift.CJ, 40.0, 85.3, 130, 968.01 },
+	};
+
+	/** Female masters lifts (age 55, snatch 60, clean & jerk 80): 53.45 rounds up to the 53.5 row. */
+	private static final Object[][] FEMALE_MASTERS_LIFT_CALCULATOR_CASES = {
+			{ GAMX2.Lift.SNATCH, 53.44, 60, 1250.71 },
+			{ GAMX2.Lift.SNATCH, 53.45, 60, 1249.82 },
+			{ GAMX2.Lift.SNATCH, 53.56, 60, 1248.94 },
+			{ GAMX2.Lift.CJ, 53.44, 80, 1303.16 },
+			{ GAMX2.Lift.CJ, 53.45, 80, 1302.02 },
+			{ GAMX2.Lift.CJ, 53.56, 80, 1300.88 },
+	};
+
+	@Test
+	public void testFemaleMastersLiftsMatchOnlineCalculator() {
+		for (Object[] c : FEMALE_MASTERS_LIFT_CALCULATOR_CASES) {
+			GAMX2.Lift lift = (GAMX2.Lift) c[0];
+			double bodyMass = (Double) c[1];
+			double actual = GAMX2.computeGamxForLift(Gender.F, 55.0, bodyMass, (Integer) c[2], GAMX2.Variant.MASTERS, lift);
+			assertEquals(lift + " " + bodyMass + "kg", (Double) c[3], Math.round(actual * 100.0) / 100.0, 0.001);
+		}
+	}
+
+	/**
+	 * Senior lift tables (GAMX-S, GAMX-J) are interpolated: 85.25 and 85.26 kg give different scores.
+	 * Male lifters; values read from huebner.shinyapps.io/GAMX_teams on 2026-11-12.
+	 */
+	private static final Object[][] SENIOR_LIFT_CALCULATOR_CASES = {
+			{ GAMX2.Lift.SNATCH, 85.23, 150, 970.13 },
+			{ GAMX2.Lift.SNATCH, 85.25, 100, 757.85 },
+			{ GAMX2.Lift.SNATCH, 85.26, 100, 757.83 },
+			{ GAMX2.Lift.CJ, 85.23, 200, 1091.63 },
+			{ GAMX2.Lift.CJ, 85.25, 130, 761.92 },
+			{ GAMX2.Lift.CJ, 85.26, 130, 761.90 },
+	};
+
+	@Test
+	public void testSeniorLiftTablesMatchOnlineCalculator() {
+		for (Object[] c : SENIOR_LIFT_CALCULATOR_CASES) {
+			GAMX2.Lift lift = (GAMX2.Lift) c[0];
+			double bodyMass = (Double) c[1];
+			double actual = GAMX2.computeGamxForLift(Gender.M, null, bodyMass, (Integer) c[2], GAMX2.Variant.SENIOR, lift);
+			assertEquals(lift + " " + bodyMass + "kg", (Double) c[3], Math.round(actual * 100.0) / 100.0, 0.001);
+		}
+	}
+
+	@Test
+	public void testAgeTablesMatchOnlineCalculators() {
+		for (Object[] c : AGE_TABLE_CALCULATOR_CASES) {
+			GAMX2.Variant variant = (GAMX2.Variant) c[0];
+			GAMX2.Lift lift = (GAMX2.Lift) c[1];
+			double bodyMass = (Double) c[3];
+			double actual = GAMX2.computeGamxForLift(Gender.M, (Double) c[2], bodyMass, (Integer) c[4], variant, lift);
+			assertEquals(variant + " " + lift + " " + bodyMass + "kg", (Double) c[5],
+			        Math.round(actual * 100.0) / 100.0, 0.001);
+		}
 	}
 
 	@Test

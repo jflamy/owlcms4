@@ -40,12 +40,12 @@ public enum Ranking {
 
 	GAMX("GAMX", true), // GAMX 2.0 scoring
 	GAMX_M("GAMX-M", true), // GAMX, age-adjusted for Masters
-	GAMX_MS("GAMX-MS", true), // Placeholder variation of GAMX-M
-	GAMX_MC("GAMX-MC", true), // Placeholder variation of GAMX-M
+	GAMX_MS("GAMX-MS", true), // GAMX snatch, age-adjusted for Masters
+	GAMX_MC("GAMX-MC", true), // GAMX clean & jerk, age-adjusted for Masters
 	GAMX_U("GAMX-U", true), // GAMX, age-adjusted for 7-17 years old
 	GAMX_A("GAMX-A", true),// GAMX, age-adjusted for 13-40
-	GAMX_S("GAMX-S", true), // Placeholder variation of GAMX (age ignored)
-	GAMX_C("GAMX-C", true), // Placeholder variation of GAMX (age ignored)
+	GAMX_S("GAMX-S", true), // GAMX snatch
+	GAMX_C("GAMX-C", true), // GAMX clean & jerk
 	CAT_GAMX("CatGAMX", true), // GAMX computed at category boundary
 	
 	ROBI("Robi", true), // IWF ROBI
@@ -310,10 +310,7 @@ public enum Ranking {
 			case AGEFACTORS:
 			case QAGE:
 			case TOTAL:
-				return switch (rankingType) {
-					case GAMX_MS, GAMX_MC, GAMX_S, GAMX_C -> rankingType.getReportingName();
-					default -> Translator.translate("RankingExplanation." + rankingType);
-				};
+				return Translator.translate("RankingExplanation." + rankingType);
 			default:
 				throw new UnsupportedOperationException("not a score ranking " + rankingType);
 		}
@@ -343,10 +340,7 @@ public enum Ranking {
 			case AGEFACTORS:
 			case QAGE:
 			case TOTAL:
-				return switch (rankingType) {
-					case GAMX_MS, GAMX_MC, GAMX_S, GAMX_C -> rankingType.getReportingName();
-					default -> Translator.translate("Ranking." + rankingType);
-				};
+				return Translator.translate("Ranking." + rankingType);
 			default:
 				throw new UnsupportedOperationException("not a score ranking " + rankingType);
 		}

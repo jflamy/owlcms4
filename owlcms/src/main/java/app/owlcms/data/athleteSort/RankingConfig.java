@@ -262,7 +262,7 @@ public class RankingConfig {
 	/**
 	 * Get all GAMX-based rankings.
 	 *
-	 * @return set containing GAMX, GAMX_M, GAMX_U, GAMX_A, and CAT_GAMX
+	 * @return set containing every GAMX ranking, including the single-lift GAMX-S, GAMX-J, GAMX-SM and GAMX-JM
 	 */
 	public static Set<Ranking> getGamxRankings() {
 		return EnumSet.of(Ranking.GAMX, Ranking.GAMX_M, Ranking.GAMX_MS, Ranking.GAMX_MC, Ranking.GAMX_U, Ranking.GAMX_A, Ranking.GAMX_S, Ranking.GAMX_C, Ranking.CAT_GAMX);

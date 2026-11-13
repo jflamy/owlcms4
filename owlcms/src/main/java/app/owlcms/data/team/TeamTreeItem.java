@@ -22,6 +22,7 @@ import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
@@ -287,8 +288,14 @@ public class TeamTreeItem {
 		        : memberScore(this.athlete::getCategorySinclairForDelta));
 	}
 
+	/** Team GAMX contribution, in the GAMX variant that the member is scored with (regular GAMX by default). */
 	public Double getGamxScore() {
-		return (this.team != null ? this.team.getGamx() : memberScore(this.athlete::getGamxForDelta));
+		if (this.team != null) {
+			return this.team.getGamx();
+		}
+		Ranking gamxRanking = this.scoringSystem != null && this.scoringSystem != Ranking.CAT_GAMX
+		        && RankingConfig.getGamxRankings().contains(this.scoringSystem) ? this.scoringSystem : Ranking.GAMX;
+		return memberScore(() -> Ranking.getRankingValueForDelta(this.athlete, gamxRanking));
 	}
 
 	public int getRawCombinedPoints() {

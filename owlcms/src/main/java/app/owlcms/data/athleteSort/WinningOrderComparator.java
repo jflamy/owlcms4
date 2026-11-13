@@ -84,7 +84,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		case GAMX_MC:
 		case GAMX_S:
 		case GAMX_C:
-			return 0;
+			return compareGamxLiftResultOrder(lifter1, lifter2);
 		case GAMX_U:
 			return compareGamxUResultOrder(lifter1, lifter2);
 		case GAMX_A:
@@ -528,6 +528,36 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		}
 		compare = compareBodyWeight(lifter1, lifter2);
 		traceComparison("gamx_a compareBodyWeight", lifter1, lifter2, compare);
+		return compare; // smaller Athlete wins
+	}
+
+	/**
+	 * Determine result order for a single-lift GAMX score (GAMX-S, GAMX-J, GAMX-SM, GAMX-JM), with the same rules as
+	 * the total GAMX scores: higher score first, then the lighter athlete.
+	 *
+	 * @param lifter1 the lifter 1
+	 * @param lifter2 the lifter 2
+	 * @return the int
+	 */
+	public int compareGamxLiftResultOrder(Athlete lifter1, Athlete lifter2) {
+		int compare = ObjectUtils.compare(lifter1.getGender(), lifter2.getGender());
+		if (compare != 0) {
+			return compare;
+		}
+		double score1 = JXLSWorkbookStreamSource.isNoInterimScoresInResults()
+		        ? Ranking.getRankingValue(lifter1, this.rankingType)
+		        : Ranking.getRankingValueForDelta(lifter1, this.rankingType);
+		double score2 = JXLSWorkbookStreamSource.isNoInterimScoresInResults()
+		        ? Ranking.getRankingValue(lifter2, this.rankingType)
+		        : Ranking.getRankingValueForDelta(lifter2, this.rankingType);
+		// bigger score comes first
+		compare = -Double.compare(score1, score2);
+		traceComparison(this.rankingType.name(), lifter1, lifter2, compare);
+		if (compare != 0) {
+			return compare;
+		}
+		compare = compareBodyWeight(lifter1, lifter2);
+		traceComparison(this.rankingType.name() + " compareBodyWeight", lifter1, lifter2, compare);
 		return compare; // smaller Athlete wins
 	}
 

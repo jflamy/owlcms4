@@ -73,6 +73,8 @@ import app.owlcms.data.group.DisplayGroup;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.scoring.AgeFactors;
 import app.owlcms.data.scoring.GAMX2;
+import app.owlcms.data.scoring.GAMX2.Lift;
+import app.owlcms.data.scoring.GAMX2.Variant;
 import app.owlcms.data.scoring.QPoints;
 import app.owlcms.data.scoring.SinclairCoefficients;
 import app.owlcms.fieldofplay.FOPState;
@@ -2476,7 +2478,10 @@ public class Athlete {
 
 	@JsonIgnore
 	public Double getGamxMS() {
-		return 0.0D;
+		if (!isDone()) {
+			return getGamxMSForDelta();
+		}
+		return getTotal() > 0 ? getGamxMSForDelta() : 0.0D;
 	}
 
 	/** @deprecated Use getBestAthleteRank(). */
@@ -2488,7 +2493,10 @@ public class Athlete {
 
 	@JsonIgnore
 	public Double getGamxMC() {
-		return 0.0D;
+		if (!isDone()) {
+			return getGamxMCForDelta();
+		}
+		return getTotal() > 0 ? getGamxMCForDelta() : 0.0D;
 	}
 
 	/** @deprecated Use getBestAthleteRank(). */
@@ -2528,9 +2536,13 @@ public class Athlete {
 		return getBestAthleteRank();
 	}
 
+	/** Like the total scores, a lift score is 0 once the athlete has finished without a total. */
 	@JsonIgnore
 	public Double getGamxS() {
-		return 0.0D;
+		if (!isDone()) {
+			return getGamxSForDelta();
+		}
+		return getTotal() > 0 ? getGamxSForDelta() : 0.0D;
 	}
 
 	/** @deprecated Use getBestAthleteRank(). */
@@ -2542,7 +2554,10 @@ public class Athlete {
 
 	@JsonIgnore
 	public Double getGamxC() {
-		return 0.0D;
+		if (!isDone()) {
+			return getGamxCForDelta();
+		}
+		return getTotal() > 0 ? getGamxCForDelta() : 0.0D;
 	}
 
 	/** @deprecated Use getBestAthleteRank(). */
@@ -2574,12 +2589,12 @@ public class Athlete {
 
 	@JsonIgnore
 	public Double getGamxMSForDelta() {
-		return 0.0D;
+		return GAMX2.getGamxForLift(this, getBestSnatch(), Variant.MASTERS, Lift.SNATCH);
 	}
 
 	@JsonIgnore
 	public Double getGamxMCForDelta() {
-		return 0.0D;
+		return GAMX2.getGamxForLift(this, getBestCleanJerk(), Variant.MASTERS, Lift.CJ);
 	}
 
 	@JsonIgnore
@@ -2604,12 +2619,12 @@ public class Athlete {
 
 	@JsonIgnore
 	public Double getGamxSForDelta() {
-		return 0.0D;
+		return GAMX2.getGamxForLift(this, getBestSnatch(), Variant.SENIOR, Lift.SNATCH);
 	}
 
 	@JsonIgnore
 	public Double getGamxCForDelta() {
-		return 0.0D;
+		return GAMX2.getGamxForLift(this, getBestCleanJerk(), Variant.SENIOR, Lift.CJ);
 	}
 
 	/**

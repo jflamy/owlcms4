@@ -546,10 +546,7 @@ public class AgeGroupDefinitionReader {
 	}
 
 	private static String exportedRankingTitle(Ranking ranking, Locale locale) {
-		return switch (ranking) {
-		case GAMX_MS, GAMX_MC, GAMX_S, GAMX_C -> ranking.getReportingName();
-		default -> Translator.translateOrElseNull("Ranking." + ranking, locale);
-		};
+		return Translator.translateOrElseNull("Ranking." + ranking, locale);
 	}
 
 	private static Sheet getAgeGroupsSheet(Workbook workbook, boolean simplifiedAgeGroups) {

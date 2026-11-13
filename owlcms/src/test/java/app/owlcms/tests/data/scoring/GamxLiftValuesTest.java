@@ -4,6 +4,7 @@ import app.owlcms.data.scoring.GAMX2;
 import static org.junit.Assert.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -12,6 +13,8 @@ import org.junit.Test;
 import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.tests.TestData;
@@ -196,6 +199,50 @@ public class GamxLiftValuesTest {
 		System.out.println("✓ Negative weight handling: returns 0.0");
 	}
 
+	/**
+	 * Interim scores use the best lift of each kind; final scores are 0 for an athlete who finished without a total.
+	 * Expected values from huebner.shinyapps.io/GAMX_teams (male, 85.25 kg, age 40, snatch 100, clean and jerk 130).
+	 */
+	@Test
+	public void testAthleteLiftScoresUseBestLifts() {
+		Athlete a = createMockAthlete("Lifter", Gender.M, 85.25, 40);
+		setAgeForScoring(a, 40);
+		a.setSnatch1ActualLift("-95");
+		a.setSnatch2ActualLift("100");
+		a.setSnatch3ActualLift("-105");
+		a.setCleanJerk1ActualLift("-130");
+		a.setCleanJerk2ActualLift("-130");
+		a.setCleanJerk3ActualLift("-130");
+
+		assertEquals("interim GAMX-S", 757.85, round2(a.getGamxSForDelta()), EPSILON);
+		assertEquals("interim GAMX-SM", 930.29, round2(a.getGamxMSForDelta()), EPSILON);
+		assertEquals("interim GAMX-J without a good clean and jerk", 0.0, a.getGamxCForDelta(), EPSILON);
+		assertTrue("done", a.isDone());
+		assertEquals("final GAMX-S without a total", 0.0, a.getGamxS(), EPSILON);
+		assertEquals("final GAMX-SM without a total", 0.0, a.getGamxMS(), EPSILON);
+
+		a.setCleanJerk3ActualLift("130");
+		assertEquals("final GAMX-S with a total", 757.85, round2(a.getGamxS()), EPSILON);
+		assertEquals("final GAMX-JM with a total", 968.65, round2(a.getGamxMC()), EPSILON);
+		assertEquals("ranking value", a.getGamxMC(), Ranking.getRankingValue(a, Ranking.GAMX_MC), EPSILON);
+	}
+
+	/** Results ordered by a lift score use that lift: the light snatcher wins GAMX-S, the heavy jerker GAMX-J. */
+	@Test
+	public void testResultsOrderByLiftScore() {
+		Athlete light = createMockAthlete("Light", Gender.M, 60.0, null);
+		light.setSnatch1ActualLift("100");
+		light.setCleanJerk1ActualLift("130");
+		Athlete heavy = createMockAthlete("Heavy", Gender.M, 85.0, null);
+		heavy.setSnatch1ActualLift("100");
+		heavy.setCleanJerk1ActualLift("200");
+
+		List<Athlete> bySnatch = AthleteSorter.resultsOrderCopy(List.of(heavy, light), Ranking.GAMX_S);
+		assertEquals("GAMX-S winner", "Light", bySnatch.get(0).getFirstName());
+		List<Athlete> byCleanJerk = AthleteSorter.resultsOrderCopy(List.of(light, heavy), Ranking.GAMX_C);
+		assertEquals("GAMX-J winner", "Heavy", byCleanJerk.get(0).getFirstName());
+	}
+
 	/** Test that female scores differ from male scores (different gender tables) */
 	@Test
 	public void testGenderDifference() {
@@ -211,6 +258,7 @@ public class GamxLiftValuesTest {
 
 	private Athlete createMockAthlete(String name, Gender gender, double bodyWeight, Integer age) {
 		Athlete a = new Athlete();
+		a.setValidation(false);
 		a.setFirstName(name);
 		a.setGender(gender);
 		a.setBodyWeight(bodyWeight);
@@ -222,5 +270,14 @@ public class GamxLiftValuesTest {
 
 	private String fmt(double value) {
 		return String.format("%.2f", Math.round(value * 100.0) / 100.0);
+	}
+
+	private static double round2(double value) {
+		return Math.round(value * 100.0) / 100.0;
+	}
+
+	/** The age used for scoring is taken at the competition date; shift the birth year until it matches. */
+	private static void setAgeForScoring(Athlete a, int age) {
+		a.setYearOfBirth(a.getYearOfBirth() + a.getAge() - age);
 	}
 }

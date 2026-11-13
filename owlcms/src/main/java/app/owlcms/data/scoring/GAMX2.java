@@ -34,7 +34,8 @@ import ch.qos.logback.classic.Logger;
  * - U17: U17 parameters (params-total-u17-*.json) - GAMX-U
  * - MASTERS: Masters athlete parameters (params-*-mas-*.json) - GAMX-M
  * 
- * Parameters (mu, sigma, nu) are interpolated from JSON tables based on body mass.
+ * Parameters (mu, sigma, nu) are taken from JSON tables based on body mass. SENIOR tables are interpolated;
+ * age-dependent tables use the row at the body mass rounded to 0.1 kg (see {@link #INTERPOLATE_AGE_TABLES}).
  */
 public class GAMX2 {
 
@@ -83,6 +84,13 @@ public class GAMX2 {
 	 * Normalized age for SENIOR variant (used for efficient binary search)
 	 */
 	private static final double SENIOR_AGE = 25.0;
+
+	/**
+	 * The reference online calculators (huebner.shinyapps.io GAMX and GAMX_teams) interpolate the SENIOR tables
+	 * but look up the age-dependent tables (GAMX-M, GAMX-A, GAMX-U, GAMX-SM, GAMX-JM) at the body mass rounded to
+	 * 0.1 kg with R's round(x, 1). false matches the calculators; true interpolates the age-dependent tables too.
+	 */
+	private static final boolean INTERPOLATE_AGE_TABLES = false;
 
 	/**
 	 * Result of parameter interpolation
@@ -164,13 +172,7 @@ public class GAMX2 {
 	 * @return GAMX-Snatch score, or 0.0 if inputs invalid
 	 */
 	public static double getGamxSnatch(Athlete a, Integer snatchWeight) {
-		if (a == null || snatchWeight == null || snatchWeight <= 0) {
-			return 0.0;
-		}
-		Gender gender = a.getGender();
-		Double bodyMass = a.getBodyWeight();
-		Double age = a.getAge() != null ? a.getAge().doubleValue() : null;
-		return computeGamxForLift(gender, age, bodyMass, snatchWeight, Variant.SENIOR, Lift.SNATCH);
+		return getGamxForLift(a, snatchWeight, Variant.SENIOR, Lift.SNATCH);
 	}
 
 	/**
@@ -181,13 +183,24 @@ public class GAMX2 {
 	 * @return GAMX-CJ score, or 0.0 if inputs invalid
 	 */
 	public static double getGamxCJ(Athlete a, Integer cjWeight) {
-		if (a == null || cjWeight == null || cjWeight <= 0) {
+		return getGamxForLift(a, cjWeight, Variant.SENIOR, Lift.CJ);
+	}
+
+	/**
+	 * Compute a GAMX score for one lift of an athlete.
+	 *
+	 * @param a            the athlete (gender, body weight and, except for SENIOR, age)
+	 * @param liftedWeight weight lifted in kg
+	 * @param variant      which parameter set to use
+	 * @param lift         which lift the weight is for
+	 * @return GAMX score, or 0.0 if inputs invalid
+	 */
+	public static double getGamxForLift(Athlete a, Integer liftedWeight, Variant variant, Lift lift) {
+		if (a == null || liftedWeight == null || liftedWeight <= 0) {
 			return 0.0;
 		}
-		Gender gender = a.getGender();
-		Double bodyMass = a.getBodyWeight();
 		Double age = a.getAge() != null ? a.getAge().doubleValue() : null;
-		return computeGamxForLift(gender, age, bodyMass, cjWeight, Variant.SENIOR, Lift.CJ);
+		return computeGamxForLift(a.getGender(), age, a.getBodyWeight(), liftedWeight, variant, lift);
 	}
 
 	/**
@@ -280,8 +293,7 @@ public class GAMX2 {
 	}
 
 	/**
-	 * Compute GAMX score for a specific lift (TOTAL, SNATCH, or CJ).
-	 * Internal method supporting all lift types and variants.
+	 * Compute GAMX score for a specific lift (TOTAL, SNATCH, or CJ) and variant.
 	 * 
 	 * @param gender   Gender.MALE or Gender.FEMALE
 	 * @param age      athlete's age (required for AGE_ADJUSTED, U17, MASTERS; ignored for SENIOR)
@@ -291,7 +303,7 @@ public class GAMX2 {
 	 * @param lift     which lift type to use (TOTAL, SNATCH, or CJ)
 	 * @return GAMX score, or 0.0 if inputs invalid
 	 */
-	private static double computeGamxForLift(Gender gender, Double age, Double bodyMass, int weight, Variant variant, Lift lift) {
+	public static double computeGamxForLift(Gender gender, Double age, Double bodyMass, int weight, Variant variant, Lift lift) {
 		if (gender == null || bodyMass == null || bodyMass <= 0 || weight <= 0) {
 			return 0.0;
 		}
@@ -331,7 +343,7 @@ public class GAMX2 {
 		}
 
 		// Interpolate mu, sigma, nu from age and body mass
-		InterpolatedParams interp = interpolateParams(params, normalizedAge, bodyMass);
+		InterpolatedParams interp = interpolateParams(params, normalizedAge, bodyMass, variant != Variant.SENIOR);
 		if (!interp.success) {
 			return 0.0;
 		}
@@ -389,7 +401,7 @@ public class GAMX2 {
 			normalizedAge = age;
 		}
 
-		InterpolatedParams interp = interpolateParams(params, normalizedAge, bodyMass);
+		InterpolatedParams interp = interpolateParams(params, normalizedAge, bodyMass, variant != Variant.SENIOR);
 		if (!interp.success) {
 			logger.error("kgTarget: interpolateParams failed for variant={}, gender={}, normalizedAge={}, bodyMass={}", 
 					variant, gender, normalizedAge, bodyMass);
@@ -490,7 +502,7 @@ public class GAMX2 {
 			normalizedAge = age;
 		}
 
-		InterpolatedParams interp = interpolateParams(params, normalizedAge, bodyMass);
+		InterpolatedParams interp = interpolateParams(params, normalizedAge, bodyMass, variant != Variant.SENIOR);
 		if (!interp.success) {
 			return 0;
 		}
@@ -520,13 +532,13 @@ public class GAMX2 {
 	}
 
 	/**
-	 * Find the total needed to achieve a target GAMX score for an athlete.
-	 * Automatically determines body weight (actual vs category) and variant based on Ranking.
+	 * Find the weight needed to achieve a target GAMX score for an athlete.
+	 * Automatically determines body weight (actual vs category), variant and lift based on Ranking.
 	 * 
 	 * @param a           the athlete
 	 * @param targetScore the target score
-	 * @param ranking     the ranking type (GAMX, GAMX_M, GAMX_U, GAMX_A, CAT_GAMX)
-	 * @return total in kg needed, or 0 if impossible
+	 * @param ranking     a GAMX ranking type
+	 * @return weight in kg needed for the ranking's lift (see {@link #liftOf(Ranking)}), or 0 if impossible
 	 */
 	public static int kgTarget(Athlete a, double targetScore, Ranking ranking) {
 		if (a == null || ranking == null) {
@@ -544,18 +556,27 @@ public class GAMX2 {
 			bodyMass = a.getBodyWeight();
 		}
 		
-		// Map Ranking to Variant (age-sensitive variants require the athlete's age)
-		Variant variant = switch (ranking) {
+		Double age = a.getAge() != null ? a.getAge().doubleValue() : null;
+		return kgTarget(a.getGender(), age, targetScore, bodyMass, variantOf(ranking), liftOf(ranking));
+	}
+
+	/** @return the parameter set used by a GAMX ranking; age-sensitive variants require the athlete's age */
+	public static Variant variantOf(Ranking ranking) {
+		return switch (ranking) {
 			case GAMX_M, GAMX_MS, GAMX_MC -> Variant.MASTERS;
 			case GAMX_U -> Variant.U17;
 			case GAMX_A -> Variant.AGE_ADJUSTED;
-			// GAMX, CAT_GAMX, and the senior snatch/CJ placeholders (GAMX_S, GAMX_C) ignore age
-			case GAMX, CAT_GAMX, GAMX_S, GAMX_C -> Variant.SENIOR;
 			default -> Variant.SENIOR;
 		};
-		
-		Double age = a.getAge() != null ? a.getAge().doubleValue() : null;
-		return kgTarget(a.getGender(), age, targetScore, bodyMass, variant, Lift.TOTAL);
+	}
+
+	/** @return the lift scored by a GAMX ranking */
+	public static Lift liftOf(Ranking ranking) {
+		return switch (ranking) {
+			case GAMX_S, GAMX_MS -> Lift.SNATCH;
+			case GAMX_C, GAMX_MC -> Lift.CJ;
+			default -> Lift.TOTAL;
+		};
 	}
 
 	/**
@@ -763,10 +784,17 @@ public class GAMX2 {
 	 * For age out-of-range:
 	 * - If age < min: normalizes to min age (lower bound)
 	 * - If age > max: normalizes to max age (upper bound)
+	 *
+	 * Unless {@link #INTERPOLATE_AGE_TABLES} is set, age-dependent tables use the row at the body mass rounded
+	 * to 0.1 kg, as the reference calculators do.
 	 */
-	private static InterpolatedParams interpolateParams(ArrayList<ParamRow> params, double age, double bodyMass) {
+	private static InterpolatedParams interpolateParams(ArrayList<ParamRow> params, double age, double bodyMass,
+	        boolean ageTable) {
 		if (params == null || params.isEmpty()) {
 			return new InterpolatedParams();
+		}
+		if (ageTable && !INTERPOLATE_AGE_TABLES) {
+			bodyMass = roundToTenthLikeR(bodyMass);
 		}
 
 		// Normalize age to table bounds (e.g., age 25 → 30 for MASTERS which starts at 30)
@@ -843,6 +871,25 @@ public class GAMX2 {
 		double nu = (highRatio * low.nu + lowRatio * high.nu) / denom;
 
 		return new InterpolatedParams(mu, sigma, nu);
+	}
+
+	/**
+	 * R's round(x, 1): the nearer of the two neighbouring tenths, compared in double arithmetic, and the even tenth
+	 * when exactly halfway. 85.15 gives 85.2 but 85.25 and 85.35 give 85.2 and 85.3, as in the reference calculators.
+	 */
+	private static double roundToTenthLikeR(double x) {
+		double lowTenths = Math.floor(x * 10);
+		double low = lowTenths / 10;
+		double high = Math.ceil(x * 10) / 10;
+		double toLow = x - low;
+		double toHigh = high - x;
+		if (toLow < toHigh) {
+			return low;
+		}
+		if (toHigh < toLow) {
+			return high;
+		}
+		return lowTenths % 2 == 0 ? low : high;
 	}
 
 	/**

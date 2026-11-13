@@ -138,6 +138,14 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
 			return compareGamxM;
 		case GAMX_MS:
 		case GAMX_MC:
+		case GAMX_S:
+		case GAMX_C:
+			final double lift1 = Ranking.getRankingValue(lifter1, this.rankingType);
+			final double lift2 = Ranking.getRankingValue(lifter2, this.rankingType);
+			final int compareLift = Double.compare(lift1, lift2);
+			logger.trace(
+			        lifter1 + " " + lift1 + " [" + compareLift + "]" + lifter2 + " " + lift2);
+			return compareLift;
 		case GAMX_U:
 			final Double gamxU1 = lifter1.getGamxU();
 			final Double gamxU2 = lifter2.getGamxU();
@@ -152,9 +160,6 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
 			logger.trace(
 			        lifter1 + " " + gamxA1 + " [" + compareGamxA + "]" + lifter2 + " " + gamxA2);
 			return compareGamxA;
-		case GAMX_S:
-		case GAMX_C:
-			return 0;
 		default:
 				break;
 		}
