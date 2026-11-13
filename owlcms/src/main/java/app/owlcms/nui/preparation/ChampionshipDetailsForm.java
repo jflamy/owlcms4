@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -42,6 +43,7 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.config.TcrrCompliance;
 import app.owlcms.i18n.Translator;
+import app.owlcms.nui.results.ScoringSystemSelect;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -118,8 +120,8 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		medalPolicyField.setWidthFull();
 		medalsLayout.addFormItem(medalPolicyField, Translator.translate("Championship.MedalPolicy"));
 
-		ComboBox<Ranking> scoringSystemField = createMedalScoringCombo();
-		scoringSystemField.setValue(medalScoringForDisplay(championship.getScoringSystem()));
+		ScoringSystemSelect scoringSystemField = createMedalScoringSelect();
+		scoringSystemField.setRanking(medalScoringForDisplay(championship.getScoringSystem()));
 		scoringSystemField.setEnabled(championship.getMedalPolicy() == MedalPolicy.TOTAL_ONLY);
 		FormLayout.FormItem scoringSystemItem = medalsLayout.addFormItem(scoringSystemField,
 		        Translator.translate("Championship.totalMedalScoring"));
@@ -131,7 +133,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			}
 			MedalPolicy medals = e.getValue();
 			scoringSystemField.setEnabled(medals == MedalPolicy.TOTAL_ONLY);
-			scoringSystemField.setValue(Ranking.TOTAL);
+			scoringSystemField.setRanking(Ranking.TOTAL);
 			scoringSystemItem.setVisible(medals.includesTotal());
 			teamPointsPolicyField.setItems(TeamPointsPolicy.allowedFor(medals));
 			teamPointsPolicyField.setValue(TeamPointsPolicy.effective(null, medals));
@@ -149,20 +151,16 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		scoringLayout.add(scoringTitle);
 		scoringLayout.setColspan(scoringTitle, 2);
 
-		ComboBox<Ranking> bestAthleteField = createRankingCombo();
-		List<Ranking> bestAthleteChoices = RankingConfig.getChampionshipBestAthleteRankings();
-		bestAthleteField.setItems(bestAthleteChoices);
-		Ranking bestAthleteScoring = championship.getBestAthleteScoringSystem();
-		bestAthleteField.setValue(bestAthleteScoring != null && bestAthleteChoices.contains(bestAthleteScoring)
-		        ? bestAthleteScoring : null);
+		ScoringSystemSelect bestAthleteField = createRankingSelect(RankingConfig.getChampionshipBestAthleteRankings(), null);
+		bestAthleteField.setRanking(championship.getBestAthleteScoringSystem());
 		bestAthleteField.setEnabled(!TcrrCompliance.isEnabled());
 		scoringLayout.addFormItem(bestAthleteField, Translator.translate("Championship.bestAthleteScoringSystem"));
 
-		ComboBox<Ranking> bestSnatchField = createLiftRankingCombo(
+		ScoringSystemSelect bestSnatchField = createLiftRankingSelect(
 		        championship.getBestSnatchScoringSystem(), Ranking.GAMX_S, Ranking.GAMX_MS);
 		scoringLayout.addFormItem(bestSnatchField, Translator.translate("Championship.bestSnatchScoringSystem"));
 
-		ComboBox<Ranking> bestCJField = createLiftRankingCombo(
+		ScoringSystemSelect bestCJField = createLiftRankingSelect(
 		        championship.getBestCJScoringSystem(), Ranking.GAMX_C, Ranking.GAMX_MC);
 		scoringLayout.addFormItem(bestCJField, Translator.translate("Championship.bestCJScoringSystem"));
 
@@ -222,8 +220,8 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		teamMethodField.setEnabled(championship.isGenderedTeamsEnabled());
 		teamLayout.addFormItem(teamMethodField, Translator.translate("Championship.teamRankingMethod"));
 
-		ComboBox<Ranking> teamScoringSystemField = createRankingCombo();
-		teamScoringSystemField.setValue(championship.getTeamScoringSystem());
+		ScoringSystemSelect teamScoringSystemField = createRankingSelect(RankingConfig.getScoringRankingsInDisplayOrder(), null);
+		teamScoringSystemField.setRanking(championship.getTeamScoringSystem());
 		Checkbox teamScoresWithoutTotalField = new Checkbox(
 		        Translator.translate("Championship.teamScoresWithoutTotal"),
 		        championship.isTeamScoresWithoutTotal());
@@ -242,8 +240,8 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			boolean teamEnabled = Boolean.TRUE.equals(menWomenTeamsEnabledField.getValue());
 			boolean isScores = SUM_OF_SCORES.equals(e.getValue());
 			enableTeamScoring.accept(teamEnabled && isScores);
-			if (isScores && teamScoringSystemField.getValue() == null) {
-				teamScoringSystemField.setValue(Ranking.GAMX);
+			if (isScores && teamScoringSystemField.getRanking() == null) {
+				teamScoringSystemField.setRanking(Ranking.GAMX);
 			} else if (!isScores) {
 				teamScoringSystemField.clear();
 			}
@@ -295,8 +293,8 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		mixedMethodField.setEnabled(championship.isMixedTeamEnabled());
 		mixedLayout.addFormItem(mixedMethodField, Translator.translate("Championship.teamRankingMethod"));
 
-		ComboBox<Ranking> mixedTeamScoringSystemField = createRankingCombo();
-		mixedTeamScoringSystemField.setValue(championship.getMixedTeamScoringSystem());
+		ScoringSystemSelect mixedTeamScoringSystemField = createRankingSelect(RankingConfig.getScoringRankingsInDisplayOrder(), null);
+		mixedTeamScoringSystemField.setRanking(championship.getMixedTeamScoringSystem());
 		Checkbox mixedTeamScoresWithoutTotalField = new Checkbox(
 		        Translator.translate("Championship.teamScoresWithoutTotal"),
 		        championship.isMixedTeamScoresWithoutTotal());
@@ -327,8 +325,8 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			}
 			boolean isScores = SUM_OF_SCORES.equals(e.getValue());
 			enableMixedTeamScoring.accept(isScores);
-			if (isScores && mixedTeamScoringSystemField.getValue() == null) {
-				mixedTeamScoringSystemField.setValue(Ranking.GAMX);
+			if (isScores && mixedTeamScoringSystemField.getRanking() == null) {
+				mixedTeamScoringSystemField.setRanking(Ranking.GAMX);
 			} else if (!isScores) {
 				mixedTeamScoringSystemField.clear();
 			}
@@ -448,22 +446,22 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			String updatedName = nameField.getValue() != null ? nameField.getValue().trim() : "";
 			String mixedSelectionMode = mixedSelectionField.getValue();
 			championship.setType(templateMode ? ChampionshipType.U : typeField.getValue());
-			championship.setScoringSystem(medalScoringForStorage(scoringSystemField.getValue()));
+			championship.setScoringSystem(medalScoringForStorage(scoringSystemField.getRanking()));
 			if (!TcrrCompliance.isEnabled()) {
-				championship.setBestAthleteScoringSystem(bestAthleteField.getValue());
+				championship.setBestAthleteScoringSystem(bestAthleteField.getRanking());
 				championship.setTeamPoints1st(teamPoints1stField.getValue());
 				championship.setTeamPoints2nd(teamPoints2ndField.getValue());
 				championship.setTeamPoints3rd(teamPoints3rdField.getValue());
 			}
-			championship.setBestSnatchScoringSystem(bestSnatchField.getValue());
-			championship.setBestCJScoringSystem(bestCJField.getValue());
+			championship.setBestSnatchScoringSystem(bestSnatchField.getRanking());
+			championship.setBestCJScoringSystem(bestCJField.getRanking());
 			championship.setMedalPolicy(medalPolicyField.getValue());
 			championship.setTeamPointsPolicy(teamPointsPolicyField.getValue());
 			championship.normalizeTeamPointsPolicy();
 			boolean genderedEnabled = Boolean.TRUE.equals(menWomenTeamsEnabledField.getValue());
 			championship.setGenderedTeamsEnabled(genderedEnabled);
 			championship.setTeamScoringSystem(
-			        genderedEnabled && SUM_OF_SCORES.equals(teamMethodField.getValue()) ? teamScoringSystemField.getValue() : null);
+			        genderedEnabled && SUM_OF_SCORES.equals(teamMethodField.getValue()) ? teamScoringSystemField.getRanking() : null);
 			championship.setTeamScoresWithoutTotal(Boolean.TRUE.equals(teamScoresWithoutTotalField.getValue()));
 			championship.setMensBestN(mensBestNField.getValue());
 			championship.setWomensBestN(womensBestNField.getValue());
@@ -472,7 +470,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			championship.setMixedTeamEnabled(mixedEnabled);
 			championship.setExplicitTeamSize(explicitTeamSizeField.getValue());
 			championship.setMixedTeamScoringSystem(
-			        mixedEnabled && SUM_OF_SCORES.equals(mixedMethodField.getValue()) ? mixedTeamScoringSystemField.getValue() : null);
+			        mixedEnabled && SUM_OF_SCORES.equals(mixedMethodField.getValue()) ? mixedTeamScoringSystemField.getRanking() : null);
 			championship.setMixedTeamScoresWithoutTotal(
 			        Boolean.TRUE.equals(mixedTeamScoresWithoutTotalField.getValue()));
 			championship.setMixedBestN(MIXED_SELECTION_OVERALL.equals(mixedSelectionMode)
@@ -599,38 +597,33 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		return span;
 	}
 
-	private ComboBox<Ranking> createRankingCombo() {
-		ComboBox<Ranking> combo = new ComboBox<>();
-		combo.setItems(RankingConfig.getScoringRankingsInDisplayOrder());
-		combo.setItemLabelGenerator(r -> Ranking.getScoringExplanation(r));
-		combo.setClearButtonVisible(true);
-		combo.setWidth("20em");
-		combo.getElement().getStyle().set("--vaadin-combo-box-overlay-width", "30em");
-		return combo;
+	private ScoringSystemSelect createRankingSelect(List<Ranking> rankings, String emptyCaption) {
+		ScoringSystemSelect select = new ScoringSystemSelect(rankings, emptyCaption);
+		select.setWidth("20em");
+		select.setOverlayWidth("30em");
+		return select;
 	}
 
-	private ComboBox<Ranking> createLiftRankingCombo(Ranking selected, Ranking senior, Ranking masters) {
-		ComboBox<Ranking> combo = createRankingCombo();
-		combo.setItems(senior, masters);
-		combo.setValue(selected == senior || selected == masters ? selected : null);
-		return combo;
+	private ScoringSystemSelect createLiftRankingSelect(Ranking selected, Ranking senior, Ranking masters) {
+		// the "none" translation is lowercase
+		String none = StringUtils.capitalize(Translator.translate("none"));
+		ScoringSystemSelect select = createRankingSelect(List.of(senior, masters), none);
+		select.setRanking(selected);
+		return select;
 	}
 
-	private VerticalLayout scoringWithOption(ComboBox<Ranking> scoringCombo, Checkbox option) {
-		VerticalLayout layout = new VerticalLayout(scoringCombo, option);
+	private VerticalLayout scoringWithOption(ScoringSystemSelect scoringSelect, Checkbox option) {
+		VerticalLayout layout = new VerticalLayout(scoringSelect, option);
 		layout.setPadding(false);
 		layout.setSpacing(false);
 		return layout;
 	}
 
-	private ComboBox<Ranking> createMedalScoringCombo() {
-		ComboBox<Ranking> combo = createRankingCombo();
+	private ScoringSystemSelect createMedalScoringSelect() {
 		List<Ranking> items = new ArrayList<>();
 		items.add(Ranking.TOTAL);
 		items.addAll(RankingConfig.getScoringRankingsInDisplayOrder());
-		combo.setItems(items);
-		combo.setClearButtonVisible(false);
-		return combo;
+		return createRankingSelect(items, null);
 	}
 
 	private Ranking medalScoringForDisplay(Ranking scoringSystem) {

@@ -569,6 +569,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
 	@Override
 	protected void defineFilters(GridCrud<Athlete> crud) {
+		Ranking initialGridScoringSystem = getScoringSystem();
 		defineFilterCascade(crud);
 		this.includeUnfinishedCategories = new Checkbox(Translator.translate("Video.includeNotCompleted"));
 		getCrudLayout(crud).addFilterComponent(this.includeUnfinishedCategories);
@@ -592,9 +593,13 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			});
 			// Initialize to current value or global default
 			Ranking initialValue = getScoringSystem();
+			scoringCombo.setPerAthleteAvailable(this.championship == null);
 			scoringCombo.setRanking(initialValue);
 			if (this.scoringSystem == null) {
 				setScoringSystem(initialValue); // Set field on first initialization
+			}
+			if (initialValue != initialGridScoringSystem) {
+				getCrudGrid().replaceGrid(SessionResultsContent.createResultGrid(initialValue));
 			}
 
 			winnersOnlyCheckbox.setValue(this.winnersOnly);
@@ -825,6 +830,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	public void onChampionshipChanged(Championship championship) {
 		if (getRankingSelector() != null) {
 			Ranking ranking = championship != null ? championship.getEffectiveBestAthleteScoringSystem() : null;
+			getRankingSelector().setPerAthleteAvailable(championship == null);
 			getRankingSelector().setRanking(ranking);
 			setScoringSystem(ranking);
 			resetGrid();
