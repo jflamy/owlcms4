@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.data.athleteSort;
 
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
@@ -24,6 +25,13 @@ import app.owlcms.data.agegroup.Championship;
  * - Enabled by user preference (userEnabled - editable)
  */
 public class RankingConfig {
+
+	private static final List<Ranking> SCORING_RANKINGS_DISPLAY_ORDER = List.of(
+	        Ranking.GAMX, Ranking.GAMX_M, Ranking.GAMX_U, Ranking.GAMX_A,
+	        Ranking.QPOINTS, Ranking.QAGE, Ranking.AGEFACTORS,
+	        Ranking.BW_SINCLAIR, Ranking.SMM, Ranking.ROBI,
+	        Ranking.CAT_GAMX, Ranking.CAT_QPOINTS, Ranking.CAT_SINCLAIR,
+	        Ranking.GAMX_S, Ranking.GAMX_C, Ranking.GAMX_MS, Ranking.GAMX_MC);
 
 	/** User-selected rankings (stored in database) */
 	private static final EnumMap<Ranking, Boolean> userEnabled = new EnumMap<>(Ranking.class);
@@ -146,11 +154,29 @@ public class RankingConfig {
 	 * definitions and optional competition scoring computation.
 	 */
 	public static Set<Ranking> getAllScoringRankings() {
-		return EnumSet.of(
-			Ranking.BW_SINCLAIR, Ranking.SMM, Ranking.CAT_SINCLAIR,
-			Ranking.QPOINTS, Ranking.AGEFACTORS, Ranking.QAGE, Ranking.CAT_QPOINTS,
-			Ranking.GAMX, Ranking.GAMX_M, Ranking.GAMX_MS, Ranking.GAMX_MC, Ranking.GAMX_U, Ranking.GAMX_A, Ranking.GAMX_S, Ranking.GAMX_C, Ranking.CAT_GAMX, 
-			Ranking.ROBI);
+		return EnumSet.copyOf(SCORING_RANKINGS_DISPLAY_ORDER);
+	}
+
+	/** Return scoring systems in the order used by selectors. */
+	public static List<Ranking> getScoringRankingsInDisplayOrder() {
+		return SCORING_RANKINGS_DISPLAY_ORDER;
+	}
+
+	/** Championship best-athlete scoring uses totals, not individual-lift scores. */
+	public static List<Ranking> getChampionshipBestAthleteRankings() {
+		return SCORING_RANKINGS_DISPLAY_ORDER.stream()
+		        .filter(ranking -> switch (ranking) {
+		        case GAMX_S, GAMX_C, GAMX_MS, GAMX_MC -> false;
+		        default -> true;
+		        })
+		        .toList();
+	}
+
+	/** Put required scoring systems first, preserving the prescribed order within each group. */
+	public static List<Ranking> comboOrder(Set<Ranking> required) {
+		return SCORING_RANKINGS_DISPLAY_ORDER.stream()
+		        .sorted(Comparator.comparing((Ranking ranking) -> !required.contains(ranking)))
+		        .toList();
 	}
 
 	/**

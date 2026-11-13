@@ -11,6 +11,7 @@
 
 **Development log**
 
+- 69.0.0-beta10: Completed implementation of lift-specific scores GAMX-S, GAMX-SM, GAMX-J, GAMX-JM
 - 69.0.0-beta09: When using a scoring system, the team results tree was incorrectly adding athletes without a total in the team score
   - Now a selectable behavior: Including the athletes that have no snatch but a CJ or vice-versa is now a checkbox per championship
   - Fixed issue with grid not reloading on rank recalculation

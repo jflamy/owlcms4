@@ -58,6 +58,8 @@ Rules can then be adjusted as we want, and applied to the championship
 - Smaller teams, smaller limits per category
 - Use different rules for the team (take top N men and top M women, for example)
 
+For best snatch, choose GAMX-S or GAMX-SM; for best clean and jerk, choose GAMX-J or GAMX-JM. The championship's best-athlete scoring selector excludes these individual-lift scores, which remain available in results reports. Existing selections outside the permitted choices appear unselected when editing.
+
 ### **Score Based Awards**
 
 Many federations use score-based systems to assign a team score. This is done by changing the radio button and selecting a scoring system.  For example, we can change the team awards so the team with the best sum of GAMX wins, counting the top 4 men and top 4 women respectively.

@@ -103,12 +103,6 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 
 		grid.addColumn("category").setHeader(Translator.translate("Category"));
 
-		grid.addColumn("total").setHeader(Translator.translate("Total"))
-		        .setComparator(new WinningOrderComparator(Ranking.TOTAL, true));
-		grid.addColumn("totalRank").setHeader(Translator.translate("TotalRank"))
-		        .setComparator(new WinningOrderComparator(Ranking.TOTAL, false))
-		        .setRenderer(new TextRenderer<>((a) -> Ranking.formatScoreboardRank(a.getTotalRank())));
-
 		grid.addColumn("lastName").setHeader(Translator.translate("LastName"));
 		grid.addColumn("firstName").setHeader(Translator.translate("FirstName"));
 		grid.addColumn("team").setHeader(Translator.translate("Team"));
@@ -121,6 +115,11 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		grid.addColumn("cleanJerkRank").setHeader(Translator.translate("Clean_and_Jerk_Rank"))
 		        .setComparator(new WinningOrderComparator(Ranking.CLEANJERK, false))
 		        .setRenderer(new TextRenderer<>((a) -> Ranking.formatScoreboardRank(a.getCleanJerkRank())));
+		grid.addColumn("total").setHeader(Translator.translate("Total"))
+		        .setComparator(new WinningOrderComparator(Ranking.TOTAL, true));
+		grid.addColumn("totalRank").setHeader(Translator.translate("TotalRank"))
+		        .setComparator(new WinningOrderComparator(Ranking.TOTAL, false))
+		        .setRenderer(new TextRenderer<>((a) -> Ranking.formatScoreboardRank(a.getTotalRank())));
 
 		// NumberRenderer<Athlete> renderer;
 		// renderer = new NumberRenderer<>(a -> Ranking.getRankingValue(a, scoringSystem), "%.2f", OwlcmsSession.getLocale(), "0000.00");

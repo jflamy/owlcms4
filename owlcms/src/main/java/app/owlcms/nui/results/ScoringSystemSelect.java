@@ -8,6 +8,7 @@ package app.owlcms.nui.results;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -19,8 +20,7 @@ import app.owlcms.data.athleteSort.RankingConfig;
 /**
  * Best-athlete scoring system selector for the results pages.
  *
- * Lists the systems required by the active championships first, then the remaining systems of
- * every scoring family (GAMX, QPoints, Robi, Sinclair). Each ranking appears only once.
+ * Lists required scoring systems first, then the remaining systems in the prescribed order.
  */
 @SuppressWarnings("serial")
 public class ScoringSystemSelect extends ComboBox<ScoringSystemSelect.Choice> {
@@ -85,6 +85,8 @@ public class ScoringSystemSelect extends ComboBox<ScoringSystemSelect.Choice> {
 				this.choices.add(new Choice(r, i));
 			}
 		}
+		List<Ranking> comboOrder = RankingConfig.comboOrder(required);
+		this.choices.sort(Comparator.comparingInt(choice -> comboOrder.indexOf(choice.ranking())));
 		setItems(this.choices);
 	}
 }

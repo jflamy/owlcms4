@@ -150,16 +150,20 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		scoringLayout.setColspan(scoringTitle, 2);
 
 		ComboBox<Ranking> bestAthleteField = createRankingCombo();
-		bestAthleteField.setValue(championship.getBestAthleteScoringSystem());
+		List<Ranking> bestAthleteChoices = RankingConfig.getChampionshipBestAthleteRankings();
+		bestAthleteField.setItems(bestAthleteChoices);
+		Ranking bestAthleteScoring = championship.getBestAthleteScoringSystem();
+		bestAthleteField.setValue(bestAthleteScoring != null && bestAthleteChoices.contains(bestAthleteScoring)
+		        ? bestAthleteScoring : null);
 		bestAthleteField.setEnabled(!TcrrCompliance.isEnabled());
 		scoringLayout.addFormItem(bestAthleteField, Translator.translate("Championship.bestAthleteScoringSystem"));
 
-		ComboBox<Ranking> bestSnatchField = createRankingCombo();
-		bestSnatchField.setValue(championship.getBestSnatchScoringSystem());
+		ComboBox<Ranking> bestSnatchField = createLiftRankingCombo(
+		        championship.getBestSnatchScoringSystem(), Ranking.GAMX_S, Ranking.GAMX_MS);
 		scoringLayout.addFormItem(bestSnatchField, Translator.translate("Championship.bestSnatchScoringSystem"));
 
-		ComboBox<Ranking> bestCJField = createRankingCombo();
-		bestCJField.setValue(championship.getBestCJScoringSystem());
+		ComboBox<Ranking> bestCJField = createLiftRankingCombo(
+		        championship.getBestCJScoringSystem(), Ranking.GAMX_C, Ranking.GAMX_MC);
 		scoringLayout.addFormItem(bestCJField, Translator.translate("Championship.bestCJScoringSystem"));
 
 		add(scoringLayout);
@@ -597,11 +601,18 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 
 	private ComboBox<Ranking> createRankingCombo() {
 		ComboBox<Ranking> combo = new ComboBox<>();
-		combo.setItems(RankingConfig.getAllScoringRankings());
+		combo.setItems(RankingConfig.getScoringRankingsInDisplayOrder());
 		combo.setItemLabelGenerator(r -> Ranking.getScoringExplanation(r));
 		combo.setClearButtonVisible(true);
 		combo.setWidth("20em");
 		combo.getElement().getStyle().set("--vaadin-combo-box-overlay-width", "30em");
+		return combo;
+	}
+
+	private ComboBox<Ranking> createLiftRankingCombo(Ranking selected, Ranking senior, Ranking masters) {
+		ComboBox<Ranking> combo = createRankingCombo();
+		combo.setItems(senior, masters);
+		combo.setValue(selected == senior || selected == masters ? selected : null);
 		return combo;
 	}
 
@@ -616,7 +627,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		ComboBox<Ranking> combo = createRankingCombo();
 		List<Ranking> items = new ArrayList<>();
 		items.add(Ranking.TOTAL);
-		items.addAll(RankingConfig.getAllScoringRankings());
+		items.addAll(RankingConfig.getScoringRankingsInDisplayOrder());
 		combo.setItems(items);
 		combo.setClearButtonVisible(false);
 		return combo;

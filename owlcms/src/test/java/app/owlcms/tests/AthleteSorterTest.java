@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -63,6 +64,43 @@ public class AthleteSorterTest {
 
     private static final Level LOGGER_LEVEL = Level.OFF;
     Logger logger = (Logger) LoggerFactory.getLogger(AthleteSorterTest.class);
+
+    @Test
+    public void scoringSystemsHaveRequestedDisplayOrder() {
+        List<Ranking> choices = RankingConfig.getScoringRankingsInDisplayOrder();
+        assertEquals(List.of(
+                Ranking.GAMX, Ranking.GAMX_M, Ranking.GAMX_U, Ranking.GAMX_A,
+                Ranking.QPOINTS, Ranking.QAGE, Ranking.AGEFACTORS,
+                Ranking.BW_SINCLAIR, Ranking.SMM, Ranking.ROBI,
+                Ranking.CAT_GAMX, Ranking.CAT_QPOINTS, Ranking.CAT_SINCLAIR,
+                Ranking.GAMX_S, Ranking.GAMX_C, Ranking.GAMX_MS, Ranking.GAMX_MC), choices);
+        assertEquals(RankingConfig.getAllScoringRankings().size(), choices.size());
+        assertTrue(choices.containsAll(RankingConfig.getAllScoringRankings()));
+    }
+
+    @Test
+    public void scoringComboMovesRequiredSystemsFirstInPrescribedOrder() {
+        Set<Ranking> required = Set.of(Ranking.GAMX_MS, Ranking.CAT_QPOINTS,
+                Ranking.QPOINTS, Ranking.GAMX_M);
+        assertEquals(List.of(
+                Ranking.GAMX_M, Ranking.QPOINTS, Ranking.CAT_QPOINTS, Ranking.GAMX_MS,
+                Ranking.GAMX, Ranking.GAMX_U, Ranking.GAMX_A,
+                Ranking.QAGE, Ranking.AGEFACTORS, Ranking.BW_SINCLAIR, Ranking.SMM, Ranking.ROBI,
+                Ranking.CAT_GAMX, Ranking.CAT_SINCLAIR,
+                Ranking.GAMX_S, Ranking.GAMX_C, Ranking.GAMX_MC),
+                RankingConfig.comboOrder(required));
+        assertEquals(RankingConfig.getScoringRankingsInDisplayOrder(), RankingConfig.comboOrder(Set.of()));
+    }
+
+    @Test
+    public void championshipBestAthleteChoicesExcludeLiftScoresButReportsKeepThem() {
+        Set<Ranking> liftScores = Set.of(Ranking.GAMX_S, Ranking.GAMX_C, Ranking.GAMX_MS, Ranking.GAMX_MC);
+        List<Ranking> reportChoices = RankingConfig.comboOrder(Set.of());
+        List<Ranking> championshipChoices = RankingConfig.getChampionshipBestAthleteRankings();
+        assertTrue(reportChoices.containsAll(liftScores));
+        assertEquals(reportChoices.stream().filter(ranking -> !liftScores.contains(ranking)).toList(),
+                championshipChoices);
+    }
 
     @BeforeClass
     public static void setupTests() {
