@@ -359,16 +359,21 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 
 	private static final String POINTS_SENTINEL = "POINTS";
 
-	private void setTeamScoringCell(Row row, int column, boolean enabled, Ranking ranking) {
+	static void setTeamScoringCell(Row row, int column, boolean enabled, Ranking ranking) {
 		if (enabled) {
-			row.createCell(column).setCellValue(ranking != null ? Ranking.getScoringTitle(ranking) : POINTS_SENTINEL);
+			row.createCell(column).setCellValue(ranking != null ? scoringExportName(ranking) : POINTS_SENTINEL);
 		}
 	}
 
-	private void setNullableRankingCell(Row row, int column, Ranking ranking) {
+	static void setNullableRankingCell(Row row, int column, Ranking ranking) {
 		if (ranking != null) {
-			row.createCell(column).setCellValue(Ranking.getScoringTitle(ranking));
+			row.createCell(column).setCellValue(scoringExportName(ranking));
 		}
+	}
+
+	// language-independent code, so that older versions can read the file
+	private static String scoringExportName(Ranking ranking) {
+		return ranking == Ranking.SMM ? "SMHF" : ranking.getReportingName();
 	}
 
 }

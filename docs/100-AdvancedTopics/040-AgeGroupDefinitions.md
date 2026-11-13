@@ -20,6 +20,8 @@ The `Championships` tab describes the championship-specific settings used by the
 
 The recommended way to learn the layout is to configure the championships using the interactive `Define Championships` form, export the age groups, and use the exported `Championships` tab as the starting point for your file.
 
+Scoring-system fields are exported as language-independent names, such as `CatSinclair`, `Sinclair`, `QMasters`, `QYouth`, `GAMX-M`, and `SMHF`. Imports accept these names case-insensitively and continue to accept enum codes and translated scoring-system names from older exports. For team scoring fields, `POINTS` selects sum of points, while an empty cell disables that team ranking.
+
 The spreadsheet uses the same defaults and precedence rules as the interactive `Define Championships` dialog.
 
 `medalPolicy` selects the events awarding medals. `teamPointsPolicy` separately selects the placings counted for points-based teams:
@@ -35,7 +37,7 @@ For older workbooks and JSON V1/V2 exports without `medalPolicy`, `snatchCJTotal
 - If an age group names a championship that has no matching row in the `Championships` tab, it uses the default championship, which reads the championship template.
 - The shared defaults are stored in the championship template: medal and scoring policies; best-athlete, best-snatch and best-clean-and-jerk scoring; team points; men's, women's and mixed team counting limits; maximum team size; and maximum athletes per category. Edit them with **Define Championship Template** above the championship list.
 - If a championship row has `useCompetitionDefaults` set to `true`, those template defaults take precedence for `scoringSystem`, `bestAthleteScoringSystem`, `bestSnatchScoringSystem`, `bestCJScoringSystem`, `snatchCJTotalMedals`, `teamPoints1st`, `teamPoints2nd`, `teamPoints3rd`, `mensBestN`, `womensBestN`, `mixedBestN`, `maxTeamSize`, and `maxPerCategory`. The row still supplies the championship `name` and `type`.
-- If `useCompetitionDefaults` is `false`, the championship row values take precedence for those fields. Blank `teamScoringSystem` or `mixedTeamScoringSystem` means sum of points; a scoring-system value means sum of scores using that system. If `snatchCJTotalMedals` is `true`, the medal `scoringSystem` is ignored, because medals are awarded separately for snatch, clean and jerk, and total.
+- If `useCompetitionDefaults` is `false`, the championship row values take precedence for those fields. `POINTS` in `teamScoringSystem` or `mixedTeamScoringSystem` means sum of points; a scoring-system code means sum of scores using that system; a blank cell disables that team ranking. If `snatchCJTotalMedals` is `true`, the medal `scoringSystem` is ignored, because medals are awarded separately for snatch, clean and jerk, and total.
 - Mixed team selection follows the same precedence as the dialog: `explicitMixedTeamMembers=true` uses explicit mixed team members and `explicitTeamSize`; otherwise a positive `mixedBestN` counts the top N mixed results; otherwise `mixedMensBestN` and `mixedWomensBestN` count men's and women's results separately. The default combined men's and women's teams mode uses 999 for each gender; older files with both values blank are interpreted the same way.
 - In prior JSON V1/V2 databases, the competition-level `mixedTeamSize` field is the roster size for an explicitly selected mixed-membership team. During migration it becomes `explicitTeamSize`; it does not select the "# Best Mixed" scoring mode.
 - If `maxTeamSize` is blank, the roster limit defaults to 8. If `maxPerCategory` is blank or 0, the per-category limit defaults to 2.
@@ -44,9 +46,9 @@ The radio button choices in the interactive dialog are represented by the presen
 
 | Dialog choice | Spreadsheet values |
 | --- | --- |
-| Men/Women team ranking by sum of points | Leave `teamScoringSystem` empty. |
+| Men/Women team ranking by sum of points | Set `teamScoringSystem` to `POINTS`. |
 | Men/Women team ranking by sum of scores | Set `teamScoringSystem` to the scoring system to use. |
-| Mixed team ranking by sum of points | Leave `mixedTeamScoringSystem` empty. |
+| Mixed team ranking by sum of points | Set `mixedTeamScoringSystem` to `POINTS`. |
 | Mixed team ranking by sum of scores | Set `mixedTeamScoringSystem` to the scoring system to use. |
 | Mixed team members selected explicitly | Set `explicitMixedTeamMembers` to `true` and set `explicitTeamSize`. |
 | Mixed team combines the men's and women's teams | Set `explicitMixedTeamMembers` to `false`, leave `mixedBestN` empty or 0, and set both `mixedMensBestN` and `mixedWomensBestN` to 999. This is the default. |

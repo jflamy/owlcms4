@@ -22,6 +22,13 @@ public class AgeGroupDefinitionReaderTest {
     }
 
     @Test
+    public void rankingReportingNamesRoundTrip() {
+        for (Ranking ranking : Ranking.values()) {
+            assertEquals(ranking, AgeGroupDefinitionReader.getRankingFromExportValue(ranking.getReportingName()));
+        }
+    }
+
+    @Test
     public void missingTeamPointsPolicyUsesMedalConfiguration() {
         TeamPointsPolicy missing = AgeGroupDefinitionReader.getTeamPointsPolicyFromExportValue("");
 
