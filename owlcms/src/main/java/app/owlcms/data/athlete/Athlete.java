@@ -795,20 +795,22 @@ public class Athlete {
 		Integer age = this.getAge();
 		if (weight == null || weight < 0.01) {
 			Double presumedBodyWeight = this.getPresumedBodyWeight();
-			if (presumedBodyWeight != null) {
-				weight = presumedBodyWeight - 0.01D;
-				if (age == null || age == 0) {
-					// try to set category to match sheet, with coherent eligibles
-					if (this.category != null) {
-						age = this.category.getAgeGroup().getMaxAge();
-					}
-				}
-				List<Category> categories = CategoryRepository.doFindEligibleCategories(this, this.getGender(), age,
-						weight,
-						this.qualifyingTotal);
-				setEligibles(this, categories);
-				this.computeCategory(bestMatch(categories));
+			if (presumedBodyWeight == null) {
+				// no weight information: use a weight that fits the open-ended upper category
+				presumedBodyWeight = 990.0D;
 			}
+			weight = presumedBodyWeight - 0.01D;
+			if (age == null || age == 0) {
+				// try to set category to match sheet, with coherent eligibles
+				if (this.category != null) {
+					age = this.category.getAgeGroup().getMaxAge();
+				}
+			}
+			List<Category> categories = CategoryRepository.doFindEligibleCategories(this, this.getGender(), age,
+					weight,
+					this.qualifyingTotal);
+			setEligibles(this, categories);
+			this.computeCategory(bestMatch(categories));
 		} else {
 			List<Category> categories = CategoryRepository.doFindEligibleCategories(this, this.getGender(), age, weight,
 					this.qualifyingTotal);
