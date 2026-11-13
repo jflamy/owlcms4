@@ -257,6 +257,10 @@ public class Main {
                     json.length, signature.sha256(), signature.status());
             FormatDetector.importData(new ByteArrayInputStream(json));
 
+            // the session locale takes precedence over the forced locale; threads started from here inherit this session
+            Locale importedLocale = Config.getCurrent().getDefaultLocale();
+            startupSession.setLocale(importedLocale != null ? importedLocale : Locale.ENGLISH);
+
             // the server key is only known once audit integrity is initialized, after the import
             completeConfig();
             ApplicationAudit.startupImport(name, signature,
