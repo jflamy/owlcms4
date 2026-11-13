@@ -10,6 +10,8 @@
 
 **Maintenance Log**
 
+- 68.0.7: When reassigning athletes, athletes with no known bodyweight were not being assigned to categories that include all bodyweights such as "age-slice" categories with score medaling.
+
 - 68.0.6: The best-athlete scoring selector no longer lists championship scoring systems twice.
 
 - 68.0.6: Fixed the color and positioning of the break countdown on current-athlete displays.
