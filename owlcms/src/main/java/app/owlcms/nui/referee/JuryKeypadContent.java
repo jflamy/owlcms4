@@ -368,12 +368,12 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	protected ComboBox<FieldOfPlay> createFopSelect() {
 		ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
-		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Access.JURY));
+		List<FieldOfPlay> fops = AccessUi.selectableFops(getPrincipal(), Set.of(Access.JURY));
 		fopSelect.setPlaceholder(Translator.translate("SelectPlatform"));
 		fopSelect.setItems(fops);
 		fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
 		fopSelect.setWidth("12rem");
-		fopSelect.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Access.JURY), fops));
+		fopSelect.setReadOnly(AccessUi.fopSelectorReadOnly(getPrincipal(), Set.of(Access.JURY), fops));
 		return fopSelect;
 	}
 

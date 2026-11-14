@@ -105,10 +105,10 @@ public class PreparationNavigationContent extends BaseNavigationContent
 		downloadDiv.setWidthFull();
 
 		Button upload = new Button(Translator.translate("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
-				buttonClickEvent -> new NRegistrationFileUploadDialog(false).open());
+				buttonClickEvent -> new NRegistrationFileUploadDialog(getPrincipal(), false).open());
 		Button sbdeUpload = new Button(Translator.translate("AdvancedPreparation.Import"),
 				new Icon(VaadinIcon.UPLOAD_ALT),
-				buttonClickEvent -> new NRegistrationFileUploadDialog(true).open());
+				buttonClickEvent -> new NRegistrationFileUploadDialog(getPrincipal(), true).open());
 		var registrationWriter = new JXLSSBDEExport(UI.getCurrent());
 		Notification notification1 = new Notification(Translator.translate("LongProcessing"));
 		notification1.setPosition(Position.TOP_END);
@@ -134,12 +134,12 @@ public class PreparationNavigationContent extends BaseNavigationContent
 
 		Button uploadJson = new Button(Translator.translate("ExportDatabase.UploadJson"),
 				new Icon(VaadinIcon.UPLOAD_ALT),
-				buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
+				buttonClickEvent -> new JsonUploadDialog(getPrincipal(), UI.getCurrent()).open());
 
 		Notification notification2 = new Notification(Translator.translate("LongProcessing"));
 		notification2.setPosition(Position.TOP_END);
 		// notification2.addThemeVariants(NotificationVariant.LUMO_WARNING);
-		Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
+		Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton(getPrincipal(), "owlcmsDatabase",
 				Translator.translate("ExportDatabase.DownloadJson"), notification2);
 		Optional<Component> exportJsonButton = exportJsonDiv.getChildren().findFirst();
 		exportJsonButton.ifPresent(c -> ((Button) c).setWidth("100%"));
@@ -150,24 +150,24 @@ public class PreparationNavigationContent extends BaseNavigationContent
 		if (FeatureSwitch.V2_EXPORT.isEffective()) {
 			Notification notification3 = new Notification(Translator.translate("LongProcessing"));
 			notification3.setPosition(Position.TOP_END);
-			exportJsonV2Div = DownloadButtonFactory.createDynamicJsonV2DownloadButton("owlcmsDatabase",
+			exportJsonV2Div = DownloadButtonFactory.createDynamicJsonV2DownloadButton(getPrincipal(), "owlcmsDatabase",
 					Translator.translate("ExportDatabase.DownloadJsonV2"), notification3);
 			Optional<Component> exportJsonV2Button = exportJsonV2Div.getChildren().findFirst();
 			exportJsonV2Button.ifPresent(c -> ((Button) c).setWidth("100%"));
 			exportJsonV2Div.setWidthFull();
 		}
 
-		if (!AccessUi.hasPermission(Permission.EXPORT_V1, null)) {
+		if (!AccessUi.hasPermission(getPrincipal(), Permission.EXPORT_V1, null)) {
 			// withdrawn by the noV1Export feature switch: V1 exports are never signed
 			DownloadButtonFactory.hide(exportJsonDiv);
 		}
-		if (!AccessUi.hasPermission(Permission.EXPORT_DATA, null)) {
+		if (!AccessUi.hasPermission(getPrincipal(), Permission.EXPORT_DATA, null)) {
 			// no EXPORT_DATA permission (RESULTS access): database and SBDE exports would be refused
 			DownloadButtonFactory.hide(exportJsonDiv);
 			DownloadButtonFactory.hide(exportJsonV2Div);
 			DownloadButtonFactory.hide(sbdeDiv);
 		}
-		if (!AccessUi.hasPermission(Permission.IMPORT_DATA, null)) {
+		if (!AccessUi.hasPermission(getPrincipal(), Permission.IMPORT_DATA, null)) {
 			// no IMPORT_DATA permission (Competition Director): the upload would be refused
 			upload.setVisible(false);
 			sbdeUpload.setVisible(false);

@@ -158,13 +158,13 @@ public class RefereeNavigationContent extends BaseNavigationContent implements H
 	 */
 	private ComboBox<FieldOfPlay> createFopSelector() {
 		ComboBox<FieldOfPlay> fopSelector = new ComboBox<>(Translator.translate("CompetitionPlatform"));
-		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Access.REFEREE, Access.JURY));
+		List<FieldOfPlay> fops = AccessUi.selectableFops(getPrincipal(), Set.of(Access.REFEREE, Access.JURY));
 		fopSelector.setItems(fops);
 		fopSelector.setItemLabelGenerator(FieldOfPlay::getName);
 		fopSelector.setPlaceholder(Translator.translate("SelectPlatform"));
 		fopSelector.setRequiredIndicatorVisible(fops.size() > 1);
 		fopSelector.setWidthFull();
-		fopSelector.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Access.REFEREE, Access.JURY), fops));
+		fopSelector.setReadOnly(AccessUi.fopSelectorReadOnly(getPrincipal(), Set.of(Access.REFEREE, Access.JURY), fops));
 		fopSelector.addClassName("referee-jury-home-platform-selector");
 		return fopSelector;
 	}

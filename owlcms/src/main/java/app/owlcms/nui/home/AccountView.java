@@ -19,6 +19,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.HasPrincipal;
 import app.owlcms.access.AccountPasswords;
 import app.owlcms.access.AccountPasswords.ChangeResult;
 import app.owlcms.access.AccountTokens;
@@ -46,7 +48,15 @@ import app.owlcms.utils.RestartUtils;
 @Route(value = AccountPasswords.ACCOUNT_ROUTE, layout = OwlcmsLayout.class)
 @AuthenticatedPage
 public class AccountView extends Composite<VerticalLayout>
-        implements OwlcmsLayoutAware, ContentWrapping, HasDynamicTitle {
+        implements OwlcmsLayoutAware, ContentWrapping, HasDynamicTitle, HasPrincipal {
+
+	/** Captured during the navigation that creates the page. */
+	private final Principal principal = AccessUi.currentPrincipal();
+
+	@Override
+	public Principal getPrincipal() {
+		return this.principal;
+	}
 
 	private OwlcmsLayout routerLayout;
 	private PasswordField currentPasswordField;
@@ -56,7 +66,7 @@ public class AccountView extends Composite<VerticalLayout>
 	private boolean controlPanelTokenLogin;
 
 	public AccountView() {
-		Principal principal = OwlcmsSession.getPrincipal();
+		Principal principal = this.principal;
 		UserAccount account = principal != null && principal.source() == Principal.AuthSource.ACCOUNT
 		        ? UserAccountRepository.findById(principal.accountId())
 		        : null;
@@ -131,7 +141,7 @@ public class AccountView extends Composite<VerticalLayout>
 		if (!this.tokenEditor.hasChange()) {
 			return;
 		}
-		Principal principal = OwlcmsSession.getPrincipal();
+		Principal principal = this.principal;
 		AccountToken token = this.tokenEditor.pendingToken();
 		if (AccountTokens.setOwnToken(principal, token, AuditOrigin.fromUi("Account page"))) {
 			this.tokenEditor.reset(token);
@@ -151,7 +161,7 @@ public class AccountView extends Composite<VerticalLayout>
 			return;
 		}
 
-		Principal principal = OwlcmsSession.getPrincipal();
+		Principal principal = this.principal;
 		boolean forced = AccountPasswords.mustChangePassword(principal);
 		AuditOrigin origin = AuditOrigin.fromUi("Account page");
 		ChangeResult result = this.controlPanelTokenLogin

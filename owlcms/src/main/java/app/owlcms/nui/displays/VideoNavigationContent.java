@@ -115,7 +115,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 			return;
 		}
 		Button obsMonitor = new Button(Translator.translate("OBS.MonitoringButton"), e -> openObsMonitor());
-		obsMonitor.setVisible(AccessUi.canOpen(OBSMonitor.class, getFop()));
+		obsMonitor.setVisible(AccessUi.canOpen(getPrincipal(), OBSMonitor.class, getFop()));
 		Button eventMonitor = openInNewTabWithFopQueryParameters(StreamingEventMonitor.class,
 		        Translator.translate("Video.EventMonitoringButton"),
 		        "video=true");

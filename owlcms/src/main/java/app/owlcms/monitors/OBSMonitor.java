@@ -25,6 +25,9 @@ import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.HasPrincipal;
+import app.owlcms.access.Principal;
 import app.owlcms.access.PublicPage;
 import app.owlcms.access.RequiresFeature;
 import app.owlcms.data.config.FeatureSwitch;
@@ -55,7 +58,15 @@ import ch.qos.logback.classic.Logger;
 @Route("displays/monitor")
 
 public class OBSMonitor extends LitTemplate implements FOPParametersReader,
-        SafeEventBusRegistration, UIEventProcessor {
+        SafeEventBusRegistration, UIEventProcessor, HasPrincipal {
+
+	/** Captured during the navigation that creates the page. */
+	private final Principal principal = AccessUi.currentPrincipal();
+
+	@Override
+	public Principal getPrincipal() {
+		return this.principal;
+	}
 
 	final private static Logger uiEventLogger = (Logger) LoggerFactory
 	        .getLogger("UI" + OBSMonitor.class.getSimpleName());

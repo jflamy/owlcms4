@@ -164,7 +164,7 @@ public final class TokenNavigation {
 			newlyBound = false;
 		}
 
-		Principal principal = Principal.ofToken(account);
+		Principal principal = Principal.ofToken(account, tokenId);
 		if (!AccessPolicy.canOpen(principal, rule, platform)) {
 			return new Decision.Refuse(FORBIDDEN, "forbidden", account.getUsername(), tokenId);
 		}

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.dialog.Dialog;
 
+import app.owlcms.access.Principal;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.uievents.BreakType;
@@ -29,9 +30,10 @@ public class BreakDialog extends Dialog {
 	 * @param cdt
 	 * @param origin
 	 */
-	public BreakDialog(FieldOfPlay fop, BreakType brt, CountdownType cdt, Integer secondsRemaining, Object origin) {
+	public BreakDialog(Principal principal, FieldOfPlay fop, BreakType brt, CountdownType cdt,
+	        Integer secondsRemaining, Object origin) {
 		// logger.debug("BreakDialog brt = {}", brt);
-		this.content = new BreakManagement(fop, brt, cdt, secondsRemaining, this, origin);
+		this.content = new BreakManagement(principal, fop, brt, cdt, secondsRemaining, this, origin);
 		this.add(this.content);
 
 		this.addDialogCloseActionListener((e) -> {
@@ -64,8 +66,8 @@ public class BreakDialog extends Dialog {
 	 * @param origin the origin
 	 */
 	@SuppressWarnings("deprecation")
-	public BreakDialog(FieldOfPlay fop, Object origin) {
-		this.content = new BreakManagement(fop, this, origin);
+	public BreakDialog(Principal principal, FieldOfPlay fop, Object origin) {
+		this.content = new BreakManagement(principal, fop, this, origin);
 		this.add(this.content);
 
 		this.addDialogCloseActionListener((e) -> {

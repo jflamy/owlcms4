@@ -185,11 +185,11 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 			// prevent grid row selection from triggering
 			technical.getElement().addEventListener("click", ignore -> {
 			}).addEventData("event.stopPropagation()");
-			technical.setVisible(AccessUi.canOpenOnPlatform(TCContent.class, p.getName()));
+			technical.setVisible(AccessUi.canOpenOnPlatform(getPrincipal(), TCContent.class, p.getName()));
 			return technical;
 		})).setHeader(Translator.translate("PlatesCollarBarbell")).setAutoWidth(true).setFlexGrow(0)
 		        .setTextAlign(ColumnTextAlign.CENTER)
-		        .setVisible(OwlcmsFactory.getFOPs().stream().anyMatch(fop -> AccessUi.canOpen(TCContent.class, fop)));
+		        .setVisible(OwlcmsFactory.getFOPs().stream().anyMatch(fop -> AccessUi.canOpen(getPrincipal(), TCContent.class, fop)));
 		grid.addComponentColumn(platform -> createSoundMixerField(platform, crud))
 		        .setHeader(Translator.translate("Speakers")).setWidth("30em").setFlexGrow(0);
 		grid.addComponentColumn(platform -> createDeleteButton(platform, crud))

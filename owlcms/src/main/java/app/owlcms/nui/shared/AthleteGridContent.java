@@ -578,15 +578,15 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected boolean hasAthleteTimerControl() {
-		return !isPassiveSpeaker() && AccessUi.hasPermission(Permission.ATHLETE_TIMER, getFop());
+		return !isPassiveSpeaker() && AccessUi.hasPermission(getPrincipal(), Permission.ATHLETE_TIMER, getFop());
 	}
 
 	protected boolean hasBreakTimerControl() {
-		return !isPassiveSpeaker() && AccessUi.hasPermission(Permission.BREAK_TIMER, getFop());
+		return !isPassiveSpeaker() && AccessUi.hasPermission(getPrincipal(), Permission.BREAK_TIMER, getFop());
 	}
 
 	protected boolean hasDecisionButtonsControl() {
-		return !isPassiveSpeaker() && AccessUi.hasPermission(Permission.DECISION_BUTTONS, getFop());
+		return !isPassiveSpeaker() && AccessUi.hasPermission(getPrincipal(), Permission.DECISION_BUTTONS, getFop());
 	}
 
 	/**
@@ -1353,7 +1353,7 @@ public abstract class AthleteGridContent extends BaseContent
 
 				}
 				// logger.debug("requesting breaktype {}", bt);
-				this.breakDialog = new BreakDialog(getFop(), bt, ct, null, this);
+				this.breakDialog = new BreakDialog(getPrincipal(), getFop(), bt, ct, null, this);
 				this.breakDialog.open();
 			}
 		});
@@ -1482,7 +1482,7 @@ public abstract class AthleteGridContent extends BaseContent
 	 * @return the form factory that will create the actual form on demand
 	 */
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-		return new AthleteCardFormFactory(Athlete.class, this);
+		return new AthleteCardFormFactory(getPrincipal(), this, Athlete.class, this);
 	}
 
 	protected FlexLayout createInitialBar() {

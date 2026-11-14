@@ -50,9 +50,9 @@ import com.vaadin.flow.data.converter.StringToDoubleConverter;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.ClassList;
 
-import app.owlcms.access.AccessUi;
 import app.owlcms.access.Principal;
 import app.owlcms.apputils.NotificationUtils;
+import app.owlcms.audit.AuditActor;
 import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteCardValues;
@@ -154,7 +154,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	private TextField snatch3Declaration;
 	private BinderValidationStatus<Athlete> status;
 	private Boolean updatingResults;
-	private Principal editor;
+	private final Principal editor;
+	private final Object auditOrigin;
 	private boolean editable;
 	private boolean sharedEditor;
 	private boolean allowSessionInProgress;
@@ -241,8 +242,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		}
 	}
 
-	public AthleteCardFormFactory(Class<Athlete> domainType, IAthleteEditing origin) {
+	public AthleteCardFormFactory(Principal editor, Object auditOrigin, Class<Athlete> domainType, IAthleteEditing origin) {
 		super(domainType);
+		this.editor = editor;
+		this.auditOrigin = auditOrigin;
 		this.origin = origin;
 	}
 
@@ -408,7 +411,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	        ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
 	        ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
 	        ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
-		this.editor = AccessUi.currentPrincipal();
 		Athlete storedAthlete = AthleteRepository.findById(aFromList.getId());
 		this.editable = !readOnly && AthleteEditAccess.card(this.editor, storedAthlete);
 		this.setLiftResultChanged(false);
@@ -1374,6 +1376,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		Athlete.conditionalCopy(values, getEditedAthlete(), true, true, true, false);
 		values.setValidation(false);
 		Object eventOrigin = getOrigin();
+		AuditActor actor = AuditActor.capture(this.editor, this.auditOrigin);
 		boolean accepting = this.acceptingStartingWeightViolation;
 		ConcurrentEditDialog.saveUnlessConflicting(this.saveTask, this.concurrentEditCheck, values,
 		        this.originalAthlete.getFullName(), () -> !validate || validateCard(accepting), fop -> {
@@ -1400,7 +1403,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 					        fop.pushOutUIEvent(new UIEvent.Notification(saved, this, Notification.Level.WARNING,
 					                notificationKey, 5000, fop, saved.getFullName()));
 				        }
-				        fop.fopEventPost(new FOPEvent.WeightChange(eventOrigin, this.originalAthlete, resultChanged));
+				        fop.fopEventPost(new FOPEvent.WeightChange(eventOrigin, this.originalAthlete, resultChanged), actor);
 			        }
 		        }, () -> {
 			        if (this.sharedEditor) {

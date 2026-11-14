@@ -34,7 +34,6 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.server.streams.UploadHandler;
 
 import app.owlcms.components.ConfirmationDialog;
-import app.owlcms.access.AccessUi;
 import app.owlcms.access.ImportGate;
 import app.owlcms.access.ImportsNotAllowedException;
 import app.owlcms.access.ImportsNotAllowedException.Reason;
@@ -78,13 +77,12 @@ public class NRegistrationFileUploadDialog extends Dialog {
 	private Locale capturedLocale;
 	private boolean isRestartScenario;
 
-	public NRegistrationFileUploadDialog(boolean sbdeFormat) {
+	public NRegistrationFileUploadDialog(Principal importer, boolean sbdeFormat) {
 		this.sbdeFormat = sbdeFormat;
 		this.isRestartScenario = RestartUtils.isRestartScenario();
 		// Capture locale now while still on UI thread - will be used in upload callback
 		this.capturedLocale = OwlcmsSession.getLocale();
 		AuditOrigin importOrigin = AuditOrigin.fromUi(sbdeFormat ? "SBDE import" : "Registration upload");
-		Principal importer = AccessUi.currentPrincipal();
 		String notPermitted = Translator.translate("Imports.NotPermitted");
 		String notAllowed = Translator.translate("Imports.NotAllowed");
 

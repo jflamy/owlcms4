@@ -29,6 +29,9 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.streams.UploadHandler;
 
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.HasPrincipal;
+import app.owlcms.access.Principal;
 import app.owlcms.access.Access;
 import app.owlcms.access.RequiresAccess;
 import app.owlcms.audit.AuditIntegrity;
@@ -51,7 +54,16 @@ import ch.qos.logback.classic.Logger;
 @RequiresAccess(Access.ADMINISTRATOR)
 @Route(value = "admin/audit/check", layout = OwlcmsLayout.class)
 public class AuditIntegrityCheckView extends Composite<VerticalLayout>
-		implements HasDynamicTitle {
+		implements HasDynamicTitle, HasPrincipal {
+
+	/** Captured during the navigation that creates the page. */
+	private final Principal principal = AccessUi.currentPrincipal();
+
+	@Override
+	public Principal getPrincipal() {
+		return this.principal;
+	}
+
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(AuditIntegrityCheckView.class);
 	/** One check at a time for the whole server: reading and verifying large logs is I/O and CPU bound. */
 	private static final Semaphore RUNNING = new Semaphore(1);

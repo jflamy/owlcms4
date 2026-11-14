@@ -32,6 +32,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 
 import app.owlcms.access.AccessUi;
+import app.owlcms.access.Principal;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.agegroup.AgeGroup;
@@ -60,17 +61,19 @@ public class EditChampionshipsPanel extends VerticalLayout {
 	private Checkbox hideCompetitionDefaults;
 	private ChampionshipRow draggedChampionship;
 	private List<ChampionshipRow> displayedRows = new ArrayList<>();
+	private final Principal principal;
 
 	/** Standalone page: the "hide empty" choice is saved at once. */
-	public EditChampionshipsPanel() {
-		this(null);
+	public EditChampionshipsPanel(Principal principal) {
+		this(principal, null);
 	}
 
 	/**
 	 * @param competitionDraft the Competition page's own copy: the "hide empty" choice is set on it and saved with the
 	 *                         page; null on the standalone page, where it is saved at once
 	 */
-	public EditChampionshipsPanel(Competition competitionDraft) {
+	public EditChampionshipsPanel(Principal principal, Competition competitionDraft) {
+		this.principal = principal;
 		setPadding(false);
 		setSpacing(false);
 		setWidthFull();
@@ -117,11 +120,11 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		return gridLayout;
 	}
 
-	private static <T extends Component> Button newTabButton(String labelKey, VaadinIcon icon, Class<T> target) {
+	private <T extends Component> Button newTabButton(String labelKey, VaadinIcon icon, Class<T> target) {
 		Button button = new Button(Translator.translate(labelKey), icon.create());
 		button.getElement().setAttribute("onClick",
 		        "window.open('" + URLUtils.getUrlFromTargetClass(target) + "','_blank')");
-		button.setVisible(AccessUi.canOpen(target, null));
+		button.setVisible(AccessUi.canOpen(this.principal, target, null));
 		return button;
 	}
 

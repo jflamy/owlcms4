@@ -139,7 +139,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 			        String url = RouteConfiguration.forSessionScope().getUrl(TeamScheduleContent.class);
 			        UI.getCurrent().getPage().open(url, "_blank");
 		        });
-		editTeamScheduleButton.setVisible(AccessUi.canOpen(TeamScheduleContent.class, null));
+		editTeamScheduleButton.setVisible(AccessUi.canOpen(getPrincipal(), TeamScheduleContent.class, null));
 
 		// Export current officials button using the age groups pattern
 		Div exportOfficials = DownloadButtonFactory.createDynamicXLSXDownloadButton(

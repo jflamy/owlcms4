@@ -567,7 +567,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 
 	@Override
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-		return new NAthleteRegistrationFormFactory(Athlete.class, null, null)
+		return new NAthleteRegistrationFormFactory(getPrincipal(), Athlete.class, null, null)
 		        .setCardEntry(CardEntry.CARD_FIRST, this);
 	}
 

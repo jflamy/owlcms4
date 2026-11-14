@@ -294,7 +294,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 			technical.getElement().addEventListener("click", ignore -> {
 			}).addEventData("event.stopPropagation()");
 			technical.addThemeVariants(ButtonVariant.LUMO_SMALL);
-			technical.setVisible(AccessUi.canOpen(RegistrationContent.class, null));
+			technical.setVisible(AccessUi.canOpen(getPrincipal(), RegistrationContent.class, null));
 			return new HorizontalLayout(editDetails, technical);
 		})).setHeader("").setAutoWidth(true);
 

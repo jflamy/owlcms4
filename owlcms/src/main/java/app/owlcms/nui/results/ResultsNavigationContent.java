@@ -120,7 +120,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 
 		Notification exportNotification = new Notification(Translator.translate("LongProcessing"));
 		exportNotification.setPosition(Position.TOP_END);
-		Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
+		Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton(getPrincipal(), "owlcmsDatabase",
 		        Translator.translate("ExportDatabase.DownloadJson"), exportNotification);
 		Optional<Component> exportJsonButton = exportJsonDiv.getChildren().findFirst();
 		exportJsonButton.ifPresent(c -> ((Button) c).setWidth("100%"));
@@ -130,13 +130,13 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		if (FeatureSwitch.V2_EXPORT.isEffective()) {
 			Notification exportV2Notification = new Notification(Translator.translate("LongProcessing"));
 			exportV2Notification.setPosition(Position.TOP_END);
-			exportJsonV2Div = DownloadButtonFactory.createDynamicJsonV2DownloadButton("owlcmsDatabase",
+			exportJsonV2Div = DownloadButtonFactory.createDynamicJsonV2DownloadButton(getPrincipal(), "owlcmsDatabase",
 			        Translator.translate("ExportDatabase.DownloadJsonV2"), exportV2Notification);
 			Optional<Component> exportJsonV2Button = exportJsonV2Div.getChildren().findFirst();
 			exportJsonV2Button.ifPresent(c -> ((Button) c).setWidth("100%"));
 			exportJsonV2Div.setWidthFull();
 		}
-		if (!AccessUi.hasPermission(Permission.EXPORT_V1, null)) {
+		if (!AccessUi.hasPermission(getPrincipal(), Permission.EXPORT_V1, null)) {
 			// withdrawn by the noV1Export feature switch: V1 exports are never signed
 			DownloadButtonFactory.hide(exportJsonDiv);
 		}

@@ -17,7 +17,6 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 
 import app.owlcms.apputils.NotificationUtils;
-import app.owlcms.access.AccessUi;
 import app.owlcms.access.ImportsNotAllowedException;
 import app.owlcms.access.ImportsNotAllowedException.Reason;
 import app.owlcms.access.Principal;
@@ -63,13 +62,13 @@ public class JsonUploadDialog extends Dialog {
 	private String pendingFileName;
 	private byte[] pendingData;
 
-	public JsonUploadDialog(UI ui) {
+	public JsonUploadDialog(Principal importer, UI ui) {
 		this.ui = ui;
 		// Capture from session—safe here because the constructor runs on the UI thread.
 		// OwlcmsSession.getLocale() correctly resolves fr_CA, ru_CA, etc.
 		this.capturedLocale = OwlcmsSession.getLocale();
 		this.importOrigin = AuditOrigin.fromUi("Import Database");
-		this.importer = AccessUi.currentPrincipal();
+		this.importer = importer;
 		this.notPermitted = Translator.translate("Imports.NotPermitted");
 		this.notAllowed = Translator.translate("Imports.NotAllowed");
 

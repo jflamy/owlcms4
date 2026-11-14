@@ -15,7 +15,6 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.ContentWrapping;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -26,12 +25,20 @@ import app.owlcms.nui.shared.OwlcmsLayoutAware;
 @Route(value = "denied", layout = OwlcmsLayout.class)
 @AuthenticatedPage
 public class AccessDeniedView extends Composite<VerticalLayout>
-        implements OwlcmsLayoutAware, ContentWrapping, HasDynamicTitle {
+        implements OwlcmsLayoutAware, ContentWrapping, HasDynamicTitle, HasPrincipal {
+
+	/** Captured during the navigation that creates the page. */
+	private final Principal principal = AccessUi.currentPrincipal();
+
+	@Override
+	public Principal getPrincipal() {
+		return this.principal;
+	}
 
 	private OwlcmsLayout routerLayout;
 
 	public AccessDeniedView() {
-		Principal principal = OwlcmsSession.getPrincipal();
+		Principal principal = this.principal;
 
 		H3 title = new H3(Translator.translate("Access.Denied.Title"));
 		title.getStyle().set("color", "var(--lumo-header-text-color)");

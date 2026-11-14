@@ -27,6 +27,9 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.HasPrincipal;
+import app.owlcms.access.Principal;
 import app.owlcms.access.PublicPage;
 import app.owlcms.access.RequiresFeature;
 import app.owlcms.data.config.FeatureSwitch;
@@ -67,7 +70,15 @@ import ch.qos.logback.classic.Logger;
 @Route("displays/notifications")
 
 public class StreamingEventMonitor extends LitTemplate implements FOPParametersReader,
-        SafeEventBusRegistration, UIEventProcessor, StylesDirSelection, HasDynamicTitle {
+        SafeEventBusRegistration, UIEventProcessor, StylesDirSelection, HasDynamicTitle, HasPrincipal {
+
+	/** Captured during the navigation that creates the page. */
+	private final Principal principal = AccessUi.currentPrincipal();
+
+	@Override
+	public Principal getPrincipal() {
+		return this.principal;
+	}
 
 	class Status {
 		BreakType breakType;

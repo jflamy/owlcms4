@@ -52,6 +52,7 @@ import app.owlcms.access.RequiresAccess;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.SoundParameters;
+import app.owlcms.audit.AuditActor;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.components.JXLSDownloader;
 import app.owlcms.components.GroupSelectionMenu;
@@ -396,7 +397,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		resumeButton.getStyle().set("color", "white");
 		resumeButton.getStyle().set("margin-left", "1em");
 		resumeButton.addClickListener((event) -> {
-			endBreakConfirmingReviewVote(() -> getFop().fopEventPost(new FOPEvent.StartLifting(null)));
+			AuditActor actor = AuditActor.capture(getPrincipal(), this);
+			endBreakConfirmingReviewVote(() -> getFop().fopEventPost(new FOPEvent.StartLifting(null), actor));
 			this.stoppageAckNotification.close();
 			this.stoppageAckNotification = null;
 		});
@@ -776,7 +778,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 		this.introCountdownButton = new Button(Translator.translate("introCountdown"), new Icon(VaadinIcon.TIMER),
 		        (e) -> {
-		        	BreakDialog dialog = new BreakDialog(getFop(), BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null,
+		        	BreakDialog dialog = new BreakDialog(getPrincipal(), getFop(), BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null,
 			                this);
 			        dialog.open();
 		        });
@@ -848,7 +850,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		button.getElement().setAttribute("onClick",
 		        "window.open('" + URLUtils.getUrlFromTargetClass(MedalCeremonyContent.class, null, parameters)
 		                + "','MedalCeremonyContent" + (fop != null ? "_" + fop.getName() : "") + "')");
-		button.setVisible(AccessUi.canOpen(MedalCeremonyContent.class, fop));
+		button.setVisible(AccessUi.canOpen(getPrincipal(), MedalCeremonyContent.class, fop));
 		return button;
 	}
 
@@ -1175,7 +1177,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	}
 
 	protected void addSpeakerModeSwitch(SubMenu settings) {
-		if (isPassiveSpeaker() && !AccessUi.canOpen(AnnouncerContent.class, getFop())) {
+		if (isPassiveSpeaker() && !AccessUi.canOpen(getPrincipal(), AnnouncerContent.class, getFop())) {
 			return;
 		}
 		MenuItem controlsActive = settings.addItem(Translator.translate(isPassiveSpeaker() ? "Announcer.SwitchToActive" : "Announcer.SwitchToPassive"), event -> {
@@ -1278,7 +1280,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		
 		// Create custom dialog with proper footer
 		logger.debug("Creating new JuryDecisionDialog");
-		JuryDecisionDialog dialog = new JuryDecisionDialog(e, juryDecision, () -> {
+		JuryDecisionDialog dialog = new JuryDecisionDialog(getPrincipal(), this, e, juryDecision, () -> {
 			this.deliberationNotificationSent = false;
 			this.juryConfirmationDialog = null;
 		});

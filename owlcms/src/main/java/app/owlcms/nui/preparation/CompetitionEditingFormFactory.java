@@ -46,6 +46,7 @@ import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.router.Location;
 
+import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.components.fields.LocalizedIntegerField;
 import app.owlcms.data.competition.Competition;
@@ -176,7 +177,7 @@ public class CompetitionEditingFormFactory
 		FormLayout otherRulesLayout = otherRulesForm();
 		FormLayout pointScoresForm = pointScoresForm();
 		// the panel edits the form's copy: its checkbox is saved with the form
-		EditChampionshipsPanel championshipsPanel = new EditChampionshipsPanel(comp);
+		EditChampionshipsPanel championshipsPanel = new EditChampionshipsPanel(this.origin.getPrincipal(), comp);
 		boolean tcrrCompliance = TcrrCompliance.isEnabled();
 		mastersRulesLayout.setVisible(!tcrrCompliance);
 		liftingOrderLayout.setVisible(!tcrrCompliance);
@@ -268,12 +269,13 @@ public class CompetitionEditingFormFactory
 		// Save current RankingConfig state to competition before persisting
 		competition.saveRankingConfig();
 		applyStartNumberOrder(competition);
-		Competition saved = saveWithStartNumberSwitch(competition, AuditOrigin.fromUi("Competition"));
+		AuditOrigin auditOrigin = new AuditOrigin(AuditActor.capture(this.origin.getPrincipal(), this.origin), "Competition");
+		Competition saved = saveWithStartNumberSwitch(competition, auditOrigin);
 		if (this.jurySizeChanged) {
 			for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
 				if (fop.getPlatform() != null && fop.getPlatform().getJurySize() == null) {
 					// the platform follows the competition default: the jury box and the jury pages follow too
-					fop.fopEventPost(new FOPEvent.JurySizeChange(this, null));
+					fop.fopEventPost(new FOPEvent.JurySizeChange(this, null), auditOrigin.actor());
 				}
 			}
 			this.jurySizeChanged = false;

@@ -57,17 +57,23 @@ public final class StationResolver {
 	private static Object unwrap(Object origin) {
 		Object current = origin;
 		for (int depth = 0; depth < 5; depth++) {
-			try {
-				Method method = current.getClass().getMethod("getOrigin");
-				Object next = method.invoke(current);
-				if (next == null || next == current) {
-					return current;
-				}
-				current = next;
-			} catch (ReflectiveOperationException e) {
+			Object next = next(current);
+			if (next == null) {
 				return current;
 			}
+			current = next;
 		}
 		return current;
+	}
+
+	/** @return what {@code origin} was itself triggered from, or null at the end of the chain */
+	static Object next(Object origin) {
+		try {
+			Method method = origin.getClass().getMethod("getOrigin");
+			Object next = method.invoke(origin);
+			return next == origin ? null : next;
+		} catch (ReflectiveOperationException e) {
+			return null;
+		}
 	}
 }

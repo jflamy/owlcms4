@@ -576,7 +576,7 @@ public class TeamSelectionContent extends BaseContent
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory = new TeamItemSelectionFormFactory(TeamTreeItem.class,
+		OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory = new TeamItemSelectionFormFactory(getPrincipal(), TeamTreeItem.class,
 		        this);
 		this.crudGrid = createCrudGrid(crudFormFactory);
 		fillHW(this.crudGrid, this);

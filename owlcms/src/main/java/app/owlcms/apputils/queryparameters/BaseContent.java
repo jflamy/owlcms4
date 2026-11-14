@@ -16,13 +16,16 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.HasPrincipal;
+import app.owlcms.access.Principal;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-public class BaseContent extends VerticalLayout implements FOPParametersReader, SoundParameters {
+public class BaseContent extends VerticalLayout implements FOPParametersReader, SoundParameters, HasPrincipal {
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(BaseContent.class);
 	protected FieldOfPlay fop;
@@ -34,9 +37,22 @@ public class BaseContent extends VerticalLayout implements FOPParametersReader, 
 	private String routeParameter;
 	private boolean silenced;
 	private boolean downSilenced;
+	private final Principal principal;
 
+	/** For pages: captures the principal of the tab, during the navigation that creates the page. */
 	public BaseContent() {
+		this(AccessUi.currentPrincipal());
+	}
+
+	/** For components created by a page, which pass the page's principal. */
+	protected BaseContent(Principal principal) {
 		OwlcmsFactory.waitDBInitialized();
+		this.principal = principal;
+	}
+
+	@Override
+	public final Principal getPrincipal() {
+		return this.principal;
 	}
 
 	@Override

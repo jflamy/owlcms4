@@ -27,7 +27,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
-import app.owlcms.access.AccessUi;
 import app.owlcms.access.Principal;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.audit.AuditOrigin;
@@ -67,23 +66,23 @@ public final class AthleteMetadataForm {
 	 * @param cancel closes the containing form without saving
 	 * @param saved runs the containing grid's normal post-save callback
 	 */
-	public static Component create(Athlete stored, Runnable cancel, Runnable saved) {
-		return create(stored, cancel, saved, false);
+	public static Component create(Principal editor, Athlete stored, Runnable cancel, Runnable saved) {
+		return create(editor, stored, cancel, saved, false);
 	}
 
-	public static Component create(Athlete stored, Runnable cancel, Runnable saved, boolean readOnly) {
-		return createEditor(stored, cancel, saved, readOnly, null).component();
+	public static Component create(Principal editor, Athlete stored, Runnable cancel, Runnable saved,
+	        boolean readOnly) {
+		return createEditor(editor, stored, cancel, saved, readOnly, null).component();
 	}
 
 	/** Shares the owning editor's save lock and keeps both drafts open after an information save. */
-	public static EmbeddedEditor createEmbedded(Athlete stored, Runnable cancel, Runnable saved, boolean readOnly,
-	        FormSaveTask task) {
-		return createEditor(stored, cancel, saved, readOnly, task);
+	public static EmbeddedEditor createEmbedded(Principal editor, Athlete stored, Runnable cancel, Runnable saved,
+	        boolean readOnly, FormSaveTask task) {
+		return createEditor(editor, stored, cancel, saved, readOnly, task);
 	}
 
-	private static EmbeddedEditor createEditor(Athlete stored, Runnable cancel, Runnable saved, boolean readOnly,
-	        FormSaveTask sharedTask) {
-		Principal editor = AccessUi.currentPrincipal();
+	private static EmbeddedEditor createEditor(Principal editor, Athlete stored, Runnable cancel, Runnable saved,
+	        boolean readOnly, FormSaveTask sharedTask) {
 		boolean editable = !readOnly && AthleteEditAccess.metadata(editor);
 		Long athleteId = stored.getId();
 		Opening opening = new Opening(athleteId, stored.getFullName(),

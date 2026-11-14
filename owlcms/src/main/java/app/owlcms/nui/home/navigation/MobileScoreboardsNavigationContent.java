@@ -131,14 +131,14 @@ public class MobileScoreboardsNavigationContent extends BaseNavigationContent im
 
 	private ComboBox<FieldOfPlay> createFopSelector(FieldOfPlay selectedFop) {
 		ComboBox<FieldOfPlay> fopSelector = new ComboBox<>(Translator.translate("CompetitionPlatform"));
-		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Access.DISPLAYS));
+		List<FieldOfPlay> fops = AccessUi.selectableFops(getPrincipal(), Set.of(Access.DISPLAYS));
 		fopSelector.setItems(fops);
 		fopSelector.setItemLabelGenerator(FieldOfPlay::getName);
 		fopSelector.setPlaceholder(Translator.translate("SelectPlatform"));
 		fopSelector.setRequiredIndicatorVisible(fops.size() > 1);
 		fopSelector.setValue(fops.contains(selectedFop) ? selectedFop : null);
 		fopSelector.setWidthFull();
-		fopSelector.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Access.DISPLAYS), fops));
+		fopSelector.setReadOnly(AccessUi.fopSelectorReadOnly(getPrincipal(), Set.of(Access.DISPLAYS), fops));
 		fopSelector.addClassName("referee-jury-home-platform-selector");
 		fopSelector.addValueChangeListener(event -> {
 			if (event.isFromClient() && event.getValue() != null) {

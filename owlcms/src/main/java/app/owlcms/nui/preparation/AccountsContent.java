@@ -46,7 +46,6 @@ import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.admin.AdminView;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
@@ -197,7 +196,7 @@ public class AccountsContent extends BaseContent implements OwlcmsContent {
 	}
 
 	private GridCrud<UserAccount> createGrid(boolean generic) {
-		OwlcmsCrudFormFactory<UserAccount> crudFormFactory = new AccountEditingFormFactory(UserAccount.class, generic);
+		OwlcmsCrudFormFactory<UserAccount> crudFormFactory = new AccountEditingFormFactory(getPrincipal(), UserAccount.class, generic);
 		Grid<UserAccount> grid = new Grid<>(UserAccount.class, false);
 		grid.getThemeNames().add("row-stripes");
 		grid.addComponentColumn(this::enabledToggle).setHeader(Translator.translate("Active")).setAutoWidth(true).setFlexGrow(0);
@@ -275,7 +274,7 @@ public class AccountsContent extends BaseContent implements OwlcmsContent {
 
 	private void clearPasswords(boolean generic) {
 		UI ui = UI.getCurrent();
-		Principal principal = OwlcmsSession.getPrincipal();
+		Principal principal = getPrincipal();
 		Long actingAccountId = principal != null && principal.source() == Principal.AuthSource.ACCOUNT
 		        ? principal.accountId()
 		        : null;

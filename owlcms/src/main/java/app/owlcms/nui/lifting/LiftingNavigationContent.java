@@ -123,7 +123,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(weighIn);
 		doGroup(Translator.translate("WeighIn_Title"), grid3, this);
 
-		Button announcer = AccessUi.canOpen(AnnouncerContent.class, getFop())
+		Button announcer = AccessUi.canOpen(getPrincipal(), AnnouncerContent.class, getFop())
 		        ? openInNewTabWithFop(AnnouncerContent.class, Translator.translate("Announcer"))
 		        : openInNewTabWithFop(PassiveAnnouncerContent.class, Translator.translate("Announcer"));
 		announcer.setIcon(new Icon(VaadinIcon.MICROPHONE));
@@ -142,7 +142,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 
 		List<Button> operationalButtons = new ArrayList<>(List.of(announcer, marshall, timekeeper, technical));
 		if (FeatureSwitch.COMPETITION_DIRECTOR_PAGE.isEffective()
-		        && AccessUi.canOpen(CompetitionDirectorContent.class, getFop())) {
+		        && AccessUi.canOpen(getPrincipal(), CompetitionDirectorContent.class, getFop())) {
 			Button director = openInNewTabWithFop(CompetitionDirectorContent.class, Translator.translate("CompetitionDirector"));
 			director.setIcon(new Icon(VaadinIcon.USER_STAR));
 			director.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);

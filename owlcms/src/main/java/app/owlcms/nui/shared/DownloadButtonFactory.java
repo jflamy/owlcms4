@@ -25,7 +25,6 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.server.InputStreamFactory;
 
 import app.owlcms.access.AccessPolicy;
-import app.owlcms.access.AccessUi;
 import app.owlcms.access.Permission;
 import app.owlcms.access.Principal;
 import app.owlcms.audit.AuditActor;
@@ -100,11 +99,11 @@ public class DownloadButtonFactory {
 		wrapped.getChildren().forEach(child -> child.setVisible(false));
 	}
 
-	public static Div createDynamicJsonDownloadButton(String prefix, String label, Notification notification) {
+	public static Div createDynamicJsonDownloadButton(Principal exporter, String prefix, String label,
+	        Notification notification) {
 		UI ui = UI.getCurrent();
 		// the stream is produced on a request thread with no current UI; capture the actor on click
 		AtomicReference<AuditActor> actor = new AtomicReference<>();
-		AtomicReference<Principal> exporter = new AtomicReference<>();
 		final LazyDownloadButton downloadButton = new LazyDownloadButton(
 		        label,
 		        new Icon(VaadinIcon.DOWNLOAD_ALT),
@@ -115,12 +114,11 @@ public class DownloadButtonFactory {
 			                + ".json";
 		        },
 		        () -> {
-			        requireExportPermission(exporter.get(), actor.get(), 1);
+			        requireExportPermission(exporter, actor.get(), 1);
 			        return new CompetitionData().exportData(ui, notification, actor.get(), ExportAudit.CHANNEL_DOWNLOAD);
 		        });
 		downloadButton.addClickListener(e -> {
 			actor.set(AuditActor.fromCurrentUi());
-			exporter.set(AccessUi.currentPrincipal());
 		});
 	// Keep notification handling to the stream source doneCallback to avoid
 	// duplicate notifications. The stream source will open/close the
@@ -128,10 +126,10 @@ public class DownloadButtonFactory {
 		return new Div(downloadButton);
 	}
 
-	public static Div createDynamicJsonV2DownloadButton(String prefix, String label, Notification notification) {
+	public static Div createDynamicJsonV2DownloadButton(Principal exporter, String prefix, String label,
+	        Notification notification) {
 		UI ui = UI.getCurrent();
 		AtomicReference<AuditActor> actor = new AtomicReference<>();
-		AtomicReference<Principal> exporter = new AtomicReference<>();
 		final LazyDownloadButton downloadButton = new LazyDownloadButton(
 		        label,
 		        new Icon(VaadinIcon.DOWNLOAD_ALT),
@@ -142,12 +140,11 @@ public class DownloadButtonFactory {
 			                + ".json";
 		        },
 		        () -> {
-			        requireExportPermission(exporter.get(), actor.get(), 2);
+			        requireExportPermission(exporter, actor.get(), 2);
 			        return new CompetitionDataV2().exportData(ui, notification, actor.get(), ExportAudit.CHANNEL_DOWNLOAD);
 		        });
 		downloadButton.addClickListener(e -> {
 			actor.set(AuditActor.fromCurrentUi());
-			exporter.set(AccessUi.currentPrincipal());
 		});
 	// Keep notification handling to the stream source doneCallback to avoid
 	// duplicate notifications. The stream source will open/close the

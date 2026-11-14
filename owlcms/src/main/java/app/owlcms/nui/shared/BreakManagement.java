@@ -49,6 +49,7 @@ import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.access.AccessUi;
+import app.owlcms.access.Principal;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.fields.DurationField;
 import app.owlcms.data.group.Group;
@@ -135,8 +136,9 @@ public class BreakManagement extends BaseContent implements BreakController {
 	 * @param parentDialog
 	 * @param origin
 	 */
-	BreakManagement(FieldOfPlay fop, BreakType requestedBreak, CountdownType requestedCountdownType,
-	        Integer countdownSecondsRemaining, Dialog parentDialog, Object origin) {
+	BreakManagement(Principal principal, FieldOfPlay fop, BreakType requestedBreak,
+	        CountdownType requestedCountdownType, Integer countdownSecondsRemaining, Dialog parentDialog, Object origin) {
+		super(principal);
 		this.logger.setLevel(Level.DEBUG);
 		FieldOfPlay effectiveFop = Objects.requireNonNull(fop, "FieldOfPlay required");
 		if (this.logger.isDebugEnabled()) {
@@ -184,7 +186,8 @@ public class BreakManagement extends BaseContent implements BreakController {
 	 *
 	 * @param origin the origin
 	 */
-	BreakManagement(FieldOfPlay fop, Dialog parentDialog, Object origin) {
+	BreakManagement(Principal principal, FieldOfPlay fop, Dialog parentDialog, Object origin) {
+		super(principal);
 		this.logger.setLevel(Level.DEBUG);
 		this.requestedBreak = null;
 		this.requestedCountdownType = null;
@@ -489,7 +492,7 @@ public class BreakManagement extends BaseContent implements BreakController {
 		ce.add(label("BreakMgmt.IntroductionOfOfficials"));
 		ce.add(officialsButtons);
 
-		if (AccessUi.canOpen(MedalCeremonyContent.class, this.fop)) {
+		if (AccessUi.canOpen(getPrincipal(), MedalCeremonyContent.class, this.fop)) {
 			ce.add(new Hr());
 			Button medalCeremony = new Button(Translator.translate("PublicMsg.Medals"), new Icon(VaadinIcon.TROPHY));
 			QueryParameters parameters = QueryParameters.simple(Map.of("fop", this.fop.getName()));

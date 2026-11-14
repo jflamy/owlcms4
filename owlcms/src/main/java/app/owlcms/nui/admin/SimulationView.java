@@ -18,6 +18,9 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.HasPrincipal;
+import app.owlcms.access.Principal;
 import app.owlcms.access.Access;
 import app.owlcms.access.RequiresAccess;
 import app.owlcms.data.platform.PlatformRepository;
@@ -32,7 +35,15 @@ import app.owlcms.simulation.SimulationControl;
 @RequiresAccess({ Access.ADMINISTRATOR, Access.SUPERVISOR })
 @Route(value = "simulation", layout = OwlcmsLayout.class)
 public class SimulationView extends Composite<VerticalLayout>
-        implements OwlcmsLayoutAware, ContentWrapping, HasDynamicTitle {
+        implements OwlcmsLayoutAware, ContentWrapping, HasDynamicTitle, HasPrincipal {
+
+	/** Captured during the navigation that creates the page. */
+	private final Principal principal = AccessUi.currentPrincipal();
+
+	@Override
+	public Principal getPrincipal() {
+		return this.principal;
+	}
 
 	/** A simulation also ends on its own or from a script: the page follows its state while open. */
 	private static final int STATUS_POLL_MS = 2000;

@@ -12,6 +12,9 @@ import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.HasPrincipal;
+import app.owlcms.access.Principal;
 import app.owlcms.access.Access;
 import app.owlcms.access.RequiresAccess;
 import app.owlcms.audit.AuditActor;
@@ -26,7 +29,16 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 @RequiresAccess({ Access.ADMINISTRATOR, Access.SUPERVISOR })
 @Route(value = "admin/backup", layout = OwlcmsLayout.class)
 public class BackupView extends Composite<VerticalLayout>
-		implements HasDynamicTitle {
+		implements HasDynamicTitle, HasPrincipal {
+
+	/** Captured during the navigation that creates the page. */
+	private final Principal principal = AccessUi.currentPrincipal();
+
+	@Override
+	public Principal getPrincipal() {
+		return this.principal;
+	}
+
 	private final RadioButtonGroup<Scope> scope = new RadioButtonGroup<>();
 
 	public BackupView() {

@@ -207,7 +207,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		        e -> {
 			        UI.getCurrent().navigate(ChampionshipsContent.class);
 		        });
-		editChampionships.setVisible(AccessUi.canOpen(ChampionshipsContent.class, null));
+		editChampionships.setVisible(AccessUi.canOpen(getPrincipal(), ChampionshipsContent.class, null));
 
 		FlexLayout buttons = new FlexLayout(
 		        new NativeLabel(Translator.translate("AgeGroups.Predefined")),

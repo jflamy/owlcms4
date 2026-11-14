@@ -22,6 +22,9 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.HasPrincipal;
+import app.owlcms.access.Principal;
 import app.owlcms.access.Access;
 import app.owlcms.access.RequiresAccess;
 import com.vaadin.flow.router.Route;
@@ -43,7 +46,15 @@ import ch.qos.logback.classic.Logger;
 @RequiresAccess(Access.PREPARATION)
 @Route(value = "preparation/competition/:tab?", layout = OwlcmsLayout.class)
 public class CompetitionContent extends Composite<VerticalLayout>
-        implements CrudLayout, OwlcmsContent, CrudListener<Competition>, BeforeEnterObserver {
+        implements CrudLayout, OwlcmsContent, CrudListener<Competition>, BeforeEnterObserver, HasPrincipal {
+
+	/** Captured during the navigation that creates the page. */
+	private final Principal principal = AccessUi.currentPrincipal();
+
+	@Override
+	public Principal getPrincipal() {
+		return this.principal;
+	}
 
 	Logger logger = (Logger) LoggerFactory.getLogger(CompetitionContent.class);
 	private CompetitionEditingFormFactory factory;

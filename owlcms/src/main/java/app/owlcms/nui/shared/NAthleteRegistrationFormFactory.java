@@ -72,7 +72,6 @@ import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.ValueProvider;
 
-import app.owlcms.access.AccessUi;
 import app.owlcms.access.Principal;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.audit.AuditOrigin;
@@ -175,7 +174,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	private CardEntry cardEntry = CardEntry.NONE;
 	private boolean resultsEntry;
 	private IAthleteEditing cardOrigin;
-	private Principal editor;
+	private final Principal editor;
 	private boolean registrationWritable;
 	private boolean metadataWritable;
 	private boolean keepOpen;
@@ -184,12 +183,18 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	private Map<HasValue<?, ?>, Object> registrationFieldBaseline = Map.of();
 	private BooleanSupplier hasIndependentDraftChanges = () -> false;
 
-	public NAthleteRegistrationFormFactory(Class<Athlete> domainType, Group group,
+	public NAthleteRegistrationFormFactory(Principal editor, Class<Athlete> domainType, Group group,
 	        NextAthleteAble parentGrid) {
 		super(domainType);
+		this.editor = editor;
 		this.setCurrentGroup(group);
 		this.setPreviousNext(parentGrid);
 		logger.setLevel(Level.DEBUG);
+	}
+
+	@Override
+	public Principal getPrincipal() {
+		return this.editor;
 	}
 
 	/**
@@ -329,7 +334,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	        ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
 
 		setupAthlete(operation, aFromList);
-		this.editor = AccessUi.currentPrincipal();
 		this.registrationWritable = !readOnly && AthleteEditAccess.registration(this.editor,
 		        this.previousNext instanceof WeighinContent, this.resultsEntry);
 		this.metadataWritable = !readOnly && AthleteEditAccess.metadata(this.editor);
@@ -1241,12 +1245,12 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		this.saveTask = new FormSaveTask(mainLayout);
 		Component information;
 		if (layout.cardTab()) {
-			EmbeddedEditor editor = AthleteMetadataForm.createEmbedded(getEditedAthlete(),
+			EmbeddedEditor editor = AthleteMetadataForm.createEmbedded(this.editor, getEditedAthlete(),
 			        () -> cancelListener.onComponentEvent(null), this::refreshGridBehind, readOnly, this.saveTask);
 			information = editor.component();
 			this.hasIndependentDraftChanges = editor.hasChanges();
 		} else {
-			information = AthleteMetadataForm.create(getEditedAthlete(), () -> cancelListener.onComponentEvent(null),
+			information = AthleteMetadataForm.create(this.editor, getEditedAthlete(), () -> cancelListener.onComponentEvent(null),
 			        () -> doneListener.onComponentEvent(null), readOnly);
 		}
 		linkRestrictedPanel(informationTab, information);
@@ -1445,7 +1449,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				refreshGridBehind();
 				closeAfterCardSave(page);
 			};
-			AthleteCardFormFactory cardFactory = new AthleteCardFormFactory(Athlete.class, origin)
+			AthleteCardFormFactory cardFactory = new AthleteCardFormFactory(this.editor, page, Athlete.class, origin)
 			        .setSharedEditor(this.saveTask, saved, discard, allowInProgress);
 			container.add(cardFactory.buildNewForm(CrudOperation.UPDATE, stored, readOnly,
 			        e -> discard.run(), e -> {}, null));

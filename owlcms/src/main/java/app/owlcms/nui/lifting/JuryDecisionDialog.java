@@ -7,6 +7,8 @@
 
 package app.owlcms.nui.lifting;
 
+import java.util.Objects;
+
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
@@ -18,10 +20,12 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
+import app.owlcms.access.Principal;
+import app.owlcms.audit.AuditActor;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.JuryRejectionReasons;
 import app.owlcms.uievents.UIEvent;
@@ -42,16 +46,23 @@ public class JuryDecisionDialog extends Dialog {
 	private Runnable onClose;
 	private boolean sent;
 	private final boolean decisionShown;
+	private final Principal principal;
+	private final Object auditOrigin;
+	private final FieldOfPlay fop;
 	
-	public JuryDecisionDialog(UIEvent.JuryNotification e, JuryDeliberationEventType juryDecision, Runnable onClose) {
+	public JuryDecisionDialog(Principal principal, Object auditOrigin, UIEvent.JuryNotification e,
+	        JuryDeliberationEventType juryDecision, Runnable onClose) {
+		this.principal = principal;
+		this.auditOrigin = auditOrigin;
+		this.fop = Objects.requireNonNull(e.getFop(), "FieldOfPlay required");
 		this.origin = e.getOrigin();
 		this.onClose = onClose;
 		this.decisionShown = juryDecision != null;
 		
 		// Get athlete - either from event or from current FOP state
 		this.athlete = e.getAthlete();
-		if (this.athlete == null && OwlcmsSession.getFop() != null) {
-			this.athlete = OwlcmsSession.getFop().getAthleteUnderReview();
+		if (this.athlete == null) {
+			this.athlete = this.fop.getAthleteUnderReview();
 		}
 		
 		String statusKey = e.getReversalStatusKey();
@@ -182,7 +193,7 @@ public class JuryDecisionDialog extends Dialog {
 			this.goodLiftButton.getElement().setAttribute("theme", "primary success");
 			this.goodLiftButton.addClickListener(c -> sendOnce(() -> {
 				if (this.athlete != null) {
-					OwlcmsSession.getFop().fopEventPost(new FOPEvent.JuryDecision(this.athlete, this.origin, true, false));
+					postEvent(new FOPEvent.JuryDecision(this.athlete, this.origin, true, false));
 				}
 			}));
 			
@@ -191,14 +202,14 @@ public class JuryDecisionDialog extends Dialog {
 			this.noLiftButton.getElement().setAttribute("theme", "primary error");
 			this.noLiftButton.addClickListener(c -> sendOnce(() -> {
 				if (this.athlete != null) {
-					OwlcmsSession.getFop().fopEventPost(new FOPEvent.JuryDecision(this.athlete, this.origin, false, false));
+					postEvent(new FOPEvent.JuryDecision(this.athlete, this.origin, false, false));
 				}
 			}));
 			
 			this.resumeButton = new Button(Translator.translate("JuryNotification.END_JURY_BREAK"));
 			this.resumeButton.getElement().setAttribute("theme", "secondary");
 			this.resumeButton.addClickListener(c -> sendOnce(() -> {
-				OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this.origin));
+				postEvent(new FOPEvent.StartLifting(this.origin));
 			}));
 			
 			buttonContainer.add(this.goodLiftButton, this.noLiftButton, this.resumeButton);
@@ -229,6 +240,10 @@ public class JuryDecisionDialog extends Dialog {
 		if (this.onClose != null) {
 			this.onClose.run();
 		}
+	}
+
+	private void postEvent(FOPEvent event) {
+		this.fop.fopEventPost(event, AuditActor.capture(this.principal, this.auditOrigin));
 	}
 
 	/**

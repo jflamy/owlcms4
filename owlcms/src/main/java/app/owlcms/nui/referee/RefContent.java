@@ -327,12 +327,12 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 
 	protected ComboBox<FieldOfPlay> createFopSelect() {
 		ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
-		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Access.REFEREE));
+		List<FieldOfPlay> fops = AccessUi.selectableFops(getPrincipal(), Set.of(Access.REFEREE));
 		fopSelect.setPlaceholder(Translator.translate("SelectPlatform"));
 		fopSelect.setItems(fops);
 		fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
 		fopSelect.setWidth("10rem");
-		fopSelect.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Access.REFEREE), fops));
+		fopSelect.setReadOnly(AccessUi.fopSelectorReadOnly(getPrincipal(), Set.of(Access.REFEREE), fops));
 		return fopSelect;
 	}
 

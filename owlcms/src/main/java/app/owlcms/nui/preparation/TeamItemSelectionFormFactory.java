@@ -17,6 +17,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
 
+import app.owlcms.access.Principal;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.RegistrationTabPolicy.CardEntry;
@@ -35,13 +36,14 @@ public class TeamItemSelectionFormFactory
 
 	private NAthleteRegistrationFormFactory acff;
 
-	public TeamItemSelectionFormFactory(Class<TeamTreeItem> domainType, IAthleteEditing origin) {
-		this(domainType, origin, CardEntry.NONE);
+	public TeamItemSelectionFormFactory(Principal editor, Class<TeamTreeItem> domainType, IAthleteEditing origin) {
+		this(editor, domainType, origin, CardEntry.NONE);
 	}
 
-	public TeamItemSelectionFormFactory(Class<TeamTreeItem> domainType, IAthleteEditing origin, CardEntry entry) {
+	public TeamItemSelectionFormFactory(Principal editor, Class<TeamTreeItem> domainType, IAthleteEditing origin,
+	        CardEntry entry) {
 		super(domainType);
-		this.acff = new NAthleteRegistrationFormFactory(Athlete.class, null, null)
+		this.acff = new NAthleteRegistrationFormFactory(editor, Athlete.class, null, null)
 		        .setCardEntry(entry, origin);
 	}
 

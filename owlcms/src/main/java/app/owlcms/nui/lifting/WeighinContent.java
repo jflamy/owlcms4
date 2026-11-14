@@ -661,7 +661,7 @@ public class WeighinContent extends BaseContent
 	 * @return the form factory that will create the actual form on demand
 	 */
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-		this.athleteEditingFormFactory = new NAthleteRegistrationFormFactory(Athlete.class,
+		this.athleteEditingFormFactory = new NAthleteRegistrationFormFactory(getPrincipal(), Athlete.class,
 		        this.getCurrentGroup(), this);
 		createFormLayout(this.athleteEditingFormFactory);
 		return this.athleteEditingFormFactory;

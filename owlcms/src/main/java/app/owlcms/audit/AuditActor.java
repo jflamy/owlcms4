@@ -4,13 +4,13 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.server.VaadinSession;
 
+import app.owlcms.access.HasPrincipal;
 import app.owlcms.access.Principal;
-import app.owlcms.access.TokenTab;
 import app.owlcms.apputils.AccessUtils;
-import app.owlcms.init.OwlcmsSession;
 
 public record AuditActor(String mode, String user, String station, Integer index, boolean inferred, String client,
 		String device) {
@@ -18,11 +18,18 @@ public record AuditActor(String mode, String user, String station, Integer index
 		return new AuditActor("PIN", "-", "SYSTEM", null, false, "-", "-");
 	}
 
-	/** A tab opened with a token is attributed to the token's owner, not to the browser's password login. */
+	/**
+	 * The user is the principal captured by the page the action comes from (see {@link HasPrincipal}), never the
+	 * session's: events are often built on event-bus threads. A tab opened with a token is attributed to the token's
+	 * owner, not to the browser's password login.
+	 */
 	public static AuditActor capture(Object origin) {
-		TokenTab tab = currentTokenTab();
-		Principal principal = tab != null ? tab.principal() : currentPrincipal();
-		String device = tab != null ? "token id=" + tab.tokenId() : "-";
+		return capture(principalOf(origin), origin);
+	}
+
+	/** Capture at the UI edge: the injected principal supplies who; the audit origin supplies the station. */
+	public static AuditActor capture(Principal principal, Object origin) {
+		String device = principal != null && principal.tokenId() != null ? "token id=" + principal.tokenId() : "-";
 		return new AuditActor(modeOf(principal), userOf(principal), StationResolver.resolve(origin), null, true,
 				captureClient(), device);
 	}
@@ -63,20 +70,32 @@ public record AuditActor(String mode, String user, String station, Integer index
 		return new AuditActor(this.mode, this.user, station, index, inferred, this.client, this.device);
 	}
 
-	private static TokenTab currentTokenTab() {
-		try {
-			return TokenTab.of(UI.getCurrent());
-		} catch (RuntimeException e) {
-			return null;
+	/**
+	 * The first {@link HasPrincipal} along the origin chain; failing that, the page displayed in the UI of a component
+	 * origin, such as a dialog.
+	 */
+	static Principal principalOf(Object origin) {
+		Object current = origin;
+		for (int depth = 0; depth < 5 && current != null; depth++) {
+			if (current instanceof HasPrincipal page) {
+				return page.getPrincipal();
+			}
+			Object next = StationResolver.next(current);
+			if (next == null) {
+				break;
+			}
+			current = next;
 		}
-	}
-
-	private static Principal currentPrincipal() {
-		try {
-			return OwlcmsSession.getPrincipal();
-		} catch (RuntimeException e) {
-			return null;
+		if (current instanceof Component component) {
+			return component.getUI()
+			        .flatMap(ui -> ui.getInternals().getActiveRouterTargetsChain().stream()
+			                .filter(HasPrincipal.class::isInstance)
+			                .map(HasPrincipal.class::cast)
+			                .findFirst())
+			        .map(HasPrincipal::getPrincipal)
+			        .orElse(null);
 		}
+		return null;
 	}
 
 	private static String modeOf(Principal principal) {

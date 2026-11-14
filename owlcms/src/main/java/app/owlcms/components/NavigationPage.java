@@ -18,6 +18,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasUrlParameter;
 
 import app.owlcms.access.AccessUi;
+import app.owlcms.access.HasPrincipal;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.utils.URLUtils;
@@ -28,7 +29,7 @@ import app.owlcms.utils.URLUtils;
  * @author Jean-François Lamy
  *
  */
-public interface NavigationPage extends OwlcmsContent {
+public interface NavigationPage extends OwlcmsContent, HasPrincipal {
 
 	/**
 	 * Get the FieldOfPlay associated with this page.
@@ -112,7 +113,7 @@ public interface NavigationPage extends OwlcmsContent {
 	        String label, String parameter) {
 		Button button = new Button(label);
 		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
-		button.setVisible(AccessUi.canOpen(targetClass, getFop()));
+		button.setVisible(AccessUi.canOpen(getPrincipal(), targetClass, getFop()));
 		return button;
 	}
 
@@ -120,7 +121,7 @@ public interface NavigationPage extends OwlcmsContent {
 	        String label) {
 		Button button = new Button(label);
 		button.getElement().setAttribute("onClick", getWindowOpenerFromClassNoParam(targetClass));
-		button.setVisible(AccessUi.canOpen(targetClass, getFop()));
+		button.setVisible(AccessUi.canOpen(getPrincipal(), targetClass, getFop()));
 		return button;
 	}
 

@@ -29,7 +29,7 @@ public class ChampionshipsContent extends BaseContent implements OwlcmsContent {
 		// the editor, so the user sees an accurate picture.
 		ChampionshipRepository.normalizeDefaultTypes();
 		ChampionshipRepository.normalizeCompetitionDefaultFlags();
-		this.panel = new EditChampionshipsPanel();
+		this.panel = new EditChampionshipsPanel(getPrincipal());
 		this.panel.setWidthFull();
 		fillH(this.panel, this);
 	}

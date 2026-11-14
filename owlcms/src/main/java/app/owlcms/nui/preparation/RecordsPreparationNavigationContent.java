@@ -65,11 +65,11 @@ public class RecordsPreparationNavigationContent extends BaseNavigationContent
 
 		Button uploadJson = new Button(Translator.translate("ExportDatabase.UploadJson"),
 		        new Icon(VaadinIcon.UPLOAD_ALT),
-		        buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
+		        buttonClickEvent -> new JsonUploadDialog(getPrincipal(), UI.getCurrent()).open());
 
 		Notification notification2 = new Notification(Translator.translate("LongProcessing"));
 		notification2.setPosition(Position.TOP_END);
-		Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
+		Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton(getPrincipal(), "owlcmsDatabase",
 		        Translator.translate("ExportDatabase.DownloadJson"), notification2);
 		Optional<Component> exportJsonButton = exportJsonDiv.getChildren().findFirst();
 		exportJsonButton.ifPresent(c -> ((Button) c).setWidth("100%"));
@@ -80,18 +80,18 @@ public class RecordsPreparationNavigationContent extends BaseNavigationContent
 		if (FeatureSwitch.V2_EXPORT.isEffective()) {
 			Notification notification3 = new Notification(Translator.translate("LongProcessing"));
 			notification3.setPosition(Position.TOP_END);
-			exportJsonV2Div = DownloadButtonFactory.createDynamicJsonV2DownloadButton("owlcmsDatabase",
+			exportJsonV2Div = DownloadButtonFactory.createDynamicJsonV2DownloadButton(getPrincipal(), "owlcmsDatabase",
 			        Translator.translate("ExportDatabase.DownloadJsonV2"), notification3);
 			Optional<Component> exportJsonV2Button = exportJsonV2Div.getChildren().findFirst();
 			exportJsonV2Button.ifPresent(c -> ((Button) c).setWidth("100%"));
 			exportJsonV2Div.setWidthFull();
 		}
 
-		if (!AccessUi.hasPermission(Permission.EXPORT_V1, null)) {
+		if (!AccessUi.hasPermission(getPrincipal(), Permission.EXPORT_V1, null)) {
 			// withdrawn by the noV1Export feature switch: V1 exports are never signed
 			DownloadButtonFactory.hide(exportJsonDiv);
 		}
-		if (!AccessUi.hasPermission(Permission.EXPORT_DATA, null)) {
+		if (!AccessUi.hasPermission(getPrincipal(), Permission.EXPORT_DATA, null)) {
 			DownloadButtonFactory.hide(exportJsonDiv);
 			DownloadButtonFactory.hide(exportJsonV2Div);
 		}

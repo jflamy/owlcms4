@@ -311,7 +311,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		eligibilityReportButton.getElement().getStyle().set("margin-right", "1em");
 		eligibilityReportButton.getElement().setAttribute("title",
 		        Translator.translate("Records.EligibilityReportTooltip"));
-		eligibilityReportButton.setVisible(AccessUi.canOpen(RecordFederationComparisonReport.class, null));
+		eligibilityReportButton.setVisible(AccessUi.canOpen(getPrincipal(), RecordFederationComparisonReport.class, null));
 		return eligibilityReportButton;
 	}
 

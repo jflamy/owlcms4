@@ -239,11 +239,11 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		        buttonClickEvent -> UI.getCurrent().navigate(LiftingNavigationContent.class));
 		Button documents = new Button(this.RESULT_DOCUMENTS,
 		        buttonClickEvent -> UI.getCurrent().navigate(ResultsNavigationContent.class));
-		prepare.setVisible(AccessUi.canOpen(PreparationNavigationContent.class, OwlcmsSession.getFop()));
-		displays.setVisible(AccessUi.canOpen(DisplayNavigationContent.class, OwlcmsSession.getFop()));
-		video.setVisible(AccessUi.canOpen(VideoNavigationContent.class, OwlcmsSession.getFop()));
-		lifting.setVisible(AccessUi.canOpen(LiftingNavigationContent.class, OwlcmsSession.getFop()));
-		documents.setVisible(AccessUi.canOpen(ResultsNavigationContent.class, OwlcmsSession.getFop()));
+		prepare.setVisible(AccessUi.canOpen(getPrincipal(), PreparationNavigationContent.class, OwlcmsSession.getFop()));
+		displays.setVisible(AccessUi.canOpen(getPrincipal(), DisplayNavigationContent.class, OwlcmsSession.getFop()));
+		video.setVisible(AccessUi.canOpen(getPrincipal(), VideoNavigationContent.class, OwlcmsSession.getFop()));
+		lifting.setVisible(AccessUi.canOpen(getPrincipal(), LiftingNavigationContent.class, OwlcmsSession.getFop()));
+		documents.setVisible(AccessUi.canOpen(getPrincipal(), ResultsNavigationContent.class, OwlcmsSession.getFop()));
 
 		FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(prepare, lifting, displays, video, documents);
 		fillH(intro, this);
@@ -414,8 +414,8 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			intro.add(this.controlPanelVersionPlaceholder);
 		}
 		// the administrators and the competition supervisor are told when IWF requirements are not met
-		if (AccessUi.canOpen(AdminView.class, null)
-		        || AccessUi.canOpen(CompetitionDirectorContent.class, OwlcmsSession.getFop())) {
+		if (AccessUi.canOpen(getPrincipal(), AdminView.class, null)
+		        || AccessUi.canOpen(getPrincipal(), CompetitionDirectorContent.class, OwlcmsSession.getFop())) {
 			IwfComplianceDisplay.warning().ifPresent(intro::add);
 		}
 

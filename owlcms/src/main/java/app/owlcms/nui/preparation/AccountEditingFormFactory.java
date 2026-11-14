@@ -43,12 +43,17 @@ import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 class AccountEditingFormFactory extends OwlcmsCrudFormFactory<UserAccount> {
 
 	private final boolean generic;
+	private final Principal principal;
 	// the token section of the form being shown; its pending change is applied on Add or Update
 	private AccountTokenEditor tokenEditor;
 
-	/** @param generic whether accounts added through this form are generic (role) accounts */
-	AccountEditingFormFactory(Class<UserAccount> domainType, boolean generic) {
+	/**
+	 * @param principal the page's user
+	 * @param generic   whether accounts added through this form are generic (role) accounts
+	 */
+	AccountEditingFormFactory(Principal principal, Class<UserAccount> domainType, boolean generic) {
 		super(domainType);
+		this.principal = principal;
 		this.generic = generic;
 	}
 
@@ -81,7 +86,7 @@ class AccountEditingFormFactory extends OwlcmsCrudFormFactory<UserAccount> {
 		if (isAccountsMode) {
 			AccessStartup.initializeRoleAccountsInBackground(origin);
 		}
-		Principal principal = OwlcmsSession.getPrincipal();
+		Principal principal = this.principal;
 		if (principal != null && principal.source() == Principal.AuthSource.ACCOUNT) {
 			AccountModeAuthenticator.logout(principal, "access mode changed");
 		}
@@ -97,7 +102,7 @@ class AccountEditingFormFactory extends OwlcmsCrudFormFactory<UserAccount> {
 		if (account.isBuiltInAdmin()) {
 			refuse("Access.Error.BuiltInAdmin");
 		}
-		Principal principal = OwlcmsSession.getPrincipal();
+		Principal principal = this.principal;
 		if (principal != null && account.getId().equals(principal.accountId())) {
 			refuse("Access.Error.OwnAccount");
 		}

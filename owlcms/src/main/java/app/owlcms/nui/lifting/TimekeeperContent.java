@@ -184,7 +184,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		createTopBarLeft();
 
 		this.introCountdownButton = new Button(Translator.translate("introCountdown"), new Icon(VaadinIcon.TIMER), (e) -> {
-			BreakDialog dialog = new BreakDialog(getFop(), BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null, this);
+			BreakDialog dialog = new BreakDialog(getPrincipal(), getFop(), BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null, this);
 			dialog.open();
 		});
 		this.introCountdownButton.getElement().setAttribute("theme", "primary contrast");

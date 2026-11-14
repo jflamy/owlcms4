@@ -21,6 +21,7 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.access.AccessUi;
+import app.owlcms.access.HasPrincipal;
 import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
@@ -32,7 +33,7 @@ import app.owlcms.utils.URLUtils;
  * @author Jean-François Lamy
  *
  */
-public interface NavigationPage extends ContentWrapping {
+public interface NavigationPage extends ContentWrapping, HasPrincipal {
 
 	/**
 	 * Create a paragraph with HTML inside.
@@ -301,7 +302,7 @@ public interface NavigationPage extends ContentWrapping {
 	}
 
 	private void applyAccess(Button button, Class<?> targetClass) {
-		button.setVisible(AccessUi.canOpen(targetClass, resolveFop()));
+		button.setVisible(AccessUi.canOpen(getPrincipal(), targetClass, resolveFop()));
 	}
 
 }

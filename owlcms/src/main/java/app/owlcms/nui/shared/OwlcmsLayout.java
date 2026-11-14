@@ -97,9 +97,14 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 	private Icon colorSchemeIcon;
 	private Span colorSchemeLabel;
 	private boolean darkMode;
+	/** The tab's identity, for the menu access checks. Captured at each navigation: the layout is reused. */
+	private Principal principal;
+	/** The session login, for the account name, the logout entry and the password change menu. */
+	private Principal login;
 
 	public OwlcmsLayout() {
 		OwlcmsFactory.waitDBInitialized();
+		capturePrincipal();
 		this.navBarComponents = new ArrayList<>();
 		// create default empty components. Content will fill them in.
 		populateHeader();
@@ -250,6 +255,7 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 
 	@Override
 	public void afterNavigation(AfterNavigationEvent event) {
+		capturePrincipal();
 		refreshDrawerIfNeeded();
 		if (Translator.isRTL(OwlcmsSession.getLocale())) {
 			UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
@@ -342,12 +348,17 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 		return content;
 	}
 
+	private void capturePrincipal() {
+		this.principal = AccessUi.currentPrincipal();
+		this.login = OwlcmsSession.getPrincipal();
+	}
+
 	/** In accounts mode, shows who is logged in at the bottom of the drawer. */
 	private void updateAccountName() {
 		if (this.accountRow == null) {
 			return;
 		}
-		Principal principal = OwlcmsSession.getPrincipal();
+		Principal principal = this.login;
 		boolean shown = Config.getCurrent().isAccountsMode() && principal != null
 		        && principal.source() == Principal.AuthSource.ACCOUNT;
 		this.accountRow.setVisible(shown);
@@ -380,7 +391,7 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 		if (this.logoutEntry == null) {
 			return;
 		}
-		Principal principal = OwlcmsSession.getPrincipal();
+		Principal principal = this.login;
 		Principal.AuthSource source = principal != null ? principal.source() : null;
 		boolean accountsMode = Config.getCurrent().isAccountsMode();
 		this.logoutEntry.setVisible(accountsMode ? source == Principal.AuthSource.ACCOUNT
@@ -389,7 +400,7 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 
 	private void logout() {
 		UI ui = UI.getCurrent();
-		Principal principal = OwlcmsSession.getPrincipal();
+		Principal principal = this.login;
 		if (principal != null && principal.source() == Principal.AuthSource.ACCOUNT) {
 			AccountModeAuthenticator.logout(principal, "user logout");
 		} else {
@@ -511,7 +522,7 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 
 	private Tabs getTabs() {
 		Tabs tabs = new Tabs();
-		Principal principal = OwlcmsSession.getPrincipal();
+		Principal principal = this.login;
 		String docOpener = "https://jflamy.github.io/owlcms4/#/index";
 		// every other page redirects to the account page until the password is changed
 		this.passwordChangeMenu = AccountPasswords.mustChangePassword(principal);
@@ -541,7 +552,7 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 		addTabIfAllowed(tabs, new Icon(VaadinIcon.PRINT), Translator.translate("Results"), ResultsNavigationContent.class);
 		addTabIfAllowed(tabs, new Icon(VaadinIcon.TROPHY), Translator.translate("RecordEvent.PageTitle"), RecordContent.class);
 		tabs.add(createTab(new Icon(VaadinIcon.QUESTION_CIRCLE), Translator.translate("Documentation_Menu"), docOpener));
-		if (AdminView.isMenuEntryAvailable()) {
+		if (AdminView.isMenuEntryAvailable(this.principal)) {
 			tabs.add(createTab(new Icon(VaadinIcon.TOOLS), Translator.translate("Admin.Menu"), AdminView.class));
 		}
 		this.accountEntryShown = isAccountEntryAvailable(principal);
@@ -562,7 +573,7 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 	}
 
 	private void addTabIfAllowed(Tabs tabs, Icon icon, String label, Class<? extends Component> viewClass) {
-		if (AccessUi.canOpen(viewClass, OwlcmsSession.getFop())) {
+		if (AccessUi.canOpen(this.principal, viewClass, OwlcmsSession.getFop())) {
 			tabs.add(createTab(icon, label, viewClass));
 		}
 	}

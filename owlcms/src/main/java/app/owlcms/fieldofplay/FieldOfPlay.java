@@ -453,6 +453,12 @@ public class FieldOfPlay implements IUnregister {
 		handleFOPEvent(e);
 	}
 
+	/** The caller's audit identity is independent of the event origin used to filter display updates. */
+	public synchronized void fopEventPost(FOPEvent e, AuditActor actor) {
+		e.setAuditActor(Objects.requireNonNull(actor, "AuditActor required"));
+		fopEventPost(e);
+	}
+
 	/** Start a fresh duration countdown rather than resume the preceding break's clock. */
 	public synchronized void startCountdown(BreakType breakType, int durationMillis, Object origin) {
 		setBreakType(null);

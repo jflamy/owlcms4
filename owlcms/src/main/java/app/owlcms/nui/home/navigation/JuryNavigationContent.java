@@ -131,13 +131,13 @@ public class JuryNavigationContent extends BaseNavigationContent implements HasD
 
 	private ComboBox<FieldOfPlay> createFopSelector(FieldOfPlay selectedFop) {
 		ComboBox<FieldOfPlay> fopSelector = new ComboBox<>(Translator.translate("CompetitionPlatform"));
-		List<FieldOfPlay> fops = AccessUi.selectableFops(Set.of(Access.JURY));
+		List<FieldOfPlay> fops = AccessUi.selectableFops(getPrincipal(), Set.of(Access.JURY));
 		fopSelector.setItems(fops);
 		fopSelector.setItemLabelGenerator(FieldOfPlay::getName);
 		fopSelector.setPlaceholder(Translator.translate("SelectPlatform"));
 		fopSelector.setValue(fops.contains(selectedFop) ? selectedFop : null);
 		fopSelector.setWidthFull();
-		fopSelector.setReadOnly(AccessUi.fopSelectorReadOnly(Set.of(Access.JURY), fops));
+		fopSelector.setReadOnly(AccessUi.fopSelectorReadOnly(getPrincipal(), Set.of(Access.JURY), fops));
 		fopSelector.addClassName("referee-jury-home-platform-selector");
 		fopSelector.addValueChangeListener(event -> {
 			if (event.isFromClient() && event.getValue() != null) {

@@ -26,6 +26,7 @@ import app.owlcms.access.AccessUi;
 import app.owlcms.access.Permission;
 import app.owlcms.access.Principal;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
+import app.owlcms.audit.AuditActor;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.fieldofplay.FOPEvent.DecisionUpdate;
@@ -129,13 +130,13 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage
 		if (fop == null) {
 			return;
 		}
-		if (!AccessUi.hasPermission(Permission.DISPLAY_INPUT, fop)) {
-			Principal principal = AccessUi.currentPrincipal();
+		Principal principal = getPrincipal();
+		if (!AccessUi.hasPermission(principal, Permission.DISPLAY_INPUT, fop)) {
 			this.logger.info("{}ignored decision input from read-only display user={}",
 			        FieldOfPlay.getLoggingName(fop), principal != null ? principal.username() : null);
 			return;
 		}
-		fop.fopEventPost(new DecisionUpdate(getBoard(), refIndex, decision));
+		fop.fopEventPost(new DecisionUpdate(getBoard(), refIndex, decision), AuditActor.capture(principal, this));
 	}
 
 	private int getJurySize() {

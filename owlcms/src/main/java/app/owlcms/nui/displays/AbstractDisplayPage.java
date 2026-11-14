@@ -25,7 +25,9 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.access.AccessUi;
+import app.owlcms.access.HasPrincipal;
 import app.owlcms.access.Permission;
+import app.owlcms.access.Principal;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.apputils.queryparameters.FOPParameters;
@@ -39,7 +41,8 @@ import app.owlcms.nui.shared.SafeEventBusRegistration;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-public abstract class AbstractDisplayPage extends Div implements DisplayParametersReader, SafeEventBusRegistration {
+public abstract class AbstractDisplayPage extends Div
+        implements DisplayParametersReader, SafeEventBusRegistration, HasPrincipal {
 
 	private static Logger logger = (Logger) LoggerFactory.getLogger(AbstractDisplayPage.class);
 
@@ -75,6 +78,8 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	private String showMedals = "auto";
 	private Double teamWidth;
 	private Component board;
+	/** Captured during the navigation that creates the page. */
+	private final Principal principal = AccessUi.currentPrincipal();
 
 	public AbstractDisplayPage() {
 		init();
@@ -94,7 +99,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	/** Shortcuts are registered only for users with display input rights; call this instead of addKeyboardShortcuts(). */
 	protected final void registerKeyboardShortcuts() {
-		if (AccessUi.hasPermission(Permission.DISPLAY_INPUT, getFop())) {
+		if (AccessUi.hasPermission(getPrincipal(), Permission.DISPLAY_INPUT, getFop())) {
 			addKeyboardShortcuts();
 		}
 	}
@@ -167,6 +172,11 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	@Override
 	final public Map<String, List<String>> getUrlParameterMap() {
 		return this.urlParameterMap;
+	}
+
+	@Override
+	public final Principal getPrincipal() {
+		return this.principal;
 	}
 
 	final public AbstractDisplayPage getWrapper() {

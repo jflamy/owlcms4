@@ -145,7 +145,7 @@ public class TeamResultsContent extends BaseContent
 			VaadinIcon.PENCIL.create());
 		editChampionshipsButton.getElement().setAttribute("onClick",
 		        "window.open('" + URLUtils.getUrlFromTargetClass(ChampionshipsContent.class) + "','_blank')");
-		editChampionshipsButton.setVisible(AccessUi.canOpen(ChampionshipsContent.class, null));
+		editChampionshipsButton.setVisible(AccessUi.canOpen(getPrincipal(), ChampionshipsContent.class, null));
 		HorizontalLayout buttons = new HorizontalLayout(teamResultsDownloadButton, editChampionshipsButton);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
@@ -456,7 +456,7 @@ public class TeamResultsContent extends BaseContent
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory = new TeamItemSelectionFormFactory(TeamTreeItem.class, this,
+		OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory = new TeamItemSelectionFormFactory(getPrincipal(), TeamTreeItem.class, this,
 		        CardEntry.CARD_FIRST);
 		this.crudGrid = createCrudGrid(crudFormFactory);
 		fillHW(this.crudGrid, this);

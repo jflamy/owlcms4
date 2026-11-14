@@ -20,7 +20,8 @@ import org.junit.runners.Suite;
 		ExportAuditTest.class,
 		AthleteDiffTest.class,
 		RecordChallengeTrackerTest.class,
-		StationResolverTest.class
+		StationResolverTest.class,
+		AuditActorTest.class
 })
 public class AuditTests {
 }

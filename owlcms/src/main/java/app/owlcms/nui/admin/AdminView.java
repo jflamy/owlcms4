@@ -74,8 +74,8 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 	private final TabSheet tabs;
 
 	/** Shown to the sessions that can open the page. */
-	public static boolean isMenuEntryAvailable() {
-		return AccessUi.canOpen(AdminView.class, null);
+	public static boolean isMenuEntryAvailable(Principal principal) {
+		return AccessUi.canOpen(principal, AdminView.class, null);
 	}
 
 	/**
@@ -112,14 +112,14 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 		TabSheet tabs = new TabSheet();
 		this.tabs = tabs;
 		tabs.add(Translator.translate("Admin.System"), systemTab);
-		if (AccessUi.hasPermission(Permission.SECURITY_SETTINGS, null)) {
+		if (AccessUi.hasPermission(getPrincipal(), Permission.SECURITY_SETTINGS, null)) {
 			AccessControlForm accessControlForm = new AccessControlForm();
 			Button accounts = openInNewTabNoParam(AccountsContent.class,
 			        Translator.translate("Access.Accounts.Title"), VaadinIcon.KEY.create());
 			VerticalLayout securityTab = tab(heading("Config.AccessControlTitle"), securityStatus(),
 			        securityControls(accounts, token),
 			        accessControlForm);
-			FlexibleGridLayout auditTrail = AccessUi.hasPermission(Permission.AUDIT_KEYS, null)
+			FlexibleGridLayout auditTrail = AccessUi.hasPermission(getPrincipal(), Permission.AUDIT_KEYS, null)
 			        ? HomeNavigationContent.navigationGrid(auditKey, auditCheck,
 			                iwfComplianceCheck(accessControlForm::refreshIfClean))
 			        : HomeNavigationContent.navigationGrid(iwfComplianceCheck(accessControlForm::refreshIfClean));

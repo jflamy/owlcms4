@@ -26,6 +26,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
+import app.owlcms.access.AccessUi;
+import app.owlcms.access.HasPrincipal;
+import app.owlcms.access.Principal;
 import app.owlcms.access.Access;
 import app.owlcms.access.RequiresAccess;
 import com.vaadin.flow.router.Route;
@@ -56,7 +59,15 @@ import ch.qos.logback.classic.Logger;
 @Route("weighin/AthleteCard")
 
 public class AthleteCard extends LitTemplate
-        implements FOPParametersReader, SafeEventBusRegistration, HasDynamicTitle {
+        implements FOPParametersReader, SafeEventBusRegistration, HasDynamicTitle, HasPrincipal {
+
+	/** Captured during the navigation that creates the page. */
+	private final Principal principal = AccessUi.currentPrincipal();
+
+	@Override
+	public Principal getPrincipal() {
+		return this.principal;
+	}
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteCard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
