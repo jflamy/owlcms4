@@ -24,15 +24,11 @@ public class JXLSCardsDocs extends JXLSWorkbookStreamSource {
 
 	@Override
 	public List<Athlete> computeSortedAthletes() {
-		if (getGroup() != null) {
-			List<Athlete> registrationOrderCopy = AthleteSorter
-			        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), null));
-			return registrationOrderCopy;
-		} else {
-			List<Athlete> registrationOrderCopy = AthleteSorter
-			        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, null));
-			return registrationOrderCopy;
-		}
+		// negative start number: athlete not lifting, no card
+		return AthleteSorter.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), null))
+		        .stream()
+		        .filter(a -> a.getStartNumber() == null || a.getStartNumber() >= 0)
+		        .toList();
 	}
 
 	@SuppressWarnings("unused")
