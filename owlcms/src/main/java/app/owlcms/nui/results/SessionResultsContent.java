@@ -28,6 +28,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -107,19 +108,25 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		grid.addColumn("firstName").setHeader(Translator.translate("FirstName"));
 		grid.addColumn("team").setHeader(Translator.translate("Team"));
 		grid.addColumn("group").setHeader(Translator.translate("Group"));
-		grid.addColumn("bestSnatch").setHeader(Translator.translate("Snatch"));
+		grid.addColumn("bestSnatch").setHeader(Translator.translate("Snatch"))
+		        .setAutoWidth(true).setFlexGrow(0).setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn("snatchRank").setHeader(Translator.translate("SnatchRank"))
 		        .setComparator(new WinningOrderComparator(Ranking.SNATCH, false))
-		        .setRenderer(new TextRenderer<>((a) -> Ranking.formatScoreboardRank(a.getSnatchRank())));
-		grid.addColumn("bestCleanJerk").setHeader(Translator.translate("Clean_and_Jerk"));
+		        .setRenderer(new TextRenderer<>((a) -> Ranking.formatScoreboardRank(a.getSnatchRank())))
+		        .setAutoWidth(true).setFlexGrow(0).setTextAlign(ColumnTextAlign.CENTER);
+		grid.addColumn("bestCleanJerk").setHeader(Translator.translate("Clean_and_Jerk"))
+		        .setAutoWidth(true).setFlexGrow(0).setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn("cleanJerkRank").setHeader(Translator.translate("Clean_and_Jerk_Rank"))
 		        .setComparator(new WinningOrderComparator(Ranking.CLEANJERK, false))
-		        .setRenderer(new TextRenderer<>((a) -> Ranking.formatScoreboardRank(a.getCleanJerkRank())));
+		        .setRenderer(new TextRenderer<>((a) -> Ranking.formatScoreboardRank(a.getCleanJerkRank())))
+		        .setAutoWidth(true).setFlexGrow(0).setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn("total").setHeader(Translator.translate("Total"))
-		        .setComparator(new WinningOrderComparator(Ranking.TOTAL, true));
+		        .setComparator(new WinningOrderComparator(Ranking.TOTAL, true))
+		        .setAutoWidth(true).setFlexGrow(0).setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn("totalRank").setHeader(Translator.translate("TotalRank"))
 		        .setComparator(new WinningOrderComparator(Ranking.TOTAL, false))
-		        .setRenderer(new TextRenderer<>((a) -> Ranking.formatScoreboardRank(a.getTotalRank())));
+		        .setRenderer(new TextRenderer<>((a) -> Ranking.formatScoreboardRank(a.getTotalRank())))
+		        .setAutoWidth(true).setFlexGrow(0).setTextAlign(ColumnTextAlign.CENTER);
 
 		// NumberRenderer<Athlete> renderer;
 		// renderer = new NumberRenderer<>(a -> Ranking.getRankingValue(a, scoringSystem), "%.2f", OwlcmsSession.getLocale(), "0000.00");
