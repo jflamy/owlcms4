@@ -5865,21 +5865,61 @@ public class Athlete {
 	}
 
 	/**
-	 * Withdraw.
+	 * Withdraw from the snatch: the snatches not taken are recorded as 0. Missing (null) results count as not taken.
 	 */
 	public void withdrawFromSnatch() {
-		if (this.snatch1ActualLift != null && this.snatch1ActualLift.trim().isEmpty()) {
+		if (isEmpty(this.snatch1ActualLift)) {
 			setSnatch1ActualLift("0");
 			setSnatch1LiftTime(null);
 		}
-		if (this.snatch2ActualLift != null && this.snatch2ActualLift.trim().isEmpty()) {
+		if (isEmpty(this.snatch2ActualLift)) {
 			setSnatch2ActualLift("0");
 			setSnatch2LiftTime(null);
 		}
-		if (this.snatch3ActualLift != null && this.snatch3ActualLift.trim().isEmpty()) {
+		if (isEmpty(this.snatch3ActualLift)) {
 			setSnatch3ActualLift("0");
 			setSnatch3LiftTime(null);
 		}
+	}
+
+	/**
+	 * Withdraw from the clean and jerk: the attempts not taken are recorded as 0. Missing (null) results count as not
+	 * taken.
+	 */
+	public void withdrawFromCleanJerk() {
+		if (isEmpty(this.cleanJerk1ActualLift)) {
+			setCleanJerk1ActualLift("0");
+			setCleanJerk1LiftTime(null);
+		}
+		if (isEmpty(this.cleanJerk2ActualLift)) {
+			setCleanJerk2ActualLift("0");
+			setCleanJerk2LiftTime(null);
+		}
+		if (isEmpty(this.cleanJerk3ActualLift)) {
+			setCleanJerk3ActualLift("0");
+			setCleanJerk3LiftTime(null);
+		}
+	}
+
+	/**
+	 * @return true when no snatch was taken and the first snatch was explicitly requested below 2 kg (0 or 1): the
+	 *         athlete is not snatching. A blank request is not a withdrawal.
+	 */
+	public boolean declaresSnatchWithdrawal() {
+		return getSnatchAttemptsDone() == 0
+		        && !(isEmpty(this.snatch1Declaration) && isEmpty(this.snatch1Change1) && isEmpty(this.snatch1Change2))
+		        && getRequestedWeightForAttempt(1) < 2;
+	}
+
+	/**
+	 * @return true when no clean and jerk was taken and the first one was explicitly requested below 2 kg (0 or 1):
+	 *         the athlete is not doing the clean and jerk. A blank request is not a withdrawal.
+	 */
+	public boolean declaresCleanJerkWithdrawal() {
+		return getCleanJerkAttemptsDone() == 0
+		        && !(isEmpty(this.cleanJerk1Declaration) && isEmpty(this.cleanJerk1Change1)
+		                && isEmpty(this.cleanJerk1Change2))
+		        && getRequestedWeightForAttempt(4) < 2;
 	}
 
 	/**

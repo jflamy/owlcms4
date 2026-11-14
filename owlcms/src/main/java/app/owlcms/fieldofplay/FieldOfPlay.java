@@ -2314,6 +2314,7 @@ public class FieldOfPlay implements IUnregister {
 			if (groupAthletes.stream().anyMatch(a -> a.getAttemptsDone() > 0)) {
 				this.sessionStarted = true;
 			}
+			applyDeclaredWithdrawals(groupAthletes);
 			init(groupAthletes, this.athleteTimer, this.breakTimer, alreadyLoaded);
 			this.lastGroupLoaded = now;
 		} else {
@@ -2323,6 +2324,29 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private final AtomicLong uiEventSequence = new AtomicLong(0);
+
+	/**
+	 * A first attempt requested at 0 or 1 kg means the athlete does not take that lift: its attempts are recorded as 0
+	 * when the session is loaded, so the athlete is never called for a 0 kg lift.
+	 */
+	private void applyDeclaredWithdrawals(List<Athlete> athletes) {
+		for (Athlete a : athletes) {
+			boolean snatch = a.declaresSnatchWithdrawal();
+			boolean cleanJerk = a.declaresCleanJerkWithdrawal();
+			if (!snatch && !cleanJerk) {
+				continue;
+			}
+			if (snatch) {
+				a.withdrawFromSnatch();
+			}
+			if (cleanJerk) {
+				a.withdrawFromCleanJerk();
+			}
+			this.logger.info("{}{} declared below 2 kg: withdrawn from{}{}", FieldOfPlay.getLoggingName(this),
+			        a.getShortName(), snatch ? " snatch" : "", cleanJerk ? " clean&jerk" : "");
+			AthleteRepository.saveNoMetadata(a);
+		}
+	}
 
 	/**
 	 * @return the current value of the per-FOP UI event sequence (peek, does not
