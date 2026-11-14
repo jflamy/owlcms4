@@ -56,6 +56,7 @@ import app.owlcms.data.athlete.RegistrationTabPolicy.CardEntry;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.category.UnfinishedCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -259,8 +260,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
 		boolean allCategories = Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue());
 		// unfinished categories need to be computed using all relevant athletes, including not weighed-in yet
-		@SuppressWarnings("unchecked")
-		String unfinishedCategories = AthleteRepository.allUnfinishedCategories().toString();
+		UnfinishedCategories unfinishedCategories = AthleteRepository.allUnfinishedCategories();
 		logger.info("unfinished categories {} {}", unfinishedCategories, LoggerUtils.whereFrom());
 
 		if (ranked == null || ranked.isEmpty()) {
@@ -276,7 +276,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        boolean catOk = (catFilterValue == null
 			                || (a.getCategory() != null && catFilterValue.getCode().equals(a.getCategory().getCode())))
 			                && (genderFilterValue == null || genderFilterValue == athleteGender)
-			                && (allCategories || !unfinishedCategories.contains(a.getCategory().getCode()));
+			                && (allCategories || !unfinishedCategories.contains(a.getCategory()));
 			        return catOk;
 		        })
 		        .filter(a -> !this.winnersOnly || a.getTotalRank() == 1)
