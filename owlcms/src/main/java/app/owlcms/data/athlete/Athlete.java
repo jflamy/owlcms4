@@ -56,7 +56,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import app.owlcms.apputils.JpaJsonConverter;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
-import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.agegroup.MedalPolicy;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
@@ -3197,6 +3196,7 @@ public class Athlete {
 		return 0;
 	}
 
+	@JsonIgnore
 	public String getRequiredInitialAttempts() {
 		return Integer.toString(
 				Math.round(this.getEntryTotal() - getStartingTotalMargin(this.getCategory(), this.getEntryTotal())));
@@ -4265,6 +4265,11 @@ public class Athlete {
 	@JsonIgnore
 	public void setCategoryFinished(Boolean done) {
 		// no-op, computed.
+	}
+
+	@JsonIgnore
+	public void setStartingTotal80PercentRule(boolean ignored) {
+		// ignored. computed property. setter needed for beans introspection.
 	}
 
 	public void setCategoryScoreCode(String unused) {
@@ -6546,26 +6551,43 @@ public class Athlete {
 	 */
 	@JsonIgnore
 	private int getStartingTotalMargin(Category cat, Integer entryTotal) {
-		if (cat != null) {
-			AgeGroup ag = cat.getAgeGroup();
-			if (ag != null) {
-				ChampionshipType championshipType = ag.getChampionshipType();
-				if (championshipType != null && championshipType.isMasters()
-						&& !Competition.getCurrent().isMasters20kg()) {
-					double margin = 0.2D * entryTotal;
-					// we would round up the required total, so we round down the allowed margin
-					double floor = Math.floor(margin);
-					int asInt = (int) Math.round(floor);
-					// getLogger().trace("margin = {} floor = {} asInt = {} required = {}", margin,
-					// floor, asInt,
-					// entryTotal - asInt);
-					return asInt;
-				}
-			}
-		} else {
-			// getLogger().trace("cat {}", cat);
+		if (isStartingTotal80PercentRule(cat)) {
+			double margin = 0.2D * entryTotal;
+			// we would round up the required total, so we round down the allowed margin
+			double floor = Math.floor(margin);
+			int asInt = (int) Math.round(floor);
+			return asInt;
 		}
 		return 20;
+	}
+
+	/**
+	 * Masters athletes use the 80% rule instead of the 20kg rule when IMWA rules
+	 * are in effect. Used by the athlete card templates to label
+	 * {@link #getRequiredInitialAttempts()}.
+	 *
+	 * The championship type is a display option, so a Masters category is
+	 * recognized from its age group: Masters age groups start at 30 or more, on
+	 * a multiple of 5.
+	 *
+	 * @return true if the starting total is 80% of the entry total
+	 */
+	@JsonIgnore
+	public boolean isStartingTotal80PercentRule() {
+		return isStartingTotal80PercentRule(this.getCategory());
+	}
+
+	private static boolean isStartingTotal80PercentRule(Category cat) {
+		if (cat == null) {
+			return false;
+		}
+		AgeGroup ag = cat.getAgeGroup();
+		if (ag == null || ag.getMinAge() == null) {
+			return false;
+		}
+		int minAge = ag.getMinAge();
+		return minAge >= 30 && minAge % 5 == 0
+		        && Competition.getCurrent().isEffectiveImwa();
 	}
 
 	@JsonIgnore

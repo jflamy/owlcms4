@@ -11,7 +11,13 @@
 
 **Development log**
 
-- 69.0.0-rc02: Age Group export files now use the language independent strings instead of translated values.
+- 69.0.0-rc02: Fixed permission propagation issue that could hide subcomponents such as the pause button
+
+- 69.0.0-rc02: Simulation would stop if the database contained initial declarations at 0.
+
+- 69.0.0-rc02: Age Group export files now use the language independent strings instead of translated values, for backward compatibility
+
+- 69.0.0-rc02: When IMWA rules are on, athlete cards for athletes in Masters categories state the 80% rule instead of the 20 kg rule next to the required starting total.
 
 - 69.0.0-rc01: Scoring System Selection
   - Fixed the drop down selectors to show a logical grouping of scoring systems with separators

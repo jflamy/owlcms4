@@ -379,26 +379,38 @@ public class AthleteTest {
     }
 
     @Test
-    public void testRequiredInitialAttemptsUsesReferencedChampionshipTypeAfterMigration() {
+    public void testRequiredInitialAttemptsUsesMastersAgeGroupStart() {
         Competition.getCurrent().setEnforce20kgRule(true);
         Competition.getCurrent().setImwa(true);
 
-        AgeGroup openAgeGroup = new AgeGroup();
-        openAgeGroup.setCode("M");
-        openAgeGroup.setGender(Gender.M);
-        openAgeGroup.setMinAge(15);
-        openAgeGroup.setMaxAge(40);
-        openAgeGroup.setChampionshipName("Masters");
-        openAgeGroup.setChampionshipType(ChampionshipType.MASTERS);
+        assertEquals("M80 starts at a masters age: 80% rule", "200", requiredInitialAttempts(80, 84, ChampionshipType.U));
+        assertTrue(athlete.isStartingTotal80PercentRule());
 
-        Category openCategory = new Category(60.0, 65.0, Gender.M, true, 0, 0, 0, openAgeGroup, 0);
+        assertEquals("championship type is a display option, not the masters criterion",
+                "230", requiredInitialAttempts(15, 40, ChampionshipType.MASTERS));
+        assertFalse(athlete.isStartingTotal80PercentRule());
+
+        assertEquals("masters age groups start on a multiple of 5", "230", requiredInitialAttempts(31, 34, ChampionshipType.MASTERS));
+
+        Competition.getCurrent().setImwa(false);
+        assertEquals("20kg rule for masters without IMWA rules", "230", requiredInitialAttempts(80, 84, ChampionshipType.MASTERS));
+        assertFalse(athlete.isStartingTotal80PercentRule());
+    }
+
+    private String requiredInitialAttempts(int minAge, int maxAge, ChampionshipType championshipType) {
+        AgeGroup ageGroup = new AgeGroup();
+        ageGroup.setCode("M" + minAge);
+        ageGroup.setGender(Gender.M);
+        ageGroup.setMinAge(minAge);
+        ageGroup.setMaxAge(maxAge);
+        ageGroup.setChampionshipType(championshipType);
+
+        Category category = new Category(60.0, 65.0, Gender.M, true, 0, 0, 0, ageGroup, 0);
         athlete.setParticipations(new ArrayList<>());
-        athlete.getParticipations().add(new Participation(athlete, openCategory));
-        athlete.computeCategory(openCategory);
+        athlete.getParticipations().add(new Participation(athlete, category));
+        athlete.computeCategory(category);
         athlete.setEntryTotal(250);
-
-        assertEquals("Stored championship data should win over stale age-group championshipType values after migration",
-                "200", athlete.getRequiredInitialAttempts());
+        return athlete.getRequiredInitialAttempts();
     }
 
     private boolean getStartingTotalViolation(Athlete athlete) throws Exception {
