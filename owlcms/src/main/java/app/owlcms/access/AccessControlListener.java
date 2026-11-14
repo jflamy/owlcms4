@@ -31,6 +31,7 @@ import ch.qos.logback.classic.Logger;
 public class AccessControlListener implements BeforeEnterListener {
 
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(AccessControlListener.class);
+	private final PrincipalRefresh principalRefresh = new PrincipalRefresh();
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
@@ -92,7 +93,15 @@ public class AccessControlListener implements BeforeEnterListener {
 		if (!AccessPolicy.canOpen(principal, rule, platform)) {
 			logger.info("access denied user={} path={} platform={}", principal.username(), path, platform);
 			event.forwardTo(AccessDeniedView.class, queryParameters);
+			return;
 		}
+		refreshOnPrincipalChange(event.getUI(), principal);
+	}
+
+	private void refreshOnPrincipalChange(UI ui, Principal principal) {
+		this.principalRefresh.authenticated(principal,
+		        refresh -> ui.beforeClientResponse(ui, context -> refresh.run()),
+		        () -> ui.refreshCurrentRoute(true));
 	}
 
 	/**
@@ -130,6 +139,7 @@ public class AccessControlListener implements BeforeEnterListener {
 						AuthAudit.tokenAccepted(clientIp, path, allow.tab().principal().username(),
 						        allow.tab().tokenId());
 					}
+					refreshOnPrincipalChange(ui, allow.tab().principal());
 					return true;
 				}
 			}
@@ -212,6 +222,7 @@ public class AccessControlListener implements BeforeEnterListener {
 			event.forwardTo(LoginView.LOGIN);
 		} else {
 			OwlcmsSession.setPrincipal(principal);
+			refreshOnPrincipalChange(event.getUI(), principal);
 		}
 	}
 
