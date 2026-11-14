@@ -6,15 +6,18 @@
  *******************************************************************************/
 package app.owlcms.init;
 
+import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -56,12 +59,16 @@ public class OwlcmsSession {
 		logger.setLevel(Level.INFO);
 	}
 
+	/** Language and country pairs for which Java has date and number formats. */
+	private static final Set<Locale> FORMATTED_LOCALES = Set.of(DateFormat.getAvailableLocales());
+
 	/**
 	 * The language of a page, decided on the UI thread when navigating (see AppShell). In order: the language chosen
-	 * with this session's dropdown, the database default (completed with the browser's country when it has none), the
-	 * browser's language, English. Translations read the result from the UI, through {@link Translator#getLocale()}.
+	 * with this session's menu, the database default (both used as chosen), the first translated language of the
+	 * browser in the browser's order, English. The browser's language keeps its country when Java has formats for that
+	 * pair (e.g. en_GB), even without a translation for that country. Translations read the result from the UI,
+	 * through {@link Translator#getLocale()}.
 	 */
-	@SuppressWarnings("deprecation")
 	public static Locale resolvePageLocale() {
 		Locale chosen = (Locale) getAttribute(LOCALE);
 		if (chosen != null) {
@@ -71,33 +78,92 @@ public class OwlcmsSession {
 		List<Locale> browserLocales = browserLocales();
 		Locale forcedLocale = Translator.getForcedLocale();
 		if (forcedLocale != null) {
-			if (!forcedLocale.getCountry().isBlank()) {
-				return forcedLocale;
-			}
-			String country = getFirstCountryFromLocales(browserLocales);
-			return country != null ? new Locale(forcedLocale.getLanguage(), country) : forcedLocale;
+			return forcedLocale;
 		}
 
 		if (browserLocales.isEmpty()) {
 			return Locale.ENGLISH;
 		}
-		List<Locale> availableLocales = Translator.getAvailableLocales();
-		Locale match;
-		Optional<Locale> found = findMatchingLocale(browserLocales, availableLocales);
-		if (found.isEmpty()) {
-			// Firefox does not add es if user has es_AR, so we check for es only
-			match = findLanguageOnlyMatch(browserLocales, availableLocales);
-		} else {
-			match = found.get();
-		}
-		if (match.getCountry().isBlank()) {
-			String country = getFirstCountryFromLocales(browserLocales);
-			if (country == null) {
-				country = Locale.getDefault().getCountry();
+		return browserPreference(browserLocales, Translator.getAvailableLocales());
+	}
+
+	/**
+	 * The first browser language, in the browser's order, that has translations: the exact translated locale when
+	 * there is one (es_EC), else the browser's own pair when Java has formats for it (es_AR), else the generic
+	 * translated language. English when no browser language is translated.
+	 */
+	static Locale browserPreference(List<Locale> browserLocales, List<Locale> translated) {
+		for (Locale browser : browserLocales) {
+			Locale pair = languageAndCountry(browser);
+			if (translated.contains(pair)) {
+				return pair;
 			}
-			return new Locale(match.getLanguage(), country);
+			Optional<Locale> sameLanguage = translated.stream()
+			        .filter(t -> t.getLanguage().equals(pair.getLanguage()))
+			        .min(Comparator.comparing(t -> !t.getCountry().isEmpty()));
+			if (sameLanguage.isEmpty()) {
+				continue;
+			}
+			if (!pair.getCountry().isEmpty() && FORMATTED_LOCALES.contains(pair)) {
+				return pair;
+			}
+			return withBrowserCountry(sameLanguage.get(), browserLocales);
 		}
-		return match;
+		return Locale.ENGLISH;
+	}
+
+	/**
+	 * The entries of the language menu, grouped by language in the order of the translations. In each group: the
+	 * generic language, then the browser's own variants of that language (in the browser's order), then the other
+	 * variants. A browser variant is offered when Java has formats for it, even without a translation for that
+	 * country; it is never listed twice. Called on the UI thread.
+	 */
+	public static List<Locale> languageMenuChoices(List<Locale> translated) {
+		return languageMenuChoices(translated, browserLocales());
+	}
+
+	static List<Locale> languageMenuChoices(List<Locale> translated, List<Locale> browserLocales) {
+		Map<String, List<Locale>> byLanguage = new LinkedHashMap<>();
+		for (Locale l : translated) {
+			byLanguage.computeIfAbsent(l.getLanguage(), k -> new ArrayList<>()).add(l);
+		}
+		List<Locale> browserPairs = new ArrayList<>();
+		for (Locale l : browserLocales) {
+			Locale pair = languageAndCountry(l);
+			if (!pair.getCountry().isEmpty() && byLanguage.containsKey(pair.getLanguage())
+			        && (translated.contains(pair) || FORMATTED_LOCALES.contains(pair))
+			        && !browserPairs.contains(pair)) {
+				browserPairs.add(pair);
+			}
+		}
+		List<Locale> choices = new ArrayList<>();
+		for (Map.Entry<String, List<Locale>> group : byLanguage.entrySet()) {
+			group.getValue().stream().filter(l -> l.getCountry().isEmpty()).forEach(choices::add);
+			browserPairs.stream().filter(l -> l.getLanguage().equals(group.getKey())).forEach(choices::add);
+			group.getValue().stream().filter(l -> !l.getCountry().isEmpty() && !browserPairs.contains(l))
+			        .forEach(choices::add);
+		}
+		return choices;
+	}
+
+	/** A match without a country takes the country of the browser's own entry for that language, if Java formats it. */
+	private static Locale withBrowserCountry(Locale locale, List<Locale> browserLocales) {
+		if (!locale.getCountry().isBlank()) {
+			return locale;
+		}
+		for (Locale browser : browserLocales) {
+			Locale pair = languageAndCountry(browser);
+			if (pair.getLanguage().equals(locale.getLanguage()) && !pair.getCountry().isEmpty()
+			        && FORMATTED_LOCALES.contains(pair)) {
+				return pair;
+			}
+		}
+		return locale;
+	}
+
+	@SuppressWarnings("deprecation")
+	private static Locale languageAndCountry(Locale l) {
+		return new Locale(l.getLanguage(), l.getCountry());
 	}
 
 	private static List<Locale> browserLocales() {
@@ -112,70 +178,6 @@ public class OwlcmsSession {
 		}
 		return List.of();
 	}
-
-    private static String getFirstCountryFromLocales(List<Locale> locales) {
-        if (locales == null) {
-            return null;
-        }
-
-        Optional<String> country = locales.stream()
-                                          .map(Locale::getCountry) // Get the country code for each locale
-                                          .filter(c -> c != null && !c.isEmpty()) // Filter out null or empty country codes
-                                          .findFirst(); // Find the first one
-
-        return country.orElse(null); // Return the country code or null if not found
-    }
-	
-    private static Optional<Locale> findMatchingLocale(
-            List<Locale> acceptableLocales,
-            List<Locale> supportedLocales) {
-
-        Set<Locale> supportedLocaleSet = new HashSet<>(supportedLocales);
-
-        return acceptableLocales.stream()
-                .filter(supportedLocaleSet::contains) // Filter for locales present in the supported set
-                .findFirst();                         // Get the first one, if any
-    }
-    
-    /**
-     * Finds the first Locale from the acceptableLocales list whose language part
-     * matches a language supported by the application, using Java Streams.
-     * This method assumes all Locale objects have a non-empty language component.
-     *
-     * When a language match is found, it returns the *first* corresponding
-     * Locale object from the 'supportedLocales' list that matches that language.
-     * If no language match is found, it defaults to {@code Locale.ENGLISH}.
-     *
-     * @param acceptableLocales A list of Locale objects the user prefers, in order of preference.
-     * @param supportedLocales  A list of Locale objects that the application supports.
-     * @return The first supported Locale object whose language matches an acceptable language,
-     * or {@code Locale.ENGLISH} if no match is found.
-     */
-    public static Locale findLanguageOnlyMatch(
-            List<Locale> acceptableLocales,
-            List<Locale> supportedLocales) {
-
-        // 1. Create a Set of supported language strings for efficient lookup.
-        //    Example: From [en-US, fr-FR, de] -> { "en", "fr", "de" }
-        Set<String> supportedLanguages = supportedLocales.stream()
-                .map(Locale::getLanguage)
-                .collect(Collectors.toSet());
-
-        // 2. Stream through acceptable locales to find the first language match.
-        //    Then, find the first full Locale object from supported locales that corresponds to it.
-        return acceptableLocales.stream()
-                .map(Locale::getLanguage) // Extract language string (e.g., "en" from "en-CA")
-                .filter(supportedLanguages::contains) // Keep only languages that are in our supported set
-                .findFirst() // Get the first *language string* that matches (e.g., "en")
-                .flatMap(matchedLanguage -> // Once a matching language string is found...
-                    // ...find the first actual Locale object from the 'supportedLocales' list
-                    // that has this matching language.
-                    supportedLocales.stream()
-                        .filter(supported -> supported.getLanguage().equals(matchedLanguage))
-                        .findFirst()
-                )
-                .orElse(Locale.ENGLISH); // If no match is found anywhere in the pipeline, return Locale.ENGLISH
-    }
 
 	/**
 	 * Gets the attribute.

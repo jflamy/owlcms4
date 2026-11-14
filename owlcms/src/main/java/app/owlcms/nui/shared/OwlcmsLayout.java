@@ -480,7 +480,8 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 		ComboBox<Locale> sessionLocaleField = new ComboBox<>();
 		// sessionLocaleField.setWidth("24ch");
 		sessionLocaleField.setClearButtonVisible(true);
-		List<Locale> usefulLocales = Translator.getUsefulLocales();
+		// the browser's own language and country come first in their language, so they can be chosen explicitly
+		List<Locale> usefulLocales = OwlcmsSession.languageMenuChoices(Translator.getUsefulLocales());
 		sessionLocaleField.setItems(new ListDataProvider<>(usefulLocales));
 		sessionLocaleField.setItemLabelGenerator((locale) -> locale.getDisplayName(locale));
 		sessionLocaleField.setValue(Translator.getLocale());

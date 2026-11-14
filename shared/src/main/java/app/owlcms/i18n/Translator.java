@@ -33,7 +33,6 @@ import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.LoggerFactory;
@@ -125,11 +124,15 @@ public class Translator implements I18NProvider {
 		return locales;
 	}
 
+	/**
+	 * The language menu entries, generic languages included: a browser asking for an unsupported country (es-RU) gets
+	 * the generic language, which must be listed for the menu to show it.
+	 */
 	public static List<Locale> getUsefulLocales() {
 		if (locales == null) {
 			Translator.getBundleFromCSV(Locale.ENGLISH);
 		}
-		return locales.stream().filter(l -> !(l.getCountry() == "" && l.getLanguage() == "es")).collect(Collectors.toList());
+		return new ArrayList<>(locales);
 	}
 
 	public static List<Locale> getAvailableLocales() {

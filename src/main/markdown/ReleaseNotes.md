@@ -11,14 +11,18 @@
 
 **Development log**
 
+- 69.0.0-rc03: Fix the "Include Unfinished Categories" filter on the Competition Results to work correctly with 0-999kg medaling by score categories
+
+- 69.0.0-rc03: Multi-language behaviour improved
+  - Pages always use their own locale, no matter the locale of the page that triggered an event (for example, record notifications and the device testing page).
+  - Printed documents and downloaded kits are produced in the locale of the page used to create them.
+  - A page's locale is, in order of priority: the locale chosen with the language menu for the browser session, the default locale in the Language and System Settings, then the first browser locale (in the browser's order of preference) for which there are available translations, then English.
+  - The menu also lists the browser's own locale (language and country) when the language is translated, Java supports that combination, and it is not already listed. For example, a browser set to Spanish (Chile) adds "español (Chile)", and one set to Spanish (Argentina) adds "español (Argentina)". Both show the same Spanish text, since there is no Chilean or Argentinian column in the translation definitions, but dates follow each country's conventions (14-11-2026 in Chile, 14/11/2026 in Argentina). The country also selects country-specific templates when they exist.
+
 - 69.0.0-rc02: Fixed permission propagation issue that could hide subcomponents such as the pause button
-
 - 69.0.0-rc02: When IMWA rules are on, athlete cards for athletes in Masters categories state the 80% rule instead of the 20 kg rule next to the required starting total.
-
 - 69.0.0-rc02: Simulation would stop if the database contained initial lift declarations at 0.
-
 - 69.0.0-rc02: Age Group export files now use the language independent strings instead of translated values, for backward compatibility
-
 - 69.0.0-rc01: Scoring System Selection
   - Fixed the drop down selectors to show a logical grouping of scoring systems with separators
   - For result sheets, when there is no championship, the selector shows an explicit "Per Athlete Championship Scoring System"
