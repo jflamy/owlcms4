@@ -9,7 +9,12 @@ package app.owlcms.utils;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
+
 public class DelayTimer {
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(DelayTimer.class);
     private boolean testingMode;
 
     public DelayTimer()  {
@@ -30,7 +35,15 @@ public class DelayTimer {
             final TimerTask task = new TimerTask() {
                 @Override
                 public void run() {
-                    r.run();
+                    // an exception escaping a TimerTask is never logged and kills the timer thread
+                    try {
+                        r.run();
+                    } catch (RuntimeException e) {
+                        LoggerUtils.logError(logger, e);
+                    } catch (Error e) {
+                        LoggerUtils.logError(logger, e);
+                        throw e;
+                    }
                 }
             };
             t.schedule(task, delay);
