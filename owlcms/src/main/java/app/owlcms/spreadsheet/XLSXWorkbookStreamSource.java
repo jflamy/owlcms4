@@ -13,6 +13,7 @@ import java.io.PipedOutputStream;
 // using per-task Threads instead of a pooled ExecutorService avoids inheritable ThreadLocal
 // leakage from pooled threads. A dedicated daemon Thread is started for each request.
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.Locale;
 import java.util.Optional;
 import java.io.InputStream;
 
@@ -23,6 +24,7 @@ import com.vaadin.flow.server.InputStreamFactory;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSessionThreadLocal;
 
 /**
@@ -45,6 +47,8 @@ public abstract class XLSXWorkbookStreamSource implements InputStreamFactory {
 
 	protected java.util.function.Consumer<Throwable> doneCallback;
 	protected UI ui;
+	/** Captured when the source is created on the page; the document is produced in that language. */
+	private final Locale locale = Translator.getLocale();
 
 	public UI getUi() {
 		return ui;
@@ -74,7 +78,10 @@ public abstract class XLSXWorkbookStreamSource implements InputStreamFactory {
 
 		Thread writerThread = new Thread(() -> {
 			try {
-				writeStream(out);
+				Translator.callWithLocale(this.locale, () -> {
+					writeStream(out);
+					return null;
+				});
 				// notify success
 				try {
 					if (this.doneCallback != null) this.doneCallback.accept(null);

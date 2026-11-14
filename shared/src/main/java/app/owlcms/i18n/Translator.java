@@ -33,7 +33,6 @@ import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.text.StringEscapeUtils;
@@ -84,7 +83,12 @@ public class Translator implements I18NProvider {
 	private static ClassLoader i18nloader = null;
 	private static int line;
 	private static long resetTimeStamp = System.currentTimeMillis();
-	private static Supplier<Locale> localeSupplier;
+
+	/**
+	 * Language of a task that runs without a current UI: printing, exports, and workers started from a page. Bound
+	 * explicitly with {@link #withLocale} or {@link #propagate}; never inherited by other threads.
+	 */
+	private static final ScopedValue<Locale> TASK_LOCALE = ScopedValue.newInstance();
 	
 	// Static storage for Properties data to use with ResourceBundle.Control
 	private static Properties[] storedLanguageProperties = null;
@@ -141,14 +145,44 @@ public class Translator implements I18NProvider {
 	}
 
 	/**
-	 * @return the localeSupplier
+	 * The language for translations that do not specify one. In order: the locale bound for the current task, the
+	 * locale of the current UI (page code and every {@code ui.access} block), the database default, English.
+	 *
+	 * Pages set their UI locale when navigating; see AppShell.
 	 */
-	public static Supplier<Locale> getLocaleSupplier() {
-		return localeSupplier;
+	public static Locale getLocale() {
+		if (TASK_LOCALE.isBound()) {
+			return TASK_LOCALE.get();
+		}
+		UI ui = UI.getCurrent();
+		if (ui != null && ui.getLocale() != null) {
+			return ui.getLocale();
+		}
+		return forcedLocale != null ? forcedLocale : Locale.ENGLISH;
+	}
+
+	/** Runs the task with the given language, for work that has no current UI. */
+	public static void withLocale(Locale locale, Runnable task) {
+		ScopedValue.where(TASK_LOCALE, locale != null ? locale : getLocale()).run(task);
+	}
+
+	/** Same as {@link #withLocale}, for work that returns a value or throws checked exceptions. */
+	public static <R, X extends Throwable> R callWithLocale(Locale locale, ScopedValue.CallableOp<? extends R, X> op)
+	        throws X {
+		return ScopedValue.where(TASK_LOCALE, locale != null ? locale : getLocale()).call(op);
+	}
+
+	/**
+	 * Captures the current language now, and returns a task that runs with it. Use when handing work to another
+	 * thread or executor from a context that has the right language (UI thread, {@code ui.access}, a bound task).
+	 */
+	public static Runnable propagate(Runnable task) {
+		Locale captured = getLocale();
+		return () -> withLocale(captured, task);
 	}
 
 	public static Map<String, String> getMap() {
-		final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(getLocaleSupplier().get());
+		final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(getLocale());
 		Map<String, String> translations = new HashMap<>();
 		Enumeration<String> keys = bundle.getKeys();
 		String key;
@@ -270,15 +304,8 @@ public class Translator implements I18NProvider {
 		}
 	}
 
-	/**
-	 * @param localeSupplier the localeSupplier to set
-	 */
-	public static void setLocaleSupplier(Supplier<Locale> localeSupplier) {
-		Translator.localeSupplier = localeSupplier;
-	}
-
 	public static String translate(String string) {
-		return helper.getTranslation(string, getLocaleSupplier().get());
+		return helper.getTranslation(string, getLocale());
 	}
 
 	public static String translate(String string, Locale locale) {
@@ -294,7 +321,7 @@ public class Translator implements I18NProvider {
 	}
 
 	public static String translate(String string, Object... params) {
-		return helper.getTranslation(string, getLocaleSupplier().get(), params);
+		return helper.getTranslation(string, getLocale(), params);
 	}
 
 
@@ -320,12 +347,12 @@ public class Translator implements I18NProvider {
 	}
 
 	public static String translateOrElseEmpty(String string) {
-		String translationOrElseNull = helper.getTranslationOrElseNull(string, getLocaleSupplier().get());
+		String translationOrElseNull = helper.getTranslationOrElseNull(string, getLocale());
 		return translationOrElseNull != null ? translationOrElseNull : "";
 	}
 	
 	public static String translateOrElseNull(String string) {
-		String translationOrElseNull = helper.getTranslationOrElseNull(string, getLocaleSupplier().get());
+		String translationOrElseNull = helper.getTranslationOrElseNull(string, getLocale());
 		return translationOrElseNull;
 	}
 
@@ -856,14 +883,9 @@ public class Translator implements I18NProvider {
 		return cleaned;
 	}
 
+	/** An explicit locale is honored; only a missing one is replaced by the current language. */
 	private Locale overrideLocale(Locale locale) {
-		Locale l = getLocaleSupplier().get();
-		if (l != null) {
-			locale = l;
-		} else if (getForcedLocale() != null) {
-			locale = getForcedLocale();
-		}
-		return locale;
+		return locale != null ? locale : getLocale();
 	}
 
 	/**

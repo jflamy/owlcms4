@@ -7,7 +7,6 @@
 
 package app.owlcms.nui.lifting;
 
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -199,7 +198,7 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 	@Subscribe
 	public void slaveButtonTest(UIEvent.ButtonTest bt) {
 		ui.access(() -> {
-			line = MessageFormat.format(bt.format, bt.infos);
+			line = bt.key == null ? "\n" : Translator.translate(bt.key, shownValues(bt.values));
 			lineLog.setText(line);
 			eventsLog.setText(eventsText.toString());
 			var prev = eventsText;
@@ -208,6 +207,22 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 			eventsText.append(prev);
 
 		});
+	}
+
+	private static Object[] shownValues(Object[] values) {
+		Object[] shown = new Object[values.length];
+		for (int i = 0; i < values.length; i++) {
+			shown[i] = values[i] instanceof UIEvent.ButtonTest.Decision d ? translateDecision(d.value()) : values[i];
+		}
+		return shown;
+	}
+
+	private static String translateDecision(Boolean decision) {
+		return decision == null
+		        ? Translator.translate("TestButtons.Unknown")
+		        : (decision
+		                ? Translator.translate("TestButtons.GoodLift")
+		                : Translator.translate("TestButtons.NoLift"));
 	}
 
 	@Override

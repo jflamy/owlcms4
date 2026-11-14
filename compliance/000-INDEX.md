@@ -62,6 +62,7 @@ Scoped dark dialogs (210) are done: [210-SCOPED_DARK_DIALOGS.md](done/210-SCOPED
 | 340 | [Cloud control panel token](340-CLOUD_CONTROL_PANEL_TOKEN.md) | Cloud app: generate the control panel token as a Fly secret, recover it from a marker secret name, copy icon |
 | 350 | [Tracker rank and score columns](350-TRACKER_SCOREBOARD_RANK_COLUMNS.md) | Forward the lift-rank decision from OWLCMS; tracker Score column and medal rank, matching the OWLCMS scoreboard per championship |
 | 370 | [Document template settings](370-DOCUMENT_TEMPLATE_SETTINGS.md) | Store per-document template choices apart from `Competition`, so printing never counts as a change to the competition settings |
+| 380 | [Tracker translation keys](380-TRACKER_TRANSLATION_KEYS.md) | Forward translation keys and values next to the translated text, so tracker displays translate in their own language |
 
 Seven-person adjudication, including Tracker jury forwarding, is complete and
 archived in [SEVEN_PERSON_ADJUDICATION.md](done/SEVEN_PERSON_ADJUDICATION.md)

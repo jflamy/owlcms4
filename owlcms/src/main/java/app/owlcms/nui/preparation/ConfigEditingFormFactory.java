@@ -68,6 +68,7 @@ import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.ForwarderSetup;
 import app.owlcms.monitors.ForwardingDestination;
 import app.owlcms.monitors.websocket.WebSocketEventSender;
@@ -169,6 +170,11 @@ public class ConfigEditingFormFactory
 			        Locale defaultLocale = current.getDefaultLocale();
 			        Translator.reset();
 			        Translator.setForcedLocale(defaultLocale);
+			        // this page now follows the saved default, unless a language was chosen for the session
+			        UI ui = UI.getCurrent();
+			        if (ui != null) {
+				        ui.setLocale(OwlcmsSession.resolvePageLocale());
+			        }
 			        this.logger.debug("config locale {} {} {}", current.getDefaultLocale(),
 			                defaultLocale, Translator.getForcedLocale());
 		        }, deleteButtonClickListener, false);

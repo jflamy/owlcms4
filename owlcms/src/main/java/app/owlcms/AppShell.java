@@ -97,6 +97,8 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
 			/* Delay for setting the 'third' class name */
 			conf.setThirdDelay(5000); // 5000ms is the default
 
+			// the page language, decided before the page is built and before access checks show any message
+			uiInitEvent.getUI().addBeforeEnterListener(e -> e.getUI().setLocale(OwlcmsSession.resolvePageLocale()));
 			// deny-by-default check, runs before any page-level observer
 			uiInitEvent.getUI().addBeforeEnterListener(new AccessControlListener());
 		});
@@ -137,6 +139,6 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
 	}
 
 	private String getCurrentUserLanguage() {
-		return OwlcmsSession.getLocale().toString().replace("_", "-");
+		return OwlcmsSession.resolvePageLocale().toString().replace("_", "-");
 	}
 }

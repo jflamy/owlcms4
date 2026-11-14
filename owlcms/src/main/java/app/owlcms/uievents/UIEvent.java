@@ -27,6 +27,7 @@ import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.records.RecordEvent;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPError;
 import app.owlcms.fieldofplay.FOPEvent;
@@ -49,15 +50,20 @@ import ch.qos.logback.classic.Logger;
 public class UIEvent {
 
 	static public class ButtonTest extends UIEvent {
-		private FOPEvent fopEvent;
-		public String format;
-		public Object[] infos;
+		/** A referee or jury decision (null when unknown), translated by the receiving page. */
+		public record Decision(Boolean value) {
+		}
 
-		public ButtonTest(FOPEvent e, FieldOfPlay fop,  Object origin, String format, Object... infos) {
+		private FOPEvent fopEvent;
+		/** Translation key filled with {@link #values} by the receiving page; null when there is nothing to show. */
+		public String key;
+		public Object[] values;
+
+		public ButtonTest(FOPEvent e, FieldOfPlay fop, Object origin, String key, Object... values) {
 			super(origin, fop);
 			this.setFopEvent(e);
-			this.format = format;
-			this.infos = infos;
+			this.key = key;
+			this.values = values;
 		}
 
 		public FOPEvent getFopEvent() {
@@ -1470,34 +1476,29 @@ public class UIEvent {
 		}
 
 		public static final int NORMAL_DURATION = 3000;
-		private String notificationString;
 		private Level level;
-		private String[] infos;
 		private Integer msDuration;
-		private String title;
 		private boolean newRecord;
+		private List<RecordEvent> records;
+		private int newRecordValue;
 
 		/**
-		 * Instantiates a new Notification.
-		 *
-		 * @param origin the origin
-		 * @param string
+		 * Carries the record evidence captured for the lift; the receiving page translates it with
+		 * {@link #doNotification()}.
 		 */
 		public RecordNotification(
 		        Athlete a,
 		        Object origin,
 		        RecordNotification.Level level,
-		        String title,
-		        String notificationString,
+		        List<RecordEvent> records,
+		        int newRecordValue,
 		        Integer msDuration,
 		        boolean newRecord,
-		        FieldOfPlay fop,
-		        String... infos) {
+		        FieldOfPlay fop) {
 			super(a, origin, fop);
-			this.setNotificationString(notificationString);
-			this.setTitle(title);
+			this.records = records;
+			this.newRecordValue = newRecordValue;
 			this.setLevel(level);
-			this.setInfos(infos);
 			this.setMsDuration(msDuration);
 			this.setNewRecord(newRecord);
 			if (this.trace == null || this.trace.isBlank()) {
@@ -1505,12 +1506,9 @@ public class UIEvent {
 			}
 		}
 
+		/** Called by the receiving page, inside its {@code ui.access}: translates in that page's language. */
 		public com.vaadin.flow.component.notification.Notification doNotification() {
-			return showNotification(this.title, this.getNotificationString());
-		}
-
-		public String[] getInfos() {
-			return this.infos;
+			return showNotification(getTitle(), getNotificationString());
 		}
 
 		public Level getLevel() {
@@ -1522,11 +1520,47 @@ public class UIEvent {
 		}
 
 		public String getNotificationString() {
-			return this.notificationString;
+			StringBuilder sb = new StringBuilder();
+			int i = 0;
+			for (RecordEvent rec : this.records) {
+				if (i > 0) {
+					sb.append("<br>");
+				}
+				i++;
+				StringBuilder recordName = new StringBuilder();
+				recordName.append(rec.getRecordName());
+				recordName.append("\u00A0");
+				recordName.append(Translator.translate("Record." + rec.getRecordLift().name()));
+				recordName.append("\u00A0");
+				recordName.append(rec.getAgeGrp());
+				recordName.append("\u00A0");
+				recordName.append(rec.getBwCatString());
+				recordName.append("\u00A0");
+
+				String recordValue = Long.toString(Math.round(rec.getRecordValue()));
+				sb.append(Translator.translate("RecordNotification." + (this.newRecord ? "New" : "Attempt"),
+				        recordName.toString(), recordValue));
+
+				String date = rec.getRecordDateAsString();
+				String holder = rec.getResAthleteName();
+				boolean okDate = date != null && !date.isBlank();
+				boolean okHolder = holder != null && !holder.isBlank();
+				// always show the challenged/broken records; values go through translate so they are cleaned
+				if (okDate && okHolder) {
+					sb.append(" ").append(Translator.translate("RecordNotification.DateAndHolder", date, holder));
+				} else if (okDate || okHolder) {
+					sb.append(" ")
+					        .append(Translator.translate("RecordNotification.DateOrHolder", okDate ? date : holder));
+				}
+			}
+			return sb.toString();
 		}
 
 		public String getTitle() {
-			return this.title;
+			String title = Translator.translate(
+			        "Scoreboard." + (this.newRecord ? "NewRecord(s)" : "RecordAttempt(s)"), this.records.size());
+			return Translator.translate("RecordNotification.Title", title, this.newRecordValue,
+			        getAthlete().getFullName());
 		}
 
 		public boolean isNewRecord() {
@@ -1535,10 +1569,6 @@ public class UIEvent {
 
 		public void setLevel(Level level) {
 			this.level = level;
-		}
-
-		public void setNotificationString(String notificationString) {
-			this.notificationString = notificationString;
 		}
 
 		public com.vaadin.flow.component.notification.Notification showNotification(String title, String text) {
@@ -1588,20 +1618,12 @@ public class UIEvent {
 			return notification;
 		}
 
-		private void setInfos(String[] infos) {
-			this.infos = infos;
-		}
-
 		private void setMsDuration(Integer msDuration) {
 			this.msDuration = msDuration;
 		}
 
 		private void setNewRecord(boolean newRecord) {
 			this.newRecord = newRecord;
-		}
-
-		private void setTitle(String title) {
-			this.title = title;
 		}
 	}
 

@@ -125,8 +125,9 @@ public class ProdData {
 
 	}
 
+	/** Federation defaults are in the startup language: the database default, or English. */
 	private static Locale getLocale() {
-		return Locale.ENGLISH;
+		return Translator.getLocale();
 	}
 
 }

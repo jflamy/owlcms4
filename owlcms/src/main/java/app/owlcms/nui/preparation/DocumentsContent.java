@@ -2483,7 +2483,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			});
 		}
 		final var dc = doneCallback;
-		Thread writer = new Thread(() -> {
+		// started from the download handler, where the page language is bound
+		Thread writer = new Thread(Translator.propagate(() -> {
 			try {
 				zipKitToOutputStreamStatic(selectedItems, elements, errorProcessor, out);
 				try {
@@ -2509,7 +2510,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				} catch (Throwable ignore) {
 				}
 			}
-		}, "Documents-zip-writer");
+		}), "Documents-zip-writer");
 		writer.setDaemon(true);
 		writer.setUncaughtExceptionHandler((th, ex) -> LoggerUtils.logError(logger, ex, true));
 		writer.start();

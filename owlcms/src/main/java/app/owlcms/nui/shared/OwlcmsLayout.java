@@ -483,7 +483,7 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 		List<Locale> usefulLocales = Translator.getUsefulLocales();
 		sessionLocaleField.setItems(new ListDataProvider<>(usefulLocales));
 		sessionLocaleField.setItemLabelGenerator((locale) -> locale.getDisplayName(locale));
-		sessionLocaleField.setValue(Translator.getLocaleSupplier().get());
+		sessionLocaleField.setValue(Translator.getLocale());
 		sessionLocaleField.addValueChangeListener(e -> {
 			OwlcmsSession.getCurrent().setLocale(e.getValue());
 			UI.getCurrent().getPage().reload();

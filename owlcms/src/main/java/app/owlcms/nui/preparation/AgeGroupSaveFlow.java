@@ -69,6 +69,11 @@ public class AgeGroupSaveFlow {
 	private AgeGroupSaveFlow() {
 	}
 
+	/** Workers translate in the language of the page that started them. */
+	private static void submit(Runnable task) {
+		WORKER.submit(Translator.propagate(task));
+	}
+
 	/** The editor's UPDATE button: classify, then the matching dialog flow; {@code committed} runs after commit. */
 	public static void saveFromEditor(UI ui, AgeGroup scratch, AuditOrigin origin, Runnable committed,
 	        Runnable laterHighlight) {
@@ -81,7 +86,7 @@ public class AgeGroupSaveFlow {
 	        Runnable laterHighlight, Runnable onAborted) {
 		Long id = scratch.getId();
 		Long draftStamp = scratch.getLastSavedAt();
-		WORKER.submit(() -> {
+		submit(() -> {
 			try {
 				AgeGroup stored = AgeGroupRepository.loadForEdit(id);
 				AgeGroupRepository.assertCurrent(id, draftStamp);
@@ -114,7 +119,7 @@ public class AgeGroupSaveFlow {
 
 	/** The editor's ADD button: one transaction, no dialog; {@code committed} runs after commit. */
 	public static void createFromEditor(UI ui, AgeGroup scratch, AuditOrigin origin, Runnable committed) {
-		WORKER.submit(() -> {
+		submit(() -> {
 			SaveOutcome outcome;
 			try {
 				Double duplicate = duplicateUpperLimit(scratch);
@@ -138,7 +143,7 @@ public class AgeGroupSaveFlow {
 	 * report.
 	 */
 	public static void deleteAgeGroup(UI ui, AgeGroup row, AuditOrigin origin, Runnable committed) {
-		WORKER.submit(() -> {
+		submit(() -> {
 			try {
 				List<Gap> newGaps = gapsCreatedByDeleting(row);
 				ReassignmentPreview preview = new AgeGroupDefinitionService().previewDelete(row.getId(),
@@ -188,7 +193,7 @@ public class AgeGroupSaveFlow {
 		delete.addClickListener(e -> {
 			delete.setEnabled(false);
 			cancel.setEnabled(false);
-			WORKER.submit(() -> doDelete(ui, row, origin, dialog, committed));
+			submit(() -> doDelete(ui, row, origin, dialog, committed));
 		});
 		String title = gaps.isEmpty()
 		        ? Translator.translate("AgeGroup.Reassign.Title", championshipName)
@@ -207,7 +212,7 @@ public class AgeGroupSaveFlow {
 	/** The Active checkbox in the grid: an edit of the active flag, same flow as the editor. */
 	public static void toggleActive(UI ui, AgeGroup gridRow, boolean newValue, AuditOrigin origin,
 	        Runnable committed, Runnable laterHighlight, Runnable revert) {
-		WORKER.submit(() -> {
+		submit(() -> {
 			try {
 				AgeGroup stored = AgeGroupRepository.loadForEdit(gridRow.getId());
 				if (stored == null
@@ -228,7 +233,7 @@ public class AgeGroupSaveFlow {
 
 	/** The two global actions: dry run, list, Apply/Cancel. {@code committed} runs after commit. */
 	public static void globalAction(UI ui, AuditOrigin origin, boolean recomputeAll, Runnable committed) {
-		WORKER.submit(() -> {
+		submit(() -> {
 			try {
 				AgeGroupDefinitionService service = new AgeGroupDefinitionService();
 				ReassignmentPreview preview = recomputeAll
@@ -243,7 +248,7 @@ public class AgeGroupSaveFlow {
 
 	/** Load a detached scratchpad for the editor, off the UI thread; {@code showForm} runs in ui.access. */
 	public static void loadScratchpad(UI ui, Long id, Consumer<AgeGroup> showForm) {
-		WORKER.submit(() -> {
+		submit(() -> {
 			try {
 				AgeGroup scratch = AgeGroupRepository.loadForEdit(id);
 				if (scratch == null) {
@@ -295,7 +300,7 @@ public class AgeGroupSaveFlow {
 				confirm.addClickListener(e -> {
 					confirm.setEnabled(false);
 					cancel.setEnabled(false);
-					WORKER.submit(() -> doSave(ui, scratch, origin, null, dialog, committed, laterHighlight));
+					submit(() -> doSave(ui, scratch, origin, null, dialog, committed, laterHighlight));
 				});
 				dialog.add(new VerticalLayout(new H3(Translator.translate("AgeGroup.ChampionshipChange.Title")),
 				        body, new HorizontalLayout(confirm, cancel)));
@@ -344,7 +349,7 @@ public class AgeGroupSaveFlow {
 		cont.addClickListener(e -> {
 			cont.setEnabled(false);
 			cancel.setEnabled(false);
-			WORKER.submit(() -> {
+			submit(() -> {
 				ui.access(dialog::close);
 				previewAndConfirm(ui, stored, scratch, origin, championshipName, committed, laterHighlight,
 				        onAborted);
@@ -410,13 +415,13 @@ public class AgeGroupSaveFlow {
 			apply.setEnabled(false);
 			later.setEnabled(false);
 			cancel.setEnabled(false);
-			WORKER.submit(() -> doSave(ui, scratch, origin, Decision.APPLY, dialog, committed, laterHighlight));
+			submit(() -> doSave(ui, scratch, origin, Decision.APPLY, dialog, committed, laterHighlight));
 		});
 		later.addClickListener(e -> {
 			apply.setEnabled(false);
 			later.setEnabled(false);
 			cancel.setEnabled(false);
-			WORKER.submit(() -> doSave(ui, scratch, origin, Decision.LATER, dialog, committed, laterHighlight));
+			submit(() -> doSave(ui, scratch, origin, Decision.LATER, dialog, committed, laterHighlight));
 		});
 		dialog.add(new VerticalLayout(
 		        new H3(Translator.translate("AgeGroup.Reassign.Title", championshipName)), body,
@@ -484,7 +489,7 @@ public class AgeGroupSaveFlow {
 		apply.addClickListener(e -> {
 			apply.setEnabled(false);
 			cancel.setEnabled(false);
-			WORKER.submit(() -> {
+			submit(() -> {
 				SaveOutcome outcome;
 				try {
 					AgeGroupDefinitionService service = new AgeGroupDefinitionService();

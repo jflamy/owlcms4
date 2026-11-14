@@ -8,6 +8,7 @@ package app.owlcms.components.elements;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -250,10 +251,13 @@ public class LazyDownloadButton extends Button {
 						return;
 					}
 					logger.debug("LazyDownloadButton creating DownloadHandler");
+					// the handler runs without a current UI: the stream is produced in the page's language
+					Locale pageLocale = Translator.getLocale();
 					DownloadHandler downloadHandler = DownloadHandler.fromInputStream(
 					        (downloadEvent) -> {
 						        try {
-							        InputStream downloadStream = getInputStreamCallback().createInputStream();
+							        InputStream downloadStream = Translator.callWithLocale(pageLocale,
+							                () -> getInputStreamCallback().createInputStream());
 									logger.debug("LazyDownloadButton created download stream: {}", downloadStream);
 
 							        // If the stream is our wrapper, poll briefly for a fast writer failure and

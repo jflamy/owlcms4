@@ -92,7 +92,7 @@ logger.warn(LoggerUtils.whereFrom());
 
 ## Thread safety: OwlcmsSession methods are risky
 
-**IMPORTANT:** `OwlcmsSession.getLocale()` and `OwlcmsSession.withFop()` rely on `UI.getCurrent()` which returns `null` when called from background threads, callbacks, or spawned threads. This causes silent fallback to default values (e.g., `Locale.ENGLISH`).
+**IMPORTANT:** `OwlcmsSession.getLocale()` and `OwlcmsSession.withFop()` rely on `UI.getCurrent()` which returns `null` when called from background threads, callbacks, or spawned threads. This causes silent fallback to default values (the database default language or `Locale.ENGLISH`).
 
 **Pattern to follow:** Capture values on the UI thread BEFORE entering callbacks/threads, then pass them explicitly:
 
@@ -110,6 +110,8 @@ UploadHandler.inMemory((metadata, data) -> {
 ```
 
 When creating processors or handlers that run in background threads, pass the locale (or FOP) as a constructor parameter rather than retrieving it inside the thread.
+
+**Translation language:** `Translator.getLocale()` (used by every `Translator.translate(...)` without a locale) resolves, in order: the locale bound for the current task, the current UI's locale (page code and every `ui.access` block), the database default, English. Pages get their UI locale in the `AppShell` before-enter listener. An explicit locale argument is always honored. For work handed to another thread or executor, wrap it with `Translator.propagate(task)` when started from a context that has the right language; where that context is lost (download handlers, servlets), capture the locale on the page and bind it with `Translator.withLocale(...)` / `Translator.callWithLocale(...)`. Unwrapped background work gets the database default, never another user's language.
 
 ## Key files and directories to inspect
 

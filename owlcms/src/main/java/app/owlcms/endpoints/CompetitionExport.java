@@ -36,6 +36,7 @@ import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.ExportAudit;
 import app.owlcms.data.export.CompetitionData;
 import app.owlcms.data.export.v2.CompetitionDataV2;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.init.OwlcmsSessionThreadLocal;
 import app.owlcms.spreadsheet.JXLSSBDEExport;
@@ -115,7 +116,10 @@ public class CompetitionExport extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 	        throws ServletException, IOException {
 		// Process request with content.
-		processRequest(request, response, true);
+		Translator.callWithLocale(requestLocale(request), () -> {
+			processRequest(request, response, true);
+			return null;
+		});
 	}
 
 	/**
@@ -127,7 +131,10 @@ public class CompetitionExport extends HttpServlet {
 	protected void doHead(HttpServletRequest request, HttpServletResponse response)
 	        throws ServletException, IOException {
 		// Process request without content.
-		processRequest(request, response, false);
+		Translator.callWithLocale(requestLocale(request), () -> {
+			processRequest(request, response, false);
+			return null;
+		});
 	}
 
 	/**
@@ -233,8 +240,12 @@ public class CompetitionExport extends HttpServlet {
 	private void installRequestSession(HttpServletRequest request) {
 		OwlcmsSession requestSession = new OwlcmsSession();
 		OwlcmsSessionThreadLocal.set(requestSession);
+	}
+
+	/** A plain servlet has no UI: exported documents use the language requested by the client. */
+	private static Locale requestLocale(HttpServletRequest request) {
 		Locale locale = request.getLocale();
-		requestSession.setLocale(locale != null ? locale : Locale.ENGLISH);
+		return locale != null ? locale : Locale.ENGLISH;
 	}
 
 }

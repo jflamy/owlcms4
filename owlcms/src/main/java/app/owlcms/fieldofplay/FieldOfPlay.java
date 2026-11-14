@@ -108,7 +108,6 @@ import app.owlcms.fieldofplay.FOPEvent.TimeOver;
 import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
 import app.owlcms.fieldofplay.FOPEvent.TimeStopped;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.EventForwarder;
@@ -3626,53 +3625,21 @@ public class FieldOfPlay implements IUnregister {
 		return true;
 	}
 
-	/** Capture the notification before any delay, while the athlete and record evidence still belong to this lift. */
+	/**
+	 * Capture the notification before any delay, while the athlete and record evidence still belong to this lift. Only
+	 * values are sent: each receiving page translates them in its own language.
+	 */
 	private UIEvent.RecordNotification createRecordNotification(Athlete athlete, List<RecordEvent> records,
 			boolean newRecord, int newRecordValue) {
 		if (records == null || records.isEmpty()) {
 			return null;
 		}
-		String title = Translator.translate("Scoreboard." + (newRecord ? "NewRecord(s)" : "RecordAttempt(s)"),
-				records.size());
-		title = Translator.translate("RecordNotification.Title", title, newRecordValue, athlete.getFullName());
-		StringBuilder sb = new StringBuilder();
-		int i = 0;
-		for (RecordEvent rec : records) {
-			if (i > 0) {
-				sb.append("<br>");
-			}
-			i++;
-			StringBuilder recordName = new StringBuilder();
-			recordName.append(rec.getRecordName());
-			recordName.append("\u00A0");
-			recordName.append(Translator.translate("Record." + rec.getRecordLift().name()));
-			recordName.append("\u00A0");
-			recordName.append(rec.getAgeGrp());
-			recordName.append("\u00A0");
-			recordName.append(rec.getBwCatString());
-			recordName.append("\u00A0");
-
-			String recordValue = Long.toString(Math.round(rec.getRecordValue()));
-			sb.append(Translator.translate("RecordNotification." + (newRecord ? "New" : "Attempt"),
-					recordName.toString(), recordValue));
-
-			String date = rec.getRecordDateAsString();
-			String holder = rec.getResAthleteName();
-			boolean okDate = date != null && !date.isBlank();
-			boolean okHolder = holder != null && !holder.isBlank();
-			// always show the challenged/broken records; values go through translate so they are cleaned
-			if (okDate && okHolder) {
-				sb.append(" ").append(Translator.translate("RecordNotification.DateAndHolder", date, holder));
-			} else if (okDate || okHolder) {
-				sb.append(" ").append(Translator.translate("RecordNotification.DateOrHolder", okDate ? date : holder));
-			}
-		}
 		return new UIEvent.RecordNotification(
 				athlete,
 				this,
 				newRecord ? UIEvent.RecordNotification.Level.SUCCESS : UIEvent.RecordNotification.Level.INFO,
-				title,
-				sb.toString(),
+				List.copyOf(records),
+				newRecordValue,
 				newRecord ? 10000 : 0,
 				newRecord,
 				this);

@@ -56,96 +56,63 @@ public class OwlcmsSession {
 		logger.setLevel(Level.INFO);
 	}
 
+	/**
+	 * The language of a page, decided on the UI thread when navigating (see AppShell). In order: the language chosen
+	 * with this session's dropdown, the database default (completed with the browser's country when it has none), the
+	 * browser's language, English. Translations read the result from the UI, through {@link Translator#getLocale()}.
+	 */
 	@SuppressWarnings("deprecation")
-	public static Locale computeLocale() {
-		Locale locale = (Locale) getAttribute(LOCALE);
-
-		if (locale != null) {
-			return locale;
+	public static Locale resolvePageLocale() {
+		Locale chosen = (Locale) getAttribute(LOCALE);
+		if (chosen != null) {
+			return chosen;
 		}
 
-		String country = null;
+		List<Locale> browserLocales = browserLocales();
 		Locale forcedLocale = Translator.getForcedLocale();
 		if (forcedLocale != null) {
-			country = forcedLocale.getCountry();
-			if (country.isBlank()) {
-				UI currentUi = UI.getCurrent();
-				if (currentUi != null) {
-					locale = currentUi.getLocale();
-					if (locale != null) {
-						country = locale.getCountry();
-						@SuppressWarnings("deprecation")
-						Locale combinedLocale = new Locale(forcedLocale.getLanguage(), country);
-						locale = combinedLocale;
-						//logger.debug("adding country from browser {}", locale);
-						currentUi.setLocale(locale);
-						setAttribute(LOCALE, locale);
-						return locale;
-					} else {
-						// forced locale not improved with a country
-						//logger.debug("cannot add country from browser {}", forcedLocale, country);
-						return forcedLocale;
-					}
-				} else {
-					// forced locale not improved with a country
-					//logger.debug("no UI, cannot add country from browser {} {}", forcedLocale, LoggerUtils.stackTrace());
-					return forcedLocale;
-				}
-			} else {
-				// forced locale already had country
-				//logger.debug("already have country from forced locale {}:", forcedLocale, country);
+			if (!forcedLocale.getCountry().isBlank()) {
 				return forcedLocale;
 			}
+			String country = getFirstCountryFromLocales(browserLocales);
+			return country != null ? new Locale(forcedLocale.getLanguage(), country) : forcedLocale;
 		}
 
-		UI currentUi = UI.getCurrent();
-		if (currentUi != null) {
-			// VaadinService.getCurrentRequest() may be null in some contexts (e.g. certain upload handlers).
-			// Defensively handle that case and fall back to the UI locale or system default.
-			com.vaadin.flow.server.VaadinRequest currentRequest = VaadinService.getCurrentRequest();
-			List<Locale> acceptableLocales;
-			if (currentRequest != null) {
-				acceptableLocales = Collections.list(currentRequest.getLocales());
-			} else {
-				Locale uiLocale = currentUi.getLocale();
-				if (uiLocale != null) {
-					acceptableLocales = List.of(uiLocale);
-				} else {
-					acceptableLocales = List.of(Locale.getDefault());
-				}
-			}
-			//logger.debug("acceptable locales: {}", acceptableLocales);
-			List<Locale> availableLocales = Translator.getAvailableLocales();
-			Locale match = null;
-			Optional<Locale> found = findMatchingLocale(acceptableLocales, availableLocales);
-			if (found.isEmpty()) {
-				// Firefox does not add es if user has es_AR, so we check for es only
-				match = findLanguageOnlyMatch(acceptableLocales, availableLocales);
-			} else {
-				match = found.get();
-			}
-			if (match.getCountry().isBlank()) {
-				country = getFirstCountryFromLocales(acceptableLocales);
-				if (country == null) {
-					country = Locale.getDefault().getCountry();
-				}
-				String language = match.getLanguage();
-				locale = new Locale(language, country);
-				//logger.debug("adding country '{}' {}: {}", Locale.getDefault(), country, locale);
-			} else {
-				locale = match;
-			}
-			//logger.debug("match = {}", match);
-			//logger.debug("setting session locale: {}",locale);
-			currentUi.setLocale(locale);
-			setAttribute(LOCALE, locale);
-			return locale;
-		} else {
-			//logger.debug("Locale.ENGLISH as fallback");
+		if (browserLocales.isEmpty()) {
 			return Locale.ENGLISH;
 		}
+		List<Locale> availableLocales = Translator.getAvailableLocales();
+		Locale match;
+		Optional<Locale> found = findMatchingLocale(browserLocales, availableLocales);
+		if (found.isEmpty()) {
+			// Firefox does not add es if user has es_AR, so we check for es only
+			match = findLanguageOnlyMatch(browserLocales, availableLocales);
+		} else {
+			match = found.get();
+		}
+		if (match.getCountry().isBlank()) {
+			String country = getFirstCountryFromLocales(browserLocales);
+			if (country == null) {
+				country = Locale.getDefault().getCountry();
+			}
+			return new Locale(match.getLanguage(), country);
+		}
+		return match;
 	}
-	
+
+	private static List<Locale> browserLocales() {
+		// VaadinService.getCurrentRequest() may be null in some contexts; fall back to the UI locale.
+		VaadinRequest currentRequest = VaadinService.getCurrentRequest();
+		if (currentRequest != null) {
+			return Collections.list(currentRequest.getLocales());
+		}
+		UI currentUi = UI.getCurrent();
+		if (currentUi != null && currentUi.getLocale() != null) {
+			return List.of(currentUi.getLocale());
+		}
+		return List.of();
+	}
+
     private static String getFirstCountryFromLocales(List<Locale> locales) {
         if (locales == null) {
             return null;
@@ -292,8 +259,9 @@ public class OwlcmsSession {
 		}
 	}
 
+	/** The language for translations in the current context; see {@link Translator#getLocale()}. */
 	public static Locale getLocale() {
-		return computeLocale();
+		return Translator.getLocale();
 	}
 
 	public static Principal getPrincipal() {
@@ -407,9 +375,13 @@ public class OwlcmsSession {
 		return this.attributes;
 	}
 
+	/** Records the language chosen for this session; null returns to the default. Read by {@link #resolvePageLocale()}. */
 	public void setLocale(Locale locale) {
-		//logger.debug("setLocale {}\n{}", locale, LoggerUtils.stackTrace());
-		setAttribute(LOCALE, locale);
+		if (locale == null) {
+			this.attributes.remove(LOCALE);
+		} else {
+			this.attributes.put(LOCALE, locale);
+		}
 	}
 
 }

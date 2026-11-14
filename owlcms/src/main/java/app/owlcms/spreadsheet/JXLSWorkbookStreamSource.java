@@ -174,6 +174,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	private Integer verticalBorderStartRow;
 	private Integer verticalBorderStartColumn;
 	private Integer verticalBorderStopColumn;
+	/** Captured when the source is created on the page; the document is produced in that language. */
+	private final Locale locale = Translator.getLocale();
 
 	protected boolean shouldHideInterimScoresInResults() {
 		return this.respectNoInterimScoresInResults && FeatureSwitch.NO_INTERIM_SCORES_IN_RESULTS.isEffective();
@@ -198,7 +200,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			session.lock();
 			logger.debug("getting {}", getBestLifterScoringSystem());
 			setThreadLocalPresentationContext(getBestLifterScoringSystem(), shouldHideInterimScoresInResults());
-			writeStream(stream);
+			Translator.callWithLocale(this.locale, () -> {
+				writeStream(stream);
+				return null;
+			});
 		} catch (Throwable t) {
 			LoggerUtils.logError(logger, t);
 			logger.error("writeStream failed: {}", LoggerUtils.stackTrace(t));
@@ -220,7 +225,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		// prepare() beforehand, so we keep this defensive initialization here as well.
 		try {
 			setThreadLocalPresentationContext(getBestLifterScoringSystem(), shouldHideInterimScoresInResults());
-			setReportingInfo();
+			Translator.withLocale(this.locale, this::setReportingInfo);
 		} finally {
 			clearThreadLocalPresentationContext();
 		}
@@ -244,7 +249,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 				// The ThreadLocal is read by classes (e.g., Athlete.getBestLifterScore()) that
 				// don't have direct access to this JXLSWorkbookStreamSource instance.
 				setThreadLocalPresentationContext(this.bestLifterScoringSystem, this.shouldHideInterimScoresInResults());
-				writeStream(out);
+				Translator.callWithLocale(this.locale, () -> {
+					writeStream(out);
+					return null;
+				});
 				// success: notify caller
 				try {
 					if (this.doneCallback != null)

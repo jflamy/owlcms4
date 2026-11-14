@@ -244,7 +244,6 @@ public class Main {
             // the import replaces this default Config row; translation and resource lookups need one to exist
             Config.initConfig();
             OwlcmsSession startupSession = new OwlcmsSession();
-            startupSession.setLocale(Locale.ENGLISH);
             OwlcmsSessionThreadLocal.set(startupSession);
             Gender.initPublicGenderCodeMapString(Locale.ENGLISH);
 
@@ -313,9 +312,8 @@ public class Main {
      */
     public static void initData() {
         StartupUtils.getStartupLogger().info("Loading competition data.");
-        // Set up a default OwlcmsSession in ThreadLocal for startup initialization
-        // This allows worker threads (e.g., medal computation) spawned during startup
-        // to access the session and perform translations with the correct locale
+        // Set up a default OwlcmsSession in ThreadLocal for startup initialization.
+        // Startup translations have no UI: they use the database default language (Translator.getLocale()).
         OwlcmsSession defaultSession = new OwlcmsSession();
         
         // Vaadin configs
@@ -325,11 +323,7 @@ public class Main {
 
         // read locale from database and override if needed
         Locale l = overrideDisplayLanguage();
-        // Use English as default if no override is configured
-        Locale sessionLocale = (l != null) ? l : Locale.ENGLISH;
-        defaultSession.setLocale(sessionLocale);
         OwlcmsSessionThreadLocal.set(defaultSession);
-        logger.info("Created startup OwlcmsSession with locale: {}", sessionLocale);
         
         // before injectData as it may create/migrate categories
         Gender.initPublicGenderCodeMapString(l != null ? l : Locale.ENGLISH);
@@ -357,8 +351,6 @@ public class Main {
 
     public static void injectSuppliers() {
         // app config injection
-        Translator.setLocaleSupplier(() -> OwlcmsSession.computeLocale());
-        ResourceWalker.setLocaleSupplier(Translator.getLocaleSupplier());
         ResourceWalker.setLocalZipBlobSupplier(() -> Config.getCurrent().getLocalZipBlob());
     }
 

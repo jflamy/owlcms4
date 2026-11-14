@@ -203,7 +203,7 @@ public class GroupCategorySelectionMenu extends MenuBar {
 			final MenuItem capturedItem = item;
 			final String capturedMenuTitle = menuTitle;
 			
-			new Thread(() -> {
+			new Thread(Translator.propagate(() -> {
 				try {
 					for (Group g : capturedGroups) {
 						Map<String, Category> categories = this.includeNotCompleted ? getAllCategories(g) : getFinishedCategories(g);
@@ -230,7 +230,7 @@ public class GroupCategorySelectionMenu extends MenuBar {
 						try { OwlcmsSessionThreadLocal.remove(); } catch (Throwable ignore) {}
 					}
 				}
-			}).start();
+			})).start();
 		}
 
 	}

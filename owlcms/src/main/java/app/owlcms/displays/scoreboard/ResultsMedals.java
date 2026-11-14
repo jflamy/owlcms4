@@ -186,7 +186,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		Category selectedCategory = getCategory();
 		AgeGroup selectedAgeGroup = getAgeGroup();
 		Championship selectedChampionship = getChampionship();
-		Thread.ofVirtual().name("MedalDisplay").start(() -> {
+		Thread.ofVirtual().name("MedalDisplay").start(Translator.propagate(() -> {
 			try {
 				TreeMap<String, List<Athlete>> selectedMedals = isLeadersMode()
 				        ? leadersForSelection(fop2, selectedGroup, selectedCategory)
@@ -212,7 +212,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			} finally {
 				OwlcmsSessionThreadLocal.remove();
 			}
-		});
+		}));
 	}
 
 	public void setFopPinnedFromURL(boolean fopPinnedFromURL) {

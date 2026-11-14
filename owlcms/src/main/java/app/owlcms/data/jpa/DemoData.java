@@ -32,7 +32,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
-import app.owlcms.init.OwlcmsSession;
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -60,8 +60,12 @@ public class DemoData {
 	 * @param forcedInsertion
 	 */
 	public static void insertInitialData(int nbAthletes, EnumSet<ChampionshipType> forcedInsertion) {
+		// demo data is created in English
+		Translator.withLocale(Locale.ENGLISH, () -> doInsertInitialData(nbAthletes, forcedInsertion));
+	}
+
+	private static void doInsertInitialData(int nbAthletes, EnumSet<ChampionshipType> forcedInsertion) {
 		JPAService.runInTransaction(em -> {
-			OwlcmsSession.setAttribute(OwlcmsSession.LOCALE, Locale.ENGLISH);
 			Competition competition = createDefaultCompetition(forcedInsertion);
 			CompetitionRepository.create(competition, AuditOrigin.system("initial data"));
 			AgeGroupRepository.insertAgeGroups(em, forcedInsertion);

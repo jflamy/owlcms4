@@ -51,6 +51,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -68,7 +69,6 @@ public class ResourceWalker {
 	/** Placeholder base for checking classpath resource names; never read. */
 	private static final Path CLASSPATH_ROOT = Paths.get("classpath-root");
 	private static Supplier<byte[]> localZipBlobSupplier;
-	private static Supplier<Locale> localeSupplier;
 	
 	public ResourceWalker() {
 		// Constructor
@@ -293,19 +293,12 @@ public class ResourceWalker {
 		return localDirPath;
 	}
 
-	/**
-	 * @return the localeSupplier
-	 */
-	public static Supplier<Locale> getLocaleSupplier() {
-		return localeSupplier;
-	}
-
 	public static InputStream getLocalizedResourceAsStream(String resourceName) {
 		int extensionPos = resourceName.lastIndexOf('.');
 		String extension = resourceName.substring(extensionPos);
 		String baseName = resourceName.substring(0, extensionPos);
 
-		Locale locale = getLocaleSupplier().get();
+		Locale locale = Translator.getLocale();
 
 		String suffix = "_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant();
 		InputStream result;
@@ -355,7 +348,7 @@ public class ResourceWalker {
 		String extension = rawName.substring(extensionPos);
 		String baseName = rawName.substring(0, extensionPos);
 
-		Locale locale = getLocaleSupplier().get();
+		Locale locale = Translator.getLocale();
 
 		String suffix = "_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant();
 		String name = baseName + suffix + extension;
@@ -551,13 +544,6 @@ public class ResourceWalker {
 
 	public static void setLocalDirPath(Path curDir) {
 		localDirPath = curDir;
-	}
-
-	/**
-	 * @param localeSupplier the localeSupplier to set
-	 */
-	public static void setLocaleSupplier(Supplier<Locale> localeSupplier) {
-		ResourceWalker.localeSupplier = localeSupplier;
 	}
 
 	public static void setLocalZipBlobSupplier(Supplier<byte[]> localOverrideSupplier) {

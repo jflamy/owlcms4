@@ -332,7 +332,7 @@ public class MedalCeremonyContent extends BaseNavigationContent implements Navig
 		if (ui == null) {
 			return;
 		}
-		new Thread(() -> {
+		new Thread(Translator.propagate(() -> {
 			try {
 				List<AwardCategory> categories = awardCategories(selectedGroup);
 				ui.access(() -> {
@@ -348,7 +348,7 @@ public class MedalCeremonyContent extends BaseNavigationContent implements Navig
 			} finally {
 				OwlcmsSessionThreadLocal.remove();
 			}
-		}, "MedalCeremonyAwards").start();
+		}), "MedalCeremonyAwards").start();
 	}
 
 	private void expandOversizedScopes(AwardNode node) {
