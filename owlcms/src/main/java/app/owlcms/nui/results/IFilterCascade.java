@@ -7,6 +7,7 @@
 package app.owlcms.nui.results;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,14 +42,43 @@ public interface IFilterCascade {
 		this.getGenderFilter().clear();
 	}
 
+	/**
+	 * A combo box has no minimum width derived from its placeholder, so the placeholder gets truncated in a narrow
+	 * field. Size the field to the (translated) placeholder plus room for the toggle and clear buttons.
+	 */
+	default int placeholderChars(String placeholder, int minChars) {
+		int chars = placeholder == null ? 0 : placeholder.length() + 5;
+		return Math.max(minChars, chars);
+	}
+
+	default String placeholderWidth(String placeholder, int minChars) {
+		return placeholderChars(placeholder, minChars) + "ch";
+	}
+
+	/**
+	 * Make the dropdown list at least as wide as the field and as its widest item label, in the current language,
+	 * when the field itself is narrower than its content.
+	 */
+	default <T> void fitOverlay(ComboBox<T> filter, Collection<T> items, int minChars) {
+		int floor = placeholderChars(filter.getPlaceholder(), minChars);
+		int widest = items == null ? 0
+		        : items.stream()
+		                .map(filter.getItemLabelGenerator()::apply)
+		                .filter(Objects::nonNull)
+		                .mapToInt(String::length)
+		                .max()
+		                .orElse(0);
+		filter.getStyle().set("--vaadin-combo-box-overlay-width", Math.max(floor, widest + 6) + "ch");
+	}
+
 	default public void defineFilterCascade(GridCrud<Athlete> crud) {
 
 		if (this.getChampionshipFilter() == null) {
 			this.setChampionshipFilter(new ComboBox<>());
 		}
 		this.getChampionshipFilter().setPlaceholder(Translator.translate("Championship"));
-		this.getChampionshipFilter().setWidth("25ch");
-		this.getChampionshipFilter().getStyle().set("--vaadin-combo-box-overlay-width", "35ch");
+		this.getChampionshipFilter().setWidth(placeholderWidth(this.getChampionshipFilter().getPlaceholder(), 14));
+		// narrow field to fit a 1366x768 screen without a horizontal scrollbar; the list opens wider, see fitOverlay
 		this.setChampionshipItems(Championship.findAllVisible(true));
 		// Preserve the configured championship order from findAllVisible.
 		List<Championship> championshipItemsSafe = Optional.ofNullable(this.getChampionshipItems()).orElse(Collections.emptyList())
@@ -57,6 +87,7 @@ public interface IFilterCascade {
 			.toList();
 		this.getChampionshipFilter().setItems(championshipItemsSafe);
 		this.getChampionshipFilter().setItemLabelGenerator((ad) -> ad.translate());
+		fitOverlay(this.getChampionshipFilter(), championshipItemsSafe, 14);
 		this.getChampionshipFilter().setClearButtonVisible(true);
 		this.getChampionshipFilter().getStyle().set("margin-left", "1em");
 
@@ -68,7 +99,8 @@ public interface IFilterCascade {
 		this.getAgeGroupFilter().setVisible(false);
 		this.getAgeGroupFilter().setClearButtonVisible(true);
 		this.getAgeGroupFilter().setValue(null);
-		this.getAgeGroupFilter().setWidth("20ch");
+		this.getAgeGroupFilter().setWidth(placeholderWidth(this.getAgeGroupFilter().getPlaceholder(), 12));
+		fitOverlay(this.getAgeGroupFilter(), null, 12);
 		this.getAgeGroupFilter().setClearButtonVisible(true);
 		this.getAgeGroupFilter().getStyle().set("margin-left", "1em");
 
@@ -81,7 +113,7 @@ public interface IFilterCascade {
 		this.getCategoryFilter().setClearButtonVisible(true);
 		this.getCategoryFilter().setPlaceholder(Translator.translate("Category"));
 		this.getCategoryFilter().setClearButtonVisible(true);
-		this.getCategoryFilter().setWidth("10em");
+		this.getCategoryFilter().setWidth(placeholderWidth(this.getCategoryFilter().getPlaceholder(), 8));
 
 		getCrudLayout(crud).addFilterComponent(this.getCategoryFilter());
 
@@ -103,7 +135,8 @@ public interface IFilterCascade {
 				this.setGender(e.getValue());
 				crud.refreshGrid();
 			});
-			this.getGenderFilter().setWidth("10em");
+			this.getGenderFilter().setWidth(placeholderWidth(this.getGenderFilter().getPlaceholder(), 8));
+			fitOverlay(this.getGenderFilter(), List.of(Gender.M, Gender.F), 8);
 			getCrudLayout(crud).addFilterComponent(this.getGenderFilter());
 		}
 	}
@@ -227,6 +260,7 @@ public interface IFilterCascade {
 			this.setChampionshipAgeGroupPrefixes(AgeGroupRepository.findActiveAndUsedAgeGroupNames(championshipValue));
 			List<String> championshipAgeGroupPrefixes = this.getChampionshipAgeGroupPrefixes();
 			this.getAgeGroupFilter().setItems(championshipAgeGroupPrefixes);
+			fitOverlay(this.getAgeGroupFilter(), championshipAgeGroupPrefixes, 12);
 
 			boolean notEmpty = championshipAgeGroupPrefixes.size() > 0;
 			// this.getAgeGroupFilter().setEnabled(notEmpty);
@@ -277,6 +311,7 @@ public interface IFilterCascade {
 		} else {
 			Category prevValue = this.getCategoryValue();
 			this.getCategoryFilter().setItems(categories);
+			fitOverlay(this.getCategoryFilter(), categories, 8);
 			// contains is not reliable for Categories, check codes
 			if (categories != null && prevValue != null) {
 				Optional<Category> cat = categories.stream()

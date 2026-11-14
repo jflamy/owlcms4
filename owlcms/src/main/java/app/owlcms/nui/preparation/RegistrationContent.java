@@ -737,7 +737,8 @@ public class RegistrationContent extends BaseContent
 			setLastName(e.getValue());
 			crudGrid.refreshGrid();
 		});
-		this.getLastNameFilter().setWidth("10em");
+		// typed text needs room beyond the placeholder
+		this.getLastNameFilter().setWidth(placeholderWidth(this.getLastNameFilter().getPlaceholder(), 16));
 		crudGrid.getCrudLayout().addFilterComponent(this.getLastNameFilter());
 
 		this.defineFilterCascade(crudGrid);
@@ -771,12 +772,15 @@ public class RegistrationContent extends BaseContent
 			setWeighedIn(e.getValue());
 			crudGrid.refreshGrid();
 		});
-		this.getWeighedInFilter().setWidth("10em");
+		this.getWeighedInFilter().setWidth(placeholderWidth(this.getWeighedInFilter().getPlaceholder(), 8));
+		fitOverlay(this.getWeighedInFilter(), List.of(Boolean.TRUE, Boolean.FALSE), 8);
 		crudGrid.getCrudLayout().addFilterComponent(this.getWeighedInFilter());
 
 		this.getTeamFilter().setPlaceholder(Translator.translate("Team"));
-		this.getTeamFilter().setItems(AthleteRepository.findAllTeams());
-		this.getTeamFilter().getStyle().set("--vaadin-combo-box-overlay-width", "25em");
+		this.getTeamFilter().setWidth(placeholderWidth(this.getTeamFilter().getPlaceholder(), 8));
+		List<String> teams = AthleteRepository.findAllTeams();
+		this.getTeamFilter().setItems(teams);
+		fitOverlay(this.getTeamFilter(), teams, 8);
 		this.getTeamFilter().setClearButtonVisible(true);
 		this.getTeamFilter().addValueChangeListener(e -> {
 			setTeam(e.getValue());
