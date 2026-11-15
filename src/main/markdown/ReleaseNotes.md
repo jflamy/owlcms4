@@ -11,6 +11,8 @@
 
 **Development log**
 
+- 69.0.0-rc04: In mixed-gender sessions, the moving down checks were not enabled because first man could be lower than last woman. Now fixed (going from women to men resets the values as if it was a new session)
+
 - 69.0.0-rc03: Competition Results: Fix the "Include Unfinished Categories" filter to work correctly with 0-999kg medaling by score categories
 
 - 69.0.0-rc03: Multi-language behaviour improved

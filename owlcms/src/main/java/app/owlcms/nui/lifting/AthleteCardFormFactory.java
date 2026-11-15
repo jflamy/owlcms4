@@ -694,7 +694,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		atRowAndColumn(gridLayout, component, row, column, RowAlign.CENTER, ColumnAlign.CENTER);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void atRowAndColumn(GridLayout gridLayout, Component component, int row, int column, RowAlign ra,
 	        ColumnAlign ca) {
 		gridLayout.add(component);
@@ -711,13 +710,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		// }
 		if (component instanceof HasValue) {
 			component.setId((row - 1) + "_" + (column - 1));
-			((HasValue) component).addValueChangeListener((e) -> {
-				if (!e.isFromClient()) {
-					return;
-				}
-				getEditedAthlete().setCheckTiming(true);
-				// logger.debug("setting {} to {}", component.getId().get(), e.getValue());
-			});
 		}
 	}
 
@@ -1221,6 +1213,12 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	private TextField createAthleteCardTextField() {
 		TextField tf = new TextField();
 		tf.setAutocomplete(Autocomplete.OFF);
+		// must be registered before the binder's listener so that validating a user edit checks timing
+		tf.addValueChangeListener(e -> {
+			if (e.isFromClient()) {
+				getEditedAthlete().setCheckTiming(true);
+			}
+		});
 		return tf;
 	}
 

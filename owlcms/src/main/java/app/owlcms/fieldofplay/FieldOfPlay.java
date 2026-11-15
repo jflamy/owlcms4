@@ -306,6 +306,7 @@ public class FieldOfPlay implements IUnregister {
 	private List<Athlete> liftingOrder;
 	private ProjectedRank projectedRank;
 	private int liftsDoneAtLastStart;
+	private Gender genderAtLastStart;
 	final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
 	private TreeMap<String, List<Athlete>> medals;
 	private String name;
@@ -680,6 +681,10 @@ public class FieldOfPlay implements IUnregister {
 	 */
 	public int getLiftsDoneAtLastStart() {
 		return this.liftsDoneAtLastStart;
+	}
+
+	public Gender getGenderAtLastStart() {
+		return this.genderAtLastStart;
 	}
 
 	/**
@@ -2715,6 +2720,7 @@ public class FieldOfPlay implements IUnregister {
 	public void setWeightAtLastStart(Integer nextAttemptRequestedWeight) {
 		this.weightAtLastStart = nextAttemptRequestedWeight;
 		setLiftsDoneAtLastStart(((getCurAthlete() != null) ? getCurAthlete().getAttemptsDone() : 0));
+		this.genderAtLastStart = getCurAthlete() != null ? getCurAthlete().getGender() : null;
 	}
 
 	/**

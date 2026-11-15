@@ -200,6 +200,7 @@ public class Athlete {
 			dest.setStartNumber(src.getStartNumber());
 			dest.setLotNumber(src.getLotNumber());
 
+			dest.setGender(src.getGender());
 			dest.computeCategory(src.getCategory());
 
 			if (copyChanges) {
@@ -6014,9 +6015,6 @@ public class Athlete {
 	private void checkChangeVsLiftOrder(int curLift, int newVal) {
 		long start = System.currentTimeMillis();
 		Level prevLoggerLevel = getLogger().getLevel();
-		if (Competition.getCurrent().isEffectiveGenderOrder()) {
-			return;
-		}
 		try {
 			// getLogger().setLevel(Level.DEBUG);
 			doCheckChangeVsLiftOrder(curLift, newVal);
@@ -6277,8 +6275,12 @@ public class Athlete {
 		} else {
 			getLogger().trace("{}lifting", fopLoggingName);
 		}
+		// with gender order, each gender is a separate lifting order: the first athlete of the
+		// second gender is at the start of the session for these checks.
+		boolean genderOrder = Competition.getCurrent().isEffectiveGenderOrder();
 		Integer weightAtLastStart = getFop().getWeightAtLastStart();
-		if (getFop().getState() == FOPState.INACTIVE) {
+		if (getFop().getState() == FOPState.INACTIVE
+				|| (genderOrder && getFop().getGenderAtLastStart() != this.getGender())) {
 			weightAtLastStart = null;
 		}
 		if (weightAtLastStart == null || weightAtLastStart == 0 || newVal == weightAtLastStart) {
@@ -6286,12 +6288,14 @@ public class Athlete {
 			// program has just been started, or first athlete in group, or moving down to
 			// clock value
 			// compare with what the lifting order rules say.
-			LiftOrderReconstruction pastOrder = new LiftOrderReconstruction(getFop());
+			LiftOrderReconstruction pastOrder = new LiftOrderReconstruction(getFop(),
+					genderOrder ? this.getGender() : null);
 			LiftOrderInfo reference = null;
 
 			Athlete clockOwner = getFop().getClockOwner();
 			// there are cases where there is a clock owner and the clock is not running
-			if (clockOwner != null && getFop().getState() == FOPState.TIME_RUNNING) {
+			if (clockOwner != null && getFop().getState() == FOPState.TIME_RUNNING
+					&& (!genderOrder || clockOwner.getGender() == this.getGender())) {
 				// if clock is running, reference becomes the weight requested by the clock
 				// owner
 				// and not the last good/bad lift.

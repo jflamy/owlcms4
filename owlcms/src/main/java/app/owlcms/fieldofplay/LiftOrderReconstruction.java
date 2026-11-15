@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.TreeSet;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.Gender;
 import ch.qos.logback.classic.Logger;
 
 public class LiftOrderReconstruction {
@@ -19,7 +20,15 @@ public class LiftOrderReconstruction {
 	private TreeSet<LiftOrderInfo> pastOrder;
 
 	public LiftOrderReconstruction(FieldOfPlay fop) {
-		computePastOrder(fop);
+		computePastOrder(fop, null);
+	}
+
+	/**
+	 * @param fop
+	 * @param gender if not null, only lifts by athletes of that gender are considered
+	 */
+	public LiftOrderReconstruction(FieldOfPlay fop, Gender gender) {
+		computePastOrder(fop, gender);
 	}
 
 	public LiftOrderInfo getLastLift() {
@@ -59,11 +68,14 @@ public class LiftOrderReconstruction {
 	 *
 	 * @param fop
 	 */
-	private Collection<LiftOrderInfo> computePastOrder(FieldOfPlay fop) {
+	private Collection<LiftOrderInfo> computePastOrder(FieldOfPlay fop, Gender gender) {
 		this.pastOrder = new TreeSet<>();
 		List<Athlete> athletes = fop.getLiftingOrder();
 
 		for (Athlete a : athletes) {
+			if (gender != null && a.getGender() != gender) {
+				continue;
+			}
 			for (int liftNo = 0; liftNo < 6; liftNo++) {
 				LiftOrderInfo ali = new LiftOrderInfo();
 				int w;

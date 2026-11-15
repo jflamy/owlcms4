@@ -26,6 +26,7 @@ import app.owlcms.Main;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athlete.RuleViolationException;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.competition.Competition;
@@ -664,6 +665,55 @@ public class MovingDownTest {
         testChange(() -> change1(sc, "91", fopState), logger, null);
     }
     
+    @Test
+    public void genderOrderMovingDown() {
+        Competition.getCurrent().setGenderOrder(true);
+        try {
+            FieldOfPlay fopState = emptyFieldOfPlay();
+            testPrepAllSame(fopState, 3);
+            List<Athlete> prepared = fopState.getDisplayOrder();
+            JPAService.runInTransaction(em -> {
+                prepared.get(0).setGender(Gender.F);
+                prepared.get(1).setGender(Gender.F);
+                em.merge(prepared.get(0));
+                em.merge(prepared.get(1));
+                return null;
+            });
+            fopState.loadGroup(gA, this, true);
+            List<Athlete> groupAthletes = fopState.getDisplayOrder();
+            Athlete woman1 = groupAthletes.get(0);
+            Athlete woman2 = groupAthletes.get(1);
+            Athlete man = groupAthletes.get(2);
+
+            woman1 = change1(woman1, "61", fopState);
+            woman2 = change1(woman2, "62", fopState);
+            assertEquals(woman1, fopState.getCurAthlete());
+            fopState.fopEventPost(new FOPEvent.TimeStarted(null));
+
+            // clock started at 61 for a woman: another woman cannot request less
+            final Athlete w2 = woman2;
+            testChange(() -> change2(w2, "60", fopState), logger, RuleViolationException.ValueBelowStartedClock.class);
+
+            // the athlete card validates a copy of the athlete
+            Athlete card = new Athlete();
+            Athlete.conditionalCopy(card, w2, true, true, true);
+            card.setCheckTiming(true);
+            testChange(() -> card.validateSnatch1Change2("60"), logger,
+                    RuleViolationException.ValueBelowStartedClock.class);
+
+            // men are a separate lifting order: the women's clock does not apply
+            final Athlete m1 = man;
+            testChange(() -> change1(m1, "55", fopState), logger, null);
+
+            // nor do the women's lifts
+            woman1 = successfulLift(woman1, fopState);
+            final Athlete m2 = JPAService.runInTransaction(em -> em.find(Athlete.class, m1.getId()));
+            testChange(() -> change2(m2, "50", fopState), logger, null);
+        } finally {
+            Competition.getCurrent().setGenderOrder(false);
+        }
+    }
+
     @Test
     public void testNehme() {
         FieldOfPlay fopState = emptyFieldOfPlay();
