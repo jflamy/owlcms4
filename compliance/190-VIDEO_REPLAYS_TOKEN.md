@@ -673,14 +673,16 @@ Two Tracker components call Video:
   (Node: `$lib/server`, `ws` package) and hands replay URLs to OBS.
 
 `src/plugins/jury/replays/helpers.client.js` (browser). The replays server URL
-comes from the Tracker landing page or `?replaysBaseUrl=`. Operators enter
-`http://host:8091/?token=XXXX`. Today `buildReplayStateUrl`,
-`buildReplaySessionsUrl`, `buildReplaySessionLiftsUrl` and `buildStatusSocketUrl`
-clear `url.search`, which would drop the token. Change them, and
-`buildReplayUrl` and `buildExactReplayUrl`, to keep the `token` parameter of the
-configured URL and drop everything else. One helper, `replayTokenFrom(baseUrl)`,
-used by all six builders. Requests use the query parameter, not a header: no
-CORS preflight, and a browser WebSocket cannot carry a header.
+comes from the Tracker landing page or `?replaysBaseUrl=`. Operators can enter
+the viewer token separately in the masked **Replays token** option; it takes
+precedence over a token in the URL. Existing `http://host:8091/?token=XXXX`
+configurations continue to work. All six URL builders keep the token for the
+Video API, WebSocket and replay requests. Requests use the query parameter,
+not a header: no CORS preflight, and a browser WebSocket cannot carry a header.
+The separate token is passed to the Tracker replay tab in session storage
+rather than its URL. Saving plugin defaults stores it AES-256-GCM encrypted
+with the key in `~/.owlcms/tracker.aes` (same value format as the Control Panel).
+A token embedded in the base URL remains visible.
 
 `src/plugins/OBS/shared/helpers-core.js` (Tracker server), with a new option
 in the `config.js` of the `OBS/ledwall` and `OBS/streaming` plugins. The
