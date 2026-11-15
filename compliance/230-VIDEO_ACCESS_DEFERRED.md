@@ -2,7 +2,7 @@
 
 Status: deferred, not planned. Recorded so the requirements are not lost.
 Phase 1, the Replays viewer tokens for one laptop per platform (scenario 1),
-is [190](190-VIDEO_REPLAYS_TOKEN.md); section and file references below
+is [190](done/190-VIDEO_REPLAYS_TOKEN.md); section and file references below
 (`internal/access`, `video-access.json`, `SecurityDir`) are defined there.
 
 ## 1. Cameras configuration token
@@ -80,7 +80,7 @@ operator choose among them, and listen on the chosen address rather than
 
 ## 3. External broadcaster acceptance through Caddy
 
-Code and documentation for `trustedProxies` and `publicUrl` are in [190](190-VIDEO_REPLAYS_TOKEN.md);
+Code and documentation for `trustedProxies` and `publicUrl` are in [190](done/190-VIDEO_REPLAYS_TOKEN.md);
 live acceptance testing with Caddy, DNS and router port forwarding is deferred
 here:
 

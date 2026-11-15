@@ -1,6 +1,6 @@
 # Compliance Work
 
-Updated 2026-11-11. Active specs contain decisions and remaining work;
+Updated 2026-11-15. Active specs contain decisions and remaining work;
 completed designs belong in [done/](done/). Do not duplicate their requirements
 in this index.
 
@@ -13,9 +13,9 @@ Lenient birth-date parsing is done: [BIRTHDATE_LENIENT_PARSE.md](done/BIRTHDATE_
 
 ## 1xx — Technical RFP compliance
 
-| Order | Document | Scope |
-| --- | --- | --- |
-| 190 | [Video replays tokens](190-VIDEO_REPLAYS_TOKEN.md) | Phase 1: named, revocable viewer tokens managed in the Video app; sign-in page and token URLs; Tracker clients |
+None open. Video replays tokens (190) are done: [190-VIDEO_REPLAYS_TOKEN.md](done/190-VIDEO_REPLAYS_TOKEN.md),
+named, revocable viewer tokens managed in the Video app, with the sign-in page, token URLs and the Tracker clients;
+the deferred video access work is [230](230-VIDEO_ACCESS_DEFERRED.md).
 
 PEM-based account mode (100), account tokens (110), token-protected URLs (120) and
 export credential protection (140) are done:

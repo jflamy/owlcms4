@@ -1,14 +1,24 @@
 # 190 - Video Replays Tokens: Implementation Plan
 
-Status: implemented in the Video and Tracker working trees, with documentation;
+Status: done 2026-11-15. Implemented in Video and Tracker, with documentation;
 automated tests pass (Video `go test ./...`, Tracker `npm test`). Video and
-Tracker behave as before when no token is configured, checked by comparing
-responses and URLs against the code preceding this work. Verified by hand so
-far: token generation and the show-once dialog, sign-in from the browser form
-and sign-out, tokens surviving a Video restart. Remaining from 1.8: a Video
-update installed through the Control Panel (tokens must survive the change of
-version folder), Tracker jury replays with a token, revoke/regenerate with two
-signed-in browsers, and a corrupt token file.
+Tracker behave as before when no token is configured. Verified by hand: token
+generation and the show-once dialog, sign-in from the browser form and
+sign-out, tokens surviving a Video restart, and Tracker jury replays with a
+token (2026-11-15). Closed without a separate manual run of the other 1.8
+items: a Video update installed through the Control Panel, revoke/regenerate
+with two signed-in browsers, and a corrupt token file.
+
+Added at closure (2026-11-15):
+- Tracker: the Replays token is a separate masked option, passed to the replay
+  tab in session storage, never in a page URL. Saved secrets (Replays token,
+  OBS WebSocket password and stream key, Checkpoints secret) are encrypted with
+  `~/.owlcms/tracker.aes`, in the Control Panel value format.
+- Video: every refused replay request is logged with the client address, the
+  path and the reason (no token, token not recognized, token expired,
+  malformed credentials, invalid session cookie, blocked after repeated
+  failures), never the token. A successful Tracker or browser connection is
+  logged with the token name.
 
 The replay request log records the path without the query string
 (`owlcms/video`, `internal/httpServer/server.go`, test
@@ -17,7 +27,7 @@ The replay request log records the path without the query string
 Repositories: `owlcms/video` (most of the work) and `owlcms/tracker` (replay
 clients). No OWLCMS Java change. No Control Panel change is required for the
 deployment planned here (scenario 1).
-This completes the token-protected URLs of [120](done/120-TOKEN_PROTECTED_URLS.md).
+This completes the token-protected URLs of [120](120-TOKEN_PROTECTED_URLS.md).
 There is no OWLCMS replay account, role, login handoff or pairing secret; the
 earlier Video design that proposed them (`docs/compliance/replay-access-control.md`)
 has been removed.
@@ -25,7 +35,7 @@ has been removed.
 Priority: **Milestone 1, tokenized access to the replays**, including the Tracker
 clients that consume them, then Milestone 2 (documentation).
 
-Deferred to [230](230-VIDEO_ACCESS_DEFERRED.md): the Cameras configuration
+Deferred to [230](../230-VIDEO_ACCESS_DEFERRED.md): the Cameras configuration
 token, not needed when Cameras and Replays run in the same process; external
 broadcaster testing through Caddy; and a second deployment, several Video
 instances on one machine, feasible but complicated.
@@ -58,7 +68,7 @@ OBS, jury, Tracker ──▶ machine A  Video :8091  ◀──┐
   address.
 - Cameras configuration is read in-process: `/api/cameras/config` is not needed
   in this deployment, and Caddy refuses it from outside. It stays open on the
-  trusted LAN; its token is deferred ([230](230-VIDEO_ACCESS_DEFERRED.md)).
+  trusted LAN; its token is deferred ([230](../230-VIDEO_ACCESS_DEFERRED.md)).
 
 Several names pointing at one router address need a domain you own: for example
 `a.replays` and `b.replays` as CNAME records to the router's dynamic DNS name
@@ -296,7 +306,7 @@ File `<SecurityDir>/video-access.json`:
   regenerated token, or one removed by Open access and later re-added under the
   same name, never revives an old session.
 - Unknown top-level fields are kept on rewrite, so a later Cameras token
-  ([230](230-VIDEO_ACCESS_DEFERRED.md)) can add its own field without changing
+  ([230](../230-VIDEO_ACCESS_DEFERRED.md)) can add its own field without changing
   the version.
 - `instanceId` (8 hex characters) and `sessionKey` are created with the file
   and kept. The session key is independent of the token hashes: someone holding
@@ -821,7 +831,7 @@ for the OBS submodules).
 OBS media sources and the Tracker OBS submodules are not tested manually; they
 are covered by the automated token tests in 1.7 (`TestHandleReplayAndStateAcceptGeneratedToken`
 and `replay-url.test.js`). External broadcaster testing through Caddy is
-deferred to [230](230-VIDEO_ACCESS_DEFERRED.md).
+deferred to [230](../230-VIDEO_ACCESS_DEFERRED.md).
 
 1. Control Panel launch: add tokens "OBS", "Tracker" and "RAI", update Video
    to another version, restart. Tokens and browser sessions still valid;
