@@ -156,10 +156,7 @@ public class CompetitionSimulator {
 			if (this.skipDone) {
 				as = AthleteRepository.findAllByGroupAndWeighIn(g, null);
 			} else {
-				as = AthleteRepository.findAllByGroupAndWeighIn(g, true);
-				if (as.isEmpty()) {
-					as = weighIn(g);
-				}
+				weighIn(g);
 				as = AthleteRepository.findAllByGroupAndWeighIn(g, true);
 			}
 			if (as.size() == 0) {
@@ -312,6 +309,30 @@ public class CompetitionSimulator {
 		return platformFilter.contains(platformName.trim().toLowerCase(Locale.ROOT));
 	}
 
+	void setMissingStartingWeights(Athlete athlete, double bodyWeight, Integer entryTotal) {
+		boolean missingSnatch = Athlete.zeroIfInvalid(athlete.getSnatch1Declaration()) <= 0;
+		boolean missingCleanJerk = Athlete.zeroIfInvalid(athlete.getCleanJerk1Declaration()) <= 0;
+		if (!missingSnatch && !missingCleanJerk) {
+			return;
+		}
+		if (entryTotal != null && entryTotal > 0) {
+			if (missingSnatch) {
+				athlete.setSnatch1Declaration(Long.toString(Math.round(entryTotal * 0.44D)));
+			}
+			if (missingCleanJerk) {
+				athlete.setCleanJerk1Declaration(Long.toString(Math.round(entryTotal * 0.56D)));
+			}
+		} else {
+			double snatch = bodyWeight * (1 + (this.r.nextGaussian() / 10));
+			if (missingSnatch) {
+				athlete.setSnatch1Declaration(Long.toString(Math.round(snatch)));
+			}
+			if (missingCleanJerk) {
+				athlete.setCleanJerk1Declaration(Long.toString(Math.round(snatch * 1.20D)));
+			}
+		}
+	}
+
 	List<Athlete> weighIn(Group g) {
 		List<Athlete> as = AthleteRepository.findAllByGroupAndWeighIn(g, null);
 		weighInAthletes(as);
@@ -322,9 +343,8 @@ public class CompetitionSimulator {
 	 * Prepare a not-done session for re-simulation in skip-done mode.
 	 *
 	 * A not-done session may contain a mix of weighed-in and not-weighed-in athletes (left over from a
-	 * previous simulation, or added afterwards). To get a clean, consistent run we clear any leftover
-	 * lifts and then re-weigh the whole session, re-randomizing body weight and openers for every
-	 * athlete.
+	 * previous simulation, or added afterwards). We clear any leftover lifts and then weigh in the
+	 * whole session.
 	 */
 	void prepareSkipDoneGroup(Group g) {
 		List<Athlete> as = AthleteRepository.findAllByGroupAndWeighIn(g, null);
@@ -335,6 +355,11 @@ public class CompetitionSimulator {
 		weighInAthletes(as);
 	}
 
+	/**
+	 * Body weight and openers already entered are kept. A missing body weight is inferred from the
+	 * registration category; missing openers are derived from the entry total, or from the body weight
+	 * when there is no entry total.
+	 */
 	private void weighInAthletes(List<Athlete> as) {
 		Random r = new Random();
 		for (Athlete a : as) {
@@ -346,7 +371,10 @@ public class CompetitionSimulator {
 			}
 			Double catUpper = c.getMaximumWeight();
 			Double catLower = c.getMinimumWeight();
-			if (catUpper > 998 && catLower <= 1.01) {
+			Double enteredBodyWeight = a.getBodyWeight();
+			if (enteredBodyWeight != null && enteredBodyWeight > 0.1) {
+				catUpper = enteredBodyWeight;
+			} else if (catUpper > 998 && catLower <= 1.01) {
 				// logger.trace("open {} {} {} {}", a.getLastName(), a.getCategoryCode(), catLower, catUpper);
 				// open category
 				double nextGaussian = r.nextGaussian(85, 15);
@@ -361,21 +389,8 @@ public class CompetitionSimulator {
 				a.setBodyWeight(bodyWeight);
 			}
 
-			Integer entryTotal = a.getEntryTotal();
-			if (entryTotal != null && entryTotal > 0) {
-				long isd = Math.round(entryTotal * 0.44D); // qualification snatch
-				long icjd = Math.round(entryTotal * 0.56D); // qualification CJ
-				a.setSnatch1Declaration(Long.toString(isd));
-				a.setCleanJerk1Declaration(Long.toString(icjd));
-				AthleteRepository.save(a);
-			} else {
-				double sd = catUpper * (1 + (this.r.nextGaussian() / 10));
-				long isd = Math.round(sd);
-				a.setSnatch1Declaration(Long.toString(isd));
-				long icjd = Math.round(sd * 1.20D);
-				a.setCleanJerk1Declaration(Long.toString(icjd));
-				AthleteRepository.save(a);
-			}
+			setMissingStartingWeights(a, catUpper, a.getEntryTotal());
+			AthleteRepository.save(a);
 		}
 	}
 

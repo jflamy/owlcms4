@@ -7,11 +7,29 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import app.owlcms.Main;
+import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.config.Config;
+import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FOPState;
 
 public class CompetitionSimulatorTest {
+
+	@BeforeClass
+	public static void setupTests() {
+		Main.injectSuppliers();
+		JPAService.init(true, true);
+		Config.initConfig();
+	}
+
+	@AfterClass
+	public static void tearDownTests() {
+		JPAService.close();
+	}
 
 	@Test
 	public void announcerStartsClockOnlyForAnAnnouncedOrStoppedAttempt() {
@@ -93,6 +111,33 @@ public class CompetitionSimulatorTest {
 		Set<String> platforms = CompetitionSimulator.parsePlatformFilter("   ");
 
 		assertTrue(CompetitionSimulator.platformMatchesFilter("BLUE", platforms));
+	}
+
+	@Test
+	public void missingStartingWeightUsesEntryTotalWithoutReplacingEnteredOpener() {
+		CompetitionSimulator simulator = new CompetitionSimulator();
+		Athlete athlete = new Athlete();
+		athlete.setValidation(false);
+		athlete.setSnatch1Declaration("43");
+
+		simulator.setMissingStartingWeights(athlete, 80, 100);
+
+		assertEquals("43", athlete.getSnatch1Declaration());
+		assertEquals("56", athlete.getCleanJerk1Declaration());
+	}
+
+	@Test
+	public void zeroStartingWeightsAreDerivedFromEntryTotal() {
+		CompetitionSimulator simulator = new CompetitionSimulator();
+		Athlete athlete = new Athlete();
+		athlete.setValidation(false);
+		athlete.setSnatch1Declaration("0");
+		athlete.setCleanJerk1Declaration("0");
+
+		simulator.setMissingStartingWeights(athlete, 80, 100);
+
+		assertEquals("44", athlete.getSnatch1Declaration());
+		assertEquals("56", athlete.getCleanJerk1Declaration());
 	}
 
 }
