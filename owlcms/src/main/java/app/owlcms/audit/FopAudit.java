@@ -123,7 +123,7 @@ public final class FopAudit {
 	}
 
 	public static String formatClock(int millis) {
-		int tenths = Math.max(0, millis) / 100;
+		int tenths = (Math.max(0, millis) + 50) / 100;
 		return String.format("%d:%02d.%d", tenths / 600, (tenths / 10) % 60, tenths % 10);
 	}
 

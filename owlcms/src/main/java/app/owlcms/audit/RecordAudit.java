@@ -37,9 +37,9 @@ public final class RecordAudit {
 	}
 
 	private static String detail(RecordEvent record) {
-		return AuditFormat.kvs("federation", record.getRecordFederation(), "name", record.getRecordName(),
-				"ageGroup", record.getAgeGrp(), "gender", record.getGender(),
-				"bodyWeightCategory", record.getBwCatString(), "lift", record.getRecordLift());
+		return AuditFormat.kvs("lift", record.getRecordLift(), "ageGroup", record.getAgeGrp(), "federation",
+				record.getRecordFederation(), "name", record.getRecordName(), "gender", record.getGender(),
+				"bodyWeightCategory", record.getBwCatString());
 	}
 
 	private static String attempt(int attempt) {

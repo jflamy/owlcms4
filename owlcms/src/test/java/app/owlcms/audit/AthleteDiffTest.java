@@ -55,6 +55,40 @@ public class AthleteDiffTest {
 	}
 
 	@Test
+	public void declarationsAndChangesShowDifferenceFromPriorRequest() {
+		Athlete athlete = new Athlete();
+		athlete.setValidation(false);
+		athlete.setSnatch1Declaration("44");
+		AthleteDiff.Snapshot before = AthleteDiff.snapshot(athlete);
+		athlete.setSnatch1Change1("46");
+		Change change1 = change(before, athlete, "snatch1.change1");
+		assertEquals("46 (+2)", AthleteAudit.annotate(athlete, change1));
+
+		before = AthleteDiff.snapshot(athlete);
+		athlete.setSnatch1Change2("45");
+		Change change2 = change(before, athlete, "snatch1.change2");
+		assertEquals("45 (-1)", AthleteAudit.annotate(athlete, change2));
+
+		before = AthleteDiff.snapshot(athlete);
+		athlete.setSnatch1Change2("46");
+		Change revised = change(before, athlete, "snatch1.change2");
+		assertEquals("46 (+1)", AthleteAudit.annotate(athlete, revised));
+
+		athlete = new Athlete();
+		athlete.setValidation(false);
+		athlete.setSnatch1Declaration("46");
+		before = AthleteDiff.snapshot(athlete);
+		athlete.setSnatch1Change1("46");
+		Change same = change(before, athlete, "snatch1.change1");
+		assertEquals("46 (SAME)", AthleteAudit.annotate(athlete, same));
+	}
+
+	private static Change change(AthleteDiff.Snapshot before, Athlete athlete, String field) {
+		return AthleteDiff.diff(before, AthleteDiff.snapshot(athlete)).stream()
+				.filter(change -> change.field().equals(field)).findFirst().orElseThrow();
+	}
+
+	@Test
 	public void noChangeProducesNoEntries() {
 		Athlete athlete = new Athlete();
 		AthleteDiff.Snapshot snapshot = AthleteDiff.snapshot(athlete);

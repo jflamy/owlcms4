@@ -63,7 +63,8 @@ public final class AthleteDiff {
 		for (Map.Entry<String, Object> entry : after.values.entrySet()) {
 			Object oldValue = before.values.get(entry.getKey());
 			if (!Objects.equals(oldValue, entry.getValue())) {
-				changes.add(new Change(entry.getKey(), oldValue, entry.getValue(), attempt(entry.getKey())));
+				changes.add(new Change(entry.getKey(), oldValue, entry.getValue(), attempt(entry.getKey()),
+						priorRequested(before, entry.getKey())));
 			}
 		}
 		return changes;
@@ -101,6 +102,46 @@ public final class AthleteDiff {
 	public record Snapshot(Map<String, Object> values) {
 	}
 
-	public record Change(String field, Object oldValue, Object newValue, String attempt) {
+	private static final List<String> REQUEST_FIELDS = List.of("automatic", "declaration", "change1", "change2");
+
+	/**
+	 * For a declaration or change, the effective weight requested before the save; null when there is none.
+	 */
+	private static Integer priorRequested(Snapshot before, String field) {
+		int dot = field.lastIndexOf('.');
+		if (dot < 0) {
+			return null;
+		}
+		int index = REQUEST_FIELDS.indexOf(field.substring(dot + 1));
+		if (index < 1) {
+			return null;
+		}
+		String prefix = field.substring(0, dot + 1);
+		for (int i = REQUEST_FIELDS.size() - 1; i >= 0; i--) {
+			Integer weight = weight(before.values.get(prefix + REQUEST_FIELDS.get(i)));
+			if (weight != null) {
+				return weight;
+			}
+		}
+		return null;
+	}
+
+	static Integer weight(Object value) {
+		if (value == null) {
+			return null;
+		}
+		try {
+			int weight = Integer.parseInt(value.toString().trim());
+			return weight > 0 ? weight : null;
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+
+	/** {@code priorRequested} is set for declarations and changes, see {@link #priorRequested}. */
+	public record Change(String field, Object oldValue, Object newValue, String attempt, Integer priorRequested) {
+		public Change(String field, Object oldValue, Object newValue, String attempt) {
+			this(field, oldValue, newValue, attempt, null);
+		}
 	}
 }

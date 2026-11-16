@@ -59,12 +59,24 @@ public final class AthleteAudit {
 		return "WEIGHIN".equals(actor.station()) || "REGISTRATION".equals(actor.station());
 	}
 
-	/** Marks automatic progressions as (+1) after a good lift or (SAME) after a no lift. */
+	/**
+	 * Marks automatic progressions as (+1) after a good lift or (SAME) after a no lift, and declarations and changes
+	 * with their difference from the weight requested before them: (+X), (-X) or (SAME).
+	 */
 	static Object annotate(Athlete athlete, Change change) {
 		Object value = change.newValue();
 		String attempt = change.attempt();
-		if (value == null || attempt == null || !change.field().endsWith(".automatic")) {
+		if (value == null || attempt == null) {
 			return value;
+		}
+		if (!change.field().endsWith(".automatic")) {
+			Integer requested = AthleteDiff.weight(value);
+			Integer prior = change.priorRequested();
+			if (requested == null || prior == null) {
+				return value;
+			}
+			int delta = requested - prior;
+			return value + (delta == 0 ? " (SAME)" : String.format(" (%+d)", delta));
 		}
 		int n = attempt.charAt(2) - '0';
 		if (n <= 1) {

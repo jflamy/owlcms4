@@ -10,6 +10,13 @@ import org.junit.Test;
 
 public class AuditFormatTest {
 	@Test
+	public void clockRoundsToNearestTenthAcrossMinuteBoundary() {
+		assertEquals("1:59.9", FopAudit.formatClock(119_949));
+		assertEquals("2:00.0", FopAudit.formatClock(119_950));
+		assertEquals("2:00.0", FopAudit.formatClock(120_000));
+	}
+
+	@Test
 	public void escapesSeparatorsBackslashesAndNewlines() {
 		AuditEntry entry = AuditEntry.builder("A|B", "test")
 				.actor(AuditActor.device("REFEREE", 2, "refbox"))
