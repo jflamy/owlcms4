@@ -20,7 +20,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import app.owlcms.Main;
 import app.owlcms.access.ImportsNotAllowedException.Reason;
 import app.owlcms.access.Principal.AuthSource;
 import app.owlcms.audit.AuditOrigin;
@@ -35,6 +34,7 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.nui.admin.AdminView;
 import app.owlcms.nui.admin.AuditIntegrityCheckView;
 import app.owlcms.nui.preparation.ConfigContent;
+import app.owlcms.tests.TestStartup;
 
 /**
  * "Imports are allowed" (compliance item 130). No UI objects: the Administration page is checked through its page
@@ -52,7 +52,7 @@ public class ImportGateTest {
 
 	@BeforeClass
 	public static void setUpDatabase() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 	}

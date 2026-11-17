@@ -25,7 +25,6 @@ import org.postgresql.util.PSQLException;
 import org.postgresql.util.PSQLState;
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.Main;
 import app.owlcms.audit.AthleteDiff;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.athlete.AthleteRepository.MetadataSaveResult;
@@ -34,6 +33,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.export.v2.V2Json;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.JpaTransactions;
+import app.owlcms.tests.TestStartup;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -51,7 +51,7 @@ public class AthleteMetadataSaveTest {
 
 	@BeforeClass
 	public static void setupTests() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 		Competition.setCurrent(new Competition());

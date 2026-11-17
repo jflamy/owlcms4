@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
 
-import app.owlcms.Main;
 import app.owlcms.components.elements.DecisionElementState;
 import app.owlcms.components.elements.DecisionElementState.DisplayMode;
 import app.owlcms.components.elements.DecisionElementState.IDecisionRenderer;
@@ -59,7 +58,7 @@ public class DecisionElementStateTest {
     @BeforeClass
     public static void setupTests() {
         timelineSummaries.clear();
-        Main.injectSuppliers();
+        TestStartup.init();
         JPAService.init(true, true);
         Config.initConfig();
     }

@@ -36,7 +36,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import net.sf.jxls.transformer.XLSTransformer;
 
-import app.owlcms.Main;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -104,7 +103,7 @@ public class AthleteSorterTest {
 
     @BeforeClass
     public static void setupTests() {
-        Main.injectSuppliers();
+        TestStartup.init();
         JPAService.init(true, true);
         Config.initConfig();
         Gender.initPublicGenderCodeMapString(Locale.ENGLISH);

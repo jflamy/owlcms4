@@ -13,10 +13,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
@@ -30,7 +33,8 @@ import org.junit.Test;
 
 import com.google.common.eventbus.Subscribe;
 
-import app.owlcms.Main;
+import app.owlcms.audit.AuditActor;
+import app.owlcms.audit.AuditLog;
 import app.owlcms.components.elements.DecisionElementState;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -75,7 +79,7 @@ public class SevenPersonAdjudicationTest {
 
 	@BeforeClass
 	public static void setupTests() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 	}
@@ -153,6 +157,54 @@ public class SevenPersonAdjudicationTest {
 		juryVotes(W, R, W, W);
 		post(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, 1, true));
 		assertFalse("the panel's result cannot be challenged", this.fop.isChallengeAllowed());
+	}
+
+	@Test
+	public void reviewRecordsNameTheAttemptUnderReview() throws Exception {
+		this.fop.setName("review-audit-" + UUID.randomUUID());
+		lift(R, R, W);
+		juryVotes(W, W, R, R);
+		post(new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null, true, new Object()));
+		callForVotes();
+		reviewVotes(R, R, W);
+		juryVotes(W, R, W, W);
+		// the Chair cancels the result and the panel votes again
+		post(new FOPEvent.PanelVoteCancelled(new Object()));
+		callForVotes();
+		reviewVotes(R, R, W);
+		juryVotes(R, R, W, W);
+		this.fop.fopEventPost(new FOPEvent.JuryDecision(this.fop.getAthleteUnderReview(), new Object(), R, true, null, true),
+		        AuditActor.device("JURY_BOX", null, "jurybox"));
+		post(new FOPEvent.JuryResume(new Object()));
+
+		Path log = AuditLog.openFiles().stream()
+		        .filter(path -> path.getFileName().toString().startsWith(this.fop.getName() + "_"))
+		        .findFirst().orElseThrow();
+		List<String[]> lines = Files.readAllLines(log).stream()
+		        .map(line -> line.split(" \\| "))
+		        .filter(columns -> columns.length > 6)
+		        .toList();
+		List<String[]> review = lines.stream()
+		        .filter(columns -> columns[3].trim().startsWith("jury.") || columns[3].trim().equals("break.start")
+		                || columns[3].trim().equals("referee.vote"))
+		        .toList();
+		List<String[]> results = review.stream().filter(columns -> columns[3].trim().equals("jury.result")).toList();
+		assertTrue("the jury decision is recorded with the station that entered it", review.stream()
+		        .anyMatch(columns -> columns[3].trim().equals("jury.decision") && columns[2].trim().equals("JURY_BOX")));
+		assertTrue("the Resume is recorded",
+		        review.stream().anyMatch(columns -> columns[3].trim().equals("jury.resume")));
+		assertEquals("the decision, then two review votes", 9,
+		        review.stream().filter(columns -> columns[3].trim().equals("referee.vote")).count());
+		assertEquals("one result per vote", 2, results.size());
+		assertTrue(results.get(0)[7], results.get(0)[7].contains("decision=\"GOOD LIFT\""));
+		assertTrue(results.get(0)[7], results.get(0)[7].contains("vote=1"));
+		assertTrue(results.get(1)[7], results.get(1)[7].contains("decision=\"NO LIFT\""));
+		assertTrue(results.get(1)[7], results.get(1)[7].contains("vote=2"));
+		for (String[] columns : review) {
+			assertEquals(String.join(" | ", columns), this.athlete.getFullName(), columns[4].trim());
+			assertEquals(String.join(" | ", columns), groupA.getName(), columns[5].trim());
+			assertEquals(String.join(" | ", columns), "SN1", columns[6].trim());
+		}
 	}
 
 	@Test

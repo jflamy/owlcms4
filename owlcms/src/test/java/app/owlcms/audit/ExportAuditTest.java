@@ -13,7 +13,8 @@ public class ExportAuditTest {
 	public void successDetailCarriesFormatChannelLengthAndDigest() {
 		String sha = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08";
 		assertEquals("format=1,channel=download,bytes=2948571,sha256=" + sha + ",signature=none",
-				ExportAudit.successDetail(1, ExportAudit.CHANNEL_DOWNLOAD, 2948571L, sha, null));
+				AuditFormat.details(ExportAudit.ACTION,
+						ExportAudit.successDetail(1, ExportAudit.CHANNEL_DOWNLOAD, 2948571L, sha, null)));
 	}
 
 	@Test
@@ -21,12 +22,14 @@ public class ExportAuditTest {
 		String sha = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08";
 		String fingerprint = "a".repeat(64);
 		assertEquals("format=2,channel=download,bytes=2948571,sha256=" + sha + ",signature=" + fingerprint,
-				ExportAudit.successDetail(2, ExportAudit.CHANNEL_DOWNLOAD, 2948571L, sha, fingerprint));
+				AuditFormat.details(ExportAudit.ACTION,
+						ExportAudit.successDetail(2, ExportAudit.CHANNEL_DOWNLOAD, 2948571L, sha, fingerprint)));
 	}
 
 	@Test
 	public void failureDetailHasNoDigest() {
-		String detail = ExportAudit.failureDetail(1, ExportAudit.CHANNEL_HTTP, new IOException("Pipe closed"));
+		String detail = AuditFormat.details(ExportAudit.ACTION,
+				ExportAudit.failureDetail(1, ExportAudit.CHANNEL_HTTP, new IOException("Pipe closed")));
 		assertEquals("format=1,channel=http,outcome=failed,reason=\"Pipe closed\"", detail);
 		assertFalse(detail.contains("sha256"));
 	}

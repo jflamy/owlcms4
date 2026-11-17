@@ -24,7 +24,8 @@ public class ApplicationAuditTest {
 
 	private static String detail(byte[] file, AuditSigningKey serverKey) {
 		Result result = ExportSignature.verify(file);
-		return ApplicationAudit.importDetail("export.json", result, ExportSignature.match(result, serverKey));
+		return AuditFormat.details("application.import",
+				ApplicationAudit.importDetail("export.json", result, ExportSignature.match(result, serverKey)));
 	}
 
 	@Test

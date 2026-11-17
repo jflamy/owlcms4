@@ -23,7 +23,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import app.owlcms.Main;
 import app.owlcms.access.AccessStartup;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.config.Config;
@@ -34,6 +33,7 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.technicalofficial.OfficialRole;
 import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetable;
 import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetableRepository;
+import app.owlcms.tests.TestStartup;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
@@ -64,7 +64,7 @@ public class V2SessionImportTest {
 
 	@BeforeClass
 	public static void loadFixtureWithPlatformsAndTimetable() throws Exception {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 		Gender.initPublicGenderCodeMapString(Locale.ENGLISH);

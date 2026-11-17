@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 
-import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -57,7 +56,7 @@ public class RecordsTest {
 
     @BeforeClass
     public static void setupTests() {
-        Main.injectSuppliers();
+        TestStartup.init();
         JPAService.init(true, true);
         Config.initConfig();
     }

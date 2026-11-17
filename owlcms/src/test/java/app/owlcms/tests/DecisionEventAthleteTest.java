@@ -25,7 +25,6 @@ import org.junit.Test;
 
 import com.google.common.eventbus.Subscribe;
 
-import app.owlcms.Main;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteMetadata;
@@ -58,7 +57,7 @@ public class DecisionEventAthleteTest {
 
     @BeforeClass
     public static void setupTests() {
-        Main.injectSuppliers();
+        TestStartup.init();
         JPAService.init(true, true);
         Config.initConfig();
     }

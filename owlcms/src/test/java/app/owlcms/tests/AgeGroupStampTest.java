@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import app.owlcms.Main;
 import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.agegroup.AgeGroup;
@@ -56,7 +55,7 @@ public class AgeGroupStampTest {
 
 	@BeforeClass
 	public static void setUpDatabase() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 	}

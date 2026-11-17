@@ -15,6 +15,7 @@ import app.owlcms.data.export.FormatDetector;
 import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.tests.TestData;
+import app.owlcms.tests.TestStartup;
 
 /**
  * Separate JVM: in-memory database with sealed audit logging and a configured key, so the real V2 export path picks
@@ -39,6 +40,9 @@ public final class ExportSigningFixture {
 		Path home = Path.of("home").toAbsolutePath();
 		System.setProperty("user.home", home.toString());
 		AuditKeyFiles.prepare(AuditKeyFiles.resolvePath(null, home));
+		AuditIntegrity.start();
+		// the last step of the application shutdown (Main.shutdown)
+		TestStartup.finishAuditAtExit();
 		Main.injectSuppliers();
 		JPAService.init(true, true);
 		Config.initConfig();

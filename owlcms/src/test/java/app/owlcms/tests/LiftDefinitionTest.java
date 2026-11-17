@@ -21,7 +21,6 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import app.owlcms.Main;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -45,7 +44,7 @@ public class LiftDefinitionTest {
 
     @BeforeClass
     public static void setupTests() {
-        Main.injectSuppliers();
+        TestStartup.init();
         JPAService.init(true, true);
         Config.initConfig();
         TestData.insertInitialData(5, true);

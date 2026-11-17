@@ -31,7 +31,6 @@ import org.junit.Test;
 
 import tools.jackson.databind.JsonNode;
 
-import app.owlcms.Main;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteMetadata;
@@ -73,7 +72,7 @@ public class FieldOfPlayMetadataTest {
 
     @BeforeClass
     public static void setupTests() {
-        Main.injectSuppliers();
+        TestStartup.init();
         JPAService.init(true, true);
         Config.initConfig();
     }

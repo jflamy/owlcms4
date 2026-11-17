@@ -15,7 +15,6 @@ import java.util.Set;
 import org.junit.After;
 import org.junit.Test;
 
-import app.owlcms.Main;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
@@ -31,6 +30,7 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.UtcNormalizationMigration;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.tests.TestData;
+import app.owlcms.tests.TestStartup;
 
 /**
  * One-shot conversion tool: load a V1 JSON export into a scratch file-based H2 database,
@@ -88,7 +88,7 @@ public class JsonV1ToV2ConversionTest {
                 : workDirectory.resolve(baseName.replaceAll("\\.json$", "") + "_v2.json");
 
         // fresh empty file-based database
-        Main.injectSuppliers();
+        TestStartup.init();
         JPAService.close();
         Competition.setCurrent(null);
         Files.deleteIfExists(workDirectory.resolve("owlcms.mv.db"));

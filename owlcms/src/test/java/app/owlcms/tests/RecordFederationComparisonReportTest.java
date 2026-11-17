@@ -13,7 +13,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
@@ -28,7 +27,7 @@ public class RecordFederationComparisonReportTest {
 
 	@BeforeClass
 	public static void setupTests() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 	}

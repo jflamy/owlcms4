@@ -24,7 +24,6 @@ import org.junit.experimental.categories.Category;
 
 import com.google.common.eventbus.Subscribe;
 
-import app.owlcms.Main;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.DemoData;
@@ -92,7 +91,7 @@ public class IntroductionCountdownTest implements BreakController {
 		receiver.start();
 		try {
 			assertTrue("receiver starts", listening.await(5, TimeUnit.SECONDS));
-			Main.injectSuppliers();
+			TestStartup.init();
 			JPAService.init(true, true);
 			Config.initConfig();
 			DemoData.insertInitialData(1, null);

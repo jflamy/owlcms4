@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 
 import com.microsoft.schemas.office.excel.STTrueFalseBlank;
 
-import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
@@ -62,7 +61,7 @@ public class NRegistrationFileProcessorTest {
 
     @BeforeClass
     public static void setupTests() {
-        Main.injectSuppliers();
+        TestStartup.init();
         JPAService.init(true, true);  // true, true = in-memory mode, drop and create schema
         Config.initConfig();
         ProdData.insertInitialData(0);

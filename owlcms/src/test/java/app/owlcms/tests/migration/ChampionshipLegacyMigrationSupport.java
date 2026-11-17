@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 
 import org.junit.After;
 
-import app.owlcms.Main;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.agegroup.ChampionshipType;
@@ -36,6 +35,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.export.FormatDetector;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.tests.TestData;
+import app.owlcms.tests.TestStartup;
 
 abstract class ChampionshipLegacyMigrationSupport {
 
@@ -63,7 +63,7 @@ abstract class ChampionshipLegacyMigrationSupport {
 
     protected void loadFixtureIntoMemoryDatabase(String fixtureResource, String copiedFileName)
             throws IOException, ReflectiveOperationException, SQLException {
-        Main.injectSuppliers();
+        TestStartup.init();
         JPAService.close();
         Competition.setCurrent(null);
         memoryJdbcUrl = createMemoryJdbcUrl();
@@ -99,7 +99,7 @@ abstract class ChampionshipLegacyMigrationSupport {
     }
 
     protected void initializeImportDatabase() throws ReflectiveOperationException {
-        Main.injectSuppliers();
+        TestStartup.init();
         JPAService.close();
         Competition.setCurrent(null);
         memoryJdbcUrl = createMemoryJdbcUrl();

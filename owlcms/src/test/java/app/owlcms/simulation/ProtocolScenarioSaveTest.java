@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,7 +14,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import app.owlcms.Main;
+import app.owlcms.audit.AuditActor;
+import app.owlcms.audit.AuditContext;
+import app.owlcms.audit.AuditLog;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteMetadata;
@@ -22,11 +26,13 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.tests.MockCountdownTimer;
+import app.owlcms.tests.TestStartup;
 
 public class ProtocolScenarioSaveTest {
 	@BeforeClass
 	public static void setupTests() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 		Competition.setCurrent(new Competition());
@@ -75,6 +81,53 @@ public class ProtocolScenarioSaveTest {
 		assertTrue(fop.changes.getLast().isResultChange());
 		assertEquals(2, fop.changes.size());
 		assertEquals(2, pauses.get());
+	}
+
+	@Test
+	public void simulatedWeightChangesRecordTheClockAtEachSave() throws Exception {
+		String name = "CLOCK" + System.nanoTime();
+		Athlete athlete = new Athlete();
+		athlete.setValidation(false);
+		athlete.setLastName(name);
+		athlete.setFirstName("Test");
+		athlete.setSnatch1Declaration("90");
+		athlete = AthleteRepository.save(athlete);
+		RecordingFop fop = new RecordingFop(athlete);
+		MockCountdownTimer timer = new MockCountdownTimer() {
+			@Override
+			public int liveTimeRemaining() {
+				return getTimeRemaining();
+			}
+		};
+		fop.setAthleteTimer(timer);
+		ProtocolScenario scenario = new ProtocolScenario(fop, millis -> { }, 0, false);
+		Athlete target = athlete;
+
+		AuditContext.run(AuditActor.device("MARSHAL", null, "test"), "weight change", () -> {
+			try {
+				timer.setTimeRemaining(30_010, false);
+				scenario.changeWeight(target, 95);
+				timer.setTimeRemaining(29_990, false);
+				scenario.changeWeight(target, 96);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				throw new IllegalStateException(e);
+			}
+		});
+
+		Path log = AuditLog.openFiles().stream()
+				.filter(path -> path.getFileName().toString().startsWith("competition_")).findFirst().orElseThrow();
+		String athleteId = "\"athlete\":{\"id\":\"" + target.getId() + "\"";
+		List<String> lines = Files.readAllLines(log).stream().filter(line -> line.contains(athleteId)).toList();
+		assertTrue(lines.toString(), lines.stream().anyMatch(line ->
+				line.contains("change1 - -> 95 (+5), clock=0:31 (30010ms)")
+						&& line.contains("\"field\":\"snatch1.change1\",\"before\":\"\",\"after\":\"95\","
+								+ "\"priorRequested\":90,")
+						&& line.contains("\"details\":{\"clockMillis\":30010}")));
+		assertTrue(lines.toString(), lines.stream().anyMatch(line ->
+				line.contains("change1 95 -> 96 (+1), clock=0:30 (29990ms)")
+						&& line.contains("\"before\":\"95\",\"after\":\"96\",\"priorRequested\":95,")
+						&& line.contains("\"details\":{\"clockMillis\":29990}")));
 	}
 
 	private static class RecordingFop extends FieldOfPlay {

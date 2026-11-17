@@ -14,7 +14,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import app.owlcms.audit.AuditOrigin;
-import app.owlcms.Main;
 import app.owlcms.access.AccessPolicy;
 import app.owlcms.access.AccountAuthenticator;
 import app.owlcms.access.LoginThrottle;
@@ -36,7 +35,7 @@ public class IWFTenderAccountImportTest {
 
 	@BeforeClass
 	public static void setUpDatabase() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 	}

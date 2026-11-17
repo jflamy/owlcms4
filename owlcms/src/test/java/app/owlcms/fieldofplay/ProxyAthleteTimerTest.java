@@ -12,12 +12,19 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import app.owlcms.data.competition.Competition;
+import app.owlcms.tests.TestStartup;
 import app.owlcms.uievents.UIEvent;
 
 public class ProxyAthleteTimerTest {
+
+    @BeforeClass
+    public static void startUp() {
+        TestStartup.init();
+    }
 
     private FieldOfPlay fop;
     private ProxyAthleteTimer timer;

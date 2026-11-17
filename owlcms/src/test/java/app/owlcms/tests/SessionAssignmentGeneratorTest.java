@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import app.owlcms.Main;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -46,7 +45,7 @@ public class SessionAssignmentGeneratorTest {
 
 	@BeforeClass
 	public static void setupTests() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		System.setProperty("enableEmbeddedMqtt", "false");
 		JPAService.init(true, true);
 		Config.initConfig();

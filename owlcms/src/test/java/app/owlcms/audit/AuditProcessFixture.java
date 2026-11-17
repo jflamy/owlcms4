@@ -1,9 +1,11 @@
 package app.owlcms.audit;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
 import app.owlcms.data.config.Config;
+import app.owlcms.tests.TestStartup;
 
 /** Isolated audit-only JVM: no server, Vaadin components, competition database or devices are started. */
 public final class AuditProcessFixture {
@@ -14,13 +16,22 @@ public final class AuditProcessFixture {
 		System.setProperty("user.home", Path.of("home").toAbsolutePath().toString());
 		Config config = new Config();
 		String mode = args[0];
+		if ("unstarted".equals(mode)) {
+			// sealing never started: a record is a programming error and nothing is written
+			try {
+				AuditLog.write(AuditEntry.builder("A", "clock.start").actor(AuditActor.system()).build());
+			} catch (IllegalStateException e) {
+				Files.writeString(Path.of("refused.txt"), e.getMessage());
+			}
+			return;
+		}
 		if ("key".equals(mode)) {
 			AuditKeyFiles.prepare(AuditKeyFiles.resolvePath(null, Path.of(System.getProperty("user.home"))));
 		}
-		// without initialization the logs are not sealed, as in unit tests
-		if (!"plain".equals(mode)) {
-			AuditIntegrity.initialize(config);
-		}
+		AuditIntegrity.start();
+		// the last step of the application shutdown (Main.shutdown)
+		TestStartup.finishAuditAtExit();
+		AuditIntegrity.initialize(config);
 		AuditLog.writeBatch(List.of(
 				AuditEntry.builder("A", "athlete.change").actor(AuditActor.device("WEIGHIN", null, "-"))
 						.field("bodyWeight").newValue(81.35).build(),

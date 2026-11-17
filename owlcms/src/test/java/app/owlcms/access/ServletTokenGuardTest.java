@@ -13,10 +13,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import app.owlcms.Main;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.tests.TestStartup;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -30,7 +30,7 @@ public class ServletTokenGuardTest {
 
 	@BeforeClass
 	public static void setUpDatabase() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 	}

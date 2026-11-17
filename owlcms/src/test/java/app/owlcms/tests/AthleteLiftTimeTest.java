@@ -19,7 +19,6 @@ import org.junit.Test;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
-import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.XAthlete;
@@ -43,7 +42,7 @@ public class AthleteLiftTimeTest {
 
 	@BeforeClass
 	public static void setup() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 		TestData.insertInitialData(5, true);

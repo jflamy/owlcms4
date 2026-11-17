@@ -40,7 +40,6 @@ import org.junit.runner.Description;
 
 import com.google.common.eventbus.Subscribe;
 
-import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -61,6 +60,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.MockFieldOfPlay;
 import app.owlcms.tests.SlowCategory;
 import app.owlcms.tests.TestData;
+import app.owlcms.tests.TestStartup;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 
@@ -133,7 +133,7 @@ public class OBSMonitorStatusTest {
 
 	@BeforeClass
 	public static void setupTests() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 	}

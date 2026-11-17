@@ -38,7 +38,6 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
-import app.owlcms.Main;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
@@ -71,7 +70,7 @@ public class SBDEImportTest {
     @BeforeClass
     public static void setupTests() {
         System.setProperty("enableEmbeddedMqtt", "false");
-        Main.injectSuppliers();
+        TestStartup.init();
     }
 
     @AfterClass

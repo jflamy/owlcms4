@@ -44,7 +44,6 @@ import org.junit.Test;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
-import app.owlcms.Main;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
@@ -95,7 +94,7 @@ public class ProtocolRecordingSimulation {
 
 	@BeforeClass
 	public static void setupTests() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 		// done at server startup: category names use the translated gender code ("M 75")

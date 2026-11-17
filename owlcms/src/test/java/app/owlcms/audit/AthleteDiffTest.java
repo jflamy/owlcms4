@@ -8,16 +8,16 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import app.owlcms.Main;
 import app.owlcms.audit.AthleteDiff.Change;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.tests.TestStartup;
 
 public class AthleteDiffTest {
 	@BeforeClass
 	public static void setupTests() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 	}
@@ -52,6 +52,13 @@ public class AthleteDiffTest {
 		assertEquals("47 (+1)", AthleteAudit.annotate(athlete, new Change("snatch2.automatic", 0, 47, "SN2")));
 		assertEquals("46 (SAME)", AthleteAudit.annotate(athlete, new Change("snatch2.automatic", 0, 46, "SN2")));
 		assertEquals(47, AthleteAudit.annotate(athlete, new Change("snatch2.declaration", null, 47, "SN2")));
+	}
+
+	@Test
+	public void liftResultAndProgressionHaveTheirOwnActions() {
+		assertEquals("athlete.lift", AthleteAudit.action(new Change("snatch1.actualLift", null, 35, "SN1")));
+		assertEquals("athlete.progression", AthleteAudit.action(new Change("snatch2.automatic", 0, 36, "SN2")));
+		assertEquals("athlete.change", AthleteAudit.action(new Change("snatch2.change1", null, 37, "SN2")));
 	}
 
 	@Test

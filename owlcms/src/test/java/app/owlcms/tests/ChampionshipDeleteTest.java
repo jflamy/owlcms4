@@ -31,7 +31,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import app.owlcms.Main;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
@@ -55,7 +54,7 @@ public class ChampionshipDeleteTest {
 
 	@BeforeClass
 	public static void setupTests() throws Exception {
-		Main.injectSuppliers();
+		TestStartup.init();
 		String memoryJdbcUrl = "jdbc:h2:mem:championshipDeleteTest-" + UUID.randomUUID()
 		        + ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4";
 		System.setProperty("JDBC_DATABASE_URL", memoryJdbcUrl);

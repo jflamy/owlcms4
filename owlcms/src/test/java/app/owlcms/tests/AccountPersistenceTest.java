@@ -13,7 +13,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import app.owlcms.audit.AuditOrigin;
-import app.owlcms.Main;
 import app.owlcms.access.AccessMode;
 import app.owlcms.access.AccessStartup;
 import app.owlcms.access.PasswordHasher;
@@ -29,7 +28,7 @@ public class AccountPersistenceTest {
 
 	@BeforeClass
 	public static void setUpDatabase() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 	}

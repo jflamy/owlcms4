@@ -15,18 +15,18 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import app.owlcms.audit.AuditOrigin;
-import app.owlcms.Main;
 import app.owlcms.data.account.RoleGrant;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.tests.TestStartup;
 
 public class AccountPasswordsTest {
 
 	@BeforeClass
 	public static void setUpDatabase() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 	}

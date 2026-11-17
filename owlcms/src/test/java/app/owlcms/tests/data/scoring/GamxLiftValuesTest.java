@@ -10,7 +10,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -18,6 +17,7 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.tests.TestData;
+import app.owlcms.tests.TestStartup;
 
 /**
  * GAMX2 Lift Values Test (Test B)
@@ -39,7 +39,7 @@ public class GamxLiftValuesTest {
 
 	@BeforeClass
 	public static void setUp() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 		TestData.insertInitialData(5, true);

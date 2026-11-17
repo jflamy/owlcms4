@@ -27,7 +27,6 @@ import app.owlcms.access.AccessStartup;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.audit.AuditSigningKey;
 import app.owlcms.audit.ExportSignature;
-import app.owlcms.Main;
 import app.owlcms.access.PasswordHasher;
 import app.owlcms.access.Role;
 import app.owlcms.data.account.RoleGrant;
@@ -64,7 +63,7 @@ public class JSONExportImportTest {
 	
     @BeforeClass
     public static void setupTests() {
-        Main.injectSuppliers();
+        TestStartup.init();
         JPAService.init(true, true);
         Config.initConfig();
         TestData.insertInitialData(1, true);

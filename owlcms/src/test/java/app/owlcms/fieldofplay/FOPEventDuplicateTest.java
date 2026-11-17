@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import app.owlcms.Main;
 import app.owlcms.access.HasPrincipal;
 import app.owlcms.access.Principal;
 import app.owlcms.access.Principal.AuthSource;
@@ -36,6 +35,7 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.tests.MockCountdownTimer;
 import app.owlcms.tests.TestData;
+import app.owlcms.tests.TestStartup;
 
 /**
  * The field of play ignores an event that duplicates the previous one. Distinct events whose hash codes collide must
@@ -53,7 +53,7 @@ public class FOPEventDuplicateTest {
 
 	@BeforeClass
 	public static void setupTests() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 	}
@@ -141,10 +141,10 @@ public class FOPEventDuplicateTest {
 		assertEquals(3, starts.size());
 		for (String line : starts) {
 			assertTrue(line, line.contains("ANNOUNCER"));
-			assertTrue(line, line.contains("mode=ACCOUNTS"));
-			assertTrue(line, line.contains("user=announcer"));
-			assertTrue(line, line.contains("client=test-client"));
-			assertTrue(line, line.contains("device=token id=announcer-token"));
+			assertTrue(line, line.contains("\"mode\":\"ACCOUNTS\""));
+			assertTrue(line, line.contains("\"user\":\"announcer\""));
+			assertTrue(line, line.contains("\"client\":\"test-client\""));
+			assertTrue(line, line.contains("\"device\":\"token id=announcer-token\""));
 		}
 	}
 

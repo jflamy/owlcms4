@@ -32,12 +32,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import app.owlcms.Main;
 import app.owlcms.audit.AuditSnapshot.Scope;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.tests.TestStartup;
 
 /** What each backup choice puts in the zip. */
 public class AuditSnapshotScopeTest {
@@ -46,7 +46,7 @@ public class AuditSnapshotScopeTest {
 
 	@BeforeClass
 	public static void setUpDatabase() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 		if (CompetitionRepository.findAll().isEmpty()) {

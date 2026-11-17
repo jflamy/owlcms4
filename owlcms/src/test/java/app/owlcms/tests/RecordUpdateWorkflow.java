@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Test;
 
-import app.owlcms.Main;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
@@ -129,7 +128,7 @@ public class RecordUpdateWorkflow {
 	}
 
 	private void initializeFromH2Database(Path database) throws Exception {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.close();
 		Competition.setCurrent(null);
 		String memoryJdbcUrl = "jdbc:h2:mem:recordUpdateH2-" + UUID.randomUUID()
@@ -160,7 +159,7 @@ public class RecordUpdateWorkflow {
 	}
 
 	private void initializeApplication(String jdbcUrl, boolean reset) {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.close();
 		Competition.setCurrent(null);
 		setJdbcUrl(jdbcUrl);

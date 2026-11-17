@@ -12,7 +12,6 @@ import org.junit.runners.Suite;
 		AuditBlockChainTest.class,
 		SealedAuditStreamTest.class,
 		AuditFileStoreTest.class,
-		UnsealedAuditFilesTest.class,
 		AuditIntegrityCheckerTest.class,
 		SealedAuditBackendTest.class,
 		AuditLogPersistenceTest.class,

@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import app.owlcms.Main;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteMetadata;
@@ -46,6 +45,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.MockFieldOfPlay;
 import app.owlcms.tests.MockCountdownTimer;
 import app.owlcms.tests.TestData;
+import app.owlcms.tests.TestStartup;
 import app.owlcms.uievents.BreakType;
 
 /**
@@ -61,7 +61,7 @@ public class LiftingSessionStatusTest {
 
 	@BeforeClass
 	public static void setupTests() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 	}

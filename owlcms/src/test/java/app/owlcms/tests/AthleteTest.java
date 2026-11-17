@@ -27,7 +27,6 @@ import org.junit.Test;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.ChampionshipType;
-import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athlete.RuleViolationException;
@@ -49,7 +48,7 @@ public class AthleteTest {
 
     @BeforeClass
     public static void setupTests() {
-        Main.injectSuppliers();
+        TestStartup.init();
         JPAService.init(true, true);
         Config.initConfig();
         Gender.initPublicGenderCodeMapString(Locale.ENGLISH);

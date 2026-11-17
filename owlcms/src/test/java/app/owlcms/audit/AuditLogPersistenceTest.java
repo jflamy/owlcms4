@@ -38,37 +38,15 @@ public class AuditLogPersistenceTest {
 			assertTrue(checked.publicKey().isBuiltin());
 		}
 		assertEquals(2, named(root, AuditFileStore.PLAIN_INFIX).size());
-		assertTrue(named(root, UnsealedAuditFiles.FULL_INFIX).isEmpty());
 		assertFalse(Files.exists(root.resolve("logs/audit/A.log")));
 	}
 
 	@Test
-	public void withoutIntegrityInitializationLogsArePlainWithNoMarkersOrKeys() throws Exception {
+	public void aRecordBeforeSealingStartsIsRefusedAndNothingIsWritten() throws Exception {
 		Path root = temporary.newFolder().toPath();
-		runFixture(root, "plain");
-		assertTrue(named(root, AuditFileStore.SEALED_INFIX).isEmpty());
-		List<Path> fullFiles = named(root, UnsealedAuditFiles.FULL_INFIX);
-		assertEquals(1, fullFiles.size());
-		Path full = fullFiles.getFirst();
-		assertTrue(full.getFileName().toString().startsWith("A_full_"));
-		String log = Files.readString(full);
-		assertFalse(log.contains("FIRST "));
-		assertFalse(log.contains("SEAL "));
-		assertFalse(log.contains("FINAL "));
-		assertFalse(log.contains("publicKey="));
-		assertTrue(log.contains("audit.open"));
-		assertTrue(log.contains("bodyWeight - -> 81.35"));
-
-		Path plain = full.resolveSibling(full.getFileName().toString()
-				.replace(UnsealedAuditFiles.FULL_INFIX, AuditFileStore.PLAIN_INFIX));
-		List<String> plainLines = Files.readAllLines(plain);
-		assertEquals(3, plainLines.size());
-		assertFalse(String.join("\n", plainLines).contains("audit.open"));
-		assertTrue(plainLines.getFirst().startsWith("    2 | "));
-		assertFalse(plainLines.getFirst().contains(" | cause="));
-
-		runFixture(root, "plain");
-		assertEquals("each run starts a new unsealed pair", 2, named(root, UnsealedAuditFiles.FULL_INFIX).size());
+		runFixture(root, "unstarted");
+		assertEquals("Audit sealing has not been started", Files.readString(root.resolve("refused.txt")));
+		assertFalse(Files.exists(root.resolve("logs/audit")));
 	}
 
 	private static List<Path> named(Path root, String infix) throws IOException {

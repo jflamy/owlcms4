@@ -129,7 +129,7 @@ public class ChampionshipTest {
 
     @BeforeClass
     public static void setupTests() throws Exception {
-        Main.injectSuppliers();
+        TestStartup.init();
         memoryJdbcUrl = createMemoryJdbcUrl();
         System.setProperty("JDBC_DATABASE_URL", memoryJdbcUrl);
         loadFixtureIntoMemoryDatabase();

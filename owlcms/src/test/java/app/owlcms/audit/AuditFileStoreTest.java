@@ -30,8 +30,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import tools.jackson.databind.json.JsonMapper;
+
 public class AuditFileStoreTest {
 	static final Clock CLOCK = Clock.fixed(Instant.parse("2026-10-08T14:40:00Z"), ZoneOffset.UTC);
+	private static final JsonMapper MAPPER = JsonMapper.builder().build();
 	@Rule
 	public TemporaryFolder temporary = new TemporaryFolder();
 
@@ -105,9 +108,16 @@ public class AuditFileStoreTest {
 		for (Path file : sealed) {
 			List<String> expected = new ArrayList<>();
 			for (String line : Files.readAllLines(file, StandardCharsets.UTF_8)) {
+				if (line.contains(" | json=")) {
+					int separator = line.indexOf(" | json=");
+					AuditRecord record = MAPPER.readValue(line.substring(separator + " | json=".length()),
+							AuditRecord.class);
+					assertEquals(line.substring(0, separator), AuditFormat.readable(record));
+					assertEquals(Long.parseLong(line.substring(0, line.indexOf(" | ")).strip()), record.sequence());
+				}
 				if (line.contains(" | ") && !line.contains("audit.open") && !line.startsWith("FIRST ")
 						&& !line.startsWith("CONTINUE ") && !line.startsWith("SEAL ") && !line.startsWith("FINAL ")) {
-					expected.add(line.substring(0, line.indexOf(" | cause=")));
+					expected.add(line.substring(0, line.indexOf(" | json=")));
 				}
 			}
 			if (expected.isEmpty()) {
@@ -291,16 +301,17 @@ public class AuditFileStoreTest {
 		}
 		List<Path> files = files(root);
 		assertTrue(files.size() >= 3);
-		Pattern stamp = Pattern.compile("\\| timestamp=(\\S+) \\|");
 		OffsetDateTime previous = null;
 		for (Path file : files) {
 			boolean header = true;
 			for (String line : Files.readAllLines(file, StandardCharsets.UTF_8)) {
-				Matcher matcher = stamp.matcher(line);
-				if (!matcher.find()) {
+				int separator = line.indexOf(" | json=");
+				if (separator < 0) {
 					continue;
 				}
-				OffsetDateTime current = OffsetDateTime.parse(matcher.group(1));
+				AuditRecord record = MAPPER.readValue(line.substring(separator + " | json=".length()),
+						AuditRecord.class);
+				OffsetDateTime current = OffsetDateTime.parse(record.timestamp());
 				if (previous != null) {
 					assertFalse(file.getFileName() + ": " + line, current.isBefore(previous));
 				}
@@ -326,13 +337,30 @@ public class AuditFileStoreTest {
 		assertFalse(AthleteAudit.sealsSave(AuditActor.system()));
 	}
 
+	/** The plain copy is not evidence: when it cannot be written, the sealed file and the later records go on. */
+	@Test
+	public void aPlainFileErrorLeavesTheSealedFileComplete() throws Exception {
+		Path root = temporary.getRoot().toPath();
+		String time = AuditFileStore.NAME_TIME.format(CLOCK.instant());
+		// a directory where the plain file should go: the plain file cannot be written
+		Files.createDirectories(root.resolve("A" + AuditFileStore.PLAIN_INFIX + time + ".log"));
+		try (AuditFileStore store = store(root, "run-1", AuditSealLimits.DEFAULT, new ArrayList<>())) {
+			store.append("A", List.of(record("first.event", "one")), true);
+			store.append("A", List.of(record("second.event", "two")), true);
+		}
+		List<String> sealed = Files.readAllLines(root.resolve("A" + AuditFileStore.SEALED_INFIX + time + ".log"));
+		assertTrue(sealed.stream().anyMatch(line -> line.contains("first.event")));
+		assertTrue(sealed.stream().anyMatch(line -> line.contains("second.event")));
+		assertTrue(sealed.getLast().startsWith("FINAL "));
+	}
+
 	static AuditRecordSnapshot record(String action, String detail) {
 		return recordAt(action, detail, OffsetDateTime.now(CLOCK));
 	}
 
 	static AuditRecordSnapshot recordAt(String action, String detail, OffsetDateTime at) {
 		return AuditRecordSnapshot.capture(AuditEntry.builder("A", action).actor(AuditActor.system())
-				.detail(detail).build(), at);
+				.details(AuditFormat.fields("message", detail)).build(), at);
 	}
 
 	private static AuditFileStore store(Path root, String run, AuditSealLimits limits, List<String> readable)

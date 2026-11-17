@@ -7,6 +7,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.tests.TestStartup;
 import app.owlcms.tests.TwoMinutesRuleTest;
 import ch.qos.logback.classic.Logger;
 
@@ -30,6 +31,9 @@ public final class AuditLiftFixture {
 
 	private static void runLift() throws Exception {
 		System.setProperty("user.home", Path.of("home").toAbsolutePath().toString());
+		AuditIntegrity.start();
+		// the last step of the application shutdown (Main.shutdown)
+		TestStartup.finishAuditAtExit();
 		Main.injectSuppliers();
 		JPAService.init(true, true);
 		Config.initConfig();

@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import app.owlcms.Main;
 import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.competition.Competition;
@@ -40,6 +39,7 @@ import app.owlcms.data.jpa.SingletonSaves;
 import app.owlcms.data.jpa.StaleSingletonException;
 import app.owlcms.data.jpa.StaleSingletonException.Kind;
 import app.owlcms.data.records.RecordConfig;
+import app.owlcms.tests.TestStartup;
 
 /**
  * Stale-save check on the configuration singletons (compliance item 136). No UI objects.
@@ -51,7 +51,7 @@ public class SingletonStaleSaveTest {
 
 	@BeforeClass
 	public static void setUpDatabase() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 	}

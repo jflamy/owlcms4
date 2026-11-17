@@ -13,7 +13,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import app.owlcms.Main;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.ChampionshipType;
@@ -39,7 +38,7 @@ import app.owlcms.spreadsheet.PAthlete;
 public class ScoreboardRankDataTest {
 	@BeforeClass
 	public static void setup() {
-		Main.injectSuppliers();
+		TestStartup.init();
 		JPAService.init(true, true);
 		Config.initConfig();
 		Gender.initPublicGenderCodeMapString(Locale.ENGLISH);
