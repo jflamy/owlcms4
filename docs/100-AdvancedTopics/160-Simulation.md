@@ -44,7 +44,7 @@ Open the Simulation page (Admin page, then Simulation, or add `/simulation` at t
 - Skip sessions already done (keep their results)
 - Skip sessions before a given session
 - Only these platforms (comma-separated)
-- Random declaration jumps (+2/+3 kg) and marshal weight changes while the clock runs
+- Random declaration jumps (+2/+3 kg) and marshal weight changes while the clock runs (selected by default)
 
 The Stop button ends the simulation.
 

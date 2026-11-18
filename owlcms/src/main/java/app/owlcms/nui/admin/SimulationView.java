@@ -50,7 +50,7 @@ public class SimulationView extends Composite<VerticalLayout>
 
 	private final Checkbox skipDone = new Checkbox(Translator.translate("Simulation.SkipDone"));
 	private final Checkbox randomDeclarationJumps = new Checkbox(
-	        Translator.translate("Simulation.RandomDeclarationJumps"));
+	        Translator.translate("Simulation.RandomDeclarationJumps"), true);
 	private final TextField skipBefore = new TextField(Translator.translate("Simulation.SkipBefore"));
 	private final TextField platforms = new TextField(Translator.translate("Simulation.Platforms"));
 	private final Paragraph status = new Paragraph();
