@@ -20,6 +20,10 @@ public final class AthleteAudit {
 	}
 
 	public static void write(Athlete athlete, List<Change> changes) {
+		writeWithClock(athlete, changes, null);
+	}
+
+	public static void writeWithClock(Athlete athlete, List<Change> changes, Integer clockMillis) {
 		if (changes.isEmpty() || AuditContext.isSuppressed()) {
 			return;
 		}
@@ -30,10 +34,14 @@ public final class AthleteAudit {
 		if (actor == null) {
 			return;
 		}
-		write(athlete, changes, new AuditOrigin(actor, AuditContext.cause()));
+		write(athlete, changes, new AuditOrigin(actor, AuditContext.cause()), clockMillis);
 	}
 
 	public static void write(Athlete athlete, List<Change> changes, AuditOrigin origin) {
+		write(athlete, changes, origin, null);
+	}
+
+	private static void write(Athlete athlete, List<Change> changes, AuditOrigin origin, Integer clockMillis) {
 		if (changes.isEmpty() || AuditContext.isSuppressed()) {
 			return;
 		}
@@ -42,17 +50,32 @@ public final class AthleteAudit {
 				? athlete.getGroup().getPlatform().getName() : "competition";
 		List<AuditEntry> entries = new ArrayList<>();
 		for (Change change : changes) {
-			entries.add(AuditEntry.builder(platform, "athlete.change")
+			entries.add(AuditEntry.builder(platform, action(change))
 					.actor(actor)
 					.athlete(athlete)
 					.attempt(change.attempt())
 					.field(change.field())
 					.oldValue(change.oldValue())
-					.newValue(annotate(athlete, change))
+					.newValue(change.newValue())
+					.priorRequested(change.priorRequested())
+					.previousAttemptRequested(previousAttemptRequested(athlete, change))
 					.cause(origin.cause())
+					.details(clockMillis != null && change.attempt() != null
+							? AuditFormat.fields("clockMillis", clockMillis) : null)
 					.build());
 		}
 		AuditLog.writeBatch(entries, sealsSave(actor));
+	}
+
+	/** A lift result and the automatic progression it causes get their own actions, so they stand out in the log. */
+	static String action(Change change) {
+		if (change.field().endsWith(".actualLift")) {
+			return "athlete.lift";
+		}
+		if (change.field().endsWith(".automatic")) {
+			return "athlete.progression";
+		}
+		return "athlete.change";
 	}
 
 	static boolean sealsSave(AuditActor actor) {
@@ -64,39 +87,22 @@ public final class AthleteAudit {
 	 * with their difference from the weight requested before them: (+X), (-X) or (SAME).
 	 */
 	static Object annotate(Athlete athlete, Change change) {
-		Object value = change.newValue();
+		return change.attempt() == null ? change.newValue()
+				: AuditFormat.annotate(change.field(), change.newValue(), change.priorRequested(),
+						previousAttemptRequested(athlete, change));
+	}
+
+	private static Integer previousAttemptRequested(Athlete athlete, Change change) {
 		String attempt = change.attempt();
-		if (value == null || attempt == null) {
-			return value;
-		}
-		if (!change.field().endsWith(".automatic")) {
-			Integer requested = AthleteDiff.weight(value);
-			Integer prior = change.priorRequested();
-			if (requested == null || prior == null) {
-				return value;
-			}
-			int delta = requested - prior;
-			return value + (delta == 0 ? " (SAME)" : String.format(" (%+d)", delta));
+		if (attempt == null || !change.field().endsWith(".automatic")) {
+			return null;
 		}
 		int n = attempt.charAt(2) - '0';
 		if (n <= 1) {
-			return value;
+			return null;
 		}
 		int index = (attempt.startsWith("CJ") ? 3 : 0) + n;
-		Integer previous = athlete.getRequestedWeightForAttempt(index - 1);
-		int automatic;
-		try {
-			automatic = Integer.parseInt(value.toString().trim());
-		} catch (NumberFormatException e) {
-			return value;
-		}
-		if (previous == null || previous <= 0) {
-			return value;
-		}
-		if (automatic == previous + 1) {
-			return value + " (+1)";
-		}
-		return automatic == previous ? value + " (SAME)" : value;
+		return athlete.getRequestedWeightForAttempt(index - 1);
 	}
 
 	public static void deleted(Athlete athlete) {

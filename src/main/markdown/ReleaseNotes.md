@@ -17,6 +17,16 @@
   - An open full registration or weigh-in form for that session is closed when the session is selected. In limited mode, name, team and records remain editable.
   - The registration page then offers a Card tab, and the results and Competition Supervisor pages open on the Card (in User Accounts mode, only for accounts allowed to edit athlete cards). Card changes go through the platform. As on the Marshal and Announcer cards, the form closes when the athlete gets the down signal or a decision, unsaved changes are abandoned, and a notification now says so on all three. The weigh-in page has no Card tab.
 
+- 69.0.0-rc04: Simulation preserves entered body weights and starting weights. Missing starting weights are derived from the entry total when available.
+
+- 69.0.0-rc04: Audit log improvements
+  - seal cleanly and reliably on shutdown after MQTT and server services stop; shutdown failures are logged without preventing audit finalization.
+  - show the difference from the previous requested weight for athlete declarations and changes.
+  - clock events and weight changes show the scoreboard time and the exact milliseconds.
+  - the `_plain_` files are for people. Each `_sealed_` line starts with the same readable text and ends with `json=` and a self-contained JSON object meant for programs: sequence, time, station and user, athlete, attempt, raw values before and after, previous requested weight, clock in milliseconds, and the other details.
+
+- 69.0.0-rc04: Record audit details list the lift and age group first.
+
 - 69.0.0-rc04: In mixed-gender sessions, the moving down checks were not enabled because first man could be lower than last woman. Now fixed (going from women to men resets the values as if it was a new session)
 
 - 69.0.0-rc03: Competition Results: Fix the "Include Unfinished Categories" filter to work correctly with 0-999kg medaling by score categories

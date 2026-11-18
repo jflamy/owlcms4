@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.audit.AuditOrigin;
+import app.owlcms.audit.FopAudit;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -406,7 +407,7 @@ public class ProtocolScenario implements BreakController {
 					return;
 				}
 			}
-			AthleteRepository.saveNoMetadata(a);
+			AthleteRepository.saveNoMetadata(a, FopAudit.clockMillis(this.fop));
 			post(new FOPEvent.WeightChange(this, a, false));
 		}
 		this.pacer.pause(this.settleMillis);
@@ -428,7 +429,7 @@ public class ProtocolScenario implements BreakController {
 				}
 			}
 			other.withdraw();
-			AthleteRepository.saveNoMetadata(other);
+			AthleteRepository.saveNoMetadata(other, FopAudit.clockMillis(this.fop));
 			post(new FOPEvent.WeightChange(this, other, true));
 		}
 		this.pacer.pause(this.settleMillis);

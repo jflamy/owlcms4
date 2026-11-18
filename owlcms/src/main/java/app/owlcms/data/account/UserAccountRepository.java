@@ -403,7 +403,7 @@ public final class UserAccountRepository {
 
 	private static void audit(AuditOrigin origin, List<Change> changes) {
 		for (Change change : changes) {
-			String detail = UserAccount.auditDetail(change.before(), change.after());
+			Map<String, Object> detail = UserAccount.auditDetail(change.before(), change.after());
 			if (detail != null) {
 				String action = change.before() == null ? "added" : change.after() == null ? "deleted" : "updated";
 				AuthAudit.accountChanged(origin, action, detail);

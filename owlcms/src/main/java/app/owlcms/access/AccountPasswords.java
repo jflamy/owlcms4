@@ -2,6 +2,7 @@ package app.owlcms.access;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
@@ -155,8 +156,8 @@ public final class AccountPasswords {
 	 */
 	public static synchronized int clearPasswords(boolean generic, Long actingAccountId, String actingUser,
 	        AuditOrigin origin) {
-		List<String> details = JPAService.runInTransaction(em -> {
-			List<String> result = new ArrayList<>();
+		List<Map<String, Object>> details = JPAService.runInTransaction(em -> {
+			List<Map<String, Object>> result = new ArrayList<>();
 			List<UserAccount> accounts = em.createQuery("select a from UserAccount a", UserAccount.class)
 			        .getResultList();
 			for (UserAccount account : accounts) {
@@ -175,7 +176,7 @@ public final class AccountPasswords {
 		});
 		int cleared = details.size();
 		UserAccountRepository.invalidate();
-		for (String detail : details) {
+		for (Map<String, Object> detail : details) {
 			AuthAudit.accountChanged(origin, "updated", detail);
 		}
 		String group = generic ? "generic" : "users";

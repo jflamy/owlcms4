@@ -20,7 +20,6 @@ public final class AuditLog {
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(AuditLog.class);
 	private static final String RUN_ID = UUID.randomUUID().toString();
 	private static volatile SealedAuditBackend sealed;
-	private static UnsealedAuditFiles unsealed;
 
 	private AuditLog() {
 	}
@@ -28,7 +27,8 @@ public final class AuditLog {
 	public static void bulk(String platform, String action, int count) {
 		AuditActor actor = AuditContext.actor() != null ? AuditContext.actor() : AuditActor.fromCurrentUi();
 		if (actor != null) {
-			write(AuditEntry.builder(platform, "bulk." + action).actor(actor).detail(AuditFormat.kv("count", count)).build());
+			write(AuditEntry.builder(platform, "bulk." + action).actor(actor)
+					.details(AuditFormat.fields("count", count)).build());
 		}
 	}
 
@@ -43,33 +43,26 @@ public final class AuditLog {
 		if (entries.isEmpty()) {
 			return;
 		}
-		SealedAuditBackend backend = sealed;
-		if (backend != null) {
-			String platform = entries.getFirst().platform();
-			if (entries.stream().anyMatch(entry -> !Objects.equals(platform, entry.platform()))) {
-				throw new IllegalArgumentException("An audit batch must belong to one platform stream");
-			}
-			OffsetDateTime now = OffsetDateTime.now();
-			List<AuditRecordSnapshot> captured = entries.stream()
-					.map(entry -> AuditRecordSnapshot.capture(entry, now)).toList();
-			try {
-				backend.write(platform, captured, closeBlock, UI.getCurrent() == null);
-			} catch (IOException e) {
-				logger.error("Unable to persist sealed audit records platform={}", platform, e);
-				throw new IllegalStateException("Audit persistence failed", e);
-			}
-			return;
+		SealedAuditBackend backend = backend();
+		String platform = entries.getFirst().platform();
+		if (entries.stream().anyMatch(entry -> !Objects.equals(platform, entry.platform()))) {
+			throw new IllegalArgumentException("An audit batch must belong to one platform stream");
 		}
-		for (AuditEntry entry : entries) {
-			writePlain(entry);
+		OffsetDateTime now = OffsetDateTime.now();
+		List<AuditRecordSnapshot> captured = entries.stream()
+				.map(entry -> AuditRecordSnapshot.capture(entry, now)).toList();
+		try {
+			backend.write(platform, captured, closeBlock, UI.getCurrent() == null);
+		} catch (IOException e) {
+			logger.error("Unable to persist sealed audit records platform={}", platform, e);
+			throw new IllegalStateException("Audit persistence failed", e);
 		}
 	}
 
 	public static void closeBlock(String platform) {
-		SealedAuditBackend backend = sealed;
-		if (backend != null && !AuditContext.isSuppressed()) {
+		if (!AuditContext.isSuppressed()) {
 			try {
-				backend.closeBlock(platform, UI.getCurrent() == null);
+				backend().closeBlock(platform, UI.getCurrent() == null);
 			} catch (IOException e) {
 				logger.error("Unable to seal audit block platform={}", platform, e);
 				throw new IllegalStateException("Audit sealing failed", e);
@@ -87,17 +80,49 @@ public final class AuditLog {
 				version == null || version.isBlank() ? "unknown" : version,
 				(stream, line) -> {
 				}, true);
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			try {
-				ApplicationAudit.stopping("audit shutdown");
-			} finally {
-				try {
-					sealed.close();
-				} catch (IOException e) {
-					logger.error("Audit shutdown could not finalize all streams", e);
-				}
+	}
+
+	/**
+	 * Seals and finalizes every stream. It is the last step of the application shutdown, after the inputs have closed;
+	 * it is safe to call more than once.
+	 *
+	 * @throws IOException if a stream could not be finalized, or the stop could not be recorded; the records after the
+	 *                     last seal are then not validated
+	 */
+	public static void finish() throws IOException {
+		SealedAuditBackend backend = sealed;
+		if (backend == null) {
+			return;
+		}
+		RuntimeException notRecorded = null;
+		try {
+			ApplicationAudit.stopping("audit shutdown");
+		} catch (RuntimeException e) {
+			notRecorded = e;
+		}
+		try {
+			backend.close();
+		} catch (IOException e) {
+			if (notRecorded != null) {
+				e.addSuppressed(notRecorded);
 			}
-		}, "AuditShutdown"));
+			throw e;
+		}
+		if (notRecorded != null) {
+			throw new IOException("The stop could not be recorded in the audit log", notRecorded);
+		}
+	}
+
+	/**
+	 * Sealing is started first thing at startup ({@link AuditIntegrity#start()}), before anything can be audited: an
+	 * audit record without it is a programming error, never written unsealed.
+	 */
+	private static SealedAuditBackend backend() {
+		SealedAuditBackend backend = sealed;
+		if (backend == null) {
+			throw new IllegalStateException("Audit sealing has not been started");
+		}
+		return backend;
 	}
 
 	public static boolean integrityHealthy() {
@@ -112,43 +137,20 @@ public final class AuditLog {
 
 	/**
 	 * Forces every sealed stream into a new file so that all previous files are finalized. Returns the files
-	 * now being written; empty when sealing is off, since plain logs have nothing to finalize.
+	 * now being written.
 	 */
 	public static synchronized Set<Path> rollover() throws IOException {
-		SealedAuditBackend backend = sealed;
 		// captured under the writeBatch lock so the new headers are ordered with record timestamps
-		return backend == null ? Set.of() : backend.rollover(OffsetDateTime.now());
+		return backend().rollover(OffsetDateTime.now());
 	}
 
-	/** The audit files this process is currently writing, sealed or not; empty when none can be determined. */
+	/** The audit files this process is currently writing; empty when they cannot be determined. */
 	public static synchronized Set<Path> openFiles() {
-		SealedAuditBackend backend = sealed;
-		if (backend != null) {
-			try {
-				return backend.openFiles();
-			} catch (IOException e) {
-				logger.warn("Unable to list the open sealed audit files: {}", e.getMessage());
-				return Set.of();
-			}
-		}
-		return unsealed == null ? Set.of() : unsealed.openFiles();
-	}
-
-	private static void writePlain(AuditEntry entry) {
 		try {
-			unsealed().write(entry, OffsetDateTime.now());
-		} catch (IOException | RuntimeException e) {
-			logger./**/error("Unable to write audit entry action={} platform={}", entry.action(), entry.platform(), e);
+			return backend().openFiles();
+		} catch (IOException e) {
+			logger.warn("Unable to list the open sealed audit files: {}", e.getMessage());
+			return Set.of();
 		}
-	}
-
-	private static UnsealedAuditFiles unsealed() {
-		if (unsealed == null) {
-			String version = StartupUtils.getVersion();
-			unsealed = new UnsealedAuditFiles(DIRECTORY, AuditSealLimits.DEFAULT.fileBytes(),
-					AuditFormat.kvs("version", version == null || version.isBlank() ? "unknown" : version,
-							"runId", RUN_ID));
-		}
-		return unsealed;
 	}
 }

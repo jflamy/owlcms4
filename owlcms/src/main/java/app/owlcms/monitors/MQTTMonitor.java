@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,6 +28,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -433,7 +435,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			// the box has no screen, so there is no confirmation and no technical rule
 			if (messageStr.contentEquals("good") || messageStr.contentEquals("bad")) {
 				postDeviceEvent(new FOPEvent.JuryDecision(this.athleteUnderReview, this, messageStr.contentEquals("good"),
-				        true, null, true), "JURY_CONSOLE", null, "jurybox");
+				        true, null, true), "JURY_BOX", null, "jurybox");
 			} else {
 				logger.error("{}Malformed MQTT jury decision message topic='{}' message='{}'",
 						FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);
@@ -487,9 +489,9 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 				if (MQTTMonitor.this.getFop() != null) {
 					if (MQTTMonitor.this.getFop().getState() != FOPState.BREAK && refIndex != 4) {
 						postDeviceEvent(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0,
-								null, true, this), "JURY_CONSOLE", null, "jurybox");
+								null, true, this), "JURY_BOX", null, "jurybox");
 					}
-					postDeviceEvent(new FOPEvent.SummonReferee(this, refIndex), "JURY_CONSOLE", null, "jurybox");
+					postDeviceEvent(new FOPEvent.SummonReferee(this, refIndex), "JURY_BOX", null, "jurybox");
 				}
 			} catch (NumberFormatException e) {
 				logger.error("{}Malformed MQTT referee summon message topic='{}' message='{}'",
@@ -502,15 +504,15 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			messageStr = messageStr.trim();
 			if (messageStr.equalsIgnoreCase("technical")) {
 				postDeviceEvent(new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null,
-						true, this), "JURY_CONSOLE", null, "jurybox");
+						true, this), "JURY_BOX", null, "jurybox");
 			} else if (messageStr.equalsIgnoreCase("deliberation")) {
 				postDeviceEvent(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true,
-						this), "JURY_CONSOLE", null, "jurybox");
+						this), "JURY_BOX", null, "jurybox");
 			} else if (messageStr.equalsIgnoreCase("challenge")) {
 				postDeviceEvent(new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null,
-						true, this), "JURY_CONSOLE", null, "jurybox");
+						true, this), "JURY_BOX", null, "jurybox");
 			} else if (messageStr.equalsIgnoreCase("stop")) {
-				postDeviceEvent(new FOPEvent.JuryResume(this), "JURY_CONSOLE", null, "jurybox");
+				postDeviceEvent(new FOPEvent.JuryResume(this), "JURY_BOX", null, "jurybox");
 			} else {
 				logger.error("{}Malformed MQTT jury break message topic='{}' message='{}'",
 						FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);
@@ -555,7 +557,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			String device = parts.length > 1 && "owlcms".equals(parts[0]) ? parts[1] : "mqtt";
 			SettingsAudit.event(fop != null ? fop.getName() : "competition", "mqtt.rejected",
 					AuditActor.device("MQTT", null, device), null, null, null, null,
-					AuditFormat.kvs("reason", reason, "topic", topic, "payload",
+					AuditFormat.fields("reason", reason, "topic", topic, "payload",
 							messageStr != null ? messageStr.trim() : null));
 		}
 
@@ -653,6 +655,44 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 				if (monitor != null) {
 					monitor.disableReconnect();
 				}
+			}
+		}
+	}
+
+	/**
+	 * Disconnects, without reconnecting, the connections that owlcms itself holds to the MQTT broker (the embedded one
+	 * or an external one), so that the broker and the devices see an orderly disconnect rather than a dead connection.
+	 * The disconnections are requested for all connections first, then awaited together, so that the total wait is
+	 * bounded by timeoutMillis.
+	 */
+	public static void disconnectForAll(long timeoutMillis) {
+		List<MqttAsyncClient> clients = new ArrayList<>();
+		synchronized (mqttMonitorByName) {
+			for (MQTTMonitor monitor : mqttMonitorByName.values()) {
+				if (monitor != null) {
+					monitor.disableReconnect();
+					clients.add(monitor.client);
+					clients.add(monitor.simulatorClient);
+				}
+			}
+		}
+		Map<MqttAsyncClient, IMqttToken> pending = new LinkedHashMap<>();
+		for (MqttAsyncClient c : clients) {
+			if (c != null && c.isConnected()) {
+				try {
+					pending.put(c, c.disconnect());
+				} catch (MqttException e) {
+					logger.debug("MQTT disconnect not requested for {}: {}", c.getClientId(), e.getMessage());
+				}
+			}
+		}
+		long deadline = System.currentTimeMillis() + timeoutMillis;
+		for (Entry<MqttAsyncClient, IMqttToken> e : pending.entrySet()) {
+			try {
+				e.getValue().waitForCompletion(Math.max(1, deadline - System.currentTimeMillis()));
+				logger.info("MQTT client {} disconnected", e.getKey().getClientId());
+			} catch (MqttException ex) {
+				logger.info("MQTT client {} did not disconnect in time: {}", e.getKey().getClientId(), ex.getMessage());
 			}
 		}
 	}

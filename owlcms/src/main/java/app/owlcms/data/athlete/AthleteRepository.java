@@ -517,7 +517,7 @@ public class AthleteRepository {
 		if (athlete == null) {
 			return athlete;
 		}
-		return save(athlete, false);
+		return save(athlete, false, null);
 	}
 
 	/** New registration athlete: a plain merge as before, with the metadata timestamp initialized. */
@@ -531,7 +531,12 @@ public class AthleteRepository {
 	 * Live callers hold their platform's FOP monitor from conflict checking through commit.
 	 */
 	public static Athlete saveNoMetadata(Athlete athleteToSave) {
-		return save(Objects.requireNonNull(athleteToSave), true);
+		return saveNoMetadata(athleteToSave, null);
+	}
+
+	/** The clock value is captured under the platform monitor immediately before the save. */
+	public static Athlete saveNoMetadata(Athlete athleteToSave, Integer clockMillis) {
+		return save(Objects.requireNonNull(athleteToSave), true, clockMillis);
 	}
 
 	/** Also used by bulk no-metadata merges inside their existing transaction. */
@@ -540,7 +545,7 @@ public class AthleteRepository {
 		athleteToSave.setMetadataUpdatedAt(storedAthlete.getMetadataUpdatedAt());
 	}
 
-	private static Athlete save(Athlete athleteToSave, boolean noMetadata) {
+	private static Athlete save(Athlete athleteToSave, boolean noMetadata, Integer clockMillis) {
 		Objects.requireNonNull(athleteToSave.getId(), "Athlete id");
 		SaveResult result = JpaTransactions.inTransaction(em -> {
 			Athlete storedAthlete = noMetadata ? requireStored(athleteToSave.getId(), em)
@@ -559,7 +564,7 @@ public class AthleteRepository {
 			Athlete merged = em.merge(athleteToSave);
 			return finishSave(em, merged, beforeSnapshot, before);
 		});
-		AthleteAudit.write(result.athlete(), result.changes());
+		AthleteAudit.writeWithClock(result.athlete(), result.changes(), clockMillis);
 		return result.athlete();
 	}
 

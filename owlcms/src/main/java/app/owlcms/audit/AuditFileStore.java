@@ -31,8 +31,13 @@ import java.util.function.LongSupplier;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
+
 /** File lifecycle is confined to the audit I/O worker; signing publishes through each stream's output lock. */
 public final class AuditFileStore implements AutoCloseable {
+	private static final Logger logger = (Logger) LoggerFactory.getLogger(AuditFileStore.class);
 	static final DateTimeFormatter NAME_TIME =
 			DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH-mm-ss.SSS'Z'").withZone(ZoneOffset.UTC);
 	static final String SEALED_INFIX = "_sealed_";
@@ -91,11 +96,11 @@ public final class AuditFileStore implements AutoCloseable {
 		for (AuditRecordSnapshot record : records) {
 			state = rollIfNeeded(stream, state, record.timestamp());
 			long sequence = state.segment.nextSequence();
-			state.segment.append(record.full(sequence));
+			AuditRecordSnapshot.Line line = record.line(sequence);
+			state.segment.append(line.fullBytes());
 			state.segment.awaitSeals();
-			String plainLine = record.readable(sequence);
-			state.plain.append(plainLine);
-			this.readable.accept(stream, plainLine);
+			state.plain.append(line.readable());
+			this.readable.accept(stream, line.readable());
 			this.lastTimestamps.put(stream, record.timestamp());
 			state = rollIfNeeded(stream, state, record.timestamp());
 		}
@@ -169,15 +174,7 @@ public final class AuditFileStore implements AutoCloseable {
 					failure.addSuppressed(failed);
 				}
 			}
-			try {
-				state.plain.close();
-			} catch (IOException e) {
-				if (failure == null) {
-					failure = e;
-				} else {
-					failure.addSuppressed(e);
-				}
-			}
+			state.plain.close();
 		}
 		try {
 			this.signing.close();
@@ -256,17 +253,18 @@ public final class AuditFileStore implements AutoCloseable {
 		ChannelOutput output = new ChannelOutput(channel, 0);
 		try {
 			long start = output.bytes;
-			String detail = AuditFormat.kvs("version", this.version, "runId", this.runId,
+			Map<String, Object> detail = AuditFormat.fields("version", this.version, "runId", this.runId,
 					"publicKey", this.key.publicKeyBase64(), "keyFingerprint", this.key.fingerprint(),
 					"keySource", this.key.isBuiltin() ? "builtin" : "configured");
 			if (previousFile != null) {
-				detail += "," + AuditFormat.kvs("previousFile", previousFile, "previousBlockSha256", previousHash);
+				detail.put("previousFile", previousFile);
+				detail.put("previousBlockSha256", previousHash);
 			}
 			AuditRecordSnapshot header = AuditRecordSnapshot.capture(AuditEntry.builder(stream, "audit.open")
-					.actor(AuditActor.system()).detail(detail).build(), openedAt);
+					.actor(AuditActor.system()).details(detail).build(), openedAt);
 			SealedAuditStream segment = new SealedAuditStream(output, this.key, this.signing, this.limits,
 					this.clock, this.nanos, stream, this.runId, path.getFileName().toString(), this.version,
-					header.full(1), previousFile, previousHash);
+					header.line(1).fullBytes(), previousFile, previousHash);
 			this.lastTimestamps.put(stream, openedAt);
 			return new FileState(path, start, output, segment, new PlainFile(plainPath(prefix, path)));
 		} catch (IOException | RuntimeException e) {
@@ -377,28 +375,40 @@ public final class AuditFileStore implements AutoCloseable {
 	static final class PlainFile {
 		private final Path path;
 		private FileChannel channel;
+		private boolean failed;
 
 		PlainFile(Path path) {
 			this.path = path;
 		}
 
-		void append(String line) throws IOException {
-			if (this.channel == null) {
-				boolean needsNewline = false;
-				if (Files.exists(this.path) && Files.size(this.path) > 0) {
-					try (FileChannel read = FileChannel.open(this.path, StandardOpenOption.READ)) {
-						ByteBuffer last = ByteBuffer.allocate(1);
-						read.read(last, read.size() - 1);
-						needsNewline = last.array()[0] != '\n';
+		/**
+		 * The plain file is a readable copy cut from the sealed lines, not evidence: an I/O error on it is logged once and
+		 * stops this copy until the next file; it never fails the sealed write.
+		 */
+		void append(String line) {
+			if (this.failed) {
+				return;
+			}
+			try {
+				if (this.channel == null) {
+					boolean needsNewline = false;
+					if (Files.exists(this.path) && Files.size(this.path) > 0) {
+						try (FileChannel read = FileChannel.open(this.path, StandardOpenOption.READ)) {
+							ByteBuffer last = ByteBuffer.allocate(1);
+							read.read(last, read.size() - 1);
+							needsNewline = last.array()[0] != '\n';
+						}
+					}
+					this.channel = FileChannel.open(this.path, StandardOpenOption.CREATE, StandardOpenOption.WRITE,
+							StandardOpenOption.APPEND);
+					if (needsNewline) {
+						write(new byte[] { '\n' });
 					}
 				}
-				this.channel = FileChannel.open(this.path, StandardOpenOption.CREATE, StandardOpenOption.WRITE,
-						StandardOpenOption.APPEND);
-				if (needsNewline) {
-					write(new byte[] { '\n' });
-				}
+				write((line + "\n").getBytes(StandardCharsets.UTF_8));
+			} catch (IOException e) {
+				failed(e);
 			}
-			write((line + "\n").getBytes(StandardCharsets.UTF_8));
 		}
 
 		private void write(byte[] data) throws IOException {
@@ -408,14 +418,28 @@ public final class AuditFileStore implements AutoCloseable {
 			}
 		}
 
-		void close() throws IOException {
+		void close() {
 			if (this.channel != null) {
 				try {
 					this.channel.force(false);
+				} catch (IOException e) {
+					failed(e);
 				} finally {
-					this.channel.close();
+					try {
+						this.channel.close();
+					} catch (IOException e) {
+						failed(e);
+					}
 					this.channel = null;
 				}
+			}
+		}
+
+		private void failed(IOException e) {
+			if (!this.failed) {
+				this.failed = true;
+				logger.error("Plain audit file {} is incomplete; its sealed file is not affected, and the plain lines "
+						+ "can be cut from it", this.path, e);
 			}
 		}
 	}

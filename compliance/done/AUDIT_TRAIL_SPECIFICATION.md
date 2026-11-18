@@ -5,7 +5,7 @@
 OWL CMS maintains a human-readable audit trail of competition operations.
 
 - One audit stream exists for each platform, plus a `competition` stream for actions not tied to a platform.
-- One changed value produces one `athlete.change` record. Several fields saved together produce consecutive records, not one combined record.
+- One changed value produces one `athlete.change` record (`athlete.lift` for a lift result, `athlete.progression` for an automatic progression). Several fields saved together produce consecutive records, not one combined record.
 - Accepted and refused field-of-play actions are recorded with stable action names.
 - Each record identifies the actor, station, affected athlete and attempt where applicable.
 - Imports and other bulk operations do not emit thousands of individual changes; they are suppressed or summarized.
@@ -41,7 +41,7 @@ The following records go to `competition`:
 
 Filesystem stream names are sanitized to `[A-Za-z0-9_-]`, replacing other characters with `_`. The original platform name remains in the full audit record.
 
-Each stream is written to timestamped files: `<stream>_plain_<time>.log` for the readable form (§5.1), and `<stream>_sealed_<time>.log` in integrity mode or `<stream>_full_<time>.log` otherwise for the full form (§5.2). Naming and rollover are specified in the integrity specification.
+Each stream is written to timestamped files: `<stream>_plain_<time>.log` for the readable form (§5.1), and `<stream>_sealed_<time>.log` for the full form (§5.2), always sealed. Naming and rollover are specified in the integrity specification.
 
 ## 3. Actor and Station
 
@@ -75,8 +75,9 @@ Each record has an `AuditActor`:
 | Marshal page | `MARSHAL` |
 | Timekeeper or Wodkeeper page | `TIMEKEEPER` |
 | Technical-controller page | `TC` |
-| Jury console | `JURY_CONSOLE` |
-| Jury keypad/mobile | `JURY_MEMBER` |
+| Jury Control page | `JURY_CONTROL` |
+| Jury box (the device with buttons) | `JURY_BOX` |
+| Jury mobile page | `JURY_MEMBER` |
 | Referee page/device | `REFEREE` |
 | Weigh-in page | `WEIGHIN` |
 | Registration, coach or team-selection page | `REGISTRATION` |
@@ -98,18 +99,23 @@ Dialogs and form factories that retain an origin page are repeatedly unwrapped, 
 |---|---|
 | `clock.start`, `clock.stop`, `clock.set`, `clock.timeover` | Competition-clock operations. |
 | `break.start`, `break.pause`, `break.end` | Break operations. |
-| `lifting.start` | Lifting begins. |
-| `session.load` | A session is loaded on a platform. |
+| `lifting.start` | Lifting begins, or resumes after a break. |
+| `session.load` | A session is loaded on a platform, by a field-of-play event or by a page opened with the session in its URL (cause `URL`). |
 | `ceremony.start`, `ceremony.end` | Ceremony operations. |
 | `referee.vote`, `referee.decision`, `referee.down` | Referee input and final panel decision. |
-| `jury.vote`, `jury.decision`, `jury.summon` | Jury input and actions. |
+| `jury.vote`, `jury.decision`, `jury.summon`, `jury.resume` | Jury input and actions. `jury.decision` keeps the station that entered it (`JURY_CONTROL`, `JURY_BOX`, `ANNOUNCER`). |
+| `jury.result` | Result of a review vote, with `vote` counting the votes taken on the lift. |
 | `tc.equipment` | Barbell or plate/equipment change. |
 
 Only events accepted after duplicate detection are normally recorded. A refused auditable event is recorded with `.refused` appended to its action and includes the field-of-play state at refusal. Internal reset or propagation events with no audit action are omitted.
 
+### 4.1.1 Session
+
+Every record tied to a session carries it explicitly in `session`; it is never left to be inferred from the order of the records. The session is the athlete's session; a record without an athlete takes the session loaded on the platform, and `session.load` the session it loads. Records not tied to a session (logins, exports, application events) have a null session. The field was added in schema version 2, together with the session column of the readable form.
+
 ### 4.2 Athlete changes
 
-`AthleteRepository.save` compares the persisted athlete with the saved athlete and writes one `athlete.change` record per changed audited field.
+`AthleteRepository.save` compares the persisted athlete with the saved athlete and writes one record per changed audited field. A lift result (`actualLift`) is recorded as `athlete.lift`, the automatic progression to the next attempt as `athlete.progression`, and every other field as `athlete.change`.
 
 Audited fields include:
 
@@ -168,30 +174,24 @@ Settings changes use stable action and field names and record old and new values
 ### 5.1 Readable form
 
 ```text
-sequence | time | station | action | athlete | attempt | change and detail
+sequence | time | station | action | athlete | session | attempt | change and detail
 ```
 
 Example:
 
 ```text
-  412 | 14:03:12.345 | MARSHAL      | athlete.change     | DOE, John | SN2 | change1 - -> 87
+  412 | 14:03:12.345 | MARSHAL      | athlete.change      | DOE, John                                | M1       | SN2 | change1 - -> 87
 ```
 
-The plain file is event-oriented: it omits the `audit.open` record that starts each full or sealed file.
+The session column was added in schema version 2; version 1 records have no session column. The plain file is event-oriented: it omits the `audit.open` record that starts each full or sealed file.
 
 ### 5.2 Full form
 
-The full record starts with the exact readable record and appends:
+The full record starts with the exact readable record and appends ` | json=` followed by one self-contained JSON object: `schemaVersion`, `sequence`, `timestamp` (ISO 8601 with offset), `platform`, `actor` (`mode`, `user`, `station`, `index`, `inferred`, `client`, `device`), `action`, `athlete` (`id`, `name`), `session`, `attempt`, `change` (`field`, `before`, `after`, `priorRequested`, `previousAttemptRequested`), `cause` and `details`.
 
-```text
-cause=<text|-> | athleteId=<id|-> | platform=<name|-> |
-timestamp=<ISO-8601 with offset> | mode=<mode> | user=<name|-> |
-client=<ip#hash|-> | device=<kind|->
-```
+Readable values escape backslash, `|`, carriage return and newline. Structured details use comma-separated `key=value` pairs and quote values containing whitespace, commas, `=` or quotes.
 
-Values escape backslash, `|`, carriage return and newline. Structured details use comma-separated `key=value` pairs and quote values containing whitespace, commas, `=` or quotes.
-
-Sequence numbers reset as specified by the integrity specification. Full records are authoritative; readable records can be regenerated from their leading fields.
+Sequence numbers reset as specified by the integrity specification. Full records are authoritative; readable records can be regenerated from the JSON, according to its schema version.
 
 ## 6. Suppression and Simulation
 

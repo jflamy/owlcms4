@@ -419,9 +419,15 @@ public final class AuditIntegrityChecker {
 		}
 	}
 
+	/**
+	 * The readable detail column: the last column before the JSON. Taken from the end so that it is found whatever the
+	 * schema version (version 2 added the session column); escaped separators inside values never match " | ".
+	 */
 	private static String detail(String line) {
-		String[] fields = line.split(" \\| ", 8);
-		return fields.length > 6 ? fields[6] : "";
+		int json = line.indexOf(" | json=");
+		String readable = json >= 0 ? line.substring(0, json) : line;
+		int last = readable.lastIndexOf(" | ");
+		return last >= 0 ? readable.substring(last + 3) : "";
 	}
 
 	private static List<RecordRange> ranges(List<Long> values) {

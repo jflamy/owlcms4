@@ -3,8 +3,10 @@ package app.owlcms.data.account;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -18,7 +20,6 @@ import javax.persistence.Id;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import app.owlcms.audit.AuditFormat;
 import app.owlcms.utils.IdUtils;
 
 // must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
@@ -89,7 +90,7 @@ public class UserAccount implements Serializable {
 	 * @param after  the account after the change, null when it was deleted
 	 * @return the detail, or null when nothing changed
 	 */
-	public static String auditDetail(UserAccount before, UserAccount after) {
+	public static Map<String, Object> auditDetail(UserAccount before, UserAccount after) {
 		UserAccount current = after != null ? after : before;
 		List<String> changes = new ArrayList<>();
 		if (before != null && after != null) {
@@ -134,27 +135,27 @@ public class UserAccount implements Serializable {
 		if (!tokensRevoked.isEmpty()) {
 			changes.add("token-revoked");
 		}
-		List<String> detail = new ArrayList<>();
-		detail.add(AuditFormat.kv("account", current.getUsername()));
+		Map<String, Object> detail = new LinkedHashMap<>();
+		detail.put("account", current.getUsername());
 		if (before != null && after != null && changes.contains("username")) {
-			detail.add(AuditFormat.kv("previous", before.getUsername()));
+			detail.put("previous", before.getUsername());
 		}
 		if (!changes.isEmpty()) {
-			detail.add(AuditFormat.kv("changes", String.join(",", changes)));
+			detail.put("changes", changes);
 		}
 		if (!granted.isEmpty()) {
-			detail.add(AuditFormat.kv("granted", String.join(",", granted)));
+			detail.put("granted", granted);
 		}
 		if (!revoked.isEmpty()) {
-			detail.add(AuditFormat.kv("revoked", String.join(",", revoked)));
+			detail.put("revoked", revoked);
 		}
 		if (!tokensAdded.isEmpty()) {
-			detail.add(AuditFormat.kv("tokenIdAdded", String.join(",", tokensAdded)));
+			detail.put("tokenIdAdded", tokensAdded);
 		}
 		if (!tokensRevoked.isEmpty()) {
-			detail.add(AuditFormat.kv("tokenIdRevoked", String.join(",", tokensRevoked)));
+			detail.put("tokenIdRevoked", tokensRevoked);
 		}
-		return String.join(",", detail);
+		return detail;
 	}
 
 	/** @return identifiers of the tokens of {@code from} that {@code minus} does not have; never token values */

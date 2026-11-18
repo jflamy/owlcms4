@@ -1,5 +1,7 @@
 package app.owlcms.audit;
 
+import java.util.Map;
+
 import app.owlcms.utils.LoggerUtils;
 
 /**
@@ -25,12 +27,12 @@ public final class ExportAudit {
 	public static void success(AuditActor actor, int format, String channel, long bytes, String sha256,
 			String signatureFingerprint) {
 		AuditLog.write(AuditEntry.builder(COMPETITION, ACTION).actor(effective(actor))
-				.detail(successDetail(format, channel, bytes, sha256, signatureFingerprint)).build());
+				.details(successDetail(format, channel, bytes, sha256, signatureFingerprint)).build());
 	}
 
 	public static void failed(AuditActor actor, int format, String channel, Throwable error) {
 		AuditLog.write(AuditEntry.builder(COMPETITION, ACTION).actor(effective(actor))
-				.detail(failureDetail(format, channel, error)).build());
+				.details(failureDetail(format, channel, error)).build());
 	}
 
 	/** The session that clicked has no EXPORT_DATA permission (RESULTS access). */
@@ -40,18 +42,19 @@ public final class ExportAudit {
 
 	public static void refused(AuditActor actor, int format, String channel, String reason) {
 		AuditLog.write(AuditEntry.builder(COMPETITION, ACTION).actor(effective(actor))
-				.detail(AuditFormat.kvs("format", format, "channel", channel, "outcome", "refused", "reason",
+				.details(AuditFormat.fields("format", format, "channel", channel, "outcome", "refused", "reason",
 						reason))
 				.build());
 	}
 
-	static String successDetail(int format, String channel, long bytes, String sha256, String signatureFingerprint) {
-		return AuditFormat.kvs("format", format, "channel", channel, "bytes", bytes, "sha256", sha256, "signature",
+	static Map<String, Object> successDetail(int format, String channel, long bytes, String sha256,
+			String signatureFingerprint) {
+		return AuditFormat.fields("format", format, "channel", channel, "bytes", bytes, "sha256", sha256, "signature",
 				signatureFingerprint != null ? signatureFingerprint : "none");
 	}
 
-	static String failureDetail(int format, String channel, Throwable error) {
-		return AuditFormat.kvs("format", format, "channel", channel, "outcome", "failed", "reason",
+	static Map<String, Object> failureDetail(int format, String channel, Throwable error) {
+		return AuditFormat.fields("format", format, "channel", channel, "outcome", "failed", "reason",
 				LoggerUtils.exceptionMessage(error));
 	}
 

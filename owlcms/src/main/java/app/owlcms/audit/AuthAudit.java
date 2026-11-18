@@ -2,6 +2,7 @@ package app.owlcms.audit;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Logins, failed logins, logouts, passwords, account changes and access-mode changes: written to the competition
@@ -17,32 +18,32 @@ public final class AuthAudit {
 
 	/** @param platforms real platforms on which authentication granted access */
 	public static void loginSucceeded(String mode, String user, String how, Collection<String> platforms) {
-		String detail = AuditFormat.kv("how", how);
+		Map<String, Object> detail = AuditFormat.fields("how", how);
 		AuditActor actor = AuditActor.login(mode, clean(user));
-		AuditLog.write(AuditEntry.builder(COMPETITION, "auth.login").actor(actor).detail(detail).build());
+		AuditLog.write(AuditEntry.builder(COMPETITION, "auth.login").actor(actor).details(detail).build());
 		for (String platform : platforms) {
 			if (platform != null && !platform.isBlank() && !COMPETITION.equals(platform)) {
-				AuditLog.write(AuditEntry.builder(platform, "auth.login").actor(actor).detail(detail).build());
+				AuditLog.write(AuditEntry.builder(platform, "auth.login").actor(actor).details(detail).build());
 			}
 		}
 	}
 
 	public static void loginFailed(String mode, String attemptedUser, String reason) {
-		write("auth.login-failed", mode, attemptedUser, AuditFormat.kv("reason", reason), null);
+		write("auth.login-failed", mode, attemptedUser, AuditFormat.fields("reason", reason), null);
 	}
 
 	/** @param loginPlatform the platform the session was logged in to, or null */
 	public static void loggedOut(String mode, String user, String reason, String loginPlatform) {
-		write("auth.logout", mode, user, AuditFormat.kv("reason", reason), loginPlatform);
+		write("auth.logout", mode, user, AuditFormat.fields("reason", reason), loginPlatform);
 	}
 
 	/** @param how "self" when users change their own password */
 	public static void passwordChanged(String user, String how) {
-		write("auth.password-changed", "ACCOUNTS", user, AuditFormat.kv("how", how), null);
+		write("auth.password-changed", "ACCOUNTS", user, AuditFormat.fields("how", how), null);
 	}
 
 	public static void passwordsCleared(String byUser, String accounts, int count) {
-		write("auth.passwords-cleared", "ACCOUNTS", byUser, AuditFormat.kvs("accounts", accounts, "count", count),
+		write("auth.passwords-cleared", "ACCOUNTS", byUser, AuditFormat.fields("accounts", accounts, "count", count),
 		        null);
 	}
 
@@ -52,29 +53,29 @@ public final class AuthAudit {
 	 *
 	 * @param action "added", "updated" or "deleted"
 	 */
-	public static void accountChanged(AuditOrigin origin, String action, String detail) {
+	public static void accountChanged(AuditOrigin origin, String action, Map<String, Object> detail) {
 		writeFor(origin, "auth.account-" + action, detail);
 	}
 
 	public static void accessModeChanged(AuditOrigin origin, String from, String to) {
-		writeFor(origin, "auth.access-mode", AuditFormat.kvs("from", from, "to", to));
+		writeFor(origin, "auth.access-mode", AuditFormat.fields("from", from, "to", to));
 	}
 
 	/** The IWF compliance check was turned on or off; it only shows or hides the list of requirements not met. */
 	public static void iwfComplianceCheckChanged(AuditOrigin origin, boolean on) {
-		writeFor(origin, "auth.iwf-compliance", AuditFormat.kvs("check", on ? "on" : "off"));
+		writeFor(origin, "auth.iwf-compliance", AuditFormat.fields("check", on ? "on" : "off"));
 	}
 
 	/** @param notMet the requirements not met at startup, empty when all are */
 	public static void iwfComplianceChecked(AuditOrigin origin, List<String> notMet) {
-		writeFor(origin, "auth.iwf-compliance-check", AuditFormat.kvs("result", notMet.isEmpty() ? "met" : "not-met",
+		writeFor(origin, "auth.iwf-compliance-check", AuditFormat.fields("result", notMet.isEmpty() ? "met" : "not-met",
 		        "missing", notMet.isEmpty() ? "-" : String.join(" ", notMet)));
 	}
 
 	/** A browser was given a "remember this browser" cookie after a correct PIN. */
 	public static void browserRemembered(String clientIp, String kind) {
 		AuditLog.write(AuditEntry.builder(COMPETITION, "auth.browser-remembered").actor(AuditActor.http(clientIp))
-		        .detail(AuditFormat.kvs("pin", kind)).build());
+		        .details(AuditFormat.fields("pin", kind)).build());
 	}
 
 	/**
@@ -89,26 +90,26 @@ public final class AuthAudit {
 		AuditActor actor = username == null ? AuditActor.http(clientIp)
 		        : AuditActor.token(clean(username), tokenId, clientIp);
 		AuditLog.write(AuditEntry.builder(COMPETITION, "auth.token-refused").actor(actor)
-		        .detail(AuditFormat.kvs("reason", reason, "path", path)).build());
+		        .details(AuditFormat.fields("reason", reason, "path", path)).build());
 	}
 
 	/** A display tab was opened with an account token. Never pass the token itself. */
 	public static void tokenAccepted(String clientIp, String path, String username, String tokenId) {
 		AuditLog.write(AuditEntry.builder(COMPETITION, "auth.token-accepted")
 		        .actor(AuditActor.token(clean(username), tokenId, clientIp))
-		        .detail(AuditFormat.kv("path", path)).build());
+		        .details(AuditFormat.fields("path", path)).build());
 	}
 
-	private static void writeFor(AuditOrigin origin, String action, String detail) {
+	private static void writeFor(AuditOrigin origin, String action, Map<String, Object> detail) {
 		AuditLog.write(AuditEntry.builder(COMPETITION, action).actor(origin.actor()).cause(origin.cause())
-		        .detail(detail).build());
+		        .details(detail).build());
 	}
 
-	private static void write(String action, String mode, String user, String detail, String platform) {
+	private static void write(String action, String mode, String user, Map<String, Object> detail, String platform) {
 		AuditActor actor = AuditActor.login(mode, clean(user));
-		AuditLog.write(AuditEntry.builder(COMPETITION, action).actor(actor).detail(detail).build());
+		AuditLog.write(AuditEntry.builder(COMPETITION, action).actor(actor).details(detail).build());
 		if (platform != null && !platform.isBlank() && !COMPETITION.equals(platform)) {
-			AuditLog.write(AuditEntry.builder(platform, action).actor(actor).detail(detail).build());
+			AuditLog.write(AuditEntry.builder(platform, action).actor(actor).details(detail).build());
 		}
 	}
 

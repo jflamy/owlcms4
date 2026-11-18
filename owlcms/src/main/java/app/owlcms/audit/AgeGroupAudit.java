@@ -39,7 +39,7 @@ public final class AgeGroupAudit {
 	}
 
 	public static void added(AuditOrigin origin, Map<String, Object> after) {
-		write(origin, List.of(entry(origin, "agegroup.add").detail(kvs(after)).build()), List.of());
+		write(origin, List.of(entry(origin, "agegroup.add").details(after).build()), List.of());
 	}
 
 	/** @param decision APPLY or LATER for a change that reassigns athletes, else null */
@@ -49,7 +49,7 @@ public final class AgeGroupAudit {
 	}
 
 	public static void deleted(AuditOrigin origin, Map<String, Object> before, List<AthleteAudit.Changed> athletes) {
-		write(origin, List.of(entry(origin, "agegroup.delete").detail(kvs(before)).build()), athletes);
+		write(origin, List.of(entry(origin, "agegroup.delete").details(before).build()), athletes);
 	}
 
 	/** Several age groups moved to another championship in one transaction. */
@@ -63,34 +63,36 @@ public final class AgeGroupAudit {
 
 	/** @param action agegroup.reassign-within or agegroup.recompute-all */
 	public static void reassigned(AuditOrigin origin, String action, List<AthleteAudit.Changed> athletes) {
-		write(origin, List.of(entry(origin, action).detail(AuditFormat.kv("athletes", athletes.size())).build()),
+		write(origin, List.of(entry(origin, action).details(AuditFormat.fields("athletes", athletes.size())).build()),
 				athletes);
 	}
 
 	public static void championshipRenamed(AuditOrigin origin, String oldName, String newName,
 			List<String> ageGroups) {
 		write(origin, List.of(entry(origin, "championship.rename").field("name").oldValue(oldName).newValue(newName)
-				.detail(AuditFormat.kv("ageGroups", String.join(" ", ageGroups))).build()), List.of());
+				.details(AuditFormat.fields("ageGroups", String.join(" ", ageGroups))).build()), List.of());
 	}
 
 	/** All age groups replaced from a definitions file, and the athletes whose categories changed as a result. */
 	public static void definitionsLoaded(AuditOrigin origin, String source, long ageGroups,
 			List<AthleteAudit.Changed> athletes) {
-		write(origin, List.of(entry(origin, "agegroup.definitions-load").detail(AuditFormat.kvs("source", source,
+		write(origin, List.of(entry(origin, "agegroup.definitions-load").details(AuditFormat.fields("source", source,
 				"ageGroups", ageGroups, "athletes", athletes.size())).build()), athletes);
 	}
 
 	private static List<AuditEntry> changes(AuditOrigin origin, Map<String, Object> before,
 			Map<String, Object> after, String decision) {
-		String identity = AuditFormat.kvs("ageGroup", before.get("code"), "gender", before.get("gender"),
+		Map<String, Object> details = AuditFormat.fields("ageGroup", before.get("code"), "gender", before.get("gender"),
 				"championship", before.get("championship"));
-		String detail = decision == null ? identity : identity + "," + AuditFormat.kv("decision", decision);
+		if (decision != null) {
+			details.put("decision", decision);
+		}
 		List<AuditEntry> entries = new ArrayList<>();
 		for (Map.Entry<String, Object> e : after.entrySet()) {
 			Object oldValue = before.get(e.getKey());
 			if (!Objects.equals(oldValue, e.getValue())) {
 				entries.add(entry(origin, "agegroup.change").field(e.getKey()).oldValue(oldValue)
-						.newValue(e.getValue()).detail(detail).build());
+						.newValue(e.getValue()).details(details).build());
 			}
 		}
 		return entries;
@@ -98,11 +100,6 @@ public final class AgeGroupAudit {
 
 	private static AuditEntry.Builder entry(AuditOrigin origin, String action) {
 		return AuditEntry.builder(COMPETITION, action).actor(origin.actor()).cause(origin.cause());
-	}
-
-	private static String kvs(Map<String, Object> values) {
-		return values.entrySet().stream().map(e -> AuditFormat.kv(e.getKey(), e.getValue()))
-				.collect(Collectors.joining(","));
 	}
 
 	/** One sealed block per platform stream: the age group entries and competition athletes, then each platform. */

@@ -1,38 +1,89 @@
 package app.owlcms.audit;
 
-import java.util.StringJoiner;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.IProxyTimer;
+import app.owlcms.uievents.BreakType;
 
 public final class FopAudit {
 	private FopAudit() {
 	}
 
-	public static void write(FieldOfPlay fop, FOPEvent event, boolean refused, String state, String clockBefore) {
+	public static void write(FieldOfPlay fop, FOPEvent event, boolean refused, String state, Integer clockBefore) {
 		String action = action(event);
 		if (action == null) {
 			return;
 		}
-		Athlete athlete = event.getAthlete() != null ? event.getAthlete() : fop.getCurAthlete();
+		boolean review = concernsReview(fop, event);
+		Athlete athlete = event.getAthlete() != null ? event.getAthlete()
+				: review && fop.getAthleteUnderReview() != null ? fop.getAthleteUnderReview() : fop.getCurAthlete();
 		String platform = fop.getName();
-		String detail = detail(fop, event);
+		Map<String, Object> details = details(fop, event);
 		if (refused) {
 			action += ".refused";
-			detail = join(detail, AuditFormat.kv("state", state));
+			details.put("state", state);
 		}
 		AuditEntry.Builder builder = AuditEntry.builder(platform, action)
 				.actor(actor(event))
 				.athlete(athlete)
-				.attempt(attempt(athlete))
+				.session(event instanceof FOPEvent.SwitchGroup switchGroup ? AuditEntry.sessionOf(switchGroup.getGroup())
+						: session(fop, athlete))
+				.attempt(review ? reviewedAttempt(athlete) : attempt(athlete))
 				.cause(AuditContext.cause())
-				.detail(detail);
+				.details(details);
 		if (event instanceof FOPEvent.ForceTime forceTime) {
-			builder.field("clock").oldValue(clockBefore).newValue(formatClock(forceTime.timeAllowed));
+			builder.field("clock").oldValue(clockBefore).newValue(forceTime.timeAllowed);
 		}
 		AuditLog.writeBatch(List.of(builder.build()), !refused && event instanceof FOPEvent.JuryDecision);
+	}
+
+	/**
+	 * A session loaded on the platform without a field-of-play event: a page opened with the session in its URL. The
+	 * actor is captured on the page.
+	 */
+	public static void sessionLoaded(FieldOfPlay fop, AuditActor actor, String cause) {
+		Athlete athlete = fop.getCurAthlete();
+		Map<String, Object> details = new LinkedHashMap<>();
+		details.put("session", AuditEntry.sessionOf(fop.getGroup()));
+		AuditLog.write(AuditEntry.builder(fop.getName(), "session.load")
+				.actor(actor != null ? actor : AuditActor.system())
+				.athlete(athlete)
+				.session(AuditEntry.sessionOf(fop.getGroup()))
+				.attempt(attempt(athlete))
+				.cause(cause)
+				.details(details)
+				.build());
+	}
+
+	/** The athlete's session; for a record without an athlete in a session, the session on the platform. */
+	private static String session(FieldOfPlay fop, Athlete athlete) {
+		if (athlete != null && athlete.getGroup() != null) {
+			return athlete.getGroup().getName();
+		}
+		return AuditEntry.sessionOf(fop.getGroup());
+	}
+
+	/**
+	 * The result of a review vote, written by the field of play when the last vote is in. {@code vote} counts the
+	 * votes completed on this lift: more than one when a result was cancelled and the vote taken again.
+	 */
+	public static void reviewResult(FieldOfPlay fop, Map<String, Object> details) {
+		Athlete athlete = fop.getAthleteUnderReview() != null ? fop.getAthleteUnderReview() : fop.getCurAthlete();
+		AuditLog.write(AuditEntry.builder(fop.getName(), "jury.result")
+				.actor(AuditActor.system())
+				.athlete(athlete)
+				.session(session(fop, athlete))
+				.attempt(reviewedAttempt(athlete))
+				.cause(AuditContext.cause())
+				.details(details)
+				.build());
 	}
 
 	private static AuditActor actor(FOPEvent event) {
@@ -46,9 +97,7 @@ public final class FopAudit {
 		if (event instanceof FOPEvent.DecisionFullUpdate) {
 			return actor.atStation("REFEREES", null, false);
 		}
-		if (event instanceof FOPEvent.JuryDecision) {
-			return actor.atStation("JURY_CONSOLE", null, actor.inferred());
-		}
+		// a jury decision keeps the station that entered it: JURY_CONTROL, JURY_BOX or ANNOUNCER (the Speaker)
 		return actor;
 	}
 
@@ -70,52 +119,57 @@ public final class FopAudit {
 			case "DownSignal" -> "referee.down";
 			case "JuryMemberDecisionUpdate" -> "jury.vote";
 			case "JuryDecision" -> "jury.decision";
+			case "JuryResume" -> "jury.resume";
 			case "SummonReferee" -> "jury.summon";
 			case "BarbellOrPlatesChanged" -> "tc.equipment";
 			default -> null;
 		};
 	}
 
-	private static String detail(FieldOfPlay fop, FOPEvent event) {
-		StringJoiner detail = new StringJoiner(",");
+	private static Map<String, Object> details(FieldOfPlay fop, FOPEvent event) {
+		Map<String, Object> details = new LinkedHashMap<>();
 		if (event instanceof FOPEvent.TimeStarted || event instanceof FOPEvent.TimeStopped
 				|| event instanceof FOPEvent.TimeOver || event instanceof FOPEvent.StartLifting) {
-			detail.add(AuditFormat.kv("clock", clock(fop)));
+			details.put("clockMillis", clockMillis(fop));
 		}
 		if (event instanceof FOPEvent.BreakStarted breakStarted) {
-			detail.add(AuditFormat.kvs("type", breakStarted.getBreakType(), "countdown", breakStarted.getCountdownType(),
-					"remaining", formatClock(breakStarted.getTimeRemaining()), "target", breakStarted.getTargetTime()));
+			details.put("type", breakStarted.getBreakType());
+			details.put("countdown", breakStarted.getCountdownType());
+			details.put("remainingMillis", breakStarted.getTimeRemaining());
+			details.put("target", breakStarted.getTargetTime());
 		} else if (event instanceof FOPEvent.BreakPaused breakPaused) {
-			detail.add(AuditFormat.kv("remaining", formatClock(breakPaused.getTimeRemaining())));
+			details.put("remainingMillis", breakPaused.getTimeRemaining());
 		} else if (event instanceof FOPEvent.BreakDone breakDone) {
-			detail.add(AuditFormat.kv("type", breakDone.getBreakType()));
+			details.put("type", breakDone.getBreakType());
 		} else if (event instanceof FOPEvent.DecisionUpdate decision) {
-			detail.add(AuditFormat.kv("decision", lift(decision.isDecision())));
+			details.put("decision", decision.isDecision());
 		} else if (event instanceof FOPEvent.DecisionFullUpdate decision) {
-			detail.add(AuditFormat.kv("lights", decision.ref1 + "," + decision.ref2 + "," + decision.ref3));
+			details.put("lights", Arrays.asList(decision.ref1, decision.ref2, decision.ref3));
 		} else if (event instanceof FOPEvent.ExplicitDecision decision) {
-			detail.add(AuditFormat.kvs("result", lift(Boolean.TRUE.equals(decision.success)),
-					"lights", decision.ref1 + "," + decision.ref2 + "," + decision.ref3));
+			details.put("result", decision.success);
+			details.put("lights", Arrays.asList(decision.ref1, decision.ref2, decision.ref3));
 		} else if (event instanceof FOPEvent.JuryMemberDecisionUpdate decision) {
-			detail.add(AuditFormat.kv("decision", lift(decision.decision)));
+			details.put("decision", decision.decision);
 		} else if (event instanceof FOPEvent.JuryDecision decision) {
-			detail.add(AuditFormat.kvs("decision", lift(Boolean.TRUE.equals(decision.success)),
-					"reason", decision.getReasonCode()));
+			details.put("decision", decision.success);
+			details.put("reason", decision.getReasonCode());
 		} else if (event instanceof FOPEvent.SummonReferee summon) {
-			detail.add(AuditFormat.kv("referee", summon.getRefNumber()));
+			details.put("referee", summon.getRefNumber());
 		} else if (event instanceof FOPEvent.SwitchGroup switchGroup) {
-			detail.add(AuditFormat.kv("session", switchGroup.getGroup() != null ? switchGroup.getGroup().getName() : null));
+			details.put("session", switchGroup.getGroup() != null ? switchGroup.getGroup().getName() : null);
 		} else if (event instanceof FOPEvent.CeremonyDone ceremony) {
-			detail.add(AuditFormat.kv("type", ceremony.getCeremonyType()));
+			details.put("type", ceremony.getCeremonyType());
 		}
-		return detail.length() == 0 ? null : detail.toString();
+		return details;
 	}
 
-	public static String clock(FieldOfPlay fop) {
-		if (fop.getAthleteTimer() == null) {
-			return null;
-		}
-		return formatClock(fop.getAthleteTimer().liveTimeRemaining());
+	public static Integer clockMillis(FieldOfPlay fop) {
+		IProxyTimer timer = fop == null ? null : fop.getAthleteTimer();
+		return timer == null ? null : timer.liveTimeRemaining();
+	}
+
+	public static String timeDetail(String key, Integer millis) {
+		return AuditFormat.kv(key, formatClock(millis)) + (millis == null ? "" : " (" + millis + "ms)");
 	}
 
 	public static String formatClock(Integer millis) {
@@ -123,23 +177,53 @@ public final class FopAudit {
 	}
 
 	public static String formatClock(int millis) {
-		int tenths = (Math.max(0, millis) + 50) / 100;
-		return String.format("%d:%02d.%d", tenths / 600, (tenths / 10) % 60, tenths % 10);
+		long seconds = (Math.max(0L, millis) + 999) / 1000;
+		long hours = seconds / 3600;
+		long minutes = (seconds / 60) % 60;
+		return hours > 0 ? String.format("%d:%02d:%02d", hours, minutes, seconds % 60)
+				: String.format("%d:%02d", minutes, seconds % 60);
 	}
 
-	private static String lift(boolean good) {
-		return good ? "GOOD LIFT" : "NO LIFT";
+	/**
+	 * Jury actions and jury or challenge breaks, the referees' votes during a review break, and a referee decision that
+	 * committed the lift concern the lift under review, which is already counted as done: not the athlete's next
+	 * attempt, and not necessarily the current athlete.
+	 */
+	private static boolean concernsReview(FieldOfPlay fop, FOPEvent event) {
+		if (event instanceof FOPEvent.JuryDecision || event instanceof FOPEvent.JuryMemberDecisionUpdate
+				|| event instanceof FOPEvent.SummonReferee || event instanceof FOPEvent.JuryResume) {
+			return true;
+		}
+		if (event instanceof FOPEvent.BreakStarted breakStarted) {
+			return isReviewBreak(breakStarted.getBreakType());
+		}
+		if (event instanceof FOPEvent.BreakDone breakDone) {
+			return isReviewBreak(breakDone.getBreakType());
+		}
+		boolean decision = event instanceof FOPEvent.DecisionUpdate || event instanceof FOPEvent.DecisionFullUpdate
+				|| event instanceof FOPEvent.ExplicitDecision;
+		return decision && (fop.isLiftCommittedByCurrentEvent()
+				|| (fop.getState() == FOPState.BREAK && fop.isPanelReviewing()));
+	}
+
+	private static boolean isReviewBreak(BreakType type) {
+		return type == BreakType.JURY || type == BreakType.CHALLENGE;
 	}
 
 	private static String attempt(Athlete athlete) {
+		return athlete == null ? null : label(Math.min(athlete.getAttemptsDone() + 1, 6));
+	}
+
+	private static String reviewedAttempt(Athlete athlete) {
 		if (athlete == null) {
 			return null;
 		}
-		int attempt = Math.min(athlete.getAttemptsDone() + 1, 6);
+		int done = athlete.getAttemptsDone();
+		return done < 1 ? attempt(athlete) : label(Math.min(done, 6));
+	}
+
+	private static String label(int attempt) {
 		return attempt <= 3 ? "SN" + attempt : "CJ" + (attempt - 3);
 	}
 
-	private static String join(String first, String second) {
-		return first == null || first.isBlank() ? second : first + "," + second;
-	}
 }

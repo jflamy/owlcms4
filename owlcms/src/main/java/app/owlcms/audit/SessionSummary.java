@@ -2,6 +2,7 @@ package app.owlcms.audit;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
@@ -22,8 +23,9 @@ public final class SessionSummary {
 		String platform = fop.getName();
 		Competition competition = Competition.getCurrent();
 		AuditLog.write(AuditEntry.builder(platform, "summary.session").actor(actor)
+				.session(group.getName())
 				.newValue(group.getName() + " " + group.getDescription())
-				.detail(AuditFormat.kvs("competition", competition.getCompetitionName(),
+				.details(AuditFormat.fields("competition", competition.getCompetitionName(),
 						"date", competition.getLocalizedCompetitionDate(), "site", competition.getCompetitionSite(),
 						"city", competition.getCompetitionCity(), "organizer", competition.getCompetitionOrganizer(),
 						"weighIn", group.getWeighInTime(), "competitionTime", group.getCompetitionTime()))
@@ -32,7 +34,8 @@ public final class SessionSummary {
 		for (OfficialPosition position : officials(group)) {
 			TechnicalOfficial official = position.official();
 			if (official != null) {
-				AuditLog.write(AuditEntry.builder(platform, "summary.official").actor(actor).field(position.role())
+				AuditLog.write(AuditEntry.builder(platform, "summary.official").actor(actor).session(group.getName())
+						.field(position.role())
 						.newValue(official.getFullName() + " (" + official.getFederation() + ")").build());
 			}
 		}
@@ -41,12 +44,12 @@ public final class SessionSummary {
 			if (athlete.getCategory() == null || athlete.getBodyWeight() == null || athlete.getBodyWeight() <= 0.01) {
 				continue;
 			}
-			String detail = AuditFormat.kvs("start", athlete.getStartNumber(), "lot", athlete.getLotNumber(),
+			Map<String, Object> details = AuditFormat.fields("start", athlete.getStartNumber(), "lot", athlete.getLotNumber(),
 					"birth", athlete.getFormattedBirth(), "membership", athlete.getMembership(), "team", athlete.getTeam(),
 					"category", athlete.getDisplayCategory(), "bodyWeight", athlete.getBodyWeight(),
 					"snatch1", athlete.getSnatch1Declaration(), "cleanJerk1", athlete.getCleanJerk1Declaration());
 			AuditLog.write(AuditEntry.builder(platform, "summary.athlete").actor(actor).athlete(athlete)
-					.detail(detail).build());
+					.details(details).build());
 		}
 	}
 

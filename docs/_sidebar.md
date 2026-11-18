@@ -68,6 +68,7 @@
   * [MQTT Server Configuration](/100-AdvancedTopics/190-MQTT)
   * [MQTT Messaging Specification](/100-AdvancedTopics/200-MQTTMessages)
   * [Using PostgreSQL](/100-AdvancedTopics/210-PostgreSQL)
+  * [Audit Log Format and Analysis](/100-AdvancedTopics/230-AuditLog)
 * Virtual Competitions
   * [Overview](/110-VirtualCompetitions/010-VirtualOverview)
   * [Preparing the Zoom Setup](/110-VirtualCompetitions/020-PrepareZoomBroadcasting)

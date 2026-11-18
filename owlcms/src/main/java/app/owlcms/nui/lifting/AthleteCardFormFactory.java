@@ -53,6 +53,7 @@ import com.vaadin.flow.dom.ClassList;
 import app.owlcms.access.Principal;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.audit.AuditActor;
+import app.owlcms.audit.FopAudit;
 import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteCardValues;
@@ -1406,7 +1407,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			        if (validate && !accepting) {
 				        current.validateStartingTotalsRule();
 			        }
-			        Athlete saved = AthleteRepository.saveNoMetadata(current);
+			        Athlete saved = AthleteRepository.saveNoMetadata(current, FopAudit.clockMillis(fop));
 			        AthleteCardValues.copyTo(saved, values);
 			        // Keep the originating operational object current without submitting its old registration copy.
 			        Athlete.conditionalCopy(this.originalAthlete, saved, true, true, true);

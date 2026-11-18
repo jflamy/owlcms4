@@ -317,6 +317,10 @@ public class FieldOfPlay implements IUnregister {
 	private boolean auditLiftBoundary;
 	private boolean auditEventSkipped;
 	private FOPState auditRefusedState;
+	/** result of a review vote completed by the event being handled, written after that event's own record */
+	private Map<String, Object> auditReviewResult;
+	/** review votes completed on the lift under review; more than one when a result was cancelled and voted again */
+	private int reviewVotesTaken;
 	private final RecordChallengeTracker recordChallengeTracker = new RecordChallengeTracker();
 	private boolean sessionSummaryArmed = true;
 	private Athlete previousAthlete;
@@ -522,6 +526,11 @@ public class FieldOfPlay implements IUnregister {
 
 	public Athlete getAthleteUnderReview() {
 		return this.athleteUnderReview;
+	}
+
+	/** @return true when the event being handled committed a lift result, which is then the lift under review */
+	public boolean isLiftCommittedByCurrentEvent() {
+		return this.auditEventDepth > 0 && this.auditLiftBoundary;
 	}
 
 	public int getBarWeight() {
@@ -860,7 +869,7 @@ public class FieldOfPlay implements IUnregister {
 		this.auditEventDepth++;
 		try {
 			AuditContext.run(e.getAuditActor(), e.getClass().getSimpleName(), () -> {
-				String clockBefore = e instanceof FOPEvent.ForceTime ? FopAudit.clock(this) : null;
+				Integer clockBefore = e instanceof FOPEvent.ForceTime ? FopAudit.clockMillis(this) : null;
 				doHandleFOPEvent(e);
 				if (!this.auditEventSkipped) {
 					if (!this.auditEventRefused && this.sessionSummaryArmed
@@ -873,6 +882,10 @@ public class FieldOfPlay implements IUnregister {
 					if (!this.auditEventRefused && e instanceof FOPEvent.SwitchGroup) {
 						this.sessionSummaryArmed = true;
 					}
+				}
+				if (this.auditReviewResult != null) {
+					FopAudit.reviewResult(this, this.auditReviewResult);
+					this.auditReviewResult = null;
 				}
 			});
 		} finally {
@@ -1716,14 +1729,21 @@ public class FieldOfPlay implements IUnregister {
 		Boolean[] jury = getJuryMemberDecision();
 		Boolean majority;
 		String tally;
+		Map<String, Object> result = new LinkedHashMap<>();
 		if (isPanelProcedure()) {
 			AdjudicationPanel panel = new AdjudicationPanel(this.reviewRefereeDecision, jury);
 			majority = panel.majority();
 			tally = panel.whites() + " white, " + panel.reds() + " red";
+			result.put("procedure", "PANEL");
+			result.put("whites", panel.whites());
+			result.put("reds", panel.reds());
+			result.put("referees", Arrays.asList(this.reviewRefereeDecision.clone()));
 		} else {
 			majority = computeCurrentJuryVerdict(getJurySize());
 			tally = "jury " + Arrays.toString(jury);
+			result.put("procedure", "JURY");
 		}
+		result.put("jury", Arrays.asList(Arrays.copyOf(jury, getJurySize())));
 		this.panelVoteMajority = majority;
 		this.refereeDecisionStands = majority != null && !isPanelProcedure()
 		        && !isJuryRuleReached(jury, getJurySize());
@@ -1731,6 +1751,17 @@ public class FieldOfPlay implements IUnregister {
 			this.panelVoteRevealed = true;
 			if (!isPanelProcedure()) {
 				this.reviewRefereeDecision = getReviewedLiftRefereeDecision();
+			}
+			this.reviewVotesTaken++;
+			Map<String, Object> audit = new LinkedHashMap<>();
+			audit.put("decision", majority);
+			audit.put("standsAsCalled", this.refereeDecisionStands);
+			audit.put("vote", this.reviewVotesTaken);
+			audit.putAll(result);
+			if (this.auditEventDepth > 0) {
+				this.auditReviewResult = audit;
+			} else {
+				FopAudit.reviewResult(this, audit);
 			}
 			showJuryMemberDecisionsNow(origin, unanimousJury(jury) != null, getJurySize(), jury);
 		}
@@ -2342,7 +2373,7 @@ public class FieldOfPlay implements IUnregister {
 			}
 			this.logger.info("{}{} declared below 2 kg: withdrawn from{}{}", FieldOfPlay.getLoggingName(this),
 			        a.getShortName(), snatch ? " snatch" : "", cleanJerk ? " clean&jerk" : "");
-			AthleteRepository.saveNoMetadata(a);
+			AthleteRepository.saveNoMetadata(a, FopAudit.clockMillis(this));
 		}
 	}
 
@@ -3160,7 +3191,7 @@ public class FieldOfPlay implements IUnregister {
 			} else if (getBreakType() == BreakType.JURY) {
 				a.setJuryDeliberation(attempt, e.success);
 			}
-			AthleteRepository.saveNoMetadata(a);
+			AthleteRepository.saveNoMetadata(a, FopAudit.clockMillis(this));
 
 			// reversal from bad to good should add records
 			// reversal from good to bad must remove records
@@ -4031,8 +4062,8 @@ public class FieldOfPlay implements IUnregister {
 
 		int timeRemaining = millisRemaining;
 		SettingsAudit.event(getName(), "break.start", AuditActor.system(), null, null, null, null,
-				AuditFormat.kvs("type", BreakType.FIRST_CJ, "countdown", CountdownType.DURATION,
-						"remaining", FopAudit.formatClock(timeRemaining)) + ",automatic");
+				AuditFormat.fields("type", BreakType.FIRST_CJ, "countdown", CountdownType.DURATION,
+						"remainingMillis", timeRemaining, "automatic", true));
 		this.setBreakType(BreakType.FIRST_CJ);
 		this.getBreakTimer().setTimeRemaining(timeRemaining, false);
 		this.getBreakTimer().setBreakDuration(timeRemaining);
@@ -4546,7 +4577,7 @@ public class FieldOfPlay implements IUnregister {
 			}
 			if (nextCurrentAthlete != null && nextCurrentAthlete.isForcedAsCurrent()) {
 				nextCurrentAthlete.resetForcedAsCurrent();
-				AthleteRepository.saveNoMetadata(nextCurrentAthlete);
+				AthleteRepository.saveNoMetadata(nextCurrentAthlete, FopAudit.clockMillis(this));
 			}
 			setCurAthlete(nextCurrentAthlete);
 			setNextAthlete(liftingOrder2 != null && liftingOrder2.size() > 1 ? liftingOrder2.get(1) : null);
@@ -5224,6 +5255,7 @@ public class FieldOfPlay implements IUnregister {
 	private void commitCurrentDecision() {
 		var attempted = getCurAthlete().getNextAttemptRequestedWeight();
 		setAthleteUnderReview(getCurAthlete());
+		this.reviewVotesTaken = 0;
 		setPreviousAthlete(this.athleteUnderReview);
 		setLastChallengedRecords(this.challengedRecords);
 		setGoodLift(computeCurrentGoodLift());
@@ -5264,7 +5296,7 @@ public class FieldOfPlay implements IUnregister {
 		AuditActor decisionActor = AuditContext.actor() != null ? AuditContext.actor() : AuditActor.system();
 		List<RecordEvent> newRecords = AuditContext.call(
 				decisionActor.atStation(decisionStation, null, false), decisionCause, () -> {
-					AthleteRepository.saveNoMetadata(getCurAthlete());
+					AthleteRepository.saveNoMetadata(getCurAthlete(), FopAudit.clockMillis(this));
 					return updateRecords(getCurAthlete(), getGoodLift(), getChallengedRecords(), List.of());
 				});
 		setNewRecords(newRecords);

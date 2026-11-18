@@ -20,6 +20,11 @@ public class ControlPanelServlet extends HttpServlet {
 
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(ControlPanelServlet.class);
 	private static final long EXIT_DELAY_MS = 250L;
+	/**
+	 * {@code by} value sent by MainWrapper, which uses this endpoint to stop the owlcms it launched when it is stopped
+	 * itself; the audit then names it instead of the control panel.
+	 */
+	public static final String BY_WRAPPER = "wrapper";
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -36,7 +41,8 @@ public class ControlPanelServlet extends HttpServlet {
 			return;
 		}
 
-		logger.info("{} requested control panel stop", host);
+		String reason = BY_WRAPPER.equals(request.getParameter("by")) ? "wrapper stop" : "control-panel stop";
+		logger.info("{} requested {}", host, reason);
 		response.setStatus(HttpServletResponse.SC_ACCEPTED);
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		response.setContentType("text/plain;charset=UTF-8");
@@ -49,7 +55,7 @@ public class ControlPanelServlet extends HttpServlet {
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
-			Main.prepareForExit("control-panel stop");
+			Main.prepareForExit(reason);
 			System.exit(0);
 		}, "controlpanel-stop");
 		stopThread.setDaemon(false);

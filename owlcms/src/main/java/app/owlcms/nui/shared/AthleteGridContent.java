@@ -74,6 +74,7 @@ import app.owlcms.access.Permission;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.apputils.queryparameters.SoundParametersReader;
+import app.owlcms.audit.FopAudit;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.PassiveDecisionElement;
@@ -270,7 +271,7 @@ public abstract class AthleteGridContent extends BaseContent
 		try {
 			synchronized (fop) {
 				correction.run();
-				AthleteRepository.saveNoMetadata(athlete);
+				AthleteRepository.saveNoMetadata(athlete, FopAudit.clockMillis(fop));
 				fop.fopEventPost(new FOPEvent.WeightChange(this, athlete, true));
 			}
 		} catch (RuntimeException e) {

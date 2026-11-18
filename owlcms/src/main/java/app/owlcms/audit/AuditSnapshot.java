@@ -104,7 +104,7 @@ public final class AuditSnapshot {
 			String description = describe(anomaly);
 			logger.warn("anomaly captured by {}: {}", effective.user(), description);
 			AuditLog.write(AuditEntry.builder("competition", ANOMALY_ACTION).actor(effective)
-					.detail(AuditFormat.kv("description", description)).build());
+					.details(AuditFormat.fields("description", description)).build());
 		}
 		String stamp = LocalDateTime.now().withNano(0).format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"));
 		ZipOutputStream zip = new ZipOutputStream(out);
@@ -118,7 +118,7 @@ public final class AuditSnapshot {
 			zip.closeEntry();
 		}
 		AuditLog.write(AuditEntry.builder("competition", ACTION).actor(effective)
-				.detail(AuditFormat.kv("scope", scope.name())).build());
+				.details(AuditFormat.fields("scope", scope.name())).build());
 		if (scope.logs()) {
 			Set<Path> open = AuditLog.rollover();
 			zipLogs(LOGS_DIRECTORY, open, zip);
@@ -152,7 +152,7 @@ public final class AuditSnapshot {
 		}
 		zip.closeEntry();
 		AuditLog.write(AuditEntry.builder("competition", ACTION).actor(effective)
-		        .detail(AuditFormat.kvs("scope", CHECKPOINT_SCOPE, "channel", ExportAudit.CHANNEL_HTTP,
+		        .details(AuditFormat.fields("scope", CHECKPOINT_SCOPE, "channel", ExportAudit.CHANNEL_HTTP,
 		                "since", since != null ? checkpointStamp(since) : "-"))
 		        .build());
 		zipLogs(LOGS_DIRECTORY, file -> checkpointSelects(file, since), zip);

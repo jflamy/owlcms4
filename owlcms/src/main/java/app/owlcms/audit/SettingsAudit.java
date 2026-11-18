@@ -1,6 +1,7 @@
 package app.owlcms.audit;
 
 import java.util.Objects;
+import java.util.Map;
 
 import app.owlcms.data.athlete.Athlete;
 
@@ -9,7 +10,7 @@ public final class SettingsAudit {
 	}
 
 	public static void change(String platform, String action, String field, Object oldValue, Object newValue,
-			String detail) {
+			Map<String, Object> details) {
 		if (Objects.equals(oldValue, newValue)) {
 			return;
 		}
@@ -18,17 +19,17 @@ public final class SettingsAudit {
 			return;
 		}
 		AuditLog.write(AuditEntry.builder(platform, action).actor(actor).field(field).oldValue(oldValue)
-				.newValue(newValue).cause(AuditContext.cause()).detail(detail).build());
+				.newValue(newValue).cause(AuditContext.cause()).details(details).build());
 	}
 
 	public static void event(String platform, String action, AuditActor actor, Athlete athlete, String field,
-			Object oldValue, Object newValue, String detail) {
+			Object oldValue, Object newValue, Map<String, Object> details) {
 		AuditActor effective = actor != null ? actor : currentActor();
 		if (effective == null) {
 			return;
 		}
 		AuditLog.write(AuditEntry.builder(platform, action).actor(effective).athlete(athlete).field(field)
-				.oldValue(oldValue).newValue(newValue).cause(AuditContext.cause()).detail(detail).build());
+				.oldValue(oldValue).newValue(newValue).cause(AuditContext.cause()).details(details).build());
 	}
 
 	private static AuditActor currentActor() {

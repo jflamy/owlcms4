@@ -22,6 +22,8 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
+import app.owlcms.audit.AuditActor;
+import app.owlcms.audit.FopAudit;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -150,6 +152,7 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 				boolean sameGroup = fopGroup != null && fopGroup.getName().equals(decoded);
 				if (!sameGroup && tFop != null && isGroupURLAllowedToMutateFop()) {
 					tFop.loadGroup(group, this, true);
+					FopAudit.sessionLoaded(tFop, AuditActor.capture(this), "URL");
 				}
 			} else {
 				group = (tFop != null ? tFop.getGroup() : null);

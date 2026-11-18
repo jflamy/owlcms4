@@ -163,7 +163,7 @@ public class GroupRepository {
 		Group saved = JPAService.runInTransaction(em -> em.merge(group));
 		SettingsAudit.change(saved.getPlatform() != null ? saved.getPlatform().getName() : "competition",
 				"session.change", "cleanJerkBreakDuration", oldCjBreak, saved.getCleanJerkBreakDuration(),
-				AuditFormat.kv("session", saved.getName()));
+				AuditFormat.fields("session", saved.getName()));
 		OwlcmsFactory.refreshActiveFOPGroup(saved);
 		return saved;
 	}

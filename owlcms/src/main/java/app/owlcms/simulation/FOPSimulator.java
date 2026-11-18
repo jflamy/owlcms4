@@ -21,6 +21,7 @@ import com.google.common.eventbus.Subscribe;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.audit.AuditActor;
 import app.owlcms.audit.AuditContext;
+import app.owlcms.audit.FopAudit;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
@@ -440,7 +441,8 @@ public class FOPSimulator implements SafeEventBusRegistration {
 						int autoAsInt = Integer.parseInt(automatic);
 						doDeclaration(athlete, Integer.toString(autoAsInt + declarationIncrement()));
 						AuditActor marshal = simulatedActor("MARSHAL", null);
-						AuditContext.run(marshal, "simulated declaration", () -> AthleteRepository.saveNoMetadata(athlete));
+						AuditContext.run(marshal, "simulated declaration",
+								() -> AthleteRepository.saveNoMetadata(athlete, FopAudit.clockMillis(this.fop)));
 						postSimulatedEvent(new FOPEvent.WeightChange(this, athlete, false), marshal);
 						declared = true;
 					} catch (NumberFormatException e1) {
@@ -543,7 +545,8 @@ public class FOPSimulator implements SafeEventBusRegistration {
 				}
 				Athlete changedAthlete = target;
 				AuditActor marshal = simulatedActor("MARSHAL", null);
-				AuditContext.run(marshal, "simulated weight change", () -> AthleteRepository.saveNoMetadata(changedAthlete));
+				AuditContext.run(marshal, "simulated weight change",
+						() -> AthleteRepository.saveNoMetadata(changedAthlete, FopAudit.clockMillis(this.fop)));
 				this.logger.warn("{}simulated marshal change {} -> {} ({} {})", FieldOfPlay.getLoggingName(this.fop),
 				        target.getShortName(), newWeight, phase, changeCurrentAthlete ? "current athlete" : "other athlete");
 				postSimulatedEvent(new FOPEvent.WeightChange(this, changedAthlete, false), marshal);

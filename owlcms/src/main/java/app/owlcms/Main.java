@@ -31,6 +31,7 @@ import app.owlcms.access.IwfComplianceCheck;
 import app.owlcms.access.AccountTokens;
 import app.owlcms.audit.ApplicationAudit;
 import app.owlcms.audit.AuditIntegrity;
+import app.owlcms.audit.AuditLog;
 import app.owlcms.audit.AuditContext;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.audit.ExportSignature;
@@ -102,11 +103,26 @@ public class Main {
 		prepareForExit("shutdown");
 	}
 
-        public static void prepareForExit(String reason) {
-		ApplicationAudit.stopping(reason);
-        MQTTMonitor.disableReconnectForAll();
-        ResourceMonitor.stop();
-        MdnsResponder.stop();
+    /**
+     * Records the stop and closes the inputs that reconnect or poll. Each step runs even if an earlier one failed: the
+     * callers exit right after, and a failure here must never prevent the exit and its shutdown hook.
+     */
+    public static void prepareForExit(String reason) {
+        runShutdownStep("record the stop", () -> ApplicationAudit.stopping(reason));
+        runShutdownStep("disable MQTT reconnection", MQTTMonitor::disableReconnectForAll);
+        runShutdownStep("stop the resource monitor", ResourceMonitor::stop);
+        runShutdownStep("stop mDNS", MdnsResponder::stop);
+    }
+
+    /** @return true if the step completed; a failure is logged and does not stop the following steps */
+    private static boolean runShutdownStep(String step, Runnable action) {
+        try {
+            action.run();
+            return true;
+        } catch (RuntimeException e) {
+            logger.error("Shutdown step failed: {}", step, e);
+            return false;
+        }
     }
 
     /** @return true if the JVM is shutting down because of an external signal (SIGTERM/SIGINT). */
@@ -176,6 +192,8 @@ public class Main {
     /** Random password used by OWLCMS's own connections to its internal MQTT broker. */
     public static volatile String mqttInternalSecret;
     private static volatile Server mqttBroker;
+    /** Total time allowed at shutdown for owlcms's own MQTT clients to disconnect from the broker. */
+    private static final long MQTT_DISCONNECT_WAIT_MS = 2000;
     private static volatile boolean mqttPortInUse;
 
     public static EmbeddedJetty doRun() {
@@ -260,7 +278,7 @@ public class Main {
             Locale importedLocale = Config.getCurrent().getDefaultLocale();
             startupSession.setLocale(importedLocale != null ? importedLocale : Locale.ENGLISH);
 
-            // the server key is only known once audit integrity is initialized, after the import
+            // the audit startup state is frozen with the imported TCRR setting; sealing itself started at launch
             completeConfig();
             ApplicationAudit.startupImport(name, signature,
                     ExportSignature.match(signature, AuditIntegrity.current().signingKey()));
@@ -460,15 +478,6 @@ public class Main {
             broker.startServer(mqttConfig, userHandlers);
             mqttBroker = broker;
             logger.info("started MQTT broker ({} ms).", System.currentTimeMillis() - now);
-
-            // Bind a shutdown hook
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                prepareForExit();
-                logger.info("Stopping broker");
-                clearMqttBroker(broker);
-                broker.stopServer();
-                logger.info("Broker stopped");
-            }));
         } catch (Exception e) {
             if (isBindFailure(e)) {
                 mqttPortInUse = true;
@@ -512,10 +521,52 @@ public class Main {
 
     public static void stopMQTT() {
         prepareForExit();
+        stopBroker();
+    }
+
+    private static void stopBroker() {
         Server broker = mqttBroker;
         if (broker != null) {
+            logger.info("Stopping broker");
             clearMqttBroker(broker);
             broker.stopServer();
+            logger.info("Broker stopped");
+        }
+    }
+
+    /**
+     * The only shutdown hook. Shutdown hooks run concurrently, so the steps are kept in one hook, in order: the inputs
+     * close first (MQTT devices, then web pages), then the audit log is sealed and finalized, and only then may the
+     * process be halted. Each step runs even if an earlier one failed, and the audit log is always finalized last.
+     */
+    private static void shutdown() {
+        try {
+            runShutdownStep("prepare for exit", Main::prepareForExit);
+            runShutdownStep("disconnect the MQTT clients", () -> MQTTMonitor.disconnectForAll(MQTT_DISCONNECT_WAIT_MS));
+            runShutdownStep("stop the MQTT broker", Main::stopBroker);
+            runShutdownStep("stop the web server", EmbeddedJetty::stopForShutdown);
+        } finally {
+            finishAuditLog();
+        }
+        if (isIntentionalSignalReceived()) {
+            // Force exit 0 so Docker on-failure and other supervisors treat SIGTERM/SIGINT as an intentional stop
+            // rather than a crash.
+            getStartupLogger().info("Intentional signal received — exiting with code 0");
+            Runtime.getRuntime().halt(0);
+        }
+    }
+
+    /**
+     * A failed finalization is reported where the operator sees it. The exit status is left alone: the stop was
+     * intentional, and a launcher must not restart owlcms because its audit log could not be finalized.
+     */
+    private static void finishAuditLog() {
+        try {
+            AuditLog.finish();
+        } catch (IOException | RuntimeException e) {
+            logger.error("Audit log finalization failed", e);
+            getStartupLogger().error("Audit log NOT finalized: the records after the last seal are not validated ({})",
+                    LoggerUtils.exceptionMessage(e));
         }
     }
 
@@ -557,6 +608,10 @@ public class Main {
         parseConfig();
         StartupUtils.setServerPort(serverPort);
         StartupUtils.logStart("owlcms", serverPort);
+
+        // auditing starts before anything that could be audited; its key does not come from the database
+        AuditIntegrity.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(Main::shutdown, "OwlcmsShutdown"));
 
         // message about log locations.
         Path logPath = Path.of("logs", "owlcms.log");
@@ -695,23 +750,23 @@ public class Main {
     }
 
     /**
+     * The HTTP port: under a Kubernetes service (LoadBalancer or ingress, which does the mapping) the default 8080,
+     * otherwise {@code OWLCMS_PORT} or {@code -Dport} (Heroku assigns the port at run time), 8080 by default. Also used by
+     * MainWrapper, which has the same environment and VM options, to reach the owlcms it launched.
+     */
+    static int configuredServerPort() {
+        if (StartupUtils.getStringParam("service_port") != null) {
+            return 8080;
+        }
+        return StartupUtils.getIntegerParam("port", 8080);
+    }
+
+    /**
      * get configuration from environment variables and if not found, from system
      * properties.
      */
     private static void parseConfig() {
-        // under Kubernetes deployed under an owlcms service LoadBalancer
-        String k8sServicePortString = StartupUtils.getStringParam("service_port");
-        if (k8sServicePortString != null) {
-            // we are running under a Kubernetes ingress or load balancer
-            // which handles the mapping for us. We run on the default.
-            serverPort = 8080;
-        } else {
-            // read port parameter from -Dport=9999 on java command line
-            // this is required for running on Heroku which assigns us the port at run time.
-            // default is 8080
-            logger.trace("{}", "reading port from properties and environment");
-            serverPort = StartupUtils.getIntegerParam("port", 8080);
-        }
+        serverPort = configuredServerPort();
 
         StartupUtils.setServerPort(serverPort);
 

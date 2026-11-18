@@ -1,5 +1,7 @@
 package app.owlcms.audit;
 
+import java.util.Map;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.records.RecordEvent;
 
@@ -32,12 +34,12 @@ public final class RecordAudit {
 				.oldValue(oldValue)
 				.newValue(newValue)
 				.cause(AuditContext.cause())
-				.detail(detail(record))
+				.details(details(record))
 				.build());
 	}
 
-	private static String detail(RecordEvent record) {
-		return AuditFormat.kvs("lift", record.getRecordLift(), "ageGroup", record.getAgeGrp(), "federation",
+	private static Map<String, Object> details(RecordEvent record) {
+		return AuditFormat.fields("lift", record.getRecordLift(), "ageGroup", record.getAgeGrp(), "federation",
 				record.getRecordFederation(), "name", record.getRecordName(), "gender", record.getGender(),
 				"bodyWeightCategory", record.getBwCatString());
 	}
