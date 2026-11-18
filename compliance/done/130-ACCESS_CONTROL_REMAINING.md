@@ -317,10 +317,11 @@ weak check by design. Done.
   exchanges a one-time ticket at `/remember`, whose HTTP response sets the cookie.
   Saving the PIN, even unchanged, forgets every browser (a new salt makes a new hash).
   Officials: unchecked by default; displays: checked.
-- A Logout entry for PIN sessions ends the session and shows the login page. A
-  remembered browser stays remembered: the login page shows the box checked, Login
-  with no PIN lets it in, and any other page lets it in directly. Unchecking the box
-  on the login page forgets the browser at once, without the PIN.
+- A Logout entry for PIN sessions ends the session and the HTTP session, forgets the
+  remembered browser, and shows the login page: the PIN is asked next time. Until a
+  logout, a remembered browser stays remembered across browser restarts: any page lets
+  it in directly. Unchecking the box on the login page forgets the browser at once,
+  without the PIN.
 - The officials PIN login also accepts the control panel token (constant time, throttled,
   audited `how=control-panel-token`), so a forgotten PIN can be replaced on the
   Administration page (Security and Audit tab); a notice says where. A token login is never remembered. The officials and

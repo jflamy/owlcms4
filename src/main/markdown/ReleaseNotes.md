@@ -11,6 +11,12 @@
 
 **Development log**
 
+- 69.0.0-rc04: User accounts: users can stay logged in on a browser until midnight, so that server restarts and closed browsers do not ask for the password again.
+  - Allowed by a new checkbox in the Security and Audit tab of the Administration page (on by default). The IWF compliance check lists it as a requirement not met when it is on.
+  - Administrators always enter their password. Logging out, changing the password or disabling the account ends it; turning the setting off prevents remembered account logins.
+
+- 69.0.0-rc04: Logout is a real logout: it ends the browser session and forgets the remembered login on that browser, so the PIN or password is asked next time. Until a logout, closing and reopening the browser keeps a remembered login (30 days for a PIN, until midnight for an account).
+
 - 69.0.0-rc04: Narrow desktop browser windows no longer switch to the mobile referee/jury home page. Phones and tablets still use the mobile home.
 
 - 69.0.0-rc04: Registration and weigh-in limited editing now starts as soon as a session is selected on a platform (introduction and countdown included), not at the first clock start. This is because the FieldOfPlay writes back computed changes.

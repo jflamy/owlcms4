@@ -35,7 +35,8 @@ The settings are as follows.  In actual practice only the first (Password for Of
 - **Password for Officials**  When doing streaming, it is possible that you want to prevent the people running the video from accessing the technical official's consoles. A password will be required for the various technical official screens
 - **Authorized IP addresses for Officials** For the same reason, you may want to instead (or in addition to password) use whitelisting.  Technical officials will be required to come from this network.  If running in the cloud but from a gym, this would be the public IP address shown by https://ip4.me/.
 - **IP Addresses Authorized to Access Displays** and **Password for Displays**.  You may want to authorize a video production company to see your displays, likely without setting a password.  The screen password setting is there for symmetry and is unlikely to be used.
-- **Remember this browser**  The login page offers to remember the browser after a correct password, for 30 days or until the password changes, so that dedicated laptops and display screens need not enter it again.
+- **Remember this browser**  The login page offers to remember the browser after a correct password, for 30 days or until the password changes or the user logs out, so that dedicated laptops and display screens need not enter it again.
+- **Allow staying logged in for the day** (user accounts only, on by default)  This setting makes the login page offer "Keep me logged in for today". The browser then stays logged in to that account until midnight (in the competition time zone when one is set), including after a restart of OWLCMS. Accounts with the administrator role always enter their password. Logging out, changing the password or disabling the account ends it; unchecking the box prevents any remembered account login until it is enabled again. The IWF compliance check reports the setting as a requirement not met while it is on.
 
 
 ### Features
