@@ -122,7 +122,7 @@ public class AuditFormatTest {
 
 	@Test
 	public void aVersionOneRecordIsRenderedWithoutTheSessionColumn() {
-		String line = "   30 | 13:10:59.868 | MARSHAL      | athlete.change      | -                                        "
+		String line = "   30 | 13:10:59.868 | MARSHAL       | athlete.change      | -                                        "
 				+ "| SN1 | change1 - -> 47";
 		String json = "{\"schemaVersion\":1,\"sequence\":30,\"timestamp\":\"2026-09-29T13:10:59.868-04:00\","
 				+ "\"platform\":\"A\",\"actor\":{\"mode\":\"PIN\",\"user\":\"-\",\"station\":\"MARSHAL\",\"index\":null,"
