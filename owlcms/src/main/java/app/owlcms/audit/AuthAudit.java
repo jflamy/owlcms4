@@ -79,6 +79,21 @@ public final class AuthAudit {
 	}
 
 	/**
+	 * A browser was given a cookie that keeps the account logged in until midnight, after a password login.
+	 *
+	 * @param until the expiry, as an ISO date-time
+	 */
+	public static void accountLoginRemembered(String clientIp, String user, String until) {
+		AuditLog.write(AuditEntry.builder(COMPETITION, "auth.browser-remembered").actor(AuditActor.http(clientIp))
+		        .details(AuditFormat.fields("account", clean(user), "until", until)).build());
+	}
+
+	/** Remembering account logins for the day was allowed or withdrawn. */
+	public static void rememberAccountLoginsChanged(AuditOrigin origin, boolean allowed) {
+		writeFor(origin, "auth.remember-account-logins", AuditFormat.fields("allowed", allowed ? "on" : "off"));
+	}
+
+	/**
 	 * A token presented on a non-interactive request was refused. Never pass the token itself.
 	 *
 	 * @param reason   "no-token", "missing", "invalid", "throttled", "forbidden", "not-token-page", "malformed",

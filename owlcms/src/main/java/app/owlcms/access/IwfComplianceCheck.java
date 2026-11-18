@@ -33,7 +33,9 @@ public final class IwfComplianceCheck {
 		 * Every database export offered is signed: the {@code noV1Export} feature switch withdraws the unsigned V1
 		 * export and turns on V2, which is always signed.
 		 */
-		SIGNED_EXPORTS("IwfCheck.SignedExports");
+		SIGNED_EXPORTS("IwfCheck.SignedExports"),
+		/** Account logins are not kept until midnight: every new browser session logs in again. */
+		NO_REMEMBERED_LOGINS("IwfCheck.NoRememberedLogins");
 
 		private final String translationKey;
 		private final String afterRestartKey;
@@ -82,7 +84,7 @@ public final class IwfComplianceCheck {
 		return evaluate(Config.getCurrent().isAccountsMode(), realKey, pendingKey(state),
 		        SameMachineProof.configuredToken() != null, FeatureSwitch.TCRR_COMPLIANCE.isEffective(),
 		        Config.getCurrent().requestedFeatureSwitch(FeatureSwitch.TCRR_COMPLIANCE),
-		        FeatureSwitch.NO_V1_EXPORT.isEffective());
+		        FeatureSwitch.NO_V1_EXPORT.isEffective(), !Config.getCurrent().allowsRememberedAccountLogins());
 	}
 
 	private static boolean pendingKey(AuditIntegrity.State state) {
@@ -99,13 +101,14 @@ public final class IwfComplianceCheck {
 	}
 
 	static List<Item> evaluate(boolean accountsMode, boolean realKey, boolean pendingKey, boolean controlPanelToken,
-	        boolean tcrrRules, boolean tcrrRequested, boolean signedExports) {
+	        boolean tcrrRules, boolean tcrrRequested, boolean signedExports, boolean noRememberedLogins) {
 		return List.of(
 		        new Item(Requirement.USER_ACCOUNTS, met(accountsMode)),
 		        new Item(Requirement.AUDIT_KEY, met(realKey, pendingKey)),
 		        new Item(Requirement.CONTROL_PANEL_TOKEN, met(controlPanelToken)),
 		        new Item(Requirement.TCRR_RULES, met(tcrrRules, tcrrRequested)),
-		        new Item(Requirement.SIGNED_EXPORTS, met(signedExports)));
+		        new Item(Requirement.SIGNED_EXPORTS, met(signedExports)),
+		        new Item(Requirement.NO_REMEMBERED_LOGINS, met(noRememberedLogins)));
 	}
 
 	private static Status met(boolean condition) {

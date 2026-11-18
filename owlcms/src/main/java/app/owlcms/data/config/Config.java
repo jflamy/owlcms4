@@ -245,6 +245,9 @@ public class Config {
 	/** Imports from the Preparation page are allowed; see {@link #allowsImports()}. */
 	@Column(name = "importsAllowed")
 	private Boolean importsAllowed;
+	/** Account logins may be remembered for the day; unset in older databases means allowed. */
+	@Column(name = "rememberAccountLogins", columnDefinition = "boolean default true")
+	private Boolean rememberAccountLogins = true;
 	private String mqttPort;
 	private String mqttUserName;
 	private String mqttPassword;
@@ -359,6 +362,20 @@ public class Config {
 
 	public void setImportsAllowed(Boolean importsAllowed) {
 		this.importsAllowed = importsAllowed;
+	}
+
+	public Boolean getRememberAccountLogins() {
+		return this.rememberAccountLogins;
+	}
+
+	public void setRememberAccountLogins(Boolean rememberAccountLogins) {
+		this.rememberAccountLogins = rememberAccountLogins;
+	}
+
+	/** @return true unless remembering account logins was explicitly disabled */
+	@JsonIgnore
+	public boolean allowsRememberedAccountLogins() {
+		return !Boolean.FALSE.equals(this.rememberAccountLogins);
 	}
 
 	/**

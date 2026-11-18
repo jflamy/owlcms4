@@ -54,4 +54,15 @@ public class RememberedBrowserTest {
 		assertNull(RememberedBrowser.redeemTicket("unknown", now));
 		assertNull(RememberedBrowser.redeemTicket(null, now));
 	}
+
+	@Test
+	public void anAccountTicketCarriesTheAccountAndThePlatformChosenAtLogin() {
+		long now = System.currentTimeMillis();
+		String ticket = RememberedBrowser.issueAccountTicket(42L, "A", now);
+		RememberedBrowser.Redeemed redeemed = RememberedBrowser.redeem(ticket, now);
+		assertEquals(Kind.ACCOUNT, redeemed.kind());
+		assertEquals(Long.valueOf(42L), redeemed.accountId());
+		assertEquals("A", redeemed.platform());
+		assertNull("used", RememberedBrowser.redeem(ticket, now));
+	}
 }

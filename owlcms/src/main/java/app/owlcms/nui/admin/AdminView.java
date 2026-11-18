@@ -116,13 +116,19 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 			AccessControlForm accessControlForm = new AccessControlForm();
 			Button accounts = openInNewTabNoParam(AccountsContent.class,
 			        Translator.translate("Access.Accounts.Title"), VaadinIcon.KEY.create());
+			// the remember option saves independently and changes the IWF checklist immediately
+			Div iwfChecklist = new Div();
+			Runnable settingsSaved = () -> {
+				accessControlForm.refreshIfClean();
+				showChecklist(iwfChecklist);
+			};
 			VerticalLayout securityTab = tab(heading("Config.AccessControlTitle"), securityStatus(),
-			        securityControls(accounts, token),
+			        securityControls(accounts, token), rememberAccountLoginsSwitch(settingsSaved),
 			        accessControlForm);
 			FlexibleGridLayout auditTrail = AccessUi.hasPermission(getPrincipal(), Permission.AUDIT_KEYS, null)
 			        ? HomeNavigationContent.navigationGrid(auditKey, auditCheck,
-			                iwfComplianceCheck(accessControlForm::refreshIfClean))
-			        : HomeNavigationContent.navigationGrid(iwfComplianceCheck(accessControlForm::refreshIfClean));
+			                iwfComplianceCheck(settingsSaved, iwfChecklist))
+			        : HomeNavigationContent.navigationGrid(iwfComplianceCheck(settingsSaved, iwfChecklist));
 			securityTab.add(heading("Admin.AuditTrail"), auditTrail);
 			if (!token) {
 				securityTab.add(helperText("Access.ControlPanelTokenNotSet"));
@@ -233,12 +239,28 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 		return allowed;
 	}
 
+	/** Accounts mode: whether the login page offers to keep the login on this browser for the day. */
+	private static Checkbox rememberAccountLoginsSwitch(Runnable settingsSaved) {
+		Checkbox allowed = new Checkbox(Translator.translate("Admin.RememberAccountLogins"),
+		        Config.getCurrent().allowsRememberedAccountLogins());
+		allowed.setHelperText(Translator.translate("Admin.RememberAccountLoginsHelp"));
+		allowed.addValueChangeListener(event -> {
+			if (!event.isFromClient()) {
+				return;
+			}
+			AuditOrigin origin = AuditOrigin.fromUi("Administration security settings");
+			if (SecuritySettings.setRememberAccountLogins(event.getValue(), origin) == Outcome.CHANGED) {
+				settingsSaved.run();
+			}
+		});
+		return allowed;
+	}
+
 	/** The checkbox, and the list of requirements while it is checked. */
-	private static VerticalLayout iwfComplianceCheck(Runnable settingsSaved) {
+	private static VerticalLayout iwfComplianceCheck(Runnable settingsSaved, Div checklist) {
 		VerticalLayout block = new VerticalLayout();
 		block.setPadding(false);
 		block.setSpacing(false);
-		Div checklist = new Div();
 		Checkbox check = new Checkbox(Translator.translate("Admin.IwfCheck"),
 		        Config.getCurrent().isIwfComplianceChecked());
 		check.setHelperText(Translator.translate("Admin.IwfCheckHelp"));

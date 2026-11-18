@@ -44,6 +44,7 @@ public class SecuritySettingsTest {
 		config.setFeatureSwitchValue(FeatureSwitch.NO_V1_EXPORT, false);
 		config.setFeatureSwitchValue(FeatureSwitch.V2_EXPORT, false);
 		config.setAccessMode(AccessMode.PIN);
+		config.setRememberAccountLogins(true);
 		Config.setCurrentTesting(config, ORIGIN);
 	}
 
@@ -79,6 +80,25 @@ public class SecuritySettingsTest {
 
 		assertEquals(Outcome.CHANGED, SecuritySettings.setIwfComplianceCheck(false, ORIGIN));
 		assertFalse(Config.getCurrent().isIwfComplianceChecked());
+	}
+
+	@Test
+	public void rememberedAccountLoginsAreOnByDefaultAndCanBeWithdrawn() {
+		Config config = new Config();
+		assertTrue(config.allowsRememberedAccountLogins());
+		config.setRememberAccountLogins(null);
+		assertTrue("older exports and databases behave as enabled", config.allowsRememberedAccountLogins());
+
+		assertEquals(Outcome.UNCHANGED,
+		        SecuritySettings.setRememberAccountLogins(true, ORIGIN));
+		assertEquals(Outcome.CHANGED,
+		        SecuritySettings.setRememberAccountLogins(false, ORIGIN));
+		assertFalse(Config.getCurrent().allowsRememberedAccountLogins());
+		assertEquals(Outcome.UNCHANGED,
+		        SecuritySettings.setRememberAccountLogins(false, ORIGIN));
+		assertEquals(Outcome.CHANGED,
+		        SecuritySettings.setRememberAccountLogins(true, ORIGIN));
+		assertTrue(Config.getCurrent().allowsRememberedAccountLogins());
 	}
 
 	@Test

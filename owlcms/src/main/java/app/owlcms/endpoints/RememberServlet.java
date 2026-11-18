@@ -3,13 +3,18 @@ package app.owlcms.endpoints;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.ZoneId;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.access.RememberedAccount;
 import app.owlcms.access.RememberedBrowser;
 import app.owlcms.access.RememberedBrowser.Kind;
+import app.owlcms.access.RememberedBrowser.Redeemed;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.audit.AuthAudit;
+import app.owlcms.data.account.UserAccount;
+import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.utils.ProxyUtils;
@@ -21,8 +26,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Exchanges a one-time ticket, issued by the PIN login page after a correct PIN, for the "remember this browser"
- * cookie. The cookie is set here because the login itself happens over the push connection.
+ * Exchanges a one-time ticket, issued by the login page after a correct PIN or account password, for the "remember
+ * this browser" cookie. The cookie is set here because the login itself happens over the push connection.
  */
 @SuppressWarnings("serial")
 public class RememberServlet extends HttpServlet {
@@ -34,14 +39,20 @@ public class RememberServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 	        throws ServletException, IOException {
 		byte[] body = request.getInputStream().readNBytes(MAX_TICKET_LENGTH);
-		Kind kind = RememberedBrowser.redeemTicket(new String(body, StandardCharsets.UTF_8), System.currentTimeMillis());
+		Redeemed redeemed = RememberedBrowser.redeem(new String(body, StandardCharsets.UTF_8),
+		        System.currentTimeMillis());
 		String host = ProxyUtils.getClientIp(request);
-		if (kind == null) {
+		if (redeemed == null) {
 			logger./**/warn("{} remember-browser ticket refused", host);
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
+		Kind kind = redeemed.kind();
 		Config config = Config.getCurrent();
+		if (kind == Kind.ACCOUNT) {
+			rememberAccount(request, response, redeemed, config, host);
+			return;
+		}
 		String pinBasis = RememberedBrowser.pinBasis(kind, config);
 		if (pinBasis == null) {
 			// no PIN: nothing to remember
@@ -50,17 +61,43 @@ public class RememberServlet extends HttpServlet {
 		}
 		String secret = rememberSecret(config);
 		long expires = Instant.now().plus(RememberedBrowser.LIFETIME).getEpochSecond();
-		Cookie cookie = new Cookie(kind.getCookieName(),
-		        RememberedBrowser.cookieValue(kind, pinBasis, secret, expires));
-		cookie.setHttpOnly(true);
-		cookie.setSecure(request.isSecure() || "https".equalsIgnoreCase(request.getHeader("X-Forwarded-Proto")));
-		cookie.setPath(cookiePath(request));
-		cookie.setMaxAge((int) RememberedBrowser.LIFETIME.toSeconds());
-		cookie.setAttribute("SameSite", "Lax");
-		response.addCookie(cookie);
+		response.addCookie(cookie(request, kind, RememberedBrowser.cookieValue(kind, pinBasis, secret, expires),
+		        (int) RememberedBrowser.LIFETIME.toSeconds()));
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		logger.info("{} browser remembered for the {} PIN", host, kind);
 		AuthAudit.browserRemembered(host, kind.name());
+	}
+
+	/** Until midnight, with the account's current password hash, if the setting and the account still allow it. */
+	private static void rememberAccount(HttpServletRequest request, HttpServletResponse response, Redeemed redeemed,
+	        Config config, String host) {
+		UserAccount account = UserAccountRepository.findById(redeemed.accountId());
+		if (!config.isAccountsMode() || !config.allowsRememberedAccountLogins()
+		        || !RememberedAccount.isRememberable(account)) {
+			response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+			return;
+		}
+		String secret = rememberSecret(config);
+		Instant now = Instant.now();
+		ZoneId zone = RememberedAccount.zone(config);
+		long expires = RememberedAccount.nextMidnight(now, zone);
+		response.addCookie(cookie(request, Kind.ACCOUNT, RememberedAccount.cookieValue(account.getId(),
+		        redeemed.platform(), account.getPasswordHash(), secret, expires),
+		        (int) (expires - now.getEpochSecond())));
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+		String until = Instant.ofEpochSecond(expires).atZone(zone).toOffsetDateTime().toString();
+		logger.info("{} login of {} remembered until {}", host, account.getUsername(), until);
+		AuthAudit.accountLoginRemembered(host, account.getUsername(), until);
+	}
+
+	private static Cookie cookie(HttpServletRequest request, Kind kind, String value, int maxAgeSeconds) {
+		Cookie cookie = new Cookie(kind.getCookieName(), value);
+		cookie.setHttpOnly(true);
+		cookie.setSecure(request.isSecure() || "https".equalsIgnoreCase(request.getHeader("X-Forwarded-Proto")));
+		cookie.setPath(cookiePath(request));
+		cookie.setMaxAge(maxAgeSeconds);
+		cookie.setAttribute("SameSite", "Lax");
+		return cookie;
 	}
 
 	/** The login page, when "remember this browser" was unchecked: the browser forgets this PIN. */
@@ -75,7 +112,7 @@ public class RememberServlet extends HttpServlet {
 				cookie.setPath(cookiePath(request));
 				cookie.setMaxAge(0);
 				response.addCookie(cookie);
-				logger.info("{} browser forgotten for the {} PIN", ProxyUtils.getClientIp(request), kind);
+				logger.info("{} browser forgotten for the {} cookie", ProxyUtils.getClientIp(request), kind);
 			}
 		}
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
@@ -87,7 +124,7 @@ public class RememberServlet extends HttpServlet {
 		response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 	}
 
-	private static String cookiePath(HttpServletRequest request) {
+	static String cookiePath(HttpServletRequest request) {
 		String contextPath = request.getContextPath();
 		return contextPath == null || contextPath.isEmpty() ? "/" : contextPath;
 	}

@@ -8,8 +8,8 @@ import app.owlcms.data.config.ConfigRepository;
 
 /**
  * The security settings of the Administration page: the access mode (PIN or user accounts), which needs the control
- * panel token (cp challenge, asked by the page), and the IWF compliance check, which only shows the requirements not
- * met (see {@link IwfComplianceCheck}).
+ * panel token (cp challenge, asked by the page), whether account logins may be remembered until midnight, and the IWF
+ * compliance check, which only shows the requirements not met (see {@link IwfComplianceCheck}).
  */
 public final class SecuritySettings {
 
@@ -43,6 +43,16 @@ public final class SecuritySettings {
 		}
 		ConfigRepository.apply(c -> c.setIwfCompliance(on), origin);
 		AuthAudit.iwfComplianceCheckChanged(origin, on);
+		return Outcome.CHANGED;
+	}
+
+	/** Takes effect at once: turning it off makes every remembered account login unusable. */
+	public static Outcome setRememberAccountLogins(boolean allowed, AuditOrigin origin) {
+		if (Config.getCurrent().allowsRememberedAccountLogins() == allowed) {
+			return Outcome.UNCHANGED;
+		}
+		ConfigRepository.apply(c -> c.setRememberAccountLogins(allowed), origin);
+		AuthAudit.rememberAccountLoginsChanged(origin, allowed);
 		return Outcome.CHANGED;
 	}
 }

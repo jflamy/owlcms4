@@ -42,6 +42,7 @@ import app.owlcms.access.PageRule;
 import app.owlcms.access.PinModeAuthenticator;
 import app.owlcms.access.Principal;
 import app.owlcms.access.PublicPage;
+import app.owlcms.access.RememberedAccount;
 import app.owlcms.access.RememberedBrowser;
 import app.owlcms.access.SameMachineProof;
 import com.vaadin.flow.router.Route;
@@ -109,6 +110,8 @@ public class LoginView extends Composite<VerticalLayout>
 	private boolean remembered;
 	private TextField usernameField = new TextField();
 	private PasswordField passwordField = new OwlcmsPasswordField();
+	/** Accounts mode, when the Administration page allows it: keep the login on this browser until midnight. */
+	private Checkbox keepLoggedIn = new Checkbox();
 	private Span errorMessage = new Span();
 	private OwlcmsLayout routerLayout;
 
@@ -201,6 +204,16 @@ public class LoginView extends Composite<VerticalLayout>
 		this.usernameField.setAutocomplete(Autocomplete.USERNAME);
 		this.usernameField.setAutofocus(true);
 		this.usernameField.setWidthFull();
+		// the built-in administrator is never remembered, including while its role grants are being repaired
+		this.usernameField.setValueChangeMode(ValueChangeMode.EAGER);
+		this.usernameField.addValueChangeListener(event -> {
+			boolean admin = UserAccount.BUILT_IN_ADMIN
+			        .equals(UserAccount.normalizeUsername(event.getValue()));
+			this.keepLoggedIn.setVisible(!admin);
+			if (admin) {
+				this.keepLoggedIn.clear();
+			}
+		});
 
 		this.passwordField.setLabel(Translator.translate("Access.Password"));
 		this.passwordField.setAutocomplete(Autocomplete.CURRENT_PASSWORD);
@@ -224,7 +237,12 @@ public class LoginView extends Composite<VerticalLayout>
 			notice.getStyle().set("color", "var(--lumo-secondary-text-color)");
 			form.add(notice);
 		}
-		form.add(this.usernameField, this.passwordField, this.errorMessage, button);
+		form.add(this.usernameField, this.passwordField);
+		if (Config.getCurrent().allowsRememberedAccountLogins()) {
+			this.keepLoggedIn.setLabel(Translator.translate("Access.Login.KeepLoggedIn"));
+			form.add(this.keepLoggedIn);
+		}
+		form.add(this.errorMessage, button);
 		form.setWidth("20em");
 		form.setAlignSelf(Alignment.CENTER, button);
 		getContent().add(form);
@@ -332,6 +350,15 @@ public class LoginView extends Composite<VerticalLayout>
 		}
 		logger.info("login user={} ip={} how={}", account.getUsername(), clientIp, how);
 		AuthAudit.loginSucceeded("ACCOUNTS", account.getUsername(), how, loginAuditPlatforms(principal));
+		// a password login only: never the control panel token, never an administrator
+		if ("password".equals(how) && this.keepLoggedIn.getValue()
+		        && Config.getCurrent().allowsRememberedAccountLogins() && RememberedAccount.isRememberable(account)) {
+			String ticket = RememberedBrowser.issueAccountTicket(account.getId(), principal.loginPlatform(),
+			        System.currentTimeMillis());
+			UI.getCurrent().getPage().executeJs(
+			        "fetch('remember', {method: 'POST', body: $0, credentials: 'same-origin', keepalive: true})",
+			        ticket);
+		}
 		redirect();
 	}
 
