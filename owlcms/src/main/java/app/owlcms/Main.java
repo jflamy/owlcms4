@@ -536,15 +536,19 @@ public class Main {
 
     /**
      * The only shutdown hook. Shutdown hooks run concurrently, so the steps are kept in one hook, in order: the inputs
-     * close first (MQTT devices, then web pages), then the audit log is sealed and finalized, and only then may the
+     * close first (web pages, then MQTT devices), then the audit log is sealed and finalized, and only then may the
      * process be halted. Each step runs even if an earlier one failed, and the audit log is always finalized last.
+     * <p>
+     * The web server stops first because it must stop answering at once: the broker takes seconds to stop, and a
+     * server that still answers while its other services are gone sends error pages to browsers, which then stop
+     * waiting for the restart (in development, the front-end server is gone as soon as the stop is signalled).
      */
     private static void shutdown() {
         try {
             runShutdownStep("prepare for exit", Main::prepareForExit);
+            runShutdownStep("stop the web server", EmbeddedJetty::stopForShutdown);
             runShutdownStep("disconnect the MQTT clients", () -> MQTTMonitor.disconnectForAll(MQTT_DISCONNECT_WAIT_MS));
             runShutdownStep("stop the MQTT broker", Main::stopBroker);
-            runShutdownStep("stop the web server", EmbeddedJetty::stopForShutdown);
         } finally {
             finishAuditLog();
         }

@@ -9,6 +9,7 @@ package app.owlcms;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -138,6 +139,9 @@ public class MainWrapper {
                     return;
                 }
                 logger./**/warn("Subprocess refused the stop request on port {} (HTTP {})", port, status);
+            } catch (ConnectException e) {
+                // expected when the signal that stops the wrapper also reached owlcms, which closes its web server first
+                logger.info("Subprocess is not accepting requests on port {}: already stopping, or not started", port);
             } catch (IOException e) {
                 logger./**/warn("Stop request to the subprocess on port {} failed: {}", port, e.toString());
             }
