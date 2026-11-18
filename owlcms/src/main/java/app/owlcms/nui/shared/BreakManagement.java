@@ -64,7 +64,6 @@ import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -134,7 +133,6 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 	 */
 	BreakManagement(FieldOfPlay fop, BreakType requestedBreak, CountdownType requestedCountdownType,
 	        Integer countdownSecondsRemaining, Dialog parentDialog, Object origin) {
-		this.logger.setLevel(Level.DEBUG);
 		FieldOfPlay effectiveFop = Objects.requireNonNull(fop, "FieldOfPlay required");
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug("{}BreakManagement request {} {} {} {}",
@@ -182,7 +180,6 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 	 * @param origin the origin
 	 */
 	BreakManagement(FieldOfPlay fop, Dialog parentDialog, Object origin) {
-		this.logger.setLevel(Level.DEBUG);
 		this.requestedBreak = null;
 		this.requestedCountdownType = null;
 		this.fop = Objects.requireNonNull(fop, "FieldOfPlay required");

@@ -96,7 +96,6 @@ import app.owlcms.nui.lifting.NextAthleteAble;
 import app.owlcms.nui.lifting.WeighinContent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -149,7 +148,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		super(domainType);
 		this.setCurrentGroup(group);
 		this.setPreviousNext(parentGrid);
-		logger.setLevel(Level.DEBUG);
 	}
 
 	/**
