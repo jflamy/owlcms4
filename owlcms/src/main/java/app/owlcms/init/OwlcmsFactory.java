@@ -202,7 +202,7 @@ public class OwlcmsFactory {
 	}
 
 	/**
-	 * @return the platform on which the session is selected and in progress (see
+	 * @return the platform on which the session is selected, and therefore in progress (see
 	 *         {@link FieldOfPlay#isSessionInProgress()}), null if none. Athletes of such a session must not be edited
 	 *         outside the platform, since the platform keeps its own copies of them. This is a status check: once the
 	 *         session is unselected, editing is possible again.

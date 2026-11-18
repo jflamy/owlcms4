@@ -23,9 +23,8 @@ import app.owlcms.uievents.UIEvent;
 
 /**
  * Closes a full registration form when the athlete's session becomes in progress while the form is open. The session
- * starts with the first athlete clock (a StartTime event) or when a session that already has completed attempts is
- * selected (a SwitchGroup event); both are posted on the platform's UI event bus after the platform has recorded the
- * start. Introductions and countdowns post neither, so they do not close the form, and neither does any other session.
+ * is in progress as soon as it is selected on a platform (a SwitchGroup event, posted on the platform's UI event bus
+ * after the platform has loaded the session), before the introduction; no other session closes the form.
  * <p>
  * The form is never saved or converted: its unsaved changes are discarded, the user is told, and reopening the athlete
  * offers restricted athlete information (and an independent Card on Supervisor/results). Full registration saves
@@ -49,11 +48,6 @@ final class RegistrationSessionWatcher {
 		this.onStarted = onStarted;
 		owner.addAttachListener(e -> register());
 		owner.addDetachListener(e -> unregister());
-	}
-
-	@Subscribe
-	public void onClockStarted(UIEvent.StartTime e) {
-		check();
 	}
 
 	@Subscribe

@@ -116,7 +116,6 @@ public class DeclaredWithdrawalTest {
 		assertNotEquals(both.getId(), fop.getCurAthlete().getId());
 		assertNotEquals(snatchOnly.getId(), fop.getCurAthlete().getId());
 		assertTrue(fop.getCurAthlete().getNextAttemptRequestedWeight() >= 2);
-		assertFalse("a declared withdrawal does not start the session", fop.isSessionInProgress());
 	}
 
 	private static Athlete declared(String snatch, String cleanJerk) {

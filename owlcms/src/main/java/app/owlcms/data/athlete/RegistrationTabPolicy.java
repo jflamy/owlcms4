@@ -7,9 +7,9 @@
 package app.owlcms.data.athlete;
 
 /**
- * The registration side becomes restricted during a session. Registration/Supervisor/results may still offer the
- * independent Card once lifting has started in the athlete's session. Decisions use stored athletes, not the grid's
- * session filter.
+ * The registration side becomes restricted as soon as the athlete's session is selected on a platform.
+ * Registration/Supervisor/results may then offer the independent Card, which saves through the platform; they also
+ * offer it when the session has recorded attempts. Decisions use stored athletes, not the grid's session filter.
  */
 public final class RegistrationTabPolicy {
 
@@ -17,9 +17,9 @@ public final class RegistrationTabPolicy {
 	public enum CardEntry {
 		/** No Card tab (team selection and weigh-in). */
 		NONE,
-		/** Card after lifting starts; keep the registration/information side selected first (registration page). */
+		/** Card once the session is selected or has results; keep the registration/information side first (registration page). */
 		AVAILABLE,
-		/** Card after lifting starts, and selected first (supervisor, results pages). */
+		/** Card once the session is selected or has results, and selected first (supervisor, results pages). */
 		CARD_FIRST
 	}
 
@@ -29,7 +29,7 @@ public final class RegistrationTabPolicy {
 
 	/**
 	 * @param restrictedRegistration only safe information fields may replace the normal registration tabs
-	 * @param cardTab      the independent Card is offered by the entry page after lifting starts
+	 * @param cardTab      the independent Card is offered by the entry page once the session is selected or has results
 	 * @param initialTab   the tab selected when the form opens
 	 */
 	public record Layout(boolean restrictedRegistration, boolean cardTab, Tab initialTab) {

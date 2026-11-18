@@ -65,6 +65,7 @@ import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.ConcurrentEditDialog;
 import app.owlcms.nui.shared.CustomFormFactory;
@@ -161,26 +162,34 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	private boolean allowSessionInProgress;
 	private Runnable cardSaved;
 	private Runnable cardDiscarded;
+	private Runnable cardClosedByLifting;
 	private boolean cardTabSelected = true;
 
 	public void setCardTabSelected(boolean selected) {
 		this.cardTabSelected = selected;
 	}
 
+	/**
+	 * @param closedByLifting runs on the UI thread when the athlete gets the down signal or a decision on the platform
+	 *                        where the athlete's session is selected; the Card tab cannot close alone, so this closes
+	 *                        its whole form without confirmation
+	 */
 	public AthleteCardFormFactory setSharedEditor(FormSaveTask task, Runnable saved, Runnable discarded,
-	        boolean allowSessionInProgress) {
+	        Runnable closedByLifting, boolean allowSessionInProgress) {
 		this.sharedEditor = true;
 		this.allowSessionInProgress = allowSessionInProgress;
 		this.saveTask = task;
 		this.cardSaved = saved;
 		this.cardDiscarded = discarded;
+		this.cardClosedByLifting = closedByLifting;
 		return this;
 	}
 
 	/**
 	 * Card body. While it is attached, it listens on the FOP UI bus so that the card closes when its athlete gets the
-	 * down signal or a decision. It unsubscribes when the dialog closes, because the factory builds a new instance for
-	 * every card.
+	 * down signal or a decision. A standalone card listens on its page's platform; a Card tab listens on the platform
+	 * where the athlete's session is selected, if any. It unsubscribes when detached, because the factory builds a new
+	 * instance for every card.
 	 */
 	private class FormComponent extends VerticalLayout {
 		private static final long serialVersionUID = 1L;
@@ -209,10 +218,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		}
 
 		private void subscribe() {
-			if (AthleteCardFormFactory.this.sharedEditor) {
-				return;
-			}
-			FieldOfPlay fop = AthleteCardFormFactory.this.origin.getFop();
+			FieldOfPlay fop = AthleteCardFormFactory.this.sharedEditor
+			        ? (this.cardAthlete != null ? OwlcmsFactory.getFOPWithGroup(this.cardAthlete.getGroup()) : null)
+			        : AthleteCardFormFactory.this.origin.getFop();
 			if (fop == null) {
 				return;
 			}
@@ -237,7 +245,13 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 				}
 				logger.info("{}Athlete card closed on event {} for athlete {}", FieldOfPlay.getLoggingName(fop),
 				        e.getClass().getSimpleName(), this.cardAthlete.getId());
-				AthleteCardFormFactory.this.origin.closeDialog();
+				if (AthleteCardFormFactory.this.sharedEditor) {
+					AthleteCardFormFactory.this.cardClosedByLifting.run();
+				} else {
+					AthleteCardFormFactory.this.origin.closeDialog();
+				}
+				NotificationUtils.centeredError(
+				        Translator.translate("Athlete.ClosedByDecision", this.cardAthlete.getFullName()), 3000);
 			});
 		}
 	}

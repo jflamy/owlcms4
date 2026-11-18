@@ -113,6 +113,15 @@ public class NotificationUtils {
 	 * Centered red notification that stays until the user clicks it (dismissal ✕ shown).
 	 */
 	public static Notification centeredError(String text) {
+		return centeredError(text, 0);
+	}
+
+	/**
+	 * Centered red notification with a dismissal ✕; it also closes by itself after the duration.
+	 *
+	 * @param durationMillis 0 to stay until clicked
+	 */
+	public static Notification centeredError(String text, int durationMillis) {
 		Notification n = new Notification();
 		Div div = new Div();
 		div.setText(text + "\u00A0\u00A0\u00A0\u2715");
@@ -122,7 +131,7 @@ public class NotificationUtils {
 		n.add(div);
 		n.addThemeVariants(NotificationVariant.LUMO_ERROR);
 		n.setPosition(Position.MIDDLE);
-		n.setDuration(0);
+		n.setDuration(durationMillis);
 		n.open();
 		return n;
 	}

@@ -84,12 +84,11 @@ Custom score is included in card snapshots/comparison and labeled using the exis
 
 ### Session in progress — implemented
 
-"Beyond the first lift" was too late: a session could be selected and its clock running while registration data was still saveable. The predicate is now `FieldOfPlay.isSessionInProgress()`, and `OwlcmsFactory.getFOPSessionInProgress(group)` finds the platform where it holds:
+"Beyond the first lift" was too late: a session could be selected and its clock running while registration data was still saveable. Waiting for the first clock start was also too late: once a session is selected, the platform holds its own copies of the athletes and writes them back, so a registration or weigh-in change made during the introduction would be overwritten. The predicate is now `FieldOfPlay.isSessionInProgress()`, and `OwlcmsFactory.getFOPSessionInProgress(group)` finds the platform where it holds:
 
-- **Selection:** when a session is selected, it is in progress if any of its athletes already has a completed attempt (good or failed); otherwise it is not.
-- **First clock start:** starting the athlete clock while a session is selected marks it in progress.
-- **Stops, resets, breaks, and reloads of the same session:** no change.
-- **Unselection or switching to another session:** clears the status; a newly selected session is evaluated as above.
+- **Selection:** a session is in progress as soon as it is selected on a platform, before the introduction and the countdown to the first snatch, whether or not it has completed attempts.
+- **Clock starts, stops, resets, breaks, and reloads of the same session:** no change.
+- **Unselection or switching to another session:** clears the status of the previous session; a newly selected session is in progress.
 
 The same predicate guards registration, weigh-in, and team-selection editing, and session results / package editing. It is a status check, not a lock.
 

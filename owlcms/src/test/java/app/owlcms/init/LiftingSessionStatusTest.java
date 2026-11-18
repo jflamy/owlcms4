@@ -49,9 +49,9 @@ import app.owlcms.tests.TestStartup;
 import app.owlcms.uievents.BreakType;
 
 /**
- * A session is in progress from the first athlete clock start (or when selected with completed attempts) until it is
- * unselected. These backend checks support metadata-only registration while a session is in progress, independently
- * of the future tabbed editor. Standalone lifting cards retain their own save checks.
+ * A session is in progress as soon as it is selected on a platform, before the introduction, until it is unselected.
+ * These backend checks support metadata-only registration while a session is in progress, independently of the
+ * future tabbed editor. Standalone lifting cards retain their own save checks.
  */
 public class LiftingSessionStatusTest {
 	private Map<String, FieldOfPlay> previous;
@@ -103,10 +103,9 @@ public class LiftingSessionStatusTest {
 	}
 
 	@Test
-	public void owningPlatformIsResolvedByIdBeforeTheSessionStarts() {
+	public void owningPlatformIsResolvedById() {
 		assertNull(OwlcmsFactory.getFOPWithGroup(this.gA));
 		select(this.gA);
-		assertFalse(this.fop.isSessionInProgress());
 		Group renamedCopy = new Group("Renamed");
 		renamedCopy.setId(this.gA.getId());
 		assertSame(this.fop, OwlcmsFactory.getFOPWithGroup(renamedCopy));
@@ -184,12 +183,12 @@ public class LiftingSessionStatusTest {
 	}
 
 	@Test
-	public void selectedSessionAllowsEditingUntilTheFirstClockStart() {
+	public void selectingTheSessionPutsItInProgressBeforeTheIntroduction() {
 		select(this.gA);
-		assertNotInProgress(this.gA);
+		assertInProgress(this.gA);
+		post(new FOPEvent.BreakStarted(BreakType.BEFORE_INTRODUCTION, CountdownType.INDEFINITE, 0, null, true, this));
+		assertInProgress(this.gA);
 		post(new FOPEvent.StartLifting(this));
-		assertNotInProgress(this.gA);
-		post(new FOPEvent.TimeStarted(this));
 		assertInProgress(this.gA);
 	}
 
@@ -207,12 +206,10 @@ public class LiftingSessionStatusTest {
 	}
 
 	@Test
-	public void registrationFormChoiceChangesAtSessionStartAndUnselection() {
+	public void registrationFormChoiceChangesAtSessionSelectionAndUnselection() {
 		Athlete athlete = AthleteRepository.findAllByGroupAndWeighIn(this.gA, true).getFirst();
-		select(this.gA);
-		post(new FOPEvent.StartLifting(this));
 		assertFalse(RegistrationEditCheck.requiresMetadataForm(athlete));
-		post(new FOPEvent.TimeStarted(this));
+		select(this.gA);
 		assertTrue(RegistrationEditCheck.requiresMetadataForm(athlete));
 		select(null);
 		assertFalse(RegistrationEditCheck.requiresMetadataForm(athlete));
@@ -237,7 +234,7 @@ public class LiftingSessionStatusTest {
 	}
 
 	@Test
-	public void tabPolicyKeepsTheOriginalFormBeforeLiftingStarts() {
+	public void tabPolicyKeepsTheOriginalFormBeforeTheSessionIsSelected() {
 		Athlete athlete = AthleteRepository.findAllByGroupAndWeighIn(this.gA, true).getFirst();
 		athlete = AthleteRepository.findById(athlete.getId());
 
@@ -262,8 +259,8 @@ public class LiftingSessionStatusTest {
 	}
 
 	@Test
-	public void firstClockStartRestrictsRegistrationButAllowsTheSupervisorCard() {
-		startClock(this.gA);
+	public void selectingTheSessionRestrictsRegistrationButAllowsTheSupervisorCard() {
+		select(this.gA);
 		Athlete stored = AthleteRepository.findAllByGroupAndWeighIn(this.gA, true).getFirst();
 		assertEquals(0, stored.getAttemptsDone().intValue());
 		assertEquals("results pages open on Card even when the athlete has no result",
@@ -388,34 +385,20 @@ public class LiftingSessionStatusTest {
 	}
 
 	@Test
-	public void unselectionAllowsEditingAndReselectionWithoutCompletedAttemptsKeepsItAllowed() {
+	public void unselectionAllowsEditingAndReselectionRestoresTheLimitedMode() {
 		startClock(this.gA);
 		select(null);
 		assertNotInProgress(this.gA);
 		select(this.gA);
-		assertNotInProgress(this.gA);
+		assertInProgress(this.gA);
 	}
 
 	@Test
-	public void switchingToAnotherSessionStartsItAsNotInProgress() {
+	public void switchingToAnotherSessionMovesTheLimitedMode() {
 		startClock(this.gA);
 		select(this.gB);
 		assertNotInProgress(this.gA);
-		assertNotInProgress(this.gB);
-	}
-
-	@Test
-	public void selectingASessionWithACompletedAttemptMakesItInProgress() {
-		for (String result : List.of("60", "-60")) {
-			select(null);
-			Athlete lifter = AthleteRepository.findAllByGroupAndWeighIn(this.gA, true).get(0);
-			lifter.setValidation(false);
-			lifter.setSnatch1Declaration("60");
-			lifter.setSnatch1ActualLift(result);
-			AthleteRepository.save(lifter);
-			select(this.gA);
-			assertInProgress(this.gA);
-		}
+		assertInProgress(this.gB);
 	}
 
 	@Test

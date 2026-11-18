@@ -1449,8 +1449,10 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				refreshGridBehind();
 				closeAfterCardSave(page);
 			};
+			// Down signal or decision: close at once, as the Marshal's card does; unsaved changes on both tabs are abandoned.
+			Runnable closedByLifting = () -> closeSharedEditor(page);
 			AthleteCardFormFactory cardFactory = new AthleteCardFormFactory(this.editor, page, Athlete.class, origin)
-			        .setSharedEditor(this.saveTask, saved, discard, allowInProgress);
+			        .setSharedEditor(this.saveTask, saved, discard, closedByLifting, allowInProgress);
 			container.add(cardFactory.buildNewForm(CrudOperation.UPDATE, stored, readOnly,
 			        e -> discard.run(), e -> {}, null));
 			return cardFactory;

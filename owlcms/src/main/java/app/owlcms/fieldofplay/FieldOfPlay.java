@@ -195,7 +195,6 @@ public class FieldOfPlay implements IUnregister {
 	private CeremonyType ceremonyType;
 	private volatile CeremonyScope activeCeremony;
 	private boolean cjStarted;
-	private volatile boolean sessionStarted;
 	/**
 	 * the clock owner is the last athlete for whom the clock has actually started.
 	 */
@@ -1909,9 +1908,6 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void checkFirstClockForLift() {
-		if (getGroup() != null) {
-			this.sessionStarted = true;
-		}
 		if (getAthleteTimer().getTimeRemaining() == Competition.athleteTimerOneMinute) {
 			if (this.isFirstSnatch()) {
 				getGroup().setFirstSnatchTime(LocalDateTime.now(), this);
@@ -2007,13 +2003,14 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * A session is in progress once the athlete clock has been started for it, or if it already had completed
-	 * attempts when selected. Stops, resets and breaks do not change this; unselecting the session clears it.
+	 * A session is in progress as soon as it is selected on this platform, including the introduction and the
+	 * countdown before the first snatch: from then on the platform holds its own copies of the athletes and writes them
+	 * back. Clock starts, stops, breaks and reloads do not change this; unselecting the session clears it.
 	 *
 	 * @return true if registration and results data for the selected session must not be edited.
 	 */
 	public boolean isSessionInProgress() {
-		return this.group != null && this.sessionStarted;
+		return this.group != null;
 	}
 
 	public boolean isClockStoppedDecisionsAllowed() {
@@ -2315,9 +2312,6 @@ public class FieldOfPlay implements IUnregister {
 						.filter(a -> a.getCategory() != null).toList();
 			}
 
-			if (groupAthletes.stream().anyMatch(a -> a.getAttemptsDone() > 0)) {
-				this.sessionStarted = true;
-			}
 			applyDeclaredWithdrawals(groupAthletes);
 			init(groupAthletes, this.athleteTimer, this.breakTimer, alreadyLoaded);
 			this.lastGroupLoaded = now;
@@ -2591,11 +2585,6 @@ public class FieldOfPlay implements IUnregister {
 	 * @param group the group to set
 	 */
 	public void setGroup(Group group) {
-		boolean sameGroup = group != null && this.group != null
-				&& (group == this.group || (group.getId() != null && group.getId().equals(this.group.getId())));
-		if (!sameGroup) {
-			this.sessionStarted = false;
-		}
 		this.group = group;
 	}
 
