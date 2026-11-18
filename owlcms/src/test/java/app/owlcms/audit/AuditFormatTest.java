@@ -160,6 +160,20 @@ public class AuditFormatTest {
 	}
 
 	@Test
+	public void stationColumnFitsJuryMemberNames() {
+		AuditEntry entry = AuditEntry.builder("A", "jury.vote")
+				.actor(AuditActor.device("JURY_MEMBER", 1, "jurybox"))
+				.build();
+
+		String line = AuditFormat.format(5, entry, OffsetDateTime.parse("2026-09-29T13:10:59.868-04:00"),
+				false);
+		String[] columns = line.split(" \\| ", -1);
+
+		assertEquals("JURY_MEMBER#1", columns[2].strip());
+		assertEquals(13, columns[2].length());
+	}
+
+	@Test
 	public void decisionsBreaksAndForcedClocksKeepTheirRawEvidence() throws Exception {
 		String platform = "events-audit-" + UUID.randomUUID();
 		FieldOfPlay fop = new FieldOfPlay();

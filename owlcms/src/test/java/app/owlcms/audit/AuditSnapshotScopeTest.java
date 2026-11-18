@@ -83,26 +83,44 @@ public class AuditSnapshotScopeTest {
 	}
 
 	@Test
-	public void logsOnly() throws Exception {
+	public void auditLogsOnly() throws Exception {
 		List<String> names = entries(Scope.LOGS);
 		assertFalse(names.toString(), names.stream().anyMatch(AuditSnapshotScopeTest::isExport));
-		assertTrue(names.toString(), names.stream().allMatch(name -> name.startsWith("logs/")));
-		if (Files.isDirectory(AuditSnapshot.LOGS_DIRECTORY)) {
-			assertFalse("the logs directory exists, so some log is zipped", names.isEmpty());
+		assertTrue(names.toString(), names.stream().allMatch(name -> name.startsWith("logs/audit/")));
+		if (Files.isDirectory(AuditSnapshot.LOGS_DIRECTORY.resolve("audit"))) {
+			assertFalse("the audit log directory exists, so some log is zipped", names.isEmpty());
 		}
 	}
 
 	@Test
-	public void exportAndLogs() throws Exception {
+	public void exportAndAuditLogs() throws Exception {
 		List<String> names = entries(Scope.LOGS_AND_EXPORT);
+		assertEquals(1, names.stream().filter(AuditSnapshotScopeTest::isExport).count());
+		assertTrue(names.stream().allMatch(name -> isExport(name) || name.startsWith("logs/audit/")));
+	}
+
+	@Test
+	public void exportAuditAndTechnicalLogs() throws Exception {
+		List<String> names = entries(Scope.AUDIT_TECHNICAL_LOGS_AND_EXPORT);
 		assertEquals(1, names.stream().filter(AuditSnapshotScopeTest::isExport).count());
 		assertTrue(names.stream().allMatch(name -> isExport(name) || name.startsWith("logs/")));
 	}
 
 	@Test
+	public void scopesSelectAuditAndTechnicalFilesSeparately() throws Exception {
+		Path root = temporary.newFolder("scope-logs").toPath();
+		Files.writeString(Files.createDirectories(root.resolve("audit")).resolve("A_plain.log"), "audit");
+		Files.writeString(root.resolve("owlcms.log"), "technical");
+
+		assertEquals(List.of("scope-logs/audit/A_plain.log"), selected(root, Scope.LOGS_AND_EXPORT));
+		assertEquals(List.of("scope-logs/audit/A_plain.log", "scope-logs/owlcms.log"),
+		        selected(root, Scope.AUDIT_TECHNICAL_LOGS_AND_EXPORT));
+	}
+
+	@Test
 	public void anomalyIsRecordedAndTheZipIsTheUsualOne() throws Exception {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		AuditSnapshot.writeTo(bytes, Scope.LOGS_AND_EXPORT, AuditActor.system(), "clock\nstopped");
+		AuditSnapshot.writeTo(bytes, Scope.AUDIT_TECHNICAL_LOGS_AND_EXPORT, AuditActor.system(), "clock\nstopped");
 		List<String> names = new ArrayList<>();
 		try (ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
 			for (ZipEntry entry; (entry = zip.getNextEntry()) != null;) {
@@ -162,14 +180,28 @@ public class AuditSnapshotScopeTest {
 		Files.setLastModifiedTime(after, FileTime.from(since.plusSeconds(60)));
 		Files.setLastModifiedTime(hidden, FileTime.from(since.plusSeconds(60)));
 
-		assertEquals(List.of("logs/audit/at.log", "logs/owlcms.log"), selected(root, since));
-		assertEquals(List.of("logs/audit/at.log", "logs/before.log", "logs/owlcms.log"), selected(root, null));
+		assertEquals(List.of("logs/audit/at.log", "logs/owlcms.log"), selectedSince(root, since));
+		assertEquals(List.of("logs/audit/at.log", "logs/before.log", "logs/owlcms.log"), selectedSince(root, null));
 	}
 
-	private static List<String> selected(Path root, Instant since) throws Exception {
+	private static List<String> selectedSince(Path root, Instant since) throws Exception {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		try (ZipOutputStream zip = new ZipOutputStream(bytes)) {
 			AuditSnapshot.zipLogs(root, file -> AuditSnapshot.checkpointSelects(file, since), zip);
+		}
+		List<String> names = new ArrayList<>();
+		try (ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
+			for (ZipEntry entry; (entry = zip.getNextEntry()) != null;) {
+				names.add(entry.getName());
+			}
+		}
+		return names;
+	}
+
+	private static List<String> selected(Path root, Scope scope) throws Exception {
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		try (ZipOutputStream zip = new ZipOutputStream(bytes)) {
+			AuditSnapshot.zipLogs(root, file -> scope.includes(root, file), zip);
 		}
 		List<String> names = new ArrayList<>();
 		try (ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {

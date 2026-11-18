@@ -193,8 +193,8 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 	}
 
 	/**
-	 * Downloads the database export and the logs, with the operator's description recorded in the audit trail before
-	 * the logs are sealed, so that the zip holds it.
+	 * Downloads the database export, audit logs and technical logs, with the operator's description recorded in the
+	 * audit trail before the logs are sealed, so that the zip holds it.
 	 */
 	private void openAnomalyDialog() {
 		Dialog dialog = new Dialog();
@@ -209,7 +209,7 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 		AtomicReference<String> text = new AtomicReference<>("");
 		Div download = DownloadButtonFactory.createDynamicZipDownloadButton("owlcms_anomaly",
 		        Translator.translate("Admin.AnomalyDownload"),
-		        () -> AuditSnapshot.stream(Scope.LOGS_AND_EXPORT, actor.get(), text.get()));
+		        () -> AuditSnapshot.stream(Scope.AUDIT_TECHNICAL_LOGS_AND_EXPORT, actor.get(), text.get()));
 		download.getChildren().filter(LazyDownloadButton.class::isInstance).findFirst()
 		        .ifPresent(button -> ((LazyDownloadButton) button).addClickListener(event -> {
 			        actor.set(AuditActor.capture(this).atStation("ADMIN", null, false));

@@ -33,10 +33,10 @@ import ch.qos.logback.classic.Logger;
 /**
  * A backup of every log, taken at a quiet point, for the competition director to copy off the machine.
  * <p>
- * The database export is written first so its {@code export.json} checksum line is sealed, then every
- * sealed stream is forced into a new file so the previous files are finalized. The whole {@code logs}
- * tree goes into the zip, application logs included; only the sealed files just opened by the roll are
- * left out, since they hold nothing yet. The checker reports any tail left by an earlier crash as partial.
+ * The database export is written first so its checksum line is sealed, then every sealed stream is
+ * forced into a new file so the previous files are finalized. Audit-only scopes include
+ * {@code logs/audit}; scopes with technical logs include the rest of the {@code logs} tree too. Only
+ * the sealed files just opened by the roll are left out, since they hold nothing yet.
  */
 public final class AuditSnapshot {
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(AuditSnapshot.class);
@@ -47,18 +47,28 @@ public final class AuditSnapshot {
 	private static final int MAX_DESCRIPTION = 500;
 
 	public enum Scope {
-		EXPORT, LOGS, LOGS_AND_EXPORT, LOGS_EXPORT_AND_LOCAL;
+		EXPORT, LOGS, LOGS_AND_EXPORT, AUDIT_TECHNICAL_LOGS_AND_EXPORT, LOGS_EXPORT_AND_LOCAL;
 
 		boolean export() {
 			return this != LOGS;
 		}
 
-		boolean logs() {
+		boolean auditLogs() {
 			return this != EXPORT;
+		}
+
+		boolean technicalLogs() {
+			return this == AUDIT_TECHNICAL_LOGS_AND_EXPORT || this == LOGS_EXPORT_AND_LOCAL;
 		}
 
 		boolean local() {
 			return this == LOGS_EXPORT_AND_LOCAL;
+		}
+
+		boolean includes(Path root, Path file) {
+			Path relative = root.relativize(file);
+			boolean audit = relative.startsWith("audit");
+			return audit ? auditLogs() : technicalLogs();
 		}
 	}
 
@@ -119,9 +129,10 @@ public final class AuditSnapshot {
 		}
 		AuditLog.write(AuditEntry.builder("competition", ACTION).actor(effective)
 				.details(AuditFormat.fields("scope", scope.name())).build());
-		if (scope.logs()) {
+		if (scope.auditLogs()) {
 			Set<Path> open = AuditLog.rollover();
-			zipLogs(LOGS_DIRECTORY, open, zip);
+			zipLogs(LOGS_DIRECTORY, file -> scope.includes(LOGS_DIRECTORY, file)
+			        && open.stream().noneMatch(path -> sameFile(path, file)), zip);
 		}
 		if (scope.local()) {
 			Path local = ResourceWalker.getLocalDirPath();

@@ -57,7 +57,7 @@ public final class AuditFormat {
 		List<String> columns = new ArrayList<>(List.of(
 				String.format(Locale.ROOT, "%5d", record.sequence()),
 				TIME.format(OffsetDateTime.parse(record.timestamp())),
-				String.format(Locale.ROOT, "%-12s", value(record.actor().displayStation())),
+				String.format(Locale.ROOT, "%-13s", value(record.actor().displayStation())),
 				String.format(Locale.ROOT, "%-19s", value(record.action())),
 				String.format(Locale.ROOT, "%-40s", athlete)));
 		if (record.schemaVersion() >= 2) {

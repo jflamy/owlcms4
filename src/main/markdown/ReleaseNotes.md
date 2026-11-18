@@ -24,8 +24,7 @@
   - show the difference from the previous requested weight for athlete declarations and changes.
   - clock events and weight changes show the scoreboard time and the exact milliseconds.
   - the `_plain_` files are for people. Each `_sealed_` line starts with the same readable text and ends with `json=` and a self-contained JSON object meant for programs: sequence, time, station and user, athlete, attempt, raw values before and after, previous requested weight, clock in milliseconds, and the other details.
-
-- 69.0.0-rc04: Record audit details list the lift and age group first.
+  - Record audit details list the lift and age group first.
 
 - 69.0.0-rc04: In mixed-gender sessions, the moving down checks were not enabled because first man could be lower than last woman. Now fixed (going from women to men resets the values as if it was a new session)
 
