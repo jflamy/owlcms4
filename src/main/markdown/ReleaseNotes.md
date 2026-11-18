@@ -11,6 +11,8 @@
 
 **Development log**
 
+- 69.0.0-rc04: Narrow desktop browser windows no longer switch to the mobile referee/jury home page. Phones and tablets still use the mobile home.
+
 - 69.0.0-rc04: Registration and weigh-in limited editing now starts as soon as a session is selected on a platform (introduction and countdown included), not at the first clock start. This is because the FieldOfPlay writes back computed changes.
   - An open full registration or weigh-in form for that session is closed when the session is selected. In limited mode, name, team and records remain editable.
   - The registration page then offers a Card tab, and the results and Competition Supervisor pages open on the Card (in User Accounts mode, only for accounts allowed to edit athlete cards). Card changes go through the platform. As on the Marshal and Announcer cards, the form closes when the athlete gets the down signal or a decision, unsaved changes are abandoned, and a notification now says so on all three. The weigh-in page has no Card tab.
