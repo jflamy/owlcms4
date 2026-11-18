@@ -35,8 +35,8 @@ public final class PinModeAuthenticator {
 	}
 
 	/**
-	 * @param acceptRemembered false on the login page itself: after a logout it shows the PIN form, even to a
-	 *                         remembered browser, which any other page lets in
+	 * @param acceptRemembered false on the login page itself: it shows the PIN form, even to a remembered browser,
+	 *                         which any other page lets in
 	 * @return the principal, or null when the login page must be shown
 	 */
 	public static Principal resolveOfficials(String path, QueryParameters queryParameters, boolean acceptRemembered) {

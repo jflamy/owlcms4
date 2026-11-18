@@ -404,9 +404,8 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 		if (principal != null && principal.source() == Principal.AuthSource.ACCOUNT) {
 			AccountModeAuthenticator.logout(principal, "user logout");
 		} else {
-			// ends the session only: a remembered browser stays remembered
 			AuthAudit.loggedOut("PIN", "-", "user logout", null);
-			// these live in the HTTP session, which closing the Vaadin session keeps
+			// these live in the HTTP session, which the logout redirect ends along with the remembered browser
 			OwlcmsSession.setPrincipal(null);
 			OwlcmsSession.setAuthenticated(false);
 			OwlcmsSession.setDisplayAuthenticated(false);
