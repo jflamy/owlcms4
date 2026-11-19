@@ -10,6 +10,8 @@
 
 **Maintenance Log**
 
+- 68.0.8: Update Java version as preventative measure.
+
 - 68.0.7: Using the transparent stylesheet for video streaming was showing a misaligned grid. Fixed by correctly importing and overriding the public style.
 
 - 68.0.7: When reassigning athletes, athletes with no known bodyweight were not being assigned to categories that include all bodyweights such as "age-slice" categories with score medaling.
