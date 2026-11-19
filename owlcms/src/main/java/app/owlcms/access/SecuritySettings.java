@@ -3,6 +3,7 @@ package app.owlcms.access;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.audit.AuthAudit;
 import app.owlcms.data.account.UserAccountRepository;
+import app.owlcms.data.access.RememberedLoginRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
 
@@ -32,6 +33,7 @@ public final class SecuritySettings {
 			return Outcome.ADMIN_PASSWORD_REQUIRED;
 		}
 		ConfigRepository.apply(c -> c.setAccessMode(target), origin);
+		RememberedLoginRepository.deleteAll();
 		return Outcome.CHANGED;
 	}
 

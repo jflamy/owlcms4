@@ -14,6 +14,7 @@ import java.net.BindException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
+import java.time.Instant;
 // ...existing imports...
 import java.util.EnumSet;
 import java.util.List;
@@ -50,6 +51,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
+import app.owlcms.data.access.RememberedLoginRepository;
 import app.owlcms.data.export.FormatDetector;
 import app.owlcms.data.export.StartupImportSource;
 import app.owlcms.data.jpa.BenchmarkData;
@@ -302,6 +304,7 @@ public class Main {
         // check for database override of resource files
         Config.initConfig();
         AuditIntegrity.initialize(Config.getCurrent());
+        RememberedLoginRepository.deleteExpired(Instant.now());
         Config.protectForwardingKeysAtStartup();
         ResourceMonitor.start();
         AccessStartup.run();

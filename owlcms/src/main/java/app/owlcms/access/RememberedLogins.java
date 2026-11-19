@@ -75,7 +75,7 @@ public final class RememberedLogins {
 		RememberedLoginRepository.deleteExpired(now);
 		RememberedLoginRepository.save(login);
 		RememberedLoginRepository.evictBeyond(kind, login.getAccountId(),
-		        kind == Kind.ACCOUNT ? MAX_ACCOUNT_BROWSERS : MAX_PIN_BROWSERS);
+		        kind == Kind.ACCOUNT ? MAX_ACCOUNT_BROWSERS : MAX_PIN_BROWSERS, login.getSelector());
 		return new Issued(VERSION + "." + selector + "." + validator, login);
 	}
 
@@ -123,10 +123,9 @@ public final class RememberedLogins {
 			return new Lookup(null, true);
 		}
 
-		login.setLastUsedAt(now);
-		login.setClientIp(clientIp);
-		login.setUserAgent(userAgent(userAgent));
-		return new Lookup(new Found(RememberedLoginRepository.save(login), account), false);
+		RememberedLogin current = RememberedLoginRepository.updateLastUse(login.getSelector(), now, clientIp,
+		        userAgent(userAgent));
+		return current == null ? new Lookup(null, true) : new Lookup(new Found(current, account), false);
 	}
 
 	/** @return true if the cookie matched and its row was deleted */

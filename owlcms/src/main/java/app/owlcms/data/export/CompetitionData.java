@@ -34,6 +34,7 @@ import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
+import app.owlcms.data.access.RememberedLoginRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.RankingConfig;
@@ -350,6 +351,7 @@ public class CompetitionData {
 				if (updated.getAccounts() != null) {
 					UserAccountRepository.replaceAll(em, updated.getAccounts());
 				}
+				RememberedLoginRepository.deleteAll(em);
 
 				if (updated.getRecordConfig() != null) {
 					RecordConfig importedRecordConfig = updated.getRecordConfig();
