@@ -12,11 +12,10 @@ import java.time.ZoneId;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.access.RememberedBrowser.Kind;
-import app.owlcms.audit.AuditOrigin;
 import app.owlcms.audit.AuthAudit;
 import app.owlcms.data.account.UserAccount;
+import app.owlcms.data.access.RememberedLogin;
 import app.owlcms.data.config.Config;
-import app.owlcms.data.config.ConfigRepository;
 import ch.qos.logback.classic.Logger;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,10 +41,11 @@ public final class RememberCookies {
 			// no PIN: nothing to remember
 			return;
 		}
-		long expires = Instant.now().plus(RememberedBrowser.LIFETIME).getEpochSecond();
-		response.addCookie(cookie(request, kind,
-		        RememberedBrowser.cookieValue(kind, pinBasis, rememberSecret(config), expires),
-		        (int) RememberedBrowser.LIFETIME.toSeconds()));
+		Instant now = Instant.now();
+		RememberedLogins.forget(value(request, kind), kind);
+		RememberedLogins.Issued issued = RememberedLogins.issue(kind, null, null, pinBasis, now,
+		        RememberedAccount.zone(config), host, request.getHeader("User-Agent"));
+		response.addCookie(cookie(request, kind, issued.cookieValue(), maxAge(issued.login(), now)));
 		logger.info("{} browser remembered for the {} PIN", host, kind);
 		AuthAudit.browserRemembered(host, kind.name());
 	}
@@ -65,25 +65,45 @@ public final class RememberCookies {
 		}
 		Instant now = Instant.now();
 		ZoneId zone = RememberedAccount.zone(config);
-		long expires = RememberedAccount.nextMidnight(now, zone);
-		response.addCookie(cookie(request, Kind.ACCOUNT, RememberedAccount.cookieValue(account.getId(), platform,
-		        account.getPasswordHash(), rememberSecret(config), expires), (int) (expires - now.getEpochSecond())));
-		String until = Instant.ofEpochSecond(expires).atZone(zone).toOffsetDateTime().toString();
+		RememberedLogins.forget(value(request, Kind.ACCOUNT), Kind.ACCOUNT);
+		RememberedLogins.Issued issued = RememberedLogins.issue(Kind.ACCOUNT, account, platform,
+		        account.getPasswordHash(), now, zone, host, request.getHeader("User-Agent"));
+		response.addCookie(cookie(request, Kind.ACCOUNT, issued.cookieValue(), maxAge(issued.login(), now)));
+		String until = issued.login().getExpiresAt().atZone(zone).toOffsetDateTime().toString();
 		logger.info("{} login of {} remembered until {}", host, account.getUsername(), until);
 		AuthAudit.accountLoginRemembered(host, account.getUsername(), until);
 	}
 
 	/** The browser forgets this kind of login. */
 	public static void forget(Kind kind, HttpServletRequest request, HttpServletResponse response, String host) {
-		response.addCookie(cookie(request, kind, "", 0));
+		RememberedLogins.forget(value(request, kind), kind);
+		deleteCookie(kind, request, response);
 		logger.info("{} browser forgotten for the {} cookie", host, kind);
 	}
 
 	/** At logout: the browser forgets every remembered login. */
 	public static void forgetAll(HttpServletRequest request, HttpServletResponse response) {
 		for (Kind kind : Kind.values()) {
-			response.addCookie(cookie(request, kind, "", 0));
+			forget(kind, request, response, "logout");
 		}
+	}
+
+	/** Delete a cookie without touching a row, for an expired or invalid token already handled by the store. */
+	public static void deleteCookie(Kind kind, HttpServletRequest request, HttpServletResponse response) {
+		response.addCookie(cookie(request, kind, "", 0));
+	}
+
+	/** @return the cookie value for this kind, or null */
+	public static String value(HttpServletRequest request, Kind kind) {
+		Cookie[] cookies = request.getCookies();
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (kind.getCookieName().equals(cookie.getName())) {
+					return cookie.getValue();
+				}
+			}
+		}
+		return null;
 	}
 
 	private static Cookie cookie(HttpServletRequest request, Kind kind, String value, int maxAgeSeconds) {
@@ -97,18 +117,7 @@ public final class RememberCookies {
 		return cookie;
 	}
 
-	private static String rememberSecret(Config config) {
-		String secret = config.getRememberSecret();
-		if (secret == null || secret.isBlank()) {
-			// created at most once: the row is checked again under the save lock
-			Config saved = ConfigRepository.apply(c -> {
-				String stored = c.getRememberSecret();
-				if (stored == null || stored.isBlank()) {
-					c.setRememberSecret(RememberedBrowser.newSecret());
-				}
-			}, AuditOrigin.system("remember browser secret created"));
-			secret = saved.getRememberSecret();
-		}
-		return secret;
+	private static int maxAge(RememberedLogin login, Instant now) {
+		return (int) Math.max(0, login.getExpiresAt().getEpochSecond() - now.getEpochSecond());
 	}
 }

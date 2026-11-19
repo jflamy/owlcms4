@@ -6,7 +6,8 @@ import java.util.List;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.router.QueryParameters;
-import com.vaadin.flow.server.VaadinRequest;
+import com.vaadin.flow.server.VaadinServletRequest;
+import com.vaadin.flow.server.VaadinServletResponse;
 
 import app.owlcms.access.Principal.AuthSource;
 import app.owlcms.apputils.AccessUtils;
@@ -18,7 +19,6 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
-import jakarta.servlet.http.Cookie;
 
 /**
  * Resolves the principal when named accounts are in use: a login or a token is always required, no backdoor. A login
@@ -58,15 +58,31 @@ public final class AccountModeAuthenticator {
 	 * @return the principal, or null if the request has no usable account cookie
 	 */
 	private static Principal rememberedLogin() {
-		String cookie = cookie(RememberedBrowser.Kind.ACCOUNT.getCookieName());
-		if (cookie == null) {
+		VaadinServletRequest request = VaadinServletRequest.getCurrent();
+		VaadinServletResponse response = VaadinServletResponse.getCurrent();
+		if (request == null) {
 			return null;
 		}
 		Config config = Config.getCurrent();
 		List<String> platforms = OwlcmsFactory.getFOPs().stream().map(FieldOfPlay::getName).toList();
-		Principal principal = RememberedAccount.restore(cookie, config.allowsRememberedAccountLogins(),
-		        config.getRememberSecret(), UserAccountRepository::findById, platforms,
-		        Instant.now().getEpochSecond());
+		RememberedLogins.Lookup lookup = RememberedLogins.lookup(
+		        RememberCookies.value(request, RememberedBrowser.Kind.ACCOUNT), RememberedBrowser.Kind.ACCOUNT, null,
+		        config, Instant.now(), AccessUtils.getClientIp(), request.getHeader("User-Agent"));
+		if (lookup.deleteCookie() && response != null) {
+			RememberCookies.deleteCookie(RememberedBrowser.Kind.ACCOUNT, request, response);
+		}
+		RememberedLogins.Found found = lookup.found();
+		if (found == null || found.account() == null) {
+			return null;
+		}
+		Principal principal = Principal.of(found.account(), null);
+		if (AccessPolicy.requiresPlatformChoice(principal)) {
+			String platform = found.login().getLoginPlatform();
+			if (platform == null || !AccessPolicy.loginPlatformChoices(principal, platforms).contains(platform)) {
+				return null;
+			}
+			principal = principal.withLoginPlatform(platform);
+		}
 		if (principal == null) {
 			return null;
 		}
@@ -78,20 +94,6 @@ public final class AccountModeAuthenticator {
 		AuthAudit.loginSucceeded("ACCOUNTS", principal.username(), "remembered-browser",
 		        AccessPolicy.platformsWithAccess(principal, platforms));
 		return principal;
-	}
-
-	private static String cookie(String name) {
-		VaadinRequest request = VaadinRequest.getCurrent();
-		Cookie[] cookies = request != null ? request.getCookies() : null;
-		if (cookies == null) {
-			return null;
-		}
-		for (Cookie cookie : cookies) {
-			if (name.equals(cookie.getName())) {
-				return cookie.getValue();
-			}
-		}
-		return null;
 	}
 
 	/** Forgets the identity of this session; the caller decides where to send the browser. */

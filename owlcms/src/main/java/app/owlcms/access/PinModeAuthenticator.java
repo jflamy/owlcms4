@@ -1,12 +1,11 @@
 package app.owlcms.access;
 
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.vaadin.flow.router.QueryParameters;
-import com.vaadin.flow.server.VaadinRequest;
+import com.vaadin.flow.server.VaadinServletRequest;
+import com.vaadin.flow.server.VaadinServletResponse;
 
 import app.owlcms.access.Principal.AuthSource;
 import app.owlcms.access.RememberedBrowser.Kind;
@@ -17,7 +16,6 @@ import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.home.LoginView;
-import jakarta.servlet.http.Cookie;
 
 /**
  * Resolves the principal when the officials PIN / display PIN scheme is in use. This is the logic that used to live in
@@ -142,11 +140,17 @@ public final class PinModeAuthenticator {
 			if (!AccessUtils.ipIsAllowedForOfficials(clientIp)) {
 				return null;
 			}
+			if (!remembered(kind, Config.getCurrent())) {
+				return null;
+			}
 			OwlcmsSession.setAuthenticated(true);
 			principal = Principal.admin(AuthSource.OFFICIALS_PIN);
 		} else {
 			String displayList = Config.getCurrent().getParamDisplayList();
 			if (displayList != null && !displayList.isBlank() && !AccessUtils.isIpAllowedForDisplay(clientIp)) {
+				return null;
+			}
+			if (!remembered(kind, Config.getCurrent())) {
 				return null;
 			}
 			OwlcmsSession.setDisplayAuthenticated(true);
@@ -158,16 +162,18 @@ public final class PinModeAuthenticator {
 
 	/** @return true if the request carries a valid "remember this browser" cookie for the current PIN */
 	private static boolean remembered(Kind kind, Config config) {
-		VaadinRequest request = VaadinRequest.getCurrent();
-		Cookie[] cookies = request != null ? request.getCookies() : null;
-		if (cookies == null) {
+		VaadinServletRequest request = VaadinServletRequest.getCurrent();
+		VaadinServletResponse response = VaadinServletResponse.getCurrent();
+		if (request == null) {
 			return false;
 		}
-		Map<String, String> values = new HashMap<>();
-		for (Cookie cookie : cookies) {
-			values.put(cookie.getName(), cookie.getValue());
+		RememberedLogins.Lookup lookup = RememberedLogins.lookup(RememberCookies.value(request, kind), kind,
+		        RememberedBrowser.pinBasis(kind, config), config, Instant.now(), AccessUtils.getClientIp(),
+		        request.getHeader("User-Agent"));
+		if (lookup.deleteCookie() && response != null) {
+			RememberCookies.deleteCookie(kind, request, response);
 		}
-		return RememberedBrowser.remembers(kind, values, config, Instant.now().getEpochSecond());
+		return lookup.found() != null;
 	}
 
 	private static void auditRememberedLogin(Principal principal, String pin) {

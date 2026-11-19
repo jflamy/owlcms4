@@ -13,7 +13,10 @@ Lenient birth-date parsing is done: [BIRTHDATE_LENIENT_PARSE.md](done/BIRTHDATE_
 
 ## 1xx — Technical RFP compliance
 
-None open. Video replays tokens (190) are done: [190-VIDEO_REPLAYS_TOKEN.md](done/190-VIDEO_REPLAYS_TOKEN.md),
+Open: remembered logins stored on the server (132): [132-REMEMBERED_LOGINS.md](132-REMEMBERED_LOGINS.md), replacing
+the signed "remember" cookies with a table of random tokens.
+
+Video replays tokens (190) are done: [190-VIDEO_REPLAYS_TOKEN.md](done/190-VIDEO_REPLAYS_TOKEN.md),
 named, revocable viewer tokens managed in the Video app, with the sign-in page, token URLs and the Tracker clients;
 the deferred video access work is [230](230-VIDEO_ACCESS_DEFERRED.md).
 

@@ -88,6 +88,17 @@ public final class AuthAudit {
 		        .details(AuditFormat.fields("account", clean(user), "until", until)).build());
 	}
 
+	/** A remembered-login cookie did not match the row selected by its public identifier. */
+	public static void rememberMismatch(String clientIp, String kind) {
+		AuditLog.write(AuditEntry.builder(COMPETITION, "auth.remember-mismatch").actor(AuditActor.http(clientIp))
+		        .details(AuditFormat.fields("kind", kind)).build());
+	}
+
+	/** All remembered browsers were explicitly forgotten from the Administration page. */
+	public static void rememberedBrowsersForgotten(AuditOrigin origin, int count) {
+		writeFor(origin, "auth.remembered-browsers-forgotten", AuditFormat.fields("count", count));
+	}
+
 	/** Remembering account logins for the day was allowed or withdrawn. */
 	public static void rememberAccountLoginsChanged(AuditOrigin origin, boolean allowed) {
 		writeFor(origin, "auth.remember-account-logins", AuditFormat.fields("allowed", allowed ? "on" : "off"));
