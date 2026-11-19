@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM eclipse-temurin:25-jre
+FROM sapmachine:25.0.5.1-jre-ubuntu
 
 ENV OWLCMS_CONTROLPANEL=3.0.5
 

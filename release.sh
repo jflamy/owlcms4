@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-REVISION="68.0.8-rc01"
+REVISION="68.0.8-beta01"
 
 set -euo pipefail
 
