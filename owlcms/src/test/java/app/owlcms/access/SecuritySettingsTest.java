@@ -2,7 +2,10 @@ package app.owlcms.access;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import java.time.Instant;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -11,6 +14,7 @@ import org.junit.Test;
 
 import app.owlcms.access.SecuritySettings.Outcome;
 import app.owlcms.audit.AuditOrigin;
+import app.owlcms.data.access.RememberedLoginRepository;
 import app.owlcms.data.account.UserAccount;
 import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.config.Config;
@@ -37,6 +41,7 @@ public class SecuritySettingsTest {
 
 	@Before
 	public void pinModeWithoutAdminPassword() {
+		RememberedLoginRepository.deleteAll();
 		UserAccountRepository.ensureBuiltInAdmin(ORIGIN);
 		setAdminPassword(null);
 		Config config = Config.getCurrent();
@@ -59,7 +64,10 @@ public class SecuritySettingsTest {
 	public void accountsModeNeedsAnAdminPassword() {
 		assertEquals(Outcome.ADMIN_PASSWORD_REQUIRED, SecuritySettings.switchAccessMode(AccessMode.ACCOUNTS, ORIGIN));
 		setAdminPassword("an admin password");
+		RememberedLogins.Issued remembered = RememberedLogins.issue(RememberedBrowser.Kind.OFFICIALS, null, null,
+		        "stored:pin-hash", Instant.now(), RememberedAccount.zone(Config.getCurrent()), "127.0.0.1", "test");
 		assertEquals(Outcome.CHANGED, SecuritySettings.switchAccessMode(AccessMode.ACCOUNTS, ORIGIN));
+		assertNull(RememberedLoginRepository.find(remembered.login().getSelector()));
 		assertTrue(Config.getCurrent().isAccountsMode());
 		assertEquals(Outcome.UNCHANGED, SecuritySettings.switchAccessMode(AccessMode.ACCOUNTS, ORIGIN));
 		assertEquals(Outcome.CHANGED, SecuritySettings.switchAccessMode(AccessMode.PIN, ORIGIN));
