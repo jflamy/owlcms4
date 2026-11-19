@@ -311,9 +311,10 @@ weak check by design. Done.
   page is still shown, so the PINs can be changed; only the actions that need the token
   are disabled.
 - "Remember this browser" on the officials and display PIN logins (`RememberedBrowser`):
-  an HttpOnly cookie valid 30 days, holding an expiry and an HMAC of the current PIN
-  hash, keyed with a secret stored in the settings and never exported (an export also
-  holds the PIN hashes). The login button's click reaches the server as an HTTP request
+  an HttpOnly cookie valid 21 days, holding its issue date (the server applies the
+  lifetime, so a cookie cannot extend itself) and an HMAC of the current PIN
+  hash, keyed with a key derived (HKDF) from the audit signing key: nothing is stored,
+  and replacing the audit key forgets every browser at the next restart. The login button's click reaches the server as an HTTP request
   (push transport WEBSOCKET_XHR), so its response sets the cookie (`RememberCookies`);
   there is no separate endpoint.
   Saving the PIN, even unchanged, forgets every browser (a new salt makes a new hash).

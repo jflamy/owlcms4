@@ -77,9 +77,9 @@ release note says so:
 > changing the start-number order, hiding empty championships, the IWF compliance
 > switch, the video colour override, and uploading or clearing local overrides.
 
-Two `Config` writers are one-time events and are deliberately left out of the note:
+One `Config` writer is a one-time event and is deliberately left out of the note:
 the PIN-hash upgrade (only when `PasswordHasher.needsRehash` says the stored hash is
-outdated) and Remember Browser (only when no secret exists yet).
+outdated). Remember Browser no longer writes: its key is derived from the audit key.
 
 Opening a document download dialog does **not** count: see change 6.
 
@@ -180,7 +180,7 @@ add a strict variant for this path only).
 
 ### 5. Immediate writers use `apply`
 
-`SecuritySettings`, `AccessUtils.upgradePin`, `RememberCookies`, the IWF toggle,
+`SecuritySettings`, `AccessUtils.upgradePin`, the IWF toggle,
 `LocalOverrideUploadDialog`, the Clear button, `TemplateSelectionFormFactory`,
 `DocumentDownloadDialog`, `JXLSDownloader` (with the guard of change 6),
 `TeamScheduleElement`, `AgeGroupContent`, `NRegistrationFileProcessor`,
@@ -269,7 +269,7 @@ At form open, capture the switch's value alongside the radio. On Save, under **o
 5. Publish both.
 
 Comparing the switch *value* rather than `Config.lastSavedAt` means a PIN-hash
-upgrade at login or a Remember Browser secret does not block a start-number change.
+upgrade at login does not block a start-number change.
 Because every check runs before any write, and every writer takes the same lock, the
 "Your changes were not saved" message is literal here too. The two writes remain two
 transactions; a database failure between them is the only partial outcome, reported
