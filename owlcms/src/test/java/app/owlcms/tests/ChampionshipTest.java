@@ -50,7 +50,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.Main;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.AgeGroup;
