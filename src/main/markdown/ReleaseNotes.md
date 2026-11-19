@@ -11,14 +11,14 @@
 
 **Development log**
 
-- 69.0.0-rc05: Update base image for Docker to mitigate Java CVE (local version was already ok)
+- 69.0.0-rc05: As a matter of principle, update Docker base image for fly.io deployments to mitigate Java CVE (local version was already ok)
 
 - 69.0.0-rc04: Using the transparent stylesheet for video streaming scoreboards was showing a misaligned grid. Fixed by correctly importing and overriding the public style.
 
-- 69.0.0-rc05: Remember me checkbox on login page: server-side remembered logins let the same browser re-open OWLCMS without entering a PIN or password until the next day. A database export or backup cannot be used to forge a remembered login.
-  - Allowed by a new checkbox in the Security and Audit tab of the Administration page (on by default). The IWF compliance check lists it as a requirement not met when it is on.
+- 69.0.0-rc05: "Remember me" checkbox on login page: server-side remembered logins let the same browser re-open OWLCMS without entering a PIN or password until the next day. A database export or backup cannot be used to forge a remembered login.
+  - Controlled for both Simple Access and User Accounts by one Administration setting (on by default). The IWF compliance check lists it as a requirement not met when it is on.
   - Admin accounts always enter their password.
-  - Logging out, changing the password or disabling the account ends it; turning the setting off prevents remembered account logins.
+  - Logging out, changing the PIN/password or disabling the account ends it; turning the setting off prevents remembered logins in both access modes.
   - "Forget all remembered browsers" requires every browser to enter its PIN or password again.
 
 - 69.0.0-rc04: PIN mode

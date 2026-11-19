@@ -93,20 +93,20 @@ public class SecuritySettingsTest {
 	@Test
 	public void rememberedAccountLoginsAreOnByDefaultAndCanBeWithdrawn() {
 		Config config = new Config();
-		assertTrue(config.allowsRememberedAccountLogins());
+		assertTrue(config.allowsRememberedLogins());
 		config.setRememberAccountLogins(null);
-		assertTrue("older exports and databases behave as enabled", config.allowsRememberedAccountLogins());
+		assertTrue("older exports and databases behave as enabled", config.allowsRememberedLogins());
 
 		assertEquals(Outcome.UNCHANGED,
 		        SecuritySettings.setRememberAccountLogins(true, ORIGIN));
 		assertEquals(Outcome.CHANGED,
 		        SecuritySettings.setRememberAccountLogins(false, ORIGIN));
-		assertFalse(Config.getCurrent().allowsRememberedAccountLogins());
+		assertFalse(Config.getCurrent().allowsRememberedLogins());
 		assertEquals(Outcome.UNCHANGED,
 		        SecuritySettings.setRememberAccountLogins(false, ORIGIN));
 		assertEquals(Outcome.CHANGED,
 		        SecuritySettings.setRememberAccountLogins(true, ORIGIN));
-		assertTrue(Config.getCurrent().allowsRememberedAccountLogins());
+		assertTrue(Config.getCurrent().allowsRememberedLogins());
 	}
 
 	@Test

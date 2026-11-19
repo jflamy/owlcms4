@@ -244,10 +244,10 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 		return allowed;
 	}
 
-	/** Accounts mode: whether the login page offers to keep the login on this browser for the day. */
+	/** Both access modes: whether the login page offers to keep the login on this browser for the day. */
 	private static Checkbox rememberAccountLoginsSwitch(Runnable settingsSaved) {
 		Checkbox allowed = new Checkbox(Translator.translate("Admin.RememberAccountLogins"),
-		        Config.getCurrent().allowsRememberedAccountLogins());
+		        Config.getCurrent().allowsRememberedLogins());
 		allowed.setHelperText(Translator.translate("Admin.RememberAccountLoginsHelp"));
 		allowed.addValueChangeListener(event -> {
 			if (!event.isFromClient()) {

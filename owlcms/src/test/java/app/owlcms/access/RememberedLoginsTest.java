@@ -121,6 +121,17 @@ public class RememberedLoginsTest {
 	}
 
 	@Test
+	public void theSettingWithdrawsPinRememberedLoginsWithoutDeletingRows() {
+		RememberedLogins.Issued issued = issue(Kind.OFFICIALS, PIN, null);
+		Config.getCurrent().setRememberAccountLogins(false);
+
+		RememberedLogins.Lookup lookup = lookup(issued.cookieValue(), Kind.OFFICIALS, PIN, NOW.plusSeconds(1));
+		assertNull(lookup.found());
+		assertFalse(lookup.deleteCookie());
+		assertNotNull(RememberedLoginRepository.find(issued.login().getSelector()));
+	}
+
+	@Test
 	public void ineligibleAccountsDoNotKeepRows() {
 		UserAccount account = saveAccount("disabled");
 		RememberedLogins.Issued issued = issue(Kind.ACCOUNT, account.getPasswordHash(), account);

@@ -84,6 +84,9 @@ public final class RememberedLogins {
 	 */
 	public static Lookup lookup(String cookieValue, Kind kind, String credentialBasis, Config config, Instant now,
 	        String clientIp, String userAgent) {
+		if (!config.allowsRememberedLogins()) {
+			return new Lookup(null, false);
+		}
 		Presented presented = parse(cookieValue);
 		if (presented == null) {
 			return new Lookup(null, cookieValue != null);
@@ -107,9 +110,6 @@ public final class RememberedLogins {
 		UserAccount account = null;
 		String currentBasis = credentialBasis;
 		if (kind == Kind.ACCOUNT) {
-			if (!config.allowsRememberedAccountLogins()) {
-				return new Lookup(null, false);
-			}
 			account = UserAccountRepository.findById(login.getAccountId());
 			if (!RememberedAccount.isRememberable(account)) {
 				RememberedLoginRepository.delete(login.getSelector());

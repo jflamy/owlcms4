@@ -144,6 +144,7 @@ public class LoginView extends Composite<VerticalLayout>
 		this.pinField.setValueChangeMode(ValueChangeMode.EAGER);
 
 		H3 h3 = createTitle();
+		boolean rememberAllowed = Config.getCurrent().allowsRememberedLogins();
 
 		Button button = new Button(Translator.translate("Login"), e -> submitPin());
 		button.addClickShortcut(Key.ENTER);
@@ -151,9 +152,10 @@ public class LoginView extends Composite<VerticalLayout>
 		button.getThemeNames().add("primary");
 		button.getThemeNames().add("icon");
 
-		this.remembered = PinModeAuthenticator.isRemembered(rememberKind());
+		this.remembered = rememberAllowed && PinModeAuthenticator.isRemembered(rememberKind());
 		this.rememberBrowser.setLabel(Translator.translate("Access.Login.RememberBrowser"));
-		this.rememberBrowser.setValue(this.remembered || rememberByDefault());
+		this.rememberBrowser.setValue(rememberAllowed && (this.remembered || rememberByDefault()));
+		this.rememberBrowser.setVisible(rememberAllowed);
 		// unchecking forgets the browser at once: removing access needs no PIN
 		this.rememberBrowser.addValueChangeListener(e -> {
 			if (e.isFromClient() && !e.getValue() && this.remembered) {
@@ -241,7 +243,7 @@ public class LoginView extends Composite<VerticalLayout>
 			form.add(notice);
 		}
 		form.add(this.usernameField, this.passwordField);
-		if (Config.getCurrent().allowsRememberedAccountLogins()) {
+		if (Config.getCurrent().allowsRememberedLogins()) {
 			this.keepLoggedIn.setLabel(Translator.translate("Access.Login.KeepLoggedIn"));
 			form.add(this.keepLoggedIn);
 		}
@@ -355,7 +357,7 @@ public class LoginView extends Composite<VerticalLayout>
 		AuthAudit.loginSucceeded("ACCOUNTS", account.getUsername(), how, loginAuditPlatforms(principal));
 		// a password login only: never the control panel token, never an administrator
 		if ("password".equals(how) && this.keepLoggedIn.getValue()
-		        && Config.getCurrent().allowsRememberedAccountLogins() && RememberedAccount.isRememberable(account)) {
+		        && Config.getCurrent().allowsRememberedLogins() && RememberedAccount.isRememberable(account)) {
 			VaadinServletRequest request = VaadinServletRequest.getCurrent();
 			VaadinServletResponse response = VaadinServletResponse.getCurrent();
 			if (request != null && response != null) {

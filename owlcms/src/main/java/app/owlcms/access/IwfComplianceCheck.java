@@ -84,7 +84,7 @@ public final class IwfComplianceCheck {
 		return evaluate(Config.getCurrent().isAccountsMode(), realKey, pendingKey(state),
 		        SameMachineProof.configuredToken() != null, FeatureSwitch.TCRR_COMPLIANCE.isEffective(),
 		        Config.getCurrent().requestedFeatureSwitch(FeatureSwitch.TCRR_COMPLIANCE),
-		        FeatureSwitch.NO_V1_EXPORT.isEffective(), !Config.getCurrent().allowsRememberedAccountLogins());
+		        FeatureSwitch.NO_V1_EXPORT.isEffective(), !Config.getCurrent().allowsRememberedLogins());
 	}
 
 	private static boolean pendingKey(AuditIntegrity.State state) {

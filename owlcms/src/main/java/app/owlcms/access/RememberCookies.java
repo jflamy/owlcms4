@@ -36,6 +36,9 @@ public final class RememberCookies {
 	/** After a correct officials or display PIN, when "remember this browser" is checked. */
 	public static void rememberPin(Kind kind, HttpServletRequest request, HttpServletResponse response, String host) {
 		Config config = Config.getCurrent();
+		if (!config.allowsRememberedLogins()) {
+			return;
+		}
 		String pinBasis = RememberedBrowser.pinBasis(kind, config);
 		if (pinBasis == null) {
 			// no PIN: nothing to remember
@@ -59,7 +62,7 @@ public final class RememberCookies {
 	public static void rememberAccount(UserAccount account, String platform, HttpServletRequest request,
 	        HttpServletResponse response, String host) {
 		Config config = Config.getCurrent();
-		if (!config.isAccountsMode() || !config.allowsRememberedAccountLogins()
+		if (!config.isAccountsMode() || !config.allowsRememberedLogins()
 		        || !RememberedAccount.isRememberable(account)) {
 			return;
 		}
