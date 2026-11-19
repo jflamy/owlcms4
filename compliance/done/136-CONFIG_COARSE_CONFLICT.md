@@ -79,7 +79,8 @@ release note says so:
 
 One `Config` writer is a one-time event and is deliberately left out of the note:
 the PIN-hash upgrade (only when `PasswordHasher.needsRehash` says the stored hash is
-outdated). Remember Browser no longer writes: its key is derived from the audit key.
+outdated). Remember Browser writes its own table, so it does not participate in the
+coarse `Config` save check.
 
 Opening a document download dialog does **not** count: see change 6.
 

@@ -11,14 +11,18 @@
 
 **Development log**
 
+- 69.0.0-rc05: Update base image for Docker to mitigate Java CVE (local version was already ok)
+
 - 69.0.0-rc04: Using the transparent stylesheet for video streaming scoreboards was showing a misaligned grid. Fixed by correctly importing and overriding the public style.
 
-- 69.0.0-rc04: User account mode: users can stay logged in on a browser until midnight, so that server restarts and closed browsers do not ask for the password again.
+- 69.0.0-rc05: Remember me checkbox on login page: server-side remembered logins let the same browser re-open OWLCMS without entering a PIN or password until the next day. A database export or backup cannot be used to forge a remembered login.
   - Allowed by a new checkbox in the Security and Audit tab of the Administration page (on by default). The IWF compliance check lists it as a requirement not met when it is on.
-  - Administrators always enter their password. Logging out, changing the password or disabling the account ends it; turning the setting off prevents remembered account logins.
+  - Admin accounts always enter their password.
+  - Logging out, changing the password or disabling the account ends it; turning the setting off prevents remembered account logins.
+  - "Forget all remembered browsers" requires every browser to enter its PIN or password again.
 
 - 69.0.0-rc04: PIN mode
-  - Logout is a real logout: it ends the browser session and forgets the remembered login on that browser, so the PIN or password is asked next time. Until a logout, closing and reopening the browser keeps a remembered login (30 days for a PIN, until midnight for an account).
+  - Logout is a real logout: it ends the browser session and forgets the remembered login on that browser, so the PIN or password is asked next time. Until a logout, closing and reopening the browser keeps a remembered login until midnight.
 
 - 69.0.0-rc04: Narrow desktop browser windows no longer switch to the mobile referee/jury home page. Phones and tablets still use the mobile home.
 
@@ -109,7 +113,7 @@
 
 - Simple Access mode (formerly PIN mode)
   - Moved from the System Settings to the Administration page (Security and Audit tab).
-  - "Remember this browser" on the officials and display password logins: the browser is let in for 30 days, or until the password changes. This allows removal of the Backdoor list.
+  - "Remember this browser" on the officials and display password logins: the browser is let in until midnight, or until the password changes. This allows removal of the Backdoor list.
   - The control panel token is accepted as the officials password, so a forgotten password can be replaced on the Administration page.
   - The display password can be passed as `?token=` on DISPLAY pages.
 

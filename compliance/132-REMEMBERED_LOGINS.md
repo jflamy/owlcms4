@@ -1,6 +1,6 @@
 # 132 — Remembered logins stored on the server
 
-Status: planned. Base commit: `51dcfda42` (Remove the remember and logout servlets), branch `dev69`.
+Status: implemented. Browser check completed for issuance, expiry, restart and Administration revocation. The forced\n+login-after-logout assertion remains pending on a server launched without the development PIN override. Base commit:\n+`51dcfda42` (Remove the remember and logout servlets), branch `dev69`.
 
 ## Purpose
 

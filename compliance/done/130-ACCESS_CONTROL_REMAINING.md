@@ -311,17 +311,17 @@ weak check by design. Done.
   page is still shown, so the PINs can be changed; only the actions that need the token
   are disabled.
 - "Remember this browser" on the officials and display PIN logins (`RememberedBrowser`):
-  an HttpOnly cookie valid 21 days, holding its issue date (the server applies the
-  lifetime, so a cookie cannot extend itself) and an HMAC of the current PIN
-  hash, keyed with a key derived (HKDF) from the audit signing key: nothing is stored,
-  and replacing the audit key forgets every browser at the next restart. The login button's click reaches the server as an HTTP request
-  (push transport WEBSOCKET_XHR), so its response sets the cookie (`RememberCookies`);
-  there is no separate endpoint.
-  Saving the PIN, even unchanged, forgets every browser (a new salt makes a new hash).
+  an HttpOnly cookie holds a random selector and validator. The selector finds one
+  `RememberedLogin` row on the server; the validator is never stored, and only its
+  SHA-256 hash is kept. The row expires at midnight (competition time zone, else server
+  time), and also checks the current PIN hash. The login button's click reaches the server
+  as an HTTP request (push transport WEBSOCKET_XHR), so its response sets the cookie
+  (`RememberCookies`); there is no separate endpoint. Saving the PIN, even unchanged,
+  invalidates remembered browsers of that PIN (a new salt makes a new hash).
   Officials: unchecked by default; displays: checked.
 - A Logout entry for PIN sessions ends the session and the HTTP session, forgets the
   remembered browser, and shows the login page: the PIN is asked next time. Until a
-  logout, a remembered browser stays remembered across browser restarts: any page lets
+  logout, a remembered browser stays remembered across browser restarts until midnight: any page lets
   it in directly. Unchecking the box on the login page forgets the browser at once,
   without the PIN.
 - The officials PIN login also accepts the control panel token (constant time, throttled,
