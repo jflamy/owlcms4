@@ -28,18 +28,13 @@ import ch.qos.logback.classic.Logger;
  */
 public final class RememberedLogins {
 
-	public static final Integer PIN_DAYS = codeConstant(1);
+	public static final Integer PIN_DAYS = 1;
 	public static final int ACCOUNT_DAYS = 1;
 	public static final int MAX_PIN_BROWSERS = 200;
 	public static final int MAX_ACCOUNT_BROWSERS = 20;
 	static final String VERSION = "r1";
 	private static final SecureRandom RANDOM = new SecureRandom();
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(RememberedLogins.class);
-
-	/** Prevents the Java compiler from treating a code setting as a compile-time constant throughout the UI. */
-	private static int codeConstant(int value) {
-		return value;
-	}
 
 	public record Issued(String cookieValue, RememberedLogin login) {
 	}
