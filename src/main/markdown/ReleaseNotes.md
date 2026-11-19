@@ -11,17 +11,20 @@
 
 **Development log**
 
-- 69.0.0-rc04: User accounts: users can stay logged in on a browser until midnight, so that server restarts and closed browsers do not ask for the password again.
+- 69.0.0-rc04: Using the transparent stylesheet for video streaming scoreboards was showing a misaligned grid. Fixed by correctly importing and overriding the public style.
+
+- 69.0.0-rc04: User account mode: users can stay logged in on a browser until midnight, so that server restarts and closed browsers do not ask for the password again.
   - Allowed by a new checkbox in the Security and Audit tab of the Administration page (on by default). The IWF compliance check lists it as a requirement not met when it is on.
   - Administrators always enter their password. Logging out, changing the password or disabling the account ends it; turning the setting off prevents remembered account logins.
 
-- 69.0.0-rc04: Logout is a real logout: it ends the browser session and forgets the remembered login on that browser, so the PIN or password is asked next time. Until a logout, closing and reopening the browser keeps a remembered login (30 days for a PIN, until midnight for an account).
+- 69.0.0-rc04: PIN mode
+  - Logout is a real logout: it ends the browser session and forgets the remembered login on that browser, so the PIN or password is asked next time. Until a logout, closing and reopening the browser keeps a remembered login (30 days for a PIN, until midnight for an account).
 
 - 69.0.0-rc04: Narrow desktop browser windows no longer switch to the mobile referee/jury home page. Phones and tablets still use the mobile home.
 
-- 69.0.0-rc04: Registration and weigh-in limited editing now starts as soon as a session is selected on a platform (introduction and countdown included), not at the first clock start. This is because the FieldOfPlay writes back computed changes.
-  - An open full registration or weigh-in form for that session is closed when the session is selected. In limited mode, name, team and records remain editable.
-  - The registration page then offers a Card tab, and the results and Competition Supervisor pages open on the Card (in User Accounts mode, only for accounts allowed to edit athlete cards). Card changes go through the platform. As on the Marshal and Announcer cards, the form closes when the athlete gets the down signal or a decision, unsaved changes are abandoned, and a notification now says so on all three. The weigh-in page has no Card tab.
+- 69.0.0-rc04: Limited registration data editing during sessions now starts as soon as the session is loaded
+  - The limited registration data editing form then shows a marshal-type tab, and the same checks are made as for the marshal and announcer
+  - The limited form is closed if opened during a lift and a decision for that athlete comes in.ß
 
 - 69.0.0-rc04: Simulation preserves entered body weights and starting weights. Missing starting weights are derived from the entry total when available.
 
@@ -34,29 +37,13 @@
 
 - 69.0.0-rc04: In mixed-gender sessions, the moving down checks were not enabled because first man could be lower than last woman. Now fixed (going from women to men resets the values as if it was a new session)
 
-- 69.0.0-rc03: Competition Results: Fix the "Include Unfinished Categories" filter to work correctly with 0-999kg medaling by score categories
-
 - 69.0.0-rc03: Multi-language behaviour improved
   - Pages always use their own locale, no matter the locale of the page that triggered an event (for example, record notifications and the device testing page).
   - Printed documents and downloaded kits are produced in the locale of the page used to create them.
   - A page's locale is, in order of priority: the locale chosen with the language menu for the browser session, the default locale in the Language and System Settings, then the first browser locale (in the browser's order of preference) for which there are available translations, then English.
   - The menu also lists the browser's own locale (language and country) when the language is translated, Java supports that combination, and it is not already listed. For example, a browser set to Spanish (Chile) adds "español (Chile)", and one set to Spanish (Argentina) adds "español (Argentina)". Both show the same Spanish text, since there is no Chilean or Argentinian column in the translation definitions, but dates follow each country's conventions (14-11-2026 in Chile, 14/11/2026 in Argentina). The country also selects country-specific templates when they exist.
 
-- 69.0.0-rc03: Make the weigh-in and registration page filters fit on 1366x768 laptops
-
-- 69.0.0-rc02: Fixed permission propagation issue that could hide subcomponents such as the pause button
-
-- 69.0.0-rc02: When IMWA rules are on, athlete cards for athletes in Masters categories state the 80% rule instead of the 20 kg rule next to the required starting total.
-
-- 69.0.0-rc02: Simulation would stop if the database contained initial lift declarations at 0.
-
-- 69.0.0-rc02: Age Group export files now use language independent strings for the scoring systems instead of translated values, for backward compatibility
-
-- 69.0.0-rc01: Competition and Session Results: ßScoring System Selection
-  - Fixed the drop down selectors to show a logical grouping of scoring systems with separators
-  - For result sheets, when there is no championship, the selector shows an explicit "Per Athlete Championship Scoring System"
-  - Completed implementation of lift-specific scores GAMX-S, GAMX-SM, GAMX-J, GAMX-JM
-
+- 69.0.0-rc03: Make the weigh-in and registration page filters fit on 1366x768 laptopsß
 
 **New in Release 69.0**
 
@@ -86,10 +73,13 @@
   - The "Reassign Within Current Championships" and "Recompute All Eligibilities" buttons replace the Reset buttons and also show the athletes added and removed before applying.
   - Activating an age group, changing its ages, or moving it to another championship warns about every age gap and overlap in the championship.
   - The audit log now records age group changes (added, edited, activated, deleted, moved, championship renamed, definitions loaded) and the athletes whose categories change as a result.
+
 - Athletes whose entry total is below a category's qualifying total are no longer assigned to that category when importing a registration file
   - When editing an athlete, such categories are marked (ET<QT) and the Entry Total field shows the warning as soon as the form opens.
+
 - The athlete registration and weigh-in forms replace the "Ignore message and allow saving" checkbox with a yellow **Accept Warnings and Update** button, shown instead of **Update** while a field shows a warning.
   - Checks for entry total lower than QT improved (this happens for adaptive athletes when no separate championships are present)
+
 - Checkpoints: tracker has a new "Checkpoints" page
   - copies the competition and its logs from OWLCMS to a folder on the tracker machine at regular intervals
   - requires the competition supervisor token when running with accounts enabled, the Officials PIN in simple mode
