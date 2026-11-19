@@ -19,6 +19,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder.Binding;
+import com.vaadin.flow.server.VaadinServletRequest;
+import com.vaadin.flow.server.VaadinServletResponse;
 
 import app.owlcms.access.AccessStartup;
 import app.owlcms.access.AccountModeAuthenticator;
@@ -92,7 +94,8 @@ class AccountEditingFormFactory extends OwlcmsCrudFormFactory<UserAccount> {
 		}
 		UI ui = UI.getCurrent();
 		if (ui != null) {
-			SessionLogout.redirectAllAndInvalidate(ui.getSession());
+			SessionLogout.redirectAllAndInvalidate(ui.getSession(), VaadinServletRequest.getCurrent(),
+			        VaadinServletResponse.getCurrent());
 		}
 		return saved;
 	}

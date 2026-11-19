@@ -313,8 +313,9 @@ weak check by design. Done.
 - "Remember this browser" on the officials and display PIN logins (`RememberedBrowser`):
   an HttpOnly cookie valid 30 days, holding an expiry and an HMAC of the current PIN
   hash, keyed with a secret stored in the settings and never exported (an export also
-  holds the PIN hashes). The PIN arrives over the push connection, so the login page
-  exchanges a one-time ticket at `/remember`, whose HTTP response sets the cookie.
+  holds the PIN hashes). The login button's click reaches the server as an HTTP request
+  (push transport WEBSOCKET_XHR), so its response sets the cookie (`RememberCookies`);
+  there is no separate endpoint.
   Saving the PIN, even unchanged, forgets every browser (a new salt makes a new hash).
   Officials: unchecked by default; displays: checked.
 - A Logout entry for PIN sessions ends the session and the HTTP session, forgets the

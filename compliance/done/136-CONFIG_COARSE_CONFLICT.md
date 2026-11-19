@@ -180,7 +180,7 @@ add a strict variant for this path only).
 
 ### 5. Immediate writers use `apply`
 
-`SecuritySettings`, `AccessUtils.upgradePin`, `RememberServlet`, the IWF toggle,
+`SecuritySettings`, `AccessUtils.upgradePin`, `RememberCookies`, the IWF toggle,
 `LocalOverrideUploadDialog`, the Clear button, `TemplateSelectionFormFactory`,
 `DocumentDownloadDialog`, `JXLSDownloader` (with the guard of change 6),
 `TeamScheduleElement`, `AgeGroupContent`, `NRegistrationFileProcessor`,

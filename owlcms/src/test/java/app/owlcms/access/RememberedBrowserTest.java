@@ -1,8 +1,6 @@
 package app.owlcms.access;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -39,30 +37,5 @@ public class RememberedBrowserTest {
 		assertFalse(RememberedBrowser.isValid(null, Kind.DISPLAY, PIN, SECRET, NOW));
 		assertFalse("no PIN, nothing to remember", RememberedBrowser.isValid(cookie, Kind.DISPLAY, null, SECRET, NOW));
 		assertFalse("no secret yet", RememberedBrowser.isValid(cookie, Kind.DISPLAY, PIN, null, NOW));
-	}
-
-	@Test
-	public void aTicketIsRedeemedOnceWithinItsLifetime() {
-		long now = System.currentTimeMillis();
-		String ticket = RememberedBrowser.issueTicket(Kind.OFFICIALS, now);
-		assertEquals(Kind.OFFICIALS, RememberedBrowser.redeemTicket(ticket, now));
-		assertNull("used", RememberedBrowser.redeemTicket(ticket, now));
-
-		String late = RememberedBrowser.issueTicket(Kind.DISPLAY, now);
-		assertNull("expired", RememberedBrowser.redeemTicket(late,
-		        now + RememberedBrowser.TICKET_LIFETIME.toMillis() + 1));
-		assertNull(RememberedBrowser.redeemTicket("unknown", now));
-		assertNull(RememberedBrowser.redeemTicket(null, now));
-	}
-
-	@Test
-	public void anAccountTicketCarriesTheAccountAndThePlatformChosenAtLogin() {
-		long now = System.currentTimeMillis();
-		String ticket = RememberedBrowser.issueAccountTicket(42L, "A", now);
-		RememberedBrowser.Redeemed redeemed = RememberedBrowser.redeem(ticket, now);
-		assertEquals(Kind.ACCOUNT, redeemed.kind());
-		assertEquals(Long.valueOf(42L), redeemed.accountId());
-		assertEquals("A", redeemed.platform());
-		assertNull("used", RememberedBrowser.redeem(ticket, now));
 	}
 }

@@ -7,7 +7,6 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -19,10 +18,8 @@ import app.owlcms.data.config.Config;
  * "Remember this browser" for the officials PIN and the display PIN (PIN mode). The browser keeps an HttpOnly cookie
  * holding an expiry and an HMAC of the current PIN, keyed with a secret stored in the settings and never exported.
  * Changing the PIN, or forgetting all browsers (a new secret), invalidates every cookie. A login with the control panel
- * token is never remembered. Accounts mode uses the same secret and tickets for {@link RememberedAccount}.
- * <p>
- * The login page sends a one-time ticket to {@code /remember}, whose HTTP response sets the cookie: the PIN itself is
- * entered over the push connection, which has no response to carry a cookie.
+ * token is never remembered. Accounts mode uses the same secret for {@link RememberedAccount}. The login's own HTTP
+ * response sets the cookie, see {@link RememberCookies}.
  */
 public final class RememberedBrowser {
 
@@ -44,20 +41,8 @@ public final class RememberedBrowser {
 	}
 
 	public static final Duration LIFETIME = Duration.ofDays(30);
-	static final Duration TICKET_LIFETIME = Duration.ofMinutes(1);
 	private static final String VERSION = "v1";
 	private static final SecureRandom RANDOM = new SecureRandom();
-	private static final Map<String, Redeemed> tickets = new ConcurrentHashMap<>();
-
-	/**
-	 * What a ticket was issued for.
-	 *
-	 * @param accountId     the account logged in, for {@link Kind#ACCOUNT}; null for a PIN
-	 * @param platform      the platform chosen at that login, or null
-	 * @param expiresMillis when the ticket can no longer be exchanged
-	 */
-	public record Redeemed(Kind kind, Long accountId, String platform, long expiresMillis) {
-	}
 
 	private RememberedBrowser() {
 	}
@@ -115,46 +100,6 @@ public final class RememberedBrowser {
 	public static boolean remembers(Kind kind, Map<String, String> cookies, Config config, long nowEpochSeconds) {
 		String secret = config.getRememberSecret();
 		return isValid(cookies.get(kind.getCookieName()), kind, pinBasis(kind, config), secret, nowEpochSeconds);
-	}
-
-	/** @return a ticket that {@code /remember} exchanges once for the cookie, within a minute */
-	public static String issueTicket(Kind kind, long nowMillis) {
-		return issue(new Redeemed(kind, null, null, nowMillis + TICKET_LIFETIME.toMillis()), nowMillis);
-	}
-
-	/**
-	 * After a password login in accounts mode.
-	 *
-	 * @param platform the platform chosen at login, or null
-	 * @return a ticket that {@code /remember} exchanges once for the account cookie, within a minute
-	 */
-	public static String issueAccountTicket(long accountId, String platform, long nowMillis) {
-		return issue(new Redeemed(Kind.ACCOUNT, accountId, platform, nowMillis + TICKET_LIFETIME.toMillis()),
-		        nowMillis);
-	}
-
-	private static String issue(Redeemed redeemed, long nowMillis) {
-		tickets.values().removeIf(t -> t.expiresMillis() < nowMillis);
-		byte[] bytes = new byte[24];
-		RANDOM.nextBytes(bytes);
-		String ticket = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
-		tickets.put(ticket, redeemed);
-		return ticket;
-	}
-
-	/** @return the kind the ticket was issued for, or null if unknown, used or expired */
-	public static Kind redeemTicket(String ticket, long nowMillis) {
-		Redeemed redeemed = redeem(ticket, nowMillis);
-		return redeemed != null ? redeemed.kind() : null;
-	}
-
-	/** @return what the ticket was issued for, or null if unknown, used or expired */
-	public static Redeemed redeem(String ticket, long nowMillis) {
-		if (ticket == null) {
-			return null;
-		}
-		Redeemed found = tickets.remove(ticket.strip());
-		return found != null && found.expiresMillis() >= nowMillis ? found : null;
 	}
 
 	private static String mac(Kind kind, String pinBasis, String secret, long expires) {

@@ -16,8 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.apputils.LogbackConfigReloader;
 import app.owlcms.endpoints.ControlPanelServlet;
-import app.owlcms.endpoints.LogoutServlet;
-import app.owlcms.endpoints.RememberServlet;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -70,8 +68,6 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
 			        patternString.replace(".*\\.jar", "(?!.*jackson).*\\.jar"));
 		}
 		context.addServlet(ControlPanelServlet.class, "/controlpanel/stop");
-		context.addServlet(RememberServlet.class, "/remember");
-		context.addServlet(LogoutServlet.class, "/" + LogoutServlet.PATH);
 		return context;
 	}
 

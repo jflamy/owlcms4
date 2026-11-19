@@ -23,6 +23,8 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinServletRequest;
+import com.vaadin.flow.server.VaadinServletResponse;
 
 import app.owlcms.Main;
 import app.owlcms.access.AccessMode;
@@ -342,7 +344,8 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 			OwlcmsSession.setPrincipal(null);
 			OwlcmsSession.setAuthenticated(false);
 			OwlcmsSession.setDisplayAuthenticated(false);
-			SessionLogout.redirectAllAndInvalidate(ui.getSession());
+			SessionLogout.redirectAllAndInvalidate(ui.getSession(), VaadinServletRequest.getCurrent(),
+			        VaadinServletResponse.getCurrent());
 		});
 	}
 

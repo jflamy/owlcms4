@@ -42,12 +42,15 @@ import app.owlcms.access.PageRule;
 import app.owlcms.access.PinModeAuthenticator;
 import app.owlcms.access.Principal;
 import app.owlcms.access.PublicPage;
+import app.owlcms.access.RememberCookies;
 import app.owlcms.access.RememberedAccount;
 import app.owlcms.access.RememberedBrowser;
 import app.owlcms.access.SameMachineProof;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinService;
+import com.vaadin.flow.server.VaadinServletRequest;
+import com.vaadin.flow.server.VaadinServletResponse;
 
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.apputils.AccessUtils.PinCheck;
@@ -353,11 +356,11 @@ public class LoginView extends Composite<VerticalLayout>
 		// a password login only: never the control panel token, never an administrator
 		if ("password".equals(how) && this.keepLoggedIn.getValue()
 		        && Config.getCurrent().allowsRememberedAccountLogins() && RememberedAccount.isRememberable(account)) {
-			String ticket = RememberedBrowser.issueAccountTicket(account.getId(), principal.loginPlatform(),
-			        System.currentTimeMillis());
-			UI.getCurrent().getPage().executeJs(
-			        "fetch('remember', {method: 'POST', body: $0, credentials: 'same-origin', keepalive: true})",
-			        ticket);
+			VaadinServletRequest request = VaadinServletRequest.getCurrent();
+			VaadinServletResponse response = VaadinServletResponse.getCurrent();
+			if (request != null && response != null) {
+				RememberCookies.rememberAccount(account, principal.loginPlatform(), request, response, clientIp);
+			}
 		}
 		redirect();
 	}
@@ -440,21 +443,22 @@ public class LoginView extends Composite<VerticalLayout>
 		return false;
 	}
 
-	/**
-	 * The PIN arrived over the push connection, which cannot set a cookie: the browser exchanges a one-time ticket at
-	 * {@code /remember}, whose response sets it. keepalive lets the request finish during the redirect.
-	 */
-	/** The box was unchecked on a remembered browser: the browser forgets this PIN. keepalive survives a redirect. */
+	/** The box was unchecked on a remembered browser: the browser forgets this PIN, on this click's response. */
 	private void forgetThisBrowser() {
-		UI.getCurrent().getPage().executeJs(
-		        "fetch('remember', {method: 'DELETE', body: $0, credentials: 'same-origin', keepalive: true})",
-		        rememberKind().name());
+		VaadinServletRequest request = VaadinServletRequest.getCurrent();
+		VaadinServletResponse response = VaadinServletResponse.getCurrent();
+		if (request != null && response != null) {
+			RememberCookies.forget(rememberKind(), request, response, AccessUtils.getClientIp());
+		}
 	}
 
+	/** After a correct PIN: the response to the Login click sets the cookie. */
 	private void rememberThisBrowser() {
-		String ticket = RememberedBrowser.issueTicket(rememberKind(), System.currentTimeMillis());
-		UI.getCurrent().getPage().executeJs(
-		        "fetch('remember', {method: 'POST', body: $0, credentials: 'same-origin', keepalive: true})", ticket);
+		VaadinServletRequest request = VaadinServletRequest.getCurrent();
+		VaadinServletResponse response = VaadinServletResponse.getCurrent();
+		if (request != null && response != null) {
+			RememberCookies.rememberPin(rememberKind(), request, response, AccessUtils.getClientIp());
+		}
 	}
 
 	/** After a login with the control panel token: where to set a new officials PIN. */

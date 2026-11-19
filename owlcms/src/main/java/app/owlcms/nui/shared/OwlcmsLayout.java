@@ -41,6 +41,8 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.server.VaadinServletRequest;
+import com.vaadin.flow.server.VaadinServletResponse;
 
 import app.owlcms.access.AccessUi;
 import app.owlcms.access.AccountModeAuthenticator;
@@ -405,12 +407,13 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 			AccountModeAuthenticator.logout(principal, "user logout");
 		} else {
 			AuthAudit.loggedOut("PIN", "-", "user logout", null);
-			// these live in the HTTP session, which the logout redirect ends along with the remembered browser
+			// these live in the HTTP session, which the logout ends along with the remembered browser
 			OwlcmsSession.setPrincipal(null);
 			OwlcmsSession.setAuthenticated(false);
 			OwlcmsSession.setDisplayAuthenticated(false);
 		}
-		SessionLogout.redirectAllAndInvalidate(ui.getSession());
+		SessionLogout.redirectAllAndInvalidate(ui.getSession(), VaadinServletRequest.getCurrent(),
+		        VaadinServletResponse.getCurrent());
 	}
 
 	/**
