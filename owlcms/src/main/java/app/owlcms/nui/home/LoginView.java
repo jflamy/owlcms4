@@ -45,6 +45,7 @@ import app.owlcms.access.PublicPage;
 import app.owlcms.access.RememberCookies;
 import app.owlcms.access.RememberedAccount;
 import app.owlcms.access.RememberedBrowser;
+import app.owlcms.access.RememberedLogins;
 import app.owlcms.access.SameMachineProof;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinRequest;
@@ -153,7 +154,9 @@ public class LoginView extends Composite<VerticalLayout>
 		button.getThemeNames().add("icon");
 
 		this.remembered = rememberAllowed && PinModeAuthenticator.isRemembered(rememberKind());
-		this.rememberBrowser.setLabel(Translator.translate("Access.Login.RememberBrowser"));
+		String rememberLabel = RememberedLogins.PIN_DAYS <= 1 ? "Access.Login.KeepLoggedIn"
+		        : "Access.Login.RememberBrowser";
+		this.rememberBrowser.setLabel(Translator.translate(rememberLabel));
 		this.rememberBrowser.setValue(rememberAllowed && (this.remembered || rememberByDefault()));
 		this.rememberBrowser.setVisible(rememberAllowed);
 		// unchecking forgets the browser at once: removing access needs no PIN
