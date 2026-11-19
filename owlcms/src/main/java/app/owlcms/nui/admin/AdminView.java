@@ -14,6 +14,7 @@ import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.markdown.Markdown;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
@@ -35,6 +36,7 @@ import app.owlcms.access.ImportGate;
 import app.owlcms.access.Principal;
 import app.owlcms.access.Access;
 import app.owlcms.access.RequiresAccess;
+import app.owlcms.access.RememberedLogins;
 import app.owlcms.access.SameMachineProof;
 import app.owlcms.access.SecuritySettings;
 import app.owlcms.access.SecuritySettings.Outcome;
@@ -126,6 +128,7 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 			};
 			VerticalLayout securityTab = tab(heading("Config.AccessControlTitle"), securityStatus(),
 			        securityControls(accounts, token), rememberAccountLoginsSwitch(settingsSaved),
+			        forgetRememberedBrowsersButton(),
 			        accessControlForm);
 			FlexibleGridLayout auditTrail = AccessUi.hasPermission(getPrincipal(), Permission.AUDIT_KEYS, null)
 			        ? HomeNavigationContent.navigationGrid(auditKey, auditCheck,
@@ -256,6 +259,20 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 			}
 		});
 		return allowed;
+	}
+
+	private static Button forgetRememberedBrowsersButton() {
+		Button forget = new Button(Translator.translate("Admin.ForgetRememberedBrowsers"), event -> {
+			String action = Translator.translate("Admin.ForgetRememberedBrowsers");
+			new ConfirmationDialog(action, Translator.translate("Admin.ForgetRememberedBrowsersConfirm"), action,
+			        null, null, () -> {
+				        AuditOrigin origin = AuditOrigin.fromUi("Administration security settings");
+				        int count = RememberedLogins.forgetAll(origin);
+				        Notification.show(Translator.translate("Admin.ForgetRememberedBrowsersDone", count));
+			        }).open();
+		});
+		forget.setTooltipText(Translator.translate("Admin.ForgetRememberedBrowsersHelp"));
+		return forget;
 	}
 
 	/** The checkbox, and the list of requirements while it is checked. */
