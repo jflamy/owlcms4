@@ -35,10 +35,11 @@ const BOARD_RENDERERS = Object.freeze({
 });
 
 // Production: normal scoreboards default to css/nogrid, public scoreboards use css/public.
-export const THEMES = Object.freeze(['nogrid', 'public']);
+export const THEMES = Object.freeze(['nogrid', 'public', 'transparent']);
 export const THEME_LABELS = Object.freeze({
   nogrid: 'Normal scoreboard (nogrid)',
-  public: 'Public scoreboard (public)'
+  public: 'Public scoreboard (public)',
+  transparent: 'Video scoreboard (transparent)'
 });
 export const MEDAL_HIGHLIGHT_BOARDS = Object.freeze(
   Object.keys(BOARD_RENDERERS).filter(board => BOARD_RENDERERS[board].highlight));

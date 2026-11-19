@@ -92,11 +92,12 @@ test('medal highlight is a board property: ranking-medals and medals only', () =
     }
 });
 
-test('themes map to production normal (nogrid) and public stylesheets, defaulting to nogrid', () => {
-  assert.deepEqual([...THEMES], ['nogrid', 'public']);
+test('themes map to production normal, public, and transparent stylesheets', () => {
+  assert.deepEqual([...THEMES], ['nogrid', 'public', 'transparent']);
   assert.equal(buildFixture().options.theme, 'nogrid');
   assert.equal(buildFixture().properties.stylesDir, 'css/nogrid');
   assert.equal(buildFixture({theme: 'public'}).properties.stylesDir, 'css/public');
+  assert.equal(buildFixture({theme: 'transparent'}).properties.stylesDir, 'css/transparent');
 });
 
 test('multi-category membership arrays do not rank an athlete in another category', () => {
