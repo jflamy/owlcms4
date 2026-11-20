@@ -293,14 +293,15 @@ public class RecordFilter {
 			}
 		}
 		List<RecordEvent> records = new ArrayList<>(best.values());
-		records.sort(Comparator
+		Comparator<RecordEvent> order = Comparator
 		        .comparing(RecordEvent::getRecordFederation, Comparator.nullsLast(Comparator.naturalOrder()))
 		        .thenComparing(RecordEvent::getRecordName, Comparator.nullsLast(Comparator.naturalOrder()))
 		        .thenComparing(RecordEvent::getGender, Comparator.nullsLast(Comparator.naturalOrder()))
-		        .thenComparing(RecordEvent::getAgeGrpUpper)
-		        .thenComparing(RecordEvent::getAgeGrpLower)
+		        .thenComparingInt(RecordEvent::getAgeGrpUpper)
+		        .thenComparingInt(RecordEvent::getAgeGrpLower)
 		        .thenComparing(RecordEvent::getBwCatUpper, Comparator.nullsLast(Comparator.naturalOrder()))
-		        .thenComparing(r -> r.getRecordLift().ordinal()));
+		        .thenComparingInt(r -> r.getRecordLift().ordinal());
+		records.sort(order);
 		return records;
 	}
 

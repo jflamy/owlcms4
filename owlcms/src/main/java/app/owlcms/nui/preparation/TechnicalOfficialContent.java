@@ -342,8 +342,10 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		}).setHeader(Translator.translate("Team"))
 		        .setAutoWidth(true);
 		teamColumn.setComparator(Comparator
-		        .comparing((TechnicalOfficial o) -> o.getTechnicalOfficialTeam() == null ? Integer.MAX_VALUE : o.getTechnicalOfficialTeam())
-		        .thenComparing(o -> {
+		        .comparingInt((TechnicalOfficial o) -> o.getTechnicalOfficialTeam() == null
+		                ? Integer.MAX_VALUE
+		                : o.getTechnicalOfficialTeam())
+		        .thenComparingInt(o -> {
 		            var teamRole = o.getTeamRole();
 		            return teamRole == null ? Integer.MAX_VALUE : teamRole.ordinal();
 		        })).setSortable(true);
@@ -353,7 +355,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 			var teamRole = official.getTeamRole();
 			return teamRole == null ? "" : Translator.translate(teamRole.getTranslationKey());
 		}).setHeader(Translator.translate("TechnicalOfficials.TeamRole"));
-		teamRoleColumn.setComparator(Comparator.comparing(
+		teamRoleColumn.setComparator(Comparator.comparingInt(
 		        official -> official.getTeamRole() == null ? Integer.MAX_VALUE : official.getTeamRole().ordinal()))
 		        .setSortable(true);
 
@@ -381,7 +383,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		            TechnicalOfficial.Role role = o.getAccreditationRole();
 		            return role == null ? "" : role.name();
 		        })
-		        .thenComparing(o -> {
+		        .thenComparingInt(o -> {
 		            Integer team = o.getTechnicalOfficialTeam();
 		            return team == null ? Integer.MAX_VALUE : team;
 		        })).setSortable(true);

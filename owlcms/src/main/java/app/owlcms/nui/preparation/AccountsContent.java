@@ -203,7 +203,8 @@ public class AccountsContent extends BaseContent implements OwlcmsContent {
 		Grid.Column<UserAccount> platformColumn = grid.addColumn(AccountsContent::platforms)
 		        .setHeader(Translator.translate("Platform")).setAutoWidth(true).setFlexGrow(0)
 		        .setComparator(Comparator.comparing(AccountsContent::platformSortKey)
-		                .thenComparing(a -> a.getUsername().toLowerCase(Locale.ROOT)));
+		                .thenComparing(Comparator.comparing(
+		                        (UserAccount account) -> account.getUsername().toLowerCase(Locale.ROOT))));
 		Grid.Column<UserAccount> usernameColumn = grid.addColumn(UserAccount::getUsername)
 		        .setHeader(Translator.translate("Access.Username"))
 		        .setComparator(Comparator.comparing(a -> a.getUsername().toLowerCase(Locale.ROOT)));

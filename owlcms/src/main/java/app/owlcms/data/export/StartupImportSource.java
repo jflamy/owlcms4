@@ -65,8 +65,8 @@ public final class StartupImportSource {
 			        .filter(StartupImportSource::isCandidate)
 			        .map(StartupImportSource::describe)
 			        .sorted(Comparator.comparing(Candidate::lastModified).reversed()
-			                .thenComparing(candidate -> candidate.path().getFileName().toString(),
-			                        Comparator.reverseOrder()))
+			                .thenComparing(Comparator.comparing(
+			                        (Candidate candidate) -> candidate.path().getFileName().toString()).reversed()))
 			        .toList();
 		} catch (IOException e) {
 			throw new UncheckedIOException("Cannot list folder " + folder, e);
