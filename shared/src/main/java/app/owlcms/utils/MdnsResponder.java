@@ -12,9 +12,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
@@ -35,7 +33,9 @@ public class MdnsResponder {
 	private static final String SERVICE_TYPE = "_owlcms._tcp.local.";
 	private static final String NATIVE_SERVICE_TYPE = "_owlcms._tcp";
 	private static final long VERIFICATION_DELAY_MILLIS = 3000;
-	private static final int MAX_NATIVE_NAME_COLLISIONS = 10;
+	private static final int MAX_NAME_COLLISIONS = 10;
+	/** How long stop() lets the responders withdraw their announcements before returning. */
+	private static final long STOP_WAIT_MILLIS = 500;
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(MdnsResponder.class);
 	private static final List<JmDNS> instances = new ArrayList<>();
 	private static Process nativeResponder;
@@ -43,6 +43,10 @@ public class MdnsResponder {
 
 	private enum NativeRegistration {
 		REGISTERED, CONFLICT, FAILED
+	}
+
+	private enum Verification {
+		VERIFIED, CONFLICT, UNVERIFIED
 	}
 
 	/**
@@ -64,63 +68,112 @@ public class MdnsResponder {
 		announcer.start();
 	}
 
+	/**
+	 * Stops announcing. Withdrawing a JmDNS announcement waits for its goodbye packets, up to 5 s per responder, so it
+	 * runs in the background and the caller waits at most {@link #STOP_WAIT_MILLIS}: a stopping server must not wait
+	 * for it.
+	 */
 	public static void stop() {
+		List<JmDNS> responders;
 		synchronized (instances) {
 			Process process = nativeResponder;
 			nativeResponder = null;
 			if (process != null) {
 				process.destroy();
 			}
-			for (JmDNS jmdns : instances) {
+			responders = new ArrayList<>(instances);
+			instances.clear();
+			registeredHostName = null;
+		}
+		Thread closer = closeInBackground(responders);
+		if (closer != null) {
+			try {
+				closer.join(STOP_WAIT_MILLIS);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
+	}
+
+	/** @return the thread closing the responders, or null if there are none */
+	private static Thread closeInBackground(List<JmDNS> responders) {
+		if (responders.isEmpty()) {
+			return null;
+		}
+		// close() also unregisters the services
+		Thread closer = new Thread(() -> {
+			for (JmDNS jmdns : responders) {
 				try {
-					jmdns.unregisterAllServices();
 					jmdns.close();
 				} catch (IOException e) {
 					logger.debug("could not close mDNS responder: {}", e.getMessage());
 				}
 			}
-			instances.clear();
-			registeredHostName = null;
-		}
+		}, "mdns-close");
+		closer.setDaemon(true);
+		closer.start();
+		return closer;
 	}
 
 	private static void announce(String requestedName, int port) {
-		Map<String, List<InetAddress>> announcedAddresses = new LinkedHashMap<>();
 		try {
 			IfaceAddress candidate = selectCandidateAddress(IPInterfaceUtils.getCandidateAddresses());
 			if (candidate == null) {
 				logger./**/warn("could not announce {}: no eligible network address", requestedName);
 				return;
 			}
-			InetAddress address = candidate.address();
 			if (IPInterfaceUtils.isMacOs()) {
 				announceWithNativeResponder(requestedName, port, candidate);
 				return;
 			}
-			try {
-				JmDNS jmdns = JmDNS.create(address, requestedName);
-				jmdns.registerService(ServiceInfo.create(SERVICE_TYPE, requestedName, port, ""));
-				synchronized (instances) {
-					instances.add(jmdns);
-				}
-				String hostName = stripTrailingDot(jmdns.getHostName());
-				announcedAddresses.computeIfAbsent(hostName, ignored -> new ArrayList<>()).add(address);
-				logger.info("announcing {} on {} ({})", hostName, address.getHostAddress(), candidate.iface().getName());
-			} catch (IOException e) {
-				logger.warn("could not announce {} on {}: {}", requestedName, address.getHostAddress(), e.getMessage());
-			}
-			verifyAnnouncements(announcedAddresses);
+			announceWithJmDNS(requestedName, port, candidate);
 		} catch (Exception e) {
 			logger.warn("could not announce {}: {}", requestedName, e.getMessage());
 		}
 	}
 
+	/** owlcms, owlcms-2, owlcms-3..., the suffix scheme of JmDNS and of the macOS responder. */
+	private static String candidateName(String requestedName, int attempt) {
+		return attempt == 1 ? requestedName : requestedName + "-" + attempt;
+	}
+
+	/**
+	 * JmDNS does not always detect that another host already answers for the name, so each name is verified by
+	 * resolving it; when it resolves elsewhere, the responder stops claiming it and the next name is tried.
+	 */
+	private static void announceWithJmDNS(String requestedName, int port, IfaceAddress candidate)
+	        throws IOException {
+		InetAddress address = candidate.address();
+		for (int attempt = 1; attempt <= MAX_NAME_COLLISIONS; attempt++) {
+			String name = candidateName(requestedName, attempt);
+			JmDNS jmdns = JmDNS.create(address, name);
+			synchronized (instances) {
+				instances.add(jmdns);
+			}
+			jmdns.registerService(ServiceInfo.create(SERVICE_TYPE, name, port, ""));
+			String hostName = stripTrailingDot(jmdns.getHostName());
+			logger.info("announcing {} on {} ({})", hostName, address.getHostAddress(), candidate.iface().getName());
+
+			if (verifyAnnouncement(jmdns, hostName, address) != Verification.CONFLICT) {
+				return;
+			}
+			synchronized (instances) {
+				if (!instances.remove(jmdns)) {
+					// stop() was called while verifying; it closes the responder
+					return;
+				}
+			}
+			closeInBackground(List.of(jmdns));
+			logger.info("{} is already in use on the network, trying another name", hostName);
+		}
+		logger./**/warn("could not announce {}: no free name after {} attempts", requestedName, MAX_NAME_COLLISIONS);
+	}
+
 	private static void announceWithNativeResponder(String requestedName, int port, IfaceAddress candidate)
 	        throws IOException {
 		InetAddress address = candidate.address();
-		for (int attempt = 1; attempt <= MAX_NATIVE_NAME_COLLISIONS; attempt++) {
-			// same suffix scheme as JmDNS: owlcms, owlcms-2, owlcms-3...
-			String name = attempt == 1 ? requestedName : requestedName + "-" + attempt;
+		for (int attempt = 1; attempt <= MAX_NAME_COLLISIONS; attempt++) {
+			String name = candidateName(requestedName, attempt);
 			String hostName = name + ".local";
 			Process process = new ProcessBuilder("/usr/bin/dns-sd", "-P", name, NATIVE_SERVICE_TYPE, "local.",
 			        Integer.toString(port), hostName + ".", address.getHostAddress())
@@ -163,7 +216,7 @@ public class MdnsResponder {
 			logger.info("{} is already in use on the network, trying another name", hostName);
 		}
 		logger./**/warn("could not announce {}: no free name after {} attempts", requestedName,
-		        MAX_NATIVE_NAME_COLLISIONS);
+		        MAX_NAME_COLLISIONS);
 	}
 
 	private static NativeRegistration awaitNativeRegistration(BufferedReader reader, String hostName)
@@ -224,35 +277,35 @@ public class MdnsResponder {
 		return firstEligible;
 	}
 
-	private static void verifyAnnouncements(Map<String, List<InetAddress>> announcedAddresses) {
+	/**
+	 * Publishes hostName once it resolves to the announced address. A name that resolves elsewhere belongs to another
+	 * host. A name that does not resolve on this machine is still announced, but not published.
+	 */
+	private static Verification verifyAnnouncement(JmDNS jmdns, String hostName, InetAddress address) {
 		try {
 			Thread.sleep(VERIFICATION_DELAY_MILLIS);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
-			return;
+			return Verification.UNVERIFIED;
 		}
-
-		for (Map.Entry<String, List<InetAddress>> announcement : announcedAddresses.entrySet()) {
-			String hostName = announcement.getKey();
-			try {
-				InetAddress[] resolvedAddresses = InetAddress.getAllByName(hostName);
-				boolean resolvesToAnnouncedAddress = Arrays.stream(resolvedAddresses)
-				        .anyMatch(announcement.getValue()::contains);
-				if (resolvesToAnnouncedAddress) {
-					synchronized (instances) {
-						if (instances.isEmpty()) {
-							return;
-						}
-						registeredHostName = hostName;
+		try {
+			InetAddress[] resolvedAddresses = InetAddress.getAllByName(hostName);
+			if (Arrays.asList(resolvedAddresses).contains(address)) {
+				synchronized (instances) {
+					if (!instances.contains(jmdns)) {
+						return Verification.UNVERIFIED;
 					}
-					logger.info("verified {} resolves to an announced address", hostName);
-					return;
+					registeredHostName = hostName;
 				}
-				logger./**/warn("not publishing {} URL: resolved addresses {} do not include announced addresses {}",
-				        hostName, Arrays.toString(resolvedAddresses), announcement.getValue());
-			} catch (UnknownHostException e) {
-				logger./**/warn("not publishing {} URL: name does not resolve on this machine", hostName);
+				logger.info("verified {} resolves to an announced address", hostName);
+				return Verification.VERIFIED;
 			}
+			logger.info("{} resolves to {}, not to the announced address {}", hostName,
+			        Arrays.toString(resolvedAddresses), address.getHostAddress());
+			return Verification.CONFLICT;
+		} catch (UnknownHostException e) {
+			logger./**/warn("not publishing {} URL: name does not resolve on this machine", hostName);
+			return Verification.UNVERIFIED;
 		}
 	}
 
