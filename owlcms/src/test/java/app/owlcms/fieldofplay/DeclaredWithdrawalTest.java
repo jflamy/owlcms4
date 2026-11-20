@@ -116,6 +116,7 @@ public class DeclaredWithdrawalTest {
 		assertNotEquals(both.getId(), fop.getCurAthlete().getId());
 		assertNotEquals(snatchOnly.getId(), fop.getCurAthlete().getId());
 		assertTrue(fop.getCurAthlete().getNextAttemptRequestedWeight() >= 2);
+		assertFalse("withdrawals are not clean and jerk attempts", fop.isCjStarted());
 	}
 
 	private static Athlete declared(String snatch, String cleanJerk) {

@@ -4586,17 +4586,13 @@ public class FieldOfPlay implements IUnregister {
 			// logger.debug("currentGroupAthletes IDs: {}",
 			// currentGroupAthletes.stream().map(a ->
 			// a.getId()).collect(Collectors.toList()));
-			// redundant filter appear to be an emergency kludge.
-			currentGroupAthletes.stream()
-					.filter(a -> a.getGroup() != null && a.getGroup().equals(g))
-					.peek(a -> {
-						if (a.getAttemptsDone() > 3 && !isCjStarted()) {
-							this.logger.trace("set cj started");
-							// known side-effect
-							setCjStarted(true);
-						}
-					})
-					.collect(Collectors.toList());
+			if (!isCjStarted()
+					&& currentGroupAthletes.stream()
+							.filter(a -> a.getGroup() != null && a.getGroup().equals(g))
+							.anyMatch(FieldOfPlay::hasAttemptedCleanJerk)) {
+				this.logger.trace("set cj started");
+				setCjStarted(true);
+			}
 
 			setDisplayOrder(currentGroupAthletes);
 			setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
@@ -4648,6 +4644,12 @@ public class FieldOfPlay implements IUnregister {
 	public boolean isFirstCJ() {
 		return getLiftingOrder().stream()
 				.allMatch(a -> a.getAttemptsDone() == 3 || Integer.valueOf(0).equals(a.getActualLiftOrNull(4)));
+	}
+
+	private static boolean hasAttemptedCleanJerk(Athlete athlete) {
+		return athlete.getActualLift(4) != 0
+				|| athlete.getActualLift(5) != 0
+				|| athlete.getActualLift(6) != 0;
 	}
 
 	public boolean isLastSnatch() {
