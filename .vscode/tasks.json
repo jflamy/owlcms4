@@ -12,6 +12,16 @@
           "args": ["-c"]
         }
       },
+      "windows": {
+        "command": "${workspaceFolder}\\owlcms\\scripts\\clear-logs.ps1",
+        "options": {
+          "cwd": "${workspaceFolder}\\owlcms",
+          "shell": {
+            "executable": "powershell.exe",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File"]
+          }
+        }
+      },
       "problemMatcher": []
     }
   ]
