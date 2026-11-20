@@ -54,9 +54,9 @@ public class IWFCategories {
 					return -compare;
 				}
 				// c2 is a fake category where the upper and lower bounds are the athlete's
-				// weight
+				// weight. Categories exclude their minimum and include their maximum.
 				//logger.trace("comparing searched {} to reference {}", searchedCategory, referenceCategory);
-				if (searchedCategory.getMinimumWeight() >= referenceCategory.getMinimumWeight() && searchedCategory.getMaximumWeight() <= referenceCategory.getMaximumWeight()) {
+				if (searchedCategory.getMinimumWeight() > referenceCategory.getMinimumWeight() && searchedCategory.getMaximumWeight() <= referenceCategory.getMaximumWeight()) {
 					//logger.trace(dumpCat(searchedCategory)+" == "+dumpCat(referenceCategory));
 					return 0;
 				} else if (searchedCategory.getMinimumWeight() > referenceCategory.getMaximumWeight()) {
@@ -180,8 +180,12 @@ public class IWFCategories {
 			   }
 		   }
 
+		return findCategory(categories, gender, a.getBodyWeight());
+	}
+
+	static Category findCategory(List<Category> categories, Gender gender, double bodyWeight) {
 		int index = Collections.binarySearch(categories,
-		        new Category(a.getBodyWeight(), a.getBodyWeight(), a.getGender(), true, 0, 0, 0, null, 0),
+		        new Category(bodyWeight, bodyWeight, gender, true, 0, 0, 0, null, 0),
 		        new IWFComparator());
 
 		if (index >= 0) {

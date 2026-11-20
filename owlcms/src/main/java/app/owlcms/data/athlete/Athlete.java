@@ -1810,14 +1810,17 @@ public class Athlete {
 	 */
 	@JsonIgnore
 	public Double getCatSinclairFactor() {
-		if (this.getGender() == Gender.M) {
-			return sinclairFactor(this.getCategory().getMaximumWeight(), getSinclairProperties().menCoefficient(),
-					getSinclairProperties().menMaxWeight());
-		} else if (getGender() == Gender.F) {
-			return sinclairFactor(this.getCategory().getMaximumWeight(), getSinclairProperties().womenCoefficient(),
-					getSinclairProperties().womenMaxWeight());
-		} else {
+		Category category = IWFCategories.findIWFCategory(this);
+		Double categoryWeight = category != null ? computeCategorySinclairBodyWeight(category) : null;
+		if (categoryWeight == null) {
 			return 0.0D;
+		}
+		if (this.getGender() == Gender.M) {
+			return sinclairFactor(categoryWeight, getSinclairProperties().menCoefficient(),
+					getSinclairProperties().menMaxWeight());
+		} else {
+			return sinclairFactor(categoryWeight, getSinclairProperties().womenCoefficient(),
+					getSinclairProperties().womenMaxWeight());
 		}
 	}
 
@@ -6958,6 +6961,15 @@ public class Athlete {
 			logger./**/warn("getCategorySinclairForDelta: category not found {}", this);
 			return 0.0;
 		}
+		Double categoryWeight = computeCategorySinclairBodyWeight(category);
+		if (categoryWeight == null) {
+			return 0.0D;
+		}
+		return getSinclairForDelta(categoryWeight);
+	}
+
+	/** Senior reference category limit used for category Sinclair; null when the gender has no Sinclair. */
+	private Double computeCategorySinclairBodyWeight(Category category) {
 		Double categoryWeight = category.getMaximumWeight();
 		Gender gender = getGender();
 		if (gender == Gender.M) { // $NON-NLS-1$
@@ -6973,14 +6985,9 @@ public class Athlete {
 				categoryWeight = getSinclairProperties().womenMaxWeight();
 			}
 		} else {
-			return 0.0D;
+			return null;
 		}
-		Double sinclairForDelta = getSinclairForDelta(categoryWeight);
-		// if (getLastName().equals("Brunelle"))
-		// logger.debug("getCategorySinclairForDelta {} === {} {}", categoryWeight,
-		// sinclairForDelta,
-		// LoggerUtils.whereFrom());
-		return sinclairForDelta;
+		return categoryWeight;
 	}
 
 	/**
@@ -6994,26 +7001,19 @@ public class Athlete {
 	 */
 	@JsonIgnore
 	public Double getCategoryQPointsForDelta() {
-		// Category category = getCategory();
-		Category category = IWFCategories.findIWFCategory(this);
-		if (category == null) {
-			return 0.0;
-		}
+		Integer value = getBestCleanJerk() + getBestSnatch();
+		return value * getCatQPointsFactor();
+	}
 
-		Double categoryWeight = computeCategoryBodyWeight(category);
-		if (getGender() == Gender.I) {
+	/** Q-points factor at the senior reference category limit, as used for category Q-points. */
+	@JsonIgnore
+	public Double getCatQPointsFactor() {
+		Category category = IWFCategories.findIWFCategory(this);
+		if (category == null || getGender() == Gender.I) {
 			return 0.0D;
 		}
-
-		int intCatWeight = (int) Math.round(categoryWeight);
-		Double qPointsFactor = qPointsCoefficients.qPointsFactor(getGender(), (double) intCatWeight);
-		Integer value = getBestCleanJerk() + getBestSnatch();
-		var qPoints = value * qPointsFactor;
-		// if (lastName.equals("Brunelle") || lastName.equals("Prince"))
-		// logger.debug("--------------- bw {} cat {} qpoints {} catQPoints {}",
-		// getBodyWeight(),
-		// intCatWeight, getQPoints(), qPoints);
-		return qPoints;
+		int intCatWeight = (int) Math.round(computeCategoryBodyWeight(category));
+		return qPointsCoefficients.qPointsFactor(getGender(), (double) intCatWeight);
 	}
 
 	@JsonIgnore
@@ -7070,10 +7070,6 @@ public class Athlete {
 			return 0.0D;
 		}
 		return categoryWeight;
-	}
-
-	public Double computeCategoryBodyWeight() {
-		return computeCategoryBodyWeight(this.getCategory());
 	}
 
 	public boolean withdrawnFromCJ() {

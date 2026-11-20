@@ -15,6 +15,9 @@
   - The Timekeeper, active announcer and Competition Supervisor can start the clock anyway (dialog, or Start pressed again after 1 second). Other screens show who started it.
   - A refused start no longer shows the clock running on the screen that pressed Start.
 
+- 69.0.0-rc07: Scores computed at the category weight (category Sinclair, Q-points and GAMX) used the next category up for an athlete exactly at a category limit (a 70 kg athlete was scored at 75 kg).
+  - The "kg needed" on the Top Sinclair scoreboard is computed at the same senior category limit as the score, instead of the athlete's registration category.
+
 - 69.0.0-rc06: Network name announcement and shutdown fixes for robustness
   - mDNS records expire after 120 seconds, and network name announcement is disabled on fly.io.
   - OWLCMS shutdown waits at most 500 ms for mDNS announcement withdrawal.

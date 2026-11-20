@@ -108,9 +108,9 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	}
 
 	/** The maximum weight. */
-	Double maximumWeight; // exclusive
+	Double maximumWeight; // inclusive
 	/** The minimum weight. */
-	Double minimumWeight; // inclusive
+	Double minimumWeight; // exclusive
 	@Column(columnDefinition = "boolean default false", nullable = true)
 	private Boolean active;
 	@ManyToOne(fetch = FetchType.EAGER) // ok in this case

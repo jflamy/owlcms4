@@ -358,6 +358,16 @@ public class AthleteTest {
     }
 
     @Test
+    public void testCategorySinclairFactorMatchesCategorySinclair() {
+        athlete.setSnatch1ActualLift("60");
+        athlete.setCleanJerk1ActualLift("80");
+        // registered in 73, scored at the senior reference category limit
+        assertEquals(73.0, athlete.getCategory().getMaximumWeight(), 0.0);
+        assertEquals("category Sinclair and its factor use the same category weight",
+                athlete.getCategorySinclair() / athlete.getTotal(), athlete.getCatSinclairFactor(), 1e-9);
+    }
+
+    @Test
     public void testStartingTotalViolationClearsWhenCorrected() throws Exception {
         Competition.getCurrent().setEnforce20kgRule(true);
         athlete.setValidation(true);

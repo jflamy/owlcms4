@@ -415,26 +415,18 @@ public class TopSinclair extends AbstractTop {
 						        Math.ceil((this.topManScore - a.getSinclairForDelta()) / a.getSinclairFactor()));
 					}
 					break;
-				case CAT_SINCLAIR:
-					if (curGender == Gender.F) {
-						needed = (int) Math.round(
-						        Math.ceil((this.topWomanScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
-					} else {
-						needed = (int) Math.round(
-						        Math.ceil((this.topManScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
-					}
+				case CAT_SINCLAIR: {
+					double topScore = curGender == Gender.F ? this.topWomanScore : this.topManScore;
+					double factor = a.getCatSinclairFactor();
+					needed = factor > 0 ? (int) Math.round(Math.ceil((topScore - a.getCategorySinclair()) / factor)) : 0;
 					break;
-				case CAT_QPOINTS:
-					if (curGender == Gender.F) {
-						needed = (int) Math.round(
-						        Math.ceil((this.topWomanScore - a.getCategoryQPoints())
-						                / this.qpoints.qPointsFactor(Gender.F, a.computeCategoryBodyWeight())));
-					} else {
-						needed = (int) Math.round(
-						        Math.ceil((this.topManScore - a.getCategoryQPoints())
-						                / this.qpoints.qPointsFactor(Gender.M, a.computeCategoryBodyWeight())));
-					}
+				}
+				case CAT_QPOINTS: {
+					double topScore = curGender == Gender.F ? this.topWomanScore : this.topManScore;
+					double factor = a.getCatQPointsFactor();
+					needed = factor > 0 ? (int) Math.round(Math.ceil((topScore - a.getCategoryQPoints()) / factor)) : 0;
 					break;
+				}
 				case GAMX:
 				case GAMX_M:
 				case GAMX_MS:
