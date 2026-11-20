@@ -629,6 +629,19 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		}
 	}
 
+	@ClientCallable
+	public void decisionBoardRendered(String sequence, String mode, boolean decisionVisible, String shownSections,
+	        Double clientEpochMillis) {
+		if (!FeatureSwitch.ATTEMPT_TRACES.isEffective()) {
+			return;
+		}
+		String clientTime = clientEpochMillis == null ? "" : CLIENT_TIME_FORMATTER
+		        .format(Instant.ofEpochMilli(clientEpochMillis.longValue()));
+		logger./**/warn("{}attemptBoard decisionBoard rendered board={} seq={} mode={} decisionVisible={} shown={} clientTime={}",
+		        FieldOfPlay.getLoggingName(getFop()), traceBoardId(), sequence, mode, decisionVisible, shownSections,
+		        clientTime);
+	}
+
 
 	@Subscribe
 	public void slaveStartBreak(UIEvent.BreakStarted e) {

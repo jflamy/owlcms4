@@ -25,6 +25,7 @@ import com.vaadin.flow.component.littemplate.LitTemplate;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
@@ -173,9 +174,26 @@ public abstract class AbstractDecisionElement extends LitTemplate
 	@ClientCallable
 	public void decisionPayloadApplied(String sequence, String mode, Boolean singleRef, Boolean announcerForced,
 	        Boolean ref1, Boolean ref2, Boolean ref3) {
-		logger.debug("{}decisionElement applied decisionPayload sequence={} mode={} singleRef={} announcerForced={} refs=[{},{},{}] parent={}",
-		        FieldOfPlay.getLoggingName(this.fop), sequence, mode, singleRef, announcerForced, ref1, ref2, ref3,
-		        this.getOrigin());
+		if (!FeatureSwitch.ATTEMPT_TRACES.isEffective()) {
+			return;
+		}
+		logger./**/warn("{}decisionElement payload applied parent={} seq={} mode={} singleRef={} announcerForced={} refs=[{},{},{}]",
+		        FieldOfPlay.getLoggingName(this.fop), traceParentId(), sequence, mode, singleRef, announcerForced,
+		        ref1, ref2, ref3);
+	}
+
+	private void tracePayloadSent(ObjectNode payload) {
+		if (!FeatureSwitch.ATTEMPT_TRACES.isEffective()) {
+			return;
+		}
+		logger./**/warn("{}decisionElement payload sent parent={} payload={}", FieldOfPlay.getLoggingName(this.fop),
+		        traceParentId(), payload);
+	}
+
+	private String traceParentId() {
+		return getParent()
+		        .map(p -> p.getClass().getSimpleName() + "@" + Integer.toHexString(System.identityHashCode(p)))
+		        .orElse("detached");
 	}
 
 	public void setDontReset(boolean dontReset) {
@@ -366,6 +384,7 @@ public abstract class AbstractDecisionElement extends LitTemplate
 		juryStates.forEach(jury::add);
 		payload.set("juryStates", jury);
 		getElement().setPropertyJson("decisionPayload", payload);
+		tracePayloadSent(payload);
 		setEnabled(false);
 	}
 
@@ -424,6 +443,7 @@ public abstract class AbstractDecisionElement extends LitTemplate
 		putNullableBoolean(payload, "ref2", ref2);
 		putNullableBoolean(payload, "ref3", ref3);
 		getElement().setPropertyJson("decisionPayload", payload);
+		tracePayloadSent(payload);
 	}
 
 	private void putNullableBoolean(ObjectNode payload, String key, Boolean value) {

@@ -609,11 +609,13 @@ public abstract class TimerElement extends LitTemplate
 			return;
 		}
 		final String ctx = FieldOfPlay.getLoggingName(this.fop) + timerDiagnosticRole() + " timer ";
+		final String timerId = traceTimerId();
 		final long stamp = System.currentTimeMillis();
 		try {
 			getElement().executeJs(TRACE_TIMER_CLIENT_RENDER_SCRIPT).then(String.class, rendered -> {
-				this.logger.warn("{}{} client rendered +{}ms seq={} seconds={} {}", ctx, command,
-						System.currentTimeMillis() - stamp, sequence, seconds, rendered != null ? rendered : "<null>");
+				this.logger.warn("{}{} client rendered +{}ms {} seq={} seconds={} {}", ctx, command,
+						System.currentTimeMillis() - stamp, timerId, sequence, seconds,
+						rendered != null ? rendered : "<null>");
 			});
 		} catch (RuntimeException e) {
 			this.logger.debug("{}{} client render callback failed", ctx, command, e);
@@ -627,10 +629,18 @@ public abstract class TimerElement extends LitTemplate
 		this.lastClientStoppedMillis = System.currentTimeMillis();
 		if (FeatureSwitch.CLOCK_TRACES.isEffective() && isDisplayAthleteTimer()) {
 			this.logger.warn(
-					"{}{} timer stop client acknowledged seq={} display='{}' running={} currentTime={}",
-					FieldOfPlay.getLoggingName(this.fop), timerDiagnosticRole(), parsedSequence, display, running,
-					currentTime);
+					"{}{} timer stop client acknowledged {} seq={} display='{}' running={} currentTime={}",
+					FieldOfPlay.getLoggingName(this.fop), timerDiagnosticRole(), traceTimerId(), parsedSequence,
+					display, running, currentTime);
 		}
+	}
+
+	/** timer and parent identity; the parent uses the same Class@hash form as the board and decision traces */
+	private String traceTimerId() {
+		String parent = getParent()
+		        .map(p -> p.getClass().getSimpleName() + "@" + Integer.toHexString(System.identityHashCode(p)))
+		        .orElse("detached");
+		return "timer=" + this.instanceId + " parent=" + parent;
 	}
 
 	@ClientCallable

@@ -136,6 +136,29 @@ class DecisionBoard extends LitElement {
     super.firstUpdated(_changedProperties);
   }
 
+  updated(changedProperties) {
+    super.updated(changedProperties);
+    if (!this.board.attemptTraces || !changedProperties.has("boardState")) {
+      return;
+    }
+    const sections = { wait: ".bigTitle", stop: ".container", active: ".decisionBoard",
+      athleteTimer: ".athleteTimer", breakTimer: ".breakTime", decision: "#decisionDiv" };
+    const shown = Object.entries(sections)
+      .filter(([, selector]) => {
+        const display = this.shadowRoot?.querySelector(selector)?.style.display;
+        return display && display !== "none";
+      })
+      .map(([name]) => name)
+      .join(",");
+    this.$server?.decisionBoardRendered(
+      String(this.board.sequence ?? ""),
+      String(this.board.mode ?? ""),
+      Boolean(this.board.decisionVisible),
+      shown,
+      Date.now()
+    );
+  }
+
   get board() {
     return this._boardState;
   }
