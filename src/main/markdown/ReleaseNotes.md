@@ -11,9 +11,9 @@
 
 **Development log**
 
-- 69.0.0-rc06: Network name announcement fixes
-  - `owlcms.local` name: when another computer already uses the name, `owlcms-2.local`, `owlcms-3.local`, ... are now tried faster and more robustlry.
-  - remove delays during stoppage
+- 69.0.0-rc06: Network name announcement and shutdown fixes for robustness
+  - mDNS records expire after 120 seconds, and network name announcement is disabled on fly.io.
+  - OWLCMS shutdown waits at most 500 ms for mDNS announcement withdrawal.
 
 - 69.0.0-rc05: As a matter of principle, update Docker base image for fly.io deployments to mitigate Java CVE (local version was already ok)
 
