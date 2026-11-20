@@ -466,6 +466,19 @@ public class JuryScenario {
 		                + "to No Lift, the Jury Chair gives the rule",
 		        Setup.JURY3, votes("good", "good", "bad"), votes("bad", "bad", "bad"), false,
 		        null, votes("bad", "bad", "bad"), false));
+		add(new Scenario("377-jury3-broken-juror-timekeeper-start-anyway",
+		        "377. 3-member jury, no VPT: No Lift, jury box 3 does not work; the Timekeeper presses Start on its "
+		                + "page, the clock stays stopped and the Timekeeper and active Speaker are asked to start it "
+		                + "anyway (the passive Speaker only gets a warning); the Timekeeper starts it anyway, leaving the "
+		                + "referees' No Lift in place",
+		        Setup.JURY3, votes("bad", "bad", "bad"), votes("bad", "bad", "bad"), false,
+		        null, null, false, 3, false, true));
+		add(new Scenario("378-jury3-broken-juror-timekeeper-tablet-start-anyway",
+		        "378. 3-member jury, no VPT: No Lift, jury box 3 does not work; the Timekeeper works on a tablet "
+		                + "(no clock button): Start on the Timekeeper page is refused and the dialog opens; the "
+		                + "Timekeeper clicks Start clock anyway, leaving the referees' No Lift in place",
+		        Setup.JURY3, votes("bad", "bad", "bad"), votes("bad", "bad", "bad"), false,
+		        null, null, false, 3, false, true));
 		add(Scenario.lastLift("380-jury3-last-snatch-board-hold",
 		        "380. 3-member jury, no VPT, single-athlete session M2: the last snatch starts the break before clean "
 		                + "and jerk; the attempt board stays on the athlete under review until the jury has voted and "
@@ -571,6 +584,14 @@ public class JuryScenario {
 	        "300-jury3-reversal-nolift", "345-jury3-jurybox-confirmation-nolift", "365-jury3-agreed-board-hold",
 	        "165-vpt-agreed-board-hold");
 
+	/** the start-anyway scenario in which the Timekeeper page presses Start, rather than an MQTT clock command */
+	private static final String TIMEKEEPER_START_ANYWAY = "377-jury3-broken-juror-timekeeper-start-anyway";
+	/** the start-anyway scenario in which the Timekeeper only uses its page, as on a tablet */
+	private static final String TIMEKEEPER_TABLET_START_ANYWAY = "378-jury3-broken-juror-timekeeper-tablet-start-anyway";
+	/** the scenarios that need the Timekeeper and passive Speaker pages */
+	private static final Set<String> TIMEKEEPER_SCENARIOS = Set.of(TIMEKEEPER_START_ANYWAY,
+	        TIMEKEEPER_TABLET_START_ANYWAY);
+
 	JuryScenario(Options options) throws IOException {
 		this.options = options;
 		this.timing = Timing.load(options.timing());
@@ -629,6 +650,10 @@ public class JuryScenario {
 				this.pages.put("attempt", open(browser, "displays/attemptBoard?" + fop, 1920, 1080));
 				this.pages.put("scoreboard", open(browser, "displays/resultsLeaders?" + fop + "&decisionSection=true",
 				        1920, 1080));
+				if (this.options.scenarios().stream().map(String::trim).anyMatch(TIMEKEEPER_SCENARIOS::contains)) {
+					this.pages.put("timekeeper", open(browser, "lifting/timekeeper?" + fop, 1400, 900));
+					this.pages.put("passive", open(browser, "lifting/announcer/passive?" + fop, 1400, 900));
+				}
 
 				for (String id : this.options.scenarios()) {
 					Scenario sc = SCENARIOS.get(id.trim());
@@ -882,10 +907,12 @@ public class JuryScenario {
 	/**
 	 * A jury device never votes on the lift. The Speaker attempts to start the next clock, owlcms refuses it and asks
 	 * for confirmation, then Start clock anyway abandons the incomplete jury vote and leaves the referees' decision.
+	 * In {@link #TIMEKEEPER_START_ANYWAY} the Timekeeper starts it instead: see {@link #timekeeperStartsAnyway}.
 	 */
 	private void runStartClockAnyway(String athlete) throws Exception {
 		Scenario sc = this.scenario;
 		int broken = sc.brokenJuror();
+		int jurors = sc.setup().jurors;
 		String[] refs = sc.refs();
 		String liftDecision = Arrays.stream(refs).filter("good"::equals).count() >= 2 ? "Good Lift" : "No Lift";
 		String refsText = describe(refs);
@@ -900,25 +927,33 @@ public class JuryScenario {
 		}
 		long lastReferee = System.nanoTime();
 		pauseDecisionOver();
-		step("Referees: " + refsText, liftDecision + " (" + refsText + ") on all boards; 4 empty jury circles. "
-		        + juryVotingText(), juryVotingChecks());
+		step("Referees: " + refsText, liftDecision + " (" + refsText + ") on all boards; " + jurors
+		        + " empty jury circles. " + juryVotingText(), juryVotingChecks());
 
-		for (int j = 1; j <= 4; j++) {
+		for (int j = 1; j <= jurors; j++) {
 			if (j != broken) {
 				juror(j, sc.liftJury()[j - 1]);
 			}
 		}
 		pause(1500);
-		step("Three of four jurors vote on the lift; jury box " + broken + " sends nothing",
+		step((jurors - 1) + " of " + jurors + " jurors vote on the lift; jury box " + broken + " sends nothing",
 		        "The jury vote on the lift is incomplete" + (sc.setup().panel
 		                ? ", so there is no automatic Adjudication Panel Review"
 		                : "; without VPT there is no automatic review in any case")
-		                + ". Jury Control shows 3 grey \"voted\" circles. Speaker: no dialog, already on the next "
-		                + "athlete.",
+		                + ". Jury Control shows " + (jurors - 1) + " grey \"voted\" circles. Speaker: no dialog, "
+		                + "already on the next athlete.",
 		        List.of(new Check("speaker", "no jury dialog", "!(" + dialogContains("Waiting for") + ")")));
 
 		// the jury vote is not complete: the attempt board has no time limit and must still be waiting
 		pauseUntil(lastReferee, this.timing.juryDecisionHold() + 6000);
+		if (TIMEKEEPER_START_ANYWAY.equals(sc.id())) {
+			timekeeperStartsAnyway(refs, liftDecision, broken);
+			return;
+		}
+		if (TIMEKEEPER_TABLET_START_ANYWAY.equals(sc.id())) {
+			timekeeperTabletStartsAnyway(refs, liftDecision, broken);
+			return;
+		}
 		// an athlete who follows himself has 2:00: the next clock is set to 1:00 so that it can be checked
 		clock("60");
 		awaitClock(clockCheck("speaker", 60, false));
@@ -975,6 +1010,165 @@ public class JuryScenario {
 			clock("stop");
 		}
 		clockStoppedStep(overrideStartMs, "override");
+	}
+
+	/** the athlete clock Start button of a lifting console */
+	private static final String START_BUTTON = "vaadin-button:has(vaadin-icon[icon='vaadin:play'])";
+
+	/** the notice shown when the clock was started without the missing jury votes (or its key, until translated) */
+	private static String clockStartedByNotice() {
+		return "(" + notificationContains("Clock started by") + ") || (" + notificationContains("ClockStartedBy")
+		        + ")";
+	}
+
+	/**
+	 * The Timekeeper, who owns the clock, starts it without the missing jury vote. The physical button is pressed
+	 * twice in quick succession: both presses are refused (the second is a reflex). The Timekeeper cancels the
+	 * dialog, then presses Start again on the Timekeeper page, more than a second after the refusal: owlcms takes it
+	 * as Start clock anyway. The Timekeeper page shows the clock only once it has actually started.
+	 */
+	private void timekeeperStartsAnyway(String[] refs, String liftDecision, int broken) throws Exception {
+		Page timekeeper = this.pages.get("timekeeper");
+		// an athlete who follows himself has 2:00: the next clock is set to 1:00 so that it can be checked
+		clock("60");
+		awaitClock(clockCheck("speaker", 60, false));
+		awaitClock(clockCheck("timekeeper", 60, false));
+		clock("start");
+		// publish waits 250 ms: the second press comes well within a second of the refusal
+		clock("start");
+		pause(1500);
+		step("Timekeeper button: Start, pressed twice in quick succession",
+		        "owlcms refuses the start; the second press, a quarter second later, is a reflex and is refused too. "
+		                + "The clock stays at 1:00 everywhere. The Timekeeper and the active Speaker are offered "
+		                + "Start clock anyway; the passive Speaker only shows that the clock was not started. The "
+		                + "attempt board stays on the athlete under review.",
+		        List.of(new Check("timekeeper", "pending-jury dialog is open", dialogContains(VOTE_PENDING_TEXT)),
+		                new Check("timekeeper", "Start clock anyway is offered", buttonVisible("Start clock anyway")),
+		                new Check("speaker", "pending-jury dialog is open", dialogContains(VOTE_PENDING_TEXT)),
+		                new Check("passive", "the clock-not-started warning is shown",
+		                        notificationContains("Clock not started")),
+		                new Check("passive", "no pending-jury dialog", "!(" + dialogContains(VOTE_PENDING_TEXT) + ")"),
+		                clockCheck("timekeeper", 60, false), clockCheck("speaker", 60, false),
+		                attemptHeldCheck(),
+		                attemptVotesCheck("the referee decision and who has voted in the jury are shown",
+		                        colors(refs), juryStates(broken, "voted"))));
+
+		click(timekeeper, "vaadin-button:has-text('Cancel')", "Timekeeper clicks Cancel in the dialog");
+		pause(1000);
+		step("Timekeeper: Cancel",
+		        "Only the Timekeeper's dialog closes. The clock stays stopped at 1:00; the Speaker is still offered "
+		                + "Start clock anyway.",
+		        List.of(new Check("timekeeper", "the pending-jury dialog is closed",
+		                "!(" + dialogContains(VOTE_PENDING_TEXT) + ")"),
+		                new Check("speaker", "pending-jury dialog is still open", dialogContains(VOTE_PENDING_TEXT)),
+		                clockCheck("timekeeper", 60, false), clockCheck("speaker", 60, false)));
+
+		click(timekeeper, START_BUTTON, "Timekeeper clicks Start on the Timekeeper page");
+		int startMs;
+		try {
+			startMs = clockMessageMillis(awaitClockMessage("start"));
+			if (startMs != 60_000) {
+				throw new IllegalStateException("repeated start must start the clock from 60000 ms: " + startMs);
+			}
+			awaitRunningClocks();
+			List<Check> checks = new ArrayList<>(List.of(
+			        new Check("speaker", "the pending-jury dialog is closed",
+			                "!(" + dialogContains(VOTE_PENDING_TEXT) + ")"),
+			        new Check("timekeeper", "no pending-jury dialog", "!(" + dialogContains(VOTE_PENDING_TEXT) + ")"),
+			        new Check("speaker", "Clock started by Timekeeper is shown", clockStartedByNotice()),
+			        new Check("passive", "Clock started by Timekeeper is shown", clockStartedByNotice()),
+			        new Check("attempt", "no jury decision was shown",
+			                "!document.body.innerText.includes('JURY REVERSAL') && "
+			                        + "!document.body.innerText.includes('JURY CONFIRMATION')"),
+			        new Check("attempt", "the referee and jury decisions of the previous lift are gone",
+			                "!document.querySelector('attempt-board-template')?.shadowRoot"
+			                        + "?.querySelector('#decisions')?.offsetWidth")));
+			for (String page : List.of("timekeeper", "speaker", "attempt", "scoreboard")) {
+				checks.add(runningClockCheck(page));
+			}
+			checks.add(decisionBlockClockCheck());
+			step("Timekeeper page: Start pressed again, more than a second after the refusal",
+			        "owlcms takes it as Start clock anyway: the incomplete jury vote is discarded and no jury decision "
+			                + "is entered. The referees' " + liftDecision + " stands. The next athlete's clock runs "
+			                + "from the server's " + startMs + " ms on every page, the Timekeeper's included. The "
+			                + "Speaker's dialog closes; the Speaker and the passive Speaker are told \"Clock started "
+			                + "by Timekeeper\".",
+			        checks);
+		} finally {
+			clock("stop");
+		}
+		clockStoppedStep(startMs, "repeated start");
+	}
+
+	/** the athlete clock Pause button of a lifting console */
+	private static final String PAUSE_BUTTON = "vaadin-button:has(vaadin-icon[icon='vaadin:pause'])";
+
+	/**
+	 * The Timekeeper works on a tablet, without a clock button: everything is done on the Timekeeper page. Start is
+	 * refused and the dialog opens on the Timekeeper page (and on the active Speaker's); the Timekeeper clicks Start
+	 * clock anyway. The Timekeeper page shows the clock only once it has actually started.
+	 */
+	private void timekeeperTabletStartsAnyway(String[] refs, String liftDecision, int broken) throws Exception {
+		Page timekeeper = this.pages.get("timekeeper");
+		// an athlete who follows himself has 2:00: the Timekeeper sets 1:00 so that the clock can be checked
+		click(timekeeper, "vaadin-button:has-text('1:00')", "Timekeeper clicks 1:00 on the Timekeeper page");
+		awaitClock(clockCheck("timekeeper", 60, false));
+		awaitClock(clockCheck("speaker", 60, false));
+		click(timekeeper, START_BUTTON, "Timekeeper clicks Start on the Timekeeper page");
+		pause(1500);
+		step("Timekeeper page: Start",
+		        "owlcms refuses the start. The Timekeeper's clock stays stopped at 1:00 and the Timekeeper sees \""
+		                + VOTE_PENDING_TEXT + "\" with Start clock anyway; so does the active Speaker. The passive "
+		                + "Speaker only shows that the clock was not started. The attempt board stays on the athlete "
+		                + "under review.",
+		        List.of(new Check("timekeeper", "pending-jury dialog is open", dialogContains(VOTE_PENDING_TEXT)),
+		                new Check("timekeeper", "Start clock anyway is offered", buttonVisible("Start clock anyway")),
+		                new Check("speaker", "pending-jury dialog is open", dialogContains(VOTE_PENDING_TEXT)),
+		                new Check("passive", "the clock-not-started warning is shown",
+		                        notificationContains("Clock not started")),
+		                new Check("passive", "no pending-jury dialog", "!(" + dialogContains(VOTE_PENDING_TEXT) + ")"),
+		                clockCheck("timekeeper", 60, false), clockCheck("speaker", 60, false),
+		                attemptHeldCheck(),
+		                attemptVotesCheck("the referee decision and who has voted in the jury are shown",
+		                        colors(refs), juryStates(broken, "voted"))));
+
+		click(timekeeper, "vaadin-button:has-text('Start clock anyway')",
+		        "Timekeeper clicks Start clock anyway on the Timekeeper page");
+		int startMs = clockMessageMillis(awaitClockMessage("start"));
+		try {
+			if (startMs != 60_000) {
+				throw new IllegalStateException("override clock must start from 60000 ms: " + startMs);
+			}
+			awaitRunningClocks();
+			List<Check> checks = new ArrayList<>(List.of(
+			        new Check("timekeeper", "the pending-jury dialog is closed",
+			                "!(" + dialogContains(VOTE_PENDING_TEXT) + ")"),
+			        new Check("speaker", "the pending-jury dialog is closed",
+			                "!(" + dialogContains(VOTE_PENDING_TEXT) + ")"),
+			        new Check("speaker", "Clock started by Timekeeper is shown", clockStartedByNotice()),
+			        new Check("passive", "Clock started by Timekeeper is shown", clockStartedByNotice()),
+			        new Check("timekeeper", "no Clock started by notice on the console that started it",
+			                "!(" + clockStartedByNotice() + ")"),
+			        new Check("attempt", "no jury decision was shown",
+			                "!document.body.innerText.includes('JURY REVERSAL') && "
+			                        + "!document.body.innerText.includes('JURY CONFIRMATION')"),
+			        new Check("attempt", "the referee and jury decisions of the previous lift are gone",
+			                "!document.querySelector('attempt-board-template')?.shadowRoot"
+			                        + "?.querySelector('#decisions')?.offsetWidth")));
+			for (String page : List.of("timekeeper", "speaker", "attempt", "scoreboard")) {
+				checks.add(runningClockCheck(page));
+			}
+			checks.add(decisionBlockClockCheck());
+			step("Timekeeper: Start clock anyway",
+			        "The incomplete jury vote is discarded and no jury decision is entered. The referees' "
+			                + liftDecision + " stands. The next athlete's clock runs from the server's " + startMs
+			                + " ms on every page, the Timekeeper's included. The Speaker's dialog closes; the Speaker "
+			                + "and the passive Speaker are told \"Clock started by Timekeeper\".",
+			        checks);
+		} finally {
+			click(timekeeper, PAUSE_BUTTON, "Timekeeper clicks Pause on the Timekeeper page");
+		}
+		clockStoppedStep(startMs, "override");
 	}
 
 	/**
@@ -3088,7 +3282,7 @@ public class JuryScenario {
 
 	private static String clockTimers(String page) {
 		return switch (page) {
-			case "speaker" -> "[...document.querySelectorAll('passive-timer-element')]";
+			case "speaker", "timekeeper", "passive" -> "[...document.querySelectorAll('passive-timer-element')]";
 			case "attempt" -> "[document.querySelector('attempt-board-template')?.shadowRoot?.querySelector('#athleteTimer')]";
 			case "scoreboard" -> "[...document.querySelector('results-template')?.shadowRoot"
 			        + "?.querySelectorAll('timer-element#timer, timer-element#decisionSectionTimer') || []]";

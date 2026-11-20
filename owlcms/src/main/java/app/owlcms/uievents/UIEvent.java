@@ -900,17 +900,26 @@ public class UIEvent {
 	}
 
 	/**
-	 * The clock start was refused because the jury has not finished voting on the previous lift (seven-person
-	 * Adjudication Panel). The deciding console offers to start the clock anyway; the other consoles show a
-	 * notification. Sent again with pending == false when the jury votes are complete or abandoned.
+	 * The clock start was refused because the configured jury has not finished voting on the previous lift. The
+	 * consoles that control the athlete clock (Timekeeper, active Speaker, Competition Supervisor) offer to start the
+	 * clock anyway; the other consoles show a notification. Sent again with pending == false when the jury votes are
+	 * complete or abandoned; when the clock was started without them, {@link #getClockStartedBy()} gives the station
+	 * that started it.
 	 */
 	static public class JuryVotesPending extends UIEvent {
 
 		private final boolean pending;
+		private final String clockStartedBy;
 
 		public JuryVotesPending(Athlete athleteUnderReview, boolean pending, Object origin, FieldOfPlay fop) {
+			this(athleteUnderReview, pending, null, origin, fop);
+		}
+
+		public JuryVotesPending(Athlete athleteUnderReview, boolean pending, String clockStartedBy, Object origin,
+		        FieldOfPlay fop) {
 			super(athleteUnderReview, origin, fop);
 			this.pending = pending;
+			this.clockStartedBy = clockStartedBy;
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
@@ -918,6 +927,14 @@ public class UIEvent {
 
 		public boolean isPending() {
 			return this.pending;
+		}
+
+		/**
+		 * @return the audit station (TIMEKEEPER, ANNOUNCER, SUPERVISOR) that started the clock without the missing
+		 *         jury votes, null when the votes are no longer awaited for another reason
+		 */
+		public String getClockStartedBy() {
+			return this.clockStartedBy;
 		}
 
 	}

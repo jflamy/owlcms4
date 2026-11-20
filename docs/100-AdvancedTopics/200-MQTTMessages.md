@@ -161,6 +161,7 @@ Only owlcms listens; devices do not listen to one another.
 
 - `owlcms/clock/A :action`: The timekeeper has started, stopped, or reset the clock. `toggle` allows using the same button to start/stop the clock.
   - `action` is `start`, `stop`, `toggle`, `60`, or `120`
+  - While the jury has not finished voting on the previous lift, a start is refused and the clock stays stopped (no `owlcms/fop/start` is published). A start sent again at least one second after the refusal, while the votes are still missing, starts the clock without them, as **Start clock anyway** does on a console; a quicker second start is refused.
 
 ### Messages published by the jury device
 

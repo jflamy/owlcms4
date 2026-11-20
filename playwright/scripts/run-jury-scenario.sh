@@ -41,6 +41,11 @@
 #                                 (355 summons the referees for discussion before the new jury vote)
 #                                 365-jury3-agreed-board-hold 370-jury3-agreed-clock-start
 #                                 375-jury3-deliberation-after-next-clock
+#                                 377-jury3-broken-juror-timekeeper-start-anyway (jury box 3 broken; the Timekeeper's
+#                                 button is refused twice, then Start pressed again on the Timekeeper page starts it)
+#                                 378-jury3-broken-juror-timekeeper-tablet-start-anyway (jury box 3 broken; on a
+#                                 tablet, Start on the Timekeeper page is refused and the Timekeeper clicks Start clock
+#                                 anyway in its dialog)
 #                                 the lift ends the snatches or the session (single-athlete sessions of the fixture):
 #                                 380-jury3-last-snatch-board-hold 385-jury3-last-lift-board-hold
 #                                 the jury never votes, the Speaker reloads the session:

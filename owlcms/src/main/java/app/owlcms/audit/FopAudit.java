@@ -132,6 +132,13 @@ public final class FopAudit {
 				|| event instanceof FOPEvent.TimeOver || event instanceof FOPEvent.StartLifting) {
 			details.put("clockMillis", clockMillis(fop));
 		}
+		if (event instanceof FOPEvent.TimeStarted timeStarted && timeStarted.isOverride()) {
+			// the clock was started without the missing jury votes: Start clock anyway, or Start pressed again
+			details.put("override", true);
+			if (timeStarted.isRepeatedStart()) {
+				details.put("repeatedStart", true);
+			}
+		}
 		if (event instanceof FOPEvent.BreakStarted breakStarted) {
 			details.put("type", breakStarted.getBreakType());
 			details.put("countdown", breakStarted.getCountdownType());

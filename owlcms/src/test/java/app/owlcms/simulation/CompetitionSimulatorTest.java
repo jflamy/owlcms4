@@ -114,6 +114,14 @@ public class CompetitionSimulatorTest {
 	}
 
 	@Test
+	public void simulationUsesNoJuryForResetPlatforms() {
+		assertEquals(0, CompetitionSimulator.effectiveJurySize(4, 0, true));
+		assertEquals(4, CompetitionSimulator.effectiveJurySize(4, 0, false));
+		assertEquals(4, CompetitionSimulator.effectiveJurySize(4, 3, true));
+		assertEquals(4, CompetitionSimulator.effectiveJurySize(4, null, true));
+	}
+
+	@Test
 	public void missingStartingWeightUsesEntryTotalWithoutReplacingEnteredOpener() {
 		CompetitionSimulator simulator = new CompetitionSimulator();
 		Athlete athlete = new Athlete();

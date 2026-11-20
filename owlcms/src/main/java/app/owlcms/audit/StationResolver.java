@@ -7,6 +7,8 @@ public final class StationResolver {
 	private static final Map<String, String> STATIONS = Map.ofEntries(
 			Map.entry("AdminView", "ADMIN"),
 			Map.entry("AnnouncerContent", "ANNOUNCER"),
+			Map.entry("PassiveAnnouncerContent", "SPEAKER"),
+			Map.entry("CompetitionDirectorContent", "SUPERVISOR"),
 			Map.entry("MarshallContent", "MARSHAL"),
 			Map.entry("TimekeeperContent", "TIMEKEEPER"),
 			Map.entry("WodkeeperContent", "TIMEKEEPER"),

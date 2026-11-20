@@ -113,7 +113,7 @@ Every record is self-contained:
 | `referee.vote` | `REFEREE` with `index` 1–3 | one referee's vote; `details.decision` is true (good) or false (no lift) |
 | `referee.decision` | `REFEREES` | full decision received from a device, `details.lights` |
 | `referee.down` | | down signal |
-| `clock.start`, `clock.stop` | `TIMEKEEPER` (or `ANNOUNCER`) | athlete clock; `details.clockMillis` is the time remaining |
+| `clock.start`, `clock.stop` | `TIMEKEEPER` (or `ANNOUNCER`, `SUPERVISOR`) | athlete clock; `details.clockMillis` is the time remaining. `details.override` is true when the clock was started although the jury had not finished voting, and its incomplete votes were abandoned: **Start clock anyway**, or Start pressed again at least one second after the refused start (then `details.repeatedStart` is also true) |
 | `clock.set`, `clock.timeover` | | clock forced to a value, clock reached zero |
 
 The `attempt` of an `athlete.lift` is the attempt that was decided. The `attempt` of an `athlete.progression` or weight request is the attempt the weight is for. For clock records and referee votes before the decision, it is the current athlete's attempt. Referee and jury records about a lift that has been decided (jury votes and decisions, votes during a review, a decision applied at once) name the athlete and attempt under review.
@@ -157,11 +157,11 @@ The time between the two parts is the break. A decision is the referees' `athlet
 
 `record.challenge`, `record.new` and `record.cancelled` concern record attempts (`change.before` is the current record, `change.after` the weight). Other actions include `auth.login`, `auth.logout`, `export.json`, `application.started`, `application.stopping`, `agegroup.*`, `athlete.delete` and `audit.open` (the first line of each file).
 
-An action refused by the field of play (for example a clock start in the wrong state) has `.refused` appended, such as `clock.start.refused`, and `details.state` gives the state it was refused in. Exclude these when measuring timings.
+An action refused by the field of play (for example a clock start in the wrong state) has `.refused` appended, such as `clock.start.refused`, and `details.state` gives the state it was refused in. Exclude these when measuring timings. A clock start refused because jury votes are missing is followed, when an operator confirms **Start clock anyway** or presses Start again, by a `clock.start` with `details.override`; its station is the console or device that started the clock, which may differ from the one that was refused. A second Start less than one second after the refusal is refused as a reflex.
 
 ### Stations
 
-`ANNOUNCER`, `MARSHAL`, `TIMEKEEPER`, `TC`, `REFEREE#1`–`#3` (individual votes), `REFEREES` (the decision as a whole), `JURY_MEMBER#n` (jury votes; `JURY_MEMBER` without a number is the jury mobile page), `JURY_CONTROL` (the Jury Control page), `JURY_BOX` (the jury box buttons), `WEIGHIN`, `REGISTRATION`, `RESULTS`, `MEDALS`, `ADMIN`, `PREPARATION` (other preparation pages), `TESTING`, `SIMULATION`, `MQTT` (a rejected device message), `SYSTEM` (automatic actions such as a break started by the program), `LOGIN`, `HTTP`, and `UNKNOWN` when the station cannot be determined.
+`ANNOUNCER` (active and passive announcer pages), `SUPERVISOR` (the Competition Supervisor page), `MARSHAL`, `TIMEKEEPER`, `TC`, `REFEREE#1`–`#3` (individual votes), `REFEREES` (the decision as a whole), `JURY_MEMBER#n` (jury votes; `JURY_MEMBER` without a number is the jury mobile page), `JURY_CONTROL` (the Jury Control page), `JURY_BOX` (the jury box buttons), `WEIGHIN`, `REGISTRATION`, `RESULTS`, `MEDALS`, `ADMIN`, `PREPARATION` (other preparation pages), `TESTING`, `SIMULATION`, `MQTT` (a rejected device message), `SYSTEM` (automatic actions such as a break started by the program), `LOGIN`, `HTTP`, and `UNKNOWN` when the station cannot be determined.
 
 ### Causes
 

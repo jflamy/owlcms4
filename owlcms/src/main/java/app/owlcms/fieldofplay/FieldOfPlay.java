@@ -228,6 +228,14 @@ public class FieldOfPlay implements IUnregister {
 	private Boolean[] panelPendingRefereeVotes;
 	/** a clock start was refused while the jury votes were pending; consoles must be told when that ends */
 	private boolean panelClockStartRefused;
+	/** when the first clock start was refused for the jury votes now awaited (System.currentTimeMillis) */
+	private long panelClockStartRefusedAt;
+	/**
+	 * Start pressed again this long after the refused start, while the override is offered, starts the clock without
+	 * the missing jury votes; a quicker press is a reflex and is refused.
+	 */
+	public static final long CLOCK_START_REPEAT_DELAY_MS = 1000;
+	private long clockStartRepeatDelayMs = CLOCK_START_REPEAT_DELAY_MS;
 	/** the current JURY break was started automatically because the panel majority differs from the referees */
 	private boolean panelReview;
 	/** without the seven-person panel: the current JURY break was started automatically by a jury against the referees */
@@ -1483,8 +1491,11 @@ public class FieldOfPlay implements IUnregister {
 
 	/**
 	 * The clock is not started for the next attempt while the configured jury has not finished voting on the previous
-	 * lift. The Competition Supervisor (Speaker in PIN mode) may start it anyway, which abandons the incomplete jury
-	 * votes and leaves the referees' decision in place (technical mishap recovery).
+	 * lift. The Timekeeper, or a console to which the clock is delegated (active Speaker, Competition Supervisor), may
+	 * start it anyway, which abandons the incomplete jury votes and leaves the referees' decision in place (technical
+	 * mishap recovery). Start clock anyway on a console does it at once. Start pressed again (timekeeper device or
+	 * console) does it when at least {@link #CLOCK_START_REPEAT_DELAY_MS} have passed since the first refusal; a
+	 * quicker press is a reflex and is refused like the first.
 	 *
 	 * @return true if the event has been fully handled (refused)
 	 */
@@ -1497,17 +1508,28 @@ public class FieldOfPlay implements IUnregister {
 			return false;
 		}
 		if (!e.isOverride()) {
-			this.auditEventRefused = true;
-			this.auditRefusedState = this.state;
-			this.logger.info("{}clock start refused, jury has not finished voting on {}",
-			        FieldOfPlay.getLoggingName(this), this.athleteUnderReview);
-			this.panelClockStartRefused = true;
-			pushOutUIEvent(new UIEvent.JuryVotesPending(this.athleteUnderReview, true, e.getOrigin(), this));
-			return true;
+			long now = System.currentTimeMillis();
+			if (this.panelClockStartRefused && now - this.panelClockStartRefusedAt >= this.clockStartRepeatDelayMs) {
+				e.acceptAsRepeatedStart();
+			} else {
+				this.auditEventRefused = true;
+				this.auditRefusedState = this.state;
+				this.logger.info("{}clock start refused, jury has not finished voting on {}",
+				        FieldOfPlay.getLoggingName(this), this.athleteUnderReview);
+				if (!this.panelClockStartRefused) {
+					// a further refused press is a reflex within the delay: the consoles have already been told
+					this.panelClockStartRefusedAt = now;
+					this.panelClockStartRefused = true;
+					pushOutUIEvent(new UIEvent.JuryVotesPending(this.athleteUnderReview, true, e.getOrigin(), this));
+				}
+				return true;
+			}
 		}
-		this.logger.info("{}clock start override, abandoning incomplete jury votes on {}",
-		        FieldOfPlay.getLoggingName(this), this.athleteUnderReview);
-		endPanelVotePending(e.getOrigin());
+		this.logger.info("{}clock start override{}, abandoning incomplete jury votes on {}",
+		        FieldOfPlay.getLoggingName(this), e.isRepeatedStart() ? " (Start pressed again)" : "",
+		        this.athleteUnderReview);
+		AuditActor actor = e.getAuditActor();
+		endPanelVotePending(e.getOrigin(), actor != null ? actor.station() : null);
 		resetJuryDecisions();
 		// continue with the normal clock start, which ends the review display
 		return false;
@@ -1571,10 +1593,15 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void endPanelVotePending(Object origin) {
+		endPanelVotePending(origin, null);
+	}
+
+	/** @param clockStartedBy the station that started the clock without the missing jury votes, or null */
+	private void endPanelVotePending(Object origin, String clockStartedBy) {
 		this.panelPendingRefereeVotes = null;
 		if (this.panelClockStartRefused) {
 			this.panelClockStartRefused = false;
-			pushOutUIEvent(new UIEvent.JuryVotesPending(this.athleteUnderReview, false, origin, this));
+			pushOutUIEvent(new UIEvent.JuryVotesPending(this.athleteUnderReview, false, clockStartedBy, origin, this));
 		}
 	}
 
@@ -2248,7 +2275,9 @@ public class FieldOfPlay implements IUnregister {
 	/** @return the configured number of jury members */
 	public int getJurySize() {
 		Platform p = getPlatform();
-		return p != null ? p.getEffectiveJurySize() : Competition.getCurrent().getEffectiveJurySize();
+		int configuredSize = p != null ? p.getEffectiveJurySize() : Competition.getCurrent().getEffectiveJurySize();
+		return CompetitionSimulator.effectiveJurySize(configuredSize, p != null ? p.getJurySize() : null,
+		        CompetitionSimulator.isRunning());
 	}
 
 	/** @param jurySize 0, 3, 4 or 5; null to use the competition default */
@@ -2261,11 +2290,16 @@ public class FieldOfPlay implements IUnregister {
 		if (p == null) {
 			return;
 		}
-		if (TcrrCompliance.isEnabled()) {
+		if (TcrrCompliance.isEnabled()
+		        && !(CompetitionSimulator.isRunning() && Integer.valueOf(0).equals(jurySize))) {
 			return;
 		}
 		p.setJurySize(jurySize);
 		PlatformRepository.saveJurySize(p);
+		publishJurySizeChange(origin);
+	}
+
+	public void publishJurySizeChange(Object origin) {
 		MQTTMonitor mqttMonitor = getMqttMonitor();
 		if (mqttMonitor != null) {
 			mqttMonitor.publishMqttConfig();
@@ -2713,6 +2747,11 @@ public class FieldOfPlay implements IUnregister {
 	public void setJuryDecisionTimingForTests(long maximumVisibleMs, long holdMs) {
 		this.juryDecisionVisibleMaxMs = maximumVisibleMs;
 		this.juryDecisionHoldMs = holdMs;
+	}
+
+	/** Tests: how long after the refused start a repeated Start is accepted as the override. */
+	public void setClockStartRepeatDelayForTests(long delayMs) {
+		this.clockStartRepeatDelayMs = delayMs;
 	}
 
 	/** Tests: the attempt boards' jury decision card has gone away (the 5 s have elapsed). */

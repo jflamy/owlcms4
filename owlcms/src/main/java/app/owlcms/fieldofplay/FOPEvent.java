@@ -827,15 +827,17 @@ public class FOPEvent {
 	 */
 	static public class TimeStarted extends FOPEvent {
 
-		private final boolean override;
+		private boolean override;
+		private boolean repeatedStart;
 
 		public TimeStarted(Object object) {
 			this(object, false);
 		}
 
 		/**
-		 * @param override true when the Competition Supervisor (or Speaker in PIN mode) confirmed starting the clock
-		 *                 although the jury has not finished voting on the previous lift
+		 * @param override true when the Timekeeper, or a console to which the clock is delegated (active Speaker,
+		 *                 Competition Supervisor), confirmed starting the clock although the jury has not finished
+		 *                 voting on the previous lift
 		 */
 		public TimeStarted(Object object, boolean override) {
 			super(object);
@@ -844,6 +846,17 @@ public class FOPEvent {
 
 		public boolean isOverride() {
 			return this.override;
+		}
+
+		/** @return true when this was a second Start, accepted by the field of play as the override */
+		public boolean isRepeatedStart() {
+			return this.repeatedStart;
+		}
+
+		/** The field of play accepts this Start, pressed again while the override is offered, as the override. */
+		void acceptAsRepeatedStart() {
+			this.override = true;
+			this.repeatedStart = true;
 		}
 
 	}

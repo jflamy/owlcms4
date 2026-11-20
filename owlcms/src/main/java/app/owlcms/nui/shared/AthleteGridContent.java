@@ -1029,7 +1029,18 @@ public abstract class AthleteGridContent extends BaseContent
 	@Subscribe
 	public void slaveJuryVotesPending(UIEvent.JuryVotesPending e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			FieldOfPlay fop = e.getFop();
 			if (!e.isPending()) {
+				closeJuryVotesPendingDialog();
+				String roleKey = clockStarterRoleKey(e.getClockStartedBy());
+				if (roleKey != null && e.getOrigin() != getOrigin()) {
+					doNotification(Translator.translate("JuryNotification.ClockStartedBy", Translator.translate(roleKey)),
+					        "warning", "juryVotesPending");
+				}
+				return;
+			}
+			if (!fop.isJuryVotesAwaited()) {
+				// a late "pending" notice must not reopen a dialog after the jury votes have stopped being awaited
 				closeJuryVotesPendingDialog();
 				return;
 			}
@@ -1041,7 +1052,6 @@ public abstract class AthleteGridContent extends BaseContent
 			if (this.juryVotesPendingDialog != null && this.juryVotesPendingDialog.isOpened()) {
 				return;
 			}
-			FieldOfPlay fop = e.getFop();
 			this.juryVotesPendingDialog = new ConfirmationDialog(
 			        Translator.translate("JuryNotification.JuryVotesPendingTitle"),
 			        Translator.translate("JuryNotification.JuryVotesPendingText"),
@@ -1059,10 +1069,24 @@ public abstract class AthleteGridContent extends BaseContent
 
 	/**
 	 * @return true if this console decides whether the clock may start while the jury has not finished voting on the
-	 *         previous lift (Competition Supervisor in accounts mode, Speaker in PIN mode)
+	 *         previous lift: the Timekeeper, which owns the athlete clock, and the consoles to which the clock is
+	 *         delegated (active Speaker, Competition Supervisor). Consoles without athlete clock control never decide.
 	 */
 	protected boolean isClockStartDecider() {
 		return false;
+	}
+
+	/** @return the translation key of the role that started the clock without the missing jury votes, or null */
+	private static String clockStarterRoleKey(String station) {
+		if (station == null) {
+			return null;
+		}
+		return switch (station) {
+			case "TIMEKEEPER" -> "Timekeeper";
+			case "ANNOUNCER" -> "Announcer";
+			case "SUPERVISOR" -> "CompetitionDirector";
+			default -> null;
+		};
 	}
 
 	private void closeJuryVotesPendingDialog() {
@@ -1170,12 +1194,6 @@ public abstract class AthleteGridContent extends BaseContent
 	@Subscribe
 	public void slaveNotification(UIEvent.Notification e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			String fopEventString = e.getFopEventString();
-			if (fopEventString != null && fopEventString.contentEquals("TimeStarted")) {
-				// time started button was selected, but denied. reset the colors
-				// to show that time is not running.
-				buttonsTimeStopped();
-			}
 			Notification n = e.doNotification();
 			String notifString = e.getNotificationString();
 			if (notifString != null && notifString.equals("RuleViolation.StartingWeightCurrent")) {
@@ -1894,11 +1912,9 @@ public abstract class AthleteGridContent extends BaseContent
 		IProxyTimer athleteTimer = getFop().getAthleteTimer();
 		boolean running = athleteTimer.isRunning();
 		if (timeElapsed > 100 && !running) {
-			int milliseconds = athleteTimer.getTimeRemaining();
 			logger.debug("clock start {}ms running={}", timeElapsed, running);
+			// the start may be refused; the clock and buttons follow the StartTime sent when the clock actually starts
 			getFop().fopEventPost(new FOPEvent.TimeStarted(this.getOrigin()));
-			buttonsTimeStarted();
-			passiveTimerStart(milliseconds, now, getFop().isEmitSoundsOnServer());
 		} else {
 			logger.debug("discarding duplicate clock start {}ms running={}", timeElapsed, running);
 		}

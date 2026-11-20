@@ -54,7 +54,17 @@ public class CompetitionSimulator {
 	}
 
 	public static void setRunning(boolean b) {
+		boolean wasRunning = running;
 		running = b;
+		if (wasRunning && !b && OwlcmsFactory.getFopByName() != null) {
+			for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
+				fop.publishJurySizeChange(CompetitionSimulator.class);
+			}
+		}
+	}
+
+	public static int effectiveJurySize(int configuredSize, Integer platformSize, boolean simulationRunning) {
+		return simulationRunning && Integer.valueOf(0).equals(platformSize) ? 0 : configuredSize;
 	}
 
 	public static synchronized void stopSimulation() {
@@ -229,6 +239,7 @@ public class CompetitionSimulator {
 			fieldOfPlay.loadGroup(null, this, true);
 			fieldOfPlay.setBreakType(null);
 			fieldOfPlay.setState(FOPState.INACTIVE);
+			fieldOfPlay.setJurySize(0);
 		}
 	}
 

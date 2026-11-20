@@ -586,6 +586,43 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
+	public void startPressedAgainWithinTheReflexDelayIsRefused() {
+		this.fop.setClockStartRepeatDelayForTests(60_000);
+		lift(W, W, W);
+		juryVotes(W, W, W);
+		post(new FOPEvent.TimeStarted(new Object()));
+		post(new FOPEvent.TimeStarted(new Object()));
+		assertEquals("a reflex press does not start the clock", FOPState.CURRENT_ATHLETE_DISPLAYED,
+		        this.fop.getState());
+		assertTrue(this.fop.isJuryVotesAwaited());
+		assertTrue(this.recorder.await(this.recorder.pending, UIEvent.JuryVotesPending::isPending));
+		assertEquals("the consoles are told once", 1,
+		        this.recorder.pending.stream().filter(UIEvent.JuryVotesPending::isPending).count());
+	}
+
+	@Test
+	public void startPressedAgainAfterTheReflexDelayStartsTheClockWithoutTheMissingVote() {
+		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		this.fop.setJurySize(3);
+		this.fop.setClockStartRepeatDelayForTests(0);
+		lift(R, R, R);
+		juryVotes(R, R);
+		post(new FOPEvent.TimeStarted(new Object()));
+		assertEquals("the first start is refused", FOPState.CURRENT_ATHLETE_DISPLAYED, this.fop.getState());
+
+		FOPEvent.TimeStarted again = new FOPEvent.TimeStarted(new Object());
+		this.fop.fopEventPost(again, AuditActor.device("TIMEKEEPER", null, "clock"));
+
+		assertEquals(FOPState.TIME_RUNNING, this.fop.getState());
+		assertTrue("accepted as the override", again.isOverride() && again.isRepeatedStart());
+		assertFalse(this.fop.isJuryVotesAwaited());
+		assertNull("incomplete jury votes are discarded", this.fop.getJuryMemberDecision()[0]);
+		assertGoodLift(false);
+		assertTrue("the consoles are told who started the clock", this.recorder.await(this.recorder.pending,
+		        p -> !p.isPending() && "TIMEKEEPER".equals(p.getClockStartedBy())));
+	}
+
+	@Test
 	public void fiveMemberJuryReleasesTheNextClockWhenTheLastJurorVotes() {
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
 		this.fop.setJurySize(5);

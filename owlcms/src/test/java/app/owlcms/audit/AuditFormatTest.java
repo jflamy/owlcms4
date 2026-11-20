@@ -77,6 +77,25 @@ public class AuditFormatTest {
 	}
 
 	@Test
+	public void startClockAnywayIsMarkedAsAnOverride() throws Exception {
+		String platform = "override-audit-" + UUID.randomUUID();
+		FieldOfPlay fop = new FieldOfPlay();
+		fop.setName(platform);
+		fop.setAthleteTimer(new MockCountdownTimer());
+
+		FopAudit.write(fop, new FOPEvent.TimeStarted(null), true, "CURRENT_ATHLETE_DISPLAYED", null);
+		FopAudit.write(fop, new FOPEvent.TimeStarted(null, true), false, "TIME_RUNNING", null);
+
+		Path log = AuditLog.openFiles().stream()
+				.filter(path -> path.getFileName().toString().startsWith(platform + "_")).findFirst().orElseThrow();
+		List<String> lines = Files.readAllLines(log);
+		String refused = lines.stream().filter(line -> line.contains("clock.start.refused")).findFirst().orElseThrow();
+		String override = lines.stream().filter(line -> line.contains("clock.start ")).findFirst().orElseThrow();
+		assertFalse(refused, record(refused).details().containsKey("override"));
+		assertEquals(true, record(override).details().get("override"));
+	}
+
+	@Test
 	public void escapesSeparatorsBackslashesAndNewlines() {
 		AuditEntry entry = AuditEntry.builder("A|B", "test")
 				.actor(AuditActor.device("REFEREE", 2, "refbox"))

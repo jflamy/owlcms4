@@ -11,6 +11,10 @@
 
 **Development log**
 
+- 69.0.0-rc07: Starting the clock while jury votes are missing
+  - The Timekeeper, active announcer and Competition Supervisor can start the clock anyway (dialog, or Start pressed again after 1 second). Other screens show who started it.
+  - A refused start no longer shows the clock running on the screen that pressed Start.
+
 - 69.0.0-rc06: Network name announcement and shutdown fixes for robustness
   - mDNS records expire after 120 seconds, and network name announcement is disabled on fly.io.
   - OWLCMS shutdown waits at most 500 ms for mDNS announcement withdrawal.

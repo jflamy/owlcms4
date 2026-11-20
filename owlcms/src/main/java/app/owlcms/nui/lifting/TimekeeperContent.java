@@ -132,6 +132,14 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		return false;
 	}
 
+	/**
+	 * The Timekeeper owns the athlete clock: it decides whether the clock may start while the jury is still voting.
+	 */
+	@Override
+	protected boolean isClockStartDecider() {
+		return hasAthleteTimerControl();
+	}
+
 	@Override
 	public boolean isGroupURLAllowedToMutateFop() {
 		return FeatureSwitch.ENABLE_TIME_KEEPER_SESSION_SWITCH.isEffective();

@@ -59,7 +59,6 @@ import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.elements.PassiveTimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -269,12 +268,12 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	}
 
 	/**
-	 * In PIN mode the Speaker decides whether the clock may start while the jury is still voting; in accounts mode
-	 * it is the Competition Supervisor.
+	 * The Speaker controls the athlete clock on behalf of the Timekeeper, and so decides whether it may start while the
+	 * jury is still voting. The passive Speaker has no clock control and does not decide.
 	 */
 	@Override
 	protected boolean isClockStartDecider() {
-		return !Config.getCurrent().isAccountsMode();
+		return hasAthleteTimerControl();
 	}
 
 	@Override

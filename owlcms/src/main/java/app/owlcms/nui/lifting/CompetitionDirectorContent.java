@@ -45,11 +45,6 @@ public class CompetitionDirectorContent extends AnnouncerContent {
 	}
 
 	@Override
-	protected boolean isClockStartDecider() {
-		return true;
-	}
-
-	@Override
 	public String getPageTitle() {
 		return Translator.translate("CompetitionDirector") + FieldOfPlay.getFopNameIfMultiple(getFop());
 	}

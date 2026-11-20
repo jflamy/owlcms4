@@ -87,7 +87,8 @@ After the last jury vote, the attempt board holds the decision for 10 seconds an
 If a device fails:
 
 - The Chair can start a deliberation and enter a decision using **Good Lift** or **No Lift**.
-- The announcer can confirm **Start clock anyway**. This abandons the incomplete votes and lets the referees' decision stand.
+- The Timekeeper can confirm **Start clock anyway**, as can the active announcer or the Competition Supervisor when they run the clock. This abandons the incomplete votes and lets the referees' decision stand. The passive announcer page and the other consoles only show that the clock was not started.
+- Pressing **Start** again, on the Timekeeper's clock button or on a console, at least one second after the refused start does the same. A quicker second press is taken as a reflex and refused. The other consoles are told which role started the clock, for example "Clock started by Timekeeper".
 
 ## Seven-Person Adjudication Panel (TCRR 2026)
 
