@@ -218,6 +218,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 
 	private Div motdPlaceholder;
 	private Div controlPanelVersionPlaceholder;
+	private UnorderedList urlList;
 	private String remoteAddr;
 	private String motdFileName;
 	private String launcherVersion;
@@ -331,6 +332,21 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 				// The UI detached after the attachment check; discard the completed results.
 			}
 		});
+		// the name search takes a few seconds after startup; show the name once it is known
+		MdnsResponder.registration().thenAcceptAsync(hostName -> {
+			if (hostName == null || !ui.isAttached()) {
+				return;
+			}
+			try {
+				ui.access(() -> {
+					if (isAttached()) {
+						showMdnsUrl(mdnsUrl(hostName));
+					}
+				});
+			} catch (UIDetachedException ignored) {
+				// The UI detached after the attachment check; discard the name.
+			}
+		}, VaadinService.getCurrent().getExecutor());
 	}
 	private VerticalLayout buildIntro() {
 		this.currentVersionString = OwlcmsFactory.getVersion();
@@ -355,7 +371,9 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		urlFinder.checkRequest();
 		addP(intro, Translator.translate("SystemURL"));
 		UnorderedList ul = new UnorderedList();
-		String mdnsUrl = getMdnsUrl();
+		this.urlList = ul;
+		String hostName = MdnsResponder.getRegisteredHostName();
+		String mdnsUrl = hostName == null ? null : mdnsUrl(hostName);
 		if (mdnsUrl != null) {
 			ul.add(new ListItem(new Anchor(mdnsUrl, mdnsUrl)));
 		}
@@ -534,14 +552,18 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		return div;
 	}
 	
-	/** @return the announced owlcms.local URL, or null when the name is not being announced. */
-	private String getMdnsUrl() {
-		String hostName = MdnsResponder.getRegisteredHostName();
-		if (hostName == null) {
-			return null;
-		}
+	private static String mdnsUrl(String hostName) {
 		int port = StartupUtils.getServerPort();
 		return "http://" + hostName + (port == 80 ? "" : ":" + port);
+	}
+
+	/** Puts the announced URL first, removing the same URL when it is already listed. */
+	private void showMdnsUrl(String url) {
+		this.urlList.getChildren()
+		        .filter(item -> item.getChildren().anyMatch(c -> c instanceof Anchor a && url.equals(a.getHref())))
+		        .toList()
+		        .forEach(this.urlList::remove);
+		this.urlList.addComponentAsFirst(new ListItem(new Anchor(url, url)));
 	}
 
 	private void logUsage(Locale locale) {

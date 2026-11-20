@@ -8,11 +8,19 @@ package app.owlcms.utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.InetSocketAddress;
+import java.net.MulticastSocket;
+import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
@@ -32,21 +40,25 @@ public class MdnsResponder {
 
 	private static final String SERVICE_TYPE = "_owlcms._tcp.local.";
 	private static final String NATIVE_SERVICE_TYPE = "_owlcms._tcp";
-	private static final long VERIFICATION_DELAY_MILLIS = 3000;
 	private static final int MAX_NAME_COLLISIONS = 10;
 	/** How long stop() lets the responders withdraw their announcements before returning. */
 	private static final long STOP_WAIT_MILLIS = 500;
+	/** How long to wait for another host to answer for a name before claiming it, split over two queries. */
+	private static final long PROBE_TIMEOUT_MILLIS = 1000;
+	private static final int PROBE_QUERIES = 2;
+	private static final int MDNS_PORT = 5353;
+	private static final int TYPE_A = 1;
+	private static final int TYPE_AAAA = 28;
+	private static final int CLASS_IN = 1;
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(MdnsResponder.class);
 	private static final List<JmDNS> instances = new ArrayList<>();
 	private static Process nativeResponder;
 	private static volatile String registeredHostName;
+	/** Completed with the registered name, or null, when the current search ends. */
+	private static volatile CompletableFuture<String> registration = CompletableFuture.completedFuture(null);
 
 	private enum NativeRegistration {
 		REGISTERED, CONFLICT, FAILED
-	}
-
-	private enum Verification {
-		VERIFIED, CONFLICT, UNVERIFIED
 	}
 
 	/**
@@ -57,13 +69,34 @@ public class MdnsResponder {
 		return registeredHostName;
 	}
 
+	/**
+	 * @return completes with the registered name, or with null when no name could be registered, the server stops, or
+	 *         no name is being announced. Already complete when the search has ended.
+	 */
+	public static CompletableFuture<String> registration() {
+		return registration;
+	}
+
 	/** Announces the name in the background; probing and collision resolution take a few seconds. */
 	public static void start(String requestedName, int port) {
 		if (hasRequestedHostName(requestedName)) {
 			logger.info("not aliasing {}.local because it is already the server host name", requestedName);
 			return;
 		}
-		Thread announcer = new Thread(() -> announce(requestedName, port), "mdns-responder");
+		CompletableFuture<String> result = new CompletableFuture<>();
+		registration = result;
+		// JmDNS default is 3600 s: a host that leaves without a goodbye stays cached on clients for up to an hour.
+		// Read once when JmDNS is first used; a value given on the command line wins.
+		if (System.getProperty("net.dns.ttl") == null) {
+			System.setProperty("net.dns.ttl", "120");
+		}
+		Thread announcer = new Thread(() -> {
+			try {
+				announce(requestedName, port);
+			} finally {
+				result.complete(registeredHostName);
+			}
+		}, "mdns-responder");
 		announcer.setDaemon(true);
 		announcer.start();
 	}
@@ -84,6 +117,7 @@ public class MdnsResponder {
 			responders = new ArrayList<>(instances);
 			instances.clear();
 			registeredHostName = null;
+			registration.complete(null);
 		}
 		Thread closer = closeInBackground(responders);
 		if (closer != null) {
@@ -138,35 +172,106 @@ public class MdnsResponder {
 	}
 
 	/**
-	 * JmDNS does not always detect that another host already answers for the name, so each name is verified by
-	 * resolving it; when it resolves elsewhere, the responder stops claiming it and the next name is tried.
+	 * JmDNS does not always detect that another host already answers for the name, so the network is asked first and
+	 * a name that another host answers for is skipped. The operating system resolver is not used to check the claimed
+	 * name: it answers from a cache that can hold a host that has since left, and Windows may not resolve the name.
 	 */
 	private static void announceWithJmDNS(String requestedName, int port, IfaceAddress candidate)
 	        throws IOException {
 		InetAddress address = candidate.address();
 		for (int attempt = 1; attempt <= MAX_NAME_COLLISIONS; attempt++) {
 			String name = candidateName(requestedName, attempt);
-			JmDNS jmdns = JmDNS.create(address, name);
-			synchronized (instances) {
-				instances.add(jmdns);
+			InetAddress owner = findOtherResponder(name + ".local", candidate);
+			if (owner != null) {
+				logger.info("{}.local is already answered by {}, trying another name", name, owner.getHostAddress());
+				continue;
 			}
+			JmDNS jmdns = JmDNS.create(address, name);
 			jmdns.registerService(ServiceInfo.create(SERVICE_TYPE, name, port, ""));
 			String hostName = stripTrailingDot(jmdns.getHostName());
-			logger.info("announcing {} on {} ({})", hostName, address.getHostAddress(), candidate.iface().getName());
-
-			if (verifyAnnouncement(jmdns, hostName, address) != Verification.CONFLICT) {
-				return;
-			}
 			synchronized (instances) {
-				if (!instances.remove(jmdns)) {
-					// stop() was called while verifying; it closes the responder
+				if (registration.isDone()) {
+					// stop() was called while claiming the name
+					closeInBackground(List.of(jmdns));
 					return;
 				}
+				instances.add(jmdns);
+				registeredHostName = hostName;
 			}
-			closeInBackground(List.of(jmdns));
-			logger.info("{} is already in use on the network, trying another name", hostName);
+			logger.info("announcing {} on {} ({})", hostName, address.getHostAddress(), candidate.iface().getName());
+			return;
 		}
 		logger./**/warn("could not announce {}: no free name after {} attempts", requestedName, MAX_NAME_COLLISIONS);
+	}
+
+	/**
+	 * Asks the network whether a host already answers for hostName. The query is sent from an ephemeral port, so
+	 * responders answer this socket directly (RFC 6762 one-shot query) and the operating system resolver is not
+	 * involved: Windows does not resolve a .local name reliably while this machine is announcing it.
+	 *
+	 * @return the address of the host that answered, or null if none did or the network could not be asked
+	 */
+	private static InetAddress findOtherResponder(String hostName, IfaceAddress candidate) {
+		InetAddress address = candidate.address();
+		boolean ipv4 = address instanceof Inet4Address;
+		byte[] query = mdnsQuery(hostName, ipv4 ? TYPE_A : TYPE_AAAA);
+		InetSocketAddress group = new InetSocketAddress(ipv4 ? "224.0.0.251" : "ff02::fb", MDNS_PORT);
+		try (MulticastSocket socket = new MulticastSocket(new InetSocketAddress(address, 0))) {
+			socket.setNetworkInterface(candidate.iface());
+			socket.setTimeToLive(255);
+			byte[] buffer = new byte[9000];
+			for (int sent = 0; sent < PROBE_QUERIES; sent++) {
+				socket.send(new DatagramPacket(query, query.length, group));
+				long deadline = System.currentTimeMillis() + PROBE_TIMEOUT_MILLIS / PROBE_QUERIES;
+				long remaining;
+				while ((remaining = deadline - System.currentTimeMillis()) > 0) {
+					socket.setSoTimeout((int) remaining);
+					DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
+					try {
+						socket.receive(reply);
+					} catch (SocketTimeoutException e) {
+						break;
+					}
+					if (answers(reply, query)) {
+						return reply.getAddress();
+					}
+				}
+			}
+		} catch (IOException e) {
+			logger.info("could not ask the network whether {} is in use: {}", hostName, e.getMessage());
+		}
+		return null;
+	}
+
+	private static byte[] mdnsQuery(String hostName, int type) {
+		ByteBuffer query = ByteBuffer.allocate(512);
+		query.putShort((short) (1 + ThreadLocalRandom.current().nextInt(0xFFFF)));
+		query.putShort((short) 0); // flags: standard query
+		query.putShort((short) 1); // one question
+		query.putShort((short) 0).putShort((short) 0).putShort((short) 0);
+		for (String label : hostName.split("\\.")) {
+			byte[] bytes = label.getBytes(StandardCharsets.UTF_8);
+			query.put((byte) bytes.length).put(bytes);
+		}
+		query.put((byte) 0);
+		query.putShort((short) type).putShort((short) CLASS_IN);
+		return Arrays.copyOf(query.array(), query.position());
+	}
+
+	/**
+	 * Only the owner of the name answers, so any successful response to our query with an answer means the name is
+	 * taken; the answer may also be a record telling that the owner has no address of the requested type.
+	 */
+	private static boolean answers(DatagramPacket reply, byte[] query) {
+		byte[] data = reply.getData();
+		int offset = reply.getOffset();
+		if (reply.getLength() < 12 || data[offset] != query[0] || data[offset + 1] != query[1]) {
+			return false;
+		}
+		boolean isResponse = (data[offset + 2] & 0x80) != 0;
+		boolean ok = (data[offset + 3] & 0x0F) == 0;
+		int answerCount = ((data[offset + 6] & 0xFF) << 8) | (data[offset + 7] & 0xFF);
+		return isResponse && ok && answerCount > 0;
 	}
 
 	private static void announceWithNativeResponder(String requestedName, int port, IfaceAddress candidate)
@@ -275,38 +380,6 @@ public class MdnsResponder {
 			}
 		}
 		return firstEligible;
-	}
-
-	/**
-	 * Publishes hostName once it resolves to the announced address. A name that resolves elsewhere belongs to another
-	 * host. A name that does not resolve on this machine is still announced, but not published.
-	 */
-	private static Verification verifyAnnouncement(JmDNS jmdns, String hostName, InetAddress address) {
-		try {
-			Thread.sleep(VERIFICATION_DELAY_MILLIS);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			return Verification.UNVERIFIED;
-		}
-		try {
-			InetAddress[] resolvedAddresses = InetAddress.getAllByName(hostName);
-			if (Arrays.asList(resolvedAddresses).contains(address)) {
-				synchronized (instances) {
-					if (!instances.contains(jmdns)) {
-						return Verification.UNVERIFIED;
-					}
-					registeredHostName = hostName;
-				}
-				logger.info("verified {} resolves to an announced address", hostName);
-				return Verification.VERIFIED;
-			}
-			logger.info("{} resolves to {}, not to the announced address {}", hostName,
-			        Arrays.toString(resolvedAddresses), address.getHostAddress());
-			return Verification.CONFLICT;
-		} catch (UnknownHostException e) {
-			logger./**/warn("not publishing {} URL: name does not resolve on this machine", hostName);
-			return Verification.UNVERIFIED;
-		}
 	}
 
 	private static String stripTrailingDot(String hostName) {

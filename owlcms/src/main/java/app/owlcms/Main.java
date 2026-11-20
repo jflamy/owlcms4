@@ -411,6 +411,11 @@ public class Main {
         if (!JPAService.isLocalDbConfigured(memoryMode)) {
             return;
         }
+        // fly.io sets FLY_APP_NAME; its private network has no multicast, so a .local name is unreachable
+        if (System.getenv("FLY_APP_NAME") != null) {
+            logger.info("mDNS skipped on fly.io");
+            return;
+        }
         String mdnsName = System.getenv("OWLCMS_MDNS");
         if (mdnsName == null) {
             mdnsName = "owlcms";

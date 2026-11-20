@@ -11,6 +11,10 @@
 
 **Development log**
 
+- 69.0.0-rc06: Network name announcement fixes
+  - `owlcms.local` name: when another computer already uses the name, `owlcms-2.local`, `owlcms-3.local`, ... are now tried faster and more robustlry.
+  - remove delays during stoppage
+
 - 69.0.0-rc05: As a matter of principle, update Docker base image for fly.io deployments to mitigate Java CVE (local version was already ok)
 
 - 69.0.0-rc04: Using the transparent stylesheet for video streaming scoreboards was showing a misaligned grid. Fixed by correctly importing and overriding the public style.
