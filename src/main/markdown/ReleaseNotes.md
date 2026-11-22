@@ -11,7 +11,7 @@
 
 **Development log**
 
-- 69.0.0-rc09: IWF compliance is checked in an Administration dialog, with immediate actions for the live security and feature-switch settings. A configured audit key is required before the dialog opens.
+- 69.0.0-rc09: IWF compliance is enabled and prerequisites checked in an Administration dialog, with immediate actions for the live settings.
 
 - 69.0.0-rc08: Fix: Mistakenly hidden age group labels on the multi-agegroup scoreboards are now shown
 
