@@ -15,12 +15,12 @@ You may want to run Postgres locally if you want to use additional properties, s
 
 ## Configuring owlcms to Use PostgreSQL
 
-1. **Configuration** In your local installation directory, locate the file `owlcms.l4j.ini`.  At the top of the file, add the following two lines to match the database we just created.
+1. **Configuration** In the OWLCMS Control Panel, find the OWLCMS version to configure and click its **Files** button. This opens that version's directory. Edit the `env.properties` file in that directory and add the following lines to match the database we just created.
    
     ```
-   -DJDBC_DATABASE_URL=jdbc:postgresql://localhost:5432/owlcms_db
-   -DJDBC_DATABASE_USERNAME=postgres
-   -DJDBC_DATABASE_PASSWORD=the_password_you_created
+   JDBC_DATABASE_URL=jdbc:postgresql://localhost:5432/owlcms_db
+   JDBC_DATABASE_USERNAME=postgres
+   JDBC_DATABASE_PASSWORD=the_password_you_created
    ```
    This tells owlcms to use the PostgreSQL database driver, and to connect to the local PostgreSQL server for the `owlcms_db` database using the `postgres` user.
    
@@ -49,4 +49,4 @@ To get a postgres backup from fly.io, see the examples for `pg_dump` in [this ar
 
 ## Reverting to H2
 
-To return to the standard configuration, you only need to add a `#` character at the beginning of the -D lines to comment them out.
+To return to the standard configuration, add a `#` character at the beginning of the three `JDBC_DATABASE_*` lines in the installed version's `env.properties` file, or remove those lines.
