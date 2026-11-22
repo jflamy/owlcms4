@@ -50,6 +50,7 @@ database/owlcms.mv.db
 /.vscode/.env.windows
 /.vscode/.env.linux
 /.vscode/.env.mac
+/.vscode/.env
 /.code-workspace
 /owlcms.code-workspace
 jfl*.*

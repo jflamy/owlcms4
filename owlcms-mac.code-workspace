@@ -1,7 +1,14 @@
-// Example workspace for macOS. Copy it to owlcms.code-workspace (not tracked by git) and set the JBR path below.
-// Get a JetBrains Runtime 25 with JCEF from https://github.com/JetBrains/JetBrainsRuntime
-// and put HotswapAgent (https://github.com/HotswapProjects/HotswapAgent/releases) in <JBR>/Contents/Home/lib/hotswap/hotswap-agent.jar
-// (rename the downloaded hotswap-agent-<version>.jar to hotswap-agent.jar -- -XX:HotswapAgent=fatjar only looks for that exact name)
+// macOS workspace. Copy this file to owlcms.code-workspace (ignored by git).
+// Download jbrsdk-25.0.5.1-osx-aarch64-b635.102.tar.gz (Apple silicon), or
+// jbrsdk-25.0.5.1-osx-x64-b635.102.tar.gz (Intel), from:
+// https://github.com/JetBrains/JetBrainsRuntime/releases/tag/jbr-release-25.0.5.1b635.102
+// Extract under /Library/Java/JavaVirtualMachines. JAVA_HOME is:
+//   /Library/Java/JavaVirtualMachines/jbrsdk-25.0.5.1-osx-aarch64-b635.102/Contents/Home (Apple silicon)
+//   /Library/Java/JavaVirtualMachines/jbrsdk-25.0.5.1-osx-x64-b635.102/Contents/Home (Intel)
+// Download hotswap-agent-2.0.5.jar from https://github.com/HotswapProjects/HotswapAgent/releases/tag/RELEASE-2.0.5
+// and copy it as <JAVA_HOME>/lib/hotswap/hotswap-agent.jar.
+// Update both JBRSDK paths below to the selected JAVA_HOME on Intel.
+// Copy .vscode/.env.example to .vscode/.env, edit it as needed, and open owlcms.code-workspace.
 
 {
   "folders": [
@@ -21,13 +28,13 @@
     "java.configuration.runtimes": [
       {
         "name": "JavaSE-25",
-        "path": "/Library/Java/JavaVirtualMachines/jbr_jcef-25.0.3-osx-aarch64-b496.62/Contents/Home",
+        "path": "/Library/Java/JavaVirtualMachines/jbrsdk-25.0.5.1-osx-aarch64-b635.102/Contents/Home",
         "default": true
       }
     ],
     "java.debug.settings.vmArgs": "${config:owlcms.vmArgs}",
     "terminal.integrated.env.osx": {
-      "JAVA_HOME": "/Library/Java/JavaVirtualMachines/jbr_jcef-25.0.3-osx-aarch64-b496.62/Contents/Home"
+      "JAVA_HOME": "/Library/Java/JavaVirtualMachines/jbrsdk-25.0.5.1-osx-aarch64-b635.102/Contents/Home"
     }
   },
   "extensions": {

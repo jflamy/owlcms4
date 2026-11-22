@@ -10,15 +10,7 @@
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
-      "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
-      },
-      "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
-      },
-      "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
-      },
+      "envFile": "${workspaceFolder}/.vscode/.env",
       "env": {
         "OWLCMS_MEMORYMODE": "false",
         //"OWLCMS_FEATURESWITCHES": "attemptTraces",
@@ -39,15 +31,7 @@
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
-      "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
-      },
-      "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
-      },
-      "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
-      },
+      "envFile": "${workspaceFolder}/.vscode/.env",
       "env": {
         "OWLCMS_MEMORYMODE": "false",
         "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws", //"wss://fhq-tracker.fly.dev/ws",
@@ -65,15 +49,7 @@
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "-Dvaadin.frontend.hotdeploy=true ${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
-      "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
-      },
-      "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
-      },
-      "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
-      },
+      "envFile": "${workspaceFolder}/.vscode/.env",
       "env": {
         "OWLCMS_MEMORYMODE": "false",
         "OWLCMS_ENABLEEVENTFORWARDING": "false"
@@ -88,15 +64,7 @@
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
-      "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
-      },
-      "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
-      },
-      "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
-      },
+      "envFile": "${workspaceFolder}/.vscode/.env",
       "env": {
         "OWLCMS_MEMORYMODE": "false",
         "OWLCMS_ENABLEEVENTFORWARDING": "false",
@@ -113,15 +81,7 @@
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
-      "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
-      },
-      "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
-      },
-      "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
-      },
+      "envFile": "${workspaceFolder}/.vscode/.env",
       "env": {
         "OWLCMS_MEMORYMODE": "false",
         "OWLCMS_ENABLEEVENTFORWARDING": "false",
@@ -138,15 +98,7 @@
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
-      "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
-      },
-      "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
-      },
-      "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
-      },
+      "envFile": "${workspaceFolder}/.vscode/.env",
       "env": {
         // The export replaces the whole competition in the development database, on every launch.
         "OWLCMS_MEMORYMODE": "false",
@@ -163,15 +115,7 @@
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
-      "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
-      },
-      "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
-      },
-      "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
-      },
+      "envFile": "${workspaceFolder}/.vscode/.env",
       "env": {
         //"OWLCMS_FEATURESWITCHES": "attemptTraces",
         "OWLCMS_MEMORYMODE": "true",
@@ -189,15 +133,7 @@
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
-      "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
-      },
-      "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
-      },
-      "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
-      },
+      "envFile": "${workspaceFolder}/.vscode/.env",
       "env": {
         // The export replaces the whole competition in memory; the development database is untouched.
         "OWLCMS_MEMORYMODE": "true",
@@ -215,15 +151,7 @@
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
-      "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
-      },
-      "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
-      },
-      "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
-      },
+      "envFile": "${workspaceFolder}/.vscode/.env",
       "env": {
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_ENABLEEVENTFORWARDING": "false",
@@ -241,15 +169,7 @@
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs} -Dvaadin.frontend.hotdeploy=true -Dlogback.configurationFile=logback.xml",
-      "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
-      },
-      "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
-      },
-      "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
-      },
+      "envFile": "${workspaceFolder}/.vscode/.env",
       "env": {
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_ENABLEEVENTFORWARDING": "false",
@@ -266,16 +186,9 @@
       "name": "⬇️ pull translation4.csv from Google Sheets",
       "request": "launch",
       "cwd": "${workspaceFolder}",
+      "preLaunchTask": "prepare dev environment",
       "command": "bash scripts/download-translations-java.sh",
-      "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
-      },
-      "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
-      },
-      "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
-      }
+      "envFile": "${workspaceFolder}/.vscode/.env"
     },
     {
       "type": "java",

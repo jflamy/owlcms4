@@ -5,8 +5,8 @@
 #
 # usage: capture-stop.sh [port] [token-env-file]
 #   port            default 8080
-#   token-env-file  file with an OWLCMS_CONTROLPANELTOKEN=... line, default .vscode/.env.windows (Windows) or
-#                   .vscode/.env.linux at the root of the owlcms4 repository; OWLCMS_CONTROLPANELTOKEN in the
+#   token-env-file  file with an OWLCMS_CONTROLPANELTOKEN=... line, default .vscode/.env
+#                   at the root of the owlcms4 repository; OWLCMS_CONTROLPANELTOKEN in the
 #                   environment wins
 # The results go to stop-capture-HHMMSS in the current directory.
 set -u
@@ -17,11 +17,7 @@ case "$(uname -s)" in
 MINGW* | MSYS* | CYGWIN*) WINDOWS=true ;;
 *) WINDOWS=false ;;
 esac
-if $WINDOWS; then
-	ENVFILE=${2:-$REPO_ROOT/.vscode/.env.windows}
-else
-	ENVFILE=${2:-$REPO_ROOT/.vscode/.env.linux}
-fi
+ENVFILE=${2:-$REPO_ROOT/.vscode/.env}
 OUT=$PWD/stop-capture-$(date +%H%M%S)
 
 TOKEN=${OWLCMS_CONTROLPANELTOKEN:-}

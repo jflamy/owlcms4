@@ -1,7 +1,7 @@
 #!/bin/bash
 # Restart the owlcms_69 server with the masters fixture, as the "load JSON owlcms reset" launch does, without the
 # debugger: stop this worktree's server, clear the logs, start MainWrapper with the launch's VM options and
-# environment (.vscode/.env.mac plus the launch env), wait until it answers.
+# environment (.vscode/.env plus the launch env), wait until it answers.
 #
 #   compliance/phase7/restart-server.sh [fixture.json]
 #
@@ -51,7 +51,7 @@ fi
 # 4. start, with the launch's environment
 cd "$APP" || exit 1
 set -a
-[[ -f "$ROOT/.vscode/.env.mac" ]] && source "$ROOT/.vscode/.env.mac"
+[[ -f "$ROOT/.vscode/.env" ]] && source "$ROOT/.vscode/.env"
 OWLCMS_MEMORYMODE=false
 OWLCMS_ENABLEEVENTFORWARDING=false
 OWLCMS_LOADJSON="$FIXTURE"

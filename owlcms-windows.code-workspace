@@ -1,7 +1,14 @@
-// Example workspace for Windows. Copy it to owlcms.code-workspace (not tracked by git) and set the JBR path below.
-// Get a JetBrains Runtime 25 with JCEF from https://github.com/JetBrains/JetBrainsRuntime
-// and put HotswapAgent (https://github.com/HotswapProjects/HotswapAgent/releases) in <JBR>/lib/hotswap/hotswap-agent.jar
-// (rename the downloaded hotswap-agent-<version>.jar to hotswap-agent.jar -- -XX:HotswapAgent=fatjar only looks for that exact name)
+// Windows workspace. Copy this file to owlcms.code-workspace (ignored by git).
+// Download jbrsdk-25.0.5.1-windows-x64-b635.102.zip (x64), or
+// jbrsdk-25.0.5.1-windows-aarch64-b635.102.zip (ARM64), from:
+// https://github.com/JetBrains/JetBrainsRuntime/releases/tag/jbr-release-25.0.5.1b635.102
+// Extract under C:\Dev\Java. JAVA_HOME is:
+//   C:\Dev\Java\jbrsdk-25.0.5.1-windows-x64-b635.102 (x64)
+//   C:\Dev\Java\jbrsdk-25.0.5.1-windows-aarch64-b635.102 (ARM64)
+// Download hotswap-agent-2.0.5.jar from https://github.com/HotswapProjects/HotswapAgent/releases/tag/RELEASE-2.0.5
+// and copy it as <JAVA_HOME>\lib\hotswap\hotswap-agent.jar.
+// Update both JBRSDK paths below to the selected JAVA_HOME on ARM64.
+// Copy .vscode/.env.example to .vscode/.env, edit it as needed, and open owlcms.code-workspace.
 
 {
   "folders": [
@@ -21,13 +28,13 @@
     "java.configuration.runtimes": [
       {
         "name": "JavaSE-25",
-        "path": "C:\\Dev\\Java\\jbr_jcef-25.0.1-windows-x64-b266.34",
+        "path": "C:\\Dev\\Java\\jbrsdk-25.0.5.1-windows-x64-b635.102",
         "default": true
       }
     ],
     "java.debug.settings.vmArgs": "${config:owlcms.vmArgs}",
     "terminal.integrated.env.windows": {
-      "JAVA_HOME": "C:\\Dev\\Java\\jbr_jcef-25.0.1-windows-x64-b266.34"
+      "JAVA_HOME": "C:\\Dev\\Java\\jbrsdk-25.0.5.1-windows-x64-b635.102"
     },
     
     /*

@@ -2,8 +2,38 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "prepare dev environment",
+      "type": "shell",
+      "command": "[ -f .vscode/.env ] || for f in .vscode/.env.linux .vscode/.env.example; do if [ -f \"$f\" ]; then cp \"$f\" .vscode/.env && echo \"created .vscode/.env from $f\"; break; fi; done",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "/bin/bash",
+          "args": ["-c"]
+        }
+      },
+      "osx": {
+        "command": "[ -f .vscode/.env ] || for f in .vscode/.env.mac .vscode/.env.example; do if [ -f \"$f\" ]; then cp \"$f\" .vscode/.env && echo \"created .vscode/.env from $f\"; break; fi; done"
+      },
+      "windows": {
+        "command": "if (-not (Test-Path .vscode/.env)) { foreach ($f in '.vscode/.env.windows', '.vscode/.env.example') { if (Test-Path $f) { Copy-Item $f .vscode/.env; Write-Output \"created .vscode/.env from $f\"; break } } }",
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "shell": {
+            "executable": "powershell.exe",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
+          }
+        }
+      },
+      "presentation": {
+        "reveal": "silent"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "clear owlcms file logs",
       "type": "shell",
+      "dependsOn": "prepare dev environment",
       "command": "find logs -maxdepth 2 \\( -path 'logs/*.log' -o -path 'logs/audit/*.log' \\) -type f -delete 2>/dev/null || true",
       "options": {
         "cwd": "${workspaceFolder}/owlcms",

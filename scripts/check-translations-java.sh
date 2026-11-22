@@ -3,7 +3,7 @@ set -euo pipefail
 
 REPOSITORY_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TRANSLATION_CSV="shared/src/main/resources/i18n/translation4.csv"
-ENV_FILE="${REPOSITORY_ROOT}/.vscode/.env.mac"
+ENV_FILE="${REPOSITORY_ROOT}/.vscode/.env"
 
 if [[ -z "${GOOGLE_SHEETS_API_KEY:-}" && -f "${ENV_FILE}" ]]; then
   set -a

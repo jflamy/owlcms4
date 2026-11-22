@@ -6,20 +6,68 @@ This is a standard Maven project.  If you wish, you can build the binaries from 
 
 You can checkout this repository (or fork it if you intend to make changes.)
 
-- Development uses the JetBrains Runtime (JBR), which includes DCEVM so code changes are hot-swapped without restarting.
-  1. Get a JBR 25 with JCEF from [JetBrains/JetBrainsRuntime](https://github.com/JetBrains/JetBrainsRuntime) and unzip or install it.
-  2. Get the agent jar from [HotswapAgent releases](https://github.com/HotswapProjects/HotswapAgent/releases), create a `lib/hotswap` directory in the JBR home, and copy the jar there *without the version number* -- the file must be `lib/hotswap/hotswap-agent.jar`
-  3. Copy the example workspace for your platform (`owlcms-windows.code-workspace`, `owlcms-mac.code-workspace` or `owlcms-linux.code-workspace`) to `owlcms.code-workspace` (ignored by git), set the path to your JBR home, and open it.
-  - You will be prompted to install the typical Java extensions, accept them.
+On every platform, we provide configurations for Visual Studio Code (VS Code).
 
-- For local development the repository uses platform-specific `.env` files stored under the `.vscode/` folder to provide environment variables to the VS Code launch configurations. 
-  - Copy `.vscode/.env.example` to a platform-specific file for your system and edit the values you want to override (for example `OWLCMS_UPDATEKEY`): 
-    - `.vscode/.env.windows` (Windows), 
-    - `.vscode/.env.linux` (Linux), or
-    - `.vscode/.env.mac` (macOS).
-  - These platform-specific files are ignored by git ; do not commit them.
-  - JVM options are set by `owlcms.vmArgs` in the workspace file, not in the `.env` files.
-  - The workspace templates enable enhanced class redefinition with `-XX:+AllowEnhancedClassRedefinition` and load `lib/hotswap/hotswap-agent.jar` from the selected JBR with `-XX:HotswapAgent=fatjar`. They also disable the Vaadin development tools with `-Dvaadin.devmode.devTools.enabled=false`.
+- Development uses the JetBrains Runtime (JBR), which includes DCEVM so code changes are hot-swapped without restarting.
+- You will launch `owlcms.code-workspace` as a local copy for your platform after following the instructions below.
+  - JVM options are set by `owlcms.vmArgs` in the workspace file, not in `.vscode/.env`.
+  - The workspace templates enable enhanced class redefinition with `-XX:+AllowEnhancedClassRedefinition` and load `lib/hotswap/hotswap-agent.jar` from the
+    selected JBR with `-XX:HotswapAgent=fatjar`. They also disable the Vaadin development tools with `-Dvaadin.devmode.devTools.enabled=false`.
+- There is a local `.vscode/.env` file for optional per-developer settings.
+
+#### macOS
+
+1. Download the JBRSDK from the [25.0.5.1 release](https://github.com/JetBrains/JetBrainsRuntime/releases/tag/jbr-release-25.0.5.1b635.102), under **Binaries for developers**. Use:
+   - Apple silicon: `jbrsdk-25.0.5.1-osx-aarch64-b635.102.tar.gz`
+   - Intel: `jbrsdk-25.0.5.1-osx-x64-b635.102.tar.gz`
+2. Extract the downloaded archive under `/Library/Java/JavaVirtualMachines`. The Java home paths are:
+   - Apple silicon: `/Library/Java/JavaVirtualMachines/jbrsdk-25.0.5.1-osx-aarch64-b635.102/Contents/Home`
+   - Intel: `/Library/Java/JavaVirtualMachines/jbrsdk-25.0.5.1-osx-x64-b635.102/Contents/Home`
+3. Download `hotswap-agent-2.0.5.jar` from the [HotswapAgent 2.0.5 release](https://github.com/HotswapProjects/HotswapAgent/releases/tag/RELEASE-2.0.5). Create the `lib/hotswap` directory and copy the jar as `hotswap-agent.jar`:
+   - Apple silicon: `/Library/Java/JavaVirtualMachines/jbrsdk-25.0.5.1-osx-aarch64-b635.102/Contents/Home/lib/hotswap/hotswap-agent.jar`
+   - Intel: `/Library/Java/JavaVirtualMachines/jbrsdk-25.0.5.1-osx-x64-b635.102/Contents/Home/lib/hotswap/hotswap-agent.jar`
+4. Copy `owlcms-mac.code-workspace` to `owlcms.code-workspace`. Apple silicon is preconfigured; on Intel, replace `osx-aarch64` with `osx-x64` in `java.configuration.runtimes[].path` and `terminal.integrated.env.osx.JAVA_HOME`.
+5. Copy `.vscode/.env.example` to `.vscode/.env` and edit the values to override, such as `OWLCMS_PORT`.
+6. Open `owlcms.code-workspace` and accept the recommended Java extensions.
+
+#### Windows
+
+1. Download the JBRSDK from the [25.0.5.1 release](https://github.com/JetBrains/JetBrainsRuntime/releases/tag/jbr-release-25.0.5.1b635.102), under **Binaries for developers**. Use:
+   - x64: `jbrsdk-25.0.5.1-windows-x64-b635.102.zip`
+   - ARM64: `jbrsdk-25.0.5.1-windows-aarch64-b635.102.zip`
+2. Extract the downloaded archive under `C:\Dev\Java`. The Java home paths are:
+   - x64: `C:\Dev\Java\jbrsdk-25.0.5.1-windows-x64-b635.102`
+   - ARM64: `C:\Dev\Java\jbrsdk-25.0.5.1-windows-aarch64-b635.102`
+3. Download `hotswap-agent-2.0.5.jar` from the [HotswapAgent 2.0.5 release](https://github.com/HotswapProjects/HotswapAgent/releases/tag/RELEASE-2.0.5). Create the `lib\hotswap` directory and copy the jar as `hotswap-agent.jar`:
+   - x64: `C:\Dev\Java\jbrsdk-25.0.5.1-windows-x64-b635.102\lib\hotswap\hotswap-agent.jar`
+   - ARM64: `C:\Dev\Java\jbrsdk-25.0.5.1-windows-aarch64-b635.102\lib\hotswap\hotswap-agent.jar`
+4. Copy `owlcms-windows.code-workspace` to `owlcms.code-workspace`. x64 is preconfigured; on ARM64, replace `windows-x64` with `windows-aarch64` in `java.configuration.runtimes[].path` and `terminal.integrated.env.windows.JAVA_HOME`.
+5. Copy `.vscode/.env.example` to `.vscode/.env` and edit the values to override, such as `OWLCMS_PORT`.
+6. Open `owlcms.code-workspace` and accept the recommended Java extensions.
+
+#### Linux x64
+
+1. Download the JBRSDK from the [25.0.5.1 release](https://github.com/JetBrains/JetBrainsRuntime/releases/tag/jbr-release-25.0.5.1b635.102), under **Binaries for developers**. Use:
+   `jbrsdk-25.0.5.1-linux-x64-b635.102.tar.gz`
+2. Extract the downloaded archive under `/opt/java`. The Java home path is:
+   `/opt/java/jbrsdk-25.0.5.1-linux-x64-b635.102`
+3. Download `hotswap-agent-2.0.5.jar` from the [HotswapAgent 2.0.5 release](https://github.com/HotswapProjects/HotswapAgent/releases/tag/RELEASE-2.0.5). Create the `lib/hotswap` directory and copy the jar to:
+   `/opt/java/jbrsdk-25.0.5.1-linux-x64-b635.102/lib/hotswap/hotswap-agent.jar`
+4. Copy `owlcms-linux.code-workspace` to `owlcms.code-workspace`.
+5. Copy `.vscode/.env.example` to `.vscode/.env` and edit the values to override, such as `OWLCMS_PORT`.
+6. Open `owlcms.code-workspace` and accept the recommended Java extensions.
+
+#### Raspberry Pi/Linux ARM64
+
+1. Download the JBRSDK from the [25.0.5.1 release](https://github.com/JetBrains/JetBrainsRuntime/releases/tag/jbr-release-25.0.5.1b635.102), under **Binaries for developers**. Use:
+   `jbrsdk-25.0.5.1-linux-aarch64-b635.102.tar.gz`
+2. Extract the downloaded archive under `/opt/java`. The Java home path is:
+   `/opt/java/jbrsdk-25.0.5.1-linux-aarch64-b635.102`
+3. Download `hotswap-agent-2.0.5.jar` from the [HotswapAgent 2.0.5 release](https://github.com/HotswapProjects/HotswapAgent/releases/tag/RELEASE-2.0.5). Create the `lib/hotswap` directory and copy the jar to:
+   `/opt/java/jbrsdk-25.0.5.1-linux-aarch64-b635.102/lib/hotswap/hotswap-agent.jar`
+4. Copy `owlcms-rpi.code-workspace` to `owlcms.code-workspace`.
+5. Copy `.vscode/.env.example` to `.vscode/.env` and edit the values to override, such as `OWLCMS_PORT`.
+6. Open `owlcms.code-workspace` and accept the recommended Java extensions.
   
 
 #### Cloud development 

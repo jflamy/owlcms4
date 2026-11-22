@@ -7,7 +7,7 @@ Usage: scripts/create-worktree-branch.sh <branch> [worktree-path] [start-point]
 
 Creates a git worktree for <branch>, then copies local uncommitted workspace files
 that are normally ignored in this repository:
-  - files under .vscode/ that are missing in the new worktree, such as .env.mac
+  - files under .vscode/ that are missing in the new worktree, such as .env
   - jfl.code-workspace, when present
 
 If <branch> exists locally or as origin/<branch>, the worktree uses that branch.

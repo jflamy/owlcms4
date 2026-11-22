@@ -8,7 +8,7 @@ Usage: owlcms/scripts/zipcurrent.sh <installed-version-dir>
 Packages the CURRENT development environment data into an owlcms control
 panel installed version directory, replacing what is there:
 
-  - local override:  read from OWLCMS_LOCALDIR in .vscode/.env.mac
+  - local override:  read from OWLCMS_LOCALDIR in .vscode/.env
                      (falls back to ./local if unset)
                      copied to <installed-version-dir>/local
   - database:        owlcms/database  (H2 files, e.g. owlcms-h2v2.mv.db)
@@ -29,7 +29,7 @@ fi
 TARGET_DIR="${1%/}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-ENV_FILE="${REPO_ROOT}/.vscode/.env.mac"
+ENV_FILE="${REPO_ROOT}/.vscode/.env"
 DB_SRC="${SCRIPT_DIR}/../database"
 
 if [[ ! -d "${TARGET_DIR}" ]]; then
@@ -37,7 +37,7 @@ if [[ ! -d "${TARGET_DIR}" ]]; then
   exit 1
 fi
 
-# --- resolve local override source from .env.mac ---
+# --- resolve local override source from .env ---
 LOCAL_SRC=""
 if [[ -f "${ENV_FILE}" ]]; then
   # grab OWLCMS_LOCALDIR=... (ignore commented lines), strip quotes and whitespace

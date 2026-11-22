@@ -10,7 +10,7 @@ Quick start
 
 - Open the repository in VS Code.
 - Use the Command Palette (`Ctrl+Shift+P`) and select `Dev Containers: Reopen in Container` (or use the green "Open in Container" button if available).
-- When the container finishes starting, no workspace file is needed: the container provides the launch settings (`owlcms.vmArgs`, `owlcms.mainClass`) and creates `.vscode/.env.linux` from `.vscode/.env.example` if it is missing.
+- When the container finishes starting, no workspace file is needed: the container provides the launch settings (`owlcms.vmArgs`, `owlcms.mainClass`) and the `prepare dev environment` task creates `.vscode/.env` from `.vscode/.env.example` before the first launch if it is missing.
 
 What the devcontainer provides
 
@@ -32,7 +32,7 @@ How to verify the Java extensions and launches
 Troubleshooting
 
 - If extensions are not installed automatically, try `Dev Containers: Rebuild Container` from the Command Palette.
-- If you see the launches missing, ensure the Java extensions are enabled for the workspace/profile. If a launch fails on its environment file, check that `.vscode/.env.linux` exists.
+- If you see the launches missing, ensure the Java extensions are enabled for the workspace/profile. If a launch fails on its environment file, run **Tasks: Run Task → prepare dev environment**, or copy `.vscode/.env.example` to `.vscode/.env`.
 
 - If you see an error like `Could not create local repository at /home/vscode/.m2/repository`, it is usually a permissions issue on the Maven cache. The setup script fixes this when the container is created by changing ownership of `/home/vscode/.m2` to the `vscode` user. To fix manually, run inside the container:
 

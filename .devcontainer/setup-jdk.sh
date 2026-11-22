@@ -18,11 +18,21 @@ else
 sudo mkdir -p /usr/local/jdk-25-dcevm
 cd /tmp
 
-  # Allow override of JBR version via env var (exact filename fragment). Default pinned for reproducibility.
-  JBR_VERSION_FRAG=${JBR_VERSION_FRAG:-"jbr_jcef-25.0.3-linux-x64-b496.62"}
+  # JBRSDK pinned for reproducibility; JBR_VERSION_FRAG (exact filename fragment) overrides the whole selection.
+  JBR_VERSION=${JBR_VERSION:-25.0.5.1}
+  JBR_BUILD=${JBR_BUILD:-b635.102}
+  case "$(uname -m)" in
+    x86_64 | amd64) JBR_ARCH=x64 ;;
+    aarch64 | arm64) JBR_ARCH=aarch64 ;;
+    *) echo "ERROR: unsupported architecture $(uname -m)" >&2; exit 1 ;;
+  esac
+  JBR_VERSION_FRAG=${JBR_VERSION_FRAG:-"jbrsdk-${JBR_VERSION}-linux-${JBR_ARCH}-${JBR_BUILD}"}
   JBR_ARCHIVE_URL="https://cache-redirector.jetbrains.com/intellij-jbr/${JBR_VERSION_FRAG}.tar.gz"
   echo "Downloading JetBrains Runtime JDK 25 with DCEVM from: $JBR_ARCHIVE_URL"
   wget -q --show-progress -O jbr-dcevm.tar.gz "$JBR_ARCHIVE_URL"
+  wget -q -O jbr-dcevm.tar.gz.checksum "${JBR_ARCHIVE_URL}.checksum"
+  echo "$(cut -d' ' -f1 jbr-dcevm.tar.gz.checksum)  jbr-dcevm.tar.gz" | sha512sum -c -
+  rm -f jbr-dcevm.tar.gz.checksum
 
   echo "Extracting JDK 25 DCEVM..."
   tar -xzf jbr-dcevm.tar.gz
@@ -65,9 +75,9 @@ fi
 # Install / configure Hotswap Agent (needed for -XX:HotswapAgent=fatjar)
 echo "Installing Hotswap Agent (idempotent)..."
 
-# Allow override of version via environment variable HOTSWAP_AGENT_VERSION.
-# Use 'latest' (default) to query GitHub Releases API for newest version.
-HOTSWAP_AGENT_VERSION=${HOTSWAP_AGENT_VERSION:-latest}
+# Pinned for reproducibility; override with HOTSWAP_AGENT_VERSION (a version such as 2.0.5, or 'latest' to query the
+# GitHub Releases API for the newest version).
+HOTSWAP_AGENT_VERSION=${HOTSWAP_AGENT_VERSION:-2.0.5}
 DEST_DIR_HOTSWAP="/usr/local/jdk-25-dcevm/lib/hotswap"
 DEST_DIR_HOTSWAPAGENT="/usr/local/jdk-25-dcevm/lib/hotswapagent"
 DEST_FILE_HOTSWAP="$DEST_DIR_HOTSWAP/hotswap-agent.jar"
@@ -76,7 +86,7 @@ sudo mkdir -p "$DEST_DIR_HOTSWAP" "$DEST_DIR_HOTSWAPAGENT"
 
 resolve_hotswap_url() {
   local version="$1"
-  local DEFAULT_VERSION="2.0.1"
+  local DEFAULT_VERSION="2.0.5"
   local url=""
 
   if [ "$version" = "latest" ]; then
@@ -133,7 +143,7 @@ resolve_hotswap_url() {
     if [ "$version" = "latest" ]; then
       version="$DEFAULT_VERSION"
     fi
-    url="https://github.com/HotswapProjects/HotswapAgent/releases/download/${version}/hotswap-agent-${version}.jar"
+    url="https://github.com/HotswapProjects/HotswapAgent/releases/download/RELEASE-${version}/hotswap-agent-${version}.jar"
   fi
 
   # Emit only the URL on stdout
@@ -167,7 +177,7 @@ else
   fi
 fi
 
-echo "To pin a specific version, set HOTSWAP_AGENT_VERSION (e.g., HOTSWAP_AGENT_VERSION=2.0.1)."
+echo "To use another version, set HOTSWAP_AGENT_VERSION (e.g., HOTSWAP_AGENT_VERSION=2.0.5, or latest)."
 
 ###############################################
 # Maven Installation (fast + idempotent)

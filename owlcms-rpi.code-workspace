@@ -1,0 +1,45 @@
+// Raspberry Pi/Linux ARM64 workspace. Copy this file to owlcms.code-workspace (ignored by git).
+// Download jbrsdk-25.0.5.1-linux-aarch64-b635.102.tar.gz from:
+// https://github.com/JetBrains/JetBrainsRuntime/releases/tag/jbr-release-25.0.5.1b635.102
+// Extract under /opt/java. JAVA_HOME is:
+//   /opt/java/jbrsdk-25.0.5.1-linux-aarch64-b635.102
+// Download hotswap-agent-2.0.5.jar from https://github.com/HotswapProjects/HotswapAgent/releases/tag/RELEASE-2.0.5
+// and copy it as <JAVA_HOME>/lib/hotswap/hotswap-agent.jar.
+// Copy .vscode/.env.example to .vscode/.env, edit it as needed, and open owlcms.code-workspace.
+
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "window.title": "${dirty}${folderName}${separator}${activeRepositoryBranchName}${separator}${profileName}",
+    "owlcms.vmArgs": "-ea -Dvaadin.devmode.devTools.enabled=false -DcssEdit=true -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar --add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED --add-opens=java.base/jdk.internal.misc=ALL-UNNAMED --enable-native-access=ALL-UNNAMED",
+    "owlcms.mainClass": "app.owlcms.MainWrapper",
+    "owlcms.console": "integratedTerminal",
+    "owlcms.noDebug": false,
+    "java.debug.settings.console": "integratedTerminal",
+    "java.compile.nullAnalysis.mode": "disabled",
+
+    "java.configuration.runtimes": [
+      {
+        "name": "JavaSE-25",
+        "path": "/opt/java/jbrsdk-25.0.5.1-linux-aarch64-b635.102",
+        "default": true
+      }
+    ],
+    "java.debug.settings.vmArgs": "${config:owlcms.vmArgs}",
+    "terminal.integrated.env.linux": {
+      "JAVA_HOME": "/opt/java/jbrsdk-25.0.5.1-linux-aarch64-b635.102"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "vscjava.vscode-java-debug",
+      "vscjava.vscode-java-pack",
+      "redhat.java",
+      "vscjava.vscode-maven"
+    ]
+  }
+}

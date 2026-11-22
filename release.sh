@@ -3,7 +3,7 @@ REVISION="69.0.0-rc09"
 
 set -euo pipefail
 
-ENV_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.vscode/.env.mac"
+ENV_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.vscode/.env"
 if [[ -z "${GOOGLE_SHEETS_API_KEY:-}" && -f "${ENV_FILE}" ]]; then
   set -a
   # shellcheck disable=SC1090
