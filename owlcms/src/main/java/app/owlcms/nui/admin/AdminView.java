@@ -2,6 +2,7 @@ package app.owlcms.nui.admin;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.github.appreciated.css.grid.sizes.Length;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -56,7 +57,6 @@ import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.preparation.AccountsContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.DownloadButtonFactory;
-import app.owlcms.nui.shared.IwfComplianceDisplay;
 import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.utils.RestartUtils;
@@ -120,20 +120,17 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 			AccessControlForm accessControlForm = new AccessControlForm();
 			Button accounts = openInNewTabNoParam(AccountsContent.class,
 			        Translator.translate("Access.Accounts.Title"), VaadinIcon.KEY.create());
-			// the remember option saves independently and changes the IWF checklist immediately
-			Div iwfChecklist = new Div();
-			Runnable settingsSaved = () -> {
-				accessControlForm.refreshIfClean();
-				showChecklist(iwfChecklist);
-			};
+			Runnable settingsSaved = accessControlForm::refreshIfClean;
+			Button iwfCompliance = new Button(Translator.translate("Admin.IwfCheck"), VaadinIcon.CHECK_SQUARE.create(),
+			        event -> openIwfComplianceDialog());
 			VerticalLayout securityTab = tab(heading("Config.AccessControlTitle"), securityStatus(),
 			        securityControls(accounts, token), rememberAccountLoginsSwitch(settingsSaved),
 			        forgetRememberedBrowsersButton(),
 			        accessControlForm);
 			FlexibleGridLayout auditTrail = AccessUi.hasPermission(getPrincipal(), Permission.AUDIT_KEYS, null)
-			        ? HomeNavigationContent.navigationGrid(auditKey, auditCheck,
-			                iwfComplianceCheck(settingsSaved, iwfChecklist))
-			        : HomeNavigationContent.navigationGrid(iwfComplianceCheck(settingsSaved, iwfChecklist));
+			        ? HomeNavigationContent.navigationGrid(auditKey, auditCheck, iwfCompliance)
+			        : HomeNavigationContent.navigationGrid(iwfCompliance);
+			auditTrail.withAutoRows(new Length("auto"));
 			securityTab.add(heading("Admin.AuditTrail"), auditTrail);
 			if (!token) {
 				securityTab.add(helperText("Access.ControlPanelTokenNotSet"));
@@ -275,39 +272,8 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 		return forget;
 	}
 
-	/** The checkbox, and the list of requirements while it is checked. */
-	private static VerticalLayout iwfComplianceCheck(Runnable settingsSaved, Div checklist) {
-		VerticalLayout block = new VerticalLayout();
-		block.setPadding(false);
-		block.setSpacing(false);
-		Checkbox check = new Checkbox(Translator.translate("Admin.IwfCheck"),
-		        Config.getCurrent().isIwfComplianceChecked());
-		check.setHelperText(Translator.translate("Admin.IwfCheckHelp"));
-		check.addValueChangeListener(event -> {
-			if (!event.isFromClient()) {
-				return;
-			}
-			// captured at the click, on the UI thread: while the page is being built it is not yet the active
-			// route, and the actor would resolve to SYSTEM
-			AuditOrigin origin = AuditOrigin.fromUi("Administration security settings");
-			Outcome outcome = SecuritySettings.setIwfComplianceCheck(event.getValue(), origin);
-			if (outcome == Outcome.CHANGED) {
-				settingsSaved.run();
-			} else if (outcome != Outcome.UNCHANGED) {
-				showOutcome(outcome);
-			}
-			showChecklist(checklist);
-		});
-		showChecklist(checklist);
-		block.add(check, checklist);
-		return block;
-	}
-
-	private static void showChecklist(Div checklist) {
-		checklist.removeAll();
-		if (Config.getCurrent().isIwfComplianceChecked()) {
-			checklist.add(IwfComplianceDisplay.checklist());
-		}
+	private void openIwfComplianceDialog() {
+		IwfComplianceDialog.open(AuditOrigin.fromUi("Administration IWF compliance"), this::confirmAccessMode);
 	}
 
 	private static String accessModeLabel(AccessMode target) {

@@ -37,7 +37,6 @@ public final class AuditLiftFixture {
 		Main.injectSuppliers();
 		JPAService.init(true, true);
 		Config.initConfig();
-		AuditIntegrity.initialize(Config.getCurrent());
 
 		TwoMinutesRuleTest scenario = new TwoMinutesRuleTest();
 		scenario.setupTest();

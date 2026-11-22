@@ -46,7 +46,6 @@ public final class ExportSigningFixture {
 		Main.injectSuppliers();
 		JPAService.init(true, true);
 		Config.initConfig();
-		AuditIntegrity.initialize(Config.getCurrent());
 		TestData.insertInitialData(1, true);
 		AuditSigningKey key = AuditIntegrity.current().signingKey();
 		require(!key.isBuiltin(), "the fixture key was not configured");

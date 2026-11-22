@@ -2,6 +2,7 @@ package app.owlcms.nui.shared;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -36,6 +37,31 @@ public final class IwfComplianceDisplay {
 	/** Every requirement, met or not. */
 	public static Component checklist() {
 		return markedList(IwfComplianceCheck.evaluate());
+	}
+
+	/**
+	 * Every requirement in a two-column layout. The supplier returns the action for a requirement, or null when the
+	 * requirement cannot be changed in this view.
+	 */
+	public static Component checklistWithActions(String leadingLabel, Component leadingAction,
+	        Function<Item, Component> action) {
+		Div grid = new Div();
+		grid.getStyle()
+		        .set("display", "grid")
+		        .set("grid-template-columns", "minmax(18em, 1fr) minmax(15em, auto)")
+		        .set("column-gap", "var(--lumo-space-l)")
+		        .set("row-gap", "var(--lumo-space-s)")
+		        .set("align-items", "center");
+		Div leadingRequirement = new Div(new Span(leadingLabel));
+		leadingRequirement.getStyle().set("display", "flex").set("align-items", "center");
+		grid.add(leadingRequirement, leadingAction);
+		for (Item item : IwfComplianceCheck.evaluate()) {
+			Div requirement = new Div(mark(item.status()), new Span(text(item)));
+			requirement.getStyle().set("display", "flex").set("align-items", "flex-start");
+			Component control = action.apply(item);
+			grid.add(requirement, control != null ? control : new Div());
+		}
+		return grid;
 	}
 
 	/** @return the requirements not met, when the check is on and some are */

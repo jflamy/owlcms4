@@ -123,7 +123,7 @@ public enum FeatureSwitch {
         return this.id;
     }
 
-    /** @return the effective runtime value, including startup overrides and startup-fixed compliance modes */
+    /** @return the effective runtime value, including startup overrides */
     public boolean isEffective() {
         return isEffective(Config.getCurrent());
     }

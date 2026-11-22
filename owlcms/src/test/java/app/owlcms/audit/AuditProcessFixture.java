@@ -4,7 +4,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import app.owlcms.data.config.Config;
 import app.owlcms.tests.TestStartup;
 
 /** Isolated audit-only JVM: no server, Vaadin components, competition database or devices are started. */
@@ -14,7 +13,6 @@ public final class AuditProcessFixture {
 
 	public static void main(String[] args) throws Exception {
 		System.setProperty("user.home", Path.of("home").toAbsolutePath().toString());
-		Config config = new Config();
 		String mode = args[0];
 		if ("unstarted".equals(mode)) {
 			// sealing never started: a record is a programming error and nothing is written
@@ -31,7 +29,6 @@ public final class AuditProcessFixture {
 		AuditIntegrity.start();
 		// the last step of the application shutdown (Main.shutdown)
 		TestStartup.finishAuditAtExit();
-		AuditIntegrity.initialize(config);
 		AuditLog.writeBatch(List.of(
 				AuditEntry.builder("A", "athlete.change").actor(AuditActor.device("WEIGHIN", null, "-"))
 						.field("bodyWeight").newValue(81.35).build(),

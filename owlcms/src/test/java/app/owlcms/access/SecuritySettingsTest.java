@@ -46,6 +46,7 @@ public class SecuritySettingsTest {
 		setAdminPassword(null);
 		Config config = Config.getCurrent();
 		config.setIwfCompliance(false);
+		config.setFeatureSwitchValue(FeatureSwitch.TCRR_COMPLIANCE, false);
 		config.setFeatureSwitchValue(FeatureSwitch.NO_V1_EXPORT, false);
 		config.setFeatureSwitchValue(FeatureSwitch.V2_EXPORT, false);
 		config.setAccessMode(AccessMode.PIN);
@@ -125,6 +126,19 @@ public class SecuritySettingsTest {
 		setFeatureSwitch(FeatureSwitch.NO_V1_EXPORT, false);
 		assertTrue(AccessPolicy.hasPermission(admin, Permission.EXPORT_V1, null));
 		assertFalse(FeatureSwitch.V2_EXPORT.isEffective());
+	}
+
+	@Test
+	public void theIwfFeatureSwitchesTakeEffectImmediately() {
+		assertEquals(Outcome.CHANGED,
+		        SecuritySettings.setIwfFeatureSwitch(FeatureSwitch.TCRR_COMPLIANCE, true, ORIGIN));
+		assertTrue(FeatureSwitch.TCRR_COMPLIANCE.isEffective());
+		assertEquals(Outcome.UNCHANGED,
+		        SecuritySettings.setIwfFeatureSwitch(FeatureSwitch.TCRR_COMPLIANCE, true, ORIGIN));
+
+		assertEquals(Outcome.CHANGED, SecuritySettings.setIwfFeatureSwitch(FeatureSwitch.NO_V1_EXPORT, true, ORIGIN));
+		assertTrue(FeatureSwitch.NO_V1_EXPORT.isEffective());
+		assertTrue(FeatureSwitch.V2_EXPORT.isEffective());
 	}
 
 	private static void setFeatureSwitch(FeatureSwitch featureSwitch, boolean enabled) {

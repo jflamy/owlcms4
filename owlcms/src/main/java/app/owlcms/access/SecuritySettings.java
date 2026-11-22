@@ -6,6 +6,7 @@ import app.owlcms.data.account.UserAccountRepository;
 import app.owlcms.data.access.RememberedLoginRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
+import app.owlcms.data.config.FeatureSwitch;
 
 /**
  * The security settings of the Administration page: the access mode (PIN or user accounts), which needs the control
@@ -55,6 +56,18 @@ public final class SecuritySettings {
 		}
 		ConfigRepository.apply(c -> c.setRememberAccountLogins(allowed), origin);
 		AuthAudit.rememberAccountLoginsChanged(origin, allowed);
+		return Outcome.CHANGED;
+	}
+
+	/** Applies one of the IWF feature switches shown in the compliance dialog. */
+	public static Outcome setIwfFeatureSwitch(FeatureSwitch featureSwitch, boolean enabled, AuditOrigin origin) {
+		if (featureSwitch != FeatureSwitch.TCRR_COMPLIANCE && featureSwitch != FeatureSwitch.NO_V1_EXPORT) {
+			throw new IllegalArgumentException("not an IWF feature switch: " + featureSwitch);
+		}
+		if (featureSwitch.isEffective() == enabled) {
+			return Outcome.UNCHANGED;
+		}
+		ConfigRepository.apply(c -> c.setFeatureSwitchValue(featureSwitch, enabled), origin);
 		return Outcome.CHANGED;
 	}
 }

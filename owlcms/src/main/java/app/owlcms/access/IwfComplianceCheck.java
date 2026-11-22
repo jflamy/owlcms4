@@ -28,7 +28,7 @@ public final class IwfComplianceCheck {
 		/** OWLCMS was started by the control panel (or, in the cloud, with the token secret). */
 		CONTROL_PANEL_TOKEN("IwfCheck.ControlPanelToken"),
 		/** The TCRR rules are applied ({@code tcrrCompliance} feature switch). */
-		TCRR_RULES("IwfCheck.TcrrRules", "IwfCheck.TcrrAfterRestart"),
+		TCRR_RULES("IwfCheck.TcrrRules"),
 		/**
 		 * Every database export offered is signed: the {@code noV1Export} feature switch withdraws the unsigned V1
 		 * export and turns on V2, which is always signed.
@@ -62,7 +62,7 @@ public final class IwfComplianceCheck {
 	public enum Status {
 		MET,
 		NOT_MET,
-		/** The change is made (a new audit key, the TCRR switch) but only takes effect after the next restart. */
+		/** The change is made (a new audit key) but only takes effect after the next restart. */
 		AFTER_RESTART
 	}
 
@@ -83,7 +83,6 @@ public final class IwfComplianceCheck {
 		boolean realKey = state != null && !state.signingKey().isBuiltin();
 		return evaluate(Config.getCurrent().isAccountsMode(), realKey, pendingKey(state),
 		        SameMachineProof.configuredToken() != null, FeatureSwitch.TCRR_COMPLIANCE.isEffective(),
-		        Config.getCurrent().requestedFeatureSwitch(FeatureSwitch.TCRR_COMPLIANCE),
 		        FeatureSwitch.NO_V1_EXPORT.isEffective(), !Config.getCurrent().allowsRememberedLogins());
 	}
 
@@ -101,12 +100,12 @@ public final class IwfComplianceCheck {
 	}
 
 	static List<Item> evaluate(boolean accountsMode, boolean realKey, boolean pendingKey, boolean controlPanelToken,
-	        boolean tcrrRules, boolean tcrrRequested, boolean signedExports, boolean noRememberedLogins) {
+	        boolean tcrrRules, boolean signedExports, boolean noRememberedLogins) {
 		return List.of(
 		        new Item(Requirement.USER_ACCOUNTS, met(accountsMode)),
 		        new Item(Requirement.AUDIT_KEY, met(realKey, pendingKey)),
 		        new Item(Requirement.CONTROL_PANEL_TOKEN, met(controlPanelToken)),
-		        new Item(Requirement.TCRR_RULES, met(tcrrRules, tcrrRequested)),
+		        new Item(Requirement.TCRR_RULES, met(tcrrRules)),
 		        new Item(Requirement.SIGNED_EXPORTS, met(signedExports)),
 		        new Item(Requirement.NO_REMEMBERED_LOGINS, met(noRememberedLogins)));
 	}

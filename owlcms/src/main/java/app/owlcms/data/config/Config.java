@@ -339,10 +339,11 @@ public class Config {
 	}
 
 	public boolean featureSwitch(FeatureSwitch featureSwitch) {
-		if (AuditIntegrity.isInitialized() && featureSwitch == FeatureSwitch.TCRR_COMPLIANCE) {
-			return AuditIntegrity.current().tcrrCompliance();
+		if (featureSwitch == FeatureSwitch.COMPETITION_DIRECTOR_PAGE && isAccountsMode()) {
+			return true;
 		}
-		return requestedFeatureSwitch(featureSwitch);
+		Boolean configuredValue = getEffectiveFeatureSwitches().get(featureSwitch.getId());
+		return configuredValue != null ? configuredValue : featureSwitchDefault(featureSwitch);
 	}
 
 	public Boolean getIwfCompliance() {
@@ -400,14 +401,6 @@ public class Config {
 	@JsonIgnore
 	public boolean isIwfComplianceChecked() {
 		return Boolean.TRUE.equals(this.iwfCompliance);
-	}
-
-	public boolean requestedFeatureSwitch(FeatureSwitch featureSwitch) {
-		if (featureSwitch == FeatureSwitch.COMPETITION_DIRECTOR_PAGE && isAccountsMode()) {
-			return true;
-		}
-		Boolean configuredValue = getEffectiveFeatureSwitches().get(featureSwitch.getId());
-		return configuredValue != null ? configuredValue : featureSwitchDefault(featureSwitch);
 	}
 
 	private boolean featureSwitchDefault(FeatureSwitch featureSwitch) {

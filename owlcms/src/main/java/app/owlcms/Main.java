@@ -280,7 +280,6 @@ public class Main {
             Locale importedLocale = Config.getCurrent().getDefaultLocale();
             startupSession.setLocale(importedLocale != null ? importedLocale : Locale.ENGLISH);
 
-            // the audit startup state is frozen with the imported TCRR setting; sealing itself started at launch
             completeConfig();
             ApplicationAudit.startupImport(name, signature,
                     ExportSignature.match(signature, AuditIntegrity.current().signingKey()));
@@ -303,7 +302,6 @@ public class Main {
     private static void completeConfig() {
         // check for database override of resource files
         Config.initConfig();
-        AuditIntegrity.initialize(Config.getCurrent());
         RememberedLoginRepository.deleteExpired(Instant.now());
         Config.protectForwardingKeysAtStartup();
         ResourceMonitor.start();
