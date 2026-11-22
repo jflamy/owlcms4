@@ -11,6 +11,11 @@
 
 **Development log**
 
+- 69.0.0-rc08: Fix: Mistakenly hidden age group labels on the multi-agegroup scoreboards are now shown
+
+- 69.0.0-rc08: Usability: Starting an introduction or before snatch countdown now prompts for a session if none was selected. 
+  - Previously this could cause the attempt board to remain on the "waiting" state and require a refresh.
+
 - 69.0.0-rc07: Projected rank as shown at bottom of scoreboard was incorrectly mentioning CJ if athletes had withdrawn from CJ (considered that CJ had started)
 
 - 69.0.0-rc07: Starting the clock while jury votes are missing
