@@ -21,6 +21,11 @@
  * OWLCMS uses), fills its empty cells from the earlier rows (latest non-empty
  * value wins, as when OWLCMS loads the file), then deletes the earlier rows.
  *
+ * HELPER FORMULAS
+ * Run OWLCMS → Repair Helper Formulas to regenerate all helper formulas for
+ * every row with a key: "=ROW()" in the "ia" column (AE) and "=<en><row>" in
+ * the right-hand English mirror column (two columns after "ia", i.e. AG).
+ *
  * SAFETY
  * - Only cells whose current value differs from the proposed value are updated.
  * - Keys not found in the sheet are appended as new rows on Apply.
@@ -38,6 +43,7 @@ function onOpen() {
     .createMenu('OWLCMS')
     .addItem('Apply TSV Translation Updates', 'showTsvUpdateDialog')
     .addItem('Remove Duplicate Keys', 'removeDuplicateKeys')
+    .addItem('Repair Helper Formulas', 'repairHelperFormulas')
     .addToUi();
 }
 
@@ -344,8 +350,13 @@ function applyTsvTranslationUpdates(tsvText, apply) {
   }
   if (apply && addedRows.length > 0) {
     var appendStartRow = sheet.getLastRow() + 1;
-    sheet.getRange(appendStartRow, 1, addedRows.length, sheetHeader.length)
-      .setValues(addedRows.map(function(addedRow) { return addedRow.rowValues; }));
+    var rowsToAppend = addedRows.map(function(addedRow, offset) {
+      var rowValues = addedRow.rowValues.slice();
+      populateHelperFormulas(rowValues, appendStartRow + offset, sheetHeader, sheetColByName);
+      return rowValues;
+    });
+    sheet.getRange(appendStartRow, 1, rowsToAppend.length, sheetHeader.length)
+      .setValues(rowsToAppend);
   }
 
   // Build report
@@ -399,6 +410,172 @@ function buildNewSheetRow(key, columnCount) {
   }
   row[0] = key;
   return row;
+}
+
+// ---------------------------------------------------------------------------
+// Helper column formulas (AE = "=ROW()", AG = "=<en><row>")
+// ---------------------------------------------------------------------------
+
+function findHelperColumns(sheetHeader, sheetColByName) {
+  var iaColIdx = sheetColByName.hasOwnProperty('ia') ? sheetColByName['ia'] : -1;
+  var enColIdx = sheetColByName.hasOwnProperty('en') ? sheetColByName['en'] : -1;
+  var enMirrorColIdx = -1;
+  if (iaColIdx !== -1 && enColIdx !== -1) {
+    var candidate = iaColIdx + 2;
+    if (candidate >= sheetHeader.length || sheetHeader[candidate] === '') {
+      enMirrorColIdx = candidate;
+    }
+  }
+  return {
+    iaColIdx: iaColIdx,
+    enColIdx: enColIdx,
+    enColLetter: enColIdx !== -1 ? columnIndexToLetter(enColIdx) : '',
+    enMirrorColIdx: enMirrorColIdx
+  };
+}
+
+function populateHelperFormulas(rowValues, rowNumber1, sheetHeader, sheetColByName) {
+  var helpers = findHelperColumns(sheetHeader, sheetColByName);
+  if (helpers.iaColIdx !== -1) {
+    rowValues[helpers.iaColIdx] = '=ROW()';
+  }
+  if (helpers.enMirrorColIdx !== -1 && helpers.enMirrorColIdx < rowValues.length) {
+    rowValues[helpers.enMirrorColIdx] = '=' + helpers.enColLetter + rowNumber1;
+  }
+}
+
+function repairHelperFormulas() {
+  var ui = SpreadsheetApp.getUi();
+  var sheet = SpreadsheetApp.getActiveSheet();
+  var plan = planHelperFormulaRepair(sheet);
+
+  if (plan.error) {
+    ui.alert('Repair Helper Formulas', plan.error, ui.ButtonSet.OK);
+    return;
+  }
+
+  var lines = [];
+  lines.push('Sheet: ' + sheet.getName());
+  lines.push('Data rows: ' + plan.dataRowCount + ' (' + plan.keyRowCount + ' with keys).');
+  lines.push('');
+  lines.push('Will regenerate all helper formulas:');
+  lines.push('  ' + columnIndexToLetter(plan.iaColIdx) + ' (ia): =ROW() — '
+      + plan.iaChangedCount + ' cell(s) differ or are missing/static');
+  if (plan.enMirrorColIdx !== -1) {
+    lines.push('  ' + columnIndexToLetter(plan.enMirrorColIdx) + ' (en mirror): ='
+        + plan.enColLetter + '<row> — ' + plan.enMirrorChangedCount + ' cell(s) differ or are missing/static');
+  }
+  lines.push('');
+  lines.push('Proceed?');
+
+  var answer = ui.alert('Repair Helper Formulas', lines.join('\n'), ui.ButtonSet.YES_NO);
+  if (answer !== ui.Button.YES) {
+    return;
+  }
+
+  if (plan.dataRowCount > 0) {
+    sheet.getRange(2, plan.iaColIdx + 1, plan.dataRowCount, 1).setValues(plan.iaValues);
+    if (plan.enMirrorColIdx !== -1) {
+      sheet.getRange(2, plan.enMirrorColIdx + 1, plan.dataRowCount, 1).setValues(plan.enMirrorValues);
+    }
+  }
+
+  var summary = 'Done: regenerated ' + plan.keyRowCount + ' row(s) in '
+      + columnIndexToLetter(plan.iaColIdx) + ' (ia)';
+  if (plan.enMirrorColIdx !== -1) {
+    summary += ' and ' + columnIndexToLetter(plan.enMirrorColIdx) + ' (en mirror)';
+  }
+  summary += '.';
+  ui.alert('Repair Helper Formulas', summary, ui.ButtonSet.OK);
+}
+
+function planHelperFormulaRepair(sheet) {
+  var range = sheet.getDataRange();
+  var values = range.getValues();
+  var formulas = range.getFormulas();
+  if (values.length < 1) {
+    return { error: 'The active sheet appears to be empty.' };
+  }
+
+  var sheetHeader = values[0].map(String);
+  var sheetColByName = {};
+  for (var c = 0; c < sheetHeader.length; c++) {
+    var name = sheetHeader[c];
+    if (name && !sheetColByName.hasOwnProperty(name)) {
+      sheetColByName[name] = c;
+    }
+  }
+
+  var helpers = findHelperColumns(sheetHeader, sheetColByName);
+  if (helpers.iaColIdx === -1) {
+    return { error: 'Column "ia" not found in header of sheet "' + sheet.getName() + '".' };
+  }
+
+  var iaValues = [];
+  var enMirrorValues = [];
+  var keyRowCount = 0;
+  var iaChangedCount = 0;
+  var enMirrorChangedCount = 0;
+
+  for (var r = 1; r < values.length; r++) {
+    var row1 = r + 1;
+    var hasKey = String(values[r][0] || '').trim() !== '';
+    if (hasKey) {
+      keyRowCount++;
+    }
+
+    var expectedIa = hasKey ? '=ROW()' : '';
+    var currentIaFormula = helpers.iaColIdx < formulas[r].length ? String(formulas[r][helpers.iaColIdx] || '') : '';
+    var currentIaValue = helpers.iaColIdx < values[r].length ? String(values[r][helpers.iaColIdx] != null ? values[r][helpers.iaColIdx] : '') : '';
+    if (hasKey) {
+      if (currentIaFormula.toUpperCase() !== expectedIa) {
+        iaChangedCount++;
+      }
+    } else if (currentIaFormula !== '' || currentIaValue !== '') {
+      iaChangedCount++;
+    }
+    iaValues.push([expectedIa]);
+
+    if (helpers.enMirrorColIdx !== -1) {
+      var expectedMirror = hasKey ? '=' + helpers.enColLetter + row1 : '';
+      var currentMirrorFormula = helpers.enMirrorColIdx < formulas[r].length
+        ? String(formulas[r][helpers.enMirrorColIdx] || '') : '';
+      var currentMirrorValue = helpers.enMirrorColIdx < values[r].length
+        ? String(values[r][helpers.enMirrorColIdx] != null ? values[r][helpers.enMirrorColIdx] : '') : '';
+      if (hasKey) {
+        if (currentMirrorFormula.toUpperCase() !== expectedMirror) {
+          enMirrorChangedCount++;
+        }
+      } else if (currentMirrorFormula !== '' || currentMirrorValue !== '') {
+        enMirrorChangedCount++;
+      }
+      enMirrorValues.push([expectedMirror]);
+    }
+  }
+
+  return {
+    iaColIdx: helpers.iaColIdx,
+    enColIdx: helpers.enColIdx,
+    enColLetter: helpers.enColLetter,
+    enMirrorColIdx: helpers.enMirrorColIdx,
+    dataRowCount: values.length - 1,
+    keyRowCount: keyRowCount,
+    iaChangedCount: iaChangedCount,
+    enMirrorChangedCount: enMirrorChangedCount,
+    iaValues: iaValues,
+    enMirrorValues: enMirrorValues
+  };
+}
+
+function columnIndexToLetter(colIdx0) {
+  var n = colIdx0 + 1;
+  var letters = '';
+  while (n > 0) {
+    var rem = (n - 1) % 26;
+    letters = String.fromCharCode(65 + rem) + letters;
+    n = Math.floor((n - 1) / 26);
+  }
+  return letters;
 }
 
 function populateNewSheetRow(addedRow, tsvHeader, tsvRow, sheetColByName, skippedColumns, missingCols) {
