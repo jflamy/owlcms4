@@ -13,6 +13,8 @@
 
 - 69.0.0-rc09: IWF compliance is enabled and prerequisites checked in an Administration dialog, with immediate actions for the live settings.
 
+- 69.0.0-rc09: Fix: removed longstanding stray =GOOGLETRANSLATE() formulas from the master translation spreadsheet that affected 7 translation values.
+
 - 69.0.0-rc08: Fix: Mistakenly hidden age group labels on the multi-agegroup scoreboards are now shown
 
 - 69.0.0-rc08: Usability: Starting an introduction or before snatch countdown now prompts for a session if none was selected. 
