@@ -52,16 +52,21 @@ public final class IwfComplianceDisplay {
 		        .set("column-gap", "var(--lumo-space-l)")
 		        .set("row-gap", "var(--lumo-space-s)")
 		        .set("align-items", "center");
+		List<Item> items = IwfComplianceCheck.evaluate();
 		Div leadingRequirement = new Div(new Span(leadingLabel));
 		leadingRequirement.getStyle().set("display", "flex").set("align-items", "center");
 		grid.add(leadingRequirement, leadingAction);
-		for (Item item : IwfComplianceCheck.evaluate()) {
-			Div requirement = new Div(mark(item.status()), new Span(text(item)));
-			requirement.getStyle().set("display", "flex").set("align-items", "flex-start");
-			Component control = action.apply(item);
-			grid.add(requirement, control != null ? control : new Div());
+		for (Item item : items) {
+			addActionRow(grid, item, action);
 		}
 		return grid;
+	}
+
+	private static void addActionRow(Div grid, Item item, Function<Item, Component> action) {
+		Div requirement = new Div(mark(item.status()), new Span(text(item)));
+		requirement.getStyle().set("display", "flex").set("align-items", "flex-start");
+		Component control = action.apply(item);
+		grid.add(requirement, control != null ? control : new Div());
 	}
 
 	/** @return the requirements not met, when the check is on and some are */

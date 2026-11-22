@@ -273,7 +273,11 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 	}
 
 	private void openIwfComplianceDialog() {
-		IwfComplianceDialog.open(AuditOrigin.fromUi("Administration IWF compliance"), this::confirmAccessMode);
+		boolean token = SameMachineProof.configuredToken() != null;
+		boolean canInitializeKey = token
+		        && AccessUi.hasPermission(getPrincipal(), Permission.AUDIT_KEYS, null);
+		IwfComplianceDialog.open(AuditOrigin.fromUi("Administration IWF compliance"), this::confirmAccessMode,
+		        UI.getCurrent(), AuditActor.capture(this).atStation("ADMIN", null, false), canInitializeKey);
 	}
 
 	private static String accessModeLabel(AccessMode target) {
