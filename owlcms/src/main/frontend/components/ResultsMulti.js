@@ -136,7 +136,7 @@ class ResultsFull extends LitElement {
                     ${(this.ageGroups ?? []).map(
           (item) =>
             html`
-                          <th>${item}</th>
+                          <th class="rank">${item}</th>
                         `)}
                     <th class="vspacer"></th>
                     <th class="narrow">1</th>
@@ -153,11 +153,11 @@ class ResultsFull extends LitElement {
                     ${(this.ageGroups ?? []).map(
                 (item) =>
                   html`
-                          <th class="rank">${item}</th>
+                          <th class="totalRank">${item}</th>
                         `)}
                     <th class="vspacer sinclairVspacer"></th>
                     <th class="sinclair">✓</th>
-                    <th class="sinclairRank rank" .innerHTML="${this.t?.Rank}"></th>
+                    <th class="sinclairRank" .innerHTML="${this.t?.Rank}"></th>
                   </tr>
 
                 ${(this.athletes ?? []).map(

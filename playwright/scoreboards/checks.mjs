@@ -61,6 +61,16 @@ export async function checkCase(options) {
     const rankCell = row.querySelector('td.totalRank').getBoundingClientRect();
     assert(Math.abs(categoryCell.y - rankCell.y) <= 2, 'Athlete cells wrapped into different grid rows');
   }
+  const liftRankHeaders = [...root.querySelectorAll('th.rank')];
+  assert(liftRankHeaders.length > 0, 'Lift-rank headers are missing');
+  assert(liftRankHeaders.every(header => visible(header) === fixture.properties.showLiftRanks),
+    fixture.properties.showLiftRanks ? 'Lift-rank header is hidden' : 'Lift-rank header shown although lift ranks are disabled');
+  const totalRankHeaders = [...root.querySelectorAll('th.totalRank')];
+  assert(totalRankHeaders.length > 0 && totalRankHeaders.every(visible), 'Medal-rank header is missing or hidden');
+  if (fixture.options.board === 'multi') {
+    assert(JSON.stringify(texts(totalRankHeaders)) === JSON.stringify(fixture.properties.ageGroups),
+      'Medal-rank headers do not name the age groups');
+  }
   if (fixture.properties.showMedalScore) {
     const header = root.querySelector('th.medalScore');
     assert(header.textContent.trim() === fixture.properties.medalScoringName, 'Incorrect single-system or mixed-system score heading');

@@ -141,6 +141,8 @@ table.results {
     /* do not use rankWidth since we set it to 0 */
     --totalRankWidth: var(--liftResultWidth);
     --totalRankVisibility: visible;
+    --sinclairVspacerWidth: 0;
+    --sinclairVspacerVisibility: hidden;
     --medalScoreWidth: 0;
     --medalScoreVisibility: hidden;
     --sinclairWidth: 0;
