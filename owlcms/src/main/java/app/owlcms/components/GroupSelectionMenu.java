@@ -24,6 +24,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.SessionSelectionOrder;
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
@@ -35,7 +36,7 @@ public class GroupSelectionMenu extends MenuBar {
 	public GroupSelectionMenu(List<Group> groups, Group curGroup, FieldOfPlay fop2,
 	        Consumer<Group> whenChecked, Consumer<Group> whenUnselected) {
 		this(groups, curGroup, fop2, whenChecked, whenUnselected, createUnselectedIcon(), Translator.translate("NoGroup"),
-		        GroupSelectionMode.NOT_DONE_FIRST);
+		        GroupSelectionMode.PLATFORM_NOT_DONE_FIRST);
 	}
 
 	public GroupSelectionMenu(List<Group> groups, Group curGroup, FieldOfPlay fop2,
@@ -59,36 +60,30 @@ public class GroupSelectionMenu extends MenuBar {
 		}
 		SubMenu subMenu = item.getSubMenu();
 		MenuItem currentlyChecked[] = { null };
-		Group prevGroup = null;
-		List<Group> displayedGroups = mode != null ? mode.apply(groups) : groups;
-		for (Group g : displayedGroups) {
-			if (mode != null && mode.hasSeparator() && prevGroup != null
-			        && !Boolean.valueOf(prevGroup.isDone()).equals(g.isDone())) {
-				addSeparator(subMenu);
+		if (mode == GroupSelectionMode.PLATFORM_NOT_DONE_FIRST) {
+			String currentPlatformName = fop2 != null ? fop2.getName() : null;
+			List<List<Group>> sections = SessionSelectionOrder.groupSections(groups, currentPlatformName, Group::isDone);
+			boolean multiplePlatforms = SessionSelectionOrder.hasMultiplePlatforms(groups);
+			for (int i = 0; i < sections.size(); i++) {
+				if (i > 0) {
+					addSeparator(subMenu);
+				}
+				for (Group g : sections.get(i)) {
+					addGroupItem(subMenu, item, curGroup, g, SessionSelectionOrder.formatLabel(g, multiplePlatforms),
+					        whenChecked, currentlyChecked);
+				}
 			}
-			MenuItem subItem = subMenu.addItem(
-			        describedName(g),
-			        e -> {
-				        if (!e.isFromClient()) {
-					        return;
-				        }
-				        whenChecked.accept(g);
-				        if (currentlyChecked[0] != null) {
-					        currentlyChecked[0].setChecked(false);
-				        }
-				        e.getSource().setChecked(true);
-				        currentlyChecked[0] = e.getSource();
-				        item.setText(g.getName() + "\u2003\u25bd");
-				        // logger.debug("selected {}",g.getName());
-				        this.removeThemeVariants(MenuBarVariant.LUMO_PRIMARY);
-			        });
-			subItem.setCheckable(true);
-			subItem.setChecked(g.compareTo(curGroup) == 0);
-			subItem.getElement().setAttribute("style", "margin: 0px; padding: 0px");
-			if (g.compareTo(curGroup) == 0) {
-				currentlyChecked[0] = subItem;
+		} else {
+			Group prevGroup = null;
+			List<Group> displayedGroups = mode != null ? mode.apply(groups) : groups;
+			for (Group g : displayedGroups) {
+				if (mode != null && mode.hasSeparator() && prevGroup != null
+				        && !Boolean.valueOf(prevGroup.isDone()).equals(g.isDone())) {
+					addSeparator(subMenu);
+				}
+				addGroupItem(subMenu, item, curGroup, g, describedName(g), whenChecked, currentlyChecked);
+				prevGroup = g;
 			}
-			prevGroup = g;
 		}
 		addSeparator(subMenu);
 
@@ -116,6 +111,31 @@ public class GroupSelectionMenu extends MenuBar {
 		        });
 		item3.setCheckable(false);
 		item.setEnabled(true);
+	}
+
+	private void addGroupItem(SubMenu subMenu, MenuItem rootItem, Group curGroup, Group group, String label,
+	        Consumer<Group> whenChecked, MenuItem[] currentlyChecked) {
+		MenuItem subItem = subMenu.addItem(
+		        label,
+		        e -> {
+			        if (!e.isFromClient()) {
+				        return;
+			        }
+			        whenChecked.accept(group);
+			        if (currentlyChecked[0] != null) {
+				        currentlyChecked[0].setChecked(false);
+			        }
+			        e.getSource().setChecked(true);
+			        currentlyChecked[0] = e.getSource();
+			        rootItem.setText(group.getName() + "\u2003\u25bd");
+			        this.removeThemeVariants(MenuBarVariant.LUMO_PRIMARY);
+		        });
+		subItem.setCheckable(true);
+		subItem.setChecked(group.compareTo(curGroup) == 0);
+		subItem.getElement().setAttribute("style", "margin: 0px; padding: 0px");
+		if (group.compareTo(curGroup) == 0) {
+			currentlyChecked[0] = subItem;
+		}
 	}
 
 	private void addSeparator(SubMenu subMenu) {

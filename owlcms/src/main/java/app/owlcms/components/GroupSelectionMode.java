@@ -4,12 +4,14 @@ import java.util.Comparator;
 import java.util.List;
 
 import app.owlcms.data.group.Group;
+import app.owlcms.fieldofplay.SessionSelectionOrder;
 
 public enum GroupSelectionMode {
 	DONE_ONLY,
 	NOT_DONE_ONLY,
 	DONE_FIRST,
-	NOT_DONE_FIRST;
+	NOT_DONE_FIRST,
+	PLATFORM_NOT_DONE_FIRST;
 
 	public List<Group> apply(List<Group> groups) {
 		return switch (this) {
@@ -17,11 +19,12 @@ public enum GroupSelectionMode {
 			case NOT_DONE_ONLY -> groups.stream().filter(group -> !Boolean.TRUE.equals(group.isDone())).toList();
 			case DONE_FIRST -> groups.stream().sorted(doneComparator(true)).toList();
 			case NOT_DONE_FIRST -> groups.stream().sorted(doneComparator(false)).toList();
+			case PLATFORM_NOT_DONE_FIRST -> SessionSelectionOrder.order(groups, null, Group::isDone);
 		};
 	}
 
 	public boolean hasSeparator() {
-		return this == DONE_FIRST || this == NOT_DONE_FIRST;
+		return this == DONE_FIRST || this == NOT_DONE_FIRST || this == PLATFORM_NOT_DONE_FIRST;
 	}
 
 	private static Comparator<Group> doneComparator(boolean doneFirst) {

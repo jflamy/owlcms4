@@ -48,6 +48,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.AthleteGridContent;
 // BreakDialog import removed - not used in minimal initial bar
 import app.owlcms.nui.shared.OwlcmsLayout;
+import app.owlcms.nui.shared.SessionSelectionGuard;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
@@ -328,8 +329,11 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
             OwlcmsSession.withFop(fop -> {
                 this.topBarMenu = new GroupSelectionMenu(groups, fop.getGroup(),
                         fop,
-                        (g1) -> fop.fopEventPost(
-                                new FOPEvent.SwitchGroup(g1.compareTo(fop.getGroup()) == 0 ? null : g1, this)),
+                        (g1) -> {
+                            Group target = g1.compareTo(fop.getGroup()) == 0 ? null : g1;
+                            SessionSelectionGuard.warnIfNotReady(target);
+                            fop.fopEventPost(new FOPEvent.SwitchGroup(target, this));
+                        },
                         (g1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
                 createTopBarSettingsMenu();
             });

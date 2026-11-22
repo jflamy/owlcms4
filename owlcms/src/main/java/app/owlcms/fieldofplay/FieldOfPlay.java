@@ -308,7 +308,6 @@ public class FieldOfPlay implements IUnregister {
 	private boolean forcedTime = false;
 	private Boolean goodLift;
 	private Group group = null;
-	private long lastGroupLoaded;
 	private List<Athlete> leaders;
 	private List<Athlete> liftingOrder;
 	private ProjectedRank projectedRank;
@@ -1984,6 +1983,11 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer, boolean alreadyLoaded) {
+		init(athletes, timer, breakTimer, alreadyLoaded, true);
+	}
+
+	private void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer, boolean alreadyLoaded,
+	        boolean pushSwitch) {
 		this.athleteTimer = timer;
 		this.athleteTimer.setFop(this);
 		this.breakTimer = breakTimer;
@@ -2038,7 +2042,9 @@ public class FieldOfPlay implements IUnregister {
 		if (!alreadyLoaded) {
 			this.logger.info("{}group {} athletes={}", FieldOfPlay.getLoggingName(this), getGroup(),
 					athletes != null ? athletes.size() : null);
-			pushOutSwitchGroup(this);
+			if (pushSwitch) {
+				pushOutSwitchGroup(this);
+			}
 		}
 	}
 
@@ -2308,17 +2314,72 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * all grids get their athletes from this method.
+	 * Atomically switches (or reloads) the active session and runs {@code followUp} (starting a countdown, ceremony,
+	 * or lifting) under the platform lock before publishing {@link UIEvent.SwitchGroup}, so displays never observe a
+	 * transient {@code INACTIVE} state that could invert against the target state on the async UI event bus.
+	 */
+	public synchronized void switchGroupAndApply(Group newGroup, Object origin, AuditActor actor, boolean forced,
+	        Runnable followUp) {
+		cancelDecisionReset();
+		endReviewDisplayHold(origin);
+		Group oldGroup = this.getGroup();
+		boolean sameGroup = Objects.equals(oldGroup, newGroup);
+		this.logger.info("{}switching group to {} before action (forced={})", FieldOfPlay.getLoggingName(this),
+		        newGroup != null ? newGroup.getName() : "null", forced);
+
+		boolean inBreak = this.state == BREAK || this.state == INACTIVE;
+		if ((sameGroup && forced) || !sameGroup) {
+			if (!inBreak || (sameGroup && forced)) {
+				this.athleteTimer.stop();
+			}
+			setState(INACTIVE);
+			if (sameGroup && forced) {
+				invalidatePendingDecisionTasks();
+			}
+			setBreakType(null);
+			setCountdownType(null);
+			if (!sameGroup) {
+				setCeremonyType(null);
+			}
+			loadGroup(newGroup, this, true, false);
+		}
+
+		FOPEvent.SwitchGroup switchEvent = new FOPEvent.SwitchGroup(newGroup, origin, forced);
+		switchEvent.setFop(this);
+		if (actor != null) {
+			switchEvent.setAuditActor(actor);
+		}
+		// same cause as a switch processed by handleFOPEvent, so the audit line reads the same
+		AuditContext.run(switchEvent.getAuditActor(), switchEvent.getClass().getSimpleName(),
+		        () -> FopAudit.write(this, switchEvent, false, stateName(getState()), null));
+		this.sessionSummaryArmed = true;
+
+		// the follow-up's events carry the actor captured from their origin
+		followUp.run();
+
+		pushOutSwitchGroup(origin);
+		if (getState() == BREAK) {
+			uiDisplayCurrentAthleteAndTime(true, switchEvent, false);
+		}
+	}
+
+	/**
+	 * Load a session and synchronize all grids and displays. The non-pushing overload is used only inside
+	 * {@link #switchGroupAndApply(Group, Object, AuditActor, boolean, Runnable)}.
 	 *
-	 * @param group
-	 * @param origin
-	 * @param forceLoad reload from database even if current group
+	 * @param group session to load
+	 * @param origin origin of the load
+	 * @param forceLoad reload from database even if this is the current session
 	 */
 	public synchronized void loadGroup(Group group, Object origin, boolean forceLoad) {
+		loadGroup(group, origin, forceLoad, true);
+	}
+
+	private void loadGroup(Group group, Object origin, boolean forceLoad, boolean pushSwitch) {
 		String thisGroupName = this.getGroup() != null ? this.getGroup().getName() : null;
 		String loadGroupName = group != null ? group.getName() : null;
 
-		boolean alreadyLoaded = thisGroupName == loadGroupName;
+		boolean alreadyLoaded = Objects.equals(thisGroupName, loadGroupName);
 		this.setPrevWeight(0);
 		if (loadGroupName != null && alreadyLoaded && !forceLoad) {
 			// already loaded
@@ -2340,14 +2401,6 @@ public class FieldOfPlay implements IUnregister {
 		// Platform.applyChildrenEquipment(). No per-session enforcement is done here.
 
 		if (group != null) {
-			// debounce spurious requests due to misconfigured client that would trigger
-			// a loadGroup upon receiving a UIEvent.
-			long now = System.currentTimeMillis();
-			if (!this.testingMode && now - this.lastGroupLoaded < 300) {
-				this.logger./**/warn("ignoring request to load group {}", group);
-				return;
-			}
-
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace("{}loading data for group {} [already={} forced={} from={}]",
 						FieldOfPlay.getLoggingName(this),
@@ -2378,11 +2431,10 @@ public class FieldOfPlay implements IUnregister {
 			}
 
 			applyDeclaredWithdrawals(groupAthletes);
-			init(groupAthletes, this.athleteTimer, this.breakTimer, alreadyLoaded);
-			this.lastGroupLoaded = now;
+			init(groupAthletes, this.athleteTimer, this.breakTimer, alreadyLoaded, pushSwitch);
 		} else {
 			this.logger.info("{}null group", FieldOfPlay.getLoggingName(this));
-			init(new ArrayList<>(), this.athleteTimer, this.breakTimer, alreadyLoaded);
+			init(new ArrayList<>(), this.athleteTimer, this.breakTimer, alreadyLoaded, pushSwitch);
 		}
 	}
 

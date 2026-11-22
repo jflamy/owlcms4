@@ -77,6 +77,8 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.Decision;
+import app.owlcms.nui.shared.SessionSelectionGuard;
+import app.owlcms.nui.shared.SessionSelectionGuard.ActionKind;
 import app.owlcms.utils.DelayTimer;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
@@ -784,10 +786,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		this.introCountdownButton.getElement().setAttribute("theme", "primary contrast");
 
 		this.startLiftingButton = new Button(Translator.translate("startLifting"), new Icon(VaadinIcon.MICROPHONE),
-		        (e) -> {
+		        (e) -> SessionSelectionGuard.ensureReadySession(getFop(), this,
+		                AuditActor.capture(getPrincipal(), this), ActionKind.START, () -> {
 			        currentUI.access(() -> getRouterLayout().setMenuArea(createTopBar()));
 			        getFop().fopEventPost(new FOPEvent.StartLifting(this));
-		        });
+		        }));
 		this.startLiftingButton.addThemeNames("success", "primary");
 
 		this.medalsDownloadButton = createMedalsDownloadButton();
@@ -1044,8 +1047,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 		this.topBarMenu = new GroupSelectionMenu(groups, fop.getGroup(),
 		        fop,
-		        (g1) -> fop.fopEventPost(
-		                new FOPEvent.SwitchGroup(g1.compareTo(fop.getGroup()) == 0 ? null : g1, this)),
+		        (g1) -> {
+			        Group target = g1.compareTo(fop.getGroup()) == 0 ? null : g1;
+			        SessionSelectionGuard.warnIfNotReady(target);
+			        fop.fopEventPost(new FOPEvent.SwitchGroup(target, this));
+		        },
 		        (g1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
 		this.topBarMenu.setEnabled(!isPassiveSpeaker());
 		createTopBarSettingsMenu();
