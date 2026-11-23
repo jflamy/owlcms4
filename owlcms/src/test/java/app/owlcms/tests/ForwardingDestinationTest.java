@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 import org.junit.After;
@@ -139,44 +140,42 @@ public class ForwardingDestinationTest {
 	}
 
 	@Test
-	public void controlPanelConnectionsAreRememberedAndFollowCurrentVideoDataValue() {
+	public void controlPanelConnectionIsRuntimeOnlyAndFollowsCurrentVideoDataValue() {
 		Config config = configWithConnections();
-		System.setProperty("controlpanel", "test");
+		System.setProperty("launcher", "3.10.0");
 		System.setProperty("videodata", "ws://127.0.0.1:8095/ws");
 
-		List<ForwardingConnection> firstConnections = config.getForwardingDestinations();
-
+		assertEquals(0, config.getForwardingDestinations().size());
+		List<ForwardingConnection> firstConnections = config.getEffectiveForwardingDestinations();
 		assertEquals(1, firstConnections.size());
+		assertEquals("ws://127.0.0.1:8095/ws", firstConnections.get(0).getUrl());
 		assertTrue(firstConnections.get(0).isActive());
 		assertTrue(firstConnections.get(0).isControlPanelManaged());
 
 		System.setProperty("videodata", "ws://localhost:8096/ws");
-		List<ForwardingConnection> changedConnections = config.getForwardingDestinations();
-
-		assertEquals(2, changedConnections.size());
-		assertFalse(changedConnections.get(0).isActive());
-		assertTrue(changedConnections.get(1).isActive());
+		assertEquals(0, config.getForwardingDestinations().size());
+		List<ForwardingConnection> changedConnections = config.getEffectiveForwardingDestinations();
+		assertEquals(1, changedConnections.size());
+		assertEquals("ws://localhost:8096/ws", changedConnections.get(0).getUrl());
+		assertTrue(changedConnections.get(0).isActive());
 
 		System.setProperty("videodata", "");
-		List<ForwardingConnection> disabledConnections = config.getForwardingDestinations();
-
-		assertEquals(2, disabledConnections.size());
-		assertFalse(disabledConnections.get(0).isActive());
-		assertFalse(disabledConnections.get(1).isActive());
+		assertEquals(0, config.getForwardingDestinations().size());
+		assertEquals(0, config.getEffectiveForwardingDestinations().size());
 		assertEquals(0, ForwardingDestination.fromConfig(config).size());
 	}
 
 	@Test
-	public void managedConnectionCanBePausedWithoutPersistingActivity() {
-		System.setProperty("controlpanel", "test");
+	public void managedConnectionCanBePausedWithoutPersisting() {
+		System.setProperty("launcher", "3.10.0");
 		System.setProperty("videodata", "ws://localhost:8096/ws");
 		Config config = configWithConnections();
 		List<ForwardingConnection> connections = config.getEffectiveForwardingDestinations();
 		connections.get(0).setActive(false);
 		config.setForwardingDestinations(connections);
 
+		assertEquals(0, config.getForwardingDestinations().size());
 		assertFalse(config.getEffectiveForwardingDestinations().get(0).isActive());
-		assertTrue(config.getForwardingDestinations().get(0).isActive());
 		assertEquals(0, ForwardingDestination.fromConfig(config).size());
 
 		Config reloaded = configWithConnections(config.getForwardingDestinations().toArray(ForwardingConnection[]::new));
@@ -188,29 +187,105 @@ public class ForwardingDestinationTest {
 	}
 
 	@Test
-	public void managedConnectionsCannotBeRemovedFromEditedList() {
-		System.setProperty("controlpanel", "test");
-		System.setProperty("videodata", "ws://localhost:8096/ws");
-		Config config = configWithConnections();
-		System.setProperty("videodata", "");
+	public void persistedControlPanelManagedConnectionsAreStrippedOnLoadAndImport() throws Exception {
+		// Simulate an older H2 database row containing controlPanelManaged entries
+		Config fromDb = new Config();
+		Field field = Config.class.getDeclaredField("forwardingDestinationsJson");
+		field.setAccessible(true);
+		field.set(fromDb,
+		        "[{\"url\":\"ws://localhost:8096/ws\",\"updateKey\":null,\"active\":false,\"controlPanelManaged\":true},"
+		                + "{\"url\":\"ws://127.0.0.1:8096/ws\",\"updateKey\":null,\"active\":true,\"controlPanelManaged\":true},"
+		                + "{\"url\":\"wss://cloud.example/ws\",\"updateKey\":\"k\",\"active\":true,\"controlPanelManaged\":false}]");
 
-		config.setForwardingDestinations(List.of());
+		List<ForwardingConnection> persistedFromDb = fromDb.getForwardingDestinations();
+		assertEquals(1, persistedFromDb.size());
+		assertEquals("wss://cloud.example/ws", persistedFromDb.get(0).getUrl());
+		assertFalse(persistedFromDb.get(0).isControlPanelManaged());
+		assertEquals(1, fromDb.getEffectiveForwardingDestinations().size());
 
-		assertEquals(1, config.getForwardingDestinations().size());
-		assertTrue(config.getForwardingDestinations().get(0).isControlPanelManaged());
+		// Simulate JSON import calling setForwardingDestinations with controlPanelManaged entries
+		Config imported = configWithConnections(
+		        new ForwardingConnection("ws://localhost:8096/ws", null, true, true),
+		        new ForwardingConnection("wss://cloud.example/ws", "k", true, false));
+		List<ForwardingConnection> persistedFromImport = imported.getForwardingDestinations();
+		assertEquals(1, persistedFromImport.size());
+		assertEquals("wss://cloud.example/ws", persistedFromImport.get(0).getUrl());
 	}
 
 	@Test
-	public void launcherFallbackMarksLocalVideoDataAsControlPanelManaged() {
+	public void onlyLauncherWithLoopbackMarksVideoDataAsControlPanelManaged() {
 		Config config = configWithConnections();
-		System.setProperty("launcher", "fake-version");
+		// Standalone MainWrapper sets OWLCMS_CONTROLPANEL without OWLCMS_LAUNCHER: treat as environment variable
+		System.setProperty("controlpanel", "3.10.0");
 		System.setProperty("videodata", "ws://localhost:8096/ws");
 
-		List<ForwardingConnection> connections = config.getForwardingDestinations();
+		List<ForwardingConnection> standalone = config.getEffectiveForwardingDestinations();
+		assertEquals(1, standalone.size());
+		assertFalse(standalone.get(0).isControlPanelManaged());
+		assertTrue(standalone.get(0).isEnvironmentManaged());
 
-		assertEquals(1, connections.size());
-		assertTrue(connections.get(0).isControlPanelManaged());
-		assertTrue(connections.get(0).isActive());
+		// Real Control Panel launch sets OWLCMS_LAUNCHER
+		System.setProperty("launcher", "3.10.0");
+		List<ForwardingConnection> controlPanelLocal = config.getEffectiveForwardingDestinations();
+		assertEquals(1, controlPanelLocal.size());
+		assertTrue(controlPanelLocal.get(0).isControlPanelManaged());
+		assertTrue(controlPanelLocal.get(0).isActive());
+
+		// Non-loopback VIDEODATA stays environment-managed even under Control Panel
+		System.setProperty("videodata", "wss://tracker.example/ws");
+		List<ForwardingConnection> controlPanelRemote = config.getEffectiveForwardingDestinations();
+		assertEquals(1, controlPanelRemote.size());
+		assertFalse(controlPanelRemote.get(0).isControlPanelManaged());
+		assertTrue(controlPanelRemote.get(0).isEnvironmentManaged());
+	}
+
+	@Test
+	public void environmentVariablesAppearAsManagedRuntimeOnlyAndCanBePaused() {
+		Config config = configWithConnections(new ForwardingConnection("https://persisted.example", "db-key"));
+		System.setProperty("remote", "https://remote.example/update");
+		System.setProperty("updateKey", "remote-key");
+		System.setProperty("videodata", "ws://127.0.0.1:8096/ws");
+		System.setProperty("videoDataKey", "video-key");
+
+		assertEquals(1, config.getForwardingDestinations().size());
+		List<ForwardingConnection> effective = config.getEffectiveForwardingDestinations();
+		assertEquals(3, effective.size());
+		assertFalse(effective.get(0).isManaged());
+		assertTrue(effective.get(1).isEnvironmentManaged());
+		assertFalse(effective.get(1).isControlPanelManaged());
+		assertEquals("https://remote.example", effective.get(1).getUrl());
+		assertTrue(effective.get(2).isEnvironmentManaged());
+		assertFalse(effective.get(2).isControlPanelManaged());
+		assertEquals("ws://127.0.0.1:8096/ws", effective.get(2).getUrl());
+
+		// Pausing an environment connection suppresses forwarding without persisting it
+		effective.get(2).setActive(false);
+		config.setForwardingDestinations(effective);
+		assertEquals(1, config.getForwardingDestinations().size());
+		assertFalse(config.getEffectiveForwardingDestinations().get(2).isActive());
+		List<ForwardingDestination> destinations = ForwardingDestination.fromConfig(config);
+		assertEquals(2, destinations.size());
+		assertDestination(destinations.get(0), "https://persisted.example", "db-key");
+		assertDestination(destinations.get(1), "https://remote.example", "remote-key");
+	}
+
+	@Test
+	public void savingWhileEnvVarShadowsPersistedConnectionKeepsPersistedConnection() {
+		Config config = configWithConnections(new ForwardingConnection("https://results.example", "db-key"));
+		System.setProperty("remote", "https://results.example/update");
+		System.setProperty("updateKey", "env-key");
+
+		List<ForwardingConnection> effective = config.getEffectiveForwardingDestinations();
+		assertEquals(1, effective.size());
+		assertTrue(effective.get(0).isManaged());
+		assertEquals("env-key", effective.get(0).getUpdateKey());
+
+		config.setForwardingDestinations(effective);
+
+		List<ForwardingConnection> persisted = config.getForwardingDestinations();
+		assertEquals(1, persisted.size());
+		assertEquals("https://results.example", persisted.get(0).getUrl());
+		assertEquals("db-key", persisted.get(0).getUpdateKey());
 	}
 
 	@Test

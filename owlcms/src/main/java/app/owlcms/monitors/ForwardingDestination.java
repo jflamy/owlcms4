@@ -98,7 +98,7 @@ public final class ForwardingDestination {
 		int connectionNumber = 1;
 		List<String> inactiveManagedUrls = new ArrayList<>();
 		for (ForwardingConnection connection : config.getEffectiveForwardingDestinations()) {
-			if (connection != null && connection.isControlPanelManaged() && !connection.isActive()) {
+			if (connection != null && connection.isManaged() && !connection.isActive()) {
 				inactiveManagedUrls.add(normalizeBaseUrl(connection.getUrl()));
 			}
 			if (connection != null && connection.isActive()) {

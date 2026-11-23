@@ -21,6 +21,8 @@ public class ForwardingConnection {
 
 	private boolean active = true;
 	private boolean controlPanelManaged;
+	@JsonIgnore
+	private boolean environmentManaged;
 	private String updateKey;
 	private String url;
 
@@ -28,14 +30,20 @@ public class ForwardingConnection {
 	}
 
 	public ForwardingConnection(String url, String updateKey) {
-		this(url, updateKey, true, false);
+		this(url, updateKey, true, false, false);
 	}
 
 	public ForwardingConnection(String url, String updateKey, boolean active, boolean controlPanelManaged) {
+		this(url, updateKey, active, controlPanelManaged, controlPanelManaged);
+	}
+
+	public ForwardingConnection(String url, String updateKey, boolean active, boolean controlPanelManaged,
+	        boolean environmentManaged) {
 		this.url = url;
 		setUpdateKey(updateKey);
 		this.active = active;
 		this.controlPanelManaged = controlPanelManaged;
+		this.environmentManaged = environmentManaged || controlPanelManaged;
 	}
 
 	public ForwardingConnection(ForwardingConnection connection) {
@@ -43,6 +51,7 @@ public class ForwardingConnection {
 		this.updateKey = connection.updateKey;
 		this.active = connection.active;
 		this.controlPanelManaged = connection.controlPanelManaged;
+		this.environmentManaged = connection.environmentManaged;
 	}
 
 	static ForwardingConnection fromStored(String url, String updateKey, boolean active, boolean controlPanelManaged) {
@@ -51,6 +60,7 @@ public class ForwardingConnection {
 		connection.updateKey = normalizeKey(updateKey);
 		connection.active = active;
 		connection.controlPanelManaged = controlPanelManaged;
+		connection.environmentManaged = controlPanelManaged;
 		return connection;
 	}
 
@@ -60,6 +70,17 @@ public class ForwardingConnection {
 
 	public boolean isControlPanelManaged() {
 		return controlPanelManaged;
+	}
+
+	@JsonIgnore
+	public boolean isEnvironmentManaged() {
+		return environmentManaged || controlPanelManaged;
+	}
+
+	/** True when the connection comes from the launch environment (control panel or environment variable). */
+	@JsonIgnore
+	public boolean isManaged() {
+		return controlPanelManaged || environmentManaged;
 	}
 
 	/**
@@ -130,6 +151,13 @@ public class ForwardingConnection {
 
 	public void setControlPanelManaged(boolean controlPanelManaged) {
 		this.controlPanelManaged = controlPanelManaged;
+		if (controlPanelManaged) {
+			this.environmentManaged = true;
+		}
+	}
+
+	public void setEnvironmentManaged(boolean environmentManaged) {
+		this.environmentManaged = environmentManaged;
 	}
 
 	public void setUpdateKey(String updateKey) {
@@ -159,11 +187,12 @@ public class ForwardingConnection {
 		}
 		ForwardingConnection other = (ForwardingConnection) obj;
 		return active == other.active && controlPanelManaged == other.controlPanelManaged
+		        && environmentManaged == other.environmentManaged
 		        && Objects.equals(updateKey, other.updateKey) && Objects.equals(url, other.url);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(active, controlPanelManaged, updateKey, url);
+		return Objects.hash(active, controlPanelManaged, environmentManaged, updateKey, url);
 	}
 }

@@ -449,7 +449,7 @@ public class Config {
 
 	private boolean prepareForwardingConnections() {
 		boolean changed = migrateForwardingConnectionsToJson();
-		return synchronizeControlPanelVideoData() || changed;
+		return stripControlPanelManagedConnections() || changed;
 	}
 
 	/**
@@ -506,64 +506,54 @@ public class Config {
 		}
 	}
 
-	private boolean synchronizeControlPanelVideoData() {
-		String controlPanel = StartupUtils.getStringParam("controlpanel");
-		if (controlPanel == null || controlPanel.isBlank()) {
-			controlPanel = StartupUtils.getStringParam("launcher");
-		}
-		if (controlPanel == null || controlPanel.isBlank()) {
+	/**
+	 * Control-panel-managed connections come from the current launch environment and must not be persisted or exported.
+	 * Remove any legacy entries that were previously stored in the database or imported from an older JSON export.
+	 */
+	private boolean stripControlPanelManagedConnections() {
+		if (this.forwardingDestinationsJson == null || this.forwardingDestinationsJson.isBlank()) {
 			return false;
 		}
-
 		List<ForwardingConnection> connections = readForwardingConnectionsJson(this.forwardingDestinationsJson);
-		String videoDataUrl = normalizeForwardingUrl(StartupUtils.getStringParam("videodata"));
-		boolean localVideoData = isLoopbackUrl(videoDataUrl);
-		boolean changed = false;
-		ForwardingConnection currentConnection = null;
-
-		for (ForwardingConnection connection : connections) {
-			if (connection.isControlPanelManaged()) {
-				boolean shouldBeActive = localVideoData && videoDataUrl.equals(normalizeForwardingUrl(connection.getUrl()));
-				if (connection.isActive() != shouldBeActive) {
-					connection.setActive(shouldBeActive);
-					changed = true;
-				}
-				if (shouldBeActive) {
-					currentConnection = connection;
-				}
-			}
-		}
-
-		if (localVideoData && currentConnection == null) {
-			for (ForwardingConnection connection : connections) {
-				if (videoDataUrl.equals(normalizeForwardingUrl(connection.getUrl()))) {
-					currentConnection = connection;
-					break;
-				}
-			}
-			if (currentConnection == null) {
-				currentConnection = new ForwardingConnection(videoDataUrl,
-				        StartupUtils.getStringParam("videoDataKey"), true, true);
-				connections.add(currentConnection);
-			} else {
-				currentConnection.setActive(true);
-				currentConnection.setControlPanelManaged(true);
-				currentConnection.setUpdateKey(StartupUtils.getStringParam("videoDataKey"));
-			}
-			changed = true;
-		}
-		if (localVideoData && currentConnection != null) {
-			String videoDataKey = StartupUtils.getStringParam("videoDataKey");
-			if (!Objects.equals(currentConnection.getUpdateKey(), videoDataKey)) {
-				currentConnection.setUpdateKey(videoDataKey);
-				changed = true;
-			}
-		}
-
-		if (changed) {
+		boolean removed = connections.removeIf(connection -> connection == null || connection.isControlPanelManaged());
+		if (removed) {
 			this.forwardingDestinationsJson = writeForwardingConnectionsJson(normalizeForwardingConnections(connections));
 		}
-		return changed;
+		return removed;
+	}
+
+	/**
+	 * Build the runtime-only environment forwarding connections ({@code OWLCMS_REMOTE}, {@code OWLCMS_VIDEODATA}) for
+	 * the current process. Never persisted or exported.
+	 */
+	private List<ForwardingConnection> runtimeEnvironmentConnections() {
+		Map<String, ForwardingConnection> byUrl = new LinkedHashMap<>();
+		String remoteUrl = StartupUtils.getStringParam("remote");
+		if (remoteUrl != null && !remoteUrl.isBlank()) {
+			remoteUrl = normalizeForwardingUrl(remoteUrl.replaceFirst("/update$", ""));
+			if (remoteUrl != null) {
+				boolean active = this.managedForwardingActivity.getOrDefault(remoteUrl, true);
+				byUrl.put(remoteUrl, new ForwardingConnection(remoteUrl,
+				        StartupUtils.getStringParam("updateKey"), active, false, true));
+			}
+		}
+
+		String videoDataUrl = normalizeForwardingUrl(StartupUtils.getStringParam("videodata"));
+		if (videoDataUrl != null) {
+			boolean controlPanelManaged = isControlPanelLaunch() && isLoopbackUrl(videoDataUrl);
+			boolean active = this.managedForwardingActivity.getOrDefault(videoDataUrl, true);
+			byUrl.put(videoDataUrl, new ForwardingConnection(videoDataUrl,
+			        StartupUtils.getStringParam("videoDataKey"), active, controlPanelManaged, true));
+		}
+		return new ArrayList<>(byUrl.values());
+	}
+
+	private static boolean isControlPanelLaunch() {
+		// Control Panel sets OWLCMS_LAUNCHER on every launch (including --repl start via MainWrapper);
+		// MainWrapper sets OWLCMS_CONTROLPANEL itself as a standalone fallback, so only OWLCMS_LAUNCHER distinguishes
+		// a real Control Panel launch.
+		String launcher = StartupUtils.getStringParam("launcher");
+		return launcher != null && !launcher.isBlank();
 	}
 
 	private static boolean isLoopbackUrl(String url) {
@@ -767,11 +757,19 @@ public class Config {
 	@JsonIgnore
 	public List<ForwardingConnection> getEffectiveForwardingDestinations() {
 		List<ForwardingConnection> connections = getForwardingDestinations();
-		Map<String, Boolean> activity = this.managedForwardingActivity;
-		for (ForwardingConnection connection : connections) {
-			Boolean active = activity.get(normalizeForwardingUrl(connection.getUrl()));
-			if (connection.isControlPanelManaged() && active != null) {
-				connection.setActive(active);
+		for (ForwardingConnection managed : runtimeEnvironmentConnections()) {
+			String managedUrl = normalizeForwardingUrl(managed.getUrl());
+			int existingIndex = -1;
+			for (int i = 0; i < connections.size(); i++) {
+				if (managedUrl.equals(normalizeForwardingUrl(connections.get(i).getUrl()))) {
+					existingIndex = i;
+					break;
+				}
+			}
+			if (existingIndex >= 0) {
+				connections.set(existingIndex, managed);
+			} else {
+				connections.add(managed);
 			}
 		}
 		return connections;
@@ -1488,27 +1486,39 @@ public class Config {
 	}
 
 	public void setForwardingDestinations(List<ForwardingConnection> forwardingDestinations) {
-		List<ForwardingConnection> existing = getForwardingDestinations();
+		List<ForwardingConnection> existingPersisted = getForwardingDestinations();
 		List<ForwardingConnection> connections = normalizeForwardingConnections(forwardingDestinations);
 		Map<String, Boolean> activity = new LinkedHashMap<>(this.managedForwardingActivity);
-		for (ForwardingConnection managed : existing) {
-			if (!managed.isControlPanelManaged()) {
+		Map<String, ForwardingConnection> runtimeByUrl = new LinkedHashMap<>();
+		for (ForwardingConnection runtimeConnection : runtimeEnvironmentConnections()) {
+			String url = normalizeForwardingUrl(runtimeConnection.getUrl());
+			if (url != null) {
+				runtimeByUrl.put(url, runtimeConnection);
+			}
+		}
+
+		Map<String, ForwardingConnection> persistedByUrl = new LinkedHashMap<>();
+		for (ForwardingConnection connection : connections) {
+			String url = normalizeForwardingUrl(connection.getUrl());
+			if (connection.isManaged()) {
+				if (url != null && runtimeByUrl.containsKey(url)) {
+					activity.put(url, connection.isActive());
+				}
 				continue;
 			}
-			String url = normalizeForwardingUrl(managed.getUrl());
-			ForwardingConnection edited = connections.stream()
-			        .filter(connection -> url.equals(normalizeForwardingUrl(connection.getUrl())))
-			        .findFirst().orElse(null);
-			if (edited == null) {
-				connections.add(managed);
-			} else {
-				activity.put(url, edited.isActive());
-				edited.setActive(managed.isActive());
-				edited.setControlPanelManaged(true);
+			if (url != null) {
+				persistedByUrl.put(url, connection);
+			}
+		}
+		// Keep any user-persisted connection that was shadowed in the UI by a runtime environment variable
+		for (ForwardingConnection existing : existingPersisted) {
+			String url = normalizeForwardingUrl(existing.getUrl());
+			if (url != null && runtimeByUrl.containsKey(url) && !persistedByUrl.containsKey(url)) {
+				persistedByUrl.put(url, existing);
 			}
 		}
 		this.managedForwardingActivity = Map.copyOf(activity);
-		this.forwardingDestinationsJson = writeForwardingConnectionsJson(connections);
+		this.forwardingDestinationsJson = writeForwardingConnectionsJson(new ArrayList<>(persistedByUrl.values()));
 		clearLegacyForwardingConnections();
 	}
 

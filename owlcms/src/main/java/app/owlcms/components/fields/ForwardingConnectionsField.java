@@ -12,7 +12,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
@@ -23,6 +22,7 @@ import app.owlcms.i18n.Translator;
 public class ForwardingConnectionsField extends CustomField<List<ForwardingConnection>> {
 
 	private final VerticalLayout connectionRows = new VerticalLayout();
+	private final Button addConnection;
 	private List<ForwardingConnection> connections = new ArrayList<>();
 
 	/** Blank URLs are dropped on save; only non-blank URLs must carry a supported protocol. */
@@ -38,7 +38,7 @@ public class ForwardingConnectionsField extends CustomField<List<ForwardingConne
 		connectionRows.setSpacing(false);
 		connectionRows.setWidthFull();
 
-		Button addConnection = new Button(Translator.translate("Config.AddEventForwardingConnection"),
+		addConnection = new Button(Translator.translate("Config.AddEventForwardingConnection"),
 		        new Icon(VaadinIcon.PLUS));
 		addConnection.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		addConnection.addClickListener(event -> {
@@ -48,6 +48,20 @@ public class ForwardingConnectionsField extends CustomField<List<ForwardingConne
 		});
 
 		add(connectionRows, addConnection);
+	}
+
+	@Override
+	public void setReadOnly(boolean readOnly) {
+		getElement().setProperty("readonly", readOnly);
+		addConnection.setEnabled(!readOnly && isEnabled());
+		rebuildRows();
+	}
+
+	@Override
+	public void onEnabledStateChanged(boolean enabled) {
+		super.onEnabledStateChanged(enabled);
+		addConnection.setEnabled(enabled && !isReadOnly());
+		rebuildRows();
 	}
 
 	@Override
@@ -71,33 +85,43 @@ public class ForwardingConnectionsField extends CustomField<List<ForwardingConne
 	}
 
 	private FlexLayout createConnectionRow(ForwardingConnection connection) {
+		boolean managed = connection.isManaged();
+		boolean formReadOnly = isReadOnly();
+
 		TextField url = new TextField(Translator.translate("Config.EventForwardingURL"));
+		OwlcmsPasswordField.disablePasswordManager(url);
 		url.setHelperText(Translator.translate("Config.EventForwardingURLHelp"));
 		url.setManualValidation(true);
 		url.setErrorMessage(Translator.translate("URL.missingProtocol"));
 		url.setValue(connection.getUrl() != null ? connection.getUrl() : "");
 		url.setInvalid(!isValidUrl(url.getValue()));
+		url.setReadOnly(formReadOnly || managed);
 		url.setValueChangeMode(ValueChangeMode.LAZY);
 		url.setValueChangeTimeout(600);
 		url.setMinWidth("18em");
 		url.getStyle().set("flex", "1 1 24em");
-		url.addValueChangeListener(event -> {
-			connection.setUrl(event.getValue());
-			url.setInvalid(!isValidUrl(event.getValue()));
-			updateValue();
-		});
+		if (!managed) {
+			url.addValueChangeListener(event -> {
+				connection.setUrl(event.getValue());
+				url.setInvalid(!isValidUrl(event.getValue()));
+				updateValue();
+			});
+		}
 
-		PasswordField updateKey = new OwlcmsPasswordField(Translator.translate("Config.UpdateKey"))
-		        .disablePasswordManager();
+		TextField updateKey = new MaskedSecretField(Translator.translate("Config.UpdateKey"));
 		updateKey.setValue(connection.getUpdateKey() != null ? connection.getUpdateKey() : "");
+		updateKey.setReadOnly(formReadOnly || managed);
 		updateKey.setMinWidth("14em");
 		updateKey.getStyle().set("flex", "1 1 18em");
-		updateKey.addValueChangeListener(event -> {
-			connection.setUpdateKey(event.getValue());
-			updateValue();
-		});
+		if (!managed) {
+			updateKey.addValueChangeListener(event -> {
+				connection.setUpdateKey(event.getValue());
+				updateValue();
+			});
+		}
 
 		Checkbox active = new Checkbox(Translator.translate("Active"), connection.isActive());
+		active.setReadOnly(formReadOnly);
 		active.getStyle().set("align-self", "center");
 		active.addValueChangeListener(event -> {
 			connection.setActive(event.getValue());
@@ -107,6 +131,7 @@ public class ForwardingConnectionsField extends CustomField<List<ForwardingConne
 		Button remove = new Button(Translator.translate("Delete"), new Icon(VaadinIcon.TRASH));
 		remove.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_PRIMARY);
 		remove.setAriaLabel(Translator.translate("Config.RemoveEventForwardingConnection"));
+		remove.setEnabled(!formReadOnly);
 		remove.getStyle().set("align-self", "center");
 		remove.addClickListener(event -> {
 			connections.remove(connection);
@@ -115,11 +140,14 @@ public class ForwardingConnectionsField extends CustomField<List<ForwardingConne
 		});
 
 		FlexLayout row = new FlexLayout(url, updateKey, active);
-		if (connection.isControlPanelManaged()) {
-			Span managed = new Span(Translator.translate("Config.ControlPanelManaged"));
-			managed.getElement().setAttribute("theme", "badge primary");
-			managed.getStyle().set("align-self", "center");
-			row.add(managed);
+		if (managed) {
+			String badgeKey = connection.isControlPanelManaged()
+			        ? "Config.ControlPanelManaged"
+			        : "Config.EnvironmentManaged";
+			Span badge = new Span(Translator.translate(badgeKey));
+			badge.getElement().setAttribute("theme", "badge primary");
+			badge.getStyle().set("align-self", "center");
+			row.add(badge);
 		} else {
 			row.add(remove);
 		}
