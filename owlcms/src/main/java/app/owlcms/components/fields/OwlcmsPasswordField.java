@@ -19,6 +19,7 @@ public class OwlcmsPasswordField extends PasswordField {
 	        + " input.setAttribute('data-bwignore', 'true');"
 	        + " input.setAttribute('data-protonpass-ignore', 'true');"
 	        + " input.setAttribute('data-form-type', 'other');"
+	        + " input.setAttribute('spellcheck', 'false');"
 	        + " }"
 	        + "};"
 	        + "apply();"

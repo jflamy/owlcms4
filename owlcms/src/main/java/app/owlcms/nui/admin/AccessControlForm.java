@@ -7,12 +7,12 @@ import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.audit.AuditOrigin;
+import app.owlcms.components.fields.MaskedSecretField;
 import app.owlcms.components.fields.OwlcmsPasswordField;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
@@ -42,7 +42,7 @@ class AccessControlForm extends VerticalLayout {
 		layout.setResponsiveSteps(new ResponsiveStep("0", 1, LabelsPosition.TOP),
 		        new ResponsiveStep("800px", 2, LabelsPosition.TOP));
 
-		PasswordField pin = new OwlcmsPasswordField().disablePasswordManager();
+		TextField pin = new MaskedSecretField();
 		pin.setWidthFull();
 		layout.addFormItem(pin, Translator.translate("Config.PasswordOrPIN"));
 		this.binder.forField(pin).withNullRepresentation("").bind(Config::getPinForField, Config::setPinForField);
@@ -54,7 +54,7 @@ class AccessControlForm extends VerticalLayout {
 		this.binder.forField(accessList).withNullRepresentation("")
 		        .bind(Config::getIpAccessList, Config::setIpAccessList);
 
-		PasswordField displayPin = new OwlcmsPasswordField().disablePasswordManager();
+		TextField displayPin = new MaskedSecretField();
 		displayPin.setWidthFull();
 		layout.addFormItem(displayPin, Translator.translate("Config.DisplayPIN"));
 		this.binder.forField(displayPin).withNullRepresentation("")

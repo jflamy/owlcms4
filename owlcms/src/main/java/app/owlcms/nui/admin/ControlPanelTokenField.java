@@ -3,17 +3,16 @@ package app.owlcms.nui.admin;
 import com.vaadin.flow.server.VaadinServletRequest;
 
 import app.owlcms.access.ControlPanelChallenge;
-import app.owlcms.components.fields.OwlcmsPasswordField;
+import app.owlcms.components.fields.MaskedSecretField;
 import app.owlcms.i18n.Translator;
 import jakarta.servlet.http.HttpServletRequest;
 
 /** The cp challenge field: the operator pastes the control panel token before an action that needs locality. */
 @SuppressWarnings("serial")
-class ControlPanelTokenField extends OwlcmsPasswordField {
+class ControlPanelTokenField extends MaskedSecretField {
 
 	ControlPanelTokenField() {
 		super(Translator.translate("Access.ControlPanelToken"));
-		disablePasswordManager();
 		setHelperText(Translator.translate("Access.ControlPanelTokenHint"));
 		setRevealButtonVisible(true);
 		setWidthFull();

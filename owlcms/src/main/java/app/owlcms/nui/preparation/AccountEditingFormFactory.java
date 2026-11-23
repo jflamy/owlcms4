@@ -16,7 +16,6 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder.Binding;
 import com.vaadin.flow.server.VaadinServletRequest;
@@ -29,6 +28,7 @@ import app.owlcms.access.Principal;
 import app.owlcms.access.Role;
 import app.owlcms.access.SessionLogout;
 import app.owlcms.audit.AuditOrigin;
+import app.owlcms.components.fields.MaskedSecretField;
 import app.owlcms.components.fields.OwlcmsPasswordField;
 import app.owlcms.data.account.RoleGrant;
 import app.owlcms.data.account.UserAccount;
@@ -165,10 +165,8 @@ class AccountEditingFormFactory extends OwlcmsCrudFormFactory<UserAccount> {
 		layout.add(enabledField);
 		this.binder.forField(enabledField).bind(UserAccount::isEnabled, UserAccount::setEnabled);
 
-		PasswordField newPasswordField = new OwlcmsPasswordField(Translator.translate("Access.Account.NewPassword"))
-		        .disablePasswordManager();
-		PasswordField confirmField = new OwlcmsPasswordField(Translator.translate("Access.Account.ConfirmPassword"))
-		        .disablePasswordManager();
+		TextField newPasswordField = new MaskedSecretField(Translator.translate("Access.Account.NewPassword"));
+		TextField confirmField = new MaskedSecretField(Translator.translate("Access.Account.ConfirmPassword"));
 		layout.add(newPasswordField, confirmField);
 		// blank means unchanged; the hash is computed on save, and the typed value is never kept
 		Binding<UserAccount, String> passwordBinding = this.binder.forField(newPasswordField)

@@ -458,3 +458,10 @@ vaadin-text-field.collar-threshold-field::part(input-field) {
     flex: none;
     width: 5ch;
 }
+
+/* Non-login masked secret fields (MaskedSecretField): render as <input type="text">
+   masked via CSS instead of <input type="password"> so password managers do not
+   autofill site credentials into configuration/PIN/token inputs. */
+vaadin-text-field.owlcms-secret-field:not(.owlcms-secret-visible) input {
+    -webkit-text-security: disc;
+}

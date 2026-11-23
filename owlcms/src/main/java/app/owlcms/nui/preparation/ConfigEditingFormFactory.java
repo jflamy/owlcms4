@@ -48,7 +48,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.component.tabs.TabSheet;
-import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.server.streams.UploadHandler;
@@ -58,6 +57,7 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.router.Location;
 
+import app.owlcms.components.fields.MaskedSecretField;
 import app.owlcms.components.fields.OwlcmsPasswordField;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.config.Config;
@@ -498,7 +498,7 @@ public class ConfigEditingFormFactory
 		        .withValidator(new RegexpValidator(Translator.translate("Config.MQTTUserNameInvalid"), "[^\\s:/]*"))
 		        .bind(Config::getMqttUserName, Config::setMqttUserName);
 
-		PasswordField mqttPassword = new OwlcmsPasswordField().disablePasswordManager();
+		TextField mqttPassword = new MaskedSecretField();
 		mqttPassword.setWidthFull();
 		layout.addFormItem(mqttPassword, Translator.translate("Config.MQTTPassword"));
 		this.binder.forField(mqttPassword)
