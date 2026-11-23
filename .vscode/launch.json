@@ -34,10 +34,10 @@
       "envFile": "${workspaceFolder}/.vscode/.env",
       "env": {
         "OWLCMS_MEMORYMODE": "false",
-        "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws", //"wss://fhq-tracker.fly.dev/ws",
-        // "OWLCMS_VIDEODATAKEY": "amalauxpattes",
-        "OWLCMS_REMOTE": "", //"http://127.0.0.1:8082",
-        // "OWLCMS_UPDATEKEY": "mapetitevache"
+        "OWLCMS_REMOTE": "ws://127.0.0.1:8096/ws", //"wss://fhq-tracker.fly.dev/ws"
+        "OWLCMS_UPDATEKEY": "updateKey",
+        //"OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws", //"wss://fhq-tracker.fly.dev/ws",
+        //"OWLCMS_VIDEODATAKEY": "videoKey"
       }
     },
     {
