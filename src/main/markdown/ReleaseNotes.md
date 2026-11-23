@@ -11,6 +11,12 @@
 
 **Development log**
 
+- 69.0.0-rc10: Usability: disable password-manager autofill on non-login password, PIN, and key configuration fields.
+
+- 69.0.0-rc10: MQTT device configuration publishes only the global competition jury size for backward compatibility.
+
+- 69.0.0-rc10: Event forwarding connections from Control Panel or environment variables are not saved or exported and shown read-only with a badge.
+
 - 69.0.0-rc09: IWF compliance is enabled and prerequisites checked in an Administration dialog, with immediate actions for the live settings.
 
 - 69.0.0-rc09: Fix: removed longstanding stray =GOOGLETRANSLATE() formulas from the master translation spreadsheet that affected 7 translation values.
