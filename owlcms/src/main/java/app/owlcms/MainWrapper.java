@@ -48,6 +48,7 @@ public class MainWrapper {
     private static final String WRAPPER_PID_ENV = "OWLCMS_WRAPPER_PID";
     private static final String LOAD_JSON_ENV = "OWLCMS_LOADJSON";
     private static final String LOAD_JSON_PROPERTY = "loadJson";
+    public static final String DEFAULT_CONTROL_PANEL_VERSION = "3.10.0-alpha02";
     private static volatile Process currentProcess;
     private static volatile boolean shuttingDown = false;
 
@@ -268,7 +269,7 @@ public class MainWrapper {
                 pb.inheritIO(); // Redirect stdout/stderr to parent process
                 Map<String, String> subprocessEnv = pb.environment();
                 subprocessEnv.putAll(env); // Pass all environment variables
-                subprocessEnv.putIfAbsent("OWLCMS_CONTROLPANEL", "3.1.0"); // Fallback enables restart after JSON import
+                subprocessEnv.putIfAbsent("OWLCMS_CONTROLPANEL", DEFAULT_CONTROL_PANEL_VERSION); // Fallback enables restart after JSON import
                 if (startupImportDropped) {
                     subprocessEnv.remove(LOAD_JSON_ENV);
                 }

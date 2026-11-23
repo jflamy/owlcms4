@@ -5,6 +5,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import app.owlcms.MainWrapper;
+
 public class ControlPanelVersionTest {
 
 	@Test
@@ -27,5 +29,7 @@ public class ControlPanelVersionTest {
 		assertFalse(HomeNavigationContent.isControlPanelTooOld("3.10.0"));
 		assertFalse(HomeNavigationContent.isControlPanelTooOld("3.10.1"));
 		assertFalse(HomeNavigationContent.isControlPanelTooOld("4.0.0"));
+		assertFalse("MainWrapper fallback version must satisfy the minimum",
+		        HomeNavigationContent.isControlPanelTooOld(MainWrapper.DEFAULT_CONTROL_PANEL_VERSION));
 	}
 }
