@@ -87,7 +87,8 @@ public class ForwardingConnectionsField extends CustomField<List<ForwardingConne
 			updateValue();
 		});
 
-		PasswordField updateKey = new OwlcmsPasswordField(Translator.translate("Config.UpdateKey"));
+		PasswordField updateKey = new OwlcmsPasswordField(Translator.translate("Config.UpdateKey"))
+		        .disablePasswordManager();
 		updateKey.setValue(connection.getUpdateKey() != null ? connection.getUpdateKey() : "");
 		updateKey.setMinWidth("14em");
 		updateKey.getStyle().set("flex", "1 1 18em");

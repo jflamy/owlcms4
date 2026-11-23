@@ -42,24 +42,26 @@ class AccessControlForm extends VerticalLayout {
 		layout.setResponsiveSteps(new ResponsiveStep("0", 1, LabelsPosition.TOP),
 		        new ResponsiveStep("800px", 2, LabelsPosition.TOP));
 
-		PasswordField pin = new OwlcmsPasswordField();
+		PasswordField pin = new OwlcmsPasswordField().disablePasswordManager();
 		pin.setWidthFull();
 		layout.addFormItem(pin, Translator.translate("Config.PasswordOrPIN"));
 		this.binder.forField(pin).withNullRepresentation("").bind(Config::getPinForField, Config::setPinForField);
 
 		TextField accessList = new TextField();
+		OwlcmsPasswordField.disablePasswordManager(accessList);
 		accessList.setWidthFull();
 		layout.addFormItem(accessList, Translator.translate("Config.AccessList"));
 		this.binder.forField(accessList).withNullRepresentation("")
 		        .bind(Config::getIpAccessList, Config::setIpAccessList);
 
-		PasswordField displayPin = new OwlcmsPasswordField();
+		PasswordField displayPin = new OwlcmsPasswordField().disablePasswordManager();
 		displayPin.setWidthFull();
 		layout.addFormItem(displayPin, Translator.translate("Config.DisplayPIN"));
 		this.binder.forField(displayPin).withNullRepresentation("")
 		        .bind(Config::getDisplayPinForField, Config::setDisplayPinForField);
 
 		TextField displayList = new TextField();
+		OwlcmsPasswordField.disablePasswordManager(displayList);
 		displayList.setWidthFull();
 		layout.addFormItem(displayList, Translator.translate("Config.DisplayAccessList"));
 		this.binder.forField(displayList).withNullRepresentation("")

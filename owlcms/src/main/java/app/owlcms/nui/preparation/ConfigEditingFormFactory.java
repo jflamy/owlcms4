@@ -490,6 +490,7 @@ public class ConfigEditingFormFactory
 		//
 
 		TextField mqttUserName = new TextField();
+		OwlcmsPasswordField.disablePasswordManager(mqttUserName);
 		mqttUserName.setWidthFull();
 		layout.addFormItem(mqttUserName, Translator.translate("Config.MQTTUserName"));
 		this.binder.forField(mqttUserName)
@@ -497,7 +498,7 @@ public class ConfigEditingFormFactory
 		        .withValidator(new RegexpValidator(Translator.translate("Config.MQTTUserNameInvalid"), "[^\\s:/]*"))
 		        .bind(Config::getMqttUserName, Config::setMqttUserName);
 
-		PasswordField mqttPassword = new OwlcmsPasswordField();
+		PasswordField mqttPassword = new OwlcmsPasswordField().disablePasswordManager();
 		mqttPassword.setWidthFull();
 		layout.addFormItem(mqttPassword, Translator.translate("Config.MQTTPassword"));
 		this.binder.forField(mqttPassword)

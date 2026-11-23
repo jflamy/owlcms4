@@ -13,6 +13,7 @@ class ControlPanelTokenField extends OwlcmsPasswordField {
 
 	ControlPanelTokenField() {
 		super(Translator.translate("Access.ControlPanelToken"));
+		disablePasswordManager();
 		setHelperText(Translator.translate("Access.ControlPanelTokenHint"));
 		setRevealButtonVisible(true);
 		setWidthFull();

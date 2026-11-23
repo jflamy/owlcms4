@@ -152,6 +152,7 @@ class AccountEditingFormFactory extends OwlcmsCrudFormFactory<UserAccount> {
 		layout.setWidth("54em");
 
 		TextField usernameField = new TextField(Translator.translate("Access.Username"));
+		OwlcmsPasswordField.disablePasswordManager(usernameField);
 		usernameField.setReadOnly(account.isBuiltInAdmin());
 		layout.add(usernameField);
 		this.binder.forField(usernameField)
@@ -164,8 +165,10 @@ class AccountEditingFormFactory extends OwlcmsCrudFormFactory<UserAccount> {
 		layout.add(enabledField);
 		this.binder.forField(enabledField).bind(UserAccount::isEnabled, UserAccount::setEnabled);
 
-		PasswordField newPasswordField = new OwlcmsPasswordField(Translator.translate("Access.Account.NewPassword"));
-		PasswordField confirmField = new OwlcmsPasswordField(Translator.translate("Access.Account.ConfirmPassword"));
+		PasswordField newPasswordField = new OwlcmsPasswordField(Translator.translate("Access.Account.NewPassword"))
+		        .disablePasswordManager();
+		PasswordField confirmField = new OwlcmsPasswordField(Translator.translate("Access.Account.ConfirmPassword"))
+		        .disablePasswordManager();
 		layout.add(newPasswordField, confirmField);
 		// blank means unchanged; the hash is computed on save, and the typed value is never kept
 		Binding<UserAccount, String> passwordBinding = this.binder.forField(newPasswordField)
