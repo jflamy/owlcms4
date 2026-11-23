@@ -74,7 +74,6 @@ import app.owlcms.data.jpa.SingletonSaves;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.DateTimeUtils;
 import app.owlcms.utils.LoggerUtils;
@@ -2113,13 +2112,6 @@ public class Competition {
 		this.jurySize = jurySize != null && (jurySize == 0 || jurySize == 3 || jurySize == 4 || jurySize == 5)
 		        ? jurySize
 		        : 0;
-		FieldOfPlay fop = OwlcmsSession.getFop();
-		if (fop != null) {
-			MQTTMonitor mqttMonitor = fop.getMqttMonitor();
-			if (mqttMonitor != null) {
-				mqttMonitor.publishMqttConfig();
-			}
-		}
 	}
 
 	public void setJuryTemplateFileName(String juryTemplateFileName) {

@@ -58,10 +58,8 @@ import app.owlcms.data.config.TcrrCompliance;
 import app.owlcms.data.jpa.SingletonSaves;
 import app.owlcms.data.jpa.StaleSingletonException;
 import app.owlcms.data.jpa.StaleSingletonException.Kind;
-import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
 import ch.qos.logback.classic.Logger;
@@ -272,12 +270,7 @@ public class CompetitionEditingFormFactory
 		AuditOrigin auditOrigin = new AuditOrigin(AuditActor.capture(this.origin.getPrincipal(), this.origin), "Competition");
 		Competition saved = saveWithStartNumberSwitch(competition, auditOrigin);
 		if (this.jurySizeChanged) {
-			for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
-				if (fop.getPlatform() != null && fop.getPlatform().getJurySize() == null) {
-					// the platform follows the competition default: the jury box and the jury pages follow too
-					fop.fopEventPost(new FOPEvent.JurySizeChange(this, null), auditOrigin.actor());
-				}
-			}
+			FieldOfPlay.notifyCompetitionJurySizeChanged(this, auditOrigin.actor());
 			this.jurySizeChanged = false;
 		}
 		// Capture the target tab now and defer the navigation to the very end of the

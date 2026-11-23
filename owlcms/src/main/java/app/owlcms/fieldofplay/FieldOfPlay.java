@@ -935,8 +935,8 @@ public class FieldOfPlay implements IUnregister {
 		// ======= state-independent processing: the reaction does not depend on the
 		// state.
 
-		if (e instanceof FOPEvent.JurySizeChange) {
-			setJurySize(((FOPEvent.JurySizeChange) e).getJurySize(), e.getOrigin());
+		if (e instanceof FOPEvent.JurySizeChange jurySizeChange) {
+			setJurySize(jurySizeChange.getJurySize(), e.getOrigin(), jurySizeChange.isPublishMqttConfig());
 			return;
 		}
 
@@ -2288,10 +2288,10 @@ public class FieldOfPlay implements IUnregister {
 
 	/** @param jurySize 0, 3, 4 or 5; null to use the competition default */
 	public void setJurySize(Integer jurySize) {
-		setJurySize(jurySize, this);
+		setJurySize(jurySize, this, true);
 	}
 
-	private void setJurySize(Integer jurySize, Object origin) {
+	private void setJurySize(Integer jurySize, Object origin, boolean publishMqttConfig) {
 		Platform p = getPlatform();
 		if (p == null) {
 			return;
@@ -2302,15 +2302,42 @@ public class FieldOfPlay implements IUnregister {
 		}
 		p.setJurySize(jurySize);
 		PlatformRepository.saveJurySize(p);
-		publishJurySizeChange(origin);
+		publishJurySizeChange(origin, publishMqttConfig);
 	}
 
 	public void publishJurySizeChange(Object origin) {
-		MQTTMonitor mqttMonitor = getMqttMonitor();
-		if (mqttMonitor != null) {
-			mqttMonitor.publishMqttConfig();
+		publishJurySizeChange(origin, true);
+	}
+
+	private void publishJurySizeChange(Object origin, boolean publishMqttConfig) {
+		if (publishMqttConfig) {
+			MQTTMonitor mqttMonitor = getMqttMonitor();
+			if (mqttMonitor != null) {
+				mqttMonitor.publishMqttConfig();
+			}
 		}
 		pushOutUIEvent(new UIEvent.JurySizeChanged(origin, this));
+	}
+
+	/**
+	 * Notifies platforms and MQTT devices after the competition-wide jury size has been saved.
+	 */
+	public static void notifyCompetitionJurySizeChanged(Object origin, AuditActor actor) {
+		boolean publishPerPlatform = Boolean.TRUE.equals(MQTTMonitor.PUBLISH_PLATFORM_JURY_SIZE_TO_MQTT);
+		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
+			if (fop.getPlatform() != null && fop.getPlatform().getJurySize() == null) {
+				// the platform follows the competition default: the jury pages follow too
+				FOPEvent.JurySizeChange event = new FOPEvent.JurySizeChange(origin, null, publishPerPlatform);
+				if (actor != null) {
+					fop.fopEventPost(event, actor);
+				} else {
+					fop.fopEventPost(event);
+				}
+			}
+		}
+		if (!publishPerPlatform) {
+			MQTTMonitor.publishGlobalConfig();
+		}
 	}
 
 	/**

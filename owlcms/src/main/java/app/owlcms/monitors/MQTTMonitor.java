@@ -567,6 +567,12 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		}
 	}
 
+	/**
+	 * When false, MQTT {@code owlcms/fop/config} carries only the global competition jury size and
+	 * per-platform changes from Jury Control do not publish MQTT config messages.
+	 */
+	public static final Boolean PUBLISH_PLATFORM_JURY_SIZE_TO_MQTT = Boolean.FALSE;
+
 	private static Map<String, MQTTMonitor> mqttMonitorByName = new HashMap<>();
 	private static Logger logger = (Logger) LoggerFactory.getLogger(MQTTMonitor.class);
 
@@ -751,7 +757,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	private final Map<String, Long> lastSeenByPublisherSignature = new ConcurrentHashMap<>();
 	private final long PUBLISHER_TIMEOUT_MS = 30_000L;
 
-	private MQTTMonitor(String monitorName, FieldOfPlay fop) {
+	protected MQTTMonitor(String monitorName, FieldOfPlay fop) {
 		this.setMonitoredFopName(monitorName);
 		this.setFop(fop);
 	}
@@ -1050,6 +1056,16 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		return result;
 	}
 
+	public static void publishGlobalConfig() {
+		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
+			MQTTMonitor mm = fop.getMqttMonitor();
+			if (mm != null) {
+				mm.publishMqttConfig();
+				return;
+			}
+		}
+	}
+
 	public void publishMqttConfig() {
 		// syncFOPs() deletes FOPs whose platform is missing from the database. During an
 		// import the database is in a partial state, so skip entirely to avoid destroying
@@ -1064,7 +1080,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		publishMqttConfig("owlcms/fop/config");
 	}
 
-	private void publish(String topic, MqttMessage message) throws MqttException, MqttPersistenceException {
+	protected void publish(String topic, MqttMessage message) throws MqttException, MqttPersistenceException {
 		// return silently during import; MQTT must not block on the initialization latch
 		if (OwlcmsFactory.isImportInProgress()) {
 			return;
@@ -1736,11 +1752,16 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	}
 
 	private int mqttJurySize() {
-		// The config response is published by a FOP monitor; use that FOP's active
-		// jury size. 0 (no jury) is sent as is: Blue Owl versions up to 3.0.0 treat
-		// it as 3. The FOP reports 4 when the seven-person adjudication panel is in use.
-		FieldOfPlay fop = getFop();
-		return fop != null ? fop.getJurySize() : Competition.getCurrent().getEffectiveJurySize();
+		return mqttJurySize(getFop(), Competition.getCurrent());
+	}
+
+	public static int mqttJurySize(FieldOfPlay fop, Competition competition) {
+		// 0 (no jury) is sent as is: Blue Owl versions up to 3.0.0 treat it as 3.
+		// Reports 4 when the seven-person adjudication panel / TCRR compliance is in use.
+		if (Boolean.TRUE.equals(PUBLISH_PLATFORM_JURY_SIZE_TO_MQTT) && fop != null) {
+			return fop.getJurySize();
+		}
+		return competition != null ? competition.getEffectiveJurySize() : 0;
 	}
 
 	private void publishMqttDownSignal() throws MqttException, MqttPersistenceException {

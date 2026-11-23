@@ -68,6 +68,7 @@ import app.owlcms.fieldofplay.InputKind;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakType;
@@ -395,7 +396,9 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			if (fop == null) {
 				return;
 			}
-			fop.fopEventPost(new FOPEvent.JurySizeChange(this, e.getValue()));
+			fop.fopEventPost(
+			        new FOPEvent.JurySizeChange(this, e.getValue(),
+			                Boolean.TRUE.equals(MQTTMonitor.PUBLISH_PLATFORM_JURY_SIZE_TO_MQTT)));
 			rebuild();
 		});
 		return jurySizeSelect;

@@ -7,11 +7,15 @@
 package app.owlcms.fieldofplay;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.data.platform.Platform;
 import app.owlcms.data.records.RecordEvent;
+import app.owlcms.monitors.MQTTMonitor;
 
 /**
  * Test-only factory for {@link FieldOfPlay} instances. Lives in the test source tree so that the
@@ -56,5 +60,27 @@ public final class MockFieldOfPlay {
 	/** The records the platform currently considers eligible for the athlete. */
 	public static List<RecordEvent> eligibleRecords(FieldOfPlay fop, Athlete athlete) {
 		return fop.eligibleRecordsByAthlete.getOrDefault(athlete, List.of());
+	}
+
+	/**
+	 * Build a {@link FieldOfPlay} for a persisted platform with a custom {@link MQTTMonitor},
+	 * so tests can observe published MQTT payloads without connecting to a broker.
+	 */
+	public static FieldOfPlay createWithMqttMonitor(Platform platform,
+	        Function<FieldOfPlay, MQTTMonitor> monitorFactory) {
+		AtomicReference<MQTTMonitor> monitorRef = new AtomicReference<>();
+		FieldOfPlay m = new FieldOfPlay() {
+			@Override
+			public MQTTMonitor getMqttMonitor() {
+				return monitorRef.get();
+			}
+		};
+		m.setName(platform.getName());
+		m.setPlatform(platform);
+		m.initEventBuses();
+		m.setTestingMode(true);
+		m.getFopEventBus().register(m);
+		monitorRef.set(monitorFactory.apply(m));
+		return m;
 	}
 }
