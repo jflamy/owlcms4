@@ -1,10 +1,10 @@
 # Control Panel: `local/` Migration and Sparse Overrides
 
-Status: migration implemented in `controlpanel` (2026-11-23); fresh-install and extract action open.
+Status: done (2026-11-23, `controlpanel` 3.11.0-rc01).
 
 This specification covers the Control Panel (`controlpanel` repository,
 `owlcms/versionlist.go` and `owlcms/actions.go`) and its interaction with
-OWLCMS resource resolution ([ResourceWalker.java](../shared/src/main/java/app/owlcms/utils/ResourceWalker.java)).
+OWLCMS resource resolution ([ResourceWalker.java](../../shared/src/main/java/app/owlcms/utils/ResourceWalker.java)).
 
 ## Context
 
@@ -230,19 +230,20 @@ When a user with no full kit manually creates only
 - `owlcms/actions.go` & `shared/downloadutils.go`: `extractLocalOnInitialInstall = false`
   constant with `ExtractZipFiltered` so official `InstallRelease` / `UpdateRelease`
   do not unwrap `local/` while `InstallLocalZipFile` continues extracting `local/`
-  from custom ZIP kits.
+  from custom ZIP kits; `UpdateRelease` composed directly from `installRelease` +
+  `ImportDataAndConfig`.
 - `owlcms/versionlist_test.go`: unit tests covering missing `newDir/local`,
   modified `css/plates.css`, flags/pictures, root-level `logback.xml`,
   Step 2 pruning, missing `oldDir/local`, multi-step (`v1 -> v2 -> v3`) kit
   maintainer updates, sparse single-template overrides, dry-run reporting,
   extract-from-distribution, and skipping `local/` on official release install.
 
-### Remaining
+### Optional follow-ups
 
 1. **OWLCMS `zip.xml` (optional):**
    Once Control Panel with `extractLocalOnInitialInstall = false` is shipped,
    decide whether to also omit `local/` from OWLCMS's release ZIP assembly.
 2. **`AgeGroupContent` and `localTemplatesOnly`:**
-   Decide whether [AgeGroupContent.java](../owlcms/src/main/java/app/owlcms/nui/preparation/AgeGroupContent.java)
+   Decide whether [AgeGroupContent.java](../../owlcms/src/main/java/app/owlcms/nui/preparation/AgeGroupContent.java)
    should continue sharing `Config.isLocalTemplatesOnly()` with `templates/` or
    be decoupled.

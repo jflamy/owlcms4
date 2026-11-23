@@ -66,7 +66,6 @@ Scoped dark dialogs (210) are done: [210-SCOPED_DARK_DIALOGS.md](done/210-SCOPED
 | 350 | [Tracker rank and score columns](350-TRACKER_SCOREBOARD_RANK_COLUMNS.md) | Forward the lift-rank decision from OWLCMS; tracker Score column and medal rank, matching the OWLCMS scoreboard per championship |
 | 370 | [Document template settings](370-DOCUMENT_TEMPLATE_SETTINGS.md) | Store per-document template choices apart from `Competition`, so printing never counts as a change to the competition settings |
 | 380 | [Tracker translation keys](380-TRACKER_TRANSLATION_KEYS.md) | Forward translation keys and values next to the translated text, so tracker displays translate in their own language |
-| 390 | [Control Panel `local/` migration](390-CONTROL_PANEL_LOCAL_MIGRATION.md) | Sparse `local/` overrides, two-step `oldLocal`/`oldJar`/`newJar` migration, and kit-maintainer handling for `templates/` and `agegroups/` |
 
 Seven-person adjudication, including Tracker jury forwarding, is complete and
 archived in [SEVEN_PERSON_ADJUDICATION.md](done/SEVEN_PERSON_ADJUDICATION.md)
@@ -74,3 +73,6 @@ and [TRACKER_JURY_VOTES.md](done/TRACKER_JURY_VOTES.md).
 
 The Tracker reverse proxy (360) is complete and archived in
 [360-TRACKER_PROXY.md](done/360-TRACKER_PROXY.md).
+
+Control Panel `local/` migration and sparse overrides (390) are complete and
+archived in [390-CONTROL_PANEL_LOCAL_MIGRATION.md](done/390-CONTROL_PANEL_LOCAL_MIGRATION.md).
