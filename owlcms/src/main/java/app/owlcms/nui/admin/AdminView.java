@@ -108,8 +108,12 @@ public class AdminView extends BaseNavigationContent implements NavigationPage, 
 		        event -> openAnomalyDialog());
 		captureAnomaly.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
-		VerticalLayout systemTab = tab(heading("Admin.Server"),
-		        HomeNavigationContent.navigationGrid(stop, restart, backup, captureAnomaly),
+		VerticalLayout systemTab = tab();
+		if (Config.getCurrent().isAccountsMode()) {
+			systemTab.add(heading("Admin.Server"),
+			        HomeNavigationContent.navigationGrid(stop, restart));
+		}
+		systemTab.add(heading("Backup.Title"), HomeNavigationContent.navigationGrid(backup, captureAnomaly),
 		        heading("Admin.Imports"), importsAllowedSwitch(),
 		        heading("Admin.Testing"), HomeNavigationContent.navigationGrid(simulation));
 
