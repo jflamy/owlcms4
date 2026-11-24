@@ -11,6 +11,12 @@
 
 **Development log**
 
+- 69.0.0-rc11: Potentially dangerous imports are now blocked while a lifting session is active, with clear platform warnings: registration, SBDE, database, and age-group imports.
+  - JSON imports already warn about requiring an immediate full restart
+  - The other imports can accept a delayed restart.
+
+- 69.0.0-rc11: Server stop/restart controls are shown only in User Accounts mode to the appropriate administration and supervision accounts.
+
 - 69.0.0-rc10: Usability: disable password-manager autofill on non-login password, PIN, and key configuration fields.
 
 - 69.0.0-rc10: MQTT device configuration publishes only the global competition jury size for backward compatibility.
