@@ -72,11 +72,17 @@ files such as `logback.xml`):
    - File present in `oldJar` with the same SHA-256 (unchanged default, e.g.
      `timing/timing.properties`) -> do not copy; OWLCMS reads the new version's
      file directly from `newJar`.
-2. **Step 2 (cleanup `newLocal` vs `newJar`):**
+2. **Step 2 (cleanup `newLocal` vs `newJar` and compatibility check):**
    - For each standard-path file written to `newLocal`, if the same relative
      path exists in `newJar` with the identical SHA-256 (for example, a
      stylesheet bug fix now integrated into `newJar`), delete it from
      `newLocal`.
+   - For each modified standard-path file that still differs from `newJar`
+     (`oldLocal != newJar`), compare `newJar` against `oldJar` in the
+     migration report:
+     - `newJar == oldJar` -> distribution file unchanged (likely OK).
+     - `newJar != oldJar` (or removed from `newJar`) -> distribution file also
+       changed (flagged for user review).
    - Prune any parent directories that become empty, including `newLocal`
      itself if no files remain.
 
