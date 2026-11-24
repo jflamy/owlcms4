@@ -9,22 +9,30 @@ package app.owlcms.nui.preparation;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 
 import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.server.streams.UploadHandler;
 
+import app.owlcms.access.ImportLatch;
+import app.owlcms.access.ImportLatch.ActiveSession;
+import app.owlcms.access.ImportsNotAllowedException;
+import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.agegroup.AgeGroupDefinitionChecks;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.shared.ImportSessionWatcher;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -46,6 +54,7 @@ public class AgeGroupsFileUploadDialog extends Dialog {
 
 		AuditOrigin uploadOrigin = AuditOrigin.fromUi("age group definitions upload");
 		Locale locale = OwlcmsSession.getLocale();
+		List<ActiveSession> activeSessions = ImportLatch.activeSessions();
 		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, data) -> {
 			// Process the uploaded file data
 			try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data)) {
@@ -60,9 +69,11 @@ public class AgeGroupsFileUploadDialog extends Dialog {
 				AgeGroupDefinitionChecks.warnings(locale).lines().forEach(errorCollector);
 				updateDisplay(ta, errorsSb);
 				getCallback().run();
+			} catch (ImportsNotAllowedException e) {
+				getUI().ifPresent(ui -> ui.access(() -> NotificationUtils.centeredError(
+				        sessionInProgressMessage(e.getActiveSessions(), locale))));
 			} catch (Exception e) {
 				logger.error("Error processing uploaded age groups file", e);
-				// You might want to show an error notification here
 			}
 		}).whenStart(() -> {
 			// Clear and hide the error area when upload starts
@@ -72,10 +83,34 @@ public class AgeGroupsFileUploadDialog extends Dialog {
 		
 		Upload upload = new Upload(uploadHandler);
 		upload.setWidth("40em");
+		Button uploadButton = new Button(Translator.translate("SelectFile"));
+		updateUploadWarningIcon(uploadButton, activeSessions, locale);
+		upload.setUploadButton(uploadButton);
+		new ImportSessionWatcher(this, sessions -> {
+			updateUploadWarningIcon(uploadButton, sessions, locale);
+		});
 
 		H3 title = new H3(Translator.translate("AgeGroups.ImportDefinitions"));
 		VerticalLayout vl = new VerticalLayout(title, label, upload, ta);
 		add(vl);
+	}
+
+	private static void updateUploadWarningIcon(Button uploadButton, List<ActiveSession> activeSessions,
+	        Locale locale) {
+		if (activeSessions.isEmpty()) {
+			uploadButton.setIcon(null);
+			return;
+		}
+		String message = sessionInProgressMessage(activeSessions, locale);
+		var warning = VaadinIcon.WARNING.create();
+		warning.getStyle().set("color", "var(--lumo-error-color)");
+		warning.getElement().setAttribute("title", message);
+		warning.getElement().setAttribute("aria-label", message);
+		uploadButton.setIcon(warning);
+	}
+
+	private static String sessionInProgressMessage(List<ActiveSession> activeSessions, Locale locale) {
+		return ImportLatch.activePlatformMessage(activeSessions, locale);
 	}
 
 	private void updateDisplay(TextArea ta, StringBuffer sb) {

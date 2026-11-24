@@ -45,6 +45,10 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import app.owlcms.access.AccessUi;
+import app.owlcms.access.ImportGate;
+import app.owlcms.access.ImportLatch;
+import app.owlcms.access.ImportLatch.ActiveSession;
+import app.owlcms.access.ImportsNotAllowedException;
 import app.owlcms.audit.AuditOrigin;
 import app.owlcms.access.Access;
 import app.owlcms.access.RequiresAccess;
@@ -71,6 +75,7 @@ import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.DownloadButtonFactory;
+import app.owlcms.nui.shared.ImportSessionWatcher;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.XLSXAgeGroupsExport;
@@ -165,31 +170,55 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		this.ageGroupDefinitionSelect.setWidth("15em");
 		this.ageGroupDefinitionSelect.getStyle().set("margin-left", "1em");
 		setAgeGroupsSelectionListener(resourceList);
+		List<ActiveSession> activeSessions = ImportLatch.activeSessions();
 
 		Button loadPredefined = new Button(Translator.translate("AgeGroups.LoadPredefined"), (e) -> {
+			AuditOrigin loadOrigin = AuditOrigin.fromUi("age group definitions load");
+			Locale loadLocale = OwlcmsSession.getLocale();
+			try {
+				ImportLatch.requireNoActiveSession(ImportGate.Kind.AGE_GROUPS, loadOrigin);
+			} catch (ImportsNotAllowedException refused) {
+				NotificationUtils.centeredError(sessionInProgressMessage(refused.getActiveSessions(), loadLocale));
+				return;
+			}
 			Resource definitions = this.ageGroupDefinitionSelect.getValue();
 			if (definitions == null) {
 				String labelText = Translator.translate("ResetCategories.PleaseSelectDefinitionFile");
 				NotificationUtils.errorNotification(labelText);
 			} else {
-				AuditOrigin loadOrigin = AuditOrigin.fromUi("age group definitions load");
-				Locale loadLocale = OwlcmsSession.getLocale();
 				new ConfirmationDialog(Translator.translate("ResetCategories.ResetCategories"),
 				        Translator.translate("ResetCategories.Warning_ResetCategories"),
 				        Translator.translate("ResetCategories.CategoriesReset"), () -> {
-					        AgeGroupRepository.reloadDefinitions(definitions.getFileName(), loadOrigin);
-					        resetCategories();
-					        showDefinitionWarnings(AgeGroupDefinitionChecks.warnings(loadLocale));
+					        try {
+						        AgeGroupRepository.reloadDefinitions(definitions.getFileName(), loadOrigin);
+						        resetCategories();
+						        showDefinitionWarnings(AgeGroupDefinitionChecks.warnings(loadLocale));
+					        } catch (ImportsNotAllowedException refused) {
+						        NotificationUtils.centeredError(
+						                sessionInProgressMessage(refused.getActiveSessions(), loadLocale));
+					        }
 				        }).open();
 			}
 		});
 		Button uploadCustom = new Button(Translator.translate("AgeGroups.ImportDefinitions"),
 		        new Icon(VaadinIcon.UPLOAD_ALT),
 		        buttonClickEvent -> {
+			        AuditOrigin uploadOrigin = AuditOrigin.fromUi("age group definitions upload");
+			        try {
+				        ImportLatch.requireNoActiveSession(ImportGate.Kind.AGE_GROUPS, uploadOrigin);
+			        } catch (ImportsNotAllowedException refused) {
+				        NotificationUtils.centeredError(sessionInProgressMessage(refused.getActiveSessions(),
+				                OwlcmsSession.getLocale()));
+				        return;
+			        }
 			        AgeGroupsFileUploadDialog ageGroupsFileUploadDialog = new AgeGroupsFileUploadDialog();
 			        ageGroupsFileUploadDialog.setCallback(() -> resetCategories());
 			        ageGroupsFileUploadDialog.open();
 		        });
+		updateImportWarningIcons(loadPredefined, uploadCustom, activeSessions, locale);
+		new ImportSessionWatcher(this, sessions -> {
+			updateImportWarningIcons(loadPredefined, uploadCustom, sessions, locale);
+		});
 
 		HorizontalLayout reloadDefinition = new HorizontalLayout(this.ageGroupDefinitionSelect, loadPredefined);
 		reloadDefinition.setAlignItems(FlexComponent.Alignment.BASELINE);
@@ -229,6 +258,33 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 
 		return this.topBar;
+	}
+
+	private static void updateImportWarningIcons(Button loadPredefined, Button uploadCustom,
+	        List<ActiveSession> activeSessions, Locale locale) {
+		if (activeSessions.isEmpty()) {
+			loadPredefined.setIcon(null);
+			uploadCustom.setIcon(VaadinIcon.UPLOAD_ALT.create());
+			return;
+		}
+		String message = sessionInProgressMessage(activeSessions, locale);
+		loadPredefined.setIcon(importWarningIcon(message));
+		uploadCustom.setIcon(importWarningIcon(message));
+	}
+
+	private static Icon importWarningIcon(String message) {
+		Icon warning = VaadinIcon.WARNING.create();
+		warning.getStyle().set("color", "var(--lumo-error-color)");
+		warning.getStyle().set("width", "1.5em");
+		warning.getStyle().set("height", "1.5em");
+		warning.getElement().setAttribute("title", message);
+		warning.getElement().setAttribute("aria-label", message);
+		warning.getElement().setAttribute("role", "img");
+		return warning;
+	}
+
+	private static String sessionInProgressMessage(List<ActiveSession> activeSessions, Locale locale) {
+		return ImportLatch.activePlatformMessage(activeSessions, locale);
 	}
 
 	@Override
