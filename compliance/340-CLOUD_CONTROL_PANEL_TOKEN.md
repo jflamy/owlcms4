@@ -45,8 +45,16 @@ app has no storage of its own between sessions.
   OWLCMS only compares the value it was given, so the format may differ from the local
   control panel's.
 
-## To decide when implementing
+## Decided when implementing (2026-11-23)
 
-- Whether the token is generated at app creation only, or also offered as a
-  "regenerate" action.
-- Where the copy icon sits in the apps view.
+- Only OWLCMS 69.0.0-alpha00 and later get a token. The same version rule lets the image
+  set `OWLCMS_CONTROLPANEL`: the cloud app no longer sets that secret for 69+ (it unsets
+  it on update), and keeps `OWLCMS_CONTROLPANEL=3.1.0` for older versions.
+- The token is generated at creation, and at update when the pair is missing or there is
+  not exactly one marker. A Generate/Regenerate button on each OWLCMS app replaces it:
+  a running OWLCMS restarts to use it; a stopped one gets it at its next start (staged,
+  so that OWLCMS is not started while its database is stopped).
+- The token row (copy icon and Generate/Regenerate) sits under the
+  Update/Start/Stop/Delete buttons, where the tracker key controls are.
+- The token is passed to `fly secrets import` on stdin, never on a logged command line,
+  and marker names are hidden in the operation log.
