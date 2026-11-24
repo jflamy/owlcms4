@@ -6,6 +6,8 @@
  *******************************************************************************/
 package app.owlcms.access;
 
+import java.util.List;
+
 import app.owlcms.access.ImportsNotAllowedException.Reason;
 import app.owlcms.audit.ApplicationAudit;
 import app.owlcms.audit.AuditOrigin;
@@ -21,7 +23,7 @@ public final class ImportGate {
 
 	/** The imports covered, as recorded in the audit trail. */
 	public enum Kind {
-		DATABASE, REGISTRATION, SBDE
+		DATABASE, REGISTRATION, SBDE, AGE_GROUPS
 	}
 
 	private ImportGate() {
@@ -54,11 +56,14 @@ public final class ImportGate {
 			refusal = Reason.NO_PERMISSION;
 		} else if (!isAllowed()) {
 			refusal = Reason.NOT_ALLOWED;
+		} else {
+			ImportLatch.requireNoActiveSession(kind, origin);
 		}
 		if (refusal == null) {
 			return;
 		}
-		ApplicationAudit.importRefused(origin, kind.name().toLowerCase(), refusal.auditValue());
+		ApplicationAudit.importRefused(origin, kind.name().toLowerCase(), refusal.auditValue(),
+		        List.<String>of(), List.<String>of());
 		throw new ImportsNotAllowedException(kind, refusal);
 	}
 }

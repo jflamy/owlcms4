@@ -31,6 +31,8 @@ import app.owlcms.audit.AgeGroupAudit;
 import app.owlcms.audit.AthleteAudit;
 import app.owlcms.audit.AthleteDiff;
 import app.owlcms.audit.AuditOrigin;
+import app.owlcms.access.ImportGate;
+import app.owlcms.access.ImportLatch;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -516,6 +518,7 @@ public class AgeGroupRepository {
 	private static void reload(AuditOrigin origin, String source, Runnable replaceDefinitions) {
 		Map<Long, AthleteDiff.Snapshot> before = JpaTransactions.inTransaction(em -> AgeGroupDefinitionService
 		        .athletesBefore(em, em.createQuery("select a.id from Athlete a", Long.class).getResultList()));
+		ImportLatch.requireNoActiveSession(ImportGate.Kind.AGE_GROUPS, origin);
 		replaceDefinitions.run();
 		AthleteRepository.resetParticipations(false, true);
 		List<AthleteAudit.Changed> changed = JpaTransactions

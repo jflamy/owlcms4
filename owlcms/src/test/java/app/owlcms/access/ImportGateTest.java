@@ -12,8 +12,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -28,9 +31,14 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.export.FormatDetector;
 import app.owlcms.data.export.v2.CompetitionDataV2;
+import app.owlcms.data.group.Group;
+import app.owlcms.access.ImportLatch.ActiveSession;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.init.TestFopRegistry;
 import app.owlcms.nui.admin.AdminView;
 import app.owlcms.nui.admin.AuditIntegrityCheckView;
 import app.owlcms.nui.preparation.ConfigContent;
@@ -109,6 +117,44 @@ public class ImportGateTest {
 		        () -> FormatDetector.importData(json, "test.json", ADMIN, ORIGIN));
 		assertEquals(ImportGate.Kind.DATABASE, refused.getKind());
 		assertEquals("nothing was replaced", stamp, ConfigRepository.loadForEdit().getLastSavedAt());
+	}
+
+	@Test
+	public void activeSessionRefusesSpreadsheetImports() {
+		FieldOfPlay platform = new FieldOfPlay();
+		platform.setName("Platform 1");
+		platform.setGroup(new Group("A"));
+		Map<String, FieldOfPlay> previous = TestFopRegistry.replace(Map.of("Platform 1", platform));
+		try {
+			for (ImportGate.Kind kind : List.of(ImportGate.Kind.REGISTRATION, ImportGate.Kind.SBDE,
+			        ImportGate.Kind.AGE_GROUPS)) {
+				ImportsNotAllowedException refused = assertThrows(ImportsNotAllowedException.class,
+				        () -> ImportGate.requireAllowed(kind, ADMIN, ORIGIN));
+				assertEquals(Reason.SESSION_IN_PROGRESS, refused.getReason());
+				assertEquals("SESSION_IN_PROGRESS", refused.getReason().auditValue());
+				assertEquals("A", refused.getActiveSessions().get(0).sessionName());
+				assertEquals("Platform 1", refused.getActiveSessions().get(0).platformName());
+			}
+
+			ImportsNotAllowedException refused = assertThrows(ImportsNotAllowedException.class,
+			        () -> AgeGroupRepository.reloadDefinitions(new ByteArrayInputStream(new byte[0]), ORIGIN));
+			assertEquals(ImportGate.Kind.AGE_GROUPS, refused.getKind());
+			assertEquals(Reason.SESSION_IN_PROGRESS, refused.getReason());
+			assertThrows(ImportsNotAllowedException.class,
+			        () -> ImportGate.requireAllowed(ImportGate.Kind.DATABASE, ADMIN, ORIGIN));
+		} finally {
+			TestFopRegistry.replace(previous);
+		}
+	}
+
+	@Test
+	public void activePlatformMessageUsesLocalizedSingularAndPluralLists() {
+		ActiveSession a = new ActiveSession(1L, "A1", "B");
+		ActiveSession b = new ActiveSession(2L, "A2", "A");
+		assertTrue(ImportLatch.activePlatformMessage(List.of(a), Locale.ENGLISH)
+		        .startsWith("A session is active on platform B."));
+		assertTrue(ImportLatch.activePlatformMessage(List.of(a, b), Locale.ENGLISH)
+		        .startsWith("Sessions are active on platforms: A and B."));
 	}
 
 	@Test

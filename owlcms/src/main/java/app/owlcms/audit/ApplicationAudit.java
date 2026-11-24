@@ -1,5 +1,6 @@
 package app.owlcms.audit;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -57,10 +58,12 @@ public final class ApplicationAudit {
 				.build());
 	}
 
-	/** An import was refused: no IMPORT_DATA permission, or imports are not allowed. */
-	public static void importRefused(AuditOrigin origin, String kind, String reason) {
+	/** An import was refused before mutation. Active platform/session lists describe session-latch refusals. */
+	public static void importRefused(AuditOrigin origin, String kind, String reason, List<String> sessions,
+	        List<String> platforms) {
 		AuditLog.write(AuditEntry.builder("competition", "application.import-refused").actor(origin.actor())
-				.cause(origin.cause()).details(AuditFormat.fields("import", kind, "reason", reason))
+				.cause(origin.cause()).details(AuditFormat.fields("import", kind, "reason", reason,
+				        "sessions", sessions, "platforms", platforms))
 				.build());
 	}
 
