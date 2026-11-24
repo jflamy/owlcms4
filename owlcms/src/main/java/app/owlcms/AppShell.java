@@ -19,7 +19,10 @@ import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.server.ErrorEvent;
 import com.vaadin.flow.server.ErrorHandler;
 import com.vaadin.flow.server.ServiceInitEvent;
+import com.vaadin.flow.server.UnsupportedBrowserEvent;
+import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinServiceInitListener;
+import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinServletResponse;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.communication.IndexHtmlRequestListener;
@@ -104,6 +107,16 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
 		});
 		serviceInitEvent.addIndexHtmlRequestListener(this);
 
+		// The Referer tells whether Vaadin's browser check redirected from a page, or the configured URL already
+		// asked for the refusal page.
+		serviceInitEvent.getSource().getEventBus().addListener(UnsupportedBrowserEvent.class, e -> {
+			VaadinRequest request = e.getRequest();
+			LoggerFactory.getLogger(AppShell.class)./**/warn(
+			        "browser refused as too old: client={} url={} referer={} user-agent={}",
+			        request.getRemoteAddr(), requestUrl(request), request.getHeader("Referer"),
+			        request.getHeader("User-Agent"));
+		});
+
 		serviceInitEvent.getSource().addSessionInitListener(sessionInitEvent -> {
 			VaadinSession session = sessionInitEvent.getSession();
 			ErrorHandler handler = new ErrorHandler() {
@@ -140,5 +153,13 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
 
 	private String getCurrentUserLanguage() {
 		return OwlcmsSession.resolvePageLocale().toString().replace("_", "-");
+	}
+
+	private static String requestUrl(VaadinRequest request) {
+		if (request instanceof VaadinServletRequest servletRequest) {
+			String query = servletRequest.getQueryString();
+			return servletRequest.getRequestURL() + (query != null ? "?" + query : "");
+		}
+		return request.getPathInfo();
 	}
 }
