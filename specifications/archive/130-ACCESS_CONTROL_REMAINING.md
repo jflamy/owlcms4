@@ -1,0 +1,360 @@
+> Archived historical information. May differ from the actual implementation. Not meant to be updated.
+
+# Access Control - Other Remaining Work
+
+The role system is implemented. Its historical design is in
+[done/ACCESS_CONTROL_DESIGN.md](ACCESS_CONTROL_DESIGN.md).
+Token generation and URL protection are done: [110](110-ACCOUNT_TOKENS.md) and
+[120](120-TOKEN_PROTECTED_URLS.md).
+The items below were identified on 2026-10-22. Done: navigation and in-page actions,
+locality, security settings, audit pages, admin password, admin pages, PIN mode (now
+"Simple Access" in the interface), the OWLCMS side of the [Non-route review](#non-route-review).
+The [Database import](#database-import) plan is done, including the list of
+[protected actions](#protected-actions). Closed on 2026-10-31: the acceptance checks added that
+day passed; the original ones (PLATFORM(A), combined REGISTRATION/WEIGHIN/RESULTS, break
+controls) were not run. The tracker proxy review is [360](360-TRACKER_PROXY.md).
+
+## Navigation and in-page actions
+
+Done: buttons that open another page are shown only when the session may open the
+target (`AccessUi.canOpen`, or `AccessUi.canOpenOnPlatform` for a platform-bound
+target), as the navigation pages already did:
+
+| Source | Target |
+| --- | --- |
+| AnnouncerContent, BreakManagement | MedalCeremonyContent |
+| EditChampionshipsPanel (also inside the Competition page) | AgeGroupContent, ChampionshipTemplateContent |
+| AgeGroupContent, TeamResultsContent | ChampionshipsContent |
+| PlatformContent | TCContent for each platform; the column is hidden when no platform is allowed |
+| SessionContent | RegistrationContent |
+| RecordContent | RecordFederationComparisonReport (PREPARATION or RESULTS, like the records page; was ADMIN_PAGES) |
+| TechnicalOfficialContent | TeamScheduleContent |
+
+Not gated: the Login/Edit button of `publicRecords` (records-only mode has its own
+access rules and that button is its way in), the announcer active/passive switch (same
+permission), and the Administration page buttons (ADMIN_PAGES opens their targets).
+Download links are not route targets: their authorization belongs to the resource.
+The target page still refuses entry on its own; hiding only avoids dead buttons.
+
+The records page (`RecordContent`) and the record eligibility report need PREPARATION
+or RESULTS. Results users get every action on the records page, not only the export:
+they may need to fix records and recompute the new ones.
+
+The device testing page (`lifting/testing`) needs TC or COMPETITION_SUPERVISOR on its
+platform (was ADMIN_PAGES). Break buttons stay as they are: they appear only on lifting
+pages whose own permission already fits (announcer, timekeeper, marshal Pause,
+Competition Supervisor, testing).
+
+## Non-route review
+
+| Surface | Review |
+| --- | --- |
+| `/local/*` | Done. One check, `ResourceWalker.resolveInside` (normalize, then stay inside the base, with the operating system's separators), is used by the resource lookup (`getFileOrResourcePath`, `getFileOrResource`: override directory and classpath names) and by override zip extraction (`ZipUtils.extractZip`, zip slip). Jetty already refuses encoded `/`, `%25` and `..` segments; this covers `%5c`, a separator on Windows (`..\`, `C:\...`). Symbolic links inside the override directory are followed: they are the operator's choice. |
+| MQTT broker and `/mqtt` | Done: client password no longer logged; OWLCMS's own broker connection uses a random secret (not the startup time), compared in constant time |
+| Vaadin dynamic downloads/uploads | Done, no change needed. All use `DownloadHandler`/`UploadHandler` (no legacy `StreamResource`/`StreamReceiver`); Flow serves them only within the owning session, and refuses (403) when the owning component is detached, hidden, disabled or inert; uploads also check a per-component key in constant time. Uploads are created inside dialogs opened by a button, or on a page with its own role (System Settings laptop override restore); downloads are created on click or inside a dialog. A protected action is therefore unreachable once its button is hidden or disabled, or its dialog is not opened; the protected-actions plan ([Database import](#database-import)) still checks again where the action runs. |
+| Forwarded client IP | Decided: no trusted-proxy work. The officials and display address lists are PIN mode only and keep reading `X-Forwarded-For` (weak, accepted). Accounts mode does not depend on the client address (login throttling and logs only); security needs accounts. |
+| CorsFilter | Done: removed. It answered any site with credentials on Vaadin UIDL, heartbeat and build requests, and tried to make the session cookie `SameSite=None` (only for `JSESSIONID`; the cookie is named `owlcms`, so it never applied). It was added to let another site show a scoreboard in an iframe, which CORS does not govern: a framed page talks to its own server. Decided 2026-10-31: framing OWLCMS from another site is not supported (Vaadin sends `X-Frame-Options: SAMEORIGIN` since 25.2, and the session cookie is not sent in a cross-site frame). To show a scoreboard inside another page, use the tracker's reverse proxy (`/proxy`, used by the celebrations plugin): the frame is then same-origin with the tracker page. |
+| Tracker `/proxy` (tracker repository) | Moved to [360](360-TRACKER_PROXY.md): open proxy through `_target`, and framing protection stripped from proxied OWLCMS pages. |
+
+## Locality: the control panel token
+
+The control panel token is the single proof that a request comes from the OWLCMS
+machine. The client address is not one: a local reverse proxy makes remote requests
+appear to come from localhost, and forwarding headers can be forged. The backdoor list
+never counts as locality.
+
+- The control panel generates a token per run, passes it to OWLCMS at launch
+  (`OWLCMS_CONTROLPANELTOKEN`), sends it on stop, and offers a copy icon on the OWLCMS
+  tab (the value is not displayed). It keeps the token in its runtime file (readable by
+  its owner only) so a restarted control panel can still copy it and stop OWLCMS.
+- In the cloud, the cloud app plays the control panel's role:
+  [340](../340-CLOUD_CONTROL_PANEL_TOKEN.md).
+- Whenever OWLCMS has a token, it is required and must match, from any address,
+  including from the OWLCMS machine itself.
+- An OWLCMS started without a token (by hand, without a control panel) refuses every
+  action that needs locality, and says so. There is no fallback on the client address,
+  not even a direct loopback connection.
+
+## Security settings
+
+The access mode (PIN or accounts) and the IWF compliance check are set only in the
+Security section of the Administration page (`SecuritySettings`). The Accounts page and
+the System Settings no longer have an access-mode control.
+
+- Switching the access mode, in either direction, needs the cp challenge
+  ([Audit pages](#audit-pages)) and an admin password for accounts mode. It is audited
+  (`ConfigRepository.save`) and logs out every session. In the cloud the cp challenge
+  means the token secret; until [340](../340-CLOUD_CONTROL_PANEL_TOKEN.md) sets it, cloud
+  apps stay in PIN mode unless it is set by hand.
+- IWF compliance is a check, not a mode (`IwfComplianceCheck`): nothing is enforced.
+  When the "Check IWF compliance" box is checked, OWLCMS lists the requirements:
+  - user accounts are used;
+  - the audit trail is signed with an installed key (a key file, or the key secret in
+    the cloud), not the built-in one; a pending key counts after the next restart;
+  - OWLCMS was started with a control panel token.
+
+  The Security section shows every requirement. The requirements not met are shown on
+  the home page to the sessions that can open the Administration or Competition
+  Supervisor pages, and as a notification on the Competition Supervisor page. The
+  result is logged and audited at startup (`auth.iwf-compliance-check`).
+- The check takes effect at once, without the cp challenge or a restart; changing it is
+  audited (`auth.iwf-compliance`). It is independent of `tcrrCompliance` (the
+  competition rules).
+- There is no startup override: `OWLCMS_ACCESSMODE` and `OWLCMS_IWFCOMPLIANCE` were
+  removed. Both settings come from the database: the Security section, or an import.
+- An `iwfCompliance` entry left in the feature switches is ignored.
+
+| Action | Status |
+| --- | --- |
+| `/controlpanel/stop` (the control panel sends the token automatically) | Done |
+
+Simulation needs no locality: only the `simulation` page starts it, with a login; the
+token-accessible `/simulation/*` script endpoints were removed.
+
+## Audit pages
+
+The **cp challenge** is a dialog in which the operator pastes the control panel token
+before an action that needs locality (`ControlPanelChallenge`, same rule as the locality
+proof above). It is asked at each such action; failures are throttled and audited.
+
+The Audit Key Initialization button on the Administration page opens a dialog that
+shows the active and pending key fingerprints and the key file, and creates a new
+pending signing key on the server's disk. The new fingerprint is then shown for the
+technical delegate to photograph at the machine, and OWLCMS restarts to activate it.
+`admin/audit/check` verifies logs at a path on the server's disk. Both require
+ADMIN_PAGES and the admin password ([Admin pages](#admin-pages)). In the cloud the key
+comes from a secret, so key initialization does not apply there.
+
+| Action | Status |
+| --- | --- |
+| Generating or replacing the pending key (dialog on the Administration page; the `admin/audit/prepare` page was removed) | Done: cp challenge in the dialog |
+| Running a check (`admin/audit/check`) | Done: token field on the page, cp challenge at each check; opening the page needs no locality |
+| Database import | Undecided: see [Database import](#database-import) |
+
+## Admin password
+
+The control panel token, entered verbatim as the built-in admin's password, is the
+emergency way in, at any time: for the first password of a new installation and for a
+forgotten one. Fetching the token requires control of the OWLCMS process, the same as
+setting a startup variable, so there is no separate recovery mode.
+
+Done in accounts mode:
+
+- The login page accepts user `admin` with the token as password, compared in constant
+  time and throttled like a password. The login is audited with `how=control-panel-token`.
+- The token becomes the admin's current password and the admin must change it: every
+  page redirects to the change-password page (`AccountView`), which does not ask for the
+  current password in that case. The token cannot be kept as the password.
+- Once the new password is set, OWLCMS restarts, ending every session, including any
+  opened by someone else who had the token. The control panel gives each OWLCMS launch,
+  restarts included, a new token, so the token used for the emergency login stops
+  working. In the cloud the secret stays the same until it is replaced.
+- While the admin has no password, the login page says to use the token.
+- The single-use admin password written to `owlcms.log` and the `OWLCMS_ADMINRECOVERY`
+  recovery page are removed.
+- Without a token and without an admin password, nobody can log in as admin; startup
+  warns. In the cloud, set `OWLCMS_CONTROLPANELTOKEN` as a Fly secret
+  ([340](../340-CLOUD_CONTROL_PANEL_TOKEN.md) automates it).
+
+PIN mode: an officials-PIN holder sets the admin password on the User Accounts page,
+which is needed before switching to accounts mode. A forgotten officials PIN is replaced
+after logging in with the control panel token ([PIN mode](#pin-mode)).
+
+OWLCMS started by hand, without a control panel, has no token: whoever starts it can
+define `OWLCMS_CONTROLPANELTOKEN` themselves, which makes the same flows available.
+
+### Threat model
+
+Guarantee: **nobody can reset the admin password with the token without access to the
+OWLCMS server.** Server access means an account on the machine (desktop or SSH), or, in
+the cloud, the operator's Fly access to the app's secrets. Someone with that access
+already controls OWLCMS (database files, startup settings, the jar) and is outside the
+threat model; the protection is against attackers who only reach OWLCMS over the network.
+
+An arbitrary token given in the environment at launch is sufficient:
+
+- The network cannot set it: only whoever starts OWLCMS chooses its environment.
+- The network cannot read it: it is never logged, displayed, exported or written to the
+  audit trail (the trail records `how=control-panel-token`, not the value). The control
+  panel shows it only through a copy icon in its own window and keeps it in an
+  owner-only runtime file.
+- It cannot be guessed: 72 random bits, with failed logins throttled.
+- It is short-lived: the control panel gives each launch a new token.
+
+Typing the token in a browser on another machine is therefore acceptable: whoever types it
+obtained it from the server.
+
+Rejected, because they add nothing against network attackers and cannot stop someone
+with server access:
+
+- A secret shared by the control panel and OWLCMS, to prove the token came from the
+  control panel: it can be extracted from the binaries, and the control panel's command
+  line can itself start OWLCMS over SSH.
+- A Unix domain socket handing the token to OWLCMS: an account on the machine can create
+  the socket and serve any token.
+- Address checks: a reverse proxy or port forward on the server makes remote requests
+  look local, and forwarding headers can be forged.
+
+## Admin pages
+
+| Page | Access |
+| --- | --- |
+| `admin` (Administration: stop, restart, backup, imports allowed, simulation, security settings, audit key, audit check) | ADMIN_PAGES or COMPETITION_SUPERVISOR; no locality, so cloud installations can use it. The Security and Audit tab needs ADMIN_PAGES (`Capability.SECURITY_SETTINGS`) and the admin password: the Competition Supervisor sees only the System tab. Audit key generation and security settings need the cp challenge ([Audit pages](#audit-pages)). |
+| `admin/backup` | ADMIN_PAGES or COMPETITION_SUPERVISOR, and the admin password for ADMIN_PAGES; no locality. Opened from the System tab of the Administration page. |
+| `admin/audit/check` | ADMIN_PAGES and the admin password; each check needs the cp challenge ([Audit pages](#audit-pages)) |
+| `simulation` (button on the admin page) | ADMIN_PAGES or COMPETITION_SUPERVISOR, with a login (not token-accessible); no locality. |
+
+- Accounts mode: the admin password is the normal login.
+- PIN mode: the officials PIN gives every permission ("PIN mode stays naked"); the
+  dangerous actions on these pages need the control panel token.
+- Done: the side-menu entry is shown to any session allowed to open the admin page,
+  in PIN mode too (the PIN mode switch to accounts is on that page).
+- Done: the PIN-mode address check (`AdminView.hasLocalAccess`) and the backdoor list
+  are removed ([PIN mode](#pin-mode)).
+- The Administration page has two tabs: System (stop, restart, backup, imports allowed,
+  simulation) and Security and Audit (access mode, IWF check, the PIN-mode access settings moved from
+  System Settings, audit key and audit check). Without a control panel token it is
+  still shown; the actions that need the token are disabled and say why.
+- Tokens do not reach these pages: they are not `@TokenAccessible`.
+
+## Database import
+
+Import keeps its current roles (the preparation page); there is no import URL, so the
+user is logged in. It is a full replacement, accounts included: anyone allowed to
+import can replace the accounts. Import is normal until the competition starts, and
+dangerous after.
+
+Direction agreed (2026-10-30). Done (2026-10-31): "Imports are allowed", the IMPORT
+permission, RESULTS for exports, the list of [protected actions](#protected-actions).
+
+- Terminology: a **permission** is an individual right (a base role in the code, the only
+  thing `@RequiresRole` checks); a **role** is a set of permissions given to an account
+  (a grantable role in the code, expanded by `Role.expand()`). Many names are both: the
+  Preparation role contains only the PREPARATION permission.
+- Done: actions inside pages get required permissions, like pages do with `@RequiresRole`:
+  `Capability` (SECURITY_SETTINGS, IMPORT_DATA, EXPORT_DATA), checked in the UI (hide the
+  button) and again where the action runs, with the refusal audited. The unused
+  BREAK_MANAGEMENT entry was removed: break controls are limited by the pages that show
+  them.
+- Done: an **"Imports are allowed"** yes/no setting, on the System tab of the
+  Administration page (decided 2026-10-31: the Competition Supervisor page is for
+  watching the competition, and it exists in Simple Access only with a feature switch),
+  changed by the Supervisor or an admin and audited (`application.imports-allowed`). Manual, not automatic: test lifts are often done before the competition.
+  When it is off, every import is refused, whoever asks: the database (JSON) import, the
+  registration upload and the SBDE upload. To use SBDE during the competition (athlete
+  names, referee allocations; results are not touched), the Supervisor turns imports on,
+  uploads, and turns them off again. `ImportGate.requireAllowed` checks when the file
+  arrives (a dialog opened while imports were allowed is refused if they were turned off
+  since) and audits the refusal (`application.import-refused`). The startup load of a
+  checkpoint by the control panel is not checked: it replaces the database the setting
+  is stored in, and is the operator's action at the machine. Records-only mode ignores
+  the setting.
+- In PIN mode the setting applies too, but any PIN holder can change it: it prevents
+  accidents, not people ("PIN mode stays naked").
+- On by default. Stored directly in `Config`, so exports carry it and an import
+  restores it. [136](136-CONFIG_COARSE_CONFLICT.md) protects it: a System
+  Settings page opened before the setting changed cannot overwrite it, and an import
+  makes earlier pages stale; no `CompetitionControls` embeddable is introduced.
+- When imports are off, the three import buttons on the Preparation page are disabled,
+  and a notice at the top of the page says where to turn imports back on.
+- Done: database exports require the RESULTS permission (roles: Results, Competition
+  Director, Competition Supervisor, External, admin; `Capability.EXPORT_DATA`). The
+  Preparation page and the records-only page hide the JSON exports (and the SBDE export)
+  from sessions without it; the JSON download checks again when the stream is produced,
+  with the session that clicked, and audits a refusal (`export.json`, `outcome=refused`).
+  The HTTP endpoints (`/competition/export/...`, SBDE included) already required RESULTS.
+  Backup and Capture Anomaly include an export; their page needs ADMIN_PAGES or
+  COMPETITION_SUPERVISOR, both of which include RESULTS. The secrets an export contains
+  are protected by their hashes (see [PIN mode](#pin-mode) for the PINs).
+- Done (decided 2026-10-30): the three imports (database JSON, registration, SBDE) require a
+  new IMPORT permission (`Role.IMPORT`, `Capability.IMPORT_DATA`). It is not grantable on its
+  own: it comes with the Preparation and Registration roles, Competition Supervisor and admin
+  (and Simple Access), not with Competition Director, whose PREPARATION permission comes
+  without it. Accounts without it do not see the import buttons; `ImportGate.requireAllowed`
+  checks again when the file arrives, with the identity captured when the dialog was opened,
+  and audits a refusal (`reason=no-import-permission`). The other uploads (age groups,
+  officials, coaches, team schedule, records, session results) are not imports for this
+  purpose.
+
+An import is faithful: the settings are those of the export, the access mode and the
+IWF compliance check included; nothing is kept from the running OWLCMS. A setting
+missing from an older export takes its default (PIN mode, check off).
+
+### Protected actions
+
+Decided complete on 2026-10-31. "Admin" is the admin account or any account with the
+admin role. In Simple Access mode the officials password gives everything below (the
+control panel token is still asked where noted); the display password gives none of it.
+
+| Action | Where | Roles (User Accounts mode) | Also needs |
+| --- | --- | --- | --- |
+| Registration, SBDE and database imports | Preparation page | Preparation, Registration, Competition Supervisor, admin (IMPORT) | "Imports are allowed" on; checked again when the file arrives |
+| Database (JSON) and SBDE exports | Preparation, Results and records-only pages; `/competition/export/...` | Results, Competition Director, Competition Supervisor, External, admin (RESULTS) | JSON download checked again when produced; the endpoints accept an account token with RESULTS |
+| "Imports are allowed", Stop, Restart, Backup, Capture Anomaly, Simulation | Administration page, System tab | Competition Supervisor, admin | — |
+| Officials and display passwords, address lists, IWF compliance check | Administration page, Security and Audit tab | admin (SECURITY_SETTINGS) | — |
+| Access mode switch, audit key initialization | Security and Audit tab | admin | control panel token at each action |
+| Audit integrity check | `admin/audit/check` | admin | control panel token at each check |
+| System Settings, User Accounts, session results import | their pages | admin | — |
+| Device testing | `lifting/testing` | TC on the platform, Competition Supervisor | — |
+| Break controls | announcer, timekeeper, marshal, Competition Supervisor and testing pages | those pages' roles | — |
+
+## PIN mode
+
+Agreed 2026-10-30. PIN mode protects a cloud installation from random visitors; it is a
+weak check by design. Done.
+
+- The officials PIN opens the Home page and gives every permission ("PIN mode stays
+  naked"). The address check on the admin pages (`AdminView.hasLocalAccess`) and the
+  backdoor list (`ipBackdoorList`, `OWLCMS_BACKDOOR`) are removed; the dangerous actions
+  keep the control panel token. `OWLCMS_PIN`, `OWLCMS_DISPLAYPIN`, `OWLCMS_IP` and
+  `OWLCMS_DISPLAYLIST` are kept: only the operator sets them, and existing cloud apps use
+  them.
+- Without a control panel token (a cloud app without the secret) the Administration
+  page is still shown, so the PINs can be changed; only the actions that need the token
+  are disabled.
+- "Remember this browser" on the officials and display PIN logins (`RememberedBrowser`):
+  an HttpOnly cookie holds a random selector and validator. The selector finds one
+  `RememberedLogin` row on the server; the validator is never stored, and only its
+  SHA-256 hash is kept. The row expires at midnight (competition time zone, else server
+  time), and also checks the current PIN hash. The login button's click reaches the server
+  as an HTTP request (push transport WEBSOCKET_XHR), so its response sets the cookie
+  (`RememberCookies`); there is no separate endpoint. Saving the PIN, even unchanged,
+  invalidates remembered browsers of that PIN (a new salt makes a new hash).
+  Officials: unchecked by default; displays: checked.
+- A Logout entry for PIN sessions ends the session and the HTTP session, forgets the
+  remembered browser, and shows the login page: the PIN is asked next time. Until a
+  logout, a remembered browser stays remembered across browser restarts until midnight: any page lets
+  it in directly. Unchecking the box on the login page forgets the browser at once,
+  without the PIN.
+- The officials PIN login also accepts the control panel token (constant time, throttled,
+  audited `how=control-panel-token`), so a forgotten PIN can be replaced on the
+  Administration page (Security and Audit tab); a notice says where. A token login is never remembered. The officials and
+  display PIN logins are throttled like account logins.
+- The officials PIN, display PIN and MQTT password are hashed with PBKDF2 like account
+  passwords (today a single salted SHA-256); older hashes are accepted and converted
+  at the next correct entry. Comparisons are constant-time.
+- Account passwords: PBKDF2 iterations raised from 310,000 to 600,000 (current OWASP
+  figure for PBKDF2-HMAC-SHA256); a stored hash with fewer iterations is replaced at
+  the next successful login.
+
+## Acceptance
+
+Verify hidden/inaccessible routes and buttons for PLATFORM(A) and combined
+REGISTRATION/WEIGHIN/RESULTS accounts. Hide empty menu groups. Break controls
+remain available only to authorized announcer/timekeeper/marshal roles.
+
+Added and passed 2026-10-31 (User Accounts mode, test accounts deleted afterwards):
+
+- Competition Director: no import buttons on the Preparation page (registration upload,
+  database import, SBDE import); database and SBDE exports present.
+- Preparation-only: imports present, no database export. Weigh-in-only: neither; the
+  "Export and Import Database" group and "Advanced Preparation Functions" are not shown.
+- Competition Supervisor: Admin entry in the menu; Administration page with the System
+  tab only (Stop, Restart, Backup, Capture Anomaly, Simulation, Imports are allowed);
+  Backup opens. Admin account: both tabs.
+- "Imports are allowed" turned off from another tab while an Import Database dialog was
+  open: the upload is refused with the message, and the audit trail has
+  `application.imports-allowed imports=not-allowed` then
+  `application.import-refused import=database,reason=imports-not-allowed`.
+Audit behavior follows the existing
+[audit specification](AUDIT_TRAIL_SPECIFICATION.md).
