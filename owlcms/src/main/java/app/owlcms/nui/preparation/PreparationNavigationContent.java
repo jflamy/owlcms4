@@ -38,11 +38,16 @@ import com.vaadin.flow.router.QueryParameters;
 import app.owlcms.access.AccessUi;
 import app.owlcms.access.Permission;
 import app.owlcms.access.ImportGate;
+import app.owlcms.access.ImportLatch;
+import app.owlcms.access.ImportLatch.ActiveSession;
+import app.owlcms.access.ImportsNotAllowedException;
 import app.owlcms.access.Access;
 import app.owlcms.access.RequiresAccess;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
+import app.owlcms.apputils.NotificationUtils;
+import app.owlcms.audit.AuditOrigin;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
@@ -51,6 +56,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.DownloadButtonFactory;
+import app.owlcms.nui.shared.ImportSessionWatcher;
 import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSRegistrationEmptyExport;
@@ -105,10 +111,12 @@ public class PreparationNavigationContent extends BaseNavigationContent
 		downloadDiv.setWidthFull();
 
 		Button upload = new Button(Translator.translate("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
-				buttonClickEvent -> new NRegistrationFileUploadDialog(getPrincipal(), false).open());
+				buttonClickEvent -> openRegistrationImport(false));
 		Button sbdeUpload = new Button(Translator.translate("AdvancedPreparation.Import"),
 				new Icon(VaadinIcon.UPLOAD_ALT),
-				buttonClickEvent -> new NRegistrationFileUploadDialog(getPrincipal(), true).open());
+				buttonClickEvent -> openRegistrationImport(true));
+		new ImportSessionWatcher(this, sessions -> updateImportWarningIcons(upload, sbdeUpload, sessions));
+		updateImportWarningIcons(upload, sbdeUpload, ImportLatch.activeSessions());
 		var registrationWriter = new JXLSSBDEExport(UI.getCurrent());
 		Notification notification1 = new Notification(Translator.translate("LongProcessing"));
 		notification1.setPosition(Position.TOP_END);
@@ -207,6 +215,43 @@ public class PreparationNavigationContent extends BaseNavigationContent
 		}
 
 		DebugUtils.gc();
+	}
+
+	private void openRegistrationImport(boolean sbdeFormat) {
+		AuditOrigin origin = AuditOrigin.fromUi(sbdeFormat ? "SBDE import" : "Registration upload");
+		try {
+			ImportGate.requireAllowed(sbdeFormat ? ImportGate.Kind.SBDE : ImportGate.Kind.REGISTRATION,
+			        getPrincipal(), origin);
+		} catch (ImportsNotAllowedException refused) {
+			if (refused.getReason() == ImportsNotAllowedException.Reason.SESSION_IN_PROGRESS) {
+				NotificationUtils.centeredError(ImportLatch.activePlatformMessage(refused.getActiveSessions(),
+				        Translator.getLocale()));
+			} else if (refused.getReason() == ImportsNotAllowedException.Reason.NO_PERMISSION) {
+				NotificationUtils.centeredError(Translator.translate("Imports.NotPermitted"));
+			} else {
+				NotificationUtils.centeredError(Translator.translate("Imports.NotAllowed"));
+			}
+			return;
+		}
+		new NRegistrationFileUploadDialog(getPrincipal(), sbdeFormat).open();
+	}
+
+	private static void updateImportWarningIcons(Button upload, Button sbdeUpload,
+	        List<ActiveSession> activeSessions) {
+		String message = ImportLatch.activePlatformMessage(activeSessions, Translator.getLocale());
+		upload.setIcon(activeSessions.isEmpty() ? VaadinIcon.UPLOAD_ALT.create() : importWarningIcon(message));
+		sbdeUpload.setIcon(activeSessions.isEmpty() ? VaadinIcon.UPLOAD_ALT.create() : importWarningIcon(message));
+	}
+
+	private static Icon importWarningIcon(String message) {
+		Icon warning = VaadinIcon.WARNING.create();
+		warning.getStyle().set("color", "var(--lumo-error-color)");
+		warning.getStyle().set("width", "1.5em");
+		warning.getStyle().set("height", "1.5em");
+		warning.getElement().setAttribute("title", message);
+		warning.getElement().setAttribute("aria-label", message);
+		warning.getElement().setAttribute("role", "img");
+		return warning;
 	}
 
 	@Override

@@ -1027,13 +1027,24 @@ public class NRegistrationFileProcessor {
 	 */
 	public boolean prepareAthleteImport(InputStream inputStream, boolean checkAthletes,
 	        Consumer<String> errorConsumer) {
-		if (checkAthletes && !checkBirthDates(inputStream, errorConsumer)) {
+		if (!validateAthleteImport(inputStream, checkAthletes, errorConsumer)) {
 			return false;
 		}
+		applyPreparedAthleteImport();
+		return true;
+	}
+
+	/** Validate athlete rows without mutating competition data. */
+	public boolean validateAthleteImport(InputStream inputStream, boolean checkAthletes,
+	        Consumer<String> errorConsumer) {
+		return !checkAthletes || checkBirthDates(inputStream, errorConsumer);
+	}
+
+	/** Apply the destructive athlete preparation after the final import latch check. */
+	public void applyPreparedAthleteImport() {
 		if (isDeleteAthletes()) {
 			resetAthletes();
 		}
-		return true;
 	}
 
 	/**

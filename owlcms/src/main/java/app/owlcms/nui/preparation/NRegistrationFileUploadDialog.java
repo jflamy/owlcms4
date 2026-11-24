@@ -9,6 +9,7 @@ package app.owlcms.nui.preparation;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -35,6 +36,8 @@ import com.vaadin.flow.server.streams.UploadHandler;
 
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.access.ImportGate;
+import app.owlcms.access.ImportLatch;
+import app.owlcms.access.ImportLatch.ActiveSession;
 import app.owlcms.access.ImportsNotAllowedException;
 import app.owlcms.access.ImportsNotAllowedException.Reason;
 import app.owlcms.access.Principal;
@@ -76,13 +79,16 @@ public class NRegistrationFileUploadDialog extends Dialog {
 	private SessionOptions sessionOption;
 	private Locale capturedLocale;
 	private boolean isRestartScenario;
+	private final Principal importer;
+	private final AuditOrigin importOrigin;
 
 	public NRegistrationFileUploadDialog(Principal importer, boolean sbdeFormat) {
 		this.sbdeFormat = sbdeFormat;
+		this.importer = importer;
 		this.isRestartScenario = RestartUtils.isRestartScenario();
 		// Capture locale now while still on UI thread - will be used in upload callback
 		this.capturedLocale = OwlcmsSession.getLocale();
-		AuditOrigin importOrigin = AuditOrigin.fromUi(sbdeFormat ? "SBDE import" : "Registration upload");
+		this.importOrigin = AuditOrigin.fromUi(sbdeFormat ? "SBDE import" : "Registration upload");
 		String notPermitted = Translator.translate("Imports.NotPermitted");
 		String notAllowed = Translator.translate("Imports.NotAllowed");
 
@@ -92,7 +98,6 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		sbdeLabel.getStyle().set("color", "red");
 		H5 restartWarning = new H5(Translator.translate("SBDE.RestartWarning"));
 		restartWarning.getStyle().set("color", "red");
-
 		Component sos = sessionOptionSelectors();
 		Component aos = athleteOptionSelectors();
 
@@ -109,9 +114,9 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, data) -> {
 			try {
 				ImportGate.requireAllowed(this.sbdeFormat ? ImportGate.Kind.SBDE : ImportGate.Kind.REGISTRATION,
-				        importer, importOrigin);
+				        this.importer, this.importOrigin);
 			} catch (ImportsNotAllowedException e) {
-				appendErrors(ta, e.getReason() == Reason.NO_PERMISSION ? notPermitted : notAllowed);
+				appendErrors(ta, importRefusalMessage(e, notPermitted, notAllowed));
 				return;
 			}
 			// Process the uploaded file data
@@ -134,8 +139,13 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			}
 			
 			try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data)) {
-				if (!processInput(inputStream, ta, isSessionsOnly)) {
-					// the file was refused and nothing was changed: no restart is needed
+				try {
+					if (!processInput(inputStream, ta, isSessionsOnly)) {
+						// the file was refused and nothing was changed: no restart is needed
+						return;
+					}
+				} catch (ImportsNotAllowedException e) {
+					appendErrors(ta, importRefusalMessage(e, notPermitted, notAllowed));
 					return;
 				}
 				boolean liveSafe = this.processor != null
@@ -218,23 +228,14 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		this.processor.setAthleteOptions(athleteOption);
 		this.processor.setSessionOptions(sessionOption);
 
-		// clear athletes to be able to clear sessions
-		CategoryRepository.resetCodeMap();
-
-		// a sheet with unusable birth dates is refused before any athlete is deleted
+		// A sheet with unusable birth dates is refused before the final latch check or any database mutation.
 		StringBuffer birthDateErrors = new StringBuffer();
 		Consumer<String> collector = str -> birthDateErrors.append(str.replaceAll("[\r\n]+$", "")).append('\n');
 		int priorCount = AthleteRepository.findAll().size();
-		if (!this.processor.prepareAthleteImport(inputStream, isProcessAthletes(), collector)) {
+		if (!this.processor.validateAthleteImport(inputStream, isProcessAthletes(), collector)) {
 			updateDisplay(ta, birthDateErrors);
 			return false;
 		}
-		if (this.processor.isDeleteAthletes()) {
-			// log the info but do not display a translated message in the UI
-			String deletedMsg = "Existing athletes were deleted before processing: " + priorCount;
-			logger.debug(deletedMsg);
-		}
-
 		// Surface a short confirmation message in the UI about how athletes will be handled
 		{
 			String msg;
@@ -289,6 +290,14 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		}, noopUpdater);
 		// show the session count only in logs (keep DataProcessed.* translations for UI counts)
 		logger.info(MessageFormat.format("{0} sessions identified.", Integer.valueOf(nbSessionsFound)));
+
+		ImportGate.requireAllowed(this.sbdeFormat ? ImportGate.Kind.SBDE : ImportGate.Kind.REGISTRATION,
+		        this.importer, this.importOrigin);
+		CategoryRepository.resetCodeMap();
+		this.processor.applyPreparedAthleteImport();
+		if (this.processor.isDeleteAthletes()) {
+			logger.debug("Existing athletes were deleted before processing: {}", priorCount);
+		}
 
 		int nbSessionsProcessed = 0;
 		if (nbSessionsFound > 0 && !this.processor.isIgnoreSessions()) {
@@ -444,6 +453,20 @@ public class NRegistrationFileUploadDialog extends Dialog {
 	private String getUnsupportedRegistrationUploadMessage() {
 		String translated = Translator.translateOrElseNull(UNSUPPORTED_REGISTRATION_UPLOAD_MESSAGE_KEY, capturedLocale);
 		return translated != null && !translated.isBlank() ? translated : UNSUPPORTED_REGISTRATION_UPLOAD_MESSAGE;
+	}
+
+	private String importRefusalMessage(ImportsNotAllowedException error, String notPermitted, String notAllowed) {
+		if (error.getReason() == Reason.NO_PERMISSION) {
+			return notPermitted;
+		}
+		if (error.getReason() == Reason.NOT_ALLOWED) {
+			return notAllowed;
+		}
+		return sessionInProgressMessage(error.getActiveSessions());
+	}
+
+	private String sessionInProgressMessage(List<ActiveSession> activeSessions) {
+		return ImportLatch.activePlatformMessage(activeSessions, this.capturedLocale);
 	}
 
 	private boolean isAcceptedSpreadsheetUpload(String uploadedFileName, String contentType) {

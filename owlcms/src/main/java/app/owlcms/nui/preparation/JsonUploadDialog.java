@@ -150,7 +150,7 @@ public class JsonUploadDialog extends Dialog {
 			// detects the format, checks that imports are still allowed, and audits the import
 			FormatDetector.importData(data, fileName, this.importer, this.importOrigin);
 		} catch (ImportsNotAllowedException e) {
-			String message = e.getReason() == Reason.NO_PERMISSION ? this.notPermitted : this.notAllowed;
+			String message = importRefusalMessage(e);
 			updateUi(() -> importFailed(importing, message));
 			return;
 		} catch (Throwable e) {
@@ -180,6 +180,18 @@ public class JsonUploadDialog extends Dialog {
 		this.errors.setVisible(true);
 		this.upload.clearFileList();
 		setImporting(false);
+	}
+
+	private String importRefusalMessage(ImportsNotAllowedException error) {
+		if (error.getReason() == Reason.NO_PERMISSION) {
+			return this.notPermitted;
+		}
+		if (error.getReason() == Reason.NOT_ALLOWED) {
+			return this.notAllowed;
+		}
+		var active = error.getActiveSessions().getFirst();
+		return Translator.translate(error.getReason().messageKey(), this.capturedLocale,
+		        active.sessionName(), active.platformName());
 	}
 
 	/** The page may have been closed since the dialog was opened; the caller carries on. */
