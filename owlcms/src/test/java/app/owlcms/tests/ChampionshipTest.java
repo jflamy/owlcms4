@@ -329,6 +329,52 @@ public class ChampionshipTest {
     }
 
         @Test
+        public void testSingleActiveChampionshipIsTheDisplayDefault() {
+                List<Championship> activeChampionships = Championship.findAllUsed(true);
+                Championship selected = activeChampionships.stream()
+                                .filter(championship -> !championship.isDefault())
+                                .findFirst()
+                                .orElseGet(() -> activeChampionships.isEmpty() ? null : activeChampionships.get(0));
+                assertNotNull("fixture should have an active championship", selected);
+
+                List<AgeGroup> ageGroups = AgeGroupRepository.findAll();
+                Map<Long, Boolean> originalActive = ageGroups.stream()
+                                .collect(Collectors.toMap(AgeGroup::getId, AgeGroup::isActive));
+                String selectedName = selected.getName();
+                Competition competition = Competition.getCurrent();
+                boolean originalHideEmpty = competition.isHideEmptyChampionships();
+                try {
+                        JPAService.runInTransaction(em -> {
+                                for (AgeGroup ageGroup : ageGroups) {
+                                        AgeGroup managed = em.find(AgeGroup.class, ageGroup.getId());
+                                        managed.setActive(managed.isActive()
+                                                        && selectedName.equalsIgnoreCase(managed.computeChampionshipName()));
+                                }
+                                return null;
+                        });
+                        competition.setHideEmptyChampionships(false);
+                        Championship.reset();
+
+                        List<Championship> visible = Championship.findAllVisible(true);
+                        assertEquals("only the sole active championship should be visible",
+                                        List.of(selectedName), visible.stream().map(Championship::getName).toList());
+                        assertEquals("sole active championship should be the display default", selectedName,
+                                        Championship.findDefaultDisplayChampionship(true).getName());
+                        assertEquals("missing championship should resolve to the sole active championship", selectedName,
+                                        Championship.resolveDisplayChampionship(null, true).getName());
+                        assertEquals("inactive championship name should resolve to the sole active championship", selectedName,
+                                        Championship.resolveDisplayChampionship("Open", true).getName());
+                } finally {
+                        JPAService.runInTransaction(em -> {
+                                originalActive.forEach((id, active) -> em.find(AgeGroup.class, id).setActive(active));
+                                return null;
+                        });
+                        competition.setHideEmptyChampionships(originalHideEmpty);
+                        Championship.reset();
+                }
+        }
+
+        @Test
         public void testEmptyChampionshipVisibilityCountsOnlyActiveAgeGroups() {
                 Competition competition = Competition.getCurrent();
                 Championship defaultChampionship = Championship.findDefaultDisplayChampionship(false);
@@ -365,6 +411,10 @@ public class ChampionshipTest {
                                 Championship.findAllVisible(false).stream().anyMatch(c -> targetName.equalsIgnoreCase(c.getName())));
                         assertFalse("empty default championship should be hidden",
                                 Championship.findAllVisible(false).stream().anyMatch(c -> defaultName.equalsIgnoreCase(c.getName())));
+                        assertFalse("active-only display list should not include inactive default championship",
+                                Championship.findAllVisible(true).stream().anyMatch(c -> defaultName.equalsIgnoreCase(c.getName())));
+                        assertFalse("active-only display list should not include inactive non-default championship",
+                                Championship.findAllVisible(true).stream().anyMatch(c -> targetName.equalsIgnoreCase(c.getName())));
 
                         competition.setHideEmptyChampionships(false);
                         assertTrue("disabling hide-empty should restore empty championships",

@@ -236,10 +236,12 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	public static List<Championship> findAllVisible(boolean activeOnly) {
 		List<Championship> usedChampionships = new ArrayList<>(findAllUsed(activeOnly));
-		Championship defaultChampionship = ofType(ChampionshipType.DEFAULT);
-		if (defaultChampionship != null && usedChampionships.stream().noneMatch(Championship::isDefault)) {
-			usedChampionships.add(defaultChampionship);
-			usedChampionships.sort(Championship::compareTo);
+		if (!activeOnly) {
+			Championship defaultChampionship = ofType(ChampionshipType.DEFAULT);
+			if (defaultChampionship != null && usedChampionships.stream().noneMatch(Championship::isDefault)) {
+				usedChampionships.add(defaultChampionship);
+				usedChampionships.sort(Championship::compareTo);
+			}
 		}
 		Competition competition = Competition.getCurrent();
 		if (competition != null && !competition.isHideEmptyChampionships()) {
@@ -278,14 +280,19 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	public static Championship findDefaultDisplayChampionship(boolean activeOnly) {
 		List<Championship> usedChampionships = findAllUsed(activeOnly);
+		if (usedChampionships.size() == 1) {
+			return usedChampionships.get(0);
+		}
 		for (Championship championship : usedChampionships) {
 			if (championship != null && championship.isDefault()) {
 				return championship;
 			}
 		}
-		Championship storedDefault = ofType(ChampionshipType.DEFAULT);
-		if (storedDefault != null) {
-			return storedDefault;
+		if (!activeOnly) {
+			Championship storedDefault = ofType(ChampionshipType.DEFAULT);
+			if (storedDefault != null) {
+				return storedDefault;
+			}
 		}
 		return usedChampionships.isEmpty() ? null : usedChampionships.get(0);
 	}
@@ -304,13 +311,15 @@ public class Championship implements Comparable<Championship>, Serializable {
 			}
 		}
 
-		Championship stored = findStored(normalized);
-		if (stored != null && !stored.isCompetitionTemplate()) {
-			return stored;
+		if (!activeOnly) {
+			Championship stored = findStored(normalized);
+			if (stored != null && !stored.isCompetitionTemplate()) {
+				return stored;
+			}
 		}
 
 		Championship displayDefault = findDefaultDisplayChampionship(activeOnly);
-		return displayDefault != null ? displayDefault : of(null);
+		return displayDefault != null ? displayDefault : activeOnly ? null : of(null);
 	}
 
 	private static String effectiveChampionshipName(AgeGroup ageGroup) {
