@@ -4,10 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -27,8 +29,12 @@ import app.owlcms.data.athleteSort.ScoreboardRankData;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.data.config.FeatureSwitchSection;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.export.v2.V2Json;
+import app.owlcms.data.scoring.GAMX2;
+import app.owlcms.data.scoring.ScoreTarget;
 import tools.jackson.databind.JsonNode;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.group.Group;
@@ -328,6 +334,7 @@ public class ScoreboardRankDataTest {
 			participation.setSnatchRank(3);
 			participation.setCleanJerkRank(4);
 			participation.setCategoryScoreRank(2);
+			participation.setCategoryScoreKgDelta(11);
 			participation.setBestAthleteRank(11);
 			participation.setTeamMember(true);
 			Map<String, String> fields = ScoreboardRankData.fields(athlete, Locale.ENGLISH, true);
@@ -335,9 +342,13 @@ public class ScoreboardRankDataTest {
 			assertEquals("3", fields.get("snatchRank"));
 			assertEquals("4", fields.get("cleanJerkRank"));
 			assertEquals("2", fields.get("medalRank"));
+			assertEquals(athlete.getAge().toString(), fields.get("age"));
 			assertEquals("11", fields.get("sinclairRank"));
 			assertEquals("medal2", fields.get("medalHighlight"));
-			assertEquals(String.format(Locale.ENGLISH, "%.3f", participation.getCategoryScore()), fields.get("medalScore"));
+			String formattedScore = String.format(Locale.ENGLISH, "%.3f", participation.getCategoryScore());
+			assertEquals(formattedScore, fields.get("medalScore"));
+			assertEquals(formattedScore + " (+11)",
+			        ScoreboardRankData.fields(athlete, Locale.ENGLISH, true, true).get("medalScore"));
 			assertEquals(String.format(Locale.ENGLISH, "%.3f", Ranking.getRankingValue(source, Ranking.BW_SINCLAIR)),
 			        fields.get("sinclair"));
 			assertEquals(2, athlete.getMedalRank().intValue());
@@ -349,12 +360,24 @@ public class ScoreboardRankDataTest {
 			JsonNode exported = V2Json.toJson(participation);
 			assertEquals(4, exported.get("totalRank").asInt());
 			assertEquals(2, exported.get("categoryScoreRank").asInt());
+			assertEquals(11, exported.get("categoryScoreKgDelta").asInt());
 			assertEquals(11, exported.get("bestAthleteRank").asInt());
 			assertEquals(participation.getCategoryScore(), Double.valueOf(exported.get("categoryScore").asDouble()));
 
+			assertEquals(
+			        Translator.translate("Scoreboard.ScoreWithDeltaFormat", Locale.ENGLISH,
+			                Translator.translate("Ranking.QAGE", Locale.ENGLISH)),
+			        ScoreboardRankData.title(Set.of(Ranking.QAGE), Locale.ENGLISH, true));
+			assertEquals(
+			        Translator.translate("Scoreboard.ScoreWithDeltaFormat", Locale.ENGLISH,
+			                Translator.translate("Score", Locale.ENGLISH)),
+			        ScoreboardRankData.title(Set.of(Ranking.QAGE, Ranking.GAMX_U), Locale.ENGLISH, true));
+			assertEquals(Translator.translate("Score", Locale.ENGLISH),
+			        ScoreboardRankData.title(Set.of(), Locale.ENGLISH, true));
+
 			championship.setScoringSystem(Ranking.TOTAL);
 			participation.setCategoryScoreRank(4);
-			fields = ScoreboardRankData.fields(athlete, Locale.ENGLISH, true);
+			fields = ScoreboardRankData.fields(athlete, Locale.ENGLISH, true, true);
 			assertEquals(fields.get("totalRank"), fields.get("medalRank"));
 			assertEquals("", fields.get("medalScore"));
 			assertEquals("", fields.get("medalHighlight"));
@@ -370,5 +393,182 @@ public class ScoreboardRankDataTest {
 			championship.setTeamPointsPolicy(originalPoints);
 			championship.setUseCompetitionDefaults(originalDefaults);
 		}
+	}
+
+	@Test
+	public void showKgDeltaFeatureSwitchIsEnabledByDefaultInScoreboardOptions() {
+		assertFalse(FeatureSwitch.SHOW_KG_DELTA.isEnabledByDefault());
+		assertEquals(FeatureSwitchSection.SCOREBOARD_OPTIONS, FeatureSwitch.SHOW_KG_DELTA.getSection());
+		assertEquals("showKgDelta", FeatureSwitch.SHOW_KG_DELTA.getId());
+
+		assertTrue(FeatureSwitch.SHOW_KG_LEADER.isEnabledByDefault());
+		assertEquals(FeatureSwitchSection.SCOREBOARD_OPTIONS, FeatureSwitch.SHOW_KG_LEADER.getSection());
+		assertEquals("showKgLeader", FeatureSwitch.SHOW_KG_LEADER.getId());
+
+		assertEquals(ScoreboardRankData.DeltaMode.NONE, ScoreboardRankData.deltaMode(false, false));
+		assertEquals(ScoreboardRankData.DeltaMode.PREVIOUS_RANK, ScoreboardRankData.deltaMode(true, false));
+		assertEquals(ScoreboardRankData.DeltaMode.LEADER, ScoreboardRankData.deltaMode(false, true));
+		assertEquals(ScoreboardRankData.DeltaMode.LEADER, ScoreboardRankData.deltaMode(true, true));
+	}
+
+	@Test
+	public void participationStoresOutrightBeatKgDeltaForScoreMedalSystems() {
+		int year = LocalDate.now().getYear();
+		Championship qMasters = championship("QMasters delta test", Ranking.QAGE);
+		AgeGroup ageGroup = new AgeGroup();
+		ageGroup.setCode("W50D");
+		ageGroup.setGender(Gender.F);
+		ageGroup.setMinAge(35);
+		ageGroup.setMaxAge(999);
+		ageGroup.setActive(true);
+		ageGroup.setChampionship(qMasters);
+		Category category = new Category();
+		category.setGender(Gender.F);
+		category.setMinimumWeight(0.0);
+		category.setMaximumWeight(999.0);
+		ageGroup.addCategory(category);
+
+		Group group = AthleteRepository.findAll().get(0).getGroup();
+		Athlete boray = buildAthlete("Anita", "Boray", Gender.F, year - 51, 52.45, 56, 77, group, category);
+		Athlete barak = buildAthlete("Yael", "Barak", Gender.F, year - 53, 51.99, 48, 67, group, category);
+		Athlete buzinhani = buildAthlete("Melissa", "Buzinhani", Gender.F, year - 52, 48.61, 41, 58, group, category);
+		List<Athlete> athletes = List.of(boray, barak, buzinhani);
+
+		JPAService.runInTransaction(em -> {
+			em.persist(qMasters);
+			em.persist(ageGroup);
+			for (Athlete athlete : athletes) {
+				athlete.setGroup(em.getReference(Group.class, group.getId()));
+				em.persist(athlete);
+			}
+			return null;
+		});
+		Championship.reset();
+		try {
+			var medalsByCategory = Competition.getCurrent().computeMedalsByCategory(athletes);
+			Athlete savedBoray = AthleteRepository.findById(boray.getId());
+			Athlete savedBarak = AthleteRepository.findById(barak.getId());
+			Athlete savedBuzinhani = AthleteRepository.findById(buzinhani.getId());
+			savedBoray.getCategory();
+			savedBarak.getCategory();
+			savedBuzinhani.getCategory();
+
+			assertEquals(1, savedBoray.getMainRankings().getCategoryScoreRank());
+			assertEquals(0, savedBoray.getMainRankings().getCategoryScoreKgDelta());
+			assertEquals(2, savedBarak.getMainRankings().getCategoryScoreRank());
+			assertEquals(11, savedBarak.getMainRankings().getCategoryScoreKgDelta());
+			assertEquals(3, savedBuzinhani.getMainRankings().getCategoryScoreRank());
+			int buzinhaniPrevDelta = savedBuzinhani.getMainRankings().getCategoryScoreKgDelta();
+			int buzinhaniLeaderDelta = ScoreTarget.kgDifference(savedBuzinhani,
+			        savedBoray.getMainRankings().getCategoryScore(), Ranking.QAGE);
+			assertTrue("rank 3 delta to rank 2 should be positive", buzinhaniPrevDelta > 0);
+			assertTrue("rank 3 delta to leader should exceed delta to rank 2",
+			        buzinhaniLeaderDelta > buzinhaniPrevDelta);
+
+			Double leaderScore = ScoreboardRankData.leaderScore(savedBuzinhani, medalsByCategory, null);
+			assertEquals(savedBoray.getMainRankings().getCategoryScore(), leaderScore);
+
+			Map<String, String> borayFields = ScoreboardRankData.fields(savedBoray, Locale.ENGLISH, true,
+			        ScoreboardRankData.DeltaMode.LEADER, leaderScore);
+			Map<String, String> barakFields = ScoreboardRankData.fields(savedBarak, Locale.ENGLISH, true, true);
+			Map<String, String> buzinhaniPrevFields = ScoreboardRankData.fields(savedBuzinhani, Locale.ENGLISH, true,
+			        ScoreboardRankData.DeltaMode.PREVIOUS_RANK, leaderScore);
+			Map<String, String> buzinhaniLeaderFields = ScoreboardRankData.fields(savedBuzinhani, Locale.ENGLISH, true,
+			        ScoreboardRankData.DeltaMode.LEADER, leaderScore);
+
+			assertFalse(borayFields.get("medalScore").contains("(+"));
+			assertTrue("Barak medalScore should include (+11), got: " + barakFields.get("medalScore"),
+			        barakFields.get("medalScore").endsWith(" (+11)"));
+			assertTrue("Buzinhani previous-rank medalScore should include (+" + buzinhaniPrevDelta + ")",
+			        buzinhaniPrevFields.get("medalScore").endsWith(" (+" + buzinhaniPrevDelta + ")"));
+			assertTrue("Buzinhani leader medalScore should include (+" + buzinhaniLeaderDelta + ")",
+			        buzinhaniLeaderFields.get("medalScore").endsWith(" (+" + buzinhaniLeaderDelta + ")"));
+			assertFalse(ScoreboardRankData.fields(savedBarak, Locale.ENGLISH, true, false)
+			        .get("medalScore").contains("(+"));
+
+			// Verify outright beat calculation across Sinclair, SMHF, Q-Points, Q-Masters, and all GAMX variants
+			List<Ranking> systems = List.of(
+			        Ranking.BW_SINCLAIR, Ranking.SMM, Ranking.QPOINTS, Ranking.QAGE,
+			        Ranking.GAMX, Ranking.GAMX_M, Ranking.GAMX_U, Ranking.GAMX_A,
+			        Ranking.GAMX_S, Ranking.GAMX_C, Ranking.GAMX_MS, Ranking.GAMX_MC, Ranking.CAT_GAMX);
+			for (Ranking system : systems) {
+				int age = system == Ranking.GAMX_U ? 15 : (system == Ranking.GAMX_A ? 25 : 53);
+				Athlete leader = buildAthlete("Lead", system.name(), Gender.F, year - age, 63.0, 65, 85, group, category);
+				Athlete chaser = buildAthlete("Chase", system.name(), Gender.F, year - age, 63.0, 55, 75, group, category);
+				double targetScore = Ranking.getRankingValueForDelta(leader, system);
+				int delta = ScoreTarget.kgDifference(chaser, targetScore, system);
+				assertTrue("Expected positive delta for " + system, delta > 0);
+				double scoreAtDelta = scoreWithAddedKg(chaser, system, delta);
+				double scoreBelowDelta = scoreWithAddedKg(chaser, system, delta - 1);
+				assertTrue(system + " at +" + delta + " must strictly beat target (" + scoreAtDelta + " vs " + targetScore + ")",
+				        scoreAtDelta > targetScore);
+				if (isGamxSystem(system)) {
+					assertTrue(system + " at +" + (delta - 1) + " must not beat target at 2 decimals",
+					        Math.round(scoreBelowDelta * 100.0) / 100.0 <= Math.round(targetScore * 100.0) / 100.0);
+				} else {
+					assertTrue(system + " at +" + (delta - 1) + " must not strictly beat target",
+					        scoreBelowDelta <= targetScore);
+				}
+			}
+		} finally {
+			JPAService.runInTransaction(em -> {
+				for (Athlete athlete : athletes) {
+					em.remove(em.find(Athlete.class, athlete.getId()));
+				}
+				em.flush();
+				em.remove(em.find(AgeGroup.class, ageGroup.getId()));
+				em.flush();
+				em.remove(em.find(Championship.class, qMasters.getId()));
+				return null;
+			});
+			Championship.reset();
+		}
+	}
+
+	private Athlete buildAthlete(String firstName, String lastName, Gender gender, int birthYear, double bw,
+	        int snatch, int cj, Group group, Category category) {
+		Athlete athlete = new Athlete();
+		athlete.setValidation(false);
+		athlete.setFirstName(firstName);
+		athlete.setLastName(lastName);
+		athlete.setGender(gender);
+		athlete.setIsoBirthDate(birthYear + "-01-01");
+		athlete.setBodyWeight(bw);
+		athlete.setGroup(group);
+		athlete.setSnatch1ActualLift(Integer.toString(snatch));
+		athlete.setSnatch2ActualLift("0");
+		athlete.setSnatch3ActualLift("0");
+		athlete.setCleanJerk1ActualLift(Integer.toString(cj));
+		athlete.setCleanJerk2ActualLift("0");
+		athlete.setCleanJerk3ActualLift("0");
+		athlete.setCategory(category);
+		athlete.setParticipations(List.of(new Participation(athlete, category)));
+		return athlete;
+	}
+
+	private boolean isGamxSystem(Ranking system) {
+		return switch (system) {
+			case GAMX, GAMX_M, GAMX_MS, GAMX_MC, GAMX_U, GAMX_A, GAMX_S, GAMX_C, CAT_GAMX -> true;
+			default -> false;
+		};
+	}
+
+	private double scoreWithAddedKg(Athlete base, Ranking system, int addedKg) {
+		Athlete probe = new Athlete();
+		probe.setValidation(false);
+		probe.setGender(base.getGender());
+		probe.setIsoBirthDate(base.getIsoBirthDate());
+		probe.setBodyWeight(base.getBodyWeight());
+		probe.setCategory(base.getCategory());
+		int snatch = base.getBestSnatch();
+		int cj = base.getBestCleanJerk();
+		if (isGamxSystem(system) && GAMX2.liftOf(system) == GAMX2.Lift.SNATCH) {
+			snatch += addedKg;
+		} else {
+			cj += addedKg;
+		}
+		probe.setSnatch1ActualLift(Integer.toString(snatch));
+		probe.setCleanJerk1ActualLift(Integer.toString(cj));
+		return Ranking.getRankingValueForDelta(probe, system);
 	}
 }

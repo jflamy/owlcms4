@@ -111,7 +111,25 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		board.setPublicDisplay(source.isPublicDisplay());
 		board.setSingleReferee(((SoundParameters) getBoard()).isSingleReferee());
 		board.setAbbreviatedName(source.isAbbreviatedName());
+		board.setShowKgDelta(source.isShowKgDelta());
+		board.setShowKgLeader(source.isShowKgLeader());
 		computeStylesDir(board);
+	}
+
+	@Override
+	public void setShowKgDelta(boolean b) {
+		super.setShowKgDelta(b);
+		if (getMedalsBoard() != null) {
+			getMedalsBoard().setShowKgDelta(b);
+		}
+	}
+
+	@Override
+	public void setShowKgLeader(boolean b) {
+		super.setShowKgLeader(b);
+		if (getMedalsBoard() != null) {
+			getMedalsBoard().setShowKgLeader(b);
+		}
 	}
 
 	@Override
@@ -205,6 +223,8 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		getMedalsBoard().setPublicDisplay(board.isPublicDisplay());
 		getMedalsBoard().setSingleReferee(board.isSingleReferee());
 		getMedalsBoard().setAbbreviatedName(board.isAbbreviatedName());
+		getMedalsBoard().setShowKgDelta(board.isShowKgDelta());
+		getMedalsBoard().setShowKgLeader(board.isShowKgLeader());
 		getMedalsBoard().setTeamWidth(board.getTeamWidth());
 		getMedalsBoard().setEmFontSize(board.getEmFontSize());
 		computeStylesDir(getMedalsBoard());

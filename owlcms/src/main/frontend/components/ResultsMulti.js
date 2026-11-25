@@ -104,7 +104,7 @@ class ResultsFull extends LitElement {
                       <div style="display: grid; align-self: center" .innerHTML="${this.t?.Category}" ></div>
                     </th>
                     <th class="yob" style="grid-row: span 2">
-                      <div style="display: grid; align-self: center" .innerHTML="${this.t?.Birth}" ></div>
+                      <div style="display: grid; align-self: center" .innerHTML="${this.showMedalScore ? this.t?.Age : this.t?.Birth}" ></div>
                     </th>
                     <th class="bodyWeight" style="grid-row: span 2">
                       <div style="display: grid; align-self: center" .innerHTML="${this.t?.BodyWeight}" ></div>
@@ -181,7 +181,7 @@ class ResultsFull extends LitElement {
                                 <div>${item?.category}</div>
                               </td>
                               <td class="yob">
-                                <div>${item?.yearOfBirth}</div>
+                                <div>${this.showMedalScore ? item?.age : item?.yearOfBirth}</div>
                               </td>
                               <td class="bodyWeight">
                                 <div>${item?.bodyWeight}</div>
@@ -276,7 +276,7 @@ class ResultsFull extends LitElement {
                                 <td class="groupCol" style="${this.leadingAthleteStyles()} "> <div>${item?.subCategory}</div></td>
                                 <td class="${"name " + (item?.classname ?? "")}" style="${this.leadingAthleteStyles()} "> <div class="ellipsis">   ${item?.fullName} </div></td>
                                 <td class="category" style="${this.leadingAthleteStyles()} "> <div>${item?.category}</div></td>
-                                <td class="yob" style="${this.leadingAthleteStyles()} "> <div>${item?.yearOfBirth}</div></td>
+                                <td class="yob" style="${this.leadingAthleteStyles()} "> <div>${this.showMedalScore ? item?.age : item?.yearOfBirth}</div></td>
                                 <td class="bodyWeight" style="${this.leadingAthleteStyles()} "> <div>${item?.bodyWeight}</div></td>
                                 <td class="custom1" style="${this.leadingAthleteStyles()} "> <div>${item?.custom1}</div></td>
                                 <td class="custom2" style="${this.leadingAthleteStyles()} "> <div>${item?.custom2}</div></td>

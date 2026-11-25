@@ -308,6 +308,28 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		setDecisionSection(show);
 	}
 
+	public default void switchShowKgDelta(boolean show, boolean updateURL) {
+		if (updateURL) {
+			updateURLLocation(getLocationUI(), getLocation(), SHOW_KG_DELTA, Boolean.toString(show));
+		}
+		setShowKgDelta(show);
+	}
+
+	public default boolean isDefaultShowKgDelta() {
+		return FeatureSwitch.SHOW_KG_DELTA.isEffective();
+	}
+
+	public default void switchShowKgLeader(boolean show, boolean updateURL) {
+		if (updateURL) {
+			updateURLLocation(getLocationUI(), getLocation(), SHOW_KG_LEADER, Boolean.toString(show));
+		}
+		setShowKgLeader(show);
+	}
+
+	public default boolean isDefaultShowKgLeader() {
+		return FeatureSwitch.SHOW_KG_LEADER.isEffective();
+	}
+
 	/**
 	 * Public and video scoreboards have no attempt bar at the top, so they show the decision
 	 * section unless told otherwise; warmup scoreboards show it only when the feature switch is on.

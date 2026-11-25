@@ -43,7 +43,7 @@ class TopSinclair extends LitElement {
                       <th class="best" .innerHTML="${this.t?.Clean_and_Jerk}"></th>
                     <th class="narrow" .innerHTML="${this.t?.Total}"></th>
                     <th class="sinclair" .innerHTML="${this.t?.ScoringTitle}"></th>
-                    <th class="needed" .innerHTML="${this.t?.Needed}"></th>
+                    ${this.showNeeded !== false ? html`<th class="needed" .innerHTML="${this.t?.Needed}"></th>` : html``}
                   </tr>
                 </thead>
                   ${(this.sortedWomen ?? []).map(
@@ -68,7 +68,7 @@ class TopSinclair extends LitElement {
                         <td class="best"><div>${item.bestCleanJerk ?? ''}</div></td>
                         <td class="narrow"><div>${item.total}</div></td>
                         <td class="sinclair"><div>${item.sinclair}</div></td>
-                        <td class="needed"><div>${item.needed}</div></td>
+                        ${this.showNeeded !== false ? html`<td class="needed"><div>${item.needed}</div></td>` : html``}
                       </tr>
                     `
                   )}
@@ -93,7 +93,7 @@ class TopSinclair extends LitElement {
                       <th class="best" .innerHTML="${this.t?.Clean_and_Jerk}"></th>
                     <th class="narrow" .innerHTML="${this.t?.Total}"></th>
                     <th class="sinclair" .innerHTML="${this.t?.ScoringTitle}"></th>
-                    <th class="needed" .innerHTML="${this.t?.Needed}"></th>
+                    ${this.showNeeded !== false ? html`<th class="needed" .innerHTML="${this.t?.Needed}"></th>` : html``}
                   </tr>
                 </thead>
                   ${(this.sortedMen ?? []).map(
@@ -118,7 +118,7 @@ class TopSinclair extends LitElement {
                         <td class="best"><div>${item.bestCleanJerk ?? ''}</div></td>
                         <td class="narrow"><div>${item.total}</div></td>
                         <td class="sinclair"><div>${item.sinclair}</div></td>
-                        <td class="needed"><div>${item.needed}</div></td>
+                        ${this.showNeeded !== false ? html`<td class="needed"><div>${item.needed}</div></td>` : html``}
                       </tr>
                     `
                   )}
@@ -149,6 +149,7 @@ class TopSinclair extends LitElement {
       // dynamic styling
       darkMode: {},
       displayLifts: {type: Boolean},
+      showNeeded: {type: Boolean},
     };
   }
 

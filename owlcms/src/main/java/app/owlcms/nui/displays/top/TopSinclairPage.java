@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.QueryParameters;
 import app.owlcms.access.Access;
@@ -167,7 +168,7 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 				new com.vaadin.flow.component.orderedlayout.HorizontalLayout(genderComboBox));
 
 		// Show lifts checkbox (always visible)
-		com.vaadin.flow.component.checkbox.Checkbox showLiftsCheckbox = new com.vaadin.flow.component.checkbox.Checkbox(app.owlcms.i18n.Translator.translate("TopSinclair.ShowLifts"));
+		Checkbox showLiftsCheckbox = new Checkbox(Translator.translate("TopSinclair.ShowLifts"));
 		showLiftsCheckbox.setValue(isDisplayLifts());
 		showLiftsCheckbox.addValueChangeListener(event -> {
 			setDisplayLifts(event.getValue());
@@ -175,6 +176,34 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 			restartDialogTimer();
 		});
 		vl.add(showLiftsCheckbox);
+
+		Checkbox showKgLeaderCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowKgLeader"));
+		Checkbox showKgDeltaCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowKgDelta"));
+		showKgLeaderCheckbox.setValue(isShowKgLeader());
+		showKgDeltaCheckbox.setValue(isShowKgDelta());
+		showKgLeaderCheckbox.addValueChangeListener(event -> {
+			if (event.isFromClient()) {
+				boolean enabled = Boolean.TRUE.equals(event.getValue());
+				if (enabled && Boolean.TRUE.equals(showKgDeltaCheckbox.getValue())) {
+					showKgDeltaCheckbox.setValue(false);
+					switchShowKgDelta(false, true);
+				}
+				switchShowKgLeader(enabled, true);
+				restartDialogTimer();
+			}
+		});
+		showKgDeltaCheckbox.addValueChangeListener(event -> {
+			if (event.isFromClient()) {
+				boolean enabled = Boolean.TRUE.equals(event.getValue());
+				if (enabled && Boolean.TRUE.equals(showKgLeaderCheckbox.getValue())) {
+					showKgLeaderCheckbox.setValue(false);
+					switchShowKgLeader(false, true);
+				}
+				switchShowKgDelta(enabled, true);
+				restartDialogTimer();
+			}
+		});
+		vl.add(showKgLeaderCheckbox, showKgDeltaCheckbox);
 
 		// Number of athletes field (at the bottom)
 		com.vaadin.flow.component.textfield.NumberField nbAthletesField = new com.vaadin.flow.component.textfield.NumberField();
@@ -301,6 +330,7 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		((TopSinclair) this.getBoard()).setAgeGroup(null);
 		((TopSinclair) this.getBoard()).setAgeGroupPrefix(null);
 		refreshFilteredBoard(ageDivision);
+		getUI().ifPresent(currentUi -> currentUi.getPage().setTitle(getPageTitle()));
 	}
 
 	@Override
@@ -393,6 +423,10 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 	   public java.util.HashMap<String, java.util.List<String>> readParams(com.vaadin.flow.router.Location location, java.util.Map<String, java.util.List<String>> parametersMap) {
 		   // Use default param reading, but treat missing/empty gender as null (all athletes)
 		   var params = TopParametersReader.super.readParams(location, parametersMap);
+		   setDefaultParamValue(SHOW_KG_DELTA, Boolean.toString(isDefaultShowKgDelta()));
+		   processBooleanParam(params, SHOW_KG_DELTA, (v) -> switchShowKgDelta(v, false));
+		   setDefaultParamValue(SHOW_KG_LEADER, Boolean.toString(isDefaultShowKgLeader()));
+		   processBooleanParam(params, SHOW_KG_LEADER, (v) -> switchShowKgLeader(v, false));
 		   java.util.List<String> ageDivisionParams = parametersMap.get("ad");
 		   String ageDivisionName = (ageDivisionParams != null && !ageDivisionParams.isEmpty() && ageDivisionParams.get(0) != null && !ageDivisionParams.get(0).isEmpty())
 				   ? ageDivisionParams.get(0)

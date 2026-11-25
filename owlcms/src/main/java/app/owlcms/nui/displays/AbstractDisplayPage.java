@@ -68,6 +68,8 @@ public abstract class AbstractDisplayPage extends Div
 	private boolean video;
 	private boolean currentAttempt;
 	private boolean decisionSection;
+	private boolean showKgDelta;
+	private boolean showKgLeader;
 	private FieldOfPlay fop;
 	private Group group;
 	private boolean abbreviatedName;
@@ -199,6 +201,16 @@ public abstract class AbstractDisplayPage extends Div
 	}
 
 	@Override
+	public final boolean isShowKgDelta() {
+		return this.showKgDelta;
+	}
+
+	@Override
+	public final boolean isShowKgLeader() {
+		return this.showKgLeader;
+	}
+
+	@Override
 	final public boolean isDarkMode() {
 		return this.darkMode;
 	}
@@ -295,6 +307,18 @@ public abstract class AbstractDisplayPage extends Div
 	public void setDecisionSection(boolean b) {
 		((DisplayParameters) this.board).setDecisionSection(b);
 		this.decisionSection = b;
+	}
+
+	@Override
+	public void setShowKgDelta(boolean b) {
+		((DisplayParameters) this.board).setShowKgDelta(b);
+		this.showKgDelta = b;
+	}
+
+	@Override
+	public void setShowKgLeader(boolean b) {
+		((DisplayParameters) this.board).setShowKgLeader(b);
+		this.showKgLeader = b;
 	}
 
 	@Override
