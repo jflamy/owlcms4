@@ -58,6 +58,8 @@ public class Participation implements IRankHolder {
 	@Column(columnDefinition = "integer default 0")
 	private int categoryScoreRank;
 	@Column(columnDefinition = "integer default 0")
+	private int categoryScoreKgDelta;
+	@Column(columnDefinition = "integer default 0")
 	private int bestAthleteRank;
 	@Column(columnDefinition = "integer default 0")
 	private int combinedRank;
@@ -108,6 +110,7 @@ public class Participation implements IRankHolder {
 		this.totalRank = p.totalRank;
 		this.combinedRank = p.combinedRank;
 		this.setCategoryScoreRank(p.getCategoryScoreRank());
+		this.setCategoryScoreKgDelta(p.getCategoryScoreKgDelta());
 		this.bestAthleteRank = p.bestAthleteRank;
 		this.setTeamMember(p.isTeamMember());
 		this.setMixedTeamMember(p.isMixedTeamMember());
@@ -148,7 +151,10 @@ public class Participation implements IRankHolder {
 
 	@JsonIgnore
 	public Double getCategoryScore() {
-		Double score = Ranking.getRankingValue(athlete, this.getCategory().getAgeGroup().getComputedScoringSystem());
+		if (this.athlete == null || this.category == null || this.category.getAgeGroup() == null) {
+			return 0.0D;
+		}
+		Double score = Ranking.getRankingValue(this.athlete, this.category.getAgeGroup().getComputedScoringSystem());
 		return score;
 	}
 	
@@ -157,6 +163,11 @@ public class Participation implements IRankHolder {
 //		int rank = Ranking.getRanking(athlete, this.getCategory().getAgeGroup().getComputedScoringSystem());
 //		return rank;
 		return this.categoryScoreRank;
+	}
+
+	@JsonIgnore
+	public int getCategoryScoreKgDelta() {
+		return this.categoryScoreKgDelta;
 	}
 
 	@JsonIgnore
@@ -322,6 +333,10 @@ public class Participation implements IRankHolder {
 
 	public void setCategoryScoreRank(int scoreRank) {
 		this.categoryScoreRank = scoreRank;
+	}
+
+	public void setCategoryScoreKgDelta(int categoryScoreKgDelta) {
+		this.categoryScoreKgDelta = categoryScoreKgDelta;
 	}
 
 	public void setCleanJerkRank(int cleanJerkRank) {
