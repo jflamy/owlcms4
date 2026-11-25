@@ -9,82 +9,82 @@
 
 <br>
 
-**Development log**
+**New in Release 69.1**
 
 - 69.1.0: Added missing MQTT events for stand-alone clocks (`setTime`, `breakSetTime`, `breakStart`, `breakStop`).
 
-- 69.0.0-rc11: Potentially dangerous imports are now blocked while a lifting session is active, with clear platform warnings: registration, SBDE, database, and age-group imports.
+**New in Release 69**
+
+- 69.0.0: Potentially dangerous imports are now blocked while a lifting session is active, with clear platform warnings: registration, SBDE, database, and age-group imports.
   - JSON imports already warn about requiring an immediate full restart
   - The other imports can accept a delayed restart.
 
-- 69.0.0-rc11: Server stop/restart controls are shown only in User Accounts mode to the appropriate administration and supervision accounts.
+- 69.0.0: Server stop/restart controls are shown only in User Accounts mode to the appropriate administration and supervision accounts.
 
-- 69.0.0-rc10: Usability: disable password-manager autofill on non-login password, PIN, and key configuration fields.
+- 69.0.0: Usability: disable password-manager autofill on non-login password, PIN, and key configuration fields.
 
-- 69.0.0-rc10: MQTT device configuration publishes only the global competition jury size for backward compatibility.
+- 69.0.0: MQTT device configuration publishes only the global competition jury size for backward compatibility.
 
-- 69.0.0-rc10: Event forwarding connections from Control Panel or environment variables are not saved or exported and shown read-only with a badge.
+- 69.0.0: Event forwarding connections from Control Panel or environment variables are not saved or exported and shown read-only with a badge.
 
-- 69.0.0-rc09: IWF compliance is enabled and prerequisites checked in an Administration dialog, with immediate actions for the live settings.
+- 69.0.0: IWF compliance is enabled and prerequisites checked in an Administration dialog, with immediate actions for the live settings.
 
-- 69.0.0-rc09: Fix: removed longstanding stray =GOOGLETRANSLATE() formulas from the master translation spreadsheet that affected 7 translation values.
+- 69.0.0: Fix: removed longstanding stray =GOOGLETRANSLATE() formulas from the master translation spreadsheet that affected 7 translation values.
 
-- 69.0.0-rc08: Fix: Mistakenly hidden age group labels on the multi-agegroup scoreboards are now shown
+- 69.0.0: Fix: Mistakenly hidden age group labels on the multi-agegroup scoreboards are now shown
 
-- 69.0.0-rc08: Usability: Starting an introduction or before snatch countdown now prompts for a session if none was selected. 
+- 69.0.0: Usability: Starting an introduction or before snatch countdown now prompts for a session if none was selected.
   - Previously this could cause the attempt board to remain on the "waiting" state and require a refresh.
 
-- 69.0.0-rc07: Projected rank as shown at bottom of scoreboard was incorrectly mentioning CJ if athletes had withdrawn from CJ (considered that CJ had started)
+- 69.0.0: Projected rank as shown at bottom of scoreboard was incorrectly mentioning CJ if athletes had withdrawn from CJ (considered that CJ had started)
 
-- 69.0.0-rc07: Starting the clock while jury votes are missing
+- 69.0.0: Starting the clock while jury votes are missing
   - The Timekeeper, active announcer and Competition Supervisor can start the clock after confirming. Other screens then close their warning.
 
-- 69.0.0-rc07: Scores computed at the category weight (category Sinclair, Q-points and GAMX) used the next category up for an athlete exactly at a category limit (a 70 kg athlete was scored at 75 kg).
+- 69.0.0: Scores computed at the category weight (category Sinclair, Q-points and GAMX) used the next category up for an athlete exactly at a category limit (a 70 kg athlete was scored at 75 kg).
   - The "kg needed" on the Top Sinclair scoreboard is computed at the same senior category limit as the score, instead of the athlete's registration category.
 
-- 69.0.0-rc06: Network name announcement and shutdown fixes for robustness
+- 69.0.0: Network name announcement and shutdown fixes for robustness
   - mDNS records expire after 120 seconds, and network name announcement is disabled on fly.io.
   - OWLCMS shutdown waits at most 500 ms for mDNS announcement withdrawal.
 
-- 69.0.0-rc05: As a matter of principle, update Docker base image for fly.io deployments to mitigate Java CVE (local version was already ok)
+- 69.0.0: As a matter of principle, update Docker base image for fly.io deployments to mitigate Java CVE (local version was already ok)
 
-- 69.0.0-rc04: Using the transparent stylesheet for video streaming scoreboards was showing a misaligned grid. Fixed by correctly importing and overriding the public style.
+- 69.0.0: Using the transparent stylesheet for video streaming scoreboards was showing a misaligned grid. Fixed by correctly importing and overriding the public style.
 
-- 69.0.0-rc05: "Remember me" checkbox on login page: server-side remembered logins let the same browser re-open OWLCMS without entering a PIN or password until the next day. A database export or backup cannot be used to forge a remembered login.
+- 69.0.0: "Remember me" checkbox on login page: server-side remembered logins let the same browser re-open OWLCMS without entering a PIN or password until the next day. A database export or backup cannot be used to forge a remembered login.
   - Controlled for both Simple Access and User Accounts by one Administration setting (on by default). The IWF compliance check lists it as a requirement not met when it is on.
   - Admin accounts always enter their password.
   - Logging out, changing the PIN/password or disabling the account ends it; turning the setting off prevents remembered logins in both access modes.
   - "Forget all remembered browsers" requires every browser to enter its PIN or password again.
 
-- 69.0.0-rc04: PIN mode
+- 69.0.0: PIN mode
   - Logout is a real logout: it ends the browser session and forgets the remembered login on that browser, so the PIN or password is asked next time. Until a logout, closing and reopening the browser keeps a remembered login until midnight.
 
-- 69.0.0-rc04: Narrow desktop browser windows no longer switch to the mobile referee/jury home page. Phones and tablets still use the mobile home.
+- 69.0.0: Narrow desktop browser windows no longer switch to the mobile referee/jury home page. Phones and tablets still use the mobile home.
 
-- 69.0.0-rc04: Limited registration data editing during sessions now starts as soon as the session is loaded
+- 69.0.0: Limited registration data editing during sessions now starts as soon as the session is loaded
   - The limited registration data editing form then shows a marshal-type tab, and the same checks are made as for the marshal and announcer
   - The limited form is closed if opened during a lift and a decision for that athlete comes in.ß
 
-- 69.0.0-rc04: Simulation preserves entered body weights and starting weights. Missing starting weights are derived from the entry total when available.
+- 69.0.0: Simulation preserves entered body weights and starting weights. Missing starting weights are derived from the entry total when available.
 
-- 69.0.0-rc04: Audit log improvements
+- 69.0.0: Audit log improvements
   - seal cleanly and reliably on shutdown after MQTT and server services stop; shutdown failures are logged without preventing audit finalization.
   - show the difference from the previous requested weight for athlete declarations and changes.
   - clock events and weight changes show the scoreboard time and the exact milliseconds.
   - the `_plain_` files are for people. Each `_sealed_` line starts with the same readable text and ends with `json=` and a self-contained JSON object meant for programs: sequence, time, station and user, athlete, attempt, raw values before and after, previous requested weight, clock in milliseconds, and the other details.
   - Record audit details list the lift and age group first.
 
-- 69.0.0-rc04: In mixed-gender sessions, the moving down checks were not enabled because first man could be lower than last woman. Now fixed (going from women to men resets the values as if it was a new session)
+- 69.0.0: In mixed-gender sessions, the moving down checks were not enabled because first man could be lower than last woman. Now fixed (going from women to men resets the values as if it was a new session)
 
-- 69.0.0-rc03: Multi-language behaviour improved
+- 69.0.0: Multi-language behaviour improved
   - Pages always use their own locale, no matter the locale of the page that triggered an event (for example, record notifications and the device testing page).
   - Printed documents and downloaded kits are produced in the locale of the page used to create them.
   - A page's locale is, in order of priority: the locale chosen with the language menu for the browser session, the default locale in the Language and System Settings, then the first browser locale (in the browser's order of preference) for which there are available translations, then English.
   - The menu also lists the browser's own locale (language and country) when the language is translated, Java supports that combination, and it is not already listed. For example, a browser set to Spanish (Chile) adds "español (Chile)", and one set to Spanish (Argentina) adds "español (Argentina)". Both show the same Spanish text, since there is no Chilean or Argentinian column in the translation definitions, but dates follow each country's conventions (14-11-2026 in Chile, 14/11/2026 in Argentina). The country also selects country-specific templates when they exist.
 
-- 69.0.0-rc03: Make the weigh-in and registration page filters fit on 1366x768 laptopsß
-
-**New in Release 69.0**
+- 69.0.0: Make the weigh-in and registration page filters fit on 1366x768 laptopsß
 
 - OWLCMS 69 requires control panel 3.10.0-alpha02 (pre-release) or later, which gives OWLCMS a new control panel token at each launch. The home page says so when an older control panel is used.
 
