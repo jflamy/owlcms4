@@ -11,6 +11,8 @@
 
 **Development log**
 
+- 69.1.0: Added missing MQTT events for stand-alone clocks (`setTime`, `breakSetTime`, `breakStart`, `breakStop`).
+
 - 69.0.0-rc11: Potentially dangerous imports are now blocked while a lifting session is active, with clear platform warnings: registration, SBDE, database, and age-group imports.
   - JSON imports already warn about requiring an immediate full restart
   - The other imports can accept a delayed restart.

@@ -114,6 +114,7 @@ In general, an external observer should listen to all `fop` events to decide wha
 
 
 - `owlcms/fop/startLifting/A`   Lifting has started on the platform.  This is the normal way to end a break.
+- `owlcms/fop/setTime/A :timeRemaining` The stopped athlete clock is set to `:timeRemaining` milliseconds: 60000 (1:00) or 120000 (2:00) when the lifting order is recalculated for a new athlete or forced by the timekeeper (`60`/`120`), or the clock owner's previously remaining time when weight changes bring the clock owner back to first place while the clock is stopped.
 - `owlcms/fop/start/A :jsonAthlete :timeRemaining` Clock has started for athlete :jsonAthlete.  The json object contains 
 
   - `athleteName`  the full name of the athlete
@@ -121,6 +122,14 @@ In general, an external observer should listen to all `fop` events to decide wha
   - `attemptNumber` 1 2 or 3
 
 - `owlcms/fop/stop/A :timeRemaining` Clock has stopped for athlete :jsonAthlete. 
+- `owlcms/fop/breakSetTime/A :jsonBreakClock` The stopped break clock is set.  The JSON object contains:
+
+  - `breakType`: the break type (or `null` when not set)
+  - `indefinite`: `true` when the break has no countdown
+  - `timeRemaining`: remaining time in milliseconds, or `null` when `indefinite` is `true`
+
+- `owlcms/fop/breakStart/A :jsonBreakClock` The break clock has started.  Uses the same JSON fields as `breakSetTime`.
+- `owlcms/fop/breakStop/A :jsonBreakClock` The break clock has been paused or reached zero.  Uses the same JSON fields as `breakSetTime` (`timeRemaining` is `0` when the break countdown expires).
 - `owlcms/fop/refereesDecision/A` `:decision` after a lift, when `good` or `bad` lift majority decisions are shown.  Used by observers to control lighting or other ambiance effects without having to parse the individual decisions to determine majority.  Issued at the same time as the individual decisions.
 
 ### Messages published by all devices
