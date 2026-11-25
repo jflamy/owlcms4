@@ -8,6 +8,8 @@ package app.owlcms.monitors;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1358,12 +1360,42 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	@Subscribe
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
 		// logger.debug("mqtt slaveBreakStart {} {}",e, e.getBreakType());
+		if (!e.isDisplayToggle()) {
+			boolean indefinite = e.isIndefinite();
+			String action = (!indefinite && Boolean.TRUE.equals(e.getPaused())) ? "breakSetTime" : "breakStart";
+			publishMqttBreakClock(action, e.getBreakType(), indefinite, e.getTimeRemaining());
+		}
 		if (e.getBreakType() != BreakType.JURY && e.getBreakType() != BreakType.CHALLENGE) {
 			try {
 				publishMqttBreak(e);
 			} catch (MqttException e1) {
 			}
 		}
+	}
+
+	@Subscribe
+	public void slaveBreakSet(UIEvent.BreakSetTime e) {
+		Integer millis;
+		if (e.isIndefinite()) {
+			millis = null;
+		} else if (e.getEnd() != null) {
+			millis = (int) LocalDateTime.now().until(e.getEnd(), ChronoUnit.MILLIS);
+		} else {
+			millis = e.getTimeRemaining();
+		}
+		publishMqttBreakClock("breakSetTime", e.getBreakType(), e.isIndefinite(), millis);
+	}
+
+	@Subscribe
+	public void slaveBreakPaused(UIEvent.BreakPaused e) {
+		if (!e.isDisplayToggle()) {
+			publishMqttBreakClock("breakStop", e.getBreakType(), e.isIndefinite(), e.getTimeRemaining());
+		}
+	}
+
+	@Subscribe
+	public void slaveBreakDone(UIEvent.BreakDone e) {
+		publishMqttBreakClock("breakStop", e.getBreakType(), false, 0);
 	}
 
 	@Subscribe
@@ -1560,6 +1592,11 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	public void slaveTimeRemainingSeconds(UIEvent.TimeRemainingSeconds e) {
 		int secondsRemaining = e.getSecondsRemaining();
 		publishMqttTimeRemainingSeconds(secondsRemaining);
+	}
+
+	@Subscribe
+	public void slaveTimeSet(UIEvent.SetTime e) {
+		publishSetAthleteTimer(e);
 	}
 
 	@Subscribe
@@ -1839,6 +1876,39 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		}
 		String topic = "owlcms/fop/liftingOrderUpdated/" + this.getFop().getName();
 		publish(topic, new MqttMessage());
+	}
+
+	private void publishSetAthleteTimer(UIEvent.SetTime e) {
+		if (getFop() == null) {
+			return;
+		}
+		Integer timeRemaining = e.getTimeRemaining();
+		if (timeRemaining == null) {
+			return;
+		}
+		try {
+			publish("owlcms/fop/setTime/" + this.getFop().getName(),
+					new MqttMessage(Integer.toString(timeRemaining).getBytes(StandardCharsets.UTF_8)));
+		} catch (MqttException e1) {
+			logger.error("cannot publish set athlete timer: {}", LoggerUtils.exceptionMessage(e1));
+		}
+	}
+
+	private void publishMqttBreakClock(String action, BreakType breakType, boolean indefinite, Integer timeRemaining) {
+		if (getFop() == null) {
+			return;
+		}
+		Map<String, Object> payload = new TreeMap<>();
+		payload.put("breakType", breakType != null ? breakType.name() : null);
+		payload.put("indefinite", indefinite);
+		payload.put("timeRemaining", indefinite ? null : timeRemaining);
+		try {
+			String json = new ObjectMapper().writeValueAsString(payload);
+			publish("owlcms/fop/" + action + "/" + this.getFop().getName(),
+					new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
+		} catch (JacksonException | MqttException e1) {
+			logger.error("cannot publish {}: {}", action, LoggerUtils.exceptionMessage(e1));
+		}
 	}
 
 	public void publishMqttPlaywrightLiftingOrder(UIEvent.LiftingOrderUpdated e) {
