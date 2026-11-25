@@ -56,7 +56,7 @@ public final class ImportGate {
 			refusal = Reason.NO_PERMISSION;
 		} else if (!isAllowed()) {
 			refusal = Reason.NOT_ALLOWED;
-		} else {
+		} else if (kind != Kind.DATABASE) {
 			ImportLatch.requireNoActiveSession(kind, origin);
 		}
 		if (refusal == null) {

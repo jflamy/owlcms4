@@ -21,6 +21,7 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
+import app.owlcms.components.elements.RestartProgress;
 import app.owlcms.i18n.Translator;
 import app.owlcms.fieldofplay.FieldOfPlay;
 
@@ -57,10 +58,30 @@ public class NotificationUtils {
 	 * immediately because the caller usually blocks or exits right after.
 	 */
 	public static void restarting(UI ui) {
-		Notification n = new Notification(Translator.translate("Platform.Restarting"));
-		n.setPosition(Position.BOTTOM_START);
+		RestartProgress progress = new RestartProgress(Translator.translate("Platform.Restarting"));
+		progress.beginRestart(Translator.translate("Platform.Restarting"), 0);
+		progressNotification(progress, Position.BOTTOM_START);
+		if (ui != null) {
+			ui.push();
+		}
+	}
+
+	public static Notification progressNotification(String text, Position position) {
+		return progressNotification(new RestartProgress(text), position);
+	}
+
+	public static Notification progressNotification(RestartProgress progress, Position position) {
+		Notification n = new Notification();
+		n.add(progress);
+		n.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+		n.setPosition(position);
 		n.setDuration(0);
 		n.open();
+		return n;
+	}
+
+	public static void beginRestarting(UI ui, RestartProgress progress, String text, long startDelayMillis) {
+		progress.beginRestart(text, startDelayMillis);
 		if (ui != null) {
 			ui.push();
 		}

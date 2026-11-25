@@ -120,7 +120,7 @@ public class ImportGateTest {
 	}
 
 	@Test
-	public void activeSessionRefusesSpreadsheetImports() {
+	public void activeSessionRefusesSpreadsheetImportsButAllowsDatabaseImport() {
 		FieldOfPlay platform = new FieldOfPlay();
 		platform.setName("Platform 1");
 		platform.setGroup(new Group("A"));
@@ -140,8 +140,7 @@ public class ImportGateTest {
 			        () -> AgeGroupRepository.reloadDefinitions(new ByteArrayInputStream(new byte[0]), ORIGIN));
 			assertEquals(ImportGate.Kind.AGE_GROUPS, refused.getKind());
 			assertEquals(Reason.SESSION_IN_PROGRESS, refused.getReason());
-			assertThrows(ImportsNotAllowedException.class,
-			        () -> ImportGate.requireAllowed(ImportGate.Kind.DATABASE, ADMIN, ORIGIN));
+			ImportGate.requireAllowed(ImportGate.Kind.DATABASE, ADMIN, ORIGIN);
 		} finally {
 			TestFopRegistry.replace(previous);
 		}

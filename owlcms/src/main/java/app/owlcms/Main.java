@@ -189,6 +189,8 @@ public class Main {
     /** OWLCMS_LOADJSON is honored once per JVM: an in-process restart must not replace the competition again. */
     private static boolean startupImportAttempted;
     private static volatile boolean startupImportLoaded;
+    private static volatile long startupStartedNanos;
+    private static volatile long startupDurationMillis;
     /** Startup time; makes internal MQTT client ids unique. Not a secret: client ids appear in logs. */
     public static String mqttStartup;
     /** Random password used by OWLCMS's own connections to its internal MQTT broker. */
@@ -383,6 +385,7 @@ public class Main {
      * @throws Exception the exception
      */
     public static void main(String... args) throws Exception {
+        startupStartedNanos = System.nanoTime();
         // Install signal handlers early so the shutdown hook can distinguish
         // an intentional external stop from a crash and exit 0 for Docker/systemd.
         for (String sigName : new String[] { "TERM", "INT" }) {
@@ -821,6 +824,10 @@ public class Main {
         try {
             logger.info("Database ready, unlatching browser requests.");
             OwlcmsFactory.countDownLatch();
+            long startedNanos = startupStartedNanos;
+            if (startedNanos != 0) {
+                startupDurationMillis = Math.max(1L, (System.nanoTime() - startedNanos) / 1_000_000L);
+            }
             reportStartedToWrapper();
             // Start browser now that the database is ready
             String serverURL = String.format("http://localhost:%d/", serverPort);
@@ -829,6 +836,10 @@ public class Main {
 			LoggerUtils.logError(logger, e, false);
 		}
 	}
+
+    public static long getStartupDurationMillis() {
+        return startupDurationMillis;
+    }
 
     private static void reportStartedToWrapper() {
         String marker = System.getenv(WRAPPER_STARTED_FILE_ENV);
