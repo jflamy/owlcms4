@@ -17,6 +17,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 
 import app.owlcms.apputils.NotificationUtils;
+import app.owlcms.components.elements.RestartProgress;
 import app.owlcms.access.ImportsNotAllowedException;
 import app.owlcms.access.ImportsNotAllowedException.Reason;
 import app.owlcms.access.Principal;
@@ -130,11 +131,10 @@ public class JsonUploadDialog extends Dialog {
 		}
 		clearPending();
 		setImporting(true);
-		Notification importing = new Notification(Translator.translate("ImportJson.Importing"));
-		importing.setPosition(Position.BOTTOM_START);
-		importing.setDuration(0);
-		importing.open();
-		Thread.ofVirtual().name("DatabaseImport").start(() -> importAndRestart(fileName, data, importing));
+		close();
+		RestartProgress progress = new RestartProgress(Translator.translate("ImportJson.Importing"));
+		Notification importing = NotificationUtils.progressNotification(progress, Position.MIDDLE);
+		Thread.ofVirtual().name("DatabaseImport").start(() -> importAndRestart(fileName, data, importing, progress));
 	}
 
 	private void setImporting(boolean importing) {
@@ -145,7 +145,7 @@ public class JsonUploadDialog extends Dialog {
 	}
 
 	/** Background thread. Once the database has been replaced, the restart takes place whatever happens to the page. */
-	private void importAndRestart(String fileName, byte[] data, Notification importing) {
+	private void importAndRestart(String fileName, byte[] data, Notification importing, RestartProgress progress) {
 		try {
 			// detects the format, checks that imports are still allowed, and audits the import
 			FormatDetector.importData(data, fileName, this.importer, this.importOrigin);
@@ -160,11 +160,7 @@ public class JsonUploadDialog extends Dialog {
 			return;
 		}
 		String restarting = Translator.translate("Platform.Restarting", this.capturedLocale);
-		updateUi(() -> {
-			importing.close();
-			close();
-			NotificationUtils.centeredStatus(restarting);
-		});
+		updateUi(() -> NotificationUtils.beginRestarting(this.ui, progress, restarting, 0));
 		try {
 			Thread.sleep(RESTART_NOTICE_MS);
 		} catch (InterruptedException e) {
@@ -180,6 +176,7 @@ public class JsonUploadDialog extends Dialog {
 		this.errors.setVisible(true);
 		this.upload.clearFileList();
 		setImporting(false);
+		open();
 	}
 
 	private String importRefusalMessage(ImportsNotAllowedException error) {
