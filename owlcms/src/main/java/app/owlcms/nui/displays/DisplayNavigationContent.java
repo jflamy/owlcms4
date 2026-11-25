@@ -206,14 +206,13 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			tabSheet.add(Translator.translate("Jury"), jurySection);
 
 			Ranking bestAthleteScoring = Championship.of(null).getEffectiveBestAthleteScoringSystem();
-			String bestAthleteTitle = Ranking.getScoringTitle(bestAthleteScoring);
 			Ranking teamScoring = Championship.of(null).getTeamScoringSystem() != null
 			        ? Championship.of(null).getTeamScoringSystem()
 			        : Ranking.TOTAL;
 			String teamScoringTitle = Ranking.getScoringTitle(teamScoring);
 
 			Button topSinclair = openInNewTabWithFop(TopSinclairPage.class,
-			        Translator.translate("Scoreboard.TopScore", bestAthleteTitle));
+			        Translator.translate("Scoreboard.BestAthletes"));
 			Button topTeams = openInNewTabWithFop(TopTeamsPage.class, Translator.translate("Scoreboard.TopTeams"));
 			Button topTeamsSinclair = openInNewTabWithFop(TopTeamsSinclairPage.class,
 			        Translator.translate("Scoreboard.TopTeamsScore", teamScoringTitle));
