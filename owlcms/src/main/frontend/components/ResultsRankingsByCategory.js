@@ -81,7 +81,7 @@ class ResultsRankingsByCategory extends LitElement {
                         <th class="groupCol" .innerHTML="${this.t?.Start}"></th>
                         <th class="name" .innerHTML="${this.t?.Name}"></th>
                         <th class="category" .innerHTML="${this.t?.Category}"></th>
-                        <th class="yob" .innerHTML="${this.t?.Birth}"></th>
+                        <th class="yob" .innerHTML="${this.showMedalScore ? this.t?.Age : this.t?.Birth}"></th>
                         <th class="bodyWeight" .innerHTML="${this.t?.BodyWeight}"></th>
                         <th class="custom1" .innerHTML="${this.t?.Custom1}"></th>
                         <th class="custom2" .innerHTML="${this.t?.Custom2}"></th>
@@ -115,7 +115,7 @@ class ResultsRankingsByCategory extends LitElement {
                               <div>${item?.category}</div>
                             </td>
                             <td class="yob">
-                              <div>${item?.yearOfBirth}</div>
+                              <div>${this.showMedalScore ? item?.age : item?.yearOfBirth}</div>
                             </td>
                             <td class="bodyWeight">
                               <div>${item?.bodyWeight}</div>

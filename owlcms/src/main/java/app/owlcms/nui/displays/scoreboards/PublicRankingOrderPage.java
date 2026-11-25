@@ -88,6 +88,8 @@ public class PublicRankingOrderPage extends AbstractResultsDisplayPage {
 			this.getMedalsBoard().setPublicDisplay(((DisplayParameters) getBoard()).isPublicDisplay());
 			this.getMedalsBoard().setSingleReferee(((SoundParameters) getBoard()).isSingleReferee());
 			this.getMedalsBoard().setAbbreviatedName(((DisplayParameters) getBoard()).isAbbreviatedName());
+			this.getMedalsBoard().setShowKgDelta(((DisplayParameters) getBoard()).isShowKgDelta());
+			this.getMedalsBoard().setShowKgLeader(((DisplayParameters) getBoard()).isShowKgLeader());
 			this.getMedalsBoard().setTeamWidth(((DisplayParameters) getBoard()).getTeamWidth());
 			this.getMedalsBoard().setEmFontSize(((DisplayParameters) getBoard()).getEmFontSize());
 			computeStylesDir(this.getMedalsBoard());
@@ -109,10 +111,28 @@ public class PublicRankingOrderPage extends AbstractResultsDisplayPage {
 		getMedalsBoard().setPublicDisplay(board.isPublicDisplay());
 		getMedalsBoard().setSingleReferee(board.isSingleReferee());
 		getMedalsBoard().setAbbreviatedName(board.isAbbreviatedName());
+		getMedalsBoard().setShowKgDelta(board.isShowKgDelta());
+		getMedalsBoard().setShowKgLeader(board.isShowKgLeader());
 		computeStylesDir(getMedalsBoard());
 		getMedalsBoard().getStyle().set("display", "none");
 
 		this.ui = UI.getCurrent();
+	}
+
+	@Override
+	public void setShowKgDelta(boolean b) {
+		super.setShowKgDelta(b);
+		if (getMedalsBoard() != null) {
+			getMedalsBoard().setShowKgDelta(b);
+		}
+	}
+
+	@Override
+	public void setShowKgLeader(boolean b) {
+		super.setShowKgLeader(b);
+		if (getMedalsBoard() != null) {
+			getMedalsBoard().setShowKgLeader(b);
+		}
 	}
 
 	@Override

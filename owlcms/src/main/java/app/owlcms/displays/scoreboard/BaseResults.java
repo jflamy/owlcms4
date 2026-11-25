@@ -124,6 +124,8 @@ public class BaseResults extends LitTemplate
 	private boolean video;
 	private boolean currentAttempt;
 	private boolean decisionSection;
+	private boolean showKgDelta = FeatureSwitch.SHOW_KG_DELTA.isEffective();
+	private boolean showKgLeader = FeatureSwitch.SHOW_KG_LEADER.isEffective();
 	private String showMedals = "auto";
 	private int topN = DisplayParameters.DEFAULT_TOP_N;
 	private boolean groupPinnedFromURL;
@@ -305,6 +307,16 @@ public class BaseResults extends LitTemplate
 	@Override
 	public boolean isDecisionSection() {
 		return this.decisionSection;
+	}
+
+	@Override
+	public boolean isShowKgDelta() {
+		return this.showKgDelta;
+	}
+
+	@Override
+	public boolean isShowKgLeader() {
+		return this.showKgLeader;
 	}
 
 	protected void clearDecisionSectionDecisionAthlete() {
@@ -569,6 +581,37 @@ public class BaseResults extends LitTemplate
 	}
 
 	@Override
+	public void setShowKgDelta(boolean b) {
+		boolean changed = this.showKgDelta != b;
+		this.showKgDelta = b;
+		if (changed && isAttached()) {
+			refreshShowKgDelta();
+		}
+	}
+
+	@Override
+	public void setShowKgLeader(boolean b) {
+		boolean changed = this.showKgLeader != b;
+		this.showKgLeader = b;
+		if (changed && isAttached()) {
+			refreshShowKgDelta();
+		}
+	}
+
+	protected ScoreboardRankData.DeltaMode kgDeltaMode() {
+		return ScoreboardRankData.deltaMode(isShowKgDelta(), isShowKgLeader());
+	}
+
+	protected Double leaderScoreFor(Athlete athlete) {
+		FieldOfPlay fop = getFop();
+		return ScoreboardRankData.leaderScore(athlete, fop != null ? fop.getMedals() : null, this.displayOrder);
+	}
+
+	protected void refreshShowKgDelta() {
+		syncWithFOP();
+	}
+
+	@Override
 	public String isShowMedals() {
 		return this.showMedals;
 	}
@@ -810,7 +853,12 @@ public class BaseResults extends LitTemplate
 	}
 
 	protected void putRankData(Athlete athlete, ObjectNode json, boolean highlightMedals) {
-		ScoreboardRankData.fields(athlete, this.capturedLocale, highlightMedals).forEach(json::put);
+		putRankData(athlete, json, highlightMedals, leaderScoreFor(athlete));
+	}
+
+	protected void putRankData(Athlete athlete, ObjectNode json, boolean highlightMedals, Double leaderScore) {
+		ScoreboardRankData.fields(athlete, this.capturedLocale, highlightMedals, kgDeltaMode(), leaderScore)
+		        .forEach(json::put);
 	}
 
 
@@ -1445,7 +1493,9 @@ public class BaseResults extends LitTemplate
 		getElement().setProperty("showSinclairRank", columns.bestRank());
 		getElement().setProperty("showLiftRanks", columns.liftRanks());
 		getElement().setProperty("showTotalRank", true);
-		getElement().setProperty("medalScoringName", ScoreboardRankData.title(columns.medalSystems(), this.capturedLocale));
+		getElement().setProperty("medalScoringName",
+		        ScoreboardRankData.title(columns.medalSystems(), this.capturedLocale,
+		                kgDeltaMode() != ScoreboardRankData.DeltaMode.NONE));
 		getElement().setProperty("scoringName", ScoreboardRankData.title(columns.bestSystems(), this.capturedLocale));
 
 	}

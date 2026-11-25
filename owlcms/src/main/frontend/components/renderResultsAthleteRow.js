@@ -1,6 +1,6 @@
 import { html } from "lit";
 
-export function renderResultsAthleteRow(item) {
+export function renderResultsAthleteRow(item, showMedalScore = false) {
   return html`
     <tr class="${"athlete" + (item?.classname ?? "")}">
       <td class="${"start " + (item?.classname ?? "")}">
@@ -13,7 +13,7 @@ export function renderResultsAthleteRow(item) {
         <div>${item?.category}</div>
       </td>
       <td class="yob">
-        <div>${item?.yearOfBirth}</div>
+        <div>${showMedalScore ? item?.age : item?.yearOfBirth}</div>
       </td>
       <td class="bodyWeight">
         <div>${item?.bodyWeight}</div>

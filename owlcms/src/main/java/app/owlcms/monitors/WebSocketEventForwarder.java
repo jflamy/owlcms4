@@ -1493,6 +1493,10 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		        Boolean.toString(FeatureSwitch.DECISION_SECTION_STOPWATCH.isEffective(switches)));
 		mapPut(sb, "decisionSectionShowAgeGroups",
 		        Boolean.toString(FeatureSwitch.DECISION_SECTION_SHOW_AGE_GROUPS.isEffective(switches)));
+		mapPut(sb, "showKgDelta",
+		        Boolean.toString(FeatureSwitch.SHOW_KG_DELTA.isEffective(switches)));
+		mapPut(sb, "showKgLeader",
+		        Boolean.toString(FeatureSwitch.SHOW_KG_LEADER.isEffective(switches)));
 
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
 		mapPut(sb, "mode", getBoardMode());

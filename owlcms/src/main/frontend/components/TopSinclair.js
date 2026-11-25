@@ -44,7 +44,8 @@ class TopSinclair extends LitElement {
   }
 
   renderTable(athletes) {
-    const nbColumns = 5 + 1 + (this.displayLifts ? 4 : 1) + 1 + (this.displayLifts ? 4 : 1) + 1 + 3;
+    const showNeeded = this.showNeeded !== false;
+    const nbColumns = 5 + 1 + (this.displayLifts ? 4 : 1) + 1 + (this.displayLifts ? 4 : 1) + 1 + 2 + (showNeeded ? 1 : 0);
     return html`
       <div class="block">
         <table class="results" id="orderDiv" style="${this.twOverride ?? ""}">
@@ -68,7 +69,7 @@ class TopSinclair extends LitElement {
               <th class="vspacer"></th>
               <th class="${this.displayLifts ? "total" : "total liftOnly"}" .innerHTML="${this.t?.Total}"></th>
               <th class="score" .innerHTML="${this.t?.ScoringTitle}"></th>
-              <th class="needed" .innerHTML="${this.t?.Needed}"></th>
+              ${showNeeded ? html`<th class="needed" .innerHTML="${this.t?.Needed}"></th>` : html``}
             </tr>
           </thead>
           <tbody>
@@ -92,7 +93,7 @@ class TopSinclair extends LitElement {
                   <td class="vspacer"></td>
                   <td class="total"><div>${item.total}</div></td>
                   <td class="score"><div>${item.sinclair}</div></td>
-                  <td class="needed"><div>${item.needed}</div></td>
+                  ${showNeeded ? html`<td class="needed"><div>${item.needed}</div></td>` : html``}
                 </tr>
               `
             )}
@@ -130,6 +131,7 @@ class TopSinclair extends LitElement {
       // dynamic styling
       darkMode: {},
       displayLifts: {type: Boolean},
+      showNeeded: {type: Boolean},
       sizeOverride: {},
       twOverride: {},
       colorOverride: {},

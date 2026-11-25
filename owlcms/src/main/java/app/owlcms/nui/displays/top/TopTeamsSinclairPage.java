@@ -259,6 +259,7 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		this.ageDivision = ageDivision;
 		((TopTeamsSinclair) this.getBoard()).setChampionship(ageDivision);
 		((TopTeamsSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
+		getUI().ifPresent(currentUi -> currentUi.getPage().setTitle(getPageTitle()));
 	}
 
 	@Override

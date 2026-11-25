@@ -121,7 +121,35 @@ public class DisplayOptions {
 			}
 		});
 
+		boolean showKgLeader = dp.isShowKgLeader();
+		boolean showKgDelta = dp.isShowKgDelta();
+		Checkbox showKgLeaderCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowKgLeader"));
+		Checkbox showKgDeltaCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowKgDelta"));
+		showKgLeaderCheckbox.setValue(showKgLeader);
+		showKgDeltaCheckbox.setValue(showKgDelta);
+		showKgLeaderCheckbox.addValueChangeListener(e -> {
+			if (e.isFromClient() && e.getSource() == showKgLeaderCheckbox) {
+				boolean enabled = Boolean.TRUE.equals(e.getValue());
+				if (enabled && Boolean.TRUE.equals(showKgDeltaCheckbox.getValue())) {
+					showKgDeltaCheckbox.setValue(false);
+					dp.switchShowKgDelta(false, true);
+				}
+				dp.switchShowKgLeader(enabled, true);
+			}
+		});
+		showKgDeltaCheckbox.addValueChangeListener(e -> {
+			if (e.isFromClient() && e.getSource() == showKgDeltaCheckbox) {
+				boolean enabled = Boolean.TRUE.equals(e.getValue());
+				if (enabled && Boolean.TRUE.equals(showKgLeaderCheckbox.getValue())) {
+					showKgLeaderCheckbox.setValue(false);
+					dp.switchShowKgLeader(false, true);
+				}
+				dp.switchShowKgDelta(enabled, true);
+			}
+		});
+
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
+		horizontalLayout.getStyle().set("flex-wrap", "wrap");
 		horizontalLayout.add(leadersDisplayCheckbox);
 		if (recordsDisplayCheckbox != null) {
 			horizontalLayout.add(recordsDisplayCheckbox);
@@ -129,6 +157,8 @@ public class DisplayOptions {
 		horizontalLayout.add(abbreviatedCheckbox);
 		horizontalLayout.add(currentAttemptCheckbox);
 		horizontalLayout.add(decisionSectionCheckbox);
+		horizontalLayout.add(showKgLeaderCheckbox);
+		horizontalLayout.add(showKgDeltaCheckbox);
 
 		layout.add(label);
 		layout.add(horizontalLayout);

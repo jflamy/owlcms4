@@ -310,6 +310,7 @@ public class TopTeamsSinclair extends AbstractTop {
 	private void updateBottom() {
 		Ranking scoringSystem = getTeamScoringRanking();
 		String ssText = Ranking.getScoringTitle(scoringSystem);
+		setTranslationMap();
 
 		Gender gender = this.getGender();
 		if (gender == null || gender == Gender.M || gender == Gender.I) {

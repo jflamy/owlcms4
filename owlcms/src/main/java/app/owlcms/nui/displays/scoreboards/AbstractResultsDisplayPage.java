@@ -61,6 +61,10 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 		Map<String, List<String>> params = super.readParams(location, parametersMap);
 		setDefaultParamValue(DECISION_SECTION, Boolean.toString(isDefaultDecisionSection()));
 		processBooleanParam(params, DECISION_SECTION, (v) -> switchDecisionSection(v, false));
+		setDefaultParamValue(SHOW_KG_DELTA, Boolean.toString(isDefaultShowKgDelta()));
+		processBooleanParam(params, SHOW_KG_DELTA, (v) -> switchShowKgDelta(v, false));
+		setDefaultParamValue(SHOW_KG_LEADER, Boolean.toString(isDefaultShowKgLeader()));
+		processBooleanParam(params, SHOW_KG_LEADER, (v) -> switchShowKgLeader(v, false));
 		setUrlParameterMap(params);
 		return params;
 	}

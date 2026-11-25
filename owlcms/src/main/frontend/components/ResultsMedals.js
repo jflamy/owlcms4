@@ -72,7 +72,7 @@ class ResultsMedals extends LitElement {
                         <th class="groupCol" .innerHTML="${this.t?.Start}"></th>
                         <th class="name" .innerHTML="${this.t?.Name}"></th>
                         <th class="category" .innerHTML="${this.t?.Category}"></th>
-                        <th class="yob" .innerHTML="${this.t?.Birth}"></th>
+                        <th class="yob" .innerHTML="${this.showMedalScore ? this.t?.Age : this.t?.Birth}"></th>
                         <th class="bodyWeight" .innerHTML="${this.t?.BodyWeight}"></th>
                         <th class="custom1" .innerHTML="${this.t?.Custom1}"></th>
                         <th class="custom2" .innerHTML="${this.t?.Custom2}"></th>
@@ -93,7 +93,7 @@ class ResultsMedals extends LitElement {
                         <th class="sinclairRank" .innerHTML="${mc.scoreRankingTitle}"></th>
                       </tr>
 
-                      ${(mc.leaders ?? []).map((leader) => renderResultsAthleteRow(leader))}
+                      ${(mc.leaders ?? []).map((leader) => renderResultsAthleteRow(leader, this.showMedalScore))}
                       ${index < array.length - 1 ? html`
                         <tr>
                           <td class="filler" style="${"grid-column: 1 / -1; line-height:100%;" + (this.fillerDisplay ?? "")}">&nbsp;</td>

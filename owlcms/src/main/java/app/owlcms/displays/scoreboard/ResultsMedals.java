@@ -38,6 +38,7 @@ import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.MedalCategoryComparator;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.athleteSort.ScoreboardRankData;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -423,6 +424,10 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	}
 
 	protected void getAthleteJson(Athlete a, ObjectNode ja, Category curCat, int liftOrderRank) {
+		getAthleteJson(a, ja, curCat, liftOrderRank, leaderScoreFor(a));
+	}
+
+	protected void getAthleteJson(Athlete a, ObjectNode ja, Category curCat, int liftOrderRank, Double leaderScore) {
 		if (a.getGroup() == null) {
 			return;
 		}
@@ -459,7 +464,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		ja.put("group", a.getGroup().getName());
 		ja.put("subCategory", a.getSubCategory());
 
-		putRankData(a, ja, true);
+		putRankData(a, ja, true, leaderScore);
 
 		ja.put("bodyWeight", getBodyWeightValue(a));
 		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
@@ -493,6 +498,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		// Category prevCat = null;
 		List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
 		        : Collections.emptyList();
+		Double leaderScore = ScoreboardRankData.leaderScore(athletes);
 
 		athletes.stream()
 		        .filter(a -> isMedalist(a))
@@ -500,7 +506,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 					ObjectNode ja = JsonUtils.object();
 			        Category curCat = a.getCategory();
 			        // no blinking = 0
-			        getAthleteJson(a, ja, curCat, 0);
+			        getAthleteJson(a, ja, curCat, 0, leaderScore);
 			        String team = a.getTeam();
 			        if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
 				        this.logger.trace("long team {}", team);
@@ -523,6 +529,11 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		FieldOfPlay fop = getFop();
 		this.uiEventBus = uiEventBusRegister(this, fop);
 		doMedalsDisplay();
+	}
+
+	@Override
+	protected void refreshShowKgDelta() {
+		doMedals(getFop());
 	}
 
 	@Override
@@ -586,6 +597,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		// logger.debug("computeGroupMedalsJson group = {}\n{}", this.getGroup(), LoggerUtils.stackTrace());
 		ArrayNode jsonMCArray = JsonUtils.array();
 		int mcX = 0;
+		setRankColumns(medals2.values().stream().flatMap(List::stream).toList());
 
 		boolean scoreNeeded = false;
 		List<Entry<String, List<Athlete>>> orderedMedalCategories = new ArrayList<>(medals2.entrySet());
