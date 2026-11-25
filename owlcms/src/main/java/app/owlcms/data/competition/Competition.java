@@ -714,6 +714,19 @@ public class Competition {
 			cjPLeaders = AthleteSorter.resultsOrderCopy(updatedAthletes, Ranking.CLEANJERK);
 			updatedAthletes = AthleteSorter.updateEligibleCategoryRanks(cjPLeaders, Ranking.CLEANJERK, category);
 
+			for (Athlete categoryAthlete : currentCategoryPAthletes) {
+				Participation participation = categoryAthlete.getMainRankings();
+				if (participation != null) {
+					participation.setCategoryScoreKgDelta(0);
+				}
+				if (categoryAthlete instanceof PAthlete pAthlete) {
+					Participation original = pAthlete._getOriginalParticipation();
+					if (original != null) {
+						original.setCategoryScoreKgDelta(0);
+					}
+				}
+			}
+
 			List<Athlete> pMedalists;
 
 			if (category.getAgeGroup() != null && category.getAgeGroup().getComputedScoringSystem() == Ranking.TOTAL) {
@@ -817,6 +830,7 @@ public class Competition {
 			int rank = total != null && total <= 0 ? 0 : -1;
 			participation.setTotalRank(rank);
 			participation.setCategoryScoreRank(rank);
+			participation.setCategoryScoreKgDelta(0);
 			participation.setCustomRank(rank);
 			return;
 		}
@@ -824,6 +838,7 @@ public class Competition {
 		participation.setCleanJerkRank(-1);
 		participation.setTotalRank(-1);
 		participation.setCategoryScoreRank(-1);
+		participation.setCategoryScoreKgDelta(0);
 		participation.setCustomRank(-1);
 	}
 
