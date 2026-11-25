@@ -13,6 +13,11 @@
 
 - 69.1.0: Added missing MQTT events for stand-alone clocks (`setTime`, `breakSetTime`, `breakStart`, `breakStop`).
 
+- 69.1.0: Usability: Progress bar on import file restart, based on prior startup time.
+
+- 69.1.0: The Top Score, Top Teams and Top Team Score displays now follow the scoreboard look (headers, spacing, column groups and font sizes) for all styles, including public and video.
+  - The display options for font size and team width now apply to these displays.
+
 **New in Release 69**
 
 - 69.0.0: Potentially dangerous imports are now blocked while a lifting session is active, with clear platform warnings: registration, SBDE, database, and age-group imports.

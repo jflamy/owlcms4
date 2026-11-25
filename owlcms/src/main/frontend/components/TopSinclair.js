@@ -25,107 +25,88 @@ class TopSinclair extends LitElement {
         <timer-element id="decisionSectionStopwatch"></timer-element>
         <decision-element id="decisionSectionReferee"></decision-element>
       </div> 
-      <div id="resultBoardDiv" class="${this.activeClasses()} ${this.darkMode??"dark"}">
+      <div id="resultBoardDiv" class="${this.activeClasses()} ${this.darkMode??"dark"}"
+          style="${this.sizeOverride ?? ""} ${this.colorOverride ?? ""}">
         ${this.topSinclairWomen
           ? html`
               <h2 class="fullName" id="fullNameDiv" .innerHTML="${this.topSinclairWomen}"></h2>
-              <table class="results" id="orderDiv">
-                <thead>
-                  <tr>
-                    <th class="name veryWide" .innerHTML="${this.t?.Name}"></th>
-                    <th class="club wide" .innerHTML="${this.t?.Team}"></th>
-                    <th class="veryNarrow age narrow" .innerHTML="${this.t?.Age}"></th>
-                    <th class="category narrow" .innerHTML="${this.t?.Category}"></th>
-                    <th class="narrow" .innerHTML="${this.t?.BodyWeight}"></th>
-                      <th colspan="3" class="${this.displayLifts ? 'showLifts' : 'hideLifts'}" .innerHTML="${this.t?.Snatch}"></th>
-                      <th class="best" .innerHTML="${this.t?.Snatch}"></th>
-                      <th colspan="3" class="${this.displayLifts ? 'showLifts' : 'hideLifts'}" .innerHTML="${this.t?.Clean_and_Jerk}"></th>
-                      <th class="best" .innerHTML="${this.t?.Clean_and_Jerk}"></th>
-                    <th class="narrow" .innerHTML="${this.t?.Total}"></th>
-                    <th class="sinclair" .innerHTML="${this.t?.ScoringTitle}"></th>
-                    <th class="needed" .innerHTML="${this.t?.Needed}"></th>
-                  </tr>
-                </thead>
-                  ${(this.sortedWomen ?? []).map(
-                    (item) => html`
-                      <tr>
-                            <td class="name veryWide"> <div>${item.fullName}</div></td>
-                            <td class="club wide"><div>${item.teamName}</div></td>
-                            <td class="veryNarrow age narrow"><div>${item.age}</div></td>
-                            <td class="category narrow">${item.category}</td>
-                            <td class="narrow"><div>${item.bw}</div></td>
-                        <!-- Always render 3 snatch attempts -->
-                        ${[0,1,2].map(i => {
-                          const attempt = (item.sattempts && item.sattempts[i]) || {};
-                          return html`<td class="${this.displayLifts ? 'showLifts' : 'hideLifts'} ${(attempt.liftStatus ?? '') + ' ' + (attempt.className ?? '')}"><div>${attempt.stringValue ?? ''}</div></td>`;
-                        })}
-                        <td class="best"><div>${item.bestSnatch ?? ''}</div></td>
-                        <!-- Always render 3 clean & jerk attempts -->
-                        ${[0,1,2].map(i => {
-                          const attempt = (item.cattempts && item.cattempts[i]) || {};
-                          return html`<td class="${this.displayLifts ? 'showLifts' : 'hideLifts'} ${(attempt.liftStatus ?? '') + ' ' + (attempt.className ?? '')}"><div>${attempt.stringValue ?? ''}</div></td>`;
-                        })}
-                        <td class="best"><div>${item.bestCleanJerk ?? ''}</div></td>
-                        <td class="narrow"><div>${item.total}</div></td>
-                        <td class="sinclair"><div>${item.sinclair}</div></td>
-                        <td class="needed"><div>${item.needed}</div></td>
-                      </tr>
-                    `
-                  )}
-              </table>
-              <h2>&nbsp;</h2>
+              ${this.renderTable(this.sortedWomen)}
+              <div class="tableGap"></div>
             `
           : html``}
         ${this.topSinclairMen
           ? html`
               <h2 class="fullName" id="fullNameDiv" .innerHTML="${this.topSinclairMen}"></h2>
-              <table class="results" id="orderDiv">
-                <thead>
-                  <tr>
-                    <th class="name veryWide" .innerHTML="${this.t?.Name}"></th>
-                    <th class="club wide" .innerHTML="${this.t?.Team}"></th>
-                    <th class="veryNarrow age narrow" .innerHTML="${this.t?.Age}"></th>
-                    <th class="category narrow" .innerHTML="${this.t?.Category}"></th>
-                    <th class="narrow" .innerHTML="${this.t?.BodyWeight}"></th>
-                      <th colspan="3" class="${this.displayLifts ? 'showLifts' : 'hideLifts'}" .innerHTML="${this.t?.Snatch}"></th>
-                      <th class="best" .innerHTML="${this.t?.Snatch}"></th>
-                      <th colspan="3" class="${this.displayLifts ? 'showLifts' : 'hideLifts'}" .innerHTML="${this.t?.Clean_and_Jerk}"></th>
-                      <th class="best" .innerHTML="${this.t?.Clean_and_Jerk}"></th>
-                    <th class="narrow" .innerHTML="${this.t?.Total}"></th>
-                    <th class="sinclair" .innerHTML="${this.t?.ScoringTitle}"></th>
-                    <th class="needed" .innerHTML="${this.t?.Needed}"></th>
-                  </tr>
-                </thead>
-                  ${(this.sortedMen ?? []).map(
-                    (item) => html`
-                      <tr>
-                        <td class="name veryWide"><div class="name">${item.fullName}</div></td>
-                        <td class="club wide"><div>${item.teamName}</div></td>
-                        <td class="veryNarrow age narrow"><div>${item.age}</div></td>
-                        <td class="category narrow">${item.category}</td>
-                        <td class="narrow"><div>${item.bw}</div></td>
-                        <!-- Always render 3 snatch attempts -->
-                        ${[0,1,2].map(i => {
-                          const attempt = (item.sattempts && item.sattempts[i]) || {};
-                          return html`<td class="${this.displayLifts ? 'showLifts' : 'hideLifts'} ${(attempt.liftStatus ?? '') + ' ' + (attempt.className ?? '')}"><div>${attempt.stringValue ?? ''}</div></td>`;
-                        })}
-                        <td class="best"><div>${item.bestSnatch ?? ''}</div></td>
-                        <!-- Always render 3 clean & jerk attempts -->
-                        ${[0,1,2].map(i => {
-                          const attempt = (item.cattempts && item.cattempts[i]) || {};
-                          return html`<td class="${this.displayLifts ? 'showLifts' : 'hideLifts'} ${(attempt.liftStatus ?? '') + ' ' + (attempt.className ?? '')}"><div>${attempt.stringValue ?? ''}</div></td>`;
-                        })}
-                        <td class="best"><div>${item.bestCleanJerk ?? ''}</div></td>
-                        <td class="narrow"><div>${item.total}</div></td>
-                        <td class="sinclair"><div>${item.sinclair}</div></td>
-                        <td class="needed"><div>${item.needed}</div></td>
-                      </tr>
-                    `
-                  )}
-              </table>
+              ${this.renderTable(this.sortedMen)}
             `
           : html``}
       </div>`;
+  }
+
+  renderTable(athletes) {
+    const nbColumns = 5 + 1 + (this.displayLifts ? 4 : 1) + 1 + (this.displayLifts ? 4 : 1) + 1 + 3;
+    return html`
+      <div class="block">
+        <table class="results" id="orderDiv" style="${this.twOverride ?? ""}">
+          <thead>
+            <tr class="head">
+              <th class="name" .innerHTML="${this.t?.Name}"></th>
+              <th class="club" .innerHTML="${this.t?.Team}"></th>
+              <th class="age" .innerHTML="${this.t?.Age}"></th>
+              <th class="category" .innerHTML="${this.t?.Category}"></th>
+              <th class="bodyWeight" .innerHTML="${this.t?.BodyWeight}"></th>
+              <th class="vspacer"></th>
+              ${this.displayLifts
+                ? html`<th class="lifts" colspan="3" .innerHTML="${this.t?.Snatch}"></th>
+                       <th class="best" .innerHTML="${this.t?.Best}"></th>`
+                : html`<th class="best liftOnly" .innerHTML="${this.t?.Snatch}"></th>`}
+              <th class="vspacer"></th>
+              ${this.displayLifts
+                ? html`<th class="lifts" colspan="3" .innerHTML="${this.t?.Clean_and_Jerk}"></th>
+                       <th class="best" .innerHTML="${this.t?.Best}"></th>`
+                : html`<th class="best liftOnly" .innerHTML="${this.t?.Clean_and_Jerk}"></th>`}
+              <th class="vspacer"></th>
+              <th class="${this.displayLifts ? "total" : "total liftOnly"}" .innerHTML="${this.t?.Total}"></th>
+              <th class="score" .innerHTML="${this.t?.ScoringTitle}"></th>
+              <th class="needed" .innerHTML="${this.t?.Needed}"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="spacer" colspan="${nbColumns}"></td>
+            </tr>
+            ${(athletes ?? []).map(
+              (item) => html`
+                <tr class="athlete">
+                  <td class="name"><div class="ellipsis">${item.fullName}</div></td>
+                  <td class="club"><div class="ellipsis">${item.teamName}</div></td>
+                  <td class="age"><div>${item.age}</div></td>
+                  <td class="category"><div>${item.category}</div></td>
+                  <td class="bodyWeight"><div>${item.bw}</div></td>
+                  <td class="vspacer"></td>
+                  ${this.displayLifts ? this.renderAttempts(item.sattempts) : html``}
+                  <td class="best"><div>${item.bestSnatch ?? ""}</div></td>
+                  <td class="vspacer"></td>
+                  ${this.displayLifts ? this.renderAttempts(item.cattempts) : html``}
+                  <td class="best"><div>${item.bestCleanJerk ?? ""}</div></td>
+                  <td class="vspacer"></td>
+                  <td class="total"><div>${item.total}</div></td>
+                  <td class="score"><div>${item.sinclair}</div></td>
+                  <td class="needed"><div>${item.needed}</div></td>
+                </tr>
+              `
+            )}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  renderAttempts(attempts) {
+    return [0, 1, 2].map((i) => {
+      const attempt = (attempts && attempts[i]) || {};
+      return html`<td class="${(attempt.liftStatus ?? "") + " " + (attempt.className ?? "")}"><div>${attempt.stringValue ?? ""}</div></td>`;
+    });
   }
 
   firstUpdated(_changedProperties) {
@@ -149,6 +130,9 @@ class TopSinclair extends LitElement {
       // dynamic styling
       darkMode: {},
       displayLifts: {type: Boolean},
+      sizeOverride: {},
+      twOverride: {},
+      colorOverride: {},
     };
   }
 
@@ -157,10 +141,7 @@ class TopSinclair extends LitElement {
   }
 
   activeClasses() {
-    return  "wrapper "+ (this.wideTeamNames ? "wideTeams" : "narrowTeams" );
-  }
-  showLiftsClass() {
-    return this.displayLifts ? "showLifts" : "hideLifts";
+    return "wrapper athlete-scores " + (this.wideTeamNames ? "wideTeams" : "narrowTeams");
   }
 }
 

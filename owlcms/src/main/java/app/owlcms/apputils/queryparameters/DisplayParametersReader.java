@@ -144,6 +144,16 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		switchShowMedals(showMedalsValue, true);
 		updateParam(params, SHOW_MEDALS, showMedalsValue);
 
+		processSizingParams(params);
+
+		setUrlParameterMap(params);
+		return params;
+	}
+
+	/**
+	 * Apply the font size (em) and team width (tw) parameters.
+	 */
+	public default void processSizingParams(Map<String, List<String>> params) {
 		String videoStyles = Config.getCurrent().getParamVideoStylesDir();
 		String publicStyles = Config.getCurrent().getParamPublicStylesDir();
 		
@@ -183,9 +193,6 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		} catch (NumberFormatException e) {
 			switchTeamWidth(null, true);
 		}
-
-		setUrlParameterMap(params);
-		return params;
 	}
 
 	/*

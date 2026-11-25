@@ -109,6 +109,10 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		});
 		vl.add(new NativeLabel(Translator.translate("Scoreboard.SelectGenders")),
 		        new HorizontalLayout(genderComboBox));
+
+		DisplayOptions.addRule(vl);
+		DisplayOptions.addSizingEntries(vl, target, this);
+		registerKeyboardShortcuts();
 	}
 
 	@Override
@@ -187,6 +191,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		}
 		updateParam(params1, "gender", gValue == null ? null : gValue.toString());
 
+		processSizingParams(params1);
 		switchLightingMode(darkMode, false);
 		updateURLLocations();
 		setShowInitialDialog(

@@ -25,74 +25,48 @@ class TopTeamsSinclair extends LitElement {
         <timer-element id="decisionSectionStopwatch"></timer-element>
         <decision-element id="decisionSectionReferee"></decision-element>
       </div> 
-     <div id="resultBoardDiv" class="${this.activeClasses()} ${this.darkMode??"dark"}">
-        ${this.topTeamsWomen
-          ? html`
-              <h2 class="fullName" id="fullNameDiv" .innerHTML="${this.topTeamsWomen}" ></h2>
-              <table class="results" id="orderDiv" style$="">
-                <thead>
-                  <tr>
-                    <th class="club" .innerHTML="${this.t?.Team}"></th>
-                    <th class="medium" .innerHTML="${this.t?.ScoringTitle}" ></th>
-                  </tr>
-                </thead>
-                ${(this.womensTeams ?? []).map(
-                  (item) => html`
-                    <tr>
-                      <td class="club"><div>${item.team}</div></td>
-                      <td class="medium"><div>${item.score}</div></td>
-                    </tr>
-                  `
-                )}
-              </table>
-              <h4>&nbsp;</h4>
-            `
-          : html``}
-        ${this.topTeamsMen 
-          ? html` 
-              <h2 class="fullName" id="fullNameDiv" .innerHTML="${this.topTeamsMen}"></h2>
-              <table class="results" id="orderDiv" style$="">
-                <thead>
-                  <tr>
-                    <th class="club" .innerHTML="${this.t?.Team}"></th>
-                    <th class="medium" .innerHTML="${this.t?.ScoringTitle}"></th>
-                  </tr>
-                </thead>
-                ${(this.mensTeams ?? []).map(
-                  (item) => html`
-                    <tr>
-                      <td class="club"><div>${item.team}</div></td>
-                      <td class="medium"><div>${item.score}</div></td>
-                    </tr>
-                  `
-                )}
-              </table>
-              <h4>&nbsp;</h4>
-            `
-          : html``}
-        ${this.topTeamsMixed 
-          ? html` 
-              <h2 class="fullName" id="fullNameDiv" .innerHTML="${this.topTeamsMixed}"></h2>
-              <table class="results" id="orderDiv" style$="">
-                <thead>
-                  <tr>
-                    <th class="club" .innerHTML="${this.t?.Team}"></th>
-                    <th class="medium" .innerHTML="${this.t?.ScoringTitle}"></th>
-                  </tr>
-                </thead>
-                ${(this.mixedTeams ?? []).map(
-                  (item) => html`
-                    <tr>
-                      <td class="club"><div>${item.team}</div></td>
-                      <td class="medium"><div>${item.score}</div></td>
-                    </tr>
-                  `
-                )}
-              </table>
-              <h4>&nbsp;</h4>
-            `
-          : html``}
+      <div id="resultBoardDiv" class="${this.activeClasses()} ${this.darkMode??"dark"}"
+          style="${this.sizeOverride ?? ""} ${this.colorOverride ?? ""}">
+        ${[
+          [this.topTeamsWomen, this.womensTeams],
+          [this.topTeamsMen, this.mensTeams],
+          [this.topTeamsMixed, this.mixedTeams],
+        ].filter(([title]) => title).map(
+          ([title, teams], index) => html`
+            ${index > 0 ? html`<div class="tableGap"></div>` : html``}
+            <h2 class="fullName" .innerHTML="${title}"></h2>
+            ${this.renderTable(teams)}
+          `
+        )}
       </div>`;
+  }
+
+  renderTable(teams) {
+    return html`
+      <div class="block">
+        <table class="results" style="${this.twOverride ?? ""}">
+          <thead>
+            <tr class="head">
+              <th class="club" .innerHTML="${this.t?.Team}"></th>
+              <th class="score" .innerHTML="${this.t?.ScoringTitle}"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="spacer" colspan="2"></td>
+            </tr>
+            ${(teams ?? []).map(
+              (item) => html`
+                <tr class="team">
+                    <td class="club"><div class="ellipsis">${item.team}</div></td>
+                    <td class="score"><div class="ellipsis">${item.score}</div></td>
+                </tr>
+              `
+            )}
+          </tbody>
+        </table>
+      </div>
+    `;
   }
 
   static get properties() {
@@ -109,6 +83,10 @@ class TopTeamsSinclair extends LitElement {
       stylesDir: {},
       autoVersion: {},
       video: {},
+      darkMode: {},
+      sizeOverride: {},
+      twOverride: {},
+      colorOverride: {},
       t: {type: Object},
     };
   }
@@ -118,7 +96,7 @@ class TopTeamsSinclair extends LitElement {
   }
 
   activeClasses() {
-    return "wrapper ";
+    return "wrapper team-scores";
   }
 
 }

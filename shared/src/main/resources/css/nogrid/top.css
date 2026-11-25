@@ -1,573 +1,245 @@
+/* Top athletes and top teams boards.
+   Follows the results.css conventions: header cells use the title colors,
+   a spacer row separates the header from the rows, vspacer cells separate lift groups. */
+
+:host {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--pageBackgroundColor);
+}
+
 * {
     box-sizing: border-box;
 }
 
-/* shared default sizes */
-
-:root {
-    --narrow-width: 4.5vw;
-    --max-narrow-width: 5ch;
-    --veryNarrow-width: 4vw;
-    --max-veryNarrow-width: 4ch;
-    --medium-width: 6.5vw;
-    --max-medium-width: 7ch;
-    --category-width: 8ch;
-    --max-category-width: 100%;
-}
-
-/* wide screen */
-
-@media screen and (min-width: 1401px) {
-    .wideTeams {
-        --fontSizeRank-height: 1.1em;
-        --fontSizeRows-height: 1.1em;
-        --narrow-width: 5vw;
-        --max-narrow-width: 100%;
-        --veryNarrow-width: 4vw;
-        --max-veryNarrow-width: 100%;
-        --medium-width: 5.5vw;
-        --max-medium-width: 100%;
-        --needed-width: 8vw;
-        --max-needed-width: 100%;
-        --name-width: 20vw;
-        --name-max-width: 100%;
-        --club-width: 20vw;
-        --club-max-width: 100%;
-        --category-width: 12ch;
-        --rank-width: 5ch;
-    }
-    .narrowTeams {
-        --fontSizeRank-height: 1.1em;
-        --fontSizeRows-height: 1.2em;
-        --narrow-width: 6vw;
-        --max-narrow-width: 100%;
-        --veryNarrow-width: 6vw;
-        --max-veryNarrow-width: 100%;
-        --medium-width: 8vw;
-        --max-medium-width: 100%;
-        --needed-width: 8vw;
-        --max-needed-width: 100%;
-        --name-width: 20vw;
-        --name-max-width: 100%;
-        --club-width: 8vw;
-        --club-max-width: 8ch;
-        --category-width: 12ch;
-        --rank-width: 5ch;
-    }
-    .showThRank {
-        border-collapse: collapse;
-        border: solid 1px DarkGray;
-        border-inline-start-style: none;
-        padding-block: 0.5vmin; 
-        padding-inline: 1vmin;
-        font-size: var(--fontSizeRank-height);
-        font-weight: normal;
-        font-style: italic;
-        width: 4vw;
-        text-align: center;
-        font-size: var(--fontSizeRank-height);
-    }
-    .showRank {
-        display: table-cell;
-        font-size: var(--fontSizeRows-height);
-        text-align: center;
-        width: var(--rank-width);
-    }
-    .showRank div {
-        width: var(--rank-width);
-        margin: auto;
-    }
-    th, td {
-        font-size: var(--fontSizeRows-height);
-    }
-}
-
-/* 720 screen or 1366 laptop */
-
-@media screen and (max-width: 1400px) and (min-width: 1279px) {
-    .wideTeams {
-        --fontSizeRank-height: 0.90em;
-        --fontSizeRows-height: 0.90em;
-        --narrow-width: 5vw;
-        --max-narrow-width: 100%;
-        --veryNarrow-width: 4vw;
-        --max-veryNarrow-width: 100%;
-        --medium-width: 5.5vw;
-        --max-medium-width: 100%;
-        --needed-width: 8vw;
-        --max-needed-width: 100%;
-        --name-width: 20vw;
-        --name-max-width: 100%;
-        --club-width: 20vw;
-        --club-max-width: 100%;
-        --category-width: 12ch;
-        --rank-width: 5ch;
-    }
-    .narrowTeams {
-        --fontSizeRank-height: 1.1em;
-        --fontSizeRows-height: 1.2em;
-        --narrow-width: 6vw;
-        --max-narrow-width: 100%;
-        --veryNarrow-width: 6vw;
-        --max-veryNarrow-width: 100%;
-        --medium-width: 9vw;
-        --max-medium-width: 100%;
-        --needed-width: 8vw;
-        --max-needed-width: 100%;
-        --name-width: 20vw;
-        --name-max-width: 100%;
-        --club-width: 8vw;
-        --club-max-width: 8ch;
-        --category-width: 12ch;
-        --rank-width: 5ch;
-    }
-    .showThRank {
-        display: none;
-        width: 0px;
-        padding: 0 0 0 0;
-        margin: 0 0 0 0;
-        font-size: var(--fontSizeRank-height);
-    }
-    .showRank {
-        display: none;
-        width: 0px;
-        padding: 0 0 0 0;
-        margin: 0 0 0 0;
-        font-size: var(--fontSizeRows-height);
-    }
-    th, td {
-        font-size: var(--fontSizeRows-height);
-    }
-}
-
-/* 1024 projector */
-
-@media screen and (max-width: 1024px) {
-    .wideTeams {
-        --fontSizeRank-height: 0.75em;
-        --fontSizeRows-height: 0.75em;
-        --narrow-width: 5vw;
-        --max-narrow-width: 100%;
-        --veryNarrow-width: 6ch;
-        --max-veryNarrow-width: 100%;
-        --medium-width: 6vw;
-        --max-medium-width: 100%;
-        --needed-width: 8vw;
-        --max-needed-width: 100%;
-        --name-width: 16vw;
-        --name-max-width: 100%;
-        --club-width: 16vw;
-        --club-max-width: 100%;
-        --category-width: 12ch;
-        --rank-width: 5ch;
-    }
-    .narrowTeams {
-        --fontSizeRank-height: 0.8em;
-        --fontSizeRows-height: 0.9em;
-        --narrow-width: 6vw;
-        --max-narrow-width: 100%;
-        --veryNarrow-width: 6vw;
-        --max-veryNarrow-width: 100%;
-        --medium-width: 8vw;
-        --max-medium-width: 100%;
-        --needed-width: 8vw;
-        --max-needed-width: 100%;
-        --name-width: 20vw;
-        --name-max-width: 100%;
-        --club-width: 8vw;
-        --club-max-width: 8ch;
-        --category-width: 12ch;
-        --rank-width: 5ch;
-    }
-    /* hide the snatch and cj ranks, no room */
-    .showThRank {
-        display: none;
-        width: 0px;
-        padding: 0 0 0 0;
-        margin: 0 0 0 0;
-        font-size: var(--fontSizeRank-height);
-    }
-    /* hide the snatch and cj ranks, no room */
-    .showRank {
-        display: none;
-        width: 0px;
-        padding: 0 0 0 0;
-        margin: 0 0 0 0;
-        font-size: var(--fontSizeRows-height);
-    }
-    th, td {
-        font-size: var(--fontSizeRows-height);
-    }
-}
-
 .wrapper {
-    font-family: Arial, Helvetica, sans-serif;
-    color: var(--pageTextColor);
-    background-color: var(--pageBackgroundColor);
+    --baseRemSize: 2.9rem;
+    --tableFontSize: 1em;
+    --spacerWidth: 1vh;
+    --titleFontSize: 1.5em;
+
+    width: 100%;
+    height: 100%;
     min-height: 100vh;
-    padding: 2vmin; /* This is already logical if all sides are the same */
+    padding-block: 1vmin 2vmin;
+    padding-inline: 2vmin;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    flex-wrap: no-wrap;
-    justify-content: flex-start; /* For column flex, flex-start is top */
-}
-
-#results {
-    flex: 1 0 auto;
-}
-
-#leaders {
-    flex: 0 0 auto;
-    width: 100%;
-    min-height: 0;
-    align-self: flex-end; /* For column flex, flex-end is bottom */
-    background-color: blue;
-}
-
-.attemptBar {
-    display: flex;
-    font-size: 3.6vmin;
-    justify-content: space-between;
-    width: 100%;
-    height: 4vmin;
-}
-
-.attemptBar .startNumber {
-    align-self: center;
-}
-
-.attemptBar .startNumber span {
-    font-size: 70%;
-    font-weight: bold;
-    border-width: 0.2ex;
-    border-style: solid;
-    border-color: var(--startNumberBoxColor);
-    width: 1.5em;
-    display: flex;
-    justify-content: center;
-    align-self: center;
-}
-
-.attemptBar .athleteInfo {
-    display: flex;
-    font-size: 3.6vmin;
-    justify-content: space-between;
-    align-items: baseline;
-    width: 100%;
-}
-
-.athleteInfo .fullName {
-    font-weight: bold;
-    flex: 0 0 35%;
-    text-align: start;
-    flex-grow: 0.5;
-}
-
-.athleteInfo .timer {
-    flex: 0 0 15%;
-    text-align: end;
-    font-weight: bold;
-    width: 10vw;
-    display: flex;
-    justify-content: flex-end; /* or justify-content: end; */
-}
-
-.athleteInfo .decisionBox {
-    position: fixed;
-    inset-block-start: 2vmin;
-    inset-inline-end: 2vmin;
-    width: 15vw;
-    height: 10vh;
+    justify-content: flex-start;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: calc(var(--baseRemSize)/2);
+    color: var(--pageTextColor);
     background-color: var(--pageBackgroundColor);
-    display: none;
 }
 
-.athleteInfo .weight {
-    color: var(--athleteAttemptWeightColor);
-    display: flex;
-    justify-content: center;
-    align-items: baseline;
+/* same font scaling as resultsCustomization.css */
+@media screen and (orientation: landscape) and (max-width: 799px) {
+    .wrapper {
+        font-size: calc(var(--baseRemSize)/5);
+    }
 }
 
-.group {
-    font-size: 3vh;
-    margin-top: 1vh;
-    margin-bottom: 2vh;
+@media screen and (orientation: landscape) and (min-width: 800px) and (max-width: 1179px) {
+    .wrapper {
+        font-size: calc(var(--baseRemSize)/4);
+    }
+}
+
+@media screen and (orientation: landscape) and (min-width: 1180px) and (max-width: 1899px) {
+    .wrapper {
+        font-size: calc(var(--baseRemSize)/3);
+    }
+}
+
+@media screen and (orientation: landscape) and (min-width: 3800px) {
+    .wrapper {
+        font-size: calc(var(--baseRemSize));
+    }
+}
+
+@media screen and (orientation: portrait) {
+    .wrapper {
+        font-size: calc(var(--baseRemSize)/5);
+    }
+}
+
+h2.fullName {
+    flex: 0 0 auto;
+    margin-block: 0.25em 0.4em;
+    font-size: var(--titleFontSize);
+    font-weight: bold;
+    line-height: 1.2;
+    color: var(--pageTextColor);
+}
+
+.block {
+    flex: 0 0 auto;
+    background-color: var(--blockBackgroundColor);
+}
+
+.tableGap {
+    flex: 0 0 auto;
+    height: 1.5em;
 }
 
 table.results {
-    table-layout: fixed;
     width: 100%;
-    border-collapse: collapse;
-    border: none;
-    background-color: var(--pageBackgroundColor);
-    /*margin-bottom: 2vmin;*/
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: var(--tableFontSize);
+    background-color: transparent;
 }
 
-:host .dark table.results tr {
+/* default cell colors, backgrounds and borders */
+:host table.results tr th,
+:host table.results tr td {
+    min-width: 0;
+    padding-block: calc(var(--tableFontSize)*0.1);
+    padding-inline: calc(var(--tableFontSize)*0.15);
+    border: 1px solid var(--TableBorders);
     background-color: var(--BackgroundColor);
     color: var(--TextColor);
+    font-weight: bold;
+    line-height: 1.25;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-:host .light table.results tr {
-    background-color: var(--BackgroundColor);
-    color: var(--TextColor);
-}
-
-th, td {
-    border-collapse: collapse;
-    border: solid 1px DarkGray;
-    padding-block: 0.4vmin; 
-    padding-inline: 1vmin;
-    font-size: var(--fontSizeRows-height);
-}
-
-:host .dark th, td {
+/* header cells */
+:host table.results tr th {
+    padding-block: 2px;
+    background-color: var(--TitleBackgroundColor);
+    color: var(--TitleTextColor);
     font-weight: normal;
 }
 
-:host .light th, td {
-    font-weight: bold;
+/* spacer line between the header and the rows */
+:host table.results tr td.spacer {
+    height: var(--spacerWidth);
+    padding: 0;
+    border: none;
+    background-color: var(--SpacerBackgroundColor);
+    font-size: 0;
+    line-height: 0;
 }
 
-.name {
-    width: var(--name-width);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    /* text-align: start; if it was previously text-align: left */
+/* vertical gutters between groups of columns */
+:host table.results tr th.vspacer,
+:host table.results tr td.vspacer {
+    width: var(--spacerWidth);
+    padding: 0;
+    border: none;
+    background-color: var(--SpacerBackgroundColor);
 }
 
-/* .name div already has text-overflow and whitespace, text-align might not be needed or should be start if it was left */
-
-.club {
-    width: var(--club-width);
-    text-align: center; /* center is direction-agnostic */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+:host table.results tr td.name {
+    background-color: var(--NameBackgroundColor);
+    color: var(--NameTextColor);
+    text-align: start;
 }
 
-/* .club div already has text-align: center */
+:host table.results tr th.name {
+    text-align: center;
+}
+
+:host table.results tr td.club {
+    background-color: var(--TeamBackgroundColor);
+    color: var(--TeamTextColor);
+}
+
+:host table.results tr td.category {
+    background-color: var(--CategoryBackgroundColor);
+    color: var(--CategoryTextColor);
+}
+
+:host table.results tr td.good {
+    background-color: var(--GoodBackgroundColor);
+    color: var(--GoodTextColor);
+}
+
+:host table.results tr td.fail {
+    background-color: var(--FailBackgroundColor);
+    color: var(--FailTextColor);
+}
+
+:host table.results tr td.request {
+    background-color: var(--RequestBackgroundColor);
+    color: var(--RequestTextColor);
+    font-style: italic;
+}
+
+:host table.results tr td.empty {
+    background-color: var(--EmptyBackgroundColor);
+    color: var(--EmptyTextColor);
+    font-style: italic;
+}
+
+:host table.results tr td.best,
+:host table.results tr td.total {
+    background-color: var(--TotalBackgroundColor);
+    color: var(--TotalTextColor);
+}
+
 .ellipsis {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.thRank {
-    border-collapse: collapse;
-    border: solid 1px DarkGray;
-    border-inline-start-style: none; /* Assuming previous border-left-style */
-    padding-block: 0.5vmin; 
-    padding-inline: 1vmin;
-    font-weight: normal;
-    font-style: italic;
-    width: var(--rank-width);
-    text-align: center;
-    font-size: var(--fontSizeRank-height);
+/* top athletes columns; the name column takes the remaining width */
+.athlete-scores th.club {
+    width: var(--clubWidth, 15vw);
 }
 
-.thRank div {
-    width: var(--rank-width);
-    margin: auto;
+.athlete-scores th.age {
+    width: 5ch;
 }
 
-.narrow {
-    width: var(--narrow-width);
-    text-align: center;
+.athlete-scores th.category {
+    width: 10ch;
 }
 
-.narrow div {
-    width: var(--max-narrow-width);
-    text-align: center;
-    margin: auto;
+.athlete-scores th.bodyWeight {
+    width: 7ch;
 }
 
-.veryNarrow {
-    width: var(--veryNarrow-width);
-    text-align: center;
+.athlete-scores th.lifts {
+    width: 18ch;
 }
 
-.veryNarrow div {
-    width: var(--max-veryNarrow-width);
-    text-align: center;
-    margin: auto;
+.athlete-scores th.best,
+.athlete-scores th.total {
+    width: 6ch;
 }
 
-.medium {
-    width: var(--medium-width);
+/* without the attempts, the best lift and total columns are labeled with the lift names */
+.athlete-scores th.liftOnly {
+    width: 12ch;
 }
 
-.medium div {
-    width: var(--max-medium-width);
-    text-align: center;
-    margin: auto;
+.athlete-scores th.score {
+    width: 10ch;
 }
 
-.needed {
-    width: var(--needed-width);
+.athlete-scores th.needed {
+    width: 9ch;
 }
 
-.needed div {
-    width: var(--max-needed-width);
-    text-align: center;
-    margin: auto;
+/* top teams columns */
+.team-rankings th.club {
+    width: var(--clubWidth, 40%);
 }
 
-.groupCol {
-    width: var(--group-width);
-    white-space: nowrap;
-    text-align: center;
-    font-size: var(--fontSizeRank-height)
+.team-rankings th {
+    white-space: normal;
 }
 
-.groupCol div {
-    width: var(--group-width);
-    display: inline-block;
-}
-
-.category {
-    width: var(--category-width);
-    white-space: nowrap;
-    text-align: center;
-}
-
-.category div {
-    width: var(--category-width);
-    display: inline-block;
-}
-
-.dark .good {
-    background-color: var(--GoodBackgroundColor);
-    font-weight: bold;
-    color: var(--GoodTextColor);
-}
-
-:host .light .good {
-    background-color: var(--GoodBackgroundColor);
-    font-weight: bold;
-    color: var(--GoodTextColor);
-}
-
-:host .dark .fail {
-    background-color: var(--FailBackgroundColor);
-    font-weight: bold;
-    color: var(--FailTextColor);
-}
-
-:host .light .fail {
-    background-color: var(--FailBackgroundColor);
-    font-weight: bold;
-    color: var(--FailTextColor);
-}
-
-:host .dark .spacer {
-    background-color: var(--SpacerBackgroundColor);
-}
-
-:host .light .spacer {
-    background-color:var(--SpacerBackgroundColor);
-}
-
-.english {
-    font-size: 85%;
-}
-
-:host .dark td.request {
-    background-color: var(--BackgroundColor);
-    font-style: italic;
-}
-
-:host .light .request {
-    background-color: var(--BackgroundColor);
-    font-style: italic;
-}
-
-:host .dark .current {
-    color: var(--CurrentTextColor);
-    font-weight: bold;
-}
-
-:host .light .current {
-    background-color: var(--CurrentBackgroundColor);
-    color: var(--CurrentTextColor);
-    font-weight: bold;
-}
-
-.blink {
-    animation: blink 1.5s step-start 0s infinite;
-    -webkit-animation: blink 1.5s step-start 0s infinite;
-}
-
-@keyframes blink {
-    50% {
-        opacity: 0.0;
-    }
-}
-
-@-webkit-keyframes blink {
-    50% {
-        opacity: 0.0;
-    }
-}
-
-:host .dark .next {
-    color: var(--NextTextColor);
-    font-weight: bold;
-}
-
-:host .light .next {
-    background-color: var(--NextBackgroundColor);
-    color: var(--NextTextColor);
-    font-weight: bold;
-}
-
-:host .dark .empty {
-    background-color: var(--BackgroundColor);
-    color: var(--TextColor);
-    font-style: italic;
-}
-
-:host .light .empty {
-    background-color: var(--BackgroundColor);
-    color: var(--TextColor);
-    font-style: italic;
-}
-
-.breakTime {
-    /* color: #99CCFF; */
-    color: var(--breakTimerColor);
-}
-
-.athleteTimer {
-    color: var(--athleteTimerColor);
-}
-
-.v-system-error {
-    display: none;
-}
-
-table#leaders-table thead tr.hide {
-    visibility: hidden;
-    height: 1px;
-    line-height: 1px;
-    font-size: 1px;
-}
-
-table#leaders-table thead tr.hide th {
-    visibility: hidden;
-    height: 1px;
-    line-height: 1px;
-    font-size: 1px;
-    padding: 0; /* This is already logical */
-}
-
-.sinclair {
-    font-weight: bold;
-}
-
-h2 {
-    font-size: 3.0vh;
+.team-scores th.club {
+    width: var(--clubWidth, 70%);
 }
