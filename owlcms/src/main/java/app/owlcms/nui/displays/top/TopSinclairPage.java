@@ -226,6 +226,9 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		});
 		vl.add(nbAthletesField);
 
+		DisplayOptions.addRule(vl);
+		DisplayOptions.addSizingEntries(vl, target, this);
+		registerKeyboardShortcuts();
 	}
 
 	/**

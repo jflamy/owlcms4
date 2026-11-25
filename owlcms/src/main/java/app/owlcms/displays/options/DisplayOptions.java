@@ -183,7 +183,7 @@ public class DisplayOptions {
 		});
 
 		LocalizedDecimalField twField = new LocalizedDecimalField(3);
-		TextField twTextField = fontSizeField.getWrappedTextField();
+		TextField twTextField = twField.getWrappedTextField();
 		twTextField.setLabel(null);
 		twTextField.setValueChangeMode(ValueChangeMode.ON_CHANGE);
 		twTextField.addFocusListener(f -> {
