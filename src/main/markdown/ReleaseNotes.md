@@ -9,13 +9,13 @@
 
 <br>
 
-**New in Release 69.1**
+**Development log**
 
-- 69.1.0: Added missing MQTT events for stand-alone clocks (`setTime`, `breakSetTime`, `breakStart`, `breakStop`).
+- 69.1.0-beta01: Added missing MQTT events for stand-alone clocks (`setTime`, `breakSetTime`, `breakStart`, `breakStop`).
 
-- 69.1.0: Usability: Progress bar on import file restart, based on prior startup time.
+- 69.1.0-beta01: Usability: Progress bar on import file restart, based on prior startup time.
 
-- 69.1.0: The Top Score, Top Teams and Top Team Score displays now follow the scoreboard look (headers, spacing, column groups and font sizes) for all styles, including public and video.
+- 69.1.0-beta01: The Top Score, Top Teams and Top Team Score displays now follow the scoreboard look (headers, spacing, column groups and font sizes) for all styles, including public and video.
   - The display options for font size and team width now apply to these displays.
 
 **New in Release 69**
