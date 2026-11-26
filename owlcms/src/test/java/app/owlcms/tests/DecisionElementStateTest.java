@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -27,6 +28,7 @@ import app.owlcms.components.elements.DecisionElementState.IDecisionRenderer;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
@@ -90,6 +92,13 @@ public class DecisionElementStateTest {
         });
         AthleteRepository.resetParticipations(false, true);
         this.athletes = AthleteRepository.findAll();
+        // the competition size caps every platform: allow all sizes
+        Competition.getCurrent().setJurySize(5);
+    }
+
+    @After
+    public void restoreJurySize() {
+        Competition.getCurrent().setJurySize(0);
     }
 
     @Test
