@@ -166,6 +166,8 @@ public class OBSMonitorStatusTest {
 		setSwitch(FeatureSwitch.SHOW_DECISIONS_IMMEDIATELY, false);
 		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, false);
 		Competition.getCurrent().setVideoPlaybackTechnology(true);
+		// the competition size caps every platform: allow all sizes (each platform starts with no jury)
+		Competition.getCurrent().setJurySize(5);
 	}
 
 	@After
@@ -179,6 +181,7 @@ public class OBSMonitorStatusTest {
 			}
 		}
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		Competition.getCurrent().setJurySize(0);
 	}
 
 	@Test
@@ -572,6 +575,7 @@ public class OBSMonitorStatusTest {
 		fop.setDecisionTimingForTests(DOWN_SIGNAL_VISIBLE_MS, REVERSAL_DELAY_MS, DECISION_VISIBLE_MS, 0, 0);
 		// jury size is stored on the platform; this one is never persisted
 		fop.setPlatform(new Platform());
+		fop.setJurySize(0);
 		fop.loadGroup(group, this, true);
 		List<Athlete> athletes = fop.getDisplayOrder();
 		assertEquals("athletes in session " + group.getName(), 5, athletes.size());

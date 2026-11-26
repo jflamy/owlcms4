@@ -21,7 +21,7 @@ Jury Control is an operator page.
 
 ## Jury Sizes
 
-Set the competition's default jury size and **Video Playback Technology** (VPT) on the [Competition Rules](../030-PreCompetitionSetup/020-CompetitionInformationAndRules) page. Jury Control also offers a jury-size selector for its platform. With TCRR compliance enabled, the jury size is fixed at 4 and that selector is hidden.
+Set the competition's jury size and **Video Playback Technology** (VPT) on the [Competition Rules](../030-PreCompetitionSetup/020-CompetitionInformationAndRules) page. Jury Control also offers a jury-size selector for its platform, up to the competition jury size: the competition size is the largest jury allowed on any platform, and lowering it also lowers the platforms that were above it. With TCRR compliance enabled, the jury size is fixed at 4 and that selector is hidden.
 
 The two main workflows are:
 

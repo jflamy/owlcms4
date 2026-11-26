@@ -323,9 +323,11 @@ public class Platform implements Serializable, Comparable<Platform> {
 		return this.jurySize;
 	}
 
+	/** The platform's own size, capped by the competition size, which is the upper bound for every platform. */
 	@JsonIgnore
 	public int getEffectiveJurySize() {
-		return TcrrCompliance.jurySize(this.jurySize != null ? this.jurySize : Competition.getCurrent().getJurySize());
+		int competitionSize = Competition.getCurrent().getJurySize();
+		return TcrrCompliance.jurySize(this.jurySize != null ? Math.min(this.jurySize, competitionSize) : competitionSize);
 	}
 
 	/**

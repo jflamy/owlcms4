@@ -13,6 +13,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -568,12 +569,6 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			MQTTMonitor.this.getFop().fopEventPost(event);
 		}
 	}
-
-	/**
-	 * When false, MQTT {@code owlcms/fop/config} carries only the global competition jury size and
-	 * per-platform changes from Jury Control do not publish MQTT config messages.
-	 */
-	public static final Boolean PUBLISH_PLATFORM_JURY_SIZE_TO_MQTT = Boolean.FALSE;
 
 	private static Map<String, MQTTMonitor> mqttMonitorByName = new HashMap<>();
 	private static Logger logger = (Logger) LoggerFactory.getLogger(MQTTMonitor.class);
@@ -1769,11 +1764,24 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			// when are not fully initialized
 			return;
 		}
-		List<String> platforms = fops != null ? fops.stream().map(p -> p.getPlatform().getName())
-				.collect(Collectors.toList()) : new ArrayList<>();
+		List<FieldOfPlay> orderedFops = fops != null
+				? fops.stream().sorted(Comparator.comparing(FieldOfPlay::getPlatform)).toList()
+				: List.of();
+		List<String> platforms = orderedFops.stream().map(f -> f.getPlatform().getName())
+				.collect(Collectors.toList());
+		List<Map<String, Object>> platformInfo = new ArrayList<>();
+		for (FieldOfPlay f : orderedFops) {
+			Map<String, Object> info = new LinkedHashMap<>();
+			info.put("name", f.getPlatform().getName());
+			info.put("jurySize", f.getJurySize());
+			platformInfo.add(info);
+		}
+		// "platforms" is kept for older devices; "platformInfo" carries the exact per-platform jury sizes
 		payload.put("platforms", platforms);
+		payload.put("platformInfo", platformInfo);
 		payload.put("version", StartupUtils.getVersion());
-		payload.put("jurySize", mqttJurySize());
+		// upper bound for every platform: devices can set up that many jury stations
+		payload.put("jurySize", Competition.getCurrent().getEffectiveJurySize());
 		try {
 			String json = new ObjectMapper().writeValueAsString(payload);
 			logger.trace("{}MQTT device configuration sent: platforms {}, jury size {}",
@@ -1786,19 +1794,6 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		} catch (JacksonException | MqttException e) {
 			logger.error("Error publishing MQTT config to topic {}", topic, e);
 		}
-	}
-
-	private int mqttJurySize() {
-		return mqttJurySize(getFop(), Competition.getCurrent());
-	}
-
-	public static int mqttJurySize(FieldOfPlay fop, Competition competition) {
-		// 0 (no jury) is sent as is: Blue Owl versions up to 3.0.0 treat it as 3.
-		// Reports 4 when the seven-person adjudication panel / TCRR compliance is in use.
-		if (Boolean.TRUE.equals(PUBLISH_PLATFORM_JURY_SIZE_TO_MQTT) && fop != null) {
-			return fop.getJurySize();
-		}
-		return competition != null ? competition.getEffectiveJurySize() : 0;
 	}
 
 	private void publishMqttDownSignal() throws MqttException, MqttPersistenceException {

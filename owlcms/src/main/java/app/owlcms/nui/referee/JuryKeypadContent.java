@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +69,6 @@ import app.owlcms.fieldofplay.InputKind;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakType;
@@ -105,6 +105,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	/** hidden while the original referee decision is shown in their place */
 	private ComboBox<FieldOfPlay> fopSelect;
 	private Select<Integer> jurySizeSelect;
+	/** competition jury size when the selector was built: the largest size it offers */
+	private int jurySizeBound;
 	private Div reviewAttempt;
 	private Div reviewWeight;
 	private Div reviewFiller;
@@ -279,7 +281,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			FieldOfPlay fop = getFop();
 			boolean panelMode = fop != null && fop.hasJuryReviewVote();
 			int shown = this.juryVoteCells != null ? this.juryVoteCells.length : -1;
-			if (shown != getNbJurors() || panelMode != this.panelMode) {
+			if (shown != getNbJurors() || panelMode != this.panelMode
+			        || this.jurySizeBound != Competition.getCurrent().getEffectiveJurySize()) {
 				rebuild();
 			}
 		});
@@ -378,10 +381,14 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		return fopSelect;
 	}
 
-	/** 0 / 3 / 4 / 5 jury member selection; rebuilds the keypad when changed. */
+	/**
+	 * 0 / 3 / 4 / 5 jury member selection, up to the competition jury size (the upper bound announced to MQTT
+	 * devices); rebuilds the keypad when changed.
+	 */
 	private Select<Integer> createJurySizeSelect() {
 		Select<Integer> jurySizeSelect = new Select<>();
-		jurySizeSelect.setItems(0, 3, 4, 5);
+		this.jurySizeBound = Competition.getCurrent().getEffectiveJurySize();
+		jurySizeSelect.setItems(jurySizeChoices(this.jurySizeBound));
 		jurySizeSelect.setAriaLabel(Translator.translate("Jury"));
 		jurySizeSelect.setWidth("5.5rem");
 		FieldOfPlay currentFop = getFop();
@@ -396,12 +403,14 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			if (fop == null) {
 				return;
 			}
-			fop.fopEventPost(
-			        new FOPEvent.JurySizeChange(this, e.getValue(),
-			                Boolean.TRUE.equals(MQTTMonitor.PUBLISH_PLATFORM_JURY_SIZE_TO_MQTT)));
+			fop.fopEventPost(new FOPEvent.JurySizeChange(this, e.getValue()));
 			rebuild();
 		});
 		return jurySizeSelect;
+	}
+
+	private static List<Integer> jurySizeChoices(int bound) {
+		return Stream.of(0, 3, 4, 5).filter(size -> size <= bound).toList();
 	}
 
 	/** Rebuild the keypad layout (used when the number of jurors changes). */

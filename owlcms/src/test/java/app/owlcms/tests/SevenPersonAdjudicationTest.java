@@ -65,6 +65,7 @@ import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.JuryRejectionReasons;
 import app.owlcms.uievents.ReviewLabels;
 import app.owlcms.uievents.UIEvent;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -112,6 +113,8 @@ public class SevenPersonAdjudicationTest {
 		AthleteRepository.resetParticipations(false, true);
 		setSwitch(FeatureSwitch.SHOW_DECISIONS_IMMEDIATELY, false);
 		Competition.getCurrent().setVideoPlaybackTechnology(true);
+		// the competition size caps every platform: allow all sizes
+		Competition.getCurrent().setJurySize(5);
 
 		this.fop = MockFieldOfPlay.create(AthleteRepository.findAll(), new MockCountdownTimer(),
 		        new MockCountdownTimer());
@@ -127,6 +130,7 @@ public class SevenPersonAdjudicationTest {
 	public void restoreSettings() {
 		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, false);
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		Competition.getCurrent().setJurySize(0);
 	}
 
 	// ---------------------------------------------------------------- configuration
@@ -152,14 +156,14 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
-	public void juryControlJurySizeChangeUpdatesUiWithoutPublishingMqttConfig() throws Exception {
+	public void juryControlJurySizeChangePublishesExactPlatformJurySize() throws Exception {
 		Integer originalGlobal = Competition.getCurrent().getJurySize();
 		Platform platform = PlatformRepository.findAll().get(0);
 		Integer originalPlatformSize = platform.getJurySize();
 		Map<String, FieldOfPlay> registry = new LinkedHashMap<>();
 		Map<String, FieldOfPlay> previousFops = TestFopRegistry.replace(registry);
 		try {
-			Competition.getCurrent().setJurySize(3);
+			Competition.getCurrent().setJurySize(5);
 			List<RecordingMqttMonitor> created = new ArrayList<>();
 			FieldOfPlay testFop = MockFieldOfPlay.createWithMqttMonitor(platform, f -> {
 				RecordingMqttMonitor monitor = new RecordingMqttMonitor(f.getName(), f);
@@ -173,20 +177,20 @@ public class SevenPersonAdjudicationTest {
 			registry.put(testFop.getName(), testFop);
 
 			Object page = new Object();
-			testFop.fopEventPost(
-			        new FOPEvent.JurySizeChange(page, 5, MQTTMonitor.PUBLISH_PLATFORM_JURY_SIZE_TO_MQTT));
+			testFop.fopEventPost(new FOPEvent.JurySizeChange(page, 3));
 
-			assertEquals(5, testFop.getJurySize());
+			assertEquals(3, testFop.getJurySize());
 			assertTrue("the jury pages are told", uiRecorder.await(uiRecorder.jurySizeChanges,
 			        e -> e.getOrigin() == page));
-			assertTrue("Jury Control change must not publish MQTT config", monitor.published.isEmpty());
-
-			monitor.publishMqttConfig();
-			assertEquals(1, monitor.published.size());
+			assertEquals("Jury Control change publishes the MQTT config", 1, monitor.published.size());
 			PublishedMqttMessage msg = monitor.published.get(0);
 			assertEquals("owlcms/fop/config", msg.topic);
 			JsonNode json = new ObjectMapper().readTree(msg.payload);
-			assertEquals("MQTT config must carry the global competition jury size", 3, json.get("jurySize").asInt());
+			assertEquals("jurySize is the competition upper bound", 5, json.get("jurySize").asInt());
+			assertEquals(platform.getName(), json.get("platforms").get(0).asString());
+			JsonNode info = json.get("platformInfo").get(0);
+			assertEquals(platform.getName(), info.get("name").asString());
+			assertEquals("platformInfo carries the exact platform jury size", 3, info.get("jurySize").asInt());
 		} finally {
 			platform.setJurySize(originalPlatformSize);
 			PlatformRepository.saveJurySize(platform);
@@ -196,14 +200,16 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	@Test
-	public void competitionJurySizeChangePublishesGlobalMqttConfigEvenWhenAllPlatformsOverride() throws Exception {
+	public void competitionJurySizeIsUpperBoundForPlatformsAndPublishedOnce() throws Exception {
 		Integer originalGlobal = Competition.getCurrent().getJurySize();
-		List<Platform> platforms = PlatformRepository.findAll();
-		assertTrue("test fixture should have at least two platforms", platforms.size() >= 2);
-		Platform p1 = platforms.get(0);
-		Platform p2 = platforms.get(1);
-		Integer originalP1Size = p1.getJurySize();
-		Integer originalP2Size = p2.getJurySize();
+		// two platforms with distinct names: the fixture platforms can share a name
+		Platform p1 = new Platform("RED");
+		Platform p2 = new Platform("WHITE");
+		JPAService.runInTransaction(em -> {
+			em.persist(p1);
+			em.persist(p2);
+			return null;
+		});
 		Map<String, FieldOfPlay> registry = new LinkedHashMap<>();
 		Map<String, FieldOfPlay> previousFops = TestFopRegistry.replace(registry);
 		try {
@@ -226,19 +232,30 @@ public class SevenPersonAdjudicationTest {
 			registry.put(fop1.getName(), fop1);
 			registry.put(fop2.getName(), fop2);
 
+			assertEquals("the competition size caps the platform's own size", 3, fop1.getJurySize());
+
 			Competition.getCurrent().setJurySize(4);
 			assertTrue("Competition.setJurySize must not publish MQTT config before save", allPublished.isEmpty());
 
 			Object origin = new Object();
 			FieldOfPlay.notifyCompetitionJurySizeChanged(origin, AuditActor.system());
 
-			assertEquals("global MQTT config should be published once even when all platforms override",
-			        1, allPublished.size());
+			assertEquals("MQTT config is published once for a competition change", 1, allPublished.size());
 			JsonNode json = new ObjectMapper().readTree(allPublished.get(0).payload);
 			assertEquals("owlcms/fop/config", allPublished.get(0).topic);
 			assertEquals(4, json.get("jurySize").asInt());
-			assertEquals(5, fop1.getJurySize());
+			assertEquals(List.of("RED", "WHITE"), new ObjectMapper().convertValue(json.get("platforms"),
+			        new TypeReference<List<String>>() {
+			        }));
+			Map<String, Integer> sizes = platformInfoSizes(json);
+			assertEquals(List.of("RED", "WHITE"), new ArrayList<>(sizes.keySet()));
+			assertEquals("capped by the competition size", Integer.valueOf(4), sizes.get("RED"));
+			assertEquals(Integer.valueOf(0), sizes.get("WHITE"));
+			assertEquals(4, fop1.getJurySize());
 			assertEquals(0, fop2.getJurySize());
+			assertEquals("the platform keeps its own setting", Integer.valueOf(5), p1.getJurySize());
+			assertTrue("capped platform gets JurySizeChanged", rec1.await(rec1.jurySizeChanges,
+			        e -> e.getOrigin() == origin));
 
 			// Platform 2 returns to inheriting the competition default; global change updates its UI and publishes once
 			p2.setJurySize(null);
@@ -249,15 +266,21 @@ public class SevenPersonAdjudicationTest {
 			FieldOfPlay.notifyCompetitionJurySizeChanged(secondOrigin, AuditActor.system());
 
 			assertEquals(1, allPublished.size());
-			assertEquals(5, new ObjectMapper().readTree(allPublished.get(0).payload).get("jurySize").asInt());
+			JsonNode second = new ObjectMapper().readTree(allPublished.get(0).payload);
+			assertEquals(5, second.get("jurySize").asInt());
+			sizes = platformInfoSizes(second);
+			assertEquals(Integer.valueOf(5), sizes.get("RED"));
+			assertEquals(Integer.valueOf(5), sizes.get("WHITE"));
+			assertEquals(5, fop1.getJurySize());
 			assertEquals(5, fop2.getJurySize());
 			assertTrue("inheriting platform gets JurySizeChanged", rec2.await(rec2.jurySizeChanges,
 			        e -> e.getOrigin() == secondOrigin));
 		} finally {
-			p1.setJurySize(originalP1Size);
-			PlatformRepository.saveJurySize(p1);
-			p2.setJurySize(originalP2Size);
-			PlatformRepository.saveJurySize(p2);
+			JPAService.runInTransaction(em -> {
+				em.remove(em.find(Platform.class, p1.getId()));
+				em.remove(em.find(Platform.class, p2.getId()));
+				return null;
+			});
 			Competition.getCurrent().setJurySize(originalGlobal);
 			TestFopRegistry.replace(previousFops);
 		}
@@ -2704,6 +2727,14 @@ public class SevenPersonAdjudicationTest {
 	}
 
 	private record PublishedMqttMessage(String topic, String payload) {
+	}
+
+	private static Map<String, Integer> platformInfoSizes(JsonNode config) {
+		Map<String, Integer> sizes = new LinkedHashMap<>();
+		for (JsonNode info : config.get("platformInfo")) {
+			sizes.put(info.get("name").asString(), info.get("jurySize").asInt());
+		}
+		return sizes;
 	}
 
 	private static final class RecordingMqttMonitor extends MQTTMonitor {

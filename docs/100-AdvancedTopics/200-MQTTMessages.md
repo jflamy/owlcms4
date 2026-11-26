@@ -25,9 +25,14 @@
     - `status` is `on` or `off`
     - Turns the LEDs on (or off) on external devices to confirm connectivity.
     - DEPRECATED : the following message legacy message is equivalent : `owlcms/led/A :status`
-- `owlcms/fop/config`  this message published in response to a `owlcms/config` request from the device.  Note that there can be multiple answers - one per platform.  The answers are all identical, all but the first one can be ignored.
-    - returns a JSON map of the form `{"platforms":["A","B"],"version":"38.0.0-alpha00"}` 
-    - the `platforms` entry contains the list of configured platforms.
+- `owlcms/fop/config`  this message published in response to a `owlcms/config` request from the device, and again when the platforms or the jury sizes change.  Note that there can be multiple answers - one per platform.  The answers are all identical, all but the first one can be ignored.
+    - returns a JSON map of the form
+      ```json
+      {"jurySize":3,"platformInfo":[{"name":"RED","jurySize":3},{"name":"WHITE","jurySize":0},{"name":"BLUE","jurySize":0}],"platforms":["RED","WHITE","BLUE"],"version":"69.0.2"}
+      ```
+    - the `platforms` entry contains the list of configured platforms, in display order.  It is kept for older devices.
+    - the `platformInfo` entry lists the same platforms, in the same order, with the exact jury size in use on each one (`0` when there is no jury).
+    - the `jurySize` entry is the competition jury size, which is the upper bound for every platform: Jury Control cannot select a larger jury.  A jury device can set up that many stations, then use its platform's `platformInfo` entry for the number of members actually voting.
 
 
 #### Subscribed by jury and referee devices

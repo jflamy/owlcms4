@@ -2320,14 +2320,15 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * Notifies platforms and MQTT devices after the competition-wide jury size has been saved.
+	 * Notifies platforms and MQTT devices after the competition-wide jury size has been saved. Every platform is
+	 * told: those that follow the competition default change, and the competition size caps the others.
 	 */
 	public static void notifyCompetitionJurySizeChanged(Object origin, AuditActor actor) {
-		boolean publishPerPlatform = Boolean.TRUE.equals(MQTTMonitor.PUBLISH_PLATFORM_JURY_SIZE_TO_MQTT);
 		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
-			if (fop.getPlatform() != null && fop.getPlatform().getJurySize() == null) {
-				// the platform follows the competition default: the jury pages follow too
-				FOPEvent.JurySizeChange event = new FOPEvent.JurySizeChange(origin, null, publishPerPlatform);
+			Platform platform = fop.getPlatform();
+			if (platform != null) {
+				// the platform's own setting is kept; the MQTT configuration is published once below
+				FOPEvent.JurySizeChange event = new FOPEvent.JurySizeChange(origin, platform.getJurySize(), false);
 				if (actor != null) {
 					fop.fopEventPost(event, actor);
 				} else {
@@ -2335,9 +2336,7 @@ public class FieldOfPlay implements IUnregister {
 				}
 			}
 		}
-		if (!publishPerPlatform) {
-			MQTTMonitor.publishGlobalConfig();
-		}
+		MQTTMonitor.publishGlobalConfig();
 	}
 
 	/**

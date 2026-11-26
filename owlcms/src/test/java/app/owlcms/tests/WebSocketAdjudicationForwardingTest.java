@@ -87,6 +87,8 @@ public class WebSocketAdjudicationForwardingTest {
 		AthleteRepository.resetParticipations(false, true);
 		setSwitch(FeatureSwitch.SHOW_DECISIONS_IMMEDIATELY, false);
 		Competition.getCurrent().setVideoPlaybackTechnology(true);
+		// the competition size caps every platform: allow all sizes
+		Competition.getCurrent().setJurySize(5);
 
 		this.fop = MockFieldOfPlay.create(AthleteRepository.findAll(), new MockCountdownTimer(),
 		        new MockCountdownTimer());
@@ -102,6 +104,7 @@ public class WebSocketAdjudicationForwardingTest {
 	public void restoreSettings() {
 		setSwitch(FeatureSwitch.AUTOMATIC_BREAK_NO_VPT, false);
 		Competition.getCurrent().setVideoPlaybackTechnology(false);
+		Competition.getCurrent().setJurySize(0);
 	}
 
 	@Test

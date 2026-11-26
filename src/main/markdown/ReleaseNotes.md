@@ -11,6 +11,12 @@
 
 <!-- 69.0 -->
 
+**New in Release 69.0.2**
+
+- 69.0.2: MQTT device configuration (`owlcms/fop/config`) now gives the exact jury size of each platform in a new `platformInfo` list. `jurySize` is the competition jury size, which is the upper bound for every platform; `platforms` is unchanged for older devices.
+  - A jury size change in Jury Control now updates the MQTT devices.
+  - Jury Control offers jury sizes up to the competition jury size only. Lowering the competition jury size also lowers the platforms that were above it.
+
 **New in Release 69.0.1**
 
 - 69.0.1: Vendor Security Updates for Vaadin and Guava

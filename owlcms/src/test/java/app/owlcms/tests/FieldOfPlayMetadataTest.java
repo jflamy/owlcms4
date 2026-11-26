@@ -24,6 +24,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -42,6 +43,7 @@ import app.owlcms.data.athlete.AthleteRepository.MetadataSaveResult;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
@@ -102,6 +104,13 @@ public class FieldOfPlayMetadataTest {
         });
         AthleteRepository.resetParticipations(false, true);
         this.athletes = AthleteRepository.findAll();
+        // the competition size caps every platform: allow all sizes (each platform starts with no jury)
+        Competition.getCurrent().setJurySize(5);
+    }
+
+    @After
+    public void restoreJurySize() {
+        Competition.getCurrent().setJurySize(0);
     }
 
     @Test
