@@ -17,12 +17,13 @@
 
 - 69.0.1: Usability: Progress bar on import file restart, based on prior startup time.
 
-- 69.0.1: The Top Score, Top Teams and Top Team Score displays now follow the scoreboard look (headers, spacing, column groups and font sizes) for all styles, including public and video.
+- 69.0.1: Usability: The Top Score, Top Teams and Top Team Score displays now follow the scoreboard look (headers, spacing, column groups and font sizes) for all styles, including public and video.
   - The display options for font size and team width now apply to these displays.
-
-- 69.0.1: The display selection page labels the Top Score display as "Best Athletes" instead of naming the scoring system.
+  - The display selection page labels the Top Score display as "Best Athletes" instead of naming the scoring system.
 
 - 69.0.1: Fix: Displays with selectable championship are now limited to active championships:  when a single championship is in use, it is selected by default.
+
+- 69.0.1: Fix: JSON database imports are no longer blocked while a lifting session is active (registration, SBDE, and age-group imports remain blocked).
 
 **New in Release 69**
 
