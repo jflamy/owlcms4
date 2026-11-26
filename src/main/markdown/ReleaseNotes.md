@@ -14,10 +14,12 @@
 **New in Release 69.0.2**
 
 - 69.0.2: MQTT device configuration (`owlcms/fop/config`) now gives the exact jury size of each platform in a new `platformInfo` list. `jurySize` is the competition jury size, which is the upper bound for every platform; `platforms` is unchanged for older devices.
-  - A jury size change in Jury Control now updates the MQTT devices.
+  - A jury size change in Jury Control publishes the updated config for all platforms
   - Jury Control offers jury sizes up to the competition jury size only. Lowering the competition jury size also lowers the platforms that were above it.
 
 - 69.0.2: Vendor Security Update for Google Guava (33.7.2).
+
+- 69.0.2: Fix: On scoreboards, the medal score column header (e.g. Q-masters) now uses the same colors as the other column headers.
 
 **New in Release 69.0.1**
 
