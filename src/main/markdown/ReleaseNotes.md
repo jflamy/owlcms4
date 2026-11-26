@@ -9,7 +9,9 @@
 
 <br>
 
-**Development log**
+**New in Release 69.0.1**
+
+- 69.0.1: Vendor Security Updates for Vaadin and Guava
 
 - 69.0.1: Added missing MQTT events for stand-alone clocks (`setTime`, `breakSetTime`, `breakStart`, `breakStop`).
 
@@ -20,7 +22,7 @@
 
 - 69.0.1: The display selection page labels the Top Score display as "Best Athletes" instead of naming the scoring system.
 
-- 69.0.1: Fix: Displays limited to active championships no longer fall back to the default championship when it has no athletes; when a single championship is in use, it is selected by default.
+- 69.0.1: Fix: Displays with selectable championship are now limited to active championships:  when a single championship is in use, it is selected by default.
 
 **New in Release 69**
 
