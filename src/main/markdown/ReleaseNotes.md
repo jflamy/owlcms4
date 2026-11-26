@@ -9,6 +9,8 @@
 
 <br>
 
+<!-- 69.0 -->
+
 **New in Release 69.0.1**
 
 - 69.0.1: Vendor Security Updates for Vaadin and Guava
