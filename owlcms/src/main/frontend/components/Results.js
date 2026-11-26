@@ -114,6 +114,7 @@ class Results extends LitElement {
                   <th class="vspacer"></th>
                   <th class="total" .innerHTML="${this.t?.Total}"></th>
                   <th class="medalScore" .innerHTML="${this.medalScoringName ?? this.t?.ScoringTitle}"></th>
+                  <th class="medalDelta" .innerHTML="${this.medalDeltaTitle ?? this.t?.DeltaTop}"></th>
                   <th class="totalRank" .innerHTML="${this.t?.Rank}"></th>
                   <th class="sinclair"  .innerHTML="${this.scoringName ?? this.t?.ScoringTitle}"></th>
                   <th class="sinclairRank" .innerHTML="${this.t?.Rank}"></th>
@@ -177,6 +178,7 @@ class Results extends LitElement {
                                 <td class="vspacer sinclairVspacer"></td>
                                 <td class="total" style="${this.leadingAthleteStyles()} "> <div>${item?.total}</div></td>
                                 <td class="medalScore"><div>${item?.medalScore}</div></td>
+                                <td class="medalDelta"><div>${item?.medalKgDelta}</div></td>
                                 <td class="${"totalRank " + (item?.medalHighlight ?? "")}" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.medalRank}"></div></td>
                                 <td class="sinclair" style="${this.leadingAthleteStyles()} "> <div>${item?.sinclair}</div></td>
                                 <td class="sinclairRank" style="${this.leadingAthleteStyles()} "> <div>${item?.sinclairRank}</div></td>
@@ -275,7 +277,9 @@ class Results extends LitElement {
       showLiftRanks: {type: Boolean},
       showBest: {type: Boolean},
       showMedalScore: {type: Boolean},
+      showMedalKgDelta: {type: Boolean},
       medalScoringName: {},
+      medalDeltaTitle: {},
       scoringName: {},
       showSinclair: {type: Boolean},
       showSinclairRank: {type: Boolean},
@@ -561,6 +565,7 @@ class Results extends LitElement {
     + " totalRank"
     + (this.showBodyWeight ? " bodyWeight" : " nobodyWeight")
     + (this.showMedalScore ? " medalScore" : " nomedalScore")
+    + (this.showMedalKgDelta ? " medalDelta" : " nomedalDelta")
     + (this.showSinclair ? " sinclair" : " nosinclair")
     + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")
     ;

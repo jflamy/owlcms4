@@ -1488,14 +1488,16 @@ public class BaseResults extends LitTemplate
 		        FeatureSwitch.DISPLAY_BEST_SCORE_RANK.isEffective(config),
 		        FeatureSwitch.NO_BEST_SCORE_RANK.isEffective(config)
 		                || FeatureSwitch.NO_SINCLAIR_RANK.isEffective(config));
+		ScoreboardRankData.DeltaMode deltaMode = kgDeltaMode();
+		boolean showMedalKgDelta = columns.medalScore() && deltaMode != ScoreboardRankData.DeltaMode.NONE;
 		getElement().setProperty("showMedalScore", columns.medalScore());
+		getElement().setProperty("showMedalKgDelta", showMedalKgDelta);
 		getElement().setProperty("showSinclair", columns.bestScore());
 		getElement().setProperty("showSinclairRank", columns.bestRank());
 		getElement().setProperty("showLiftRanks", columns.liftRanks());
 		getElement().setProperty("showTotalRank", true);
-		getElement().setProperty("medalScoringName",
-		        ScoreboardRankData.title(columns.medalSystems(), this.capturedLocale,
-		                kgDeltaMode() != ScoreboardRankData.DeltaMode.NONE));
+		getElement().setProperty("medalScoringName", ScoreboardRankData.title(columns.medalSystems(), this.capturedLocale));
+		getElement().setProperty("medalDeltaTitle", ScoreboardRankData.deltaTitle(deltaMode, this.capturedLocale));
 		getElement().setProperty("scoringName", ScoreboardRankData.title(columns.bestSystems(), this.capturedLocale));
 
 	}

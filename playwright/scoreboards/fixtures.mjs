@@ -44,6 +44,12 @@ export const THEME_LABELS = Object.freeze({
 export const MEDAL_HIGHLIGHT_BOARDS = Object.freeze(
   Object.keys(BOARD_RENDERERS).filter(board => BOARD_RENDERERS[board].highlight));
 export const APPEARANCES = Object.freeze(['dark', 'light']);
+export const KG_DELTAS = Object.freeze(['none', 'top', 'up']);
+export const KG_DELTA_LABELS = Object.freeze({
+  none: 'Off',
+  top: '∆kg Top (to lead)',
+  up: '∆kg Up (+1 rank)'
+});
 
 export function buildFixture({
   scenario = 'masters',
@@ -53,10 +59,12 @@ export function buildFixture({
   bestScore = false,
   bestRank = false,
   bodyWeight = false,
+  kgDelta = 'none',
   categoryHeaders = false
 } = {}) {
   if (!Object.hasOwn(SCENARIOS, scenario) || !Object.hasOwn(BOARDS, board)
-      || !THEMES.includes(theme) || !APPEARANCES.includes(appearance)) {
+      || !THEMES.includes(theme) || !APPEARANCES.includes(appearance)
+      || !KG_DELTAS.includes(kgDelta)) {
     throw new Error('Unknown scoreboard fixture configuration');
   }
   const renderer = BOARD_RENDERERS[board];
@@ -96,6 +104,7 @@ export function buildFixture({
       totalRank: separateCategories ? '1' : weightMedals ? medalRank : String(2 - index),
       medalRank,
       medalScore: weightMedals ? '' : index === 0 ? '257.830' : '249.180',
+      medalKgDelta: weightMedals || kgDelta === 'none' || Number(medalRank) <= 1 ? '' : kgDelta === 'top' ? '+11' : '+6',
       medalHighlight: renderer.highlight ? `medal${medalRank}` : '',
       snatchRank,
       cleanJerkRank,
@@ -123,7 +132,7 @@ export function buildFixture({
     + (separateCategories ? 'one athlete per category, medal ranks 1 and 1' : 'medal ranks 1 and 2')
     + (scenario === 'mixed' ? '; F 64 score blank; W35Q range 0-999 kg' : '');
   return {
-    options: {scenario, board, theme, appearance, bestScore, bestRank, bodyWeight, categoryHeaders},
+    options: {scenario, board, theme, appearance, bestScore, bestRank, bodyWeight, kgDelta, categoryHeaders},
     title: `Fixture: ${BOARDS[board]} — ${SCENARIOS[scenario]}`,
     tag: renderer.tag,
     rankingOrder: renderer.rankingOrder,
@@ -140,6 +149,7 @@ export function buildFixture({
       showTotalRank: true,
       showLiftRanks: LIFT_RANK_SCENARIOS.includes(scenario),
       showMedalScore: scenario !== 'total',
+      showMedalKgDelta: scenario !== 'total' && kgDelta !== 'none',
       showSinclair: bestScore,
       showSinclairRank: bestRank,
       showBodyWeight: bodyWeight,
@@ -155,13 +165,14 @@ export function buildFixture({
       ageGroups: multi ? categories : [categories[0]],
       competitionName: `Rendering fixture: ${SCENARIOS[scenario]}`,
       medalScoringName,
+      medalDeltaTitle: kgDelta === 'top' ? '∆kg Top' : kgDelta === 'up' ? '∆kg Up' : '',
       scoringName: scenario === 'total' ? 'GAMX' : scenario === 'masters' ? 'GAMX-M' : 'Score',
       sizeOverride: '--tableFontSize:1.25rem;',
       t: {
         Start: 'Start', Name: 'Name', Category: 'Category', Birth: 'Birth', Team: 'Team',
         BodyWeight: 'B.W.',
         Snatch: 'Snatch', Clean_and_Jerk: 'Clean & Jerk', Total: 'Total', Rank: 'Rank',
-        Best: 'Best', ScoringTitle: 'Score', Custom1: '', Custom2: ''
+        Best: 'Best', ScoringTitle: 'Score', DeltaTop: '∆kg Top', DeltaUp: '∆kg Up', Custom1: '', Custom2: ''
       },
       athletes,
       medalCategories: [...new Set(categories)].map(category => ({

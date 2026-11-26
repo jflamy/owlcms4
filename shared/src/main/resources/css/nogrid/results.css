@@ -114,6 +114,8 @@ table.results {
     --sinclairVspacerVisibility: hidden;
     --medalScoreWidth: 0;
     --medalScoreVisibility: hidden;
+    --medalDeltaWidth: 0;
+    --medalDeltaVisibility: hidden;
     --sinclairWidth: 0;
     --sinclairVisibility: hidden;
     --sinclairRankWidth: 0;
@@ -476,6 +478,7 @@ table {
         var(--spacerWidth)
         var(--totalWidth)
         var(--medalScoreWidth)
+        var(--medalDeltaWidth)
         /* one total rank per category */
         repeat(var(--nbRanks), var(--totalRankWidth))
         /* sinclair result */
@@ -1178,6 +1181,25 @@ table.results.medalScore {
 }
 table.results.nomedalScore td.medalScore,
 table.results.nomedalScore th.medalScore {
+    padding: 0;
+    overflow: hidden;
+}
+
+table.results.medalDelta {
+    --medalDeltaWidth: min-content;
+    --medalDeltaVisibility: visible;
+}
+:host table.results tr td.medalDelta {
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
+}
+:host table.results tr td.medalDelta,
+:host table.results tr th.medalDelta {
+    visibility: var(--medalDeltaVisibility);
+    min-width: var(--medalDeltaWidth);
+}
+table.results.nomedalDelta td.medalDelta,
+table.results.nomedalDelta th.medalDelta {
     padding: 0;
     overflow: hidden;
 }

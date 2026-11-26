@@ -69,7 +69,7 @@ class TopSinclair extends LitElement {
               <th class="vspacer"></th>
               <th class="${this.displayLifts ? "total" : "total liftOnly"}" .innerHTML="${this.t?.Total}"></th>
               <th class="score" .innerHTML="${this.t?.ScoringTitle}"></th>
-              ${showNeeded ? html`<th class="needed" .innerHTML="${this.t?.Needed}"></th>` : html``}
+              ${showNeeded ? html`<th class="needed" .innerHTML="${this.neededTitle || this.t?.Needed}"></th>` : html``}
             </tr>
           </thead>
           <tbody>
@@ -132,6 +132,7 @@ class TopSinclair extends LitElement {
       darkMode: {},
       displayLifts: {type: Boolean},
       showNeeded: {type: Boolean},
+      neededTitle: {},
       sizeOverride: {},
       twOverride: {},
       colorOverride: {},

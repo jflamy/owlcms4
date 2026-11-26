@@ -96,7 +96,8 @@ async function main() {
     scenarios: list('scenarios'), boards: list('boards'), themes: list('themes'),
     appearances: list('appearances'),
     bestColumns: list('best')?.map(pair => [pair[0] === '1', pair[1] === '1']),
-    bodyWeights: list('body-weight')?.map(value => value === '1' || value === 'true')
+    bodyWeights: list('body-weight')?.map(value => value === '1' || value === 'true'),
+    kgDeltas: list('kg-delta')
   };
   for (const key of Object.keys(options)) if (options[key] === undefined) delete options[key];
 

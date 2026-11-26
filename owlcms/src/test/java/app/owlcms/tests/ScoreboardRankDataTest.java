@@ -347,8 +347,10 @@ public class ScoreboardRankDataTest {
 			assertEquals("medal2", fields.get("medalHighlight"));
 			String formattedScore = String.format(Locale.ENGLISH, "%.3f", participation.getCategoryScore());
 			assertEquals(formattedScore, fields.get("medalScore"));
-			assertEquals(formattedScore + " (+11)",
-			        ScoreboardRankData.fields(athlete, Locale.ENGLISH, true, true).get("medalScore"));
+			assertEquals("", fields.get("medalKgDelta"));
+			Map<String, String> deltaFields = ScoreboardRankData.fields(athlete, Locale.ENGLISH, true, true);
+			assertEquals(formattedScore, deltaFields.get("medalScore"));
+			assertEquals("+11", deltaFields.get("medalKgDelta"));
 			assertEquals(String.format(Locale.ENGLISH, "%.3f", Ranking.getRankingValue(source, Ranking.BW_SINCLAIR)),
 			        fields.get("sinclair"));
 			assertEquals(2, athlete.getMedalRank().intValue());
@@ -364,22 +366,24 @@ public class ScoreboardRankDataTest {
 			assertEquals(11, exported.get("bestAthleteRank").asInt());
 			assertEquals(participation.getCategoryScore(), Double.valueOf(exported.get("categoryScore").asDouble()));
 
-			assertEquals(
-			        Translator.translate("Scoreboard.ScoreWithDeltaFormat", Locale.ENGLISH,
-			                Translator.translate("Ranking.QAGE", Locale.ENGLISH)),
-			        ScoreboardRankData.title(Set.of(Ranking.QAGE), Locale.ENGLISH, true));
-			assertEquals(
-			        Translator.translate("Scoreboard.ScoreWithDeltaFormat", Locale.ENGLISH,
-			                Translator.translate("Score", Locale.ENGLISH)),
-			        ScoreboardRankData.title(Set.of(Ranking.QAGE, Ranking.GAMX_U), Locale.ENGLISH, true));
+			assertEquals(Translator.translate("Ranking.QAGE", Locale.ENGLISH),
+			        ScoreboardRankData.title(Set.of(Ranking.QAGE), Locale.ENGLISH));
 			assertEquals(Translator.translate("Score", Locale.ENGLISH),
-			        ScoreboardRankData.title(Set.of(), Locale.ENGLISH, true));
+			        ScoreboardRankData.title(Set.of(Ranking.QAGE, Ranking.GAMX_U), Locale.ENGLISH));
+			assertEquals(Translator.translate("Score", Locale.ENGLISH),
+			        ScoreboardRankData.title(Set.of(), Locale.ENGLISH));
+			assertEquals("", ScoreboardRankData.deltaTitle(ScoreboardRankData.DeltaMode.NONE, Locale.ENGLISH));
+			assertEquals(Translator.translate("Scoreboard.DeltaTop", Locale.ENGLISH),
+			        ScoreboardRankData.deltaTitle(ScoreboardRankData.DeltaMode.LEADER, Locale.ENGLISH));
+			assertEquals(Translator.translate("Scoreboard.DeltaUp", Locale.ENGLISH),
+			        ScoreboardRankData.deltaTitle(ScoreboardRankData.DeltaMode.PREVIOUS_RANK, Locale.ENGLISH));
 
 			championship.setScoringSystem(Ranking.TOTAL);
 			participation.setCategoryScoreRank(4);
 			fields = ScoreboardRankData.fields(athlete, Locale.ENGLISH, true, true);
 			assertEquals(fields.get("totalRank"), fields.get("medalRank"));
 			assertEquals("", fields.get("medalScore"));
+			assertEquals("", fields.get("medalKgDelta"));
 			assertEquals("", fields.get("medalHighlight"));
 			assertEquals("11", fields.get("sinclairRank"));
 
@@ -476,15 +480,14 @@ public class ScoreboardRankDataTest {
 			Map<String, String> buzinhaniLeaderFields = ScoreboardRankData.fields(savedBuzinhani, Locale.ENGLISH, true,
 			        ScoreboardRankData.DeltaMode.LEADER, leaderScore);
 
+			assertEquals("", borayFields.get("medalKgDelta"));
 			assertFalse(borayFields.get("medalScore").contains("(+"));
-			assertTrue("Barak medalScore should include (+11), got: " + barakFields.get("medalScore"),
-			        barakFields.get("medalScore").endsWith(" (+11)"));
-			assertTrue("Buzinhani previous-rank medalScore should include (+" + buzinhaniPrevDelta + ")",
-			        buzinhaniPrevFields.get("medalScore").endsWith(" (+" + buzinhaniPrevDelta + ")"));
-			assertTrue("Buzinhani leader medalScore should include (+" + buzinhaniLeaderDelta + ")",
-			        buzinhaniLeaderFields.get("medalScore").endsWith(" (+" + buzinhaniLeaderDelta + ")"));
-			assertFalse(ScoreboardRankData.fields(savedBarak, Locale.ENGLISH, true, false)
-			        .get("medalScore").contains("(+"));
+			assertEquals("+11", barakFields.get("medalKgDelta"));
+			assertFalse(barakFields.get("medalScore").contains("(+"));
+			assertEquals("+" + buzinhaniPrevDelta, buzinhaniPrevFields.get("medalKgDelta"));
+			assertEquals("+" + buzinhaniLeaderDelta, buzinhaniLeaderFields.get("medalKgDelta"));
+			assertEquals("", ScoreboardRankData.fields(savedBarak, Locale.ENGLISH, true, false)
+			        .get("medalKgDelta"));
 
 			// Verify outright beat calculation across Sinclair, SMHF, Q-Points, Q-Masters, and all GAMX variants
 			List<Ranking> systems = List.of(

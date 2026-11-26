@@ -425,6 +425,7 @@ public class TopSinclair extends AbstractTop {
 
 		ScoreboardRankData.DeltaMode deltaMode = ScoreboardRankData.deltaMode(this.showKgDelta, this.showKgLeader);
 		getElement().setProperty("showNeeded", deltaMode != ScoreboardRankData.DeltaMode.NONE);
+		getElement().setProperty("neededTitle", ScoreboardRankData.deltaTitle(deltaMode, Translator.getLocale()));
 
 		for (Athlete a : list3) {
 			ObjectNode ja = JsonUtils.object();

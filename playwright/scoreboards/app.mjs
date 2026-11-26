@@ -1,7 +1,7 @@
 import '/components/Results.js';
 import '/components/ResultsMulti.js';
 import '/components/ResultsMedals.js';
-import {SCENARIOS, BOARDS, THEMES, THEME_LABELS, APPEARANCES, buildFixture} from './fixtures.mjs';
+import {SCENARIOS, BOARDS, THEMES, THEME_LABELS, APPEARANCES, KG_DELTAS, KG_DELTA_LABELS, buildFixture} from './fixtures.mjs';
 
 function populate(id, values) {
   const select = document.getElementById(id);
@@ -11,6 +11,7 @@ populate('scenario', SCENARIOS);
 populate('component', BOARDS);
 populate('theme', Object.fromEntries(THEMES.map(value => [value, THEME_LABELS[value]])));
 populate('appearance', Object.fromEntries(APPEARANCES.map(value => [value, value])));
+populate('kg-delta', Object.fromEntries(KG_DELTAS.map(value => [value, KG_DELTA_LABELS[value]])));
 
 let revision = 0;
 window.fixtureReady = false;
@@ -62,12 +63,13 @@ export function readControls() {
     bestScore: document.getElementById('best-score').checked,
     bestRank: document.getElementById('best-rank').checked,
     bodyWeight: document.getElementById('body-weight').checked,
+    kgDelta: document.getElementById('kg-delta').value,
     categoryHeaders: document.getElementById('category-headers').checked
   };
 }
 
 export function setControls(options) {
-  const ids = {scenario: 'scenario', board: 'component', theme: 'theme', appearance: 'appearance'};
+  const ids = {scenario: 'scenario', board: 'component', theme: 'theme', appearance: 'appearance', kgDelta: 'kg-delta'};
   for (const [key, id] of Object.entries(ids)) document.getElementById(id).value = options[key];
   for (const [key, id] of [['bestScore', 'best-score'], ['bestRank', 'best-rank'],
     ['bodyWeight', 'body-weight'], ['categoryHeaders', 'category-headers']]) {
@@ -103,6 +105,7 @@ setControls({
   bestScore: params.get('bestScore') === 'true',
   bestRank: params.get('bestRank') === 'true',
   bodyWeight: params.get('bodyWeight') === 'true',
+  kgDelta: params.get('kgDelta') || 'none',
   categoryHeaders: params.get('categoryHeaders') === 'true'
 });
 try {

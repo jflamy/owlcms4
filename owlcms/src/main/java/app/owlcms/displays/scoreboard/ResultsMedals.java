@@ -227,6 +227,8 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 	public void setScoreRanks(boolean scoreNeeded) {
 		getElement().setProperty("showMedalScore", scoreNeeded);
+		getElement().setProperty("showMedalKgDelta",
+		        scoreNeeded && kgDeltaMode() != ScoreboardRankData.DeltaMode.NONE);
 		Config config = Config.getCurrent();
 		getElement().setProperty("showSinclair", FeatureSwitch.DISPLAY_BEST_SCORE.isEffective(config));
 		getElement().setProperty("showSinclairRank", FeatureSwitch.DISPLAY_BEST_SCORE_RANK.isEffective(config)

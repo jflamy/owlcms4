@@ -47,6 +47,17 @@ export async function checkCase(options) {
     assert(scoreCells.length === 1, 'Expected one shared medal score cell per athlete');
     assert(visible(scoreCells[0]) === fixture.properties.showMedalScore, 'Incorrect medal-score column visibility');
     assert(scoreCells[0].textContent.trim() === athlete.medalScore, 'Incorrect medal score or nonblank Total-medal score');
+    const deltaCells = row.querySelectorAll('td.medalDelta');
+    assert(deltaCells.length === 1, 'Expected one shared medal delta cell per athlete');
+    assert(visible(deltaCells[0]) === fixture.properties.showMedalKgDelta, 'Incorrect medal-delta column visibility');
+    assert(deltaCells[0].textContent.trim() === athlete.medalKgDelta, 'Incorrect medal kg delta');
+    if (fixture.properties.showMedalKgDelta) {
+      const scoreRect = scoreCells[0].getBoundingClientRect();
+      const deltaRect = deltaCells[0].getBoundingClientRect();
+      const rankRect = row.querySelector('td.totalRank').getBoundingClientRect();
+      assert(deltaRect.x >= scoreRect.x && deltaRect.x <= rankRect.x, 'Medal delta column must sit between medal score and rank');
+      assert(Math.abs(scoreRect.y - deltaRect.y) <= 2, 'Medal delta cell wrapped into a different grid row');
+    }
     assert(visible(row.querySelector('td.sinclair')) === fixture.properties.showSinclair, 'Incorrect best-athlete score visibility');
     assert(visible(row.querySelector('td.sinclairRank')) === fixture.properties.showSinclairRank, 'Incorrect best-athlete rank visibility');
     assert(row.querySelector('td.sinclairRank').textContent.trim() === athlete.sinclairRank, 'Incorrect best-athlete rank');
@@ -75,6 +86,11 @@ export async function checkCase(options) {
     const header = root.querySelector('th.medalScore');
     assert(header.textContent.trim() === fixture.properties.medalScoringName, 'Incorrect single-system or mixed-system score heading');
   }
+  const deltaHeader = root.querySelector('th.medalDelta');
+  assert(visible(deltaHeader) === fixture.properties.showMedalKgDelta, 'Incorrect medal-delta header visibility');
+  if (fixture.properties.showMedalKgDelta) {
+    assert(deltaHeader.textContent.trim() === fixture.properties.medalDeltaTitle, 'Incorrect medal-delta heading');
+  }
   const spacers = [...root.querySelectorAll('td.vspacer, th.vspacer')];
   assert(spacers.length > 0, 'Vertical spacer cells are missing');
   for (const spacer of spacers) {
@@ -96,26 +112,28 @@ export async function checkCase(options) {
   return {scenario: fixture.options.scenario, board: fixture.options.board,
     theme: fixture.options.theme, appearance: fixture.options.appearance,
     bestScore: fixture.options.bestScore, bestRank: fixture.options.bestRank,
-    bodyWeight: fixture.options.bodyWeight, passed: true};
+    bodyWeight: fixture.options.bodyWeight, kgDelta: fixture.options.kgDelta, passed: true};
 }
 
 export async function runMatrix({scenarios = Object.keys(SCENARIOS), boards = Object.keys(BOARDS),
   themes = THEMES, appearances = APPEARANCES,
   bestColumns = [[false, false], [true, false], [false, true], [true, true]],
-  bodyWeights = [false, true]} = {}) {
+  bodyWeights = [false, true],
+  kgDeltas = ['none', 'top']} = {}) {
   const original = readControls();
   const results = [];
   try {
     for (const scenario of scenarios) for (const board of boards)
       for (const theme of themes) for (const appearance of appearances)
-        for (const [bestScore, bestRank] of bestColumns) for (const bodyWeight of bodyWeights) {
-          const options = {scenario, board, theme, appearance, bestScore, bestRank, bodyWeight, categoryHeaders: false};
-          try {
-            results.push(await checkCase(options));
-          } catch (error) {
-            throw new Error(`${JSON.stringify(options)}: ${error.message}`, {cause: error});
+        for (const [bestScore, bestRank] of bestColumns) for (const bodyWeight of bodyWeights)
+          for (const kgDelta of kgDeltas) {
+            const options = {scenario, board, theme, appearance, bestScore, bestRank, bodyWeight, kgDelta, categoryHeaders: false};
+            try {
+              results.push(await checkCase(options));
+            } catch (error) {
+              throw new Error(`${JSON.stringify(options)}: ${error.message}`, {cause: error});
+            }
           }
-        }
   } finally {
     setControls(original);
     await window.updateFixture();

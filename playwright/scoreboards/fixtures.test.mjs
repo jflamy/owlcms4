@@ -126,6 +126,23 @@ test('body weight is its own column and never written into custom1', () => {
   assert.equal(buildFixture().properties.t.BodyWeight, 'B.W.');
 });
 
+test('medal kg delta has its own column with distinct top/up headings and stays hidden on Total boards', () => {
+  const top = buildFixture({scenario: 'masters', kgDelta: 'top'});
+  assert.equal(top.properties.showMedalKgDelta, true);
+  assert.equal(top.properties.medalDeltaTitle, '∆kg Top');
+  assert.deepEqual(top.athleteRows.map(a => a.medalScore), ['257.830', '249.180']);
+  assert.deepEqual(top.athleteRows.map(a => a.medalKgDelta), ['', '+11']);
+
+  const up = buildFixture({scenario: 'masters', kgDelta: 'up'});
+  assert.equal(up.properties.showMedalKgDelta, true);
+  assert.equal(up.properties.medalDeltaTitle, '∆kg Up');
+  assert.deepEqual(up.athleteRows.map(a => a.medalKgDelta), ['', '+6']);
+
+  const total = buildFixture({scenario: 'total', kgDelta: 'top'});
+  assert.equal(total.properties.showMedalKgDelta, false);
+  assert.deepEqual(total.athleteRows.map(a => a.medalKgDelta), ['', '']);
+});
+
 test('unknown scenarios and layout options fail explicitly', () => {
   assert.throws(() => buildFixture({scenario: 'unknown'}));
   assert.throws(() => buildFixture({board: 'resultsrankings-template'}));

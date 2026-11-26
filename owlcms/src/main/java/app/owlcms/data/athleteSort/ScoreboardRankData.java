@@ -107,15 +107,16 @@ public final class ScoreboardRankData {
 	}
 
 	public static String title(Set<Ranking> systems, Locale locale) {
-		return title(systems, locale, false);
+		return systems.size() == 1 ? Translator.translate("Ranking." + systems.iterator().next().name(), locale)
+		        : Translator.translate("Score", locale);
 	}
 
-	public static String title(Set<Ranking> systems, Locale locale, boolean showKgDelta) {
-		String base = systems.size() == 1 ? Translator.translate("Ranking." + systems.iterator().next().name(), locale)
-		        : Translator.translate("Score", locale);
-		return showKgDelta && !systems.isEmpty()
-		        ? Translator.translate("Scoreboard.ScoreWithDeltaFormat", locale, base)
-		        : base;
+	public static String deltaTitle(DeltaMode deltaMode, Locale locale) {
+		if (deltaMode == null || deltaMode == DeltaMode.NONE) {
+			return "";
+		}
+		return Translator.translate(deltaMode == DeltaMode.LEADER ? "Scoreboard.DeltaTop" : "Scoreboard.DeltaUp",
+		        locale);
 	}
 
 	/** Body weight for the optional scoreboard column (feature switch displayBodyWeight). */
@@ -154,6 +155,7 @@ public final class ScoreboardRankData {
 		Double rawMedalScore = participation.getCategoryScore();
 		double medalScoreValue = rawMedalScore != null ? rawMedalScore : 0.0D;
 		String medalScore = weightMedals ? "" : score(medalScoreValue, locale);
+		String medalKgDelta = "";
 		if (deltaMode != null && deltaMode != DeltaMode.NONE && !weightMedals && medalRank > 1
 		        && medalScoreValue > 0.001) {
 			int kgDelta = 0;
@@ -165,10 +167,11 @@ public final class ScoreboardRankData {
 				kgDelta = participation.getCategoryScoreKgDelta();
 			}
 			if (kgDelta > 0) {
-				medalScore = medalScore + " (+" + kgDelta + ")";
+				medalKgDelta = "+" + kgDelta;
 			}
 		}
 		fields.put("medalScore", medalScore);
+		fields.put("medalKgDelta", medalKgDelta);
 		fields.put("medalHighlight", highlightMedals && athlete.getMedalPolicy().includesTotal()
 		        && AthleteSorter.isMedalist(athlete, Ranking.CATEGORY_SCORE) ? "medal" + medalRank : "");
 		Ranking bestSystem = participation.getCategory().getAgeGroup().getChampionship()

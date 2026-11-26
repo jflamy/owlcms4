@@ -88,6 +88,7 @@ class ResultsMedals extends LitElement {
                         <th class="vspacer"></th>
                         <th class="total" .innerHTML="${this.t?.Total}"></th>
                         <th class="medalScore" .innerHTML="${this.medalScoringName ?? this.t?.ScoringTitle}"></th>
+                        <th class="medalDelta" .innerHTML="${this.medalDeltaTitle ?? this.t?.DeltaTop}"></th>
                         <th class="totalRank" .innerHTML="${mc.rankingTitle}"></th>
                         <th class="sinclair" .innerHTML="${mc.scoreScoringTitle}"></th>
                         <th class="sinclairRank" .innerHTML="${mc.scoreRankingTitle}"></th>
@@ -148,7 +149,9 @@ class ResultsMedals extends LitElement {
       showLiftRanks: {type: Boolean},
       showBest: {type: Boolean},
       showMedalScore: {type: Boolean},
+      showMedalKgDelta: {type: Boolean},
       medalScoringName: {},
+      medalDeltaTitle: {},
       scoringName: {},
       showSinclair: {type: Boolean},
       showSinclairRank: {type: Boolean},
@@ -228,6 +231,7 @@ class ResultsMedals extends LitElement {
      // + (this.showBest ? "" : " nobest")
       + (this.showBodyWeight ? " bodyWeight" : " nobodyWeight")
       + (this.showMedalScore ? " medalScore" : " nomedalScore")
+      + (this.showMedalKgDelta ? " medalDelta" : " nomedalDelta")
     + (this.showSinclair ? " sinclair" : " nosinclair")
       + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")
       ;
