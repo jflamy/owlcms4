@@ -1167,10 +1167,12 @@ table.results.medalScore {
     --medalScoreWidth: min-content;
     --medalScoreVisibility: visible;
 }
-:host table.results tr td.medalScore,
-:host table.results tr th.medalScore {
+:host table.results tr td.medalScore {
     background-color: var(--BackgroundColor);
     color: var(--TextColor);
+}
+:host table.results tr td.medalScore,
+:host table.results tr th.medalScore {
     visibility: var(--medalScoreVisibility);
     min-width: var(--medalScoreWidth);
 }
