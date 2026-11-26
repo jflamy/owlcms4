@@ -17,6 +17,8 @@
   - A jury size change in Jury Control now updates the MQTT devices.
   - Jury Control offers jury sizes up to the competition jury size only. Lowering the competition jury size also lowers the platforms that were above it.
 
+- 69.0.2: Vendor Security Update for Google Guava (33.7.2).
+
 **New in Release 69.0.1**
 
 - 69.0.1: Vendor Security Updates for Vaadin and Guava
