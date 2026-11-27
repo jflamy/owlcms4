@@ -38,7 +38,7 @@ public enum FeatureSwitch {
     DISPLAY_BEST_SCORE_RANK("displayBestScoreRank", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     NO_BEST_SCORE_RANK("noBestScoreRank", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     NO_SINCLAIR_RANK("noSinclairRank", FeatureSwitchSection.SCOREBOARD_OPTIONS),
-    SHOW_KG_DELTA("showKgDelta", FeatureSwitchSection.SCOREBOARD_OPTIONS),
+    SHOW_KG_DELTA("showKgDelta", FeatureSwitchSection.SCOREBOARD_OPTIONS, true),
     SHOW_KG_LEADER("showKgLeader", FeatureSwitchSection.SCOREBOARD_OPTIONS, true),
     DISPLAY_BODY_WEIGHT("displayBodyWeight", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     SHORT_SCOREBOARD_NAMES("shortScoreboardNames", FeatureSwitchSection.SCOREBOARD_OPTIONS),

@@ -150,7 +150,8 @@ class ResultsFull extends LitElement {
                     <th class="vspacer"></th>
                     <th>✓</th>
                     <th class="medalScore" .innerHTML="${this.medalScoringName ?? this.t?.ScoringTitle}"></th>
-                    <th class="medalDelta" .innerHTML="${this.medalDeltaTitle ?? this.t?.DeltaTop}"></th>
+                    <th class="medalKgTop" .innerHTML="${this.t?.DeltaTop}"></th>
+                    <th class="medalKgUp" .innerHTML="${this.t?.DeltaUp}"></th>
                     ${(this.ageGroups ?? []).map(
                 (item) =>
                   html`
@@ -238,7 +239,8 @@ class ResultsFull extends LitElement {
                                 <div>${item?.total}</div>
                               </td>
                               <td class="medalScore"><div>${item?.medalScore}</div></td>
-                              <td class="medalDelta"><div>${item?.medalKgDelta}</div></td>
+                              <td class="medalKgTop"><div>${item?.medalKgTop}</div></td>
+                              <td class="medalKgUp"><div>${item?.medalKgUp}</div></td>
                               ${(item?.medalRanks ?? []).map(
                                         (rk, index) => html`
                                   <td class="totalRank">
@@ -317,7 +319,8 @@ class ResultsFull extends LitElement {
                                 <td class="vspacer"></td>
                                 <td class="total" style="${this.leadingAthleteStyles()} "> <div>${item?.total}</div></td>
                                 <td class="medalScore"><div>${item?.medalScore}</div></td>
-                                <td class="medalDelta"><div>${item?.medalKgDelta}</div></td>
+                                <td class="medalKgTop"><div>${item?.medalKgTop}</div></td>
+                                <td class="medalKgUp"><div>${item?.medalKgUp}</div></td>
                                 ${(item.medalRanks ?? []).map(
                               (rk, index) => html`
                                     <td class="totalRank">
@@ -421,9 +424,9 @@ class ResultsFull extends LitElement {
       showTotalRanks: { type: Boolean },
       showBest: { type: Boolean },
       showMedalScore: {type: Boolean},
-      showMedalKgDelta: {type: Boolean},
+      showMedalKgTop: {type: Boolean},
+      showMedalKgUp: {type: Boolean},
       medalScoringName: {},
-      medalDeltaTitle: {},
       scoringName: {},
       showSinclair: { type: Boolean },
       showSinclairRank: { type: Boolean },
@@ -650,7 +653,8 @@ class ResultsFull extends LitElement {
       + " totalRank"
       + (this.showBodyWeight ? " bodyWeight" : " nobodyWeight")
       + (this.showMedalScore ? " medalScore" : " nomedalScore")
-      + (this.showMedalKgDelta ? " medalDelta" : " nomedalDelta")
+      + (this.showMedalKgTop ? " medalKgTop" : " nomedalKgTop")
+      + (this.showMedalKgUp ? " medalKgUp" : " nomedalKgUp")
     + (this.showSinclair ? " sinclair" : " nosinclair")
       + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")
       ;

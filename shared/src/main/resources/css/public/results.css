@@ -145,8 +145,10 @@ table.results {
     --sinclairVspacerVisibility: hidden;
     --medalScoreWidth: 0;
     --medalScoreVisibility: hidden;
-    --medalDeltaWidth: 0;
-    --medalDeltaVisibility: hidden;
+    --medalKgTopWidth: 0;
+    --medalKgTopVisibility: hidden;
+    --medalKgUpWidth: 0;
+    --medalKgUpVisibility: hidden;
     --sinclairWidth: 0;
     --sinclairVisibility: hidden;
     --sinclairRankWidth: 0;
@@ -531,7 +533,8 @@ table {
         var(--spacerWidth)
         var(--totalWidth)
         var(--medalScoreWidth)
-        var(--medalDeltaWidth)
+        var(--medalKgTopWidth)
+        var(--medalKgUpWidth)
         /* one total rank per category */
         repeat(var(--nbRanks), var(--totalRankWidth))
         /* sinclair result */
@@ -1249,21 +1252,33 @@ table.results.nomedalScore th.medalScore {
     overflow: hidden;
 }
 
-table.results.medalDelta {
-    --medalDeltaWidth: min-content;
-    --medalDeltaVisibility: visible;
+table.results.medalKgTop {
+    --medalKgTopWidth: min-content;
+    --medalKgTopVisibility: visible;
 }
-:host table.results tr td.medalDelta {
+table.results.medalKgUp {
+    --medalKgUpWidth: min-content;
+    --medalKgUpVisibility: visible;
+}
+:host table.results tr td.medalKgTop,
+:host table.results tr td.medalKgUp {
     background-color: var(--BackgroundColor);
     color: var(--TextColor);
 }
-:host table.results tr td.medalDelta,
-:host table.results tr th.medalDelta {
-    visibility: var(--medalDeltaVisibility);
-    min-width: var(--medalDeltaWidth);
+:host table.results tr td.medalKgTop,
+:host table.results tr th.medalKgTop {
+    visibility: var(--medalKgTopVisibility);
+    min-width: var(--medalKgTopWidth);
 }
-table.results.nomedalDelta td.medalDelta,
-table.results.nomedalDelta th.medalDelta {
+:host table.results tr td.medalKgUp,
+:host table.results tr th.medalKgUp {
+    visibility: var(--medalKgUpVisibility);
+    min-width: var(--medalKgUpWidth);
+}
+table.results.nomedalKgTop td.medalKgTop,
+table.results.nomedalKgTop th.medalKgTop,
+table.results.nomedalKgUp td.medalKgUp,
+table.results.nomedalKgUp th.medalKgUp {
     padding: 0;
     overflow: hidden;
 }

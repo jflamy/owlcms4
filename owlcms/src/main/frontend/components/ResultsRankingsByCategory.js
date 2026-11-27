@@ -97,7 +97,8 @@ class ResultsRankingsByCategory extends LitElement {
                         <th class="vspacer"></th>
                         <th class="total" .innerHTML="${this.t?.Total}"></th>
                         <th class="medalScore" .innerHTML="${this.medalScoringName ?? this.t?.ScoringTitle}"></th>
-                        <th class="medalDelta" .innerHTML="${this.medalDeltaTitle ?? this.t?.DeltaTop}"></th>
+                        <th class="medalKgTop" .innerHTML="${this.t?.DeltaTop}"></th>
+                        <th class="medalKgUp" .innerHTML="${this.t?.DeltaUp}"></th>
                         <th class="totalRank" .innerHTML="${mc.rankingTitle}"></th>
                         <th class="sinclair" .innerHTML="${mc.scoreScoringTitle}"></th>
                         <th class="sinclairRank" .innerHTML="${mc.scoreRankingTitle}"></th>
@@ -164,7 +165,8 @@ class ResultsRankingsByCategory extends LitElement {
                               <div>${item?.total}</div>
                             </td>
                             <td class="medalScore"><div>${item?.medalScore}</div></td>
-                            <td class="medalDelta"><div>${item?.medalKgDelta}</div></td>
+                            <td class="medalKgTop"><div>${item?.medalKgTop}</div></td>
+                            <td class="medalKgUp"><div>${item?.medalKgUp}</div></td>
                             <td class="${"totalRank " + ((this.showMedals === "true" || (this.showMedals === "auto" && mc.categoryDone)) ? (item?.medalHighlight ?? "") : "")}">
                               <div .innerHTML="${item?.medalRank}"></div>
                             </td>
@@ -223,9 +225,9 @@ class ResultsRankingsByCategory extends LitElement {
       showBest: {type: Boolean},
       showTotalRank: {type: Boolean},
       showMedalScore: {type: Boolean},
-      showMedalKgDelta: {type: Boolean},
+      showMedalKgTop: {type: Boolean},
+      showMedalKgUp: {type: Boolean},
       medalScoringName: {},
-      medalDeltaTitle: {},
       scoringName: {},
       showSinclair: {type: Boolean},
       showBodyWeight: {type: Boolean},
@@ -295,7 +297,8 @@ class ResultsRankingsByCategory extends LitElement {
       + " totalRank"
       + (this.showBodyWeight ? " bodyWeight" : " nobodyWeight")
       + (this.showMedalScore ? " medalScore" : " nomedalScore")
-      + (this.showMedalKgDelta ? " medalDelta" : " nomedalDelta")
+      + (this.showMedalKgTop ? " medalKgTop" : " nomedalKgTop")
+      + (this.showMedalKgUp ? " medalKgUp" : " nomedalKgUp")
     + (this.showSinclair ? " sinclair" : " nosinclair")
       + (showSinclairRank ? " sinclairRank" : " nosinclairRank")
       ;

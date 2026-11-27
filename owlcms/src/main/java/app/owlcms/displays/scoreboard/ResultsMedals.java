@@ -38,7 +38,6 @@ import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.MedalCategoryComparator;
 import app.owlcms.data.athleteSort.Ranking;
-import app.owlcms.data.athleteSort.ScoreboardRankData;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -227,8 +226,8 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 	public void setScoreRanks(boolean scoreNeeded) {
 		getElement().setProperty("showMedalScore", scoreNeeded);
-		getElement().setProperty("showMedalKgDelta",
-		        scoreNeeded && kgDeltaMode() != ScoreboardRankData.DeltaMode.NONE);
+		getElement().setProperty("showMedalKgTop", scoreNeeded && isShowKgLeader());
+		getElement().setProperty("showMedalKgUp", scoreNeeded && isShowKgDelta());
 		Config config = Config.getCurrent();
 		getElement().setProperty("showSinclair", FeatureSwitch.DISPLAY_BEST_SCORE.isEffective(config));
 		getElement().setProperty("showSinclairRank", FeatureSwitch.DISPLAY_BEST_SCORE_RANK.isEffective(config)
@@ -426,10 +425,6 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	}
 
 	protected void getAthleteJson(Athlete a, ObjectNode ja, Category curCat, int liftOrderRank) {
-		getAthleteJson(a, ja, curCat, liftOrderRank, leaderScoreFor(a));
-	}
-
-	protected void getAthleteJson(Athlete a, ObjectNode ja, Category curCat, int liftOrderRank, Double leaderScore) {
 		if (a.getGroup() == null) {
 			return;
 		}
@@ -466,7 +461,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		ja.put("group", a.getGroup().getName());
 		ja.put("subCategory", a.getSubCategory());
 
-		putRankData(a, ja, true, leaderScore);
+		putRankData(a, ja, true);
 
 		ja.put("bodyWeight", getBodyWeightValue(a));
 		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
@@ -500,7 +495,6 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		// Category prevCat = null;
 		List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
 		        : Collections.emptyList();
-		Double leaderScore = ScoreboardRankData.leaderScore(athletes);
 
 		athletes.stream()
 		        .filter(a -> isMedalist(a))
@@ -508,7 +502,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 					ObjectNode ja = JsonUtils.object();
 			        Category curCat = a.getCategory();
 			        // no blinking = 0
-			        getAthleteJson(a, ja, curCat, 0, leaderScore);
+			        getAthleteJson(a, ja, curCat, 0);
 			        String team = a.getTeam();
 			        if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
 				        this.logger.trace("long team {}", team);

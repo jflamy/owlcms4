@@ -335,6 +335,7 @@ public class ScoreboardRankDataTest {
 			participation.setCleanJerkRank(4);
 			participation.setCategoryScoreRank(2);
 			participation.setCategoryScoreKgDelta(11);
+			participation.setCategoryScoreKgTop(14);
 			participation.setBestAthleteRank(11);
 			participation.setTeamMember(true);
 			Map<String, String> fields = ScoreboardRankData.fields(athlete, Locale.ENGLISH, true);
@@ -347,7 +348,8 @@ public class ScoreboardRankDataTest {
 			assertEquals("medal2", fields.get("medalHighlight"));
 			String formattedScore = String.format(Locale.ENGLISH, "%.3f", participation.getCategoryScore());
 			assertEquals(formattedScore, fields.get("medalScore"));
-			assertEquals("", fields.get("medalKgDelta"));
+			assertEquals("+14", fields.get("medalKgTop"));
+			assertEquals("+11", fields.get("medalKgUp"));
 			Map<String, String> deltaFields = ScoreboardRankData.fields(athlete, Locale.ENGLISH, true, true);
 			assertEquals(formattedScore, deltaFields.get("medalScore"));
 			assertEquals("+11", deltaFields.get("medalKgDelta"));
@@ -363,6 +365,7 @@ public class ScoreboardRankDataTest {
 			assertEquals(4, exported.get("totalRank").asInt());
 			assertEquals(2, exported.get("categoryScoreRank").asInt());
 			assertEquals(11, exported.get("categoryScoreKgDelta").asInt());
+			assertEquals(14, exported.get("categoryScoreKgTop").asInt());
 			assertEquals(11, exported.get("bestAthleteRank").asInt());
 			assertEquals(participation.getCategoryScore(), Double.valueOf(exported.get("categoryScore").asDouble()));
 
@@ -383,7 +386,8 @@ public class ScoreboardRankDataTest {
 			fields = ScoreboardRankData.fields(athlete, Locale.ENGLISH, true, true);
 			assertEquals(fields.get("totalRank"), fields.get("medalRank"));
 			assertEquals("", fields.get("medalScore"));
-			assertEquals("", fields.get("medalKgDelta"));
+			assertEquals("", fields.get("medalKgTop"));
+			assertEquals("", fields.get("medalKgUp"));
 			assertEquals("", fields.get("medalHighlight"));
 			assertEquals("11", fields.get("sinclairRank"));
 
@@ -401,7 +405,7 @@ public class ScoreboardRankDataTest {
 
 	@Test
 	public void showKgDeltaFeatureSwitchIsEnabledByDefaultInScoreboardOptions() {
-		assertFalse(FeatureSwitch.SHOW_KG_DELTA.isEnabledByDefault());
+		assertTrue(FeatureSwitch.SHOW_KG_DELTA.isEnabledByDefault());
 		assertEquals(FeatureSwitchSection.SCOREBOARD_OPTIONS, FeatureSwitch.SHOW_KG_DELTA.getSection());
 		assertEquals("showKgDelta", FeatureSwitch.SHOW_KG_DELTA.getId());
 
@@ -459,8 +463,10 @@ public class ScoreboardRankDataTest {
 
 			assertEquals(1, savedBoray.getMainRankings().getCategoryScoreRank());
 			assertEquals(0, savedBoray.getMainRankings().getCategoryScoreKgDelta());
+			assertEquals(0, savedBoray.getMainRankings().getCategoryScoreKgTop());
 			assertEquals(2, savedBarak.getMainRankings().getCategoryScoreRank());
 			assertEquals(11, savedBarak.getMainRankings().getCategoryScoreKgDelta());
+			assertTrue(savedBarak.getMainRankings().getCategoryScoreKgTop() > 11);
 			assertEquals(3, savedBuzinhani.getMainRankings().getCategoryScoreRank());
 			int buzinhaniPrevDelta = savedBuzinhani.getMainRankings().getCategoryScoreKgDelta();
 			int buzinhaniLeaderDelta = ScoreTarget.kgDifference(savedBuzinhani,
@@ -486,6 +492,9 @@ public class ScoreboardRankDataTest {
 			assertFalse(barakFields.get("medalScore").contains("(+"));
 			assertEquals("+" + buzinhaniPrevDelta, buzinhaniPrevFields.get("medalKgDelta"));
 			assertEquals("+" + buzinhaniLeaderDelta, buzinhaniLeaderFields.get("medalKgDelta"));
+			assertEquals("+" + savedBuzinhani.getMainRankings().getCategoryScoreKgTop(),
+			        buzinhaniLeaderFields.get("medalKgTop"));
+			assertEquals("+" + buzinhaniPrevDelta, buzinhaniPrevFields.get("medalKgUp"));
 			assertEquals("", ScoreboardRankData.fields(savedBarak, Locale.ENGLISH, true, false)
 			        .get("medalKgDelta"));
 

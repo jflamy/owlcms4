@@ -598,15 +598,6 @@ public class BaseResults extends LitTemplate
 		}
 	}
 
-	protected ScoreboardRankData.DeltaMode kgDeltaMode() {
-		return ScoreboardRankData.deltaMode(isShowKgDelta(), isShowKgLeader());
-	}
-
-	protected Double leaderScoreFor(Athlete athlete) {
-		FieldOfPlay fop = getFop();
-		return ScoreboardRankData.leaderScore(athlete, fop != null ? fop.getMedals() : null, this.displayOrder);
-	}
-
 	protected void refreshShowKgDelta() {
 		syncWithFOP();
 	}
@@ -853,12 +844,11 @@ public class BaseResults extends LitTemplate
 	}
 
 	protected void putRankData(Athlete athlete, ObjectNode json, boolean highlightMedals) {
-		putRankData(athlete, json, highlightMedals, leaderScoreFor(athlete));
+		ScoreboardRankData.fields(athlete, this.capturedLocale, highlightMedals).forEach(json::put);
 	}
 
 	protected void putRankData(Athlete athlete, ObjectNode json, boolean highlightMedals, Double leaderScore) {
-		ScoreboardRankData.fields(athlete, this.capturedLocale, highlightMedals, kgDeltaMode(), leaderScore)
-		        .forEach(json::put);
+		ScoreboardRankData.fields(athlete, this.capturedLocale, highlightMedals).forEach(json::put);
 	}
 
 
@@ -1488,16 +1478,14 @@ public class BaseResults extends LitTemplate
 		        FeatureSwitch.DISPLAY_BEST_SCORE_RANK.isEffective(config),
 		        FeatureSwitch.NO_BEST_SCORE_RANK.isEffective(config)
 		                || FeatureSwitch.NO_SINCLAIR_RANK.isEffective(config));
-		ScoreboardRankData.DeltaMode deltaMode = kgDeltaMode();
-		boolean showMedalKgDelta = columns.medalScore() && deltaMode != ScoreboardRankData.DeltaMode.NONE;
 		getElement().setProperty("showMedalScore", columns.medalScore());
-		getElement().setProperty("showMedalKgDelta", showMedalKgDelta);
+		getElement().setProperty("showMedalKgTop", columns.medalScore() && isShowKgLeader());
+		getElement().setProperty("showMedalKgUp", columns.medalScore() && isShowKgDelta());
 		getElement().setProperty("showSinclair", columns.bestScore());
 		getElement().setProperty("showSinclairRank", columns.bestRank());
 		getElement().setProperty("showLiftRanks", columns.liftRanks());
 		getElement().setProperty("showTotalRank", true);
 		getElement().setProperty("medalScoringName", ScoreboardRankData.title(columns.medalSystems(), this.capturedLocale));
-		getElement().setProperty("medalDeltaTitle", ScoreboardRankData.deltaTitle(deltaMode, this.capturedLocale));
 		getElement().setProperty("scoringName", ScoreboardRankData.title(columns.bestSystems(), this.capturedLocale));
 
 	}

@@ -47,15 +47,21 @@ export async function checkCase(options) {
     assert(scoreCells.length === 1, 'Expected one shared medal score cell per athlete');
     assert(visible(scoreCells[0]) === fixture.properties.showMedalScore, 'Incorrect medal-score column visibility');
     assert(scoreCells[0].textContent.trim() === athlete.medalScore, 'Incorrect medal score or nonblank Total-medal score');
-    const deltaCells = row.querySelectorAll('td.medalDelta');
-    assert(deltaCells.length === 1, 'Expected one shared medal delta cell per athlete');
-    assert(visible(deltaCells[0]) === fixture.properties.showMedalKgDelta, 'Incorrect medal-delta column visibility');
-    assert(deltaCells[0].textContent.trim() === athlete.medalKgDelta, 'Incorrect medal kg delta');
-    if (fixture.properties.showMedalKgDelta) {
+    const topCells = row.querySelectorAll('td.medalKgTop');
+    const upCells = row.querySelectorAll('td.medalKgUp');
+    assert(topCells.length === 1, 'Expected one kg-to-lead cell per athlete');
+    assert(upCells.length === 1, 'Expected one kg-up cell per athlete');
+    assert(visible(topCells[0]) === fixture.properties.showMedalKgTop, 'Incorrect kg-to-lead column visibility');
+    assert(visible(upCells[0]) === fixture.properties.showMedalKgUp, 'Incorrect kg-up column visibility');
+    assert(topCells[0].textContent.trim() === athlete.medalKgTop, 'Incorrect kg-to-lead value');
+    assert(upCells[0].textContent.trim() === athlete.medalKgUp, 'Incorrect kg-up value');
+    if (fixture.properties.showMedalKgTop || fixture.properties.showMedalKgUp) {
       const scoreRect = scoreCells[0].getBoundingClientRect();
-      const deltaRect = deltaCells[0].getBoundingClientRect();
       const rankRect = row.querySelector('td.totalRank').getBoundingClientRect();
-      assert(deltaRect.x >= scoreRect.x && deltaRect.x <= rankRect.x, 'Medal delta column must sit between medal score and rank');
+      const topRect = topCells[0].getBoundingClientRect();
+      const upRect = upCells[0].getBoundingClientRect();
+      assert(topRect.x >= scoreRect.x && topRect.x <= rankRect.x, 'kg-to-lead column must sit after medal score');
+      assert(upRect.x >= topRect.x && upRect.x <= rankRect.x, 'kg-up column must sit after kg-to-lead');
       assert(Math.abs(scoreRect.y - deltaRect.y) <= 2, 'Medal delta cell wrapped into a different grid row');
     }
     assert(visible(row.querySelector('td.sinclair')) === fixture.properties.showSinclair, 'Incorrect best-athlete score visibility');
@@ -86,11 +92,10 @@ export async function checkCase(options) {
     const header = root.querySelector('th.medalScore');
     assert(header.textContent.trim() === fixture.properties.medalScoringName, 'Incorrect single-system or mixed-system score heading');
   }
-  const deltaHeader = root.querySelector('th.medalDelta');
-  assert(visible(deltaHeader) === fixture.properties.showMedalKgDelta, 'Incorrect medal-delta header visibility');
-  if (fixture.properties.showMedalKgDelta) {
-    assert(deltaHeader.textContent.trim() === fixture.properties.medalDeltaTitle, 'Incorrect medal-delta heading');
-  }
+  const topHeader = root.querySelector('th.medalKgTop');
+  const upHeader = root.querySelector('th.medalKgUp');
+  assert(visible(topHeader) === fixture.properties.showMedalKgTop, 'Incorrect kg-to-lead header visibility');
+  assert(visible(upHeader) === fixture.properties.showMedalKgUp, 'Incorrect kg-up header visibility');
   const spacers = [...root.querySelectorAll('td.vspacer, th.vspacer')];
   assert(spacers.length > 0, 'Vertical spacer cells are missing');
   for (const spacer of spacers) {

@@ -12,7 +12,7 @@
 **New in Release 69.1**
 
 - 69.1.0-beta01: Score-based scoreboards (Sinclair, Q-points, GAMX and other scores) can show the kg an athlete needs to move up in the score ranking.
-  - "Show kg to Lead" (on by default) shows the kg needed to take the lead; "Show kg Delta" shows the kg needed to go up by one rank. "Show kg to Lead" has precedence when both are set.
+  - "Show kg to Lead" shows the kg needed to take the lead; "Show kg Delta" shows the kg needed to go up by one rank. Both are on by default and can be enabled independently.
   - Available on the scoreboards, medals, rankings and Top Score displays, through the display options, the `showKgLeader` and `showKgDelta` URL parameters, and the matching feature switches.
 
 <!-- 69.0 -->

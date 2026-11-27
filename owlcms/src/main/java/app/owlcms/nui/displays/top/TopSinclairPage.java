@@ -184,10 +184,6 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		showKgLeaderCheckbox.addValueChangeListener(event -> {
 			if (event.isFromClient()) {
 				boolean enabled = Boolean.TRUE.equals(event.getValue());
-				if (enabled && Boolean.TRUE.equals(showKgDeltaCheckbox.getValue())) {
-					showKgDeltaCheckbox.setValue(false);
-					switchShowKgDelta(false, true);
-				}
 				switchShowKgLeader(enabled, true);
 				restartDialogTimer();
 			}
@@ -195,10 +191,6 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		showKgDeltaCheckbox.addValueChangeListener(event -> {
 			if (event.isFromClient()) {
 				boolean enabled = Boolean.TRUE.equals(event.getValue());
-				if (enabled && Boolean.TRUE.equals(showKgLeaderCheckbox.getValue())) {
-					showKgLeaderCheckbox.setValue(false);
-					switchShowKgLeader(false, true);
-				}
 				switchShowKgDelta(enabled, true);
 				restartDialogTimer();
 			}

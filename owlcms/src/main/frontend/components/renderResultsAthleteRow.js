@@ -63,7 +63,8 @@ export function renderResultsAthleteRow(item, showMedalScore = false) {
         <div>${item?.total}</div>
       </td>
       <td class="medalScore"><div>${item?.medalScore}</div></td>
-      <td class="medalDelta"><div>${item?.medalKgDelta}</div></td>
+      <td class="medalKgTop"><div>${item?.medalKgTop}</div></td>
+      <td class="medalKgUp"><div>${item?.medalKgUp}</div></td>
       <td class="${"totalRank " + (item?.medalHighlight ?? "")}">
         <div .innerHTML="${item?.medalRank}"></div>
       </td>

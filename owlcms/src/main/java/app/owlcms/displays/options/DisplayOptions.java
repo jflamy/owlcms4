@@ -130,20 +130,12 @@ public class DisplayOptions {
 		showKgLeaderCheckbox.addValueChangeListener(e -> {
 			if (e.isFromClient() && e.getSource() == showKgLeaderCheckbox) {
 				boolean enabled = Boolean.TRUE.equals(e.getValue());
-				if (enabled && Boolean.TRUE.equals(showKgDeltaCheckbox.getValue())) {
-					showKgDeltaCheckbox.setValue(false);
-					dp.switchShowKgDelta(false, true);
-				}
 				dp.switchShowKgLeader(enabled, true);
 			}
 		});
 		showKgDeltaCheckbox.addValueChangeListener(e -> {
 			if (e.isFromClient() && e.getSource() == showKgDeltaCheckbox) {
 				boolean enabled = Boolean.TRUE.equals(e.getValue());
-				if (enabled && Boolean.TRUE.equals(showKgLeaderCheckbox.getValue())) {
-					showKgLeaderCheckbox.setValue(false);
-					dp.switchShowKgLeader(false, true);
-				}
 				dp.switchShowKgDelta(enabled, true);
 			}
 		});

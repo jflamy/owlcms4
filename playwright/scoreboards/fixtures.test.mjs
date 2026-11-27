@@ -126,21 +126,30 @@ test('body weight is its own column and never written into custom1', () => {
   assert.equal(buildFixture().properties.t.BodyWeight, 'B.W.');
 });
 
-test('medal kg delta has its own column with distinct top/up headings and stays hidden on Total boards', () => {
+test('medal kg top and up are independent columns and stay hidden on Total boards', () => {
   const top = buildFixture({scenario: 'masters', kgDelta: 'top'});
-  assert.equal(top.properties.showMedalKgDelta, true);
-  assert.equal(top.properties.medalDeltaTitle, '∆kg Top');
+  assert.equal(top.properties.showMedalKgTop, true);
+  assert.equal(top.properties.showMedalKgUp, false);
   assert.deepEqual(top.athleteRows.map(a => a.medalScore), ['257.830', '249.180']);
-  assert.deepEqual(top.athleteRows.map(a => a.medalKgDelta), ['', '+11']);
+  assert.deepEqual(top.athleteRows.map(a => a.medalKgTop), ['', '+11']);
+  assert.deepEqual(top.athleteRows.map(a => a.medalKgUp), ['', '']);
 
   const up = buildFixture({scenario: 'masters', kgDelta: 'up'});
-  assert.equal(up.properties.showMedalKgDelta, true);
-  assert.equal(up.properties.medalDeltaTitle, '∆kg Up');
-  assert.deepEqual(up.athleteRows.map(a => a.medalKgDelta), ['', '+6']);
+  assert.equal(up.properties.showMedalKgTop, false);
+  assert.equal(up.properties.showMedalKgUp, true);
+  assert.deepEqual(up.athleteRows.map(a => a.medalKgUp), ['', '+6']);
+
+  const both = buildFixture({scenario: 'masters', kgDelta: 'both'});
+  assert.equal(both.properties.showMedalKgTop, true);
+  assert.equal(both.properties.showMedalKgUp, true);
+  assert.deepEqual(both.athleteRows.map(a => a.medalKgTop), ['', '+11']);
+  assert.deepEqual(both.athleteRows.map(a => a.medalKgUp), ['', '+6']);
 
   const total = buildFixture({scenario: 'total', kgDelta: 'top'});
-  assert.equal(total.properties.showMedalKgDelta, false);
-  assert.deepEqual(total.athleteRows.map(a => a.medalKgDelta), ['', '']);
+  assert.equal(total.properties.showMedalKgTop, false);
+  assert.equal(total.properties.showMedalKgUp, false);
+  assert.deepEqual(total.athleteRows.map(a => a.medalKgTop), ['', '']);
+  assert.deepEqual(total.athleteRows.map(a => a.medalKgUp), ['', '']);
 });
 
 test('unknown scenarios and layout options fail explicitly', () => {

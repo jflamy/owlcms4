@@ -98,7 +98,7 @@ class CurrentAthlete extends LitElement {
                             <div id="totalCellTd" style="${this.decisionHiddenStyles()}">${item.total}</div>
                           </td>
                           ${this.showMedalScore ? html`
-                            <td class="medalScore"><div>${this.medalScoringName}: ${item.medalScore}${item.medalKgDelta ? ` (${item.medalKgDelta})` : ""}</div></td>
+                            <td class="medalScore"><div>${this.medalScoringName}: ${item.medalScore}${item.medalKgTop ? ` (${item.medalKgTop})` : ""}${item.medalKgUp ? ` / ${item.medalKgUp}` : ""}</div></td>
                           ` : html``}
                           <td class="totalRank">
                             <div id="totalRankTd" style="${this.decisionHiddenStyles()}">${this.t?.Rank} <b>${item.medalRank}</b> </div>

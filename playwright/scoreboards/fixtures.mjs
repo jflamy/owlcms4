@@ -44,11 +44,12 @@ export const THEME_LABELS = Object.freeze({
 export const MEDAL_HIGHLIGHT_BOARDS = Object.freeze(
   Object.keys(BOARD_RENDERERS).filter(board => BOARD_RENDERERS[board].highlight));
 export const APPEARANCES = Object.freeze(['dark', 'light']);
-export const KG_DELTAS = Object.freeze(['none', 'top', 'up']);
+export const KG_DELTAS = Object.freeze(['none', 'top', 'up', 'both']);
 export const KG_DELTA_LABELS = Object.freeze({
   none: 'Off',
   top: '∆kg Top (to lead)',
-  up: '∆kg Up (+1 rank)'
+  up: '∆kg Up (+1 rank)',
+  both: 'Both'
 });
 
 export function buildFixture({
@@ -104,7 +105,10 @@ export function buildFixture({
       totalRank: separateCategories ? '1' : weightMedals ? medalRank : String(2 - index),
       medalRank,
       medalScore: weightMedals ? '' : index === 0 ? '257.830' : '249.180',
-      medalKgDelta: weightMedals || kgDelta === 'none' || Number(medalRank) <= 1 ? '' : kgDelta === 'top' ? '+11' : '+6',
+      medalKgTop: weightMedals || kgDelta === 'none' || Number(medalRank) <= 1
+        ? '' : (kgDelta === 'top' || kgDelta === 'both') ? '+11' : '',
+      medalKgUp: weightMedals || kgDelta === 'none' || Number(medalRank) <= 1
+        ? '' : (kgDelta === 'up' || kgDelta === 'both') ? '+6' : '',
       medalHighlight: renderer.highlight ? `medal${medalRank}` : '',
       snatchRank,
       cleanJerkRank,
@@ -149,7 +153,8 @@ export function buildFixture({
       showTotalRank: true,
       showLiftRanks: LIFT_RANK_SCENARIOS.includes(scenario),
       showMedalScore: scenario !== 'total',
-      showMedalKgDelta: scenario !== 'total' && kgDelta !== 'none',
+      showMedalKgTop: scenario !== 'total' && (kgDelta === 'top' || kgDelta === 'both'),
+      showMedalKgUp: scenario !== 'total' && (kgDelta === 'up' || kgDelta === 'both'),
       showSinclair: bestScore,
       showSinclairRank: bestRank,
       showBodyWeight: bodyWeight,
@@ -165,7 +170,6 @@ export function buildFixture({
       ageGroups: multi ? categories : [categories[0]],
       competitionName: `Rendering fixture: ${SCENARIOS[scenario]}`,
       medalScoringName,
-      medalDeltaTitle: kgDelta === 'top' ? '∆kg Top' : kgDelta === 'up' ? '∆kg Up' : '',
       scoringName: scenario === 'total' ? 'GAMX' : scenario === 'masters' ? 'GAMX-M' : 'Score',
       sizeOverride: '--tableFontSize:1.25rem;',
       t: {
