@@ -118,6 +118,10 @@ final class V2Mixins {
 		abstract int getCategoryScoreKgDelta();
 
 		@JsonIgnore(false)
+		@JsonProperty
+		abstract int getCategoryScoreKgTop();
+
+		@JsonIgnore(false)
 		@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 		abstract Double getCategoryScore();
 

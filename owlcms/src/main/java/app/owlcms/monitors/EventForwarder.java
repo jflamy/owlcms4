@@ -921,7 +921,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		        .anyMatch(c -> c != null && !c.isScoreMedalChampionship());
 		// Total/lift ranks are withdrawn only when every shown registration category medals by score.
 		boolean scoreOnly = hasScoreMedals && !hasTotalMedals;
-		setShowLiftRanks(true);
 		setShowTotalRank(!scoreOnly);
 
 		Config displayConfig = Config.getCurrent();
@@ -930,6 +929,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		        FeatureSwitch.DISPLAY_BEST_SCORE_RANK.isEffective(displayConfig),
 		        FeatureSwitch.NO_BEST_SCORE_RANK.isEffective(displayConfig)
 		                || FeatureSwitch.NO_SINCLAIR_RANK.isEffective(displayConfig));
+		setShowLiftRanks(columns.liftRanks());
 		this.showMedalScore = columns.medalScore();
 		setShowSinclair(columns.bestScore());
 		setShowSinclairRank(columns.bestRank());
@@ -1319,6 +1319,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "showSinclair", Boolean.toString(isShowSinclair()));
 		mapPut(sb, "showSinclairRank", Boolean.toString(isShowSinclairRank()));
 		mapPut(sb, "showBodyWeight", Boolean.toString(FeatureSwitch.DISPLAY_BODY_WEIGHT.isEffective()));
+		Config switches = Config.getCurrent();
+		mapPut(sb, "showKgDelta",
+		        Boolean.toString(FeatureSwitch.SHOW_KG_DELTA.isEffective(switches)));
+		mapPut(sb, "showKgLeader",
+		        Boolean.toString(FeatureSwitch.SHOW_KG_LEADER.isEffective(switches)));
 
 		if (this.groupAthletes != null) {
 			mapPut(sb, "groupAthletes", this.groupAthletes.toString());

@@ -60,6 +60,8 @@ public class Participation implements IRankHolder {
 	@Column(columnDefinition = "integer default 0")
 	private int categoryScoreKgDelta;
 	@Column(columnDefinition = "integer default 0")
+	private int categoryScoreKgTop;
+	@Column(columnDefinition = "integer default 0")
 	private int bestAthleteRank;
 	@Column(columnDefinition = "integer default 0")
 	private int combinedRank;
@@ -111,6 +113,7 @@ public class Participation implements IRankHolder {
 		this.combinedRank = p.combinedRank;
 		this.setCategoryScoreRank(p.getCategoryScoreRank());
 		this.setCategoryScoreKgDelta(p.getCategoryScoreKgDelta());
+		this.setCategoryScoreKgTop(p.getCategoryScoreKgTop());
 		this.bestAthleteRank = p.bestAthleteRank;
 		this.setTeamMember(p.isTeamMember());
 		this.setMixedTeamMember(p.isMixedTeamMember());
@@ -168,6 +171,11 @@ public class Participation implements IRankHolder {
 	@JsonIgnore
 	public int getCategoryScoreKgDelta() {
 		return this.categoryScoreKgDelta;
+	}
+
+	@JsonIgnore
+	public int getCategoryScoreKgTop() {
+		return this.categoryScoreKgTop;
 	}
 
 	@JsonIgnore
@@ -337,6 +345,10 @@ public class Participation implements IRankHolder {
 
 	public void setCategoryScoreKgDelta(int categoryScoreKgDelta) {
 		this.categoryScoreKgDelta = categoryScoreKgDelta;
+	}
+
+	public void setCategoryScoreKgTop(int categoryScoreKgTop) {
+		this.categoryScoreKgTop = categoryScoreKgTop;
 	}
 
 	public void setCleanJerkRank(int cleanJerkRank) {

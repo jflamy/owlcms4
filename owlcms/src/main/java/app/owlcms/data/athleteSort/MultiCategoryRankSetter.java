@@ -131,18 +131,29 @@ public class MultiCategoryRankSetter {
 							   this.categoryScoreRank = this.categoryScoreRank + 1;
 							   p.setCategoryScoreRank(this.categoryScoreRank);
 							   curRankings.setCategoryScoreRank(this.categoryScoreRank);
-							   if (this.categoryScoreRank > 1 && categoryScoring != Ranking.TOTAL
-							           && curRankings.getLastCategoryScore() > 0.0D) {
-								   p.setCategoryScoreKgDelta(ScoreTarget.kgDifference(
-								           a, curRankings.getLastCategoryScore(), categoryScoring));
+							   if (categoryScoring == Ranking.TOTAL) {
+								   p.setCategoryScoreKgDelta(0);
+								   p.setCategoryScoreKgTop(0);
+							   } else if (this.categoryScoreRank == 1) {
+								   p.setCategoryScoreKgDelta(0);
+								   p.setCategoryScoreKgTop(0);
+								   curRankings.setLeaderCategoryScore(rankingValue);
+							   } else if (curRankings.getLeaderCategoryScore() > 0.0D) {
+								   p.setCategoryScoreKgDelta(curRankings.getLastCategoryScore() > 0.0D
+								           ? ScoreTarget.kgDifference(a, curRankings.getLastCategoryScore(), categoryScoring)
+								           : 0);
+								   p.setCategoryScoreKgTop(ScoreTarget.kgDifference(
+								           a, curRankings.getLeaderCategoryScore(), categoryScoring));
 							   } else {
 								   p.setCategoryScoreKgDelta(0);
+								   p.setCategoryScoreKgTop(0);
 							   }
 							   curRankings.setLastCategoryScore(rankingValue);
 							   //logger.debug("[CATEGORY_SCORE] Assigned rank {} to athlete {} in category {} | Participation ID: {}", this.categoryScoreRank, a.getAbbreviatedName(), curCat.getCode(), System.identityHashCode(p));
 						   } else {
 							   p.setCategoryScoreRank(eligible ? 0 : -1);
 							   p.setCategoryScoreKgDelta(0);
+							   p.setCategoryScoreKgTop(0);
 							   //logger.debug("[CATEGORY_SCORE] Set rank {} for athlete {} in category {} (reason: {}{} ) | Participation ID: {}", (eligible ? 0 : -1), a.getAbbreviatedName(), curCat.getCode(), (!eligible ? "not eligible" : "zero value"), "", System.identityHashCode(p));
 						   }
 					   }

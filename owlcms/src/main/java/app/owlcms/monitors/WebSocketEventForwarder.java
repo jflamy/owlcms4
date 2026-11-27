@@ -971,7 +971,6 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		        .anyMatch(c -> c != null && !c.isScoreMedalChampionship());
 		// Total/lift ranks are withdrawn only when every shown registration category medals by score.
 		boolean scoreOnly = hasScoreMedals && !hasTotalMedals;
-		setShowLiftRanks(true);
 		setShowTotalRank(!scoreOnly);
 
 		Config displayConfig = Config.getCurrent();
@@ -980,6 +979,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		        FeatureSwitch.DISPLAY_BEST_SCORE_RANK.isEffective(displayConfig),
 		        FeatureSwitch.NO_BEST_SCORE_RANK.isEffective(displayConfig)
 		                || FeatureSwitch.NO_SINCLAIR_RANK.isEffective(displayConfig));
+		setShowLiftRanks(columns.liftRanks());
 		this.showMedalScore = columns.medalScore();
 		setShowSinclair(columns.bestScore());
 		setShowSinclairRank(columns.bestRank());

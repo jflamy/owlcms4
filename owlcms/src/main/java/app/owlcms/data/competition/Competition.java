@@ -718,11 +718,13 @@ public class Competition {
 				Participation participation = categoryAthlete.getMainRankings();
 				if (participation != null) {
 					participation.setCategoryScoreKgDelta(0);
+					participation.setCategoryScoreKgTop(0);
 				}
 				if (categoryAthlete instanceof PAthlete pAthlete) {
 					Participation original = pAthlete._getOriginalParticipation();
 					if (original != null) {
 						original.setCategoryScoreKgDelta(0);
+						original.setCategoryScoreKgTop(0);
 					}
 				}
 			}
@@ -831,6 +833,7 @@ public class Competition {
 			participation.setTotalRank(rank);
 			participation.setCategoryScoreRank(rank);
 			participation.setCategoryScoreKgDelta(0);
+			participation.setCategoryScoreKgTop(0);
 			participation.setCustomRank(rank);
 			return;
 		}
@@ -839,6 +842,7 @@ public class Competition {
 		participation.setTotalRank(-1);
 		participation.setCategoryScoreRank(-1);
 		participation.setCategoryScoreKgDelta(0);
+		participation.setCategoryScoreKgTop(0);
 		participation.setCustomRank(-1);
 	}
 

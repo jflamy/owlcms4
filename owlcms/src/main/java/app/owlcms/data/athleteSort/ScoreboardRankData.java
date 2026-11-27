@@ -13,7 +13,6 @@ import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
-import app.owlcms.data.scoring.ScoreTarget;
 import app.owlcms.i18n.Translator;
 
 /** Shared medal and best-athlete values for displays and exported displayInfo. */
@@ -126,17 +125,6 @@ public final class ScoreboardRankData {
 	}
 
 	public static Map<String, String> fields(Athlete athlete, Locale locale, boolean highlightMedals) {
-		return fields(athlete, locale, highlightMedals, DeltaMode.NONE, null);
-	}
-
-	public static Map<String, String> fields(Athlete athlete, Locale locale, boolean highlightMedals,
-	        boolean showKgDelta) {
-		return fields(athlete, locale, highlightMedals,
-		        showKgDelta ? DeltaMode.PREVIOUS_RANK : DeltaMode.NONE, null);
-	}
-
-	public static Map<String, String> fields(Athlete athlete, Locale locale, boolean highlightMedals,
-	        DeltaMode deltaMode, Double leaderScore) {
 		athlete.getCategory();
 		Participation participation = Objects.requireNonNull(athlete.getMainRankings(),
 		        "Scoreboard ranks require a participation");
@@ -155,29 +143,35 @@ public final class ScoreboardRankData {
 		Double rawMedalScore = participation.getCategoryScore();
 		double medalScoreValue = rawMedalScore != null ? rawMedalScore : 0.0D;
 		String medalScore = weightMedals ? "" : score(medalScoreValue, locale);
-		String medalKgDelta = "";
-		if (deltaMode != null && deltaMode != DeltaMode.NONE && !weightMedals && medalRank > 1
-		        && medalScoreValue > 0.001) {
-			int kgDelta = 0;
-			if (deltaMode == DeltaMode.LEADER) {
-				if (leaderScore != null && leaderScore > 0.001) {
-					kgDelta = ScoreTarget.kgDifference(athlete, leaderScore, medalSystem);
-				}
-			} else {
-				kgDelta = participation.getCategoryScoreKgDelta();
-			}
-			if (kgDelta > 0) {
-				medalKgDelta = "+" + kgDelta;
-			}
-		}
+		boolean showDeltas = !weightMedals && medalRank > 1 && medalScoreValue > 0.001;
+		String medalKgTop = showDeltas ? kgDelta(participation.getCategoryScoreKgTop()) : "";
+		String medalKgUp = showDeltas ? kgDelta(participation.getCategoryScoreKgDelta()) : "";
 		fields.put("medalScore", medalScore);
-		fields.put("medalKgDelta", medalKgDelta);
+		fields.put("medalKgTop", medalKgTop);
+		fields.put("medalKgUp", medalKgUp);
+		fields.put("medalKgDelta", medalKgTop);
 		fields.put("medalHighlight", highlightMedals && athlete.getMedalPolicy().includesTotal()
 		        && AthleteSorter.isMedalist(athlete, Ranking.CATEGORY_SCORE) ? "medal" + medalRank : "");
 		Ranking bestSystem = participation.getCategory().getAgeGroup().getChampionship()
 		        .getEffectiveBestAthleteScoringSystem();
 		fields.put("sinclair", score(Ranking.getRankingValue(athlete, bestSystem), locale));
 		fields.put("sinclairRank", rank(athlete.getBestLifterRank(), locale));
+		return fields;
+	}
+
+	public static Map<String, String> fields(Athlete athlete, Locale locale, boolean highlightMedals,
+	        boolean showKgDelta) {
+		Map<String, String> fields = fields(athlete, locale, highlightMedals);
+		fields.put("medalKgDelta", showKgDelta ? fields.get("medalKgUp") : "");
+		return fields;
+	}
+
+	public static Map<String, String> fields(Athlete athlete, Locale locale, boolean highlightMedals,
+	        DeltaMode deltaMode, Double leaderScore) {
+		Map<String, String> fields = fields(athlete, locale, highlightMedals);
+		fields.put("medalKgDelta", deltaMode == DeltaMode.PREVIOUS_RANK
+		        ? fields.get("medalKgUp")
+		        : deltaMode == DeltaMode.LEADER ? fields.get("medalKgTop") : "");
 		return fields;
 	}
 
@@ -188,5 +182,9 @@ public final class ScoreboardRankData {
 
 	private static String score(double score, Locale locale) {
 		return score > 0.001 ? String.format(locale, "%.3f", score) : "-";
+	}
+
+	private static String kgDelta(int kgDelta) {
+		return kgDelta > 0 ? "+" + kgDelta : "";
 	}
 }

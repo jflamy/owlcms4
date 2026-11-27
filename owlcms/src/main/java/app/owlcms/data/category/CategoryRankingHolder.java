@@ -20,6 +20,7 @@ public class CategoryRankingHolder implements IRankHolder {
 	protected int totalRank = 0;
 	protected int categoryScoreRank = 0;
 	protected double lastCategoryScore = 0.0D;
+	protected double leaderCategoryScore = 0.0D;
 
 	public int getCategoryScoreRank() {
 		return this.categoryScoreRank;
@@ -27,6 +28,10 @@ public class CategoryRankingHolder implements IRankHolder {
 
 	public double getLastCategoryScore() {
 		return this.lastCategoryScore;
+	}
+
+	public double getLeaderCategoryScore() {
+		return this.leaderCategoryScore;
 	}
 
 	public int getCleanJerkRank() {
@@ -55,6 +60,10 @@ public class CategoryRankingHolder implements IRankHolder {
 
 	public void setLastCategoryScore(double lastCategoryScore) {
 		this.lastCategoryScore = lastCategoryScore;
+	}
+
+	public void setLeaderCategoryScore(double leaderCategoryScore) {
+		this.leaderCategoryScore = leaderCategoryScore;
 	}
 
 	public void setCleanJerkRank(int cleanJerkRank) {
