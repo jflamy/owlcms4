@@ -30,6 +30,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.QueryParameters;
 import app.owlcms.access.AccessUi;
 import app.owlcms.access.Access;
+import app.owlcms.access.Principal;
 import app.owlcms.access.RequiresAccess;
 import com.vaadin.flow.router.Route;
 
@@ -91,12 +92,25 @@ public class VideoNavigationContent extends BaseNavigationContent
 	 * Instantiates a new display navigation content.
 	 */
 	public VideoNavigationContent() {
+		initContent();
+	}
+
+	VideoNavigationContent(Principal principal) {
+		super(principal);
+		initContent();
+	}
+
+	private void initContent() {
 		VerticalLayout intro = new VerticalLayout();
 		intro.setSpacing(false);
 		addP(intro, Translator.translate("VideoStreaming.Intro"));
 		addP(intro, Translator.translate("Button_Open_Display"));
 		intro.getStyle().set("margin-bottom", "0");
 		fillH(intro, this);
+
+		fillH(DisplayStyleSelector.create(getPrincipal(),
+		        Translator.translate("Config.v55_videoStylesLabel"),
+		        Config::getVideoStylesDirBase, Config::setVideoStylesDirectory, "Video display styles"), this);
 
 		colorOverride();
 

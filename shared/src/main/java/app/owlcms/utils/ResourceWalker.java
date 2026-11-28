@@ -47,6 +47,7 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
 
 import org.slf4j.LoggerFactory;
@@ -410,6 +411,58 @@ public class ResourceWalker {
 
 	public static InputStream getResourceAsStream(String name) throws FileNotFoundException {
 		return getFileOrResource(name);
+	}
+
+	/**
+	 * Lists the available scoreboard style (theme) directory names under {@code css/},
+	 * combining built-in classpath themes and any local override directories that contain
+	 * at least one {@code .css} file.
+	 */
+	public static List<String> getAvailableStyleDirectories() {
+		TreeSet<String> names = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+		collectStyleDirectories(getResourcePath("/css"), names);
+		Path localDir = getLocalDirPath();
+		if (localDir != null) {
+			collectStyleDirectories(localDir.resolve("css"), names);
+		}
+		return new ArrayList<>(names);
+	}
+
+	private static void collectStyleDirectories(Path cssRoot, Set<String> names) {
+		if (cssRoot == null || !Files.isDirectory(cssRoot)) {
+			return;
+		}
+		try (Stream<Path> entries = Files.list(cssRoot)) {
+			entries.filter(Files::isDirectory).forEach(dir -> {
+				Path fileName = dir.getFileName();
+				if (fileName == null) {
+					return;
+				}
+				String name = fileName.toString();
+				if (name.endsWith("/")) {
+					name = name.substring(0, name.length() - 1);
+				}
+				if (!name.isEmpty() && !name.startsWith(".") && hasCssFile(dir)) {
+					names.add(name);
+				}
+			});
+		} catch (IOException e) {
+			logger.warn("Unable to list CSS style directories in {}: {}", cssRoot, e.getMessage());
+		}
+	}
+
+	private static boolean hasCssFile(Path dir) {
+		try (Stream<Path> entries = Files.list(dir)) {
+			return entries.anyMatch(path -> {
+				if (Files.isDirectory(path)) {
+					return false;
+				}
+				Path fileName = path.getFileName();
+				return fileName != null && fileName.toString().toLowerCase(Locale.ROOT).endsWith(".css");
+			});
+		} catch (IOException e) {
+			return false;
+		}
 	}
 
 	public static Path getResourcePath(String resourcePathString) {

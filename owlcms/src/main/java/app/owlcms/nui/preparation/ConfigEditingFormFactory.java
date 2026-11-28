@@ -160,7 +160,6 @@ public class ConfigEditingFormFactory
 		FormLayout localOverrideLayout = localOverrideForm();
 		FormLayout translationLayout = translationForm();
 		Component featuresLayout = featuresForm(config);
-		FormLayout stylesLayout = stylesForm();
 		FormLayout mqttLayout = mqttForm();
 
 		Component footer = this.buildFooter(operation, config, cancelButtonClickListener,
@@ -191,7 +190,6 @@ public class ConfigEditingFormFactory
 		tabSheet.add(Translator.translate("Config.FeaturesTab"), new VerticalLayout(new Div(), featuresLayout));
 		tabSheet.add(Translator.translate("Config.CustomizationTab"),
 		        new VerticalLayout(new Div(),
-		                stylesLayout, separator(),
 		                templateSelectionLayout, separator(),
 		                localOverrideLayout));
 		
@@ -637,36 +635,6 @@ public class ConfigEditingFormFactory
 		hr.getStyle().set("background-color", "var(--lumo-contrast-30pct)");
 		hr.getStyle().set("height", "2px");
 		return hr;
-	}
-
-	private FormLayout stylesForm() {
-		FormLayout layout = createLayout();
-		Component title = createTitle("Config.stylesTitle");
-		layout.add(title);
-		layout.setColspan(title, 2);
-
-		TextField stylesField = new TextField();
-		stylesField.setWidthFull();
-		layout.addFormItem(stylesField, Translator.translate("Config.stylesLabel"));
-		this.binder.forField(stylesField)
-		        .withNullRepresentation("")
-		        .bind(Config::getStylesDirBase, Config::setStylesDirectory);
-
-		TextField videoStylesField = new TextField();
-		videoStylesField.setWidthFull();
-		layout.addFormItem(videoStylesField, Translator.translate("Config.v55_videoStylesLabel"));
-		this.binder.forField(videoStylesField)
-		        .withNullRepresentation("")
-		        .bind(Config::getVideoStylesDirBase, Config::setVideoStylesDirectory);
-		
-		TextField publicStylesField = new TextField();
-		publicStylesField.setWidthFull();
-		layout.addFormItem(publicStylesField, Translator.translate("Config.publicStylesLabel"));
-		this.binder.forField(publicStylesField)
-		        .withNullRepresentation("")
-		        .bind(Config::getPublicStylesDirectory, Config::setPublicStylesDirectory);
-
-		return layout;
 	}
 
 	private FormLayout templateSelectionForm() {

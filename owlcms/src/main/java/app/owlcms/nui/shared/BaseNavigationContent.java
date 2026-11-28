@@ -29,6 +29,7 @@ import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.access.AccessUi;
 import app.owlcms.access.PageRule;
+import app.owlcms.access.Principal;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -68,6 +69,11 @@ public abstract class BaseNavigationContent extends BaseContent
 	 * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
 	public BaseNavigationContent() {
+		OwlcmsFactory.waitDBInitialized();
+	}
+
+	protected BaseNavigationContent(Principal principal) {
+		super(principal);
 		OwlcmsFactory.waitDBInitialized();
 	}
 

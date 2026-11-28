@@ -30,6 +30,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.displays.attemptboards.AthleteFacingAttemptBoardPage;
@@ -140,8 +141,11 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			        scoreboardMultiRanks);
 			VerticalLayout warmupScoreboardsIntro = new VerticalLayout();
 			addP(warmupScoreboardsIntro, Translator.translate("WarmupScoreboards.explanation"));
-			VerticalLayout warmupSection = doScoreboardSection(warmupSectionIntro, warmupAttemptIntro,
-			        warmupAttemptGrid,
+			VerticalLayout warmupStyleSelector = DisplayStyleSelector.create(getPrincipal(),
+			        Translator.translate("Config.stylesLabel"),
+			        Config::getStylesDirBase, Config::setStylesDirectory, "Warmup display styles");
+			VerticalLayout warmupSection = doScoreboardSection(warmupSectionIntro, warmupStyleSelector,
+			        warmupAttemptIntro, warmupAttemptGrid,
 			        warmupDevicesIntro, warmupDevicesGrid, warmupScoreboardsIntro, warmupScoreboardsGrid);
 			doGroup(Translator.translate("Scoreboard.StartList"), HomeNavigationContent.navigationGrid(startList), warmupSection);
 			doGroup(Translator.translate("Scoreboard.RankingOrder"), includeNotCompletedIntro(medals, medalLeaders),
@@ -187,8 +191,11 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			        scoreboardMultiRanks1);
 			VerticalLayout publicScoreboardsIntro = new VerticalLayout();
 			addP(publicScoreboardsIntro, Translator.translate("PublicScoreboards.explanation"));
-			VerticalLayout publicSection = doScoreboardSection(publicSectionIntro, publicAttemptIntro,
-			        publicAttemptGrid,
+			VerticalLayout publicStyleSelector = DisplayStyleSelector.create(getPrincipal(),
+			        Translator.translate("Config.publicStylesLabel"),
+			        Config::getPublicStylesDirBase, Config::setPublicStylesDirectory, "Public display styles");
+			VerticalLayout publicSection = doScoreboardSection(publicSectionIntro, publicStyleSelector,
+			        publicAttemptIntro, publicAttemptGrid,
 			        publicDevicesIntro, publicDevicesGrid, publicScoreboardsIntro, publicScoreboardsGrid);
 			doGroup(Translator.translate("Scoreboard.StartList"), HomeNavigationContent.navigationGrid(startList1), publicSection);
 			doGroup(Translator.translate("Scoreboard.RankingOrder"),
@@ -233,7 +240,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			doGroup(Translator.translate("Scoreboard.RankingOrder"), intro111, grid111, rankingsSection);
 			tabSheet.add(Translator.translate("Scoreboard.RankingOrder"), rankingsSection);
 
-			this.videoNavigationContent = new VideoNavigationContent();
+			this.videoNavigationContent = new VideoNavigationContent(getPrincipal());
 			this.videoNavigationContent.setFop(getFop());
 			tabSheet.add(Translator.translate("VideoStreaming"), this.videoNavigationContent);
 
@@ -301,13 +308,14 @@ public class DisplayNavigationContent extends BaseNavigationContent
 		return intro;
 	}
 
-	private VerticalLayout doScoreboardSection(VerticalLayout sectionIntro, VerticalLayout attemptIntro,
-	        FlexibleGridLayout attemptGrid, VerticalLayout devicesIntro, FlexibleGridLayout devicesGrid, VerticalLayout scoreboardsIntro,
-	        FlexibleGridLayout scoreboardsGrid) {
+	private VerticalLayout doScoreboardSection(VerticalLayout sectionIntro, VerticalLayout styleSelector,
+	        VerticalLayout attemptIntro, FlexibleGridLayout attemptGrid, VerticalLayout devicesIntro,
+	        FlexibleGridLayout devicesGrid, VerticalLayout scoreboardsIntro, FlexibleGridLayout scoreboardsGrid) {
 		VerticalLayout section = new VerticalLayout();
 		section.setSpacing(false);
 		section.setPadding(false);
 		addUntitledSectionIntro(sectionIntro, section);
+		fillH(styleSelector, section);
 
 		doGroup(Translator.translate("AttemptBoard"), attemptIntro, attemptGrid, section);
 		doGroup(Translator.translate("Athlete_Decisions"), devicesIntro, devicesGrid, section);

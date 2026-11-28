@@ -1356,6 +1356,15 @@ public class Config {
 	}
 
 	@JsonIgnore
+	public String getPublicStylesDirBase() {
+		String bd = getParamPublicStylesDir();
+		if (bd.startsWith("css/")) {
+			return bd.substring("css/".length());
+		}
+		return bd;
+	}
+
+	@JsonIgnore
 	public String getStylesDirBase() {
 		String bd = getParamStylesDir();
 		if (bd.startsWith("css/")) {
@@ -1677,12 +1686,11 @@ public class Config {
 
 	public void setStylesDirectory(String sd) {
 		// styles directory is stored with a leading "css/"
-		if (sd == null) {
+		if (sd == null || sd.isBlank()) {
 			this.stylesDirectory = "css/nogrid";
-		} else if (!sd.startsWith("css/")) {
-			this.stylesDirectory = "css/" + sd;
 		} else {
-			this.stylesDirectory = sd;
+			String trimmed = sd.trim();
+			this.stylesDirectory = trimmed.startsWith("css/") ? trimmed : "css/" + trimmed;
 		}
 		// this routine is called when reloading an export, during
 		// the process of recreating the config. Therefore we don't
@@ -1711,7 +1719,9 @@ public class Config {
 	}
 
 	public void setVideoStylesDirectory(String videoStylesDirectory) {
-		this.videoStylesDirectory = videoStylesDirectory;
+		this.videoStylesDirectory = videoStylesDirectory == null || videoStylesDirectory.isBlank()
+		        ? null
+		        : videoStylesDirectory.trim();
 	}
 
 	private boolean isPredefinedStyle(String param) {
@@ -1759,7 +1769,9 @@ public class Config {
 	}
 
 	public void setPublicStylesDirectory(String publicStylesDirectory) {
-		this.publicStylesDirectory = publicStylesDirectory;
+		this.publicStylesDirectory = publicStylesDirectory == null || publicStylesDirectory.isBlank()
+		        ? null
+		        : publicStylesDirectory.trim();
 	}
 
 	public String getAppVersion() {
