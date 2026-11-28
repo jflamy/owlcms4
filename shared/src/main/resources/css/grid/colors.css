@@ -1,5 +1,13 @@
 @import "../nogrid/colors.css";
 
+/* Classic high-contrast bordered dark theme (preserves pre-slate colors). */
+* {
+    --pageBackgroundColor: black;
+    --pageTextColor: white;
+    --athleteTimerColor: yellow;
+    --athleteAttemptWeightColor: aqua;
+}
+
 /* Bordered dark variant of the nogrid palette. */
 .dark {
     --TableBorders: var(--pageTextColor);
@@ -8,6 +16,9 @@
 
     --TitleTextColor: var(--TextColor);
     --TitleBackgroundColor: var(--BackgroundColor);
+
+    --CategoryGroupTextColor: var(--TextColor);
+    --CategoryGroupBackgroundColor: var(--BackgroundColor);
 
     --CurrentTextColor: yellow;
     --CurrentBackgroundColor: var(--BackgroundColor);
@@ -48,8 +59,14 @@
     --TotalRankTextColor: var(--TextColor);
     --TotalRankBackgroundColor: var(--BackgroundColor);
 
+    --BestTextColor: var(--TotalTextColor);
+    --BestBackgroundColor: var(--TotalBackgroundColor);
+
     --TotalTextColor: var(--GoodTextColor);
     --TotalBackgroundColor: blue;
+
+    --MedalScoreTextColor: var(--TextColor);
+    --MedalScoreBackgroundColor: var(--BackgroundColor);
 
     --SpacerBackgroundColor: var(--BackgroundColor);
     --EmptyTextColor: #4d4d4d;
@@ -59,6 +76,9 @@
     --RecordBoxBorderWidth: medium;
     --RecordBoxBackground: var(--pageBackgroundColor);
     --RecordBoxText: var(--pageTextColor);
+
+    --RecordCatBackground: var(--RecordBoxBackground);
+    --RecordCatText: var(--RecordBoxText);
 
     --RecordCellBorderWidth: thin;
     --RecordValueText: var(--pageTextColor);

@@ -265,8 +265,8 @@ table.results tr td.club div.clubName div.ellipsis {
 /* snatch and c&j best */
 :host table.results tr td.best,
 :host table.results tr th.best {
-    background-color: var(--TotalBackgroundColor);
-    color: var(--TotalTextColor);
+    background-color: var(--BestBackgroundColor, var(--TotalBackgroundColor));
+    color: var(--BestTextColor, var(--TotalTextColor));
     visibility: var(--bestVisibility);
 }
 
@@ -292,8 +292,6 @@ table.results tr td.club div.clubName div.ellipsis {
 /* year of birth */
 :host table.results tr td.yob,
 :host table.results tr th.yob {
-    background-color: var(--BackgroundColor);
-    color: var(--TextColor);
     visibility: var(--birthVisibility);
 }
 
@@ -643,6 +641,8 @@ td {
 
 .athleteInfo .weight {
     color: var(--athleteAttemptWeightColor);
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
     display: flex;
     justify-content: center;
     align-items: baseline;
@@ -1007,6 +1007,7 @@ div.ellipsis {
     outline-width: var(--RecordCellBorderWidth);
     outline-color: var(--RecordBoxBorder);
     outline-style: solid;
+    background-color: var(--RecordLiftTypeBackground);
 }
 
 :host .light span.recordLiftType {
@@ -1058,8 +1059,8 @@ div.ellipsis {
 :host .dark .recordCat {
     height: var(--recordValueCellHeight);
     line-height: var(--recordValueCellHeight);
-    background-color: var(--RecordBoxBackground);
-    color: var(--RecordBoxText);
+    background-color: var(--RecordCatBackground, var(--RecordBoxBackground));
+    color: var(--RecordCatText, var(--RecordBoxText));
 }
 
 :host .light .recordName {
@@ -1174,13 +1175,18 @@ table.results.medalScore {
     --medalScoreVisibility: visible;
 }
 :host table.results tr td.medalScore {
-    background-color: var(--BackgroundColor);
-    color: var(--TextColor);
+    background-color: var(--MedalScoreBackgroundColor, var(--BackgroundColor));
+    color: var(--MedalScoreTextColor, var(--TextColor));
+    font-variant-numeric: tabular-nums;
 }
 :host table.results tr td.medalScore,
 :host table.results tr th.medalScore {
     visibility: var(--medalScoreVisibility);
     min-width: var(--medalScoreWidth);
+}
+:host table.results.medalScore tr td.medalScore,
+:host table.results.medalScore tr th.medalScore {
+    padding-inline: calc(var(--tableFontSize) * 0.45);
 }
 table.results.nomedalScore td.medalScore,
 table.results.nomedalScore th.medalScore {
@@ -1200,16 +1206,25 @@ table.results.medalKgUp {
 :host table.results tr td.medalKgUp {
     background-color: var(--BackgroundColor);
     color: var(--TextColor);
+    font-variant-numeric: tabular-nums;
 }
 :host table.results tr td.medalKgTop,
 :host table.results tr th.medalKgTop {
     visibility: var(--medalKgTopVisibility);
     min-width: var(--medalKgTopWidth);
 }
+:host table.results.medalKgTop tr td.medalKgTop,
+:host table.results.medalKgTop tr th.medalKgTop {
+    padding-inline: calc(var(--tableFontSize) * 0.45);
+}
 :host table.results tr td.medalKgUp,
 :host table.results tr th.medalKgUp {
     visibility: var(--medalKgUpVisibility);
     min-width: var(--medalKgUpWidth);
+}
+:host table.results.medalKgUp tr td.medalKgUp,
+:host table.results.medalKgUp tr th.medalKgUp {
+    padding-inline: calc(var(--tableFontSize) * 0.45);
 }
 table.results.nomedalKgTop td.medalKgTop,
 table.results.nomedalKgTop th.medalKgTop,

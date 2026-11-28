@@ -180,7 +180,11 @@ table.results {
     font-style: italic;
 }
 
-:host table.results tr td.best,
+:host table.results tr td.best {
+    background-color: var(--BestBackgroundColor, var(--TotalBackgroundColor));
+    color: var(--BestTextColor, var(--TotalTextColor));
+}
+
 :host table.results tr td.total {
     background-color: var(--TotalBackgroundColor);
     color: var(--TotalTextColor);

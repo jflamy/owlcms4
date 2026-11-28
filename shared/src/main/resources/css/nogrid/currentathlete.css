@@ -105,6 +105,8 @@ div > div.attemptBar > div.attempts > table > tr > td.totalRank {
 
 .attemptBar .weight {
     color: var(--athleteAttemptWeightColor);
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
     grid-column: 5/6
 }
 

@@ -399,6 +399,8 @@ td.custom2 div {
     font-size: 105%;
     padding-bottom: 0.1em;
     margin-bottom: 0.4em;
+    background-color: var(--CategoryGroupBackgroundColor, var(--TitleBackgroundColor));
+    color: var(--CategoryGroupTextColor, var(--TitleTextColor));
 }
 
 /* No changes needed in this file based on the specific request for block/inline variants,
